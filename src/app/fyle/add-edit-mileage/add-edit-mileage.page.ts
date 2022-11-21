@@ -4,7 +4,7 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { combineLatest, concat, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
+import { combineLatest, concat, forkJoin, from, iif, Observable, of, Subscription, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -32,7 +32,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -69,6 +69,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -214,6 +215,8 @@ export class AddEditMileagePage implements OnInit {
 
   autoSubmissionReportName$: Observable<string>;
 
+  hardwareBackButtonAction: Subscription;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -252,7 +255,8 @@ export class AddEditMileagePage implements OnInit {
     private mileageRateService: MileageRatesService,
     private orgUserSettingsService: OrgUserSettingsService,
     private categoriesService: CategoriesService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private platform: Platform
   ) {}
 
   get showSaveAndNext() {
@@ -298,29 +302,11 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  async showCannotEditActivityDialog() {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Cannot Edit Activity Expense!',
-      // eslint-disable-next-line max-len
-      message:
-        'To edit this activity expense, you need to login to web version of Fyle app at <a href="https://in1.fylehq.com">https://in1.fylehq.com</a>',
-      primaryCta: {
-        text: 'Close',
-      },
-      showCancelButton: false,
-    });
-  }
-
   goToTransaction(expense, reviewList, activeIndex) {
     let category;
 
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
-    }
-
-    if (category === 'activity') {
-      this.showCannotEditActivityDialog();
-      return;
     }
 
     if (category === 'mileage') {
@@ -887,6 +873,13 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.showClosePopup();
+      }
+    );
+
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
     });
@@ -911,6 +904,7 @@ export class AddEditMileagePage implements OnInit {
 
     const today = new Date();
     this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.fg.reset();
     this.title = 'Add Mileage';
@@ -1284,18 +1278,24 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
-    const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.report_id,
-          this.reports$.pipe(
-            map((reportOptions) =>
-              reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
-            )
-          ),
-          of(null)
-        )
-      )
+    const selectedReport$ = forkJoin({
+      autoSubmissionReportName: this.autoSubmissionReportName$,
+      etxn: this.etxn$,
+      reportOptions: this.reports$,
+    }).pipe(
+      map(({ autoSubmissionReportName, etxn, reportOptions }) => {
+        if (etxn.tx.report_id) {
+          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
+        } else if (
+          !autoSubmissionReportName &&
+          reportOptions.length === 1 &&
+          reportOptions[0].value.rp.state === 'DRAFT'
+        ) {
+          return reportOptions[0].value;
+        } else {
+          return null;
+        }
+      })
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
@@ -1329,8 +1329,6 @@ export class AddEditMileagePage implements OnInit {
         }
       })
     );
-
-    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
@@ -2468,5 +2466,9 @@ export class AddEditMileagePage implements OnInit {
           this.policyDetails = policyDetails;
         });
     }
+  }
+
+  ionViewWillLeave() {
+    this.hardwareBackButtonAction.unsubscribe();
   }
 }

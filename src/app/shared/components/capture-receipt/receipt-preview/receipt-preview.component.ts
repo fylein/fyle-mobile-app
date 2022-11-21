@@ -9,6 +9,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -33,7 +34,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   activeIndex: number;
 
-  backButtonAction: Subscription;
+  hardwareBackButtonAction: Subscription;
 
   isCropModalOpen = false;
 
@@ -75,14 +76,17 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.backButtonAction = this.platform.backButton.subscribeWithPriority(200, () => {
-      this.retake();
-    });
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.HIGH,
+      () => {
+        this.closeModal();
+      }
+    );
     this.swiper.swiperRef.update();
   }
 
   ionViewWillLeave() {
-    this.backButtonAction.unsubscribe();
+    this.hardwareBackButtonAction.unsubscribe();
   }
 
   saveReceipt() {

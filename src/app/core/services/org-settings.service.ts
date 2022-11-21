@@ -77,13 +77,8 @@ export class OrgSettingsService {
     const accountingSettings: AccountingExportSettings = {};
 
     accountingSettings.allowed = accounting && accounting.allowed;
-
     if (accounting.type === 'TALLY') {
       accountingSettings.tally_settings = accounting.settings || {};
-      accountingSettings.tally_settings.enabled = accounting.enabled;
-      accountingSettings.tally_settings.blocked_payment_types = [];
-    } else if (accounting.type === 'QUICKBOOKS') {
-      accountingSettings.quick_books_settings = accounting.settings || {};
       accountingSettings.quick_books_settings.enabled = accounting.enabled;
     } else {
       accountingSettings.accounting_settings = accounting.settings;
@@ -229,7 +224,6 @@ export class OrgSettingsService {
       per_diem: incoming.per_diem_settings,
       payment_mode_settings: incoming.payment_mode_settings,
       access_delegation: incoming.org_access_delegation_settings,
-      activity: incoming.activity_settings,
       tax_settings: incoming.tax_settings,
       integrations_settings: incoming.integrations_settings,
       taxi_settings: incoming.taxi_settings,
