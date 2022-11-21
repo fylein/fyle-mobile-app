@@ -86,8 +86,6 @@ export class MyViewReportPage {
 
   objectType = 'reports';
 
-  objectId = this.activatedRoute.snapshot.params.id;
-
   isCommentAdded: boolean;
 
   unReportedEtxns: Expense[];
@@ -164,11 +162,12 @@ export class MyViewReportPage {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.reportId = this.activatedRoute.snapshot.params.id;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.erpt$ = this.loadReportDetails$.pipe(
       switchMap(() => this.loaderService.showLoader()),
-      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
+      switchMap(() => this.reportService.getReport(this.reportId)),
       tap(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -178,7 +177,7 @@ export class MyViewReportPage {
       startWith(0),
       switchMap(() => eou$),
       switchMap((eou) =>
-        this.statusService.find(this.objectType, this.objectId).pipe(
+        this.statusService.find(this.objectType, this.reportId).pipe(
           map((res) =>
             res.map((status) => {
               status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
@@ -221,7 +220,6 @@ export class MyViewReportPage {
 
     this.erpt$.subscribe((erpt) => {
       this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
-      this.reportId = erpt?.rp_id;
 
       //This is throwing ERROR for sent back reports, need to fix it
       //For sent back reports, show the comments section instead of expenses when opening the report
@@ -231,7 +229,7 @@ export class MyViewReportPage {
     });
 
     this.reportApprovals$ = this.reportService
-      .getApproversByReportId(this.activatedRoute.snapshot.params.id)
+      .getApproversByReportId(this.reportId)
       .pipe(map((reportApprovals) => reportApprovals));
 
     this.etxns$ = this.loadReportTxns$.pipe(
@@ -240,7 +238,7 @@ export class MyViewReportPage {
       switchMap((eou) =>
         this.transactionService.getAllETxnc({
           tx_org_user_id: 'eq.' + eou.ou.id,
-          tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
+          tx_report_id: 'eq.' + this.reportId,
           order: 'tx_txn_dt.desc,tx_id.desc',
         })
       ),
@@ -255,7 +253,7 @@ export class MyViewReportPage {
       tap(() => (this.isExpensesLoading = false))
     );
 
-    const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
+    const actions$ = this.reportService.actions(this.reportId).pipe(shareReplay(1));
 
     this.canEdit$ = actions$.pipe(map((actions) => actions.can_edit));
     this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
@@ -342,9 +340,7 @@ export class MyViewReportPage {
             ? null
             : 'Deleting the report will not delete any of the expenses.',
         deleteMethod: () =>
-          this.reportService
-            .delete(this.activatedRoute.snapshot.params.id)
-            .pipe(tap(() => this.trackingService.deleteReport())),
+          this.reportService.delete(this.reportId).pipe(tap(() => this.trackingService.deleteReport())),
       },
     });
 
@@ -451,7 +447,7 @@ export class MyViewReportPage {
 
     if (data && data.email) {
       const params = {
-        report_ids: [this.activatedRoute.snapshot.params.id],
+        report_ids: [this.reportId],
         email: data.email,
       };
       this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
@@ -520,7 +516,7 @@ export class MyViewReportPage {
       this.isCommentAdded = true;
 
       this.statusService
-        .post(this.objectType, this.objectId, data)
+        .post(this.objectType, this.reportId, data)
         .pipe()
         .subscribe((res) => {
           this.refreshEstatuses$.next();
@@ -532,7 +528,7 @@ export class MyViewReportPage {
   }
 
   addExpense() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.activatedRoute.snapshot.params.id }]);
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.reportId }]);
   }
 
   async showAddExpensesToReportModal() {
@@ -540,7 +536,7 @@ export class MyViewReportPage {
       component: AddExpensesToReportComponent,
       componentProps: {
         unReportedEtxns: this.unReportedEtxns,
-        reportId: this.activatedRoute.snapshot.params.id,
+        reportId: this.reportId,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -555,7 +551,7 @@ export class MyViewReportPage {
   }
 
   addEtxnsToReport(selectedEtxnIds: string[]) {
-    this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, selectedEtxnIds).subscribe(() => {
+    this.reportService.addTransactions(this.reportId, selectedEtxnIds).subscribe(() => {
       this.loadReportDetails$.next();
       this.loadReportTxns$.next();
       this.trackingService.addToExistingReport();
