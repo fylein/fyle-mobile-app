@@ -7,10 +7,11 @@ import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { Cacheable } from 'ts-cacheable';
 import { AccountOption } from '../models/account-option.model';
-import { Expense } from '../models/expense.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ExpenseType } from '../enums/expense-type.enum';
+import { Observable } from 'rxjs';
+import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,9 +24,9 @@ export class AccountsService {
   ) {}
 
   @Cacheable()
-  getEMyAccounts() {
+  getEMyAccounts(): Observable<ExtendedAccount[]> {
     return this.apiService.get('/eaccounts/').pipe(
-      map((accountsRaw: any[]) => {
+      map((accountsRaw: ExtendedAccount[]) => {
         const accounts = [];
 
         accountsRaw.forEach((accountRaw) => {
@@ -38,13 +39,13 @@ export class AccountsService {
     );
   }
 
-  //Filter user accounts by allowed payment modes and return an observable of allowed accounts
+  // Filter user accounts by allowed payment modes and return an observable of allowed accounts
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getPaymentModes(
     accounts: ExtendedAccount[],
     allowedPaymentModes: string[],
     config: {
-      etxn: any;
+      etxn: UnflattenedTransaction;
       orgSettings: any;
       expenseType: ExpenseType;
       isPaymentModeConfigurationsEnabled: boolean;
@@ -101,14 +102,14 @@ export class AccountsService {
     }));
   }
 
-  getAccountTypeFromPaymentMode(paymentMode: ExtendedAccount) {
+  getAccountTypeFromPaymentMode(paymentMode: ExtendedAccount): AccountType {
     if (paymentMode.acc.type === AccountType.PERSONAL && !paymentMode.acc.isReimbursable) {
       return AccountType.COMPANY;
     }
     return paymentMode.acc.type;
   }
 
-  getEtxnSelectedPaymentMode(etxn: any, paymentModes: AccountOption[]) {
+  getEtxnSelectedPaymentMode(etxn: UnflattenedTransaction, paymentModes: AccountOption[]): ExtendedAccount {
     if (etxn.tx.source_account_id) {
       return paymentModes
         .map((res) => res.value)
@@ -117,8 +118,12 @@ export class AccountsService {
     return null;
   }
 
-  //Add display name and isReimbursable properties to account object
-  setAccountProperties(account: ExtendedAccount, paymentMode: string, isMultipleAdvanceEnabled: boolean) {
+  // Add display name and isReimbursable properties to account object
+  setAccountProperties(
+    account: ExtendedAccount,
+    paymentMode: string,
+    isMultipleAdvanceEnabled: boolean
+  ): ExtendedAccount {
     const accountDisplayNameMapping = {
       PERSONAL_ACCOUNT: 'Personal Card/Cash',
       COMPANY_ACCOUNT: 'Paid by Company',
@@ -135,7 +140,10 @@ export class AccountsService {
     return accountCopy;
   }
 
-  getDefaultAccountFromUserPreference(paymentModes: AccountOption[], orgUserSettings: OrgUserSettings) {
+  getDefaultAccountFromUserPreference(
+    paymentModes: AccountOption[],
+    orgUserSettings: OrgUserSettings
+  ): ExtendedAccount {
     const hasCCCAccount = paymentModes.some((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
 
     const paidByCompanyAccount = paymentModes.find(
@@ -158,7 +166,7 @@ export class AccountsService {
     return personalAccount.value;
   }
 
-  private getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean) {
+  private getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean): string {
     let accountCurrency = account.currency;
     let accountBalance = account.acc.tentative_balance_amount;
     if (isMultipleAdvanceEnabled && account?.orig?.amount) {
@@ -169,7 +177,11 @@ export class AccountsService {
     return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
   }
 
-  private filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled, accountId?) {
+  private filterAccountsWithSufficientBalance(
+    accounts: ExtendedAccount[],
+    isAdvanceEnabled: boolean,
+    accountId?: string
+  ): ExtendedAccount[] {
     return accounts.filter(
       (account) =>
         // Personal Account and CCC account are considered to always have sufficient funds
@@ -232,9 +244,9 @@ export class AccountsService {
     allAccounts: ExtendedAccount[],
     allowedPaymentModes: string[],
     isMultipleAdvanceEnabled: boolean,
-    etxn?: any,
+    etxn?: UnflattenedTransaction,
     isMileageOrPerDiemExpense = false
-  ) {
+  ): ExtendedAccount[] {
     //Mileage and per diem expenses cannot have PCCC as a payment mode
     if (isMileageOrPerDiemExpense) {
       allowedPaymentModes = allowedPaymentModes.filter((allowedPaymentMode) => allowedPaymentMode !== AccountType.CCC);
@@ -270,8 +282,8 @@ export class AccountsService {
     });
   }
 
-  //`Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
-  private checkIfEtxnHasSamePaymentMode(etxn: any, paymentMode: ExtendedAccount): boolean {
+  // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
+  private checkIfEtxnHasSamePaymentMode(etxn: UnflattenedTransaction, paymentMode: ExtendedAccount): boolean {
     if (etxn.source.account_type === AccountType.PERSONAL) {
       return (
         paymentMode.acc.id === etxn.tx.source_account_id &&
