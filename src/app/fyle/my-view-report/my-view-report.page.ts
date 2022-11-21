@@ -48,10 +48,6 @@ export class MyViewReportPage {
 
   reportApprovals$: Observable<any>;
 
-  hideAllExpenses = true;
-
-  sharedWithLimit = 3;
-
   canEdit$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
@@ -95,8 +91,6 @@ export class MyViewReportPage {
   isCommentAdded: boolean;
 
   unReportedEtxns: Expense[];
-
-  addedExpensesIdList = [];
 
   reportEtxnIds: string[];
 
