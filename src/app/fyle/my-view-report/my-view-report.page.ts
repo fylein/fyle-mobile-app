@@ -550,6 +550,7 @@ export class MyViewReportPage {
   }
 
   addEtxnsToReport(selectedEtxnIds: string[]) {
+    this.isExpensesLoading = true;
     this.reportService.addTransactions(this.reportId, selectedEtxnIds).subscribe(() => {
       this.loadReportDetails$.next();
       this.loadReportTxns$.next();
