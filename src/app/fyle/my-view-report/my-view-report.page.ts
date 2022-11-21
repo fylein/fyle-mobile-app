@@ -1,9 +1,9 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { Observable, from, noop, concat, Subject, iif, of, forkJoin, BehaviorSubject } from 'rxjs';
+import { Observable, from, noop, concat, Subject, forkJoin, BehaviorSubject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, switchMap, finalize, shareReplay, takeUntil, tap, startWith, take } from 'rxjs/operators';
+import { map, switchMap, shareReplay, takeUntil, tap, startWith, take, delay } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -218,10 +218,9 @@ export class MyViewReportPage {
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
 
-    this.erpt$.subscribe((erpt) => {
+    this.erpt$.pipe(take(1), delay(100)).subscribe((erpt) => {
       this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
 
-      //This is throwing ERROR for sent back reports, need to fix it
       //For sent back reports, show the comments section instead of expenses when opening the report
       if (erpt.rp_state === 'APPROVER_INQUIRY') {
         this.ionSegment.value = 'comments';
