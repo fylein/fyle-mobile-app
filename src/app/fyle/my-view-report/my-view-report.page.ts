@@ -69,8 +69,6 @@ export class MyViewReportPage {
 
   reportCurrencySymbol = '';
 
-  reportName: string;
-
   isCommentsView = false;
 
   isHistoryView = false;
@@ -102,8 +100,6 @@ export class MyViewReportPage {
   unReportedEtxns: Expense[];
 
   addedExpensesIdList = [];
-
-  deleteExpensesIdList = [];
 
   reportEtxnIds: string[];
 
@@ -235,9 +231,9 @@ export class MyViewReportPage {
 
     this.erpt$.subscribe((erpt) => {
       this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
-      this.reportName = erpt?.rp_purpose;
       this.reportId = erpt?.rp_id;
 
+      //This is throwing ERROR for sent back reports, need to fix it
       //For sent back reports, show the comments section instead of expenses when opening the report
       if (erpt.rp_state === 'APPROVER_INQUIRY') {
         this.ionSegment.value = 'comments';
@@ -572,50 +568,16 @@ export class MyViewReportPage {
     await AddExpensesToReportModal.present();
 
     const { data } = await AddExpensesToReportModal.onWillDismiss();
-    if (data && data.selectedTxnIds) {
-      this.addedExpensesIdList = data.selectedTxnIds;
-      this.saveReport();
+    if (data?.selectedTxnIds?.length > 0) {
+      this.addEtxnsToReport(data.selectedTxnIds);
     }
   }
 
-  //Not needed
-  removeTxnFromReport() {
-    const removeTxnList$ = [];
-    this.deleteExpensesIdList.forEach((txnId) => {
-      removeTxnList$.push(this.reportService.removeTransaction(this.activatedRoute.snapshot.params.id, txnId));
+  addEtxnsToReport(selectedEtxnIds: string[]) {
+    this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, selectedEtxnIds).subscribe(() => {
+      this.loadReportDetails$.next();
+      this.loadReportTxns$.next();
+      this.trackingService.addToExistingReport();
     });
-
-    return forkJoin(removeTxnList$);
-  }
-
-  //Can refactor this entire method to just make call to update report transactions
-  saveReport() {
-    const report = {
-      purpose: this.reportName,
-      id: this.activatedRoute.snapshot.params.id,
-    };
-
-    this.reportService
-      .createDraft(report)
-      .pipe(
-        switchMap((res) =>
-          iif(
-            () => this.addedExpensesIdList.length > 0,
-            this.reportService
-              .addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList)
-              .pipe(tap(() => this.trackingService.addToExistingReport())),
-            of(false)
-          )
-        ),
-        switchMap((res) => iif(() => this.deleteExpensesIdList.length > 0, this.removeTxnFromReport(), of(false))),
-        finalize(() => {
-          this.loadReportDetails$.next();
-          this.loadReportTxns$.next();
-          this.addedExpensesIdList = [];
-          this.deleteExpensesIdList = [];
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
-        })
-      )
-      .subscribe(noop);
   }
 }
