@@ -8,7 +8,6 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent, IonSegment } from '@ionic/angular';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
@@ -46,8 +45,6 @@ export class MyViewReportPage {
   erpt$: Observable<ExtendedReport>;
 
   etxns$: Observable<Expense[]>;
-
-  sharedWith$: Observable<any[]>;
 
   reportApprovals$: Observable<any>;
 
@@ -118,7 +115,6 @@ export class MyViewReportPage {
     private authService: AuthService,
     private loaderService: LoaderService,
     private router: Router,
-    private popupService: PopupService,
     private popoverController: PopoverController,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
@@ -239,15 +235,6 @@ export class MyViewReportPage {
         this.ionSegment.value = 'comments';
       }
     });
-
-    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
-      map((pdfExports) =>
-        pdfExports.results
-          .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
-          .map((pdfExport) => pdfExport.sent_to)
-          .filter((item, index, inputArray) => inputArray.indexOf(item) === index)
-      )
-    );
 
     this.reportApprovals$ = this.reportService
       .getApproversByReportId(this.activatedRoute.snapshot.params.id)
