@@ -19,6 +19,15 @@
       top: -6px;
       left: -8px;
     }
+
+    &__advance {
+      color: $grey-light;
+      position: relative;
+      top: -6px;
+      left: -8px;
+      height: 48px;
+      width: 48px;
+    }
   }
 
   &--row {

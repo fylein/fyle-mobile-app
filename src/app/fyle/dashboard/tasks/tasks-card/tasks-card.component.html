@@ -13,7 +13,8 @@
                 class="task--icon"
                 [ngClass]="{
                   'task--icon__warning': task.icon === 'warning-new',
-                  'task--icon__expense': task.icon === 'fy-expense'
+                  'task--icon__expense': task.icon === 'fy-expense',
+                  'task--icon__advance': task.icon === 'advances'
                 }"
                 [src]="'../../../../../assets/svg/' + task.icon + '.svg'"
               ></ion-icon>
