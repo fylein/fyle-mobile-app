@@ -26,7 +26,7 @@ export class PolicyService {
       merchant: transaction?.vendor,
       foreign_currency: transaction?.orig_currency,
       foreign_amount: transaction?.orig_amount,
-      claim_amount: transaction?.amount,
+      claim_amount: [null, undefined].includes(transaction?.amount) ? 0 : transaction?.amount, // Hack alert: This is done because instafyle may not have amount.
       purpose: transaction?.purpose,
       cost_center_id: transaction?.cost_center_id,
       category_id: transaction?.org_category_id,
