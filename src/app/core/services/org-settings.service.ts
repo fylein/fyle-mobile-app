@@ -79,7 +79,8 @@ export class OrgSettingsService {
     accountingSettings.allowed = accounting && accounting.allowed;
     if (accounting.type === 'TALLY') {
       accountingSettings.tally_settings = accounting.settings || {};
-      accountingSettings.quick_books_settings.enabled = accounting.enabled;
+    } else if (accounting.type === 'QUICKBOOKS') {
+      accountingSettings.quick_books_settings = accounting.settings || {};
     } else {
       accountingSettings.accounting_settings = accounting.settings;
     }
