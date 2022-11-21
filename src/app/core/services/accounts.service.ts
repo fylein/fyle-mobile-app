@@ -27,7 +27,7 @@ export class AccountsService {
   getEMyAccounts(): Observable<ExtendedAccount[]> {
     return this.apiService.get('/eaccounts/').pipe(
       map((accountsRaw: ExtendedAccount[]) => {
-        const accounts = [];
+        const accounts: ExtendedAccount[] = [];
 
         accountsRaw.forEach((accountRaw) => {
           const account = this.dataTransformService.unflatten(accountRaw);
