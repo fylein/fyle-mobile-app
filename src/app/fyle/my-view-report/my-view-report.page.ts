@@ -323,7 +323,7 @@ export class MyViewReportPage {
   }
 
   deleteReport() {
-    this.erpt$.subscribe((res) => this.deleteReportPopup(res));
+    this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
   async deleteReportPopup(erpt) {
@@ -406,7 +406,7 @@ export class MyViewReportPage {
       }
     }
     if (canEdit) {
-      this.erpt$.subscribe((erpt) =>
+      this.erpt$.pipe(take(1)).subscribe((erpt) =>
         this.router.navigate([
           route,
           {
