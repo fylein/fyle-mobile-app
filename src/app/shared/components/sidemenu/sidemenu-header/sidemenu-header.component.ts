@@ -1,4 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Router } from '@angular/router';
+import { MenuController } from '@ionic/angular';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
 
@@ -12,7 +14,12 @@ export class SidemenuHeaderComponent implements OnInit {
 
   @Input() activeOrg: Org;
 
-  constructor() {}
+  constructor(private router: Router, private menuController: MenuController) {}
+
+  onClickProfile() {
+    this.router.navigate(['/', 'enterprise', 'my_profile']);
+    this.menuController.close();
+  }
 
   ngOnInit(): void {}
 }
