@@ -111,7 +111,9 @@ export class MyViewReportPage {
 
   reportId: string;
 
-  loadReport$ = new BehaviorSubject<void>(null);
+  loadReportDetails$ = new BehaviorSubject<void>(null);
+
+  loadReportTxns$ = new BehaviorSubject<void>(null);
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -178,7 +180,7 @@ export class MyViewReportPage {
     this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.erpt$ = this.loadReport$.pipe(
+    this.erpt$ = this.loadReportDetails$.pipe(
       switchMap(() => this.loaderService.showLoader()),
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
       tap(() => from(this.loaderService.hideLoader())),
@@ -255,7 +257,7 @@ export class MyViewReportPage {
       .getApproversByReportId(this.activatedRoute.snapshot.params.id)
       .pipe(map((reportApprovals) => reportApprovals));
 
-    this.etxns$ = this.loadReport$.pipe(
+    this.etxns$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
       switchMap(() => this.authService.getEou()),
       switchMap((eou) =>
@@ -310,18 +312,16 @@ export class MyViewReportPage {
       .subscribe(noop);
   }
 
-  //This method needs to be fixed
   updateReportName(reportName: string) {
     this.erpt$
       .pipe(
         take(1),
-        tap(() => this.loaderService.showLoader()),
-        switchMap((erpt) => this.reportService.updateReportDetails(erpt)),
-        finalize(() => this.loaderService.hideLoader())
+        switchMap((erpt) => {
+          erpt.rp_purpose = reportName;
+          return this.reportService.updateReportDetails(erpt);
+        })
       )
-      .subscribe(() => {
-        this.reportName = reportName;
-      });
+      .subscribe(() => this.loadReportDetails$.next());
   }
 
   async editReportName() {
@@ -609,7 +609,8 @@ export class MyViewReportPage {
         ),
         switchMap((res) => iif(() => this.deleteExpensesIdList.length > 0, this.removeTxnFromReport(), of(false))),
         finalize(() => {
-          this.loadReport$.next();
+          this.loadReportDetails$.next();
+          this.loadReportTxns$.next();
           this.addedExpensesIdList = [];
           this.deleteExpensesIdList = [];
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
