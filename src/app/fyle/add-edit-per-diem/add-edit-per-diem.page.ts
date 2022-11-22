@@ -65,9 +65,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
-import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
-import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
@@ -1517,16 +1514,50 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
-    const transactionCopy = cloneDeep(etxn.tx);
+  checkPolicyViolation(etxn) {
+    // Prepare etxn object with just tx and ou object required for test call
+    return from(this.authService.getEou()).pipe(
+      switchMap((currentEou) => {
+        const policyETxn = {
+          tx: cloneDeep(etxn.tx),
+          ou: cloneDeep(etxn.ou),
+        };
 
-    /* Expense creation has not moved to platform yet and since policy is moved to platform,
-     * it expects the expense object in terms of platform world. Until then, the method
-     * `transformTo` act as a bridge by translating the public expense object to platform
-     * expense.
-     */
-    const policyExpense = this.policyService.transformTo(transactionCopy);
-    return this.transactionService.checkPolicy(policyExpense);
+        if (!etxn.tx.id) {
+          policyETxn.ou = currentEou.ou;
+        }
+        /* Adding number of attachements and sending in test call as tx_num_files
+         * If editing an expense with receipts, check for already uploaded receipts
+         */
+        if (etxn.tx) {
+          policyETxn.tx.num_files = etxn.tx.num_files;
+
+          // Check for receipts uploaded from mobile
+          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
+            policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
+          }
+        }
+
+        return this.categoriesService.getAll().pipe(
+          map((categories: any[]) => {
+            // policy engine expects org_category and sub_category fields
+            if (policyETxn.tx.org_category_id) {
+              const orgCategory = categories.find((cat) => cat.id === policyETxn.tx.org_category_id);
+              policyETxn.tx.org_category = orgCategory && orgCategory.name;
+              policyETxn.tx.sub_category = orgCategory && orgCategory.sub_category;
+            } else {
+              policyETxn.tx.org_category_id = null;
+              policyETxn.tx.sub_category = null;
+              policyETxn.tx.org_category = null;
+            }
+
+            // Flatten the etxn obj
+            return this.dataTransformService.etxnRaw(policyETxn);
+          })
+        );
+      }),
+      switchMap((policyETxn) => this.transactionService.testPolicy(policyETxn))
+    );
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
@@ -1546,12 +1577,12 @@ export class AddEditPerDiemPage implements OnInit {
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
+  async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
-        policyAction,
+        policyActionDescription,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -1604,16 +1635,18 @@ export class AddEditPerDiemPage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+                map((policyViolations: any) => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations?.data?.final_desired_state,
+                  policyViolations &&
+                    policyViolations.transaction_desired_state &&
+                    policyViolations.transaction_desired_state.action_description,
                 ]),
-                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
+                switchMap(([policyViolations, policyActionDescription]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyAction,
+                      policyActionDescription,
                       etxn,
                     });
                   } else {
@@ -1644,7 +1677,7 @@ export class AddEditPerDiemPage implements OnInit {
           );
         } else if (err.type === 'policyViolations') {
           return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
+            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -1771,16 +1804,18 @@ export class AddEditPerDiemPage implements OnInit {
               return policyViolations$;
             }
           }),
-          map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+          map((policyViolations: any) => [
             this.policyService.getPolicyRules(policyViolations),
-            policyViolations?.data?.final_desired_state,
+            policyViolations &&
+              policyViolations.transaction_desired_state &&
+              policyViolations.transaction_desired_state.action_description,
           ]),
-          switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
+          switchMap(([policyViolations, policyActionDescription]) => {
             if (policyViolations.length > 0) {
               return throwError({
                 type: 'policyViolations',
                 policyViolations,
-                policyAction,
+                policyActionDescription,
                 etxn,
               });
             } else {
@@ -1804,7 +1839,7 @@ export class AddEditPerDiemPage implements OnInit {
             })
           );
         } else if (err.type === 'policyViolations') {
-          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
+          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
