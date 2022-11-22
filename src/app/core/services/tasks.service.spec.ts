@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { cloneDeep } from 'lodash';
 import { filter, of, reduce, Subject, switchMap, take } from 'rxjs';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { TASKEVENT } from '../models/task-event.enum';
 import { TaskIcon } from '../models/task-icon.enum';
 import {
   allExtendedReportsResponse,
@@ -47,7 +48,7 @@ fdescribe('TasksService', () => {
     ctas: [
       {
         content: 'Review Expenses',
-        event: 3,
+        event: TASKEVENT.reviewExpenses,
       },
     ],
   };
@@ -61,7 +62,7 @@ fdescribe('TasksService', () => {
     ctas: [
       {
         content: 'Review',
-        event: 6,
+        event: TASKEVENT.openPotentialDuplicates,
       },
     ],
   };
@@ -75,7 +76,7 @@ fdescribe('TasksService', () => {
     ctas: [
       {
         content: 'Show Reports',
-        event: 5,
+        event: TASKEVENT.openTeamReport,
       },
     ],
   };
@@ -89,7 +90,7 @@ fdescribe('TasksService', () => {
     ctas: [
       {
         content: 'View Report',
-        event: 2,
+        event: TASKEVENT.openSentBackReport,
       },
     ],
   };
@@ -103,11 +104,11 @@ fdescribe('TasksService', () => {
     ctas: [
       {
         content: 'Create New Report',
-        event: 0,
+        event: TASKEVENT.expensesCreateNewReport,
       },
       {
         content: 'Add to Existing Report',
-        event: 1,
+        event: TASKEVENT.expensesAddToReport,
       },
     ],
   };
@@ -121,7 +122,7 @@ fdescribe('TasksService', () => {
     ctas: [
       {
         content: 'Submit Reports',
-        event: 4,
+        event: TASKEVENT.openDraftReports,
       },
     ],
   };
@@ -135,7 +136,7 @@ fdescribe('TasksService', () => {
     ctas: [
       {
         content: 'View Advances',
-        event: 7,
+        event: TASKEVENT.openSentBackAdvance,
       },
     ],
   };
@@ -642,7 +643,7 @@ fdescribe('TasksService', () => {
         totalCount: 1,
         totalAmount: totalCount,
       },
-      'INR',
+      homeCurrency,
       []
     );
     expect(tasks[0].subheader).toEqual('1 expense  worth ₹142.26K  can be added to a report');
@@ -654,7 +655,7 @@ fdescribe('TasksService', () => {
         totalAmount: 0,
         totalCount: 0,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(tasks).toEqual([]);
@@ -664,7 +665,7 @@ fdescribe('TasksService', () => {
         totalAmount: 0,
         totalCount: 0,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(tasks2).toEqual([]);
@@ -674,7 +675,7 @@ fdescribe('TasksService', () => {
         totalAmount: 0,
         totalCount: 0,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(tasks3).toEqual([]);
@@ -684,7 +685,7 @@ fdescribe('TasksService', () => {
         totalAmount: 0,
         totalCount: 0,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(tasks4).toEqual([]);
@@ -694,7 +695,7 @@ fdescribe('TasksService', () => {
         totalAmount: 0,
         totalCount: 0,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(tasks5).toEqual([]);
@@ -704,7 +705,7 @@ fdescribe('TasksService', () => {
         totalCount: 0,
         totalAmount: 0,
       },
-      'INR',
+      homeCurrency,
       []
     );
 
@@ -871,7 +872,7 @@ fdescribe('TasksService', () => {
         totalCount: 1,
         totalAmount: sentBackAdvancesResponse[0].aggregates[1].function_value,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(sentBackAdvanceTask).toEqual([
@@ -884,7 +885,7 @@ fdescribe('TasksService', () => {
         ctas: [
           {
             content: 'View Advance',
-            event: 7,
+            event: TASKEVENT.openSentBackAdvance,
           },
         ],
       },
@@ -904,7 +905,7 @@ fdescribe('TasksService', () => {
         totalCount: 2,
         totalAmount: sentBackResponse[0].aggregates[1].function_value,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(sentBackReportTask).toEqual([
@@ -917,7 +918,7 @@ fdescribe('TasksService', () => {
         ctas: [
           {
             content: 'View Reports',
-            event: 2,
+            event: TASKEVENT.openSentBackReport,
           },
         ],
       },
@@ -937,7 +938,7 @@ fdescribe('TasksService', () => {
         totalCount: 1,
         totalAmount: incompleteExpensesResponse[0].aggregates[1].function_value,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(tasks).toEqual([
@@ -950,7 +951,7 @@ fdescribe('TasksService', () => {
         ctas: [
           {
             content: 'Review Expense',
-            event: 3,
+            event: TASKEVENT.reviewExpenses,
           },
         ],
       },
@@ -967,7 +968,7 @@ fdescribe('TasksService', () => {
         totalAmount: unsubmittedReportsResponse[0].aggregates[1].function_value,
         totalCount: 1,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(tasks).toEqual([
@@ -980,7 +981,7 @@ fdescribe('TasksService', () => {
         ctas: [
           {
             content: 'Submit Report',
-            event: 4,
+            event: TASKEVENT.openDraftReports,
           },
         ],
       },
@@ -1000,7 +1001,7 @@ fdescribe('TasksService', () => {
         totalAmount: teamReportResponse[0].aggregates[1].function_value,
         totalCount: 1,
       },
-      'INR'
+      homeCurrency
     );
 
     expect(tasks).toEqual([
@@ -1013,7 +1014,7 @@ fdescribe('TasksService', () => {
         ctas: [
           {
             content: 'Show Report',
-            event: 5,
+            event: TASKEVENT.openTeamReport,
           },
         ],
       },
