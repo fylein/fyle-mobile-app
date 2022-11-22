@@ -13,12 +13,12 @@ export class SidemenuHeaderComponent implements OnInit {
 
   @Input() activeOrg: Org;
 
-  @Output() profileClick = new EventEmitter();
+  @Output() profileClicked = new EventEmitter();
 
   constructor() {}
 
-  onClickProfile(event: Event) {
-    this.profileClick.emit(event);
+  onProfileClicked(event: Event) {
+    this.profileClicked.emit(event);
   }
 
   ngOnInit(): void {}

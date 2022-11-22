@@ -374,7 +374,7 @@ export class SidemenuComponent implements OnInit {
     ].filter((sidemenuItem) => sidemenuItem.isVisible);
   }
 
-  goToProfile(event) {
+  goToProfile(event: Event) {
     if (event.isTrusted) {
       this.router.navigate(['/', 'enterprise', 'my_profile']);
       this.menuController.close();
