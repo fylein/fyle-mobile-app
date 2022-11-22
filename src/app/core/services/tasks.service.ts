@@ -57,7 +57,7 @@ export class TasksService {
   refreshOnTaskClear(): void {
     this.userEventService.onTaskCacheClear(() => {
       this.reportService.getReportAutoSubmissionDetails().subscribe((autoSubmissionReportDetails) => {
-        const isReportAutoSubmissionScheduled = false;
+        const isReportAutoSubmissionScheduled = !!autoSubmissionReportDetails?.data?.next_at;
         this.getTasks(isReportAutoSubmissionScheduled).subscribe(noop);
       });
     });
@@ -415,10 +415,8 @@ export class TasksService {
       reportsStats: this.getSentBackReports(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(
-        ({ reportsStats, homeCurrency }) =>
-          this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency),
-        tap(console.log)
+      map(({ reportsStats, homeCurrency }) =>
+        this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
   }
@@ -447,8 +445,7 @@ export class TasksService {
     }).pipe(
       map(({ advancesStats, homeCurrency }) =>
         this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
-      ),
-      tap(console.log)
+      )
     );
   }
 
@@ -477,18 +474,18 @@ export class TasksService {
     }).pipe(
       map(({ reportsStats, homeCurrency }) =>
         this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
-      ),
-      tap(console.log)
+      )
     );
   }
 
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
-    return this.handleDuplicatesService.getDuplicateSets().pipe(
-      switchMap((duplicateSets) =>
-        duplicateSets?.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : of([])
-      ),
-      tap(console.log)
-    );
+    return this.handleDuplicatesService
+      .getDuplicateSets()
+      .pipe(
+        switchMap((duplicateSets) =>
+          duplicateSets?.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : of([])
+        )
+      );
   }
 
   mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]) {
@@ -525,8 +522,7 @@ export class TasksService {
     }).pipe(
       map(({ reportsStats, homeCurrency }) =>
         this.mapAggregateToUnsubmittedReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
-      ),
-      tap(console.log)
+      )
     );
   }
 
@@ -570,8 +566,7 @@ export class TasksService {
           homeCurrency,
           openReports
         )
-      ),
-      tap(console.log)
+      )
     );
   }
 
@@ -590,8 +585,7 @@ export class TasksService {
     }).pipe(
       map(({ transactionStats, homeCurrency }) =>
         this.mapAggregateToDraftExpensesTask(this.mapScalarStatsResponse(transactionStats), homeCurrency)
-      ),
-      tap(console.log)
+      )
     );
   }
 

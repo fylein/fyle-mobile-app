@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { cloneDeep } from 'lodash';
-import { of, Subject, take } from 'rxjs';
+import { filter, of, reduce, Subject, switchMap, take } from 'rxjs';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { TaskIcon } from '../models/task-icon.enum';
 import {
@@ -648,6 +648,176 @@ fdescribe('TasksService', () => {
     expect(tasks[0].subheader).toEqual('1 expense  worth ₹142.26K  can be added to a report');
   });
 
+  it('should not be generating tasks when no corresponding data is present', () => {
+    const tasks = tasksService.mapAggregateToDraftExpensesTask(
+      {
+        totalAmount: 0,
+        totalCount: 0,
+      },
+      'INR'
+    );
+
+    expect(tasks).toEqual([]);
+
+    const tasks2 = tasksService.mapAggregateToTeamReportTask(
+      {
+        totalAmount: 0,
+        totalCount: 0,
+      },
+      'INR'
+    );
+
+    expect(tasks2).toEqual([]);
+
+    const tasks3 = tasksService.mapAggregateToUnsubmittedReportTask(
+      {
+        totalAmount: 0,
+        totalCount: 0,
+      },
+      'INR'
+    );
+
+    expect(tasks3).toEqual([]);
+
+    const tasks4 = tasksService.mapSentBackAdvancesToTasks(
+      {
+        totalAmount: 0,
+        totalCount: 0,
+      },
+      'INR'
+    );
+
+    expect(tasks4).toEqual([]);
+
+    const tasks5 = tasksService.mapSentBackReportsToTasks(
+      {
+        totalAmount: 0,
+        totalCount: 0,
+      },
+      'INR'
+    );
+
+    expect(tasks5).toEqual([]);
+
+    const tasks6 = tasksService.mapAggregateToUnreportedExpensesTask(
+      {
+        totalCount: 0,
+        totalAmount: 0,
+      },
+      'INR',
+      []
+    );
+
+    expect(tasks6).toEqual([]);
+  });
+
+  it('should not generate unreported expenses tasks when report autosubmission is scheduled', (done) => {
+    tasksService.getUnreportedExpensesTasks(true).subscribe((tasks) => {
+      expect(tasks).toEqual([]);
+      done();
+    });
+  });
+
+  it('should not generate unsubmitted reports tasks when report autosubmission is scheduled', (done) => {
+    tasksService.getUnsubmittedReportsTasks(true).subscribe((tasks) => {
+      expect(tasks).toEqual([]);
+      done();
+    });
+  });
+
+  it('should be able to handle null reponse from potential duplicates get call', (done) => {
+    handleDuplicatesService.getDuplicateSets.and.returnValue(of(null));
+    tasksService.getPotentialDuplicatesTasks().subscribe((tasks) => {
+      expect(tasks).toEqual([]);
+      done();
+    });
+  });
+
+  function setupData() {
+    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+    advanceRequestService.getMyAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
+    setupUnsibmittedReportsResponse();
+    getUnreportedExpenses();
+    reportService.getReportStatsData
+      .withArgs({
+        scalar: true,
+        aggregates: 'count(rp_id),sum(rp_amount)',
+        rp_state: 'in.(APPROVER_INQUIRY)',
+      })
+      .and.returnValue(of(sentBackResponse));
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
+    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+    reportService.getReportStatsData
+      .withArgs(
+        {
+          approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
+          rp_approval_state: ['in.(APPROVAL_PENDING)'],
+          rp_state: ['in.(APPROVER_PENDING)'],
+          sequential_approval_turn: ['in.(true)'],
+          aggregates: 'count(rp_id),sum(rp_amount)',
+          scalar: true,
+        },
+        false
+      )
+      .and.returnValue(of(teamReportResponse));
+    handleDuplicatesService.getDuplicateSets.and.returnValue(of(potentialDuplicatesApiResponse));
+    transactionService.getTransactionStats
+      .withArgs('count(tx_id),sum(tx_amount)', {
+        scalar: true,
+        tx_state: 'in.(DRAFT)',
+        tx_report_id: 'is.null',
+      })
+      .and.returnValue(of(incompleteExpensesResponse));
+  }
+
+  it('should be able to fetch tasks with no filters', (done) => {
+    setupData();
+    tasksService.getTasks().subscribe((tasks) => {
+      expect(tasks.map((task) => task.header)).toEqual([
+        '34 Potential Duplicates',
+        'Report sent back!',
+        'Incomplete expenses',
+        'Unsubmitted reports',
+        'Unreported',
+        'Reports to be approved',
+        'Advances sent back!',
+      ]);
+      done();
+    });
+  });
+
+  it('should be able to fetch tasks with filters', (done) => {
+    setupData();
+    tasksService
+      .getTasks(false, {
+        draftExpenses: false,
+        draftReports: false,
+        potentialDuplicates: false,
+        sentBackAdvances: true,
+        sentBackReports: false,
+        teamReports: false,
+        unreportedExpenses: false,
+      })
+      .subscribe((tasks) => {
+        expect(tasks.map((task) => task.header)).toEqual(['Advances sent back!']);
+        done();
+      });
+  });
+
+  it('should skip  unreported expenses & unsubmitted reports when automate report submission is enabled', (done) => {
+    setupData();
+    tasksService.getTasks(true).subscribe((tasks) => {
+      expect(tasks.map((task) => task.header)).toEqual([
+        '34 Potential Duplicates',
+        'Report sent back!',
+        'Incomplete expenses',
+        'Reports to be approved',
+        'Advances sent back!',
+      ]);
+      done();
+    });
+  });
+
   it('should make sure that stats dont fail even if aggregates are not present in response', () => {
     const mappedStatsReponse = tasksService.getStatsFromResponse([], 'count(rp_id)', 'sum(rp_amount)');
     expect(mappedStatsReponse).toEqual({
@@ -656,23 +826,223 @@ fdescribe('TasksService', () => {
     });
   });
 
-  // it('should be able to refresh tasks on clearing task cache', () => {
-  //   userEventService.onTaskCacheClear.and.callFake((refreshCallback) => {
-  //     return mockTaskClearSubject.subscribe(() => {
-  //       refreshCallback();
-  //     });
-  //   });
+  it('should be able to refresh tasks on clearing task cache when automate report submission is scheduled', (done) => {
+    userEventService.onTaskCacheClear.and.callFake((refreshCallback) => {
+      return mockTaskClearSubject.subscribe(() => {
+        refreshCallback();
+      });
+    });
 
-  //   setupDefaultResponses();
+    reportService.getReportAutoSubmissionDetails.and.returnValue(
+      of({
+        data: {
+          next_at: new Date(20, 12, 2022),
+        },
+      })
+    );
 
-  //   tasksService.refreshOnTaskClear();
+    setupData();
 
-  //   mockTaskClearSubject.next(null);
+    tasksService.refreshOnTaskClear();
 
-  //   reportService.getReportAutoSubmissionDetails.and.returnValue(of({
-  //     data: {
-  //       next_at: new Date(20,12,2022)
-  //     }
-  //   }));
-  // });
+    mockTaskClearSubject.next(null);
+
+    tasksService.totalTaskCount$
+      .pipe(
+        filter((count) => count === 5),
+        take(1)
+      )
+      .subscribe((count) => {
+        expect(count).toEqual(5);
+        done();
+      });
+  });
+
+  it('should generate proper content in all cases for sent back advances', () => {
+    humanizeCurrencyPipe.transform
+      .withArgs(sentBackAdvancesResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .and.returnValue('123.37M');
+    humanizeCurrencyPipe.transform
+      .withArgs(sentBackAdvancesResponse[0].aggregates[1].function_value, homeCurrency)
+      .and.returnValue('₹123.37M');
+
+    const sentBackAdvanceTask = tasksService.mapSentBackAdvancesToTasks(
+      {
+        totalCount: 1,
+        totalAmount: sentBackAdvancesResponse[0].aggregates[1].function_value,
+      },
+      'INR'
+    );
+
+    expect(sentBackAdvanceTask).toEqual([
+      {
+        amount: '123.37M',
+        count: 1,
+        header: 'Advance sent back!',
+        subheader: '1 advance worth ₹123.37M  was sent back by your approver',
+        icon: TaskIcon.ADVANCE,
+        ctas: [
+          {
+            content: 'View Advance',
+            event: 7,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should generate proper content in all cases for sent back reports', () => {
+    humanizeCurrencyPipe.transform
+      .withArgs(sentBackResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .and.returnValue('44.53');
+    humanizeCurrencyPipe.transform
+      .withArgs(sentBackResponse[0].aggregates[1].function_value, homeCurrency)
+      .and.returnValue('₹44.53');
+
+    const sentBackReportTask = tasksService.mapSentBackReportsToTasks(
+      {
+        totalCount: 2,
+        totalAmount: sentBackResponse[0].aggregates[1].function_value,
+      },
+      'INR'
+    );
+
+    expect(sentBackReportTask).toEqual([
+      {
+        amount: '44.53',
+        count: 2,
+        header: 'Reports sent back!',
+        subheader: '2 reports worth ₹44.53  were sent back by your approver',
+        icon: TaskIcon.REPORT,
+        ctas: [
+          {
+            content: 'View Reports',
+            event: 2,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should generate proper content in all cases of draft expenses tasks', () => {
+    humanizeCurrencyPipe.transform
+      .withArgs(incompleteExpensesResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .and.returnValue('132.57B');
+    humanizeCurrencyPipe.transform
+      .withArgs(incompleteExpensesResponse[0].aggregates[1].function_value, homeCurrency)
+      .and.returnValue('₹132.57B');
+
+    const tasks = tasksService.mapAggregateToDraftExpensesTask(
+      {
+        totalCount: 1,
+        totalAmount: incompleteExpensesResponse[0].aggregates[1].function_value,
+      },
+      'INR'
+    );
+
+    expect(tasks).toEqual([
+      {
+        amount: '132.57B',
+        count: 1,
+        header: 'Incomplete expense',
+        subheader: '1 expense worth ₹132.57B  require additional information',
+        icon: TaskIcon.WARNING,
+        ctas: [
+          {
+            content: 'Review Expense',
+            event: 3,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should generate proper content in all cases of unsibmitted report tasks', () => {
+    humanizeCurrencyPipe.transform
+      .withArgs(unsubmittedReportsResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .and.returnValue('0.00');
+
+    const tasks = tasksService.mapAggregateToUnsubmittedReportTask(
+      {
+        totalAmount: unsubmittedReportsResponse[0].aggregates[1].function_value,
+        totalCount: 1,
+      },
+      'INR'
+    );
+
+    expect(tasks).toEqual([
+      {
+        amount: '0.00',
+        count: 1,
+        header: 'Unsubmitted report',
+        subheader: '1 report remains in draft state',
+        icon: TaskIcon.REPORT,
+        ctas: [
+          {
+            content: 'Submit Report',
+            event: 4,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should be able to generate proper content in all cases of team report tasks', () => {
+    humanizeCurrencyPipe.transform
+      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .and.returnValue('733.48K');
+    humanizeCurrencyPipe.transform
+      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency)
+      .and.returnValue('₹733.48K');
+
+    const tasks = tasksService.mapAggregateToTeamReportTask(
+      {
+        totalAmount: teamReportResponse[0].aggregates[1].function_value,
+        totalCount: 1,
+      },
+      'INR'
+    );
+
+    expect(tasks).toEqual([
+      {
+        amount: '733.48K',
+        count: 1,
+        header: 'Report to be approved',
+        subheader: '1 report worth ₹733.48K  requires your approval',
+        icon: TaskIcon.REPORT,
+        ctas: [
+          {
+            content: 'Show Report',
+            event: 5,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should be able to refresh tasks on clearing task cache when automate report submission is not scheduled', (done) => {
+    userEventService.onTaskCacheClear.and.callFake((refreshCallback) => {
+      return mockTaskClearSubject.subscribe(() => {
+        refreshCallback();
+      });
+    });
+
+    reportService.getReportAutoSubmissionDetails.and.returnValue(of(null));
+
+    setupData();
+
+    tasksService.refreshOnTaskClear();
+
+    mockTaskClearSubject.next(null);
+
+    tasksService.totalTaskCount$
+      .pipe(
+        filter((count) => count === 7),
+        take(1)
+      )
+      .subscribe((count) => {
+        expect(count).toEqual(7);
+        done();
+      });
+  });
 });
