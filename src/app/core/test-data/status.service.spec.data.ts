@@ -1,6 +1,6 @@
 import { ExtendedStatus } from '../models/extended_status.model';
 
-export const apiResponse: ExtendedStatus[] = [
+export const getEStatusApiResponse: ExtendedStatus[] = [
   {
     st_id: 'st7ak7UoeTDH',
     st_created_at: new Date('2022-09-23T15:33:52.696Z'),
@@ -570,7 +570,7 @@ export const apiCommentsResponse: ExtendedStatus[] = [
   },
 ];
 
-export const updateResponseWithSt: ExtendedStatus[] = [
+export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
   {
     st_id: 'stB3NqJuL3eE',
     st_created_at: new Date('2022-10-28T05:54:01.537Z'),

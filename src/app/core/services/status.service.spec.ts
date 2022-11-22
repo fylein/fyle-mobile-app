@@ -2,7 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { ApiService } from './api.service';
 import { of } from 'rxjs';
 import { StatusService } from './status.service';
-import { apiResponse, apiCommentsResponse, updateResponseWithSt } from '../test-data/status.service.spec.data';
+import {
+  getEStatusApiResponse,
+  apiCommentsResponse,
+  updateReponseWithFlattenedEStatus,
+} from '../test-data/status.service.spec.data';
 
 describe('StatusService', () => {
   let statusService: StatusService;
@@ -32,10 +36,10 @@ describe('StatusService', () => {
   });
 
   it('should find all estatuses', (done) => {
-    apiService.get.and.returnValue(of(apiResponse));
+    apiService.get.and.returnValue(of(getEStatusApiResponse));
 
     statusService.find(type, id).subscribe((res) => {
-      expect(res).toEqual(apiResponse);
+      expect(res).toEqual(getEStatusApiResponse);
       done();
     });
   });
@@ -51,11 +55,11 @@ describe('StatusService', () => {
 
   it('should use status map and update the comments accordingly by adding statuses', () => {
     const result = statusService.createStatusMap(apiCommentsResponse, 'reports');
-    expect(result).toEqual(updateResponseWithSt);
+    expect(result).toEqual(updateReponseWithFlattenedEStatus);
   });
 
   it('should find and return the latest comment', (done) => {
-    apiService.get.and.returnValue(of(apiResponse));
+    apiService.get.and.returnValue(of(getEStatusApiResponse));
 
     const result = statusService.findLatestComment(id, type, 'POLICY');
     result.subscribe((res) => {
