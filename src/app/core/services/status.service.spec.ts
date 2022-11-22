@@ -5,7 +5,7 @@ import { StatusService } from './status.service';
 import { apiResponse, apiCommentsResponse, updateResponseWithSt } from '../test-data/status.service.spec.data';
 
 describe('StatusService', () => {
-  let service: StatusService;
+  let statusService: StatusService;
   let apiService: jasmine.SpyObj<ApiService>;
 
   const type = 'transactions';
@@ -23,32 +23,41 @@ describe('StatusService', () => {
         },
       ],
     });
-    service = TestBed.inject(StatusService);
+    statusService = TestBed.inject(StatusService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(statusService).toBeTruthy();
   });
 
   it('should find all estatuses', (done) => {
     apiService.get.and.returnValue(of(apiResponse));
 
-    service.find(type, id).subscribe((res) => {
+    statusService.find(type, id).subscribe((res) => {
       expect(res).toEqual(apiResponse);
       done();
     });
   });
 
+  it('should return null instead of estatuses', (done) => {
+    apiService.get.and.returnValue(of(null));
+
+    statusService.find(type, id).subscribe((res) => {
+      expect(res).toEqual(undefined);
+      done();
+    });
+  });
+
   it('should use status map and update the comments accordingly by adding statuses', () => {
-    const result = service.createStatusMap(apiCommentsResponse, 'reports');
+    const result = statusService.createStatusMap(apiCommentsResponse, 'reports');
     expect(result).toEqual(updateResponseWithSt);
   });
 
   it('should find and return the latest comment', (done) => {
     apiService.get.and.returnValue(of(apiResponse));
 
-    const result = service.findLatestComment(id, type, 'POLICY');
+    const result = statusService.findLatestComment(id, type, 'POLICY');
     result.subscribe((res) => {
       expect(res).toEqual('food expenses are limited to rs 200 only');
       done();
@@ -73,11 +82,9 @@ describe('StatusService', () => {
     const status = {
       comment: 'a comment',
     };
-    const notify = false;
-
     apiService.post.and.returnValue(of(testComment));
 
-    service.post(objectType, objectId, status, notify).subscribe((res) => {
+    statusService.post(objectType, objectId, status).subscribe((res) => {
       expect(res).toEqual(testComment);
       done();
     });
