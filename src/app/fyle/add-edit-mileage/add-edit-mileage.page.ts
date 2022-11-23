@@ -4,7 +4,7 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { combineLatest, concat, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
+import { combineLatest, concat, forkJoin, from, iif, Observable, of, Subscription, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -32,7 +32,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -66,9 +66,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
-import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
-import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -214,6 +212,8 @@ export class AddEditMileagePage implements OnInit {
 
   autoSubmissionReportName$: Observable<string>;
 
+  hardwareBackButtonAction: Subscription;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -252,7 +252,8 @@ export class AddEditMileagePage implements OnInit {
     private mileageRateService: MileageRatesService,
     private orgUserSettingsService: OrgUserSettingsService,
     private categoriesService: CategoriesService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private platform: Platform
   ) {}
 
   get showSaveAndNext() {
@@ -298,29 +299,11 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  async showCannotEditActivityDialog() {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Cannot Edit Activity Expense!',
-      // eslint-disable-next-line max-len
-      message:
-        'To edit this activity expense, you need to login to web version of Fyle app at <a href="https://in1.fylehq.com">https://in1.fylehq.com</a>',
-      primaryCta: {
-        text: 'Close',
-      },
-      showCancelButton: false,
-    });
-  }
-
   goToTransaction(expense, reviewList, activeIndex) {
     let category;
 
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
-    }
-
-    if (category === 'activity') {
-      this.showCannotEditActivityDialog();
-      return;
     }
 
     if (category === 'mileage') {
@@ -887,6 +870,13 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.showClosePopup();
+      }
+    );
+
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
     });
@@ -911,6 +901,7 @@ export class AddEditMileagePage implements OnInit {
 
     const today = new Date();
     this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.fg.reset();
     this.title = 'Add Mileage';
@@ -1284,18 +1275,24 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
-    const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.report_id,
-          this.reports$.pipe(
-            map((reportOptions) =>
-              reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
-            )
-          ),
-          of(null)
-        )
-      )
+    const selectedReport$ = forkJoin({
+      autoSubmissionReportName: this.autoSubmissionReportName$,
+      etxn: this.etxn$,
+      reportOptions: this.reports$,
+    }).pipe(
+      map(({ autoSubmissionReportName, etxn, reportOptions }) => {
+        if (etxn.tx.report_id) {
+          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
+        } else if (
+          !autoSubmissionReportName &&
+          reportOptions.length === 1 &&
+          reportOptions[0].value.rp.state === 'DRAFT'
+        ) {
+          return reportOptions[0].value;
+        } else {
+          return null;
+        }
+      })
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
@@ -1329,8 +1326,6 @@ export class AddEditMileagePage implements OnInit {
         }
       })
     );
-
-    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
@@ -1816,21 +1811,49 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
-    return from(this.mileageRates$).pipe(
-      switchMap((rates) => {
-        const transactionCopy = cloneDeep(etxn.tx);
-        const selectedMileageRate = this.getMileageByVehicleType(rates, etxn.tx.mileage_vehicle_type);
-        transactionCopy.mileage_rate_id = selectedMileageRate.id;
+  checkPolicyViolation(etxn) {
+    // Prepare etxn object with just tx and ou object required for test call
+    return from(this.authService.getEou()).pipe(
+      switchMap((currentEou) => {
+        const policyETxn = {
+          tx: cloneDeep(etxn.tx),
+          ou: cloneDeep(etxn.ou),
+        };
 
-        /* Expense creation has not moved to platform yet and since policy is moved to platform,
-         * it expects the expense object in terms of platform world. Until then, the method
-         * `transformTo` act as a bridge by translating the public expense object to platform
-         * expense.
+        if (!etxn.tx.id) {
+          policyETxn.ou = currentEou.ou;
+        }
+        /* Adding number of attachements and sending in test call as tx_num_files
+         * If editing an expense with receipts, check for already uploaded receipts
          */
-        const policyExpense = this.policyService.transformTo(transactionCopy);
-        return this.transactionService.checkPolicy(policyExpense);
-      })
+        if (etxn.tx) {
+          policyETxn.tx.num_files = etxn.tx.num_files;
+
+          // Check for receipts uploaded from mobile
+          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
+            policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
+          }
+        }
+
+        return this.categoriesService.getAll().pipe(
+          map((categories: any[]) => {
+            // policy engine expects org_category and sub_category fields
+            if (policyETxn.tx.org_category_id) {
+              const orgCategory = categories.find((cat) => cat.id === policyETxn.tx.org_category_id);
+              policyETxn.tx.org_category = orgCategory && orgCategory.name;
+              policyETxn.tx.sub_category = orgCategory && orgCategory.sub_category;
+            } else {
+              policyETxn.tx.org_category_id = null;
+              policyETxn.tx.sub_category = null;
+              policyETxn.tx.org_category = null;
+            }
+
+            // Flatten the etxn obj
+            return this.dataTransformService.etxnRaw(policyETxn);
+          })
+        );
+      }),
+      switchMap((policyETxn) => this.transactionService.testPolicy(policyETxn))
     );
   }
 
@@ -1851,12 +1874,12 @@ export class AddEditMileagePage implements OnInit {
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
+  async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
-        policyAction,
+        policyActionDescription,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -2009,16 +2032,18 @@ export class AddEditMileagePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+                map((policyViolations: any) => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations?.data?.final_desired_state,
+                  policyViolations &&
+                    policyViolations.transaction_desired_state &&
+                    policyViolations.transaction_desired_state.action_description,
                 ]),
-                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
+                switchMap(([policyViolations, policyActionDescription]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyAction,
+                      policyActionDescription,
                       etxn,
                     });
                   } else {
@@ -2049,7 +2074,7 @@ export class AddEditMileagePage implements OnInit {
             })
           );
         } else if (err.type === 'policyViolations') {
-          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
+          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -2234,16 +2259,18 @@ export class AddEditMileagePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+                map((policyViolations: any) => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations?.data?.final_desired_state,
+                  policyViolations &&
+                    policyViolations.transaction_desired_state &&
+                    policyViolations.transaction_desired_state.action_description,
                 ]),
-                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
+                switchMap(([policyViolations, policyActionDescription]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyAction,
+                      policyActionDescription,
                       etxn,
                     });
                   } else {
@@ -2274,7 +2301,7 @@ export class AddEditMileagePage implements OnInit {
             })
           );
         } else if (err.type === 'policyViolations') {
-          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
+          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -2468,5 +2495,9 @@ export class AddEditMileagePage implements OnInit {
           this.policyDetails = policyDetails;
         });
     }
+  }
+
+  ionViewWillLeave() {
+    this.hardwareBackButtonAction.unsubscribe();
   }
 }

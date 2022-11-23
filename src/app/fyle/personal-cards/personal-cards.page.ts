@@ -386,7 +386,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks' };
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'none' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
