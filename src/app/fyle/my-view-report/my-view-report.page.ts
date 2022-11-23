@@ -316,8 +316,9 @@ export class MyViewReportPage {
         switchMap((editReportNamePopover) => editReportNamePopover.onWillDismiss())
       )
       .subscribe((editReportNamePopoverDetails) => {
-        if (editReportNamePopoverDetails?.data?.reportName) {
-          this.updateReportName(editReportNamePopoverDetails?.data?.reportName);
+        const newReportName = editReportNamePopoverDetails?.data?.reportName;
+        if (newReportName) {
+          this.updateReportName(newReportName);
         }
       });
   }
@@ -530,8 +531,8 @@ export class MyViewReportPage {
     this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.reportId }]);
   }
 
-  async showAddExpensesToReportModal() {
-    const AddExpensesToReportModal = await this.modalController.create({
+  showAddExpensesToReportModal() {
+    const addExpensesToReportModal = this.modalController.create({
       component: AddExpensesToReportComponent,
       componentProps: {
         unReportedEtxns: this.unReportedEtxns,
@@ -541,12 +542,17 @@ export class MyViewReportPage {
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
-    await AddExpensesToReportModal.present();
-
-    const { data } = await AddExpensesToReportModal.onWillDismiss();
-    if (data?.selectedTxnIds?.length > 0) {
-      this.addEtxnsToReport(data.selectedTxnIds);
-    }
+    from(addExpensesToReportModal)
+      .pipe(
+        tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
+        switchMap((addExpensesToReportModal) => addExpensesToReportModal.onWillDismiss())
+      )
+      .subscribe((addExpensesToReportModalDetails) => {
+        const selectedTxnIds = addExpensesToReportModalDetails?.data?.selectedTxnIds;
+        if (selectedTxnIds?.length > 0) {
+          this.addEtxnsToReport(selectedTxnIds);
+        }
+      });
   }
 
   addEtxnsToReport(selectedEtxnIds: string[]) {
