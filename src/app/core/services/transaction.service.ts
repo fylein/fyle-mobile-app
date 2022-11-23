@@ -4,7 +4,7 @@ import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import { from, Observable, range, concat, forkJoin, Subject, of } from 'rxjs';
+import { from, Observable, range, forkJoin, Subject, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
@@ -79,16 +79,6 @@ export class TransactionService {
   })
   clearCache() {
     return of(null);
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
-  })
-  get(txnId) {
-    // TODO api v2
-    return this.apiService
-      .get('/transactions/' + txnId)
-      .pipe(map((transaction) => this.dateService.fixDates(transaction)));
   }
 
   @Cacheable({
@@ -355,69 +345,6 @@ export class TransactionService {
     );
   }
 
-  parseRaw(etxnsRaw) {
-    const etxns = [];
-
-    etxnsRaw.forEach((element) => {
-      const etxn = this.dataTransformService.unflatten(element);
-
-      this.dateService.fixDates(etxn.tx);
-      this.dateService.fixDates(etxn.rp);
-
-      let categoryDisplayName = etxn.tx.org_category;
-      if (etxn.tx.sub_category && etxn.tx.sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
-        categoryDisplayName += ' / ' + etxn.tx.sub_category;
-      }
-      etxn.tx.categoryDisplayName = categoryDisplayName;
-      etxns.push(etxn);
-    });
-
-    return etxns;
-  }
-
-  getCountBySource(etxns, source) {
-    const lowerCaseSource = source.toLowerCase();
-    let count = 0;
-
-    etxns.forEach((etxn) => {
-      if (etxn.tx_source && etxn.tx_source.toLowerCase().indexOf(lowerCaseSource) > -1) {
-        count++;
-      }
-    });
-
-    return count;
-  }
-
-  getUserTransactionParams(state: string) {
-    const stateMap = {
-      draft: {
-        state: ['DRAFT'],
-      },
-      all: {
-        state: ['COMPLETE'],
-        policy_amount: ['is:null', 'gt:0.0001'],
-      },
-      flagged: {
-        policy_flag: true,
-        policy_amount: ['is:null', 'gt:0.0001'],
-      },
-      critical: {
-        policy_amount: ['lt:0.0001'],
-      },
-      unreported: {
-        state: ['COMPLETE', 'DRAFT'],
-      },
-      recurrence: {
-        source: ['RECURRENCE_WEBAPP'],
-      },
-      needsReceipt: {
-        tx_receipt_required: true,
-      },
-    };
-
-    return stateMap[state];
-  }
-
   getPaginatedETxncCount(params?) {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -442,24 +369,12 @@ export class TransactionService {
       .pipe(map((etxns) => etxns.data));
   }
 
-  getETxnCount(params: any) {
-    return this.apiV2Service.get('/expenses', { params }).pipe(map((res) => res as { count: number }));
-  }
-
   getMyExpensesCount(queryParams = {}) {
     return this.getMyExpenses({
       offset: 0,
       limit: 1,
       queryParams,
     }).pipe(map((res) => res.count));
-  }
-
-  getTotalNoCurrency(etxns) {
-    let total = 0;
-    etxns.forEach((etxn) => {
-      total = total + etxn.tx_amount;
-    });
-    return total;
   }
 
   getExpenseV2(id: string): Observable<any> {
@@ -470,24 +385,6 @@ export class TransactionService {
         },
       })
       .pipe(map((res) => this.fixDates(res.data[0]) as Expense));
-  }
-
-  fixDates(data: Expense) {
-    data.tx_created_at = new Date(data.tx_created_at);
-    if (data.tx_txn_dt) {
-      data.tx_txn_dt = new Date(data.tx_txn_dt);
-    }
-
-    if (data.tx_from_dt) {
-      data.tx_from_dt = new Date(data.tx_from_dt);
-    }
-
-    if (data.tx_to_dt) {
-      data.tx_to_dt = new Date(data.tx_to_dt);
-    }
-
-    data.tx_updated_at = new Date(data.tx_updated_at);
-    return data;
   }
 
   testPolicy(etxn) {
@@ -557,10 +454,6 @@ export class TransactionService {
 
   review(txnId: string) {
     return this.apiService.post('/transactions/' + txnId + '/review');
-  }
-
-  setDefaultVehicleType(vehicleType) {
-    return from(this.storageService.set('vehicle_preference', vehicleType));
   }
 
   getDefaultVehicleType() {
@@ -633,31 +526,6 @@ export class TransactionService {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
-  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]) {
-    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
-  }
-
-  isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
-    let etxnInPaymentMode = false;
-    const isAdvanceOrCCCEtxn =
-      etxn.source_account_type === AccountType.ADVANCE || etxn.source_account_type === AccountType.CCC;
-
-    if (paymentMode === 'reimbursable') {
-      //Paid by Employee: reimbursable
-      etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'nonReimbursable') {
-      //Paid by Company: not reimbursable
-      etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'advance') {
-      //Paid from Advance account: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === AccountType.ADVANCE;
-    } else if (paymentMode === 'ccc') {
-      //Paid from CCC: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === AccountType.CCC;
-    }
-    return etxnInPaymentMode;
-  }
-
   getPaymentModeWiseSummary(etxns: Expense[]) {
     const paymentModes = [
       {
@@ -699,22 +567,6 @@ export class TransactionService {
         }
         return paymentMap;
       }, {});
-  }
-
-  addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {
-    if (currencyMap.hasOwnProperty(txCurrency)) {
-      currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
-      currencyMap[txCurrency].amount += txAmount;
-      currencyMap[txCurrency].count++;
-    } else {
-      currencyMap[txCurrency] = {
-        name: txCurrency,
-        currency: txCurrency,
-        amount: txAmount,
-        origAmount: txOrigAmount ? txOrigAmount : txAmount,
-        count: 1,
-      };
-    }
   }
 
   getCurrenyWiseSummary(etxns: Expense[]) {
@@ -820,30 +672,6 @@ export class TransactionService {
     }
   }
 
-  generateStateOrFilter(filters: Filters, newQueryParamsCopy): string[] {
-    const stateOrFilter: string[] = [];
-    if (filters.state) {
-      newQueryParamsCopy.tx_report_id = 'is.null';
-      if (filters.state.includes(FilterState.READY_TO_REPORT)) {
-        stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
-      }
-
-      if (filters.state.includes(FilterState.POLICY_VIOLATED)) {
-        stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
-      }
-
-      if (filters.state.includes(FilterState.CANNOT_REPORT)) {
-        stateOrFilter.push('tx_policy_amount.lt.0.0001');
-      }
-
-      if (filters.state.includes(FilterState.DRAFT)) {
-        stateOrFilter.push('tx_state.in.(DRAFT)');
-      }
-    }
-
-    return stateOrFilter;
-  }
-
   generateStateFilters(newQueryParams, filters: Filters) {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
@@ -911,43 +739,6 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateCustomDateParams(newQueryParams, filters: Filters) {
-    const newQueryParamsCopy = cloneDeep(newQueryParams);
-    if (filters.date === DateFilters.custom) {
-      const startDate = filters?.customDateStart?.toISOString();
-      const endDate = filters?.customDateEnd?.toISOString();
-      if (filters.customDateStart && filters.customDateEnd) {
-        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
-      } else if (filters.customDateStart) {
-        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate})`;
-      } else if (filters.customDateEnd) {
-        newQueryParamsCopy.and = `(tx_txn_dt.lt.${endDate})`;
-      }
-    }
-
-    return newQueryParamsCopy;
-  }
-
-  generateTypeOrFilter(filters: Filters): string[] {
-    const typeOrFilter: string[] = [];
-    if (filters.type) {
-      if (filters.type.includes('Mileage')) {
-        typeOrFilter.push('tx_fyle_category.eq.Mileage');
-      }
-
-      if (filters.type.includes('PerDiem')) {
-        // The space encoding is done by angular into %20 so no worries here
-        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
-      }
-
-      if (filters.type.includes('RegularExpenses')) {
-        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
-      }
-    }
-
-    return typeOrFilter;
-  }
-
   generateTypeFilters(newQueryParams, filters: Filters) {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const typeOrFilter = this.generateTypeOrFilter(filters);
@@ -983,7 +774,7 @@ export class TransactionService {
     return currentParamsCopy;
   }
 
-  getTxnAccount() {
+  private getTxnAccount() {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       accounts: this.accountsService.getEMyAccounts(),
@@ -1000,5 +791,129 @@ export class TransactionService {
         return accountDetails;
       })
     );
+  }
+
+  private getETxnCount(params: any) {
+    return this.apiV2Service.get('/expenses', { params }).pipe(map((res) => res as { count: number }));
+  }
+
+  private fixDates(data: Expense) {
+    data.tx_created_at = new Date(data.tx_created_at);
+    if (data.tx_txn_dt) {
+      data.tx_txn_dt = new Date(data.tx_txn_dt);
+    }
+
+    if (data.tx_from_dt) {
+      data.tx_from_dt = new Date(data.tx_from_dt);
+    }
+
+    if (data.tx_to_dt) {
+      data.tx_to_dt = new Date(data.tx_to_dt);
+    }
+
+    data.tx_updated_at = new Date(data.tx_updated_at);
+    return data;
+  }
+
+  private getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]) {
+    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
+  }
+
+  private isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
+    let etxnInPaymentMode = false;
+    const isAdvanceOrCCCEtxn =
+      etxn.source_account_type === AccountType.ADVANCE || etxn.source_account_type === AccountType.CCC;
+
+    if (paymentMode === 'reimbursable') {
+      //Paid by Employee: reimbursable
+      etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'nonReimbursable') {
+      //Paid by Company: not reimbursable
+      etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'advance') {
+      //Paid from Advance account: not reimbursable
+      etxnInPaymentMode = etxn.source_account_type === AccountType.ADVANCE;
+    } else if (paymentMode === 'ccc') {
+      //Paid from CCC: not reimbursable
+      etxnInPaymentMode = etxn.source_account_type === AccountType.CCC;
+    }
+    return etxnInPaymentMode;
+  }
+
+  private addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {
+    if (currencyMap.hasOwnProperty(txCurrency)) {
+      currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
+      currencyMap[txCurrency].amount += txAmount;
+      currencyMap[txCurrency].count++;
+    } else {
+      currencyMap[txCurrency] = {
+        name: txCurrency,
+        currency: txCurrency,
+        amount: txAmount,
+        origAmount: txOrigAmount ? txOrigAmount : txAmount,
+        count: 1,
+      };
+    }
+  }
+
+  private generateStateOrFilter(filters: Filters, newQueryParamsCopy): string[] {
+    const stateOrFilter: string[] = [];
+    if (filters.state) {
+      newQueryParamsCopy.tx_report_id = 'is.null';
+      if (filters.state.includes(FilterState.READY_TO_REPORT)) {
+        stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes(FilterState.POLICY_VIOLATED)) {
+        stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes(FilterState.CANNOT_REPORT)) {
+        stateOrFilter.push('tx_policy_amount.lt.0.0001');
+      }
+
+      if (filters.state.includes(FilterState.DRAFT)) {
+        stateOrFilter.push('tx_state.in.(DRAFT)');
+      }
+    }
+
+    return stateOrFilter;
+  }
+
+  private generateCustomDateParams(newQueryParams, filters: Filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date === DateFilters.custom) {
+      const startDate = filters?.customDateStart?.toISOString();
+      const endDate = filters?.customDateEnd?.toISOString();
+      if (filters.customDateStart && filters.customDateEnd) {
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
+      } else if (filters.customDateStart) {
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate})`;
+      } else if (filters.customDateEnd) {
+        newQueryParamsCopy.and = `(tx_txn_dt.lt.${endDate})`;
+      }
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  private generateTypeOrFilter(filters: Filters): string[] {
+    const typeOrFilter: string[] = [];
+    if (filters.type) {
+      if (filters.type.includes('Mileage')) {
+        typeOrFilter.push('tx_fyle_category.eq.Mileage');
+      }
+
+      if (filters.type.includes('PerDiem')) {
+        // The space encoding is done by angular into %20 so no worries here
+        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
+      }
+
+      if (filters.type.includes('RegularExpenses')) {
+        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
+      }
+    }
+
+    return typeOrFilter;
   }
 }
