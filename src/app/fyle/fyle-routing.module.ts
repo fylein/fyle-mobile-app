@@ -147,6 +147,8 @@ const routes: Routes = [
   },
 ];
 
+export const fyleRoutes = routes;
+
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],

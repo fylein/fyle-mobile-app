@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { Redirect } from '../models/redirect.model';
 
 @Injectable({
   providedIn: 'root',
@@ -7,7 +8,7 @@ import { Router } from '@angular/router';
 export class DeepLinkService {
   constructor(private router: Router) {}
 
-  getJsonFromUrl(url) {
+  getJsonFromUrl(url?: string): Redirect {
     const query = url?.split('?')[1];
     const result = {};
     query?.split('&').forEach((part) => {
@@ -17,7 +18,7 @@ export class DeepLinkService {
     return result;
   }
 
-  redirect(redirectionParam) {
+  redirect(redirectionParam: Redirect) {
     const redirectUri: string = redirectionParam.redirect_uri;
     const verificationCode: string = redirectionParam.verification_code;
     const orgId: string = redirectionParam.org_id;
