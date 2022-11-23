@@ -555,6 +555,9 @@ export class MyViewReportPage {
       this.loadReportDetails$.next();
       this.loadReportTxns$.next();
       this.trackingService.addToExistingReport();
+      this.unReportedEtxns = this.unReportedEtxns.filter(
+        (unReportedEtxn) => !selectedEtxnIds.includes(unReportedEtxn.tx_id)
+      );
     });
   }
 }
