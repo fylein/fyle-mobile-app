@@ -2630,7 +2630,7 @@ export class AddEditExpensePage implements OnInit {
     this.isCCCAccountSelected$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
-          return accounts.find((account) => account.acc.type === AccountType.CCC).length > 0;
+          return accounts.some((account) => account.acc.type === AccountType.CCC);
         } else {
           return false;
         }
