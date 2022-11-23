@@ -25,7 +25,7 @@ import { TasksService } from './tasks.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 
-fdescribe('TasksService', () => {
+describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -828,11 +828,11 @@ fdescribe('TasksService', () => {
   });
 
   it('should be able to refresh tasks on clearing task cache when automate report submission is scheduled', (done) => {
-    userEventService.onTaskCacheClear.and.callFake((refreshCallback) => {
-      return mockTaskClearSubject.subscribe(() => {
+    userEventService.onTaskCacheClear.and.callFake((refreshCallback) =>
+      mockTaskClearSubject.subscribe(() => {
         refreshCallback();
-      });
-    });
+      })
+    );
 
     reportService.getReportAutoSubmissionDetails.and.returnValue(
       of({
@@ -1022,11 +1022,11 @@ fdescribe('TasksService', () => {
   });
 
   it('should be able to refresh tasks on clearing task cache when automate report submission is not scheduled', (done) => {
-    userEventService.onTaskCacheClear.and.callFake((refreshCallback) => {
-      return mockTaskClearSubject.subscribe(() => {
+    userEventService.onTaskCacheClear.and.callFake((refreshCallback) =>
+      mockTaskClearSubject.subscribe(() => {
         refreshCallback();
-      });
-    });
+      })
+    );
 
     reportService.getReportAutoSubmissionDetails.and.returnValue(of(null));
 
