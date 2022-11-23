@@ -51,13 +51,13 @@
 
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="isConnected$|async as isConnected">
-          <ng-container *ngIf="!(etxn?.tx?.report_id) && !(reviewList?.length > 1)">
-            <ng-container *ngIf="actionSheetOptions$|async as actionSheetOptions">
-              <ng-container *ngIf="actionSheetOptions.length > 0">
-                <ion-button class="add-edit-expense--header-btn-container__btn" (click)="showMoreActions()">
-                  <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
-                </ion-button>
-              </ng-container>
+          <ng-container *ngIf="isSplitExpenseAllowed$|async as isSplitExpenseAllowed">
+            <ng-container
+              *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
+            >
+              <ion-button class="add-edit-expense--header-btn-container__btn" (click)="moreActions()">
+                <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
+              </ion-button>
             </ng-container>
           </ng-container>
         </ng-container>
@@ -1052,7 +1052,7 @@
           class="add-edit-expense--split-expense-block"
           *ngIf="(isConnected$|async) && !(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && (isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)"
         >
-          <button class="add-edit-expense--split-expense-container" (click)="showMoreActions()">
+          <button class="add-edit-expense--split-expense-container" (click)="moreActions()">
             <div class="add-edit-expense--split-expense-title">Split Expense</div>
           </button>
           <div class="add-edit-expense--split-info-container">

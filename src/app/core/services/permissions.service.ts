@@ -8,6 +8,7 @@ import { throwError, of, iif } from 'rxjs';
 })
 export class PermissionsService {
   // can check roleActionMap[role]['company']['view'] for whether he is allowed company view.
+  // transportation, hotel keys are only for list pages, not for any create and edit page, need to fix later
   roleActionMap = {
     owner: {
       expenses: {
@@ -78,6 +79,20 @@ export class PermissionsService {
       summary: {
         team: false,
         company: true,
+      },
+      transportation: {
+        view: true,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: true,
+      },
+      hotel: {
+        view: true,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: true,
       },
       mis_reporting: {
         view: true,
@@ -209,6 +224,20 @@ export class PermissionsService {
         team: false,
         company: true,
       },
+      transportation: {
+        view: true,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: true,
+      },
+      hotel: {
+        view: true,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: true,
+      },
       mis_reporting: {
         view: true,
       },
@@ -338,6 +367,20 @@ export class PermissionsService {
       summary: {
         team: false,
         company: true,
+      },
+      transportation: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
+      hotel: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
       },
       mis_reporting: {
         view: true,
@@ -470,6 +513,20 @@ export class PermissionsService {
         team: false,
         company: false,
       },
+      transportation: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
+      hotel: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
       mis_reporting: {
         view: false,
       },
@@ -600,6 +657,20 @@ export class PermissionsService {
       summary: {
         team: true,
         company: false,
+      },
+      transportation: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
+      hotel: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
       },
       mis_reporting: {
         view: false,
@@ -732,6 +803,20 @@ export class PermissionsService {
         team: false,
         company: false,
       },
+      transportation: {
+        view: true,
+        assign: true,
+        book: true,
+        cancel: true,
+        ask_questions: true,
+      },
+      hotel: {
+        view: true,
+        assign: true,
+        book: true,
+        cancel: true,
+        ask_questions: true,
+      },
       mis_reporting: {
         view: false,
       },
@@ -861,6 +946,20 @@ export class PermissionsService {
       summary: {
         team: false,
         company: false,
+      },
+      transportation: {
+        view: true,
+        assign: true,
+        book: true,
+        cancel: true,
+        ask_questions: true,
+      },
+      hotel: {
+        view: true,
+        assign: true,
+        book: true,
+        cancel: true,
+        ask_questions: true,
       },
       mis_reporting: {
         view: false,
@@ -992,6 +1091,20 @@ export class PermissionsService {
         team: false,
         company: false,
       },
+      transportation: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
+      hotel: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
       mis_reporting: {
         view: false,
       },
@@ -1121,6 +1234,20 @@ export class PermissionsService {
       summary: {
         team: false,
         company: false,
+      },
+      transportation: {
+        view: true,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
+      hotel: {
+        view: true,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
       },
       mis_reporting: {
         view: false,
@@ -1252,6 +1379,20 @@ export class PermissionsService {
         team: false,
         company: false,
       },
+      transportation: {
+        view: true,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
+      hotel: {
+        view: true,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
       mis_reporting: {
         view: false,
       },
@@ -1381,6 +1522,20 @@ export class PermissionsService {
       summary: {
         team: true,
         company: false,
+      },
+      transportation: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
+      hotel: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
       },
       mis_reporting: {
         view: false,
@@ -1512,6 +1667,20 @@ export class PermissionsService {
       summary: {
         team: true,
         company: false,
+      },
+      transportation: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
+      },
+      hotel: {
+        view: false,
+        assign: false,
+        book: false,
+        cancel: false,
+        ask_questions: false,
       },
       mis_reporting: {
         view: false,

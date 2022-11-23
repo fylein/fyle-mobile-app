@@ -27,7 +27,12 @@ export class OrgSettingsService {
     return this.apiService.post('/org/settings', data);
   }
 
-  private getIncomingAccountingObject(incomingAccountExport) {
+  getDefaultLimitAmount() {
+    const defaultLimitAmount = 75;
+    return defaultLimitAmount;
+  }
+
+  getIncomingAccountingObject(incomingAccountExport) {
     // setting allowed to true here as this field will be removed within a month
     // TODO: Remove this hack latest by end of April 2020 - If you find this code after the deadline, @arun will buy you petrol
     // Petrol claimed by @Dhar - bike trip to himachal pradesh once corona ends
@@ -68,7 +73,7 @@ export class OrgSettingsService {
     return accounting;
   }
 
-  private setOutgoingAccountingObject(accounting) {
+  setOutgoingAccountingObject(accounting) {
     const accountingSettings: any = {};
 
     accountingSettings.allowed = accounting && accounting.allowed;
@@ -91,7 +96,7 @@ export class OrgSettingsService {
 
   // unavoidable here
   // eslint-disable-next-line complexity
-  private processIncoming(incoming) {
+  processIncoming(incoming) {
     const orgSettings = {
       org_id: incoming.org_id,
       mileage: {
@@ -240,6 +245,30 @@ export class OrgSettingsService {
         id: 'CURRENCYLAYER',
         name: 'Currency Layer',
       },
+      fixer_provider_settings: {
+        allowed: incoming.fixer_provider_settings && incoming.fixer_provider_settings.allowed,
+        enabled: incoming.fixer_provider_settings && incoming.fixer_provider_settings.enabled,
+        id: 'FIXER',
+        name: 'Fixer',
+      },
+      openexchangerates_provider_settings: {
+        allowed: incoming.openexchangerates_provider_settings && incoming.openexchangerates_provider_settings.allowed,
+        enabled: incoming.openexchangerates_provider_settings && incoming.openexchangerates_provider_settings.enabled,
+        id: 'OPENEXCHANGERATES',
+        name: 'Open Exchange Rates',
+      },
+      oanda_provider_settings: {
+        allowed: incoming.oanda_provider_settings && incoming.oanda_provider_settings.allowed,
+        enabled: incoming.oanda_provider_settings && incoming.oanda_provider_settings.enabled,
+        id: 'OANDA',
+        name: 'Oanda',
+      },
+      xe_provider_settings: {
+        allowed: incoming.xe_provider_settings && incoming.xe_provider_settings.allowed,
+        enabled: incoming.xe_provider_settings && incoming.xe_provider_settings.enabled,
+        id: 'XE',
+        name: 'XE',
+      },
       gmail_addon_settings: incoming.gmail_addon_settings,
       duplicate_detection_settings: {
         allowed: incoming.duplicate_detection_settings && incoming.duplicate_detection_settings.allowed,
@@ -333,7 +362,7 @@ export class OrgSettingsService {
     return orgSettings;
   }
 
-  private processOutgoing(outgoing) {
+  processOutgoing(outgoing) {
     return {
       project_settings: {
         allowed: outgoing.projects.allowed,
@@ -355,6 +384,22 @@ export class OrgSettingsService {
       currencylayer_provider_settings: {
         allowed: outgoing.currencylayer_provider_settings.allowed,
         enabled: outgoing.currencylayer_provider_settings.enabled,
+      },
+      fixer_provider_settings: {
+        allowed: outgoing.fixer_provider_settings.allowed,
+        enabled: outgoing.fixer_provider_settings.enabled,
+      },
+      openexchangerates_provider_settings: {
+        allowed: outgoing.openexchangerates_provider_settings.allowed,
+        enabled: outgoing.openexchangerates_provider_settings.enabled,
+      },
+      oanda_provider_settings: {
+        allowed: outgoing.oanda_provider_settings.allowed,
+        enabled: outgoing.oanda_provider_settings.enabled,
+      },
+      xe_provider_settings: {
+        allowed: outgoing.xe_provider_settings.allowed,
+        enabled: outgoing.xe_provider_settings.enabled,
       },
       advances_settings: {
         allowed: outgoing.advances.allowed,

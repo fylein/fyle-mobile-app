@@ -34,6 +34,12 @@ export class StatusService {
     const lowerCaseComment = comment && comment.toLowerCase();
 
     switch (true) {
+      case lowerCaseComment.indexOf('hotel request') > -1 || lowerCaseComment.indexOf('transportation request') > -1:
+        statusCategory = {
+          category: 'Others',
+          icon: 'circle',
+        };
+        break;
       case lowerCaseComment.indexOf('automatically merged') > -1:
         statusCategory = {
           category: 'Expense automatically merged',

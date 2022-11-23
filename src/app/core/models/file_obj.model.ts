@@ -7,6 +7,7 @@ export interface FileObject {
   transaction_id?: string;
   invoice_id?: any;
   advance_request_id?: any;
+  transportation_booking_id?: any;
   purpose: string;
   password?: any;
   receipt_coordinates?: any;

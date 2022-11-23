@@ -11,6 +11,7 @@ export interface ExtendedStatus {
   st_report_id?: string;
   st_state?: string;
   st_transaction_id?: string;
+  st_trip_request_id?: string;
   us_email?: string;
   us_full_name: string;
 }

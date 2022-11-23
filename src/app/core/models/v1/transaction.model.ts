@@ -70,5 +70,4 @@ export interface Transaction {
   user_reason_for_duplicate_expenses: string;
   vendor: string;
   vendor_id: number;
-  corporate_credit_card_expense_group_id: string;
 }

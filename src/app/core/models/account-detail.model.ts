@@ -7,7 +7,7 @@ export interface AccountDetail {
   name: string;
   type: AccountType;
   currency: string;
-  target_balance_amount: number;
+  target_balance_amout: number;
   current_balance_amount: number;
   tentative_balance_amount: number;
   category: string;

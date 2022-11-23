@@ -1,28 +1,26 @@
 <ion-header>
   <ion-toolbar class="sidemenu-header__toolbar" translucent>
-    <div matRipple [matRippleColor]="'rgba(255, 255, 255, 0.3)'" (click)="onProfileClicked($event)">
-      <ion-grid class="ion-grid-no-padding sidemenu-header__grid">
-        <ion-row>
-          <ion-col class="sidemenu-header__icon-container">
-            <div class="sidemenu-header__icon-container__text">
-              {{ eou?.us?.full_name | initials | uppercase }}
-            </div>
-          </ion-col>
-          <ion-col class="sidemenu-header__content-container">
-            <div class="text-ellipsis sidemenu-header__content-container__title">
-              {{ eou?.us?.full_name | titlecase }}
-            </div>
-            <div class="d-flex">
-              <ion-icon
-                class="sidemenu-header__content-container__icon"
-                src="../../../../../assets/svg/organization.svg"
-                slot="icon-only"
-              ></ion-icon>
-              <div class="sidemenu-header__content-container__sub-title">{{ activeOrg?.name }}</div>
-            </div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
+    <ion-grid class="ion-grid-no-padding sidemenu-header__grid">
+      <ion-row>
+        <ion-col class="sidemenu-header__icon-container">
+          <div class="sidemenu-header__icon-container__text">
+            {{ eou?.us?.full_name | initials | uppercase }}
+          </div>
+        </ion-col>
+        <ion-col class="sidemenu-header__content-container">
+          <div class="text-ellipsis sidemenu-header__content-container__title">
+            {{ eou?.us?.full_name | titlecase }}
+          </div>
+          <div class="d-flex">
+            <ion-icon
+              class="sidemenu-header__content-container__icon"
+              src="../../../../../assets/svg/organization.svg"
+              slot="icon-only"
+            ></ion-icon>
+            <div class="sidemenu-header__content-container__sub-title">{{ activeOrg?.name }}</div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-toolbar>
 </ion-header>
