@@ -83,7 +83,7 @@
     "ngx-pinch-zoom": "^2.6.2",
     "rxjs": "^7.5.5",
     "swiper": "^8.2.4",
-    "ts-cacheable": "^1.0.6",
+    "ts-cacheable": "^1.0.9",
     "tslib": "^2.4.0",
     "zone.js": "^0.11.6"
   },
