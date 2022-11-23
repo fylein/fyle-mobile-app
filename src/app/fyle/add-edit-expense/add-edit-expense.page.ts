@@ -2481,7 +2481,6 @@ export class AddEditExpensePage implements OnInit {
       distance: [],
       distance_unit: [],
       custom_inputs: new FormArray([]),
-      add_to_new_report: [],
       duplicate_detection_reason: [],
       billable: [],
       costCenter: [],
@@ -3037,23 +3036,6 @@ export class AddEditExpensePage implements OnInit {
     await this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
   }
 
-  addToNewReport(txnId: string) {
-    const that = this;
-    from(this.loaderService.showLoader())
-      .pipe(
-        switchMap(() => this.transactionService.getEtxn(txnId)),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
-      .subscribe((etxn) => {
-        const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-        if (!criticalPolicyViolated) {
-          that.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify([txnId]) }]);
-        } else {
-          that.goBack();
-        }
-      });
-  }
-
   showAddToReportSuccessToast(reportId: string) {
     const toastMessageData = {
       message: 'Expense added to report successfully',
@@ -3077,10 +3059,7 @@ export class AddEditExpensePage implements OnInit {
       .checkIfInvalidPaymentMode()
       .pipe(take(1))
       .subscribe((invalidPaymentMode) => {
-        const saveIncompleteExpense =
-          that.activatedRoute.snapshot.params.dataUrl &&
-          !that.fg.controls.add_to_new_report.value &&
-          !that.fg.value.report?.rp?.id;
+        const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !that.fg.value.report?.rp?.id;
         if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode)) {
           if (that.mode === 'add') {
             if (that.isCreatedFromPersonalCard) {
@@ -3099,9 +3078,7 @@ export class AddEditExpensePage implements OnInit {
                   })
                 )
                 .subscribe((res: any) => {
-                  if (that.fg.controls.add_to_new_report.value && res?.transaction) {
-                    this.addToNewReport(res.transaction.id);
-                  } else if (that.fg.value.report?.rp?.id) {
+                  if (that.fg.value.report?.rp?.id) {
                     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
                   } else {
                     that.goBack();
@@ -3111,9 +3088,7 @@ export class AddEditExpensePage implements OnInit {
           } else {
             // to do edit
             that.editExpense('SAVE_EXPENSE').subscribe((res) => {
-              if (that.fg.controls.add_to_new_report.value && res?.id) {
-                this.addToNewReport(res.id);
-              } else if (that.fg.value.report?.rp?.id) {
+              if (that.fg.value.report?.rp?.id) {
                 this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.goBack();
@@ -3701,13 +3676,6 @@ export class AddEditExpensePage implements OnInit {
             ) {
               reportId = this.fg.value.report.rp.id;
             }
-            let entry;
-            if (this.fg.value.add_to_new_report) {
-              entry = {
-                comments,
-                reportId,
-              };
-            }
 
             etxn.dataUrls = etxn.dataUrls.map((data) => {
               let attachmentType = 'image';
@@ -3721,19 +3689,7 @@ export class AddEditExpensePage implements OnInit {
               return data;
             });
 
-            /**
-             * NOTE: expense will be sync only if we are redirected to expense page, or else it will be in the outbox (storage service)
-             * if (this.fg.value.add_to_new_report i.e entry) is present we will sync to the expense page list
-             * else if (if the expense is created from ccc page) we need to sync expense than only
-             *        the count on ccc page for classified and unclassified expense will be updated
-             * else (this will be the case of normal expense) we are adding entry but not syncing as it will be
-             *        redirected to expense page at the end and sync will take place
-             */
-            if (entry) {
-              return from(
-                this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)
-              );
-            } else if (this.activatedRoute.snapshot.params.bankTxn) {
+            if (this.activatedRoute.snapshot.params.bankTxn) {
               return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
             } else {
               let receiptsData = null;
@@ -4137,13 +4093,13 @@ export class AddEditExpensePage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
-    const header = reportId && this.isRedirectedFromReport ? 'Remove Expense' : 'Delete Expense';
-    const body =
-      reportId && this.isRedirectedFromReport
-        ? 'Are you sure you want to remove this expense from this report?'
-        : 'Are you sure you want to delete this expense?';
-    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
+    const removeExpenseFromReport = reportId && this.isRedirectedFromReport;
+    const header = removeExpenseFromReport ? 'Remove Expense' : 'Delete Expense';
+    const body = removeExpenseFromReport
+      ? 'Are you sure you want to remove this expense from this report?'
+      : 'Are you sure you want to delete this expense?';
+    const ctaText = removeExpenseFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = removeExpenseFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -4155,7 +4111,7 @@ export class AddEditExpensePage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && this.isRedirectedFromReport) {
+          if (removeExpenseFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
@@ -4172,6 +4128,8 @@ export class AddEditExpensePage implements OnInit {
         this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else if (removeExpenseFromReport) {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId }]);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }

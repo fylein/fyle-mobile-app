@@ -640,7 +640,7 @@
           <ion-button
             (click)="saveAndNewExpense()"
             *ngIf="mode === 'add'"
-            [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
+            [disabled]="saveMileageLoader || saveAndNewMileageLoader"
             class="btn-secondary"
             appFormButtonValidation
             [loading]="saveAndNewMileageLoader"
