@@ -1,11 +1,7 @@
 <div class="task" matRipple>
   <div class="task--card">
     <ion-grid>
-      <ion-row
-        class="task--row"
-        (click)="taskCtaClicked(task.ctas[0])"
-        [ngClass]="{ 'pb-0': showReportAutoSubmissionInfo }"
-      >
+      <ion-row class="task--row" (click)="taskCtaClicked(task)" [ngClass]="{ 'pb-0': showReportAutoSubmissionInfo }">
         <ion-col size="1" class="task--icon-col">
           <ion-row>
             <ion-col class="task--icon-col">
