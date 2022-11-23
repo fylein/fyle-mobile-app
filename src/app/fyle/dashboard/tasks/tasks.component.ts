@@ -169,6 +169,18 @@ export class TasksComponent implements OnInit {
       });
     }
 
+    if (paramFilters === 'none') {
+      this.loadData$.next({
+        sentBackReports: false,
+        draftReports: false,
+        draftExpenses: false,
+        unreportedExpenses: false,
+        teamReports: false,
+        sentBackAdvances: false,
+        potentialDuplicates: false,
+      });
+    }
+
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());
   }
 

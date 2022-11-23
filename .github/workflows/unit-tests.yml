@@ -26,3 +26,10 @@ jobs:
 
       - name: Run Tests
         run: npm run test
+
+      - name: Unit Test Coverage
+        uses: fylein/comment-test-coverage@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: coverage/coverage-summary.json
+          title: Unit Test Coverage
