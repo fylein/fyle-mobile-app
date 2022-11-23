@@ -1,6 +1,4 @@
 export interface Transaction {
-  activity_details: string;
-  activity_policy_pending: boolean;
   admin_amount: number;
   amount: number;
   billable: boolean;

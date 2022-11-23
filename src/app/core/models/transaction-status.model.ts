@@ -8,5 +8,4 @@ export interface TransactionStatus {
   transaction_id: string;
   report_id: string;
   advance_request_id: string;
-  trip_request_id: string;
 }

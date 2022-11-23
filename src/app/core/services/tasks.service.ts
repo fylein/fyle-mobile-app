@@ -150,32 +150,6 @@ export class TasksService {
     return selectedFilters;
   }
 
-  generatePotentialDuplicatesFilter(selectedFilters: SelectedFilters<any>[]) {
-    const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
-    if (existingFilter) {
-      existingFilter.value.push('DUPLICATE');
-    } else {
-      selectedFilters.push({
-        name: 'Expenses',
-        value: ['DUPLICATE'],
-      });
-    }
-    return selectedFilters;
-  }
-
-  generateSentBackFilter(selectedFilters: SelectedFilters<any>[]) {
-    const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
-    if (existingFilter) {
-      existingFilter.value.push('SENT_BACK');
-    } else {
-      selectedFilters.push({
-        name: 'Reports',
-        value: ['SENT_BACK'],
-      });
-    }
-    return selectedFilters;
-  }
-
   convertFilters(selectedFilters: SelectedFilters<any>[]): TaskFilters {
     const generatedFilters: TaskFilters = {
       draftExpenses: false,
@@ -273,6 +247,32 @@ export class TasksService {
       type: 'Advances',
       value: advancePill.join(', '),
     };
+  }
+
+  generatePotentialDuplicatesFilter(selectedFilters: SelectedFilters<any>[]) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
+    if (existingFilter) {
+      existingFilter.value.push('DUPLICATE');
+    } else {
+      selectedFilters.push({
+        name: 'Expenses',
+        value: ['DUPLICATE'],
+      });
+    }
+    return selectedFilters;
+  }
+
+  generateSentBackFilter(selectedFilters: SelectedFilters<any>[]) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
+    if (existingFilter) {
+      existingFilter.value.push('SENT_BACK');
+    } else {
+      selectedFilters.push({
+        name: 'Reports',
+        value: ['SENT_BACK'],
+      });
+    }
+    return selectedFilters;
   }
 
   generateFilterPills(filters: TaskFilters): FilterPill[] {

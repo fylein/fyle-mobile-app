@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
-import { Platform, MenuController, NavController, PopoverController } from '@ionic/angular';
+import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop } from 'rxjs';
 import { switchMap, shareReplay, filter } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
@@ -21,9 +21,10 @@ import { TrackingService } from './core/services/tracking.service';
 import { LoginInfoService } from './core/services/login-info.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
-import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
 import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
+import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
+import { BackButtonService } from './core/services/back-button.service';
 
 @Component({
   selector: 'app-root',
@@ -68,47 +69,16 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private navController: NavController,
-    private popoverController: PopoverController
+    private backButtonService: BackButtonService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
   }
 
-  async showAppCloseAlert() {
-    const popover = await this.popoverController.create({
-      componentProps: {
-        title: 'Exit Fyle App',
-        message: 'Are you sure you want to exit the app?',
-        primaryCta: {
-          text: 'OK',
-          action: 'close',
-        },
-        secondaryCta: {
-          text: 'Cancel',
-          action: 'cancel',
-        },
-      },
-      component: PopupAlertComponentComponent,
-      cssClass: 'pop-up-in-center',
-    });
-
-    await popover.present();
-
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.action === 'close') {
-      App.exitApp();
-    }
-  }
-
   registerBackButtonAction() {
-    this.platform.backButton.subscribeWithPriority(10, () => {
-      if (
-        this.router.url.includes('my_dashboard') ||
-        this.router.url.includes('tasks') ||
-        this.router.url.includes('sign_in')
-      ) {
-        this.showAppCloseAlert();
+    this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
+      if (this.router.url.includes('sign_in')) {
+        this.backButtonService.showAppCloseAlert();
       } else if (this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts')) {
         if (this.previousUrl && this.previousUrl.includes('enterprise')) {
           this.navController.back();

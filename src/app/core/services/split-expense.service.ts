@@ -6,11 +6,9 @@ import { FileObject } from '../models/file_obj.model';
 import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { CategoriesService } from './categories.service';
-import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
 import { StatusService } from './status.service';
@@ -29,8 +27,7 @@ export class SplitExpenseService {
     private fileService: FileService,
     private policyService: PolicyService,
     private statusService: StatusService,
-    private categoriesService: CategoriesService,
-    private dataTransformService: DataTransformService
+    private categoriesService: CategoriesService
   ) {}
 
   linkTxnWithFiles(data) {
@@ -74,19 +71,11 @@ export class SplitExpenseService {
     );
   }
 
-  checkPolicyForTransaction(etxn: PublicPolicyExpense): Observable<{ [transactionID: string]: PolicyViolation }> {
+  testPolicyForTransaction(etxn: Expense): Observable<{ [transactionID: string]: PolicyViolation }> {
     const policyResponse = {};
-
-    /*
-    Expense creation has not moved to platform yet and since policy is moved to platform,
-    it expects the expense object in terms of platform world. Until then, the method
-    `transformTo` act as a bridge by translating the public expense object to platform
-    expense.
-    */
-    const platformPolicyExpense = this.policyService.transformTo(etxn);
-    return this.transactionService.checkPolicy(platformPolicyExpense).pipe(
+    return this.transactionService.testPolicy(etxn).pipe(
       map((policyViolationresponse) => {
-        policyResponse[etxn.id] = policyViolationresponse;
+        policyResponse[etxn.tx_id] = policyViolationresponse;
         return policyResponse;
       })
     );
@@ -135,7 +124,7 @@ export class SplitExpenseService {
 
         formattedViolations[key] = {
           rules,
-          action: violations[key].data,
+          action: violations[key].transaction_desired_state.action_description,
           type: violations[key].type,
           name: violations[key].name,
           currency: violations[key].currency,
@@ -194,9 +183,9 @@ export class SplitExpenseService {
     );
   }
 
-  checkPolicyForTransactions(etxns: PublicPolicyExpense[]): Observable<{ [transactionID: string]: PolicyViolation }> {
+  checkPolicyForTransactions(etxns: Expense[]): Observable<{ [transactionID: string]: PolicyViolation }> {
     return from(etxns).pipe(
-      concatMap((etxn) => this.checkPolicyForTransaction(etxn)),
+      concatMap((etxn) => this.testPolicyForTransaction(etxn)),
       reduce((accumulator, violation) => {
         accumulator = { ...accumulator, ...violation };
         return accumulator;
@@ -206,18 +195,10 @@ export class SplitExpenseService {
 
   runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<{ [transactionID: string]: PolicyViolation }> {
     if (etxns?.length > 0) {
-      const platformExpensesList = [];
       etxns.forEach((etxn) => {
-        // transformTo method requires unflattend transaction object
-        const platformExpense = this.dataTransformService.unflatten(etxn).tx;
-        platformExpense.num_files = fileObjs ? fileObjs.length : 0;
-
-        // Since expense has already been created in split expense flow, taking user_amount here.
-        platformExpense.amount =
-          typeof platformExpense.user_amount === 'number' ? platformExpense.user_amount : platformExpense.amount;
-        platformExpensesList.push(platformExpense);
+        etxn.tx_num_files = fileObjs ? fileObjs.length : 0;
       });
-      return this.checkPolicyForTransactions(platformExpensesList);
+      return this.checkPolicyForTransactions(etxns);
     } else {
       return of({});
     }
