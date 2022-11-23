@@ -298,7 +298,7 @@ export class MyViewReportPage {
       .subscribe(() => this.loadReportDetails$.next());
   }
 
-  async editReportName() {
+  editReportName() {
     this.erpt$
       .pipe(take(1))
       .pipe(
@@ -379,7 +379,7 @@ export class MyViewReportPage {
       });
   }
 
-  async goToTransaction({ etxn, etxnIndex }) {
+  goToTransaction({ etxn, etxnIndex }) {
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
 
@@ -449,7 +449,7 @@ export class MyViewReportPage {
         report_ids: [this.reportId],
         email: data.email,
       };
-      this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
+      this.reportService.downloadSummaryPdfUrl(params).subscribe(() => {
         const message = `PDF download link has been emailed to ${data.email}`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
