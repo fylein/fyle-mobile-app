@@ -37,6 +37,7 @@ export class OrgSettingsService {
   }
 
   getIncomingAccountingObject(incomingAccountExport: AccountingExportSettings): IncomingAccountObject {
+    console.log('check what is incomingAccountExport', incomingAccountExport);
     const accounting: IncomingAccountObject = {
       enabled: false,
       type: null,
@@ -69,11 +70,12 @@ export class OrgSettingsService {
     }
 
     accounting.integration_exports_enabled = incomingAccountExport?.integration_exports_enabled;
-
+    console.log('check what it returns', accounting);
     return accounting;
   }
 
   setOutgoingAccountingObject(accounting: IncomingAccountObject): AccountingExportSettings {
+    console.log('check what is accounting', accounting);
     const accountingSettings: AccountingExportSettings = {};
 
     accountingSettings.allowed = accounting && accounting.allowed;
@@ -86,7 +88,7 @@ export class OrgSettingsService {
     }
 
     accountingSettings.integration_exports_enabled = accounting && accounting.integration_exports_enabled;
-
+    console.log('check what is accountingSettings', accountingSettings);
     return accountingSettings;
   }
 

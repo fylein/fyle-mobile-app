@@ -822,7 +822,6 @@ export const outgoingTallyAccountObj: AccountingExportSettings = {
 };
 
 export const incomingTallyAccoutingObj: IncomingAccountObject = {
-  allowed: true,
   enabled: true,
   type: 'TALLY',
   settings: {
@@ -864,7 +863,6 @@ export const outgoingQuickbooksAccountObj: AccountingExportSettings = {
 };
 
 export const incomingQuickbooksAccoutingObj: IncomingAccountObject = {
-  allowed: true,
   enabled: true,
   type: 'QUICKBOOKS',
   settings: {
@@ -901,7 +899,6 @@ export const outgoingAccountSettingsObj: AccountingExportSettings = {
 };
 
 export const incomingAccountSettingsObj: IncomingAccountObject = {
-  allowed: true,
   enabled: true,
   type: null,
   settings: {
@@ -918,14 +915,13 @@ export const incomingAccountSettingsObj: IncomingAccountObject = {
 };
 
 export const incomingAccountingObj: IncomingAccountObject = {
-  allowed: true,
-  enabled: true,
+  enabled: false,
   type: null,
   settings: null,
+  integration_exports_enabled: undefined,
 };
 
 export const incomingTallyAccountingObjWithoutSettings: IncomingAccountObject = {
-  allowed: true,
   enabled: true,
   type: 'TALLY',
   settings: null,
@@ -933,7 +929,6 @@ export const incomingTallyAccountingObjWithoutSettings: IncomingAccountObject = 
 };
 
 export const incomingQuickbooksAccountingObjWithoutSettings: IncomingAccountObject = {
-  allowed: true,
   enabled: true,
   type: 'QUICKBOOKS',
   settings: null,

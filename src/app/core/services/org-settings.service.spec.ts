@@ -64,7 +64,7 @@ describe('OrgSettingsService', () => {
   it('should be able to get the org settings properly', (done) => {
     apiService.get.and.returnValue(of(postApiData));
     orgSettingsService.get().subscribe((res) => {
-      expect(res).toBeTruthy(postApiData);
+      expect(res).toEqual(postApiData);
       done();
     });
   });
@@ -72,60 +72,60 @@ describe('OrgSettingsService', () => {
   it('should be able to update the org settings properly', (done) => {
     apiService.post.and.returnValue(of(postApiData));
     orgSettingsService.post(getApiData).subscribe((res) => {
-      expect(res).toBeTruthy(postApiData);
+      expect(res).toEqual(postApiData);
       done();
     });
   });
 
   it('should be able to get incoming tally account object', () => {
-    expect(orgSettingsService.getIncomingAccountingObject(outgoingTallyAccountObject)).toBeTruthy(
+    expect(orgSettingsService.getIncomingAccountingObject(outgoingTallyAccountObject)).toEqual(
       incomingTallyAccountObject
     );
   });
 
   it('should be able to set outgoing tally account object', () => {
-    expect(orgSettingsService.setOutgoingAccountingObject(incomingTallyAccountObject)).toBeTruthy(
+    expect(orgSettingsService.setOutgoingAccountingObject(incomingTallyAccountObject)).toEqual(
       outgoingTallyAccountObject
     );
   });
 
   it('should be able to get incoming quick books account object', () => {
-    expect(orgSettingsService.getIncomingAccountingObject(outgoingQuickbooksAccountObject)).toBeTruthy(
+    expect(orgSettingsService.getIncomingAccountingObject(outgoingQuickbooksAccountObject)).toEqual(
       incomingQuickBooksAccountObject
     );
   });
 
   it('should be able to set outgoing quickbooks account object', () => {
-    expect(orgSettingsService.setOutgoingAccountingObject(incomingQuickBooksAccountObject)).toBeTruthy(
+    expect(orgSettingsService.setOutgoingAccountingObject(incomingQuickBooksAccountObject)).toEqual(
       outgoingQuickbooksAccountObject
     );
   });
 
   it('should be able to get incoming account settings object', () => {
-    expect(orgSettingsService.getIncomingAccountingObject(outgoingAccountSettingsObject)).toBeTruthy(
+    expect(orgSettingsService.getIncomingAccountingObject(outgoingAccountSettingsObject)).toEqual(
       incomingAccountSettingsObject
     );
   });
 
   it('should be able to set outgoing account settings object', () => {
-    expect(orgSettingsService.setOutgoingAccountingObject(incomingAccountSettingsObject)).toBeTruthy(
+    expect(orgSettingsService.setOutgoingAccountingObject(incomingAccountSettingsObject)).toEqual(
       outgoingAccountSettingsObject
     );
   });
 
   it('should be able to get incoming accounting object when accounting export is passed as null', () => {
-    expect(orgSettingsService.getIncomingAccountingObject(null)).toBeTruthy(incomingAccountingObject);
+    expect(orgSettingsService.getIncomingAccountingObject(null)).toEqual(incomingAccountingObject);
   });
 
   it('should be able to set outgoing taly accounting object with empty settings', () => {
-    expect(orgSettingsService.setOutgoingAccountingObject(incomingTallyAccountingObjectWithoutSettings)).toBeTruthy(
+    expect(orgSettingsService.setOutgoingAccountingObject(incomingTallyAccountingObjectWithoutSettings)).toEqual(
       outgoingAccountingObject
     );
   });
 
   it('should be able to set outgoing quickbooks accounting object with empty settings', () => {
-    expect(
-      orgSettingsService.setOutgoingAccountingObject(incomingQuickbooksAccountingObjectWithoutSettings)
-    ).toBeTruthy(outgoingAccountingObject);
+    expect(orgSettingsService.setOutgoingAccountingObject(incomingQuickbooksAccountingObjectWithoutSettings)).toEqual(
+      outgoingAccountingObject
+    );
   });
 });
