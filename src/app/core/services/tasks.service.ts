@@ -753,19 +753,11 @@ export class TasksService {
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'Create New Report',
-            event: TASKEVENT.expensesCreateNewReport,
+            content: 'Add to Report',
+            event: TASKEVENT.expensesAddToReport,
           },
         ],
       } as DashboardTask;
-
-      if (openReports.length > 0) {
-        task.ctas.push({
-          content: 'Add to Existing Report',
-          event: TASKEVENT.expensesAddToReport,
-        });
-      }
-
       return [task];
     } else {
       return [];

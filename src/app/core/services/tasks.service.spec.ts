@@ -103,11 +103,7 @@ describe('TasksService', () => {
     icon: TaskIcon.REPORT,
     ctas: [
       {
-        content: 'Create New Report',
-        event: TASKEVENT.expensesCreateNewReport,
-      },
-      {
-        content: 'Add to Existing Report',
+        content: 'Add to Report',
         event: TASKEVENT.expensesAddToReport,
       },
     ],
