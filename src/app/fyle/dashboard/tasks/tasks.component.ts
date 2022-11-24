@@ -92,9 +92,7 @@ export class TasksComponent implements OnInit {
       taskFilters: this.loadData$,
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
     }).pipe(
-      switchMap(({ taskFilters, autoSubmissionReportDate }) =>
-        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters)
-      ),
+      switchMap(({ taskFilters, autoSubmissionReportDate }) => this.taskService.getTasks(false, taskFilters)),
       shareReplay(1)
     );
 
