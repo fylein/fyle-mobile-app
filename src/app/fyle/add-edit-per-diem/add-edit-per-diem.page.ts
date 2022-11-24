@@ -759,7 +759,6 @@ export class AddEditPerDiemPage implements OnInit {
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
       custom_inputs: new FormArray([]),
-      add_to_new_report: [],
       duplicate_detection_reason: [],
       billable: [],
       costCenter: [],
@@ -1719,22 +1718,9 @@ export class AddEditPerDiemPage implements OnInit {
             ) {
               reportId = this.fg.value.report.rp.id;
             }
-            let entry;
-            if (this.fg.value.add_to_new_report) {
-              entry = {
-                comments,
-                reportId,
-              };
-            }
-            if (entry) {
-              return from(
-                this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)
-              );
-            } else {
-              return of(
-                this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
-              );
-            }
+            return of(
+              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
+            ).pipe(switchMap((txnData: Promise<any>) => from(txnData)));
           })
         )
       ),
@@ -1944,23 +1930,6 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  addToNewReport(txnId: string) {
-    const that = this;
-    from(this.loaderService.showLoader())
-      .pipe(
-        switchMap(() => this.transactionService.getEtxn(txnId)),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
-      .subscribe((etxn) => {
-        const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-        if (!criticalPolicyViolated) {
-          that.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify([txnId]) }]);
-        } else {
-          that.goBack();
-        }
-      });
-  }
-
   showAddToReportSuccessToast(reportId: string) {
     const toastMessageData = {
       message: 'Per diem expense added to report successfully',
@@ -1987,22 +1956,16 @@ export class AddEditPerDiemPage implements OnInit {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
             that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
-                this.addToNewReport(res.transaction.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                that.goBack();
-                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+              if (that.fg.value.report?.rp?.id) {
+                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.goBack();
               }
             });
           } else {
             that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.id) {
-                this.addToNewReport(res.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                that.goBack();
-                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+              if (that.fg.value.report?.rp?.id) {
+                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.goBack();
               }
@@ -2152,13 +2115,14 @@ export class AddEditPerDiemPage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
-    const header = reportId && this.isRedirectedFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
-    const body =
-      reportId && this.isRedirectedFromReport
-        ? 'Are you sure you want to remove this Per Diem expense from this report?'
-        : 'Are you sure you want to delete this Per Diem expense?';
-    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
+    const removePerDiemFromReport = reportId && this.isRedirectedFromReport;
+
+    const header = removePerDiemFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
+    const body = removePerDiemFromReport
+      ? 'Are you sure you want to remove this Per Diem expense from this report?'
+      : 'Are you sure you want to delete this Per Diem expense?';
+    const ctaText = removePerDiemFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = removePerDiemFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -2170,7 +2134,7 @@ export class AddEditPerDiemPage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && this.isRedirectedFromReport) {
+          if (removePerDiemFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
@@ -2187,6 +2151,8 @@ export class AddEditPerDiemPage implements OnInit {
         this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else if (removePerDiemFromReport) {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId }]);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }

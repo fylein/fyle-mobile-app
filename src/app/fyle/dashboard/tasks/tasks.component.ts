@@ -92,9 +92,7 @@ export class TasksComponent implements OnInit {
       taskFilters: this.loadData$,
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
     }).pipe(
-      switchMap(({ taskFilters, autoSubmissionReportDate }) =>
-        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters)
-      ),
+      switchMap(({ taskFilters, autoSubmissionReportDate }) => this.taskService.getTasks(false, taskFilters)),
       shareReplay(1)
     );
 
@@ -165,6 +163,18 @@ export class TasksComponent implements OnInit {
         sentBackReports: false,
         teamReports: false,
         sentBackAdvances: true,
+        potentialDuplicates: false,
+      });
+    }
+
+    if (paramFilters === 'none') {
+      this.loadData$.next({
+        sentBackReports: false,
+        draftReports: false,
+        draftExpenses: false,
+        unreportedExpenses: false,
+        teamReports: false,
+        sentBackAdvances: false,
         potentialDuplicates: false,
       });
     }
