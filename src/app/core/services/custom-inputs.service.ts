@@ -52,9 +52,6 @@ export class CustomInputsService {
     if (a.type > b.type) {
       return -1;
     }
-    if (a.input_type < b.input_type) {
-      return 1;
-    }
     return 0;
   }
 
