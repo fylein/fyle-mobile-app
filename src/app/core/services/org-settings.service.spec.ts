@@ -68,7 +68,7 @@ describe('OrgSettingsService', () => {
   it('should be able to get the org settings properly', (done) => {
     apiService.get.and.returnValue(of(postApiData));
     orgSettingsService.get().subscribe((res) => {
-      expect(res).toEqual(postApiData);
+      expect(res).toEqual(getApiData);
       done();
     });
   });
