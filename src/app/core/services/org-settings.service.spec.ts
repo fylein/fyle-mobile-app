@@ -17,9 +17,10 @@ import {
   incomingAccountSettingsObj,
   outgoingAccountSettingsObj,
   incomingAccountingObj,
-  outgoingAccountingObj,
   incomingTallyAccountingObjWithoutSettings,
   incomingQuickbooksAccountingObjWithoutSettings,
+  outgoingAccountingQuickbooksObjWithoutSettings,
+  outgoingAccountingTallyObjWithoutSettings,
 } from '../models/test-data/org-settings-data';
 
 import { OrgSettingsService } from './org-settings.service';
@@ -33,7 +34,10 @@ const outgoingTallyAccountObject: AccountingExportSettings = outgoingTallyAccoun
 const outgoingQuickbooksAccountObject: AccountingExportSettings = outgoingQuickbooksAccountObj;
 const outgoingAccountSettingsObject: AccountingExportSettings = outgoingAccountSettingsObj;
 const incomingAccountingObject: IncomingAccountObject = incomingAccountingObj;
-const outgoingAccountingObject: AccountingExportSettings = outgoingAccountingObj;
+const outgoingAccountingTallyObjectWithoutSettings: AccountingExportSettings =
+  outgoingAccountingTallyObjWithoutSettings;
+const outgoingAccountingQuickbooksObjectWithoutSettings: AccountingExportSettings =
+  outgoingAccountingQuickbooksObjWithoutSettings;
 const incomingTallyAccountingObjectWithoutSettings: IncomingAccountObject = incomingTallyAccountingObjWithoutSettings;
 const incomingQuickbooksAccountingObjectWithoutSettings: IncomingAccountObject =
   incomingQuickbooksAccountingObjWithoutSettings;
@@ -117,15 +121,15 @@ describe('OrgSettingsService', () => {
     expect(orgSettingsService.getIncomingAccountingObject(null)).toEqual(incomingAccountingObject);
   });
 
-  it('should be able to set outgoing taly accounting object with empty settings', () => {
+  it('should be able to set outgoing tally accounting object with empty settings', () => {
     expect(orgSettingsService.setOutgoingAccountingObject(incomingTallyAccountingObjectWithoutSettings)).toEqual(
-      outgoingAccountingObject
+      outgoingAccountingTallyObjectWithoutSettings
     );
   });
 
   it('should be able to set outgoing quickbooks accounting object with empty settings', () => {
     expect(orgSettingsService.setOutgoingAccountingObject(incomingQuickbooksAccountingObjectWithoutSettings)).toEqual(
-      outgoingAccountingObject
+      outgoingAccountingQuickbooksObjectWithoutSettings
     );
   });
 });

@@ -922,23 +922,27 @@ export const incomingAccountingObj: IncomingAccountObject = {
 };
 
 export const incomingTallyAccountingObjWithoutSettings: IncomingAccountObject = {
-  enabled: true,
+  enabled: false,
   type: 'TALLY',
   settings: null,
-  integration_exports_enabled: null,
+  integration_exports_enabled: false,
 };
 
 export const incomingQuickbooksAccountingObjWithoutSettings: IncomingAccountObject = {
-  enabled: true,
+  enabled: false,
   type: 'QUICKBOOKS',
   settings: null,
-  integration_exports_enabled: null,
+  integration_exports_enabled: false,
 };
 
-export const outgoingAccountingObj: AccountingExportSettings = {
-  allowed: true,
-  accounting_settings: null,
+export const outgoingAccountingTallyObjWithoutSettings: AccountingExportSettings = {
+  allowed: undefined,
+  integration_exports_enabled: false,
   tally_settings: {},
+};
+
+export const outgoingAccountingQuickbooksObjWithoutSettings: AccountingExportSettings = {
+  allowed: undefined,
+  integration_exports_enabled: false,
   quick_books_settings: {},
-  integration_exports_enabled: null,
 };
