@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { AccountType } from '../enums/account-type.enum';
 import {
   account1Data,
   account2Data,
@@ -107,5 +108,13 @@ describe('AccountsService', () => {
     expect(accountsService.getEtxnSelectedPaymentMode(unflattenedTxnWithoutSourceAccountId, paymentModes)).toEqual(
       null
     );
+  });
+
+  it('should be able to get account type from payment mode', () => {
+    expect(accountsService.getAccountTypeFromPaymentMode(paymentModeCCC)).toEqual(AccountType.CCC);
+  });
+
+  it('should be able to get company account type from payment mode', () => {
+    expect(accountsService.getAccountTypeFromPaymentMode(paymentModeDataPersonal)).toEqual(AccountType.COMPANY);
   });
 });
