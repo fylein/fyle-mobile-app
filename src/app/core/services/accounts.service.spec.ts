@@ -6,10 +6,12 @@ import {
   account2Data,
   paymentModeDataCCC,
   paymentModeDataPersonal,
+  paymentModesData,
   unflattenedAccount1Data,
   unflattenedAccount2Data,
   unflattenedTransactionCCC,
   unflattenedTransactionPersonal,
+  unflattenedTxnWithoutSourceAccountIdData,
 } from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
 import { ApiService } from './api.service';
@@ -32,6 +34,10 @@ const paymentModeCCC = paymentModeDataCCC;
 const etxnPersonal = unflattenedTransactionPersonal;
 
 const paymentModePersonal = paymentModeDataPersonal;
+
+const paymentModes = paymentModesData;
+
+const unflattenedTxnWithoutSourceAccountId = unflattenedTxnWithoutSourceAccountIdData;
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -91,5 +97,15 @@ describe('AccountsService', () => {
 
   it('should be able to check if etxn has same personal account payment mode', () => {
     expect(accountsService.checkIfEtxnHasSamePaymentMode(etxnPersonal, paymentModePersonal)).toEqual(false);
+  });
+
+  it('should be able to get etxn selected payment mode with source account id', () => {
+    expect(accountsService.getEtxnSelectedPaymentMode(unflattenedTransactionCCC, paymentModes)).toEqual(paymentModeCCC);
+  });
+
+  it('should be able to get etxn selected payment mode null without source account id', () => {
+    expect(accountsService.getEtxnSelectedPaymentMode(unflattenedTxnWithoutSourceAccountId, paymentModes)).toEqual(
+      null
+    );
   });
 });
