@@ -66,9 +66,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
-import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
-import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
@@ -897,7 +894,6 @@ export class AddEditMileagePage implements OnInit {
       sub_category: [, Validators.required],
       custom_inputs: new FormArray([]),
       costCenter: [],
-      add_to_new_report: [],
       report: [],
       duplicate_detection_reason: [],
     });
@@ -1595,23 +1591,6 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  addToNewReport(txnId: string) {
-    const that = this;
-    from(this.loaderService.showLoader())
-      .pipe(
-        switchMap(() => this.transactionService.getEtxn(txnId)),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
-      .subscribe((etxn) => {
-        const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-        if (!criticalPolicyViolated) {
-          that.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify([txnId]) }]);
-        } else {
-          that.close();
-        }
-      });
-  }
-
   showAddToReportSuccessToast(reportId: string) {
     const toastMessageData = {
       message: 'Mileage expense added to report successfully',
@@ -1638,11 +1617,8 @@ export class AddEditMileagePage implements OnInit {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
             that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
-              if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id) {
-                this.addToNewReport(etxn.tx.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                that.close();
-                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+              if (that.fg.value.report?.rp?.id) {
+                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.close();
               }
@@ -1650,11 +1626,8 @@ export class AddEditMileagePage implements OnInit {
           } else {
             // to do edit
             that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
-              if (that.fg.controls.add_to_new_report.value && tx && tx.id) {
-                this.addToNewReport(tx.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                that.close();
-                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+              if (that.fg.value.report?.rp?.id) {
+                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.close();
               }
@@ -1814,21 +1787,49 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
-    return from(this.mileageRates$).pipe(
-      switchMap((rates) => {
-        const transactionCopy = cloneDeep(etxn.tx);
-        const selectedMileageRate = this.getMileageByVehicleType(rates, etxn.tx.mileage_vehicle_type);
-        transactionCopy.mileage_rate_id = selectedMileageRate.id;
+  checkPolicyViolation(etxn) {
+    // Prepare etxn object with just tx and ou object required for test call
+    return from(this.authService.getEou()).pipe(
+      switchMap((currentEou) => {
+        const policyETxn = {
+          tx: cloneDeep(etxn.tx),
+          ou: cloneDeep(etxn.ou),
+        };
 
-        /* Expense creation has not moved to platform yet and since policy is moved to platform,
-         * it expects the expense object in terms of platform world. Until then, the method
-         * `transformTo` act as a bridge by translating the public expense object to platform
-         * expense.
+        if (!etxn.tx.id) {
+          policyETxn.ou = currentEou.ou;
+        }
+        /* Adding number of attachements and sending in test call as tx_num_files
+         * If editing an expense with receipts, check for already uploaded receipts
          */
-        const policyExpense = this.policyService.transformTo(transactionCopy);
-        return this.transactionService.checkPolicy(policyExpense);
-      })
+        if (etxn.tx) {
+          policyETxn.tx.num_files = etxn.tx.num_files;
+
+          // Check for receipts uploaded from mobile
+          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
+            policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
+          }
+        }
+
+        return this.categoriesService.getAll().pipe(
+          map((categories: any[]) => {
+            // policy engine expects org_category and sub_category fields
+            if (policyETxn.tx.org_category_id) {
+              const orgCategory = categories.find((cat) => cat.id === policyETxn.tx.org_category_id);
+              policyETxn.tx.org_category = orgCategory && orgCategory.name;
+              policyETxn.tx.sub_category = orgCategory && orgCategory.sub_category;
+            } else {
+              policyETxn.tx.org_category_id = null;
+              policyETxn.tx.sub_category = null;
+              policyETxn.tx.org_category = null;
+            }
+
+            // Flatten the etxn obj
+            return this.dataTransformService.etxnRaw(policyETxn);
+          })
+        );
+      }),
+      switchMap((policyETxn) => this.transactionService.testPolicy(policyETxn))
     );
   }
 
@@ -1849,12 +1850,12 @@ export class AddEditMileagePage implements OnInit {
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
+  async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
-        policyAction,
+        policyActionDescription,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -2007,16 +2008,18 @@ export class AddEditMileagePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+                map((policyViolations: any) => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations?.data?.final_desired_state,
+                  policyViolations &&
+                    policyViolations.transaction_desired_state &&
+                    policyViolations.transaction_desired_state.action_description,
                 ]),
-                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
+                switchMap(([policyViolations, policyActionDescription]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyAction,
+                      policyActionDescription,
                       etxn,
                     });
                   } else {
@@ -2047,7 +2050,7 @@ export class AddEditMileagePage implements OnInit {
             })
           );
         } else if (err.type === 'policyViolations') {
-          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
+          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -2232,16 +2235,18 @@ export class AddEditMileagePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
+                map((policyViolations: any) => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations?.data?.final_desired_state,
+                  policyViolations &&
+                    policyViolations.transaction_desired_state &&
+                    policyViolations.transaction_desired_state.action_description,
                 ]),
-                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
+                switchMap(([policyViolations, policyActionDescription]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyAction,
+                      policyActionDescription,
                       etxn,
                     });
                   } else {
@@ -2272,7 +2277,7 @@ export class AddEditMileagePage implements OnInit {
             })
           );
         } else if (err.type === 'policyViolations') {
-          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
+          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -2324,22 +2329,12 @@ export class AddEditMileagePage implements OnInit {
             ) {
               reportId = this.fg.value.report.rp.id;
             }
-            let entry;
-            if (this.fg.value.add_to_new_report) {
-              entry = {
-                comments,
-                reportId,
-              };
-            }
-            if (entry) {
-              return from(
-                this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)
-              ).pipe(map(() => etxn));
-            } else {
-              return of(
-                this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
-              ).pipe(map(() => etxn));
-            }
+            return of(
+              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
+            ).pipe(
+              switchMap((txnData: Promise<any>) => from(txnData)),
+              map(() => etxn)
+            );
           })
         )
       ),
@@ -2355,14 +2350,14 @@ export class AddEditMileagePage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
+    const removeMileageFromReport = reportId && this.isRedirectedFromReport;
 
-    const header = reportId && this.isRedirectedFromReport ? 'Remove Mileage' : 'Delete Mileage';
-    const body =
-      reportId && this.isRedirectedFromReport
-        ? 'Are you sure you want to remove this mileage expense from this report?'
-        : 'Are you sure you want to delete this mileage expense?';
-    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
+    const header = removeMileageFromReport ? 'Remove Mileage' : 'Delete Mileage';
+    const body = removeMileageFromReport
+      ? 'Are you sure you want to remove this mileage expense from this report?'
+      : 'Are you sure you want to delete this mileage expense?';
+    const ctaText = removeMileageFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = removeMileageFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -2374,7 +2369,7 @@ export class AddEditMileagePage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && this.isRedirectedFromReport) {
+          if (removeMileageFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
@@ -2391,6 +2386,8 @@ export class AddEditMileagePage implements OnInit {
         this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else if (removeMileageFromReport) {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId }]);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }

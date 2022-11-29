@@ -4,7 +4,6 @@ import { getCurrencySymbol } from '@angular/common';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FormControl, FormGroup } from '@angular/forms';
-import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 
 @Component({
   selector: 'app-fy-policy-violation',
@@ -14,7 +13,7 @@ import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-f
 export class FyPolicyViolationComponent implements OnInit {
   @Input() policyViolationMessages: string[];
 
-  @Input() policyAction: FinalExpensePolicyState;
+  @Input() policyActionDescription: string;
 
   @Input() showComment = true;
 
@@ -40,6 +39,9 @@ export class FyPolicyViolationComponent implements OnInit {
 
   cappedAmountString: string;
 
+  //To do Remove this once the policy action description gets returned as an array while integrating platform API
+  availableActionsCount = 0;
+
   constructor(
     private modalController: ModalController,
     private policyService: PolicyService,
@@ -48,13 +50,7 @@ export class FyPolicyViolationComponent implements OnInit {
 
   constructAdditionalApproverAction() {
     if (this.needAdditionalApproval) {
-      let emails = [];
-      this.policyAction.run_summary.forEach((summary: string) => {
-        if (summary.startsWith('expense will need approval from')) {
-          emails = this.utilityService.getEmailsFromString(summary);
-        }
-      });
-
+      const emails = this.utilityService.getEmailsFromString(this.policyActionDescription);
       if (emails?.length > 0) {
         this.approverEmailsRequiredMsg = this.policyService.getApprovalString(emails);
       }
@@ -63,13 +59,7 @@ export class FyPolicyViolationComponent implements OnInit {
 
   constructCappingAction() {
     if (this.isExpenseCapped) {
-      let cappedAmountMatches = [];
-      this.policyAction.run_summary.forEach((summary: string) => {
-        if (summary.startsWith('expense will be capped to')) {
-          cappedAmountMatches = this.utilityService.getAmountWithCurrencyFromString(summary);
-        }
-      });
-
+      const cappedAmountMatches = this.utilityService.getAmountWithCurrencyFromString(this.policyActionDescription);
       if (cappedAmountMatches?.length > 0) {
         const cappedAmount = cappedAmountMatches[1];
         if (cappedAmount) {
@@ -85,11 +75,23 @@ export class FyPolicyViolationComponent implements OnInit {
     this.form = new FormGroup({
       comment: new FormControl(''),
     });
-    if (this.policyAction) {
-      this.isExpenseFlagged = this.policyAction.flag;
-      this.isPrimaryApproverSkipped = this.policyAction.remove_employee_approver1;
-      this.needAdditionalApproval = this.policyAction.add_approver_user_ids.length > 0;
-      this.isExpenseCapped = this.policyAction.amount !== null;
+
+    if (this.policyActionDescription) {
+      this.isExpenseFlagged = this.policyService.isExpenseFlagged(this.policyActionDescription);
+      this.isPrimaryApproverSkipped = this.policyService.isPrimaryApproverSkipped(this.policyActionDescription);
+      this.needAdditionalApproval = this.policyService.needAdditionalApproval(this.policyActionDescription);
+      this.isExpenseCapped = this.policyService.isExpenseCapped(this.policyActionDescription);
+
+      const fns = [
+        this.policyService.isExpenseFlagged,
+        this.policyService.isPrimaryApproverSkipped,
+        this.policyService.needAdditionalApproval,
+        this.policyService.isExpenseCapped,
+      ];
+
+      const statuses = fns.map((fn) => fn(this.policyActionDescription));
+      const [isExpenseFlagged, isPrimaryApproverSkipped, needAdditionalApproval, isExpenseCapped] = statuses;
+      this.availableActionsCount = statuses.reduce((acc, curr) => (curr ? acc + 1 : acc), 0);
 
       this.constructAdditionalApproverAction();
 

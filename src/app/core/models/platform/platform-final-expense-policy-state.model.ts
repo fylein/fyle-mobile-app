@@ -1,6 +1,6 @@
 export interface FinalExpensePolicyState {
   add_approver_user_ids: string[];
-  expense_id?: string; // Expense Id is absent in check policies call
+  expense_id: string;
   amount: number;
   flag: boolean;
   is_receipt_mandatory: boolean;

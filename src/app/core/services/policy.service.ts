@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
 import { IndividualExpensePolicyState } from '../models/platform/platform-individual-expense-policy-state.model';
-import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 
@@ -19,86 +16,26 @@ export class PolicyService {
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 
-  transformTo(transaction: PublicPolicyExpense): PlatformPolicyExpense {
-    const platformPolicyExpense: PlatformPolicyExpense = {
-      id: transaction?.id,
-      spent_at: transaction?.txn_dt,
-      merchant: transaction?.vendor,
-      foreign_currency: transaction?.orig_currency,
-      foreign_amount: transaction?.orig_amount,
-      claim_amount: transaction?.amount,
-      purpose: transaction?.purpose,
-      cost_center_id: transaction?.cost_center_id,
-      category_id: transaction?.org_category_id,
-      project_id: transaction?.project_id,
-      source_account_id: transaction?.source_account_id,
-      tax_amount: transaction?.tax_amount,
-      tax_group_id: transaction?.tax_group_id,
-      is_billable: transaction?.billable,
-      is_reimbursable: transaction?.skip_reimbursement === null ? null : !transaction?.skip_reimbursement,
-      distance: transaction?.distance,
-      distance_unit: transaction?.distance_unit,
-      locations: transaction?.locations,
-      custom_fields: transaction?.custom_properties,
-      started_at: transaction?.from_dt,
-      ended_at: transaction?.to_dt,
-      per_diem_rate_id: transaction?.per_diem_rate_id,
-      per_diem_num_days: transaction?.num_days,
-      num_files: transaction?.num_files,
-      is_matching_ccc: transaction?.is_matching_ccc_expense,
-      mileage_rate_id: transaction?.mileage_rate_id,
-      mileage_calculated_distance: transaction?.mileage_calculated_distance,
-      mileage_calculated_amount: transaction?.mileage_calculated_amount,
-    };
-
-    if (
-      transaction?.fyle_category?.toLowerCase() === 'flight' ||
-      transaction?.fyle_category?.toLowerCase() === 'airlines'
-    ) {
-      platformPolicyExpense.travel_classes = [
-        transaction?.flight_journey_travel_class,
-        transaction?.flight_return_travel_class,
-      ];
-    } else if (transaction?.fyle_category?.toLowerCase() === 'bus') {
-      platformPolicyExpense.travel_classes = [transaction?.bus_travel_class];
-    } else if (transaction?.fyle_category?.toLowerCase() === 'train') {
-      platformPolicyExpense.travel_classes = [transaction?.train_travel_class];
-    }
-
-    return platformPolicyExpense;
-  }
-
-  getCriticalPolicyRules(expensePolicy: ExpensePolicy): string[] {
+  getCriticalPolicyRules(result) {
     const criticalPopupRules = [];
 
-    if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
-      expensePolicy.data.individual_desired_states.forEach((desiredState) => {
-        if (
-          desiredState.run_status === 'VIOLATED_ACTION_SUCCESS' &&
-          typeof desiredState.amount === 'number' &&
-          desiredState.amount < 0.0001
-        ) {
-          criticalPopupRules.push(desiredState.expense_policy_rule.description);
-        }
-      });
-    }
+    result.transaction_policy_rule_desired_states.forEach((desiredState) => {
+      if (typeof desiredState.policy_amount === 'number' && desiredState.policy_amount < 0.0001) {
+        criticalPopupRules.push(desiredState.description);
+      }
+    });
 
     return criticalPopupRules;
   }
 
-  getPolicyRules(expensePolicy: ExpensePolicy): string[] {
+  getPolicyRules(result) {
     const popupRules = [];
 
-    if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
-      expensePolicy.data.individual_desired_states.forEach((desiredState) => {
-        if (
-          desiredState.run_status === 'VIOLATED_ACTION_SUCCESS' &&
-          desiredState.expense_policy_rule.action_show_warning
-        ) {
-          popupRules.push(desiredState.expense_policy_rule.description);
-        }
-      });
-    }
+    result.transaction_policy_rule_desired_states.forEach((desiredState) => {
+      if (desiredState.popup) {
+        popupRules.push(desiredState.description);
+      }
+    });
 
     return popupRules;
   }

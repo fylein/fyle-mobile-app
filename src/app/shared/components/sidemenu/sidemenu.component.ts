@@ -18,6 +18,8 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { Router } from '@angular/router';
+import { MenuController } from '@ionic/angular';
 
 @Component({
   selector: 'app-sidemenu',
@@ -52,6 +54,8 @@ export class SidemenuComponent implements OnInit {
   constructor(
     private deviceService: DeviceService,
     private routerAuthService: RouterAuthService,
+    private router: Router,
+    private menuController: MenuController,
     private orgUserService: OrgUserService,
     private orgSettingsService: OrgSettingsService,
     private networkService: NetworkService,
@@ -368,6 +372,13 @@ export class SidemenuComponent implements OnInit {
         disabled: !isConnected,
       },
     ].filter((sidemenuItem) => sidemenuItem.isVisible);
+  }
+
+  goToProfile(event: Event) {
+    if (event.isTrusted) {
+      this.router.navigate(['/', 'enterprise', 'my_profile']);
+      this.menuController.close();
+    }
   }
 
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean) {
