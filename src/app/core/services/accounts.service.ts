@@ -166,7 +166,7 @@ export class AccountsService {
     return personalAccount.value;
   }
 
-  private getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean): string {
+  getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean): string {
     let accountCurrency = account.currency;
     let accountBalance = account.acc.tentative_balance_amount;
     if (isMultipleAdvanceEnabled && account?.orig?.amount) {
@@ -177,7 +177,7 @@ export class AccountsService {
     return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
   }
 
-  private filterAccountsWithSufficientBalance(
+  filterAccountsWithSufficientBalance(
     accounts: ExtendedAccount[],
     isAdvanceEnabled: boolean,
     accountId?: string
@@ -191,7 +191,7 @@ export class AccountsService {
     );
   }
 
-  private constructPaymentModes(
+  constructPaymentModes(
     accounts: ExtendedAccount[],
     isMultipleAdvanceEnabled: boolean,
     isPaidByCompanyHidden: boolean
@@ -240,7 +240,7 @@ export class AccountsService {
   }
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  private getAllowedAccounts(
+  getAllowedAccounts(
     allAccounts: ExtendedAccount[],
     allowedPaymentModes: string[],
     isMultipleAdvanceEnabled: boolean,
@@ -283,13 +283,16 @@ export class AccountsService {
   }
 
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
-  private checkIfEtxnHasSamePaymentMode(etxn: UnflattenedTransaction, paymentMode: ExtendedAccount): boolean {
+  checkIfEtxnHasSamePaymentMode(etxn: UnflattenedTransaction, paymentMode: ExtendedAccount): boolean {
+    console.log('check the etxn,', etxn);
+    console.log('check the paymentmode', paymentMode);
     if (etxn.source.account_type === AccountType.PERSONAL) {
       return (
         paymentMode.acc.id === etxn.tx.source_account_id &&
         paymentMode.acc.isReimbursable !== etxn.tx.skip_reimbursement
       );
     }
+    console.log('check if it is true', paymentMode.acc.id === etxn.tx.source_account_id);
     return paymentMode.acc.id === etxn.tx.source_account_id;
   }
 }

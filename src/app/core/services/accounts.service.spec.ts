@@ -1,117 +1,37 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { AccountType } from '../enums/account-type.enum';
+import {
+  account1Data,
+  account2Data,
+  paymentModeDataCCC,
+  paymentModeDataPersonal,
+  unflattenedAccount1Data,
+  unflattenedAccount2Data,
+  unflattenedTransactionCCC,
+  unflattenedTransactionPersonal,
+} from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 
-const account1 = {
-  acc_id: 'accfziaxbGFVW',
-  acc_created_at: '2018-10-08T07:04:42.753Z',
-  acc_updated_at: '2022-04-27T08:57:52.221Z',
-  acc_name: 'Personal Account',
-  acc_type: 'PERSONAL_ACCOUNT',
-  acc_currency: 'INR',
-  acc_target_balance_amount: 0,
-  acc_current_balance_amount: 0e-13,
-  acc_tentative_balance_amount: -5620222.5860540000395,
-  acc_category: null,
-  ou_id: 'ouCI4UQ2G0K1',
-  ou_org_id: 'orrjqbDbeP9p',
-  us_email: 'ajain@fyle.in',
-  us_full_name: 'abhishek',
-  org_id: null,
-  org_domain: null,
-  advance_purpose: null,
-  advance_number: null,
-  orig_currency: null,
-  currency: null,
-  orig_amount: null,
-  amount: null,
-  advance_id: null,
-};
+const account1 = account1Data;
 
-const unflattenedAccount1 = {
-  acc: {
-    id: 'accfziaxbGFVW',
-    created_at: new Date('2018-10-08T07:04:42.753Z'),
-    updated_at: new Date('2022-04-27T08:57:52.221Z'),
-    name: 'Personal Account',
-    type: AccountType.PERSONAL,
-    currency: 'INR',
-    target_balance_amount: 0,
-    current_balance_amount: 0,
-    tentative_balance_amount: -5620222.586054,
-    category: null,
-  },
-  ou: {
-    id: 'ouCI4UQ2G0K1',
-    org_id: 'orrjqbDbeP9p',
-  },
-  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
-  org: { id: null, domain: null },
-  advance: {
-    purpose: null,
-    // eslint-disable-next-line id-blacklist
-    number: null,
-    id: null,
-  },
-  orig: { currency: null, amount: null },
-  currency: null,
-  amount: null,
-};
+const unflattenedAccount1 = unflattenedAccount1Data;
 
-const account2 = {
-  acc_id: 'acct0IxPgGvLa',
-  acc_created_at: '2018-11-05T18:35:59.912Z',
-  acc_updated_at: '2021-09-29T19:35:23.965Z',
-  acc_name: 'Advance Account',
-  acc_type: 'PERSONAL_ADVANCE_ACCOUNT',
-  acc_currency: 'INR',
-  acc_target_balance_amount: 0,
-  acc_current_balance_amount: 0.0,
-  acc_tentative_balance_amount: 0.0,
-  acc_category: null,
-  ou_id: 'ouCI4UQ2G0K1',
-  ou_org_id: 'orrjqbDbeP9p',
-  us_email: 'ajain@fyle.in',
-  us_full_name: 'abhishek',
-  org_id: null,
-  org_domain: null,
-  advance_purpose: 'ddsfd',
-  advance_number: 'A/2020/03/T/2',
-  orig_currency: null,
-  currency: 'INR',
-  orig_amount: null,
-  amount: 800000,
-  advance_id: 'advT96eCXZtCo',
-};
+const account2 = account2Data;
 
-const unflattenedAccount2 = {
-  acc: {
-    id: 'acct0IxPgGvLa',
-    created_at: new Date('2018-11-05T18:35:59.912Z'),
-    updated_at: new Date('2021-09-29T19:35:23.965Z'),
-    name: 'Advance Account',
-    type: AccountType.ADVANCE,
-    currency: 'INR',
-    target_balance_amount: 0,
-    current_balance_amount: 0,
-    tentative_balance_amount: 0,
-    category: null,
-  },
-  ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
-  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
-  org: { id: null, domain: null },
-  // eslint-disable-next-line id-blacklist
-  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
-  orig: { currency: null, amount: null },
-  currency: 'INR',
-  amount: 800000,
-};
+const unflattenedAccount2 = unflattenedAccount2Data;
 
 const accountsCallResponse1 = [account1, account2];
+
+const etxnCCC = unflattenedTransactionCCC;
+
+const paymentModeCCC = paymentModeDataCCC;
+
+const etxnPersonal = unflattenedTransactionPersonal;
+
+const paymentModePersonal = paymentModeDataPersonal;
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -163,5 +83,13 @@ describe('AccountsService', () => {
       expect(res.length === 2);
       done();
     });
+  });
+
+  it('should be able to check if etxn has same payment mode', () => {
+    expect(accountsService.checkIfEtxnHasSamePaymentMode(etxnCCC, paymentModeCCC)).toEqual(true);
+  });
+
+  it('should be able to check if etxn has same personal account payment mode', () => {
+    expect(accountsService.checkIfEtxnHasSamePaymentMode(etxnPersonal, paymentModePersonal)).toEqual(false);
   });
 });
