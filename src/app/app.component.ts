@@ -108,7 +108,7 @@ export class AppComponent implements OnInit {
       });
       setTimeout(async () => await SplashScreen.hide(), 1000);
 
-      await TextZoom.set({ value: 100 });
+      await TextZoom.set({ value: 1 });
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(
