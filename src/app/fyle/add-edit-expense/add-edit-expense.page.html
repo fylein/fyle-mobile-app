@@ -119,7 +119,7 @@
             <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
             <div
               class="add-edit-expense--split-info-message"
-              *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
+              *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !((etxn$|async)?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
             >
               If the expense is linked with incorrect card details, click on Options (<span
                 ><ion-icon
