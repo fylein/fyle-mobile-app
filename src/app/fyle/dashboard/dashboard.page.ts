@@ -64,7 +64,9 @@ export class DashboardPage implements OnInit {
     private platform: Platform,
     private backButtonService: BackButtonService,
     private navController: NavController
-  ) {}
+  ) {
+    console.log('CONSTRUCTOR IN DASHBOARD');
+  }
 
   get displayedTaskCount() {
     if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
@@ -97,6 +99,7 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    console.log('DASHBOARD');
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();

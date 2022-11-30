@@ -105,7 +105,8 @@ export class AppComponent implements OnInit {
       await StatusBar.setStyle({
         style: Style.Default,
       });
-      setTimeout(async () => await SplashScreen.hide(), 1000);
+      // await SplashScreen.hide();
+      // setTimeout(async () =>, 1000);
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(
@@ -145,12 +146,12 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.setupNetworkWatcher();
 
-    if ((window as any) && (window as any).localStorage) {
-      const lstorage = (window as any).localStorage;
-      Object.keys(lstorage)
-        .filter((key) => key.match(/^fyle/))
-        .forEach((key) => lstorage.removeItem(key));
-    }
+    // if ((window as any) && (window as any).localStorage) {
+    //   const lstorage = (window as any).localStorage;
+    //   Object.keys(lstorage)
+    //     .filter((key) => key.match(/^fyle/))
+    //     .forEach((key) => lstorage.removeItem(key));
+    // }
 
     this.isConnected$.subscribe((isOnline) => {
       this.isOnline = isOnline;

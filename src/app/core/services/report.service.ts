@@ -43,9 +43,9 @@ export class ReportService {
     private launchDarklyService: LaunchDarklyService,
     private permissionsService: PermissionsService
   ) {
-    reportsCacheBuster$.subscribe(() => {
-      this.userEventService.clearTaskCache();
-    });
+    // reportsCacheBuster$.subscribe(() => {
+    //   this.userEventService.clearTaskCache();
+    // });
   }
 
   @CacheBuster({

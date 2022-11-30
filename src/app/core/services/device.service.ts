@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
 import { App, AppInfo } from '@capacitor/app';
-import { forkJoin, Observable, of } from 'rxjs';
+import { forkJoin, from, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 import { environment } from 'src/environments/environment';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ import { environment } from 'src/environments/environment';
 export class DeviceService {
   constructor() {}
 
+  @Cacheable()
   getDeviceInfo(): Observable<ExtendedDeviceInfo> {
     return forkJoin({
       deviceInfo: Device.getInfo(),
@@ -29,7 +31,8 @@ export class DeviceService {
   }
 
   //App plugin does not have a web implementation
-  getAppInfo(): Promise<AppInfo> | Observable<{ version: string }> {
-    return Capacitor.getPlatform() === 'web' ? of({ version: '1.2.3' }) : App.getInfo();
+  @Cacheable()
+  getAppInfo(): Observable<{ version: string }> {
+    return Capacitor.getPlatform() === 'web' ? of({ version: '1.2.3' }) : from(App.getInfo());
   }
 }

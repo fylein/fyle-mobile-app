@@ -4,10 +4,12 @@ import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { switchMap, map, finalize } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
-import { forkJoin, Observable, from, iif } from 'rxjs';
+import { forkJoin, Observable, from, iif, Subject } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { JwtHelperService } from './jwt-helper.service';
-import { Cacheable } from 'ts-cacheable';
+import { Cacheable, PCacheable, CacheBuster } from 'ts-cacheable';
+
+const eouCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root',
@@ -21,10 +23,16 @@ export class AuthService {
     private jwtHelperService: JwtHelperService
   ) {}
 
+  @PCacheable({
+    cacheBusterObserver: eouCacheBuster$,
+  })
   getEou(): Promise<ExtendedOrgUser> {
     return this.storageService.get('user');
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: eouCacheBuster$,
+  })
   refreshEou(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(
       switchMap((data) => {

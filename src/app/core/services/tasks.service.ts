@@ -51,7 +51,7 @@ export class TasksService {
     private advancesRequestService: AdvanceRequestService,
     private currencyService: CurrencyService
   ) {
-    this.refreshOnTaskClear();
+    // this.refreshOnTaskClear();
   }
 
   refreshOnTaskClear(): void {

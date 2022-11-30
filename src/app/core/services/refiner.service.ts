@@ -202,7 +202,7 @@ export class RefinerService {
     private networkService: NetworkService,
     private orgUserService: OrgUserService
   ) {
-    this.setupNetworkWatcher();
+    // this.setupNetworkWatcher();
   }
 
   setupNetworkWatcher() {

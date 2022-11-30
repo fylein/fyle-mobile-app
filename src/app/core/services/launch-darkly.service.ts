@@ -14,7 +14,7 @@ export class LaunchDarklyService {
   private ldClient: LDClient.LDClient;
 
   constructor(private userEventService: UserEventService, private storageService: StorageService) {
-    this.userEventService.onLogout(() => this.shutDownClient());
+    // this.userEventService.onLogout(() => this.shutDownClient());
   }
 
   getVariation(key: string, defaultValue: boolean): Observable<boolean> {

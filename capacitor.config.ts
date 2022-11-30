@@ -8,7 +8,7 @@ const config: CapacitorConfig = {
   loggingBehavior: 'debug',
   plugins: {
     SplashScreen: {
-      launchAutoHide: false,
+      launchAutoHide: true,
       androidScaleType: 'CENTER_CROP',
     },
     Keyboard: {

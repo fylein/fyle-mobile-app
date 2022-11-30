@@ -10,11 +10,11 @@ const tokenCacheBuster$ = new Subject<void>();
 })
 export class TokenService {
   constructor(private secureStorageService: SecureStorageService, private userEventService: UserEventService) {
-    this.userEventService.onLogout(() => {
-      this.resetRefreshToken();
-      this.resetAccessToken();
-      this.resetClusterDomain();
-    });
+    // this.userEventService.onLogout(() => {
+    //   this.resetRefreshToken();
+    //   this.resetAccessToken();
+    //   this.resetClusterDomain();
+    // });
   }
 
   @PCacheable({

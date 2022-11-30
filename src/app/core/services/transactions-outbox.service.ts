@@ -48,7 +48,8 @@ export class TransactionsOutboxService {
     private currencyService: CurrencyService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
-    this.restoreQueue();
+    //Removed this as all services are provided in root and so this will happen before app is initialized
+    // this.restoreQueue();
   }
 
   get singleCaptureCount() {

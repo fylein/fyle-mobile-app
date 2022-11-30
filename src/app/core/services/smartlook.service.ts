@@ -25,7 +25,7 @@ export class SmartlookService {
     private networkService: NetworkService,
     private smartlook: Smartlook
   ) {
-    this.setupNetworkWatcher();
+    // this.setupNetworkWatcher();
   }
 
   setupNetworkWatcher() {
