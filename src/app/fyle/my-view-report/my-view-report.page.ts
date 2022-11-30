@@ -166,7 +166,7 @@ export class MyViewReportPage {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.erpt$ = this.loadReportDetails$.pipe(
-      switchMap(() => this.loaderService.showLoader()),
+      tap(() => this.loaderService.showLoader()),
       switchMap(() => this.reportService.getReport(this.reportId)),
       tap(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
