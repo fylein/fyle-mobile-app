@@ -115,20 +115,6 @@
         </ng-container>
 
         <ng-container *ngIf="isUnifyCcceExpensesSettingsEnabled && isCccExpense">
-          <div class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border">
-            <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
-            <div
-              class="add-edit-expense--split-info-message"
-              *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
-            >
-              If the expense is linked with incorrect card details, click on Options (<span
-                ><ion-icon
-                  class="add-edit-expense--icon-dots"
-                  [src]="'../../../assets/svg/dot-menu.svg'"
-                ></ion-icon></span
-              >) to unlink the card details.
-            </div>
-          </div>
           <ion-grid class="add-edit-expense--card-container">
             <ion-row>
               <ion-col>
@@ -163,6 +149,17 @@
               </ion-col>
             </ion-row>
           </ion-grid>
+          <div class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border">
+            <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
+            <div class="add-edit-expense--split-info-message">
+              If the expense is linked with incorrect card details, click on Options (<span
+                ><ion-icon
+                  class="add-edit-expense--icon-dots"
+                  [src]="'../../../assets/svg/dot-menu.svg'"
+                ></ion-icon></span
+              >) to unlink the card details.
+            </div>
+          </div>
         </ng-container>
 
         <div class="add-edit-expense--receipt-currency-container">
