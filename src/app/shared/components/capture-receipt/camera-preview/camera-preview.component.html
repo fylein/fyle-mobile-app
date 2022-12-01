@@ -10,7 +10,7 @@
       <img class="camera-preview__top-container__icon" src="../../../assets/images/close.png" />
     </div>
     <ng-container *ngIf="flashMode">
-      <div class="camera-preview__top-container__info-box text-center">
+      <div *ngIf="!isIos" class="camera-preview__top-container__info-box text-center">
         Use
         <ion-icon
           class="camera-preview__top-container__info-box__icon"

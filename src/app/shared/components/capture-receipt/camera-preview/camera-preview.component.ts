@@ -52,6 +52,8 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   showModeChangedMessage = false;
 
+  isIos = true;
+
   constructor(
     private loaderService: LoaderService,
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
@@ -62,6 +64,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   setUpAndStartCamera() {
+    this.isIos = this.devicePlatform === 'ios';
     if (this.devicePlatform === 'web') {
       this.startCameraPreview();
     } else {
