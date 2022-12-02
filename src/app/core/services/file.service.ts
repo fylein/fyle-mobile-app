@@ -5,6 +5,8 @@ import { File } from '../models/file.model';
 import { ApiService } from './api.service';
 import { FileObject } from '../models/file_obj.model';
 import { ReceiptInfo } from '../models/receipt-info.model';
+import heic2any from 'heic2any';
+import { filter } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -124,10 +126,68 @@ export class FileService {
     });
   }
 
-  readFile(file) {
+  //Convert string to blob
+  dataURItoBlob(dataURI, fileType: string) {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    // const ab = new ArrayBuffer(byteString.length);
+    // const ia = new Uint8Array(ab);
+
+    const blobArray = [];
+    for (let index = 0; index < byteString.length; index++) {
+      blobArray.push(byteString.charCodeAt(index));
+    }
+    const blob = new Blob(blobArray, { type: mimeString });
+    return blob;
+  }
+
+  dataURItoBlob2(dataURI) {
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    const byteString = atob(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to a typed array
+    const uintArray = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) {
+      uintArray[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([uintArray], { type: mimeString });
+  }
+
+  //convert blob to string
+  blobToString(blob): Promise<string | ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve(e.target.result);
+      };
+      reader.onerror = (e) => {
+        reject(e);
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  readFile(file: Blob): Promise<string | ArrayBuffer> {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
-      fileReader.onload = () => resolve(fileReader.result);
+      fileReader.onload = async () => {
+        if (file.type === 'image/heic') {
+          const result = await heic2any({
+            blob: this.dataURItoBlob2(fileReader.result),
+            toType: 'image/jpeg',
+            quality: 50,
+          });
+
+          //Ref: https://stackoverflow.com/questions/18650168/convert-blob-to-base64
+          const data = await this.blobToString(result as Blob);
+          console.log('data', data);
+          return resolve(data);
+        }
+        return resolve(fileReader.result);
+      };
       fileReader.readAsDataURL(file);
     });
   }
