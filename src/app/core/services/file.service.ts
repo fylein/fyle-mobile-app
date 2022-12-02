@@ -6,7 +6,6 @@ import { ApiService } from './api.service';
 import { FileObject } from '../models/file_obj.model';
 import { ReceiptInfo } from '../models/receipt-info.model';
 import heic2any from 'heic2any';
-import { filter } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -126,22 +125,7 @@ export class FileService {
     });
   }
 
-  //Convert string to blob
-  dataURItoBlob(dataURI, fileType: string) {
-    const byteString = atob(dataURI.split(',')[1]);
-    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-    // const ab = new ArrayBuffer(byteString.length);
-    // const ia = new Uint8Array(ab);
-
-    const blobArray = [];
-    for (let index = 0; index < byteString.length; index++) {
-      blobArray.push(byteString.charCodeAt(index));
-    }
-    const blob = new Blob(blobArray, { type: mimeString });
-    return blob;
-  }
-
-  dataURItoBlob2(dataURI) {
+  getBlobFromDataUrl(dataURI: string): Blob {
     // convert base64/URLEncoded data component to raw binary data held in a string
     const byteString = atob(dataURI.split(',')[1]);
 
@@ -156,17 +140,11 @@ export class FileService {
     return new Blob([uintArray], { type: mimeString });
   }
 
-  //convert blob to string
-  blobToString(blob): Promise<string | ArrayBuffer> {
+  getDataUrlFromBlob(blob: Blob): Promise<string | ArrayBuffer> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        resolve(e.target.result);
-      };
-      reader.onerror = (e) => {
-        reject(e);
-      };
       reader.readAsDataURL(blob);
+      reader.onloadend = () => resolve(reader.result);
     });
   }
 
@@ -176,19 +154,17 @@ export class FileService {
       fileReader.onload = async () => {
         if (file.type === 'image/heic') {
           const result = await heic2any({
-            blob: this.dataURItoBlob2(fileReader.result),
+            blob: this.getBlobFromDataUrl(fileReader.result as string),
             toType: 'image/jpeg',
             quality: 50,
           });
-
-          //Ref: https://stackoverflow.com/questions/18650168/convert-blob-to-base64
-          const data = await this.blobToString(result as Blob);
-          console.log('data', data);
-          return resolve(data);
+          const dataUrl = await this.getDataUrlFromBlob(result as Blob);
+          return resolve(dataUrl);
         }
         return resolve(fileReader.result);
       };
       fileReader.readAsDataURL(file);
+      fileReader.onerror = (error) => console.log(error);
     });
   }
 
