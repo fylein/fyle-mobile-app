@@ -3,7 +3,7 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop, concat, Subject, forkJoin, BehaviorSubject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, switchMap, shareReplay, takeUntil, tap, startWith, take } from 'rxjs/operators';
+import { map, switchMap, shareReplay, takeUntil, tap, startWith, take, finalize } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -167,8 +167,9 @@ export class MyViewReportPage {
 
     this.erpt$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
-      switchMap(() => this.reportService.getReport(this.reportId)),
-      tap(() => from(this.loaderService.hideLoader())),
+      switchMap(() =>
+        this.reportService.getReport(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
+      ),
       shareReplay(1)
     );
     const eou$ = from(this.authService.getEou());
@@ -235,11 +236,13 @@ export class MyViewReportPage {
       tap(() => (this.isExpensesLoading = true)),
       switchMap(() => this.authService.getEou()),
       switchMap((eou) =>
-        this.transactionService.getAllETxnc({
-          tx_org_user_id: 'eq.' + eou.ou.id,
-          tx_report_id: 'eq.' + this.reportId,
-          order: 'tx_txn_dt.desc,tx_id.desc',
-        })
+        this.transactionService
+          .getAllETxnc({
+            tx_org_user_id: 'eq.' + eou.ou.id,
+            tx_report_id: 'eq.' + this.reportId,
+            order: 'tx_txn_dt.desc,tx_id.desc',
+          })
+          .pipe(finalize(() => (this.isExpensesLoading = false)))
       ),
       map((etxns) =>
         etxns.map((etxn) => {
@@ -248,8 +251,7 @@ export class MyViewReportPage {
           return etxn;
         })
       ),
-      shareReplay(1),
-      tap(() => (this.isExpensesLoading = false))
+      shareReplay(1)
     );
 
     const actions$ = this.reportService.actions(this.reportId).pipe(shareReplay(1));
