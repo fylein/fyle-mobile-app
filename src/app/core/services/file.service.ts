@@ -128,14 +128,14 @@ export class FileService {
   getBlobFromDataUrl(dataUrl: string): Blob {
     //Convert dataUrl to raw binary data held in a string
     const byteString = atob(dataUrl.split(',')[1]);
-    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+    const mimeType = dataUrl.split(',')[0].split(':')[1].split(';')[0];
 
     //Write the bytes of the string to a typed array
     const uintArray = new Uint8Array(byteString.length);
     for (let i = 0; i < byteString.length; i++) {
       uintArray[i] = byteString.charCodeAt(i);
     }
-    return new Blob([uintArray], { type: mimeString });
+    return new Blob([uintArray], { type: mimeType });
   }
 
   getDataUrlFromBlob(blob: Blob): Promise<string | ArrayBuffer> {

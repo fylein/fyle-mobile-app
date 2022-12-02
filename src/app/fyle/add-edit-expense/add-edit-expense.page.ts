@@ -3932,9 +3932,8 @@ export class AddEditExpensePage implements OnInit {
         const file = nativeElement.files[0];
         if (file) {
           const dataUrl = await this.fileService.readFile(file);
-          const fileType = file.type;
           fileData = {
-            type: fileType,
+            type: file.type,
             dataUrl,
             actionSource: 'gallery_upload',
           };
