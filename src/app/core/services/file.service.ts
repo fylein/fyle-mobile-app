@@ -125,14 +125,12 @@ export class FileService {
     });
   }
 
-  getBlobFromDataUrl(dataURI: string): Blob {
-    // convert base64/URLEncoded data component to raw binary data held in a string
-    const byteString = atob(dataURI.split(',')[1]);
+  getBlobFromDataUrl(dataUrl: string): Blob {
+    //Convert dataUrl to raw binary data held in a string
+    const byteString = atob(dataUrl.split(',')[1]);
+    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
 
-    // separate out the mime component
-    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-    // write the bytes of the string to a typed array
+    //Write the bytes of the string to a typed array
     const uintArray = new Uint8Array(byteString.length);
     for (let i = 0; i < byteString.length; i++) {
       uintArray[i] = byteString.charCodeAt(i);
@@ -164,7 +162,7 @@ export class FileService {
         return resolve(fileReader.result);
       };
       fileReader.readAsDataURL(file);
-      fileReader.onerror = (error) => console.log(error);
+      fileReader.onerror = (error) => reject(error);
     });
   }
 
