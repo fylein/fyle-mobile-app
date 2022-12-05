@@ -56,7 +56,8 @@
       width: 160px;
 
       &__icon {
-        margin-bottom: -2px;
+        position: relative;
+        top: 2px;
       }
     }
 
