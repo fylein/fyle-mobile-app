@@ -9,7 +9,7 @@ import {
   updateReponseWithFlattenedEStatus,
 } from '../test-data/status.service.spec.data';
 
-fdescribe('StatusService', () => {
+describe('StatusService', () => {
   let statusService: StatusService;
   let apiService: jasmine.SpyObj<ApiService>;
 
