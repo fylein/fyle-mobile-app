@@ -3,12 +3,13 @@ import { ApiService } from './api.service';
 import { of } from 'rxjs';
 import { StatusService } from './status.service';
 import {
-  getEStatusApiResponse,
+  getEstatusApiResponse,
   apiCommentsResponse,
+  getApiResponse,
   updateReponseWithFlattenedEStatus,
 } from '../test-data/status.service.spec.data';
 
-describe('StatusService', () => {
+fdescribe('StatusService', () => {
   let statusService: StatusService;
   let apiService: jasmine.SpyObj<ApiService>;
 
@@ -36,10 +37,10 @@ describe('StatusService', () => {
   });
 
   it('should find all estatuses', (done) => {
-    apiService.get.and.returnValue(of(getEStatusApiResponse));
+    apiService.get.and.returnValue(of(getApiResponse));
 
     statusService.find(type, id).subscribe((res) => {
-      expect(res).toEqual(getEStatusApiResponse);
+      expect(res).toEqual(getEstatusApiResponse);
       done();
     });
   });
@@ -59,7 +60,7 @@ describe('StatusService', () => {
   });
 
   it('should find and return the latest comment', (done) => {
-    apiService.get.and.returnValue(of(getEStatusApiResponse));
+    apiService.get.and.returnValue(of(getApiResponse));
 
     const result = statusService.findLatestComment(id, type, 'POLICY');
     result.subscribe((res) => {
