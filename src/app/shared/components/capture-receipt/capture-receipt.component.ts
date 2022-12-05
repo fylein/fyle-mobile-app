@@ -9,10 +9,11 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap, first } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
@@ -22,6 +23,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { Currency } from 'src/app/core/models/currency.model';
 
 type Image = Partial<{
   source: string;
@@ -58,6 +60,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   bulkModeToastMessageRef: MatSnackBarRef<ToastMessageComponent>;
 
+  recentlyUsedCurrencies$: Observable<Currency[]>;
+
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -73,6 +77,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private orgUserSettingsService: OrgUserSettingsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
+    private recentlyUsedItemsService: RecentlyUsedItemsService,
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
@@ -86,6 +91,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnInit() {
+    this.recentlyUsedCurrencies$ = forkJoin({
+      recentValues: this.recentlyUsedItemsService.getRecentlyUsed(),
+      currencies: this.currencyService.getAll(),
+    }).pipe(
+      switchMap(({ recentValues, currencies }) =>
+        this.recentlyUsedItemsService.getRecentCurrencies(currencies, recentValues)
+      )
+    );
     this.setupNetworkWatcher();
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
@@ -109,20 +122,27 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   addExpenseToQueue(base64ImagesWithSource: Image) {
     let source = base64ImagesWithSource.source;
-
     return forkJoin({
       isOffline: this.isOffline$.pipe(take(1)),
       homeCurrency: this.currencyService.getHomeCurrency(),
       isInstafyleEnabled: this.isInstafyleEnabled$,
+      recentlyUsedCurrencies: this.recentlyUsedCurrencies$,
     }).pipe(
-      switchMap(({ homeCurrency, isOffline, isInstafyleEnabled }) => {
+      switchMap(({ homeCurrency, isOffline, isInstafyleEnabled, recentlyUsedCurrencies }) => {
         if (isOffline) {
           source += '_OFFLINE';
         }
+
+        let useCurrency = recentlyUsedCurrencies[0].shortCode;
+
+        if (!recentlyUsedCurrencies) {
+          useCurrency = homeCurrency;
+        }
+
         const transaction = {
           source,
           txn_dt: new Date(),
-          currency: homeCurrency,
+          currency: 'USD',
         };
 
         const attachmentUrls = [
