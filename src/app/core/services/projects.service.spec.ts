@@ -9,6 +9,7 @@ import {
   testActiveCategoryList,
   allowedActiveCategories,
   apiV2ResponseProjects,
+  apiResponseActiveWoOrgID,
   projectsAfterParamsFormatted,
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
@@ -93,22 +94,6 @@ fdescribe('ProjectsService', () => {
     expect(result).toEqual(apiResponseActiveOnly[0]);
   });
 
-  it('should add project Id filter', () => {
-    const testProjectIds = [3943, 305792, 148971, 247936];
-
-    const testProject = {
-      project_org_id: 'eq.orNVthTo2Zyo',
-      order: 'project_name.asc',
-      limit: 10,
-      offset: 0,
-      project_active: 'eq.true',
-      project_id: 'in.(3943,305792,148971,247936)',
-    };
-
-    const result = projectService.addProjectIdsFilter(testProjectIds, testProject);
-    console.log(result);
-  });
-
   it('should get allowed organisation category IDs | With project', () => {
     const testProject = {
       ap1_email: null,
@@ -145,26 +130,11 @@ fdescribe('ProjectsService', () => {
     expect(result).toEqual(testActiveCategoryList);
   });
 
-  it('should get project count | string categoryID', (done) => {
+  it('should get project count | with categoryID', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
     const testParams = [
       '145429',
-      '122269',
-      '122271',
-      '122270',
-      '122273',
-      '122272',
-      '122275',
-      '122274',
-      '122277',
-      '122276',
-      '122279',
-      '122278',
       '173093',
-      '122281',
-      '122280',
-      '122283',
-      '122282',
       '122285',
       '122284',
       '122287',
@@ -179,14 +149,38 @@ fdescribe('ProjectsService', () => {
     ];
     const result = projectService.getProjectCount({ categoryIds: testParams });
     result.subscribe((res) => {
-      expect(res).toEqual(apiResponseActiveOnly.length);
+      expect(res).toEqual(2);
       done();
     });
   });
 
-  it('should get project count | no categoryID', (done) => {
+  it('should get project count | with categoryID no matching projects', (done) => {
+    apiService.get.and.returnValue(of(apiResponseActiveWoOrgID));
+    const testParams = [
+      '145429',
+      '173093',
+      '122285',
+      '122284',
+      '122287',
+      '122286',
+      '122289',
+      '140530',
+      '145458',
+      '122288',
+      '140531',
+      '122291',
+      '122290',
+    ];
+    const result = projectService.getProjectCount({ categoryIds: testParams });
+    result.subscribe((res) => {
+      expect(res).toEqual(0);
+      done();
+    });
+  });
+
+  it('should get project count | Without categoryIDs', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
-    const result = projectService.getProjectCount();
+    const result = projectService.getProjectCount({ categoryIds: null });
     result.subscribe((res) => {
       expect(res).toEqual(apiResponseActiveOnly.length);
       done();
@@ -253,5 +247,8 @@ fdescribe('ProjectsService', () => {
       searchNameText: 'search',
     };
     const result = projectService.getByParamsUnformatted(testProjectParams);
+    result.subscribe((res) => {
+      done();
+    });
   });
 });
