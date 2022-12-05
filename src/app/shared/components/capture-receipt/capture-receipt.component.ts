@@ -142,7 +142,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         const transaction = {
           source,
           txn_dt: new Date(),
-          currency: 'USD',
+          currency: useCurrency,
         };
 
         const attachmentUrls = [
