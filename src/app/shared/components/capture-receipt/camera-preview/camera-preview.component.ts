@@ -103,7 +103,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   stopCamera() {
-    if (this.cameraState !== CameraState.STOPPING) {
+    if ([CameraState.STARTING, CameraState.RUNNING].includes(this.cameraState)) {
       this.cameraState = CameraState.STOPPING;
       from(CameraPreview.stop()).subscribe((_) => (this.cameraState = CameraState.STOPPED));
     }
