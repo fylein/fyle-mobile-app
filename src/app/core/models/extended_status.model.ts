@@ -1,3 +1,5 @@
+import { StatusCategory } from './status-category.model';
+
 export interface ExtendedStatus {
   isSelfComment?: boolean;
   isBotComment?: boolean;
@@ -13,4 +15,5 @@ export interface ExtendedStatus {
   st_transaction_id?: string;
   us_email?: string;
   us_full_name: string;
+  st?: StatusCategory;
 }
