@@ -7,7 +7,7 @@ import { map, switchMap, shareReplay, takeUntil, tap, startWith, take, finalize 
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent, IonSegment } from '@ionic/angular';
+import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
@@ -30,6 +30,12 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
+enum Segment {
+  EXPENSES,
+  COMMENTS,
+  HISTORY,
+}
+
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -39,8 +45,6 @@ export class MyViewReportPage {
   @ViewChild('commentInput') commentInput: ElementRef;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
-
-  @ViewChild('ionSegment') ionSegment: IonSegment;
 
   erpt$: Observable<ExtendedReport>;
 
@@ -61,12 +65,6 @@ export class MyViewReportPage {
   onPageExit = new Subject();
 
   reportCurrencySymbol = '';
-
-  isCommentsView = false;
-
-  isHistoryView = false;
-
-  isExpensesView = true;
 
   estatuses$: Observable<ExtendedStatus[]>;
 
@@ -100,6 +98,8 @@ export class MyViewReportPage {
 
   loadReportTxns$ = new BehaviorSubject<void>(null);
 
+  segmentValue = Segment.EXPENSES;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -117,6 +117,10 @@ export class MyViewReportPage {
     private statusService: StatusService,
     private refinerService: RefinerService
   ) {}
+
+  get Segment() {
+    return Segment;
+  }
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -164,6 +168,8 @@ export class MyViewReportPage {
     this.setupNetworkWatcher();
     this.reportId = this.activatedRoute.snapshot.params.id;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+
+    this.segmentValue = Segment.EXPENSES;
 
     this.erpt$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
@@ -224,7 +230,7 @@ export class MyViewReportPage {
 
       //For sent back reports, show the comments section instead of expenses when opening the report
       if (erpt.rp_state === 'APPROVER_INQUIRY') {
-        setTimeout(() => (this.ionSegment.value = 'comments'), 0);
+        this.segmentValue = Segment.COMMENTS;
       }
     });
 
@@ -485,25 +491,8 @@ export class MyViewReportPage {
   }
 
   segmentChanged(event) {
-    if (event && event.detail && event.detail.value) {
-      if (event.detail.value === 'expenses') {
-        this.isExpensesView = true;
-        this.isCommentsView = false;
-        this.isHistoryView = false;
-      } else if (event.detail.value === 'comments') {
-        this.isCommentsView = true;
-        this.isExpensesView = false;
-        this.isHistoryView = false;
-        if (this.userComments && this.userComments.length > 0) {
-          setTimeout(() => {
-            this.content.scrollToBottom(500);
-          }, 500);
-        }
-      } else if (event.detail.value === 'history') {
-        this.isHistoryView = true;
-        this.isCommentsView = false;
-        this.isExpensesView = false;
-      }
+    if (event?.detail?.value) {
+      this.segmentValue = parseInt(event.detail.value, 10);
     }
   }
 

@@ -124,18 +124,23 @@
           <ion-segment
             class="segment-block view-reports--segment-block-container__segment"
             (ionChange)="segmentChanged($event)"
-            value="expenses"
-            #ionSegment
+            [value]="segmentValue"
           >
-            <ion-segment-button value="expenses" class="view-reports--segment-block-container__btn text-capitalize">
+            <ion-segment-button
+              [value]="Segment.EXPENSES"
+              class="view-reports--segment-block-container__btn text-capitalize"
+            >
               Expenses
             </ion-segment-button>
-            <ion-segment-button value="comments" class="view-reports--segment-block-container__btn text-capitalize">
+            <ion-segment-button
+              [value]="Segment.COMMENTS"
+              class="view-reports--segment-block-container__btn text-capitalize"
+            >
               Comments
             </ion-segment-button>
             <ion-segment-button
-              *ngIf="systemEstatuses && systemEstatuses.length > 0"
-              value="history"
+              *ngIf="systemEstatuses?.length > 0"
+              [value]="Segment.HISTORY"
               class="view-reports--segment-block-container__btn text-capitalize"
             >
               History
@@ -144,7 +149,7 @@
         </div>
 
         <!-- Expenses section -->
-        <ng-container *ngIf="isExpensesView">
+        <ng-container *ngIf="segmentValue === Segment.EXPENSES">
           <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
           <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
@@ -188,107 +193,109 @@
         </ng-container>
 
         <!-- Comments section -->
-        <div *ngIf="isCommentsView && userComments && userComments.length > 0" class="view-comment--container">
-          <div *ngFor="let estatus of userComments">
-            <div *ngIf="estatus.show_dt">
-              <div class="view-comment--date text-center">{{ estatus.st_created_at | date: 'MMM d, yyyy' }}</div>
-            </div>
-            <div
-              class="view-comment--block"
-              *ngIf="estatus.isSelfComment"
-              [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
-            >
-              <ion-grid class="view-comment--card view-comment--self-comment text-right">
-                <ion-row>
-                  <ion-col size="12">
-                    <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    <div
-                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-                      class="view-comment--comment-detail"
-                    >
-                      {{ estatus.st_comment }}
-                    </div>
-                    <div
-                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
-                      class="view-comment--comment-detail"
-                    >
-                      {{ estatus.st_comment }}
-                    </div>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-              <div class="view-comment--profile view-comment--self-profile">
-                <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+        <ng-container *ngIf="segmentValue === Segment.COMMENTS">
+          <div *ngIf="userComments?.length > 0" class="view-comment--container">
+            <div *ngFor="let estatus of userComments">
+              <div *ngIf="estatus.show_dt">
+                <div class="view-comment--date text-center">{{ estatus.st_created_at | date: 'MMM d, yyyy' }}</div>
+              </div>
+              <div
+                class="view-comment--block"
+                *ngIf="estatus.isSelfComment"
+                [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+              >
+                <ion-grid class="view-comment--card view-comment--self-comment text-right">
+                  <ion-row>
+                    <ion-col size="12">
+                      <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <div
+                        *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                        class="view-comment--comment-detail"
+                      >
+                        {{ estatus.st_comment }}
+                      </div>
+                      <div
+                        *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                        class="view-comment--comment-detail"
+                      >
+                        {{ estatus.st_comment }}
+                      </div>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+                <div class="view-comment--profile view-comment--self-profile">
+                  <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+                </div>
+              </div>
+              <div
+                class="view-comment--block"
+                *ngIf="!estatus.isSelfComment"
+                [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+              >
+                <div class="view-comment--profile view-comment--others-profile">
+                  <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+                </div>
+                <ion-grid class="view-comment--card view-comment--others-comment text-left">
+                  <ion-row>
+                    <ion-col size="12">
+                      <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <div
+                        *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                        class="view-comment--comment-detail"
+                      >
+                        {{ estatus.st_comment }}
+                      </div>
+                      <div
+                        *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                        class="view-comment--comment-detail"
+                      >
+                        {{ estatus.st_comment }}
+                      </div>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
               </div>
             </div>
-            <div
-              class="view-comment--block"
-              *ngIf="!estatus.isSelfComment"
-              [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
-            >
-              <div class="view-comment--profile view-comment--others-profile">
-                <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
-              </div>
-              <ion-grid class="view-comment--card view-comment--others-comment text-left">
-                <ion-row>
-                  <ion-col size="12">
-                    <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    <div
-                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
-                      class="view-comment--comment-detail"
-                    >
-                      {{ estatus.st_comment }}
-                    </div>
-                    <div
-                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
-                      class="view-comment--comment-detail"
-                    >
-                      {{ estatus.st_comment }}
-                    </div>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
+          </div>
+
+          <div class="view-comment--zero-state" *ngIf="userComments?.length === 0">
+            <app-fy-zero-state
+              [image]="'../../../assets/images/zero-states/comments.svg'"
+              [header]="'Need to clarify something?'"
+              [message]="'Post a comment.'"
+              [useNewStyling]="true"
+              [unscaledImage]="true"
+            ></app-fy-zero-state>
+          </div>
+
+          <div *ngIf="!userComments">
+            <div class="view-comment--spinner">
+              <ion-spinner name="crescent"></ion-spinner>
             </div>
           </div>
-        </div>
-
-        <div class="view-comment--zero-state" *ngIf="isCommentsView && userComments && userComments.length === 0">
-          <app-fy-zero-state
-            [image]="'../../../assets/images/zero-states/comments.svg'"
-            [header]="'Need to clarify something?'"
-            [message]="'Post a comment.'"
-            [useNewStyling]="true"
-            [unscaledImage]="true"
-          ></app-fy-zero-state>
-        </div>
-
-        <div *ngIf="isCommentsView && !userComments">
-          <div class="view-comment--spinner">
-            <ion-spinner name="crescent"></ion-spinner>
-          </div>
-        </div>
+        </ng-container>
 
         <!-- History section -->
         <div
-          *ngIf="isHistoryView && systemEstatuses && systemEstatuses.length > 0"
+          *ngIf="segmentValue === Segment.HISTORY && systemEstatuses?.length > 0"
           class="view-reports--history-container"
         >
           <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
@@ -299,7 +306,7 @@
 </ion-content>
 
 <ion-footer
-  *ngIf="!isCommentsView && (((erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0) || (canResubmitReport$ | async))"
+  *ngIf="segmentValue !== Segment.COMMENTS && (((erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0) || (canResubmitReport$ | async))"
 >
   <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
     <div class="view-reports--cta-container">
@@ -336,7 +343,7 @@
 
 <ion-footer
   class="view-reports--add-expense-footer"
-  *ngIf="!isCommentsView && !isHistoryView && ((erpt$|async)?.rp_state === 'APPROVER_PENDING') && unReportedEtxns"
+  *ngIf="segmentValue === Segment.EXPENSES && ((erpt$|async)?.rp_state === 'APPROVER_PENDING') && unReportedEtxns"
 >
   <div class="view-reports--add-expense-footer__block">
     <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">
@@ -348,7 +355,7 @@
   </div>
 </ion-footer>
 
-<ion-footer *ngIf="isCommentsView" class="view-comment--add-comment-container">
+<ion-footer *ngIf="segmentValue === Segment.COMMENTS" class="view-comment--add-comment-container">
   <div>
     <div class="view-comment--type-comment-block">
       <textarea
