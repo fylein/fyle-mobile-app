@@ -106,6 +106,52 @@ export const unflattenedAccount2Data = {
   amount: 800000,
 };
 
+export const unflattenedAccount3Data = {
+  acc: {
+    id: 'acct0IxPgGvLa',
+    created_at: new Date('2018-11-05T18:35:59.912Z'),
+    updated_at: new Date('2021-09-29T19:35:23.965Z'),
+    name: 'Advance Account',
+    type: AccountType.ADVANCE,
+    currency: 'USD',
+    target_balance_amount: 0,
+    current_balance_amount: 0,
+    tentative_balance_amount: 0,
+    category: null,
+  },
+  ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
+  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
+  org: { id: null, domain: null },
+  // eslint-disable-next-line id-blacklist
+  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  orig: { currency: 'USD', amount: 500 },
+  currency: 'USD',
+  amount: 800000,
+};
+
+export const unflattenedAccount4Data = {
+  acc: {
+    id: 'acct0IxPgGvLa',
+    created_at: new Date('2018-11-05T18:35:59.912Z'),
+    updated_at: new Date('2021-09-29T19:35:23.965Z'),
+    name: 'Advance Account',
+    type: AccountType.ADVANCE,
+    currency: 'USD',
+    target_balance_amount: 0,
+    current_balance_amount: 0,
+    tentative_balance_amount: 0,
+    category: null,
+  },
+  ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
+  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
+  org: { id: null, domain: null },
+  // eslint-disable-next-line id-blacklist
+  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  orig: null,
+  currency: 'USD',
+  amount: 800000,
+};
+
 export const unflattenedTransactionPersonal: UnflattenedTransaction = {
   tx: {
     risk_state: null,
@@ -828,4 +874,118 @@ export const unflattenedTxnWithoutSourceAccountIdData = {
   is: {
     test_call: null,
   },
+};
+
+export const paymentModeDataCCCWithoutAccountProperty = {
+  acc: {
+    id: 'accZ1IWjhjLv4',
+    created_at: new Date('2019-01-11T16:41:56.485Z'),
+    updated_at: new Date('2022-11-28T06:43:36.456Z'),
+    name: 'Corporate Credit Card Account',
+    type: AccountType.CCC,
+    currency: 'INR',
+    target_balance_amount: 0,
+    current_balance_amount: 120510.16,
+    tentative_balance_amount: -24086313828.078266,
+    category: null,
+  },
+  ou: {
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+  },
+  us: {
+    email: 'ajain@fyle.in',
+    full_name: 'Abhishekkk',
+  },
+  org: {
+    id: null,
+    domain: null,
+  },
+  advance: {
+    purpose: null,
+    // eslint-disable-next-line id-blacklist
+    number: null,
+    id: null,
+  },
+  orig: {
+    currency: null,
+    amount: null,
+  },
+  currency: null,
+  amount: null,
+};
+
+export const paymentModeDataAdvance = {
+  acc: {
+    id: 'acct0IxPgGvLa',
+    created_at: new Date('2018-11-05T18:35:59.912Z'),
+    updated_at: new Date('2021-09-29T19:35:23.965Z'),
+    name: 'Advance Account',
+    type: AccountType.ADVANCE,
+    currency: 'INR',
+    target_balance_amount: 0,
+    current_balance_amount: 0,
+    tentative_balance_amount: 0,
+    category: null,
+    displayName: 'Advance (Balance: undefined)',
+    isReimbursable: false,
+  },
+  ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
+  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
+  org: { id: null, domain: null },
+  // eslint-disable-next-line id-blacklist
+  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  orig: { currency: null, amount: null },
+  currency: 'INR',
+  amount: 800000,
+};
+
+export const paymentModeDataMultipleAdvance = {
+  acc: {
+    id: 'acct0IxPgGvLa',
+    created_at: new Date('2018-11-05T18:35:59.912Z'),
+    updated_at: new Date('2021-09-29T19:35:23.965Z'),
+    name: 'Advance Account',
+    type: AccountType.ADVANCE,
+    currency: 'USD',
+    target_balance_amount: 0,
+    current_balance_amount: 0,
+    tentative_balance_amount: 0,
+    category: null,
+    displayName: 'Advance (Balance: undefined)',
+    isReimbursable: false,
+  },
+  ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
+  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
+  org: { id: null, domain: null },
+  // eslint-disable-next-line id-blacklist
+  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  orig: { currency: 'USD', amount: 500 },
+  currency: 'USD',
+  amount: 800000,
+};
+
+export const paymentModeDataMultipleAdvWithoutOrigAmt = {
+  acc: {
+    id: 'acct0IxPgGvLa',
+    created_at: new Date('2018-11-05T18:35:59.912Z'),
+    updated_at: new Date('2021-09-29T19:35:23.965Z'),
+    name: 'Advance Account',
+    type: AccountType.ADVANCE,
+    currency: 'USD',
+    target_balance_amount: 0,
+    current_balance_amount: 0,
+    tentative_balance_amount: 0,
+    category: null,
+    displayName: 'Advance (Balance: undefined)',
+    isReimbursable: false,
+  },
+  ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
+  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
+  org: { id: null, domain: null },
+  // eslint-disable-next-line id-blacklist
+  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
+  orig: null,
+  currency: 'USD',
+  amount: 800000,
 };

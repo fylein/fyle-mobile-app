@@ -131,11 +131,13 @@ export class AccountsService {
     };
 
     const accountCopy = cloneDeep(account);
-    accountCopy.acc.displayName =
-      paymentMode === AccountType.ADVANCE
-        ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
-        : accountDisplayNameMapping[paymentMode];
-    accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
+    if (accountCopy) {
+      accountCopy.acc.displayName =
+        paymentMode === AccountType.ADVANCE
+          ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
+          : accountDisplayNameMapping[paymentMode];
+      accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
+    }
 
     return accountCopy;
   }
@@ -169,7 +171,7 @@ export class AccountsService {
   getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean): string {
     let accountCurrency = account.currency;
     let accountBalance = account.acc.tentative_balance_amount;
-    if (isMultipleAdvanceEnabled && account?.orig?.amount) {
+    if (isMultipleAdvanceEnabled && account.orig?.amount) {
       accountCurrency = account.orig.currency;
       accountBalance =
         (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;

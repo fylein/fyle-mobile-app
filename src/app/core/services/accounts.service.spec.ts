@@ -5,11 +5,17 @@ import { AccountType } from '../enums/account-type.enum';
 import {
   account1Data,
   account2Data,
+  paymentModeDataAdvance,
   paymentModeDataCCC,
+  paymentModeDataCCCWithoutAccountProperty,
+  paymentModeDataMultipleAdvance,
+  paymentModeDataMultipleAdvWithoutOrigAmt,
   paymentModeDataPersonal,
   paymentModesData,
   unflattenedAccount1Data,
   unflattenedAccount2Data,
+  unflattenedAccount3Data,
+  unflattenedAccount4Data,
   unflattenedTransactionCCC,
   unflattenedTransactionPersonal,
   unflattenedTxnWithoutSourceAccountIdData,
@@ -36,9 +42,21 @@ const etxnPersonal = unflattenedTransactionPersonal;
 
 const paymentModePersonal = paymentModeDataPersonal;
 
+const paymentModeAdvance = paymentModeDataAdvance;
+
 const paymentModes = paymentModesData;
 
 const unflattenedTxnWithoutSourceAccountId = unflattenedTxnWithoutSourceAccountIdData;
+
+const paymentModeDataCCCWithoutAccProperty = paymentModeDataCCCWithoutAccountProperty;
+
+const paymentModeMultipleAdvance = paymentModeDataMultipleAdvance;
+
+const unflattenedAccount3 = unflattenedAccount3Data;
+
+const paymentModeMultipleAdvWithoutOrigAmt = paymentModeDataMultipleAdvWithoutOrigAmt;
+
+const unflattenedAccount4 = unflattenedAccount4Data;
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -116,5 +134,33 @@ describe('AccountsService', () => {
 
   it('should be able to get company account type from payment mode', () => {
     expect(accountsService.getAccountTypeFromPaymentMode(paymentModeDataPersonal)).toEqual(AccountType.COMPANY);
+  });
+
+  it('should be able to set account properties', () => {
+    expect(accountsService.setAccountProperties(paymentModeDataCCCWithoutAccProperty, AccountType.CCC, false)).toEqual(
+      paymentModeDataCCC
+    );
+  });
+
+  it('should be able to set account properties for advance account', () => {
+    expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE, false)).toEqual(
+      paymentModeAdvance
+    );
+  });
+
+  it('should be able to set account properties for multiple advance account', () => {
+    expect(accountsService.setAccountProperties(unflattenedAccount3, AccountType.ADVANCE, true)).toEqual(
+      paymentModeMultipleAdvance
+    );
+  });
+
+  it('should be able to set account properties for multiple advance account as default without account', () => {
+    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE, true)).toEqual(null);
+  });
+
+  it('should be able to set account properties for multiple advance account as default without orig amount', () => {
+    expect(accountsService.setAccountProperties(unflattenedAccount4, AccountType.ADVANCE, true)).toEqual(
+      paymentModeMultipleAdvWithoutOrigAmt
+    );
   });
 });
