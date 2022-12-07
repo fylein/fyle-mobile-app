@@ -332,9 +332,6 @@ export class TasksComponent implements OnInit {
       case TASKEVENT.expensesAddToReport:
         this.onExpensesToReportTaskClick(taskCta, task);
         break;
-      case TASKEVENT.expensesCreateNewReport:
-        this.onCreateReportTaskClick(taskCta, task);
-        break;
       case TASKEVENT.openDraftReports:
         this.onOpenDraftReportsTaskClick(taskCta, task);
         break;
@@ -520,10 +517,6 @@ export class TasksComponent implements OnInit {
         },
       });
     }
-  }
-
-  onCreateReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
-    this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
   onPotentialDuplicatesTaskClick(taskCta: TaskCta, task: DashboardTask) {

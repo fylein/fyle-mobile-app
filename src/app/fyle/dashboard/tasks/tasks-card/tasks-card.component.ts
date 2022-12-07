@@ -37,8 +37,8 @@ export class TasksCardComponent implements OnInit {
       this.task.header.includes('Incomplete expense') && !!this.autoSubmissionReportDate;
   }
 
-  taskCtaClicked(event) {
-    this.ctaClicked.emit(event);
+  taskCtaClicked(task: DashboardTask) {
+    this.ctaClicked.emit(task.ctas[0]);
   }
 
   onInfoCardClicked() {

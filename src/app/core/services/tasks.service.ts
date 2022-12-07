@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, noop, Observable, of } from 'rxjs';
-import { map, mergeAll, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -9,7 +9,6 @@ import { TASKEVENT } from '../models/task-event.enum';
 import { TaskFilters } from '../models/task-filters.model';
 import { TaskIcon } from '../models/task-icon.enum';
 import { DashboardTask } from '../models/task.model';
-import { StatsResponse } from '../models/v2/stats-response.model';
 import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
 import { ReportService } from './report.service';
@@ -18,17 +17,16 @@ import { UserEventService } from './user-event.service';
 import { HandleDuplicatesService } from './handle-duplicates.service';
 import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 import { CurrencyService } from './currency.service';
+import { TaskDictionary } from '../models/task-dictionary.model';
 
-type TaskDict = {
-  sentBackReports: DashboardTask[];
-  draftExpenses: DashboardTask[];
-  unsubmittedReports: DashboardTask[];
-  unreportedExpenses: DashboardTask[];
-  teamReports: DashboardTask[];
-  sentBackAdvances: DashboardTask[];
-  potentialDuplicates: DashboardTask[];
-};
-
+type StatsResponse = {
+  aggregates: [
+    {
+      function_name: string;
+      function_value: number;
+    }
+  ];
+}[];
 @Injectable({
   providedIn: 'root',
 })
@@ -53,6 +51,10 @@ export class TasksService {
     private advancesRequestService: AdvanceRequestService,
     private currencyService: CurrencyService
   ) {
+    this.refreshOnTaskClear();
+  }
+
+  refreshOnTaskClear(): void {
     this.userEventService.onTaskCacheClear(() => {
       this.reportService.getReportAutoSubmissionDetails().subscribe((autoSubmissionReportDetails) => {
         const isReportAutoSubmissionScheduled = !!autoSubmissionReportDetails?.data?.next_at;
@@ -218,17 +220,17 @@ export class TasksService {
 
   getExpensePill(filters: TaskFilters): FilterPill {
     const expensePills = [];
-    const draftExpensesContent = filters.draftExpenses ? 'Incomplete' : '';
-    if (draftExpensesContent) {
-      expensePills.push(draftExpensesContent);
+
+    if (filters.draftExpenses) {
+      expensePills.push('Incomplete');
     }
-    const unreportedExpensesContent = filters.unreportedExpenses ? 'Unreported' : '';
-    if (unreportedExpensesContent) {
-      expensePills.push(unreportedExpensesContent);
+
+    if (filters.unreportedExpenses) {
+      expensePills.push('Unreported');
     }
-    const potentialDuplicatesContent = filters.potentialDuplicates ? 'Duplicate' : '';
-    if (potentialDuplicatesContent) {
-      expensePills.push(potentialDuplicatesContent);
+
+    if (filters.potentialDuplicates) {
+      expensePills.push('Duplicate');
     }
     return {
       label: 'Expenses',
@@ -271,6 +273,32 @@ export class TasksService {
       type: 'Advances',
       value: advancePill.join(', '),
     };
+  }
+
+  generatePotentialDuplicatesFilter(selectedFilters: SelectedFilters<any>[]) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
+    if (existingFilter) {
+      existingFilter.value.push('DUPLICATE');
+    } else {
+      selectedFilters.push({
+        name: 'Expenses',
+        value: ['DUPLICATE'],
+      });
+    }
+    return selectedFilters;
+  }
+
+  generateSentBackFilter(selectedFilters: SelectedFilters<any>[]) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
+    if (existingFilter) {
+      existingFilter.value.push('SENT_BACK');
+    } else {
+      selectedFilters.push({
+        name: 'Reports',
+        value: ['SENT_BACK'],
+      });
+    }
+    return selectedFilters;
   }
 
   generateFilterPills(filters: TaskFilters): FilterPill[] {
@@ -357,7 +385,7 @@ export class TasksService {
     );
   }
 
-  private getFilteredTaskList(filters: TaskFilters, tasksDict: TaskDict) {
+  getFilteredTaskList(filters: TaskFilters, tasksDict: TaskDictionary): DashboardTask[] {
     const {
       draftExpenses,
       sentBackReports,
@@ -367,7 +395,7 @@ export class TasksService {
       unsubmittedReports,
       sentBackAdvances,
     } = tasksDict;
-    let tasks = [];
+    let tasks: DashboardTask[] = [];
 
     if (filters?.potentialDuplicates) {
       tasks = tasks.concat(potentialDuplicates);
@@ -400,7 +428,7 @@ export class TasksService {
     return tasks;
   }
 
-  private getSentBackReports() {
+  getSentBackReports() {
     return this.reportService.getReportStatsData({
       scalar: true,
       aggregates: 'count(rp_id),sum(rp_amount)',
@@ -408,7 +436,7 @@ export class TasksService {
     });
   }
 
-  private getSentBackReportTasks(): Observable<DashboardTask[]> {
+  getSentBackReportTasks(): Observable<DashboardTask[]> {
     return forkJoin({
       reportsStats: this.getSentBackReports(),
       homeCurrency: this.currencyService.getHomeCurrency(),
@@ -419,7 +447,7 @@ export class TasksService {
     );
   }
 
-  private getUnsubmittedReportsStats() {
+  getUnsubmittedReportsStats() {
     return this.reportService.getReportStatsData({
       scalar: true,
       aggregates: 'count(rp_id),sum(rp_amount)',
@@ -427,7 +455,7 @@ export class TasksService {
     });
   }
 
-  private getSentBackAdvancesStats() {
+  getSentBackAdvancesStats() {
     return this.advancesRequestService.getMyAdvanceRequestStats({
       aggregates: 'count(areq_id),sum(areq_amount)',
       areq_state: 'in.(DRAFT)',
@@ -436,7 +464,7 @@ export class TasksService {
     });
   }
 
-  private getSentBackAdvanceTasks(): Observable<DashboardTask[]> {
+  getSentBackAdvanceTasks(): Observable<DashboardTask[]> {
     return forkJoin({
       advancesStats: this.getSentBackAdvancesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
@@ -447,7 +475,7 @@ export class TasksService {
     );
   }
 
-  private getTeamReportsStats() {
+  getTeamReportsStats() {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.reportService.getReportStatsData(
@@ -465,7 +493,7 @@ export class TasksService {
     );
   }
 
-  private getTeamReportsTasks() {
+  getTeamReportsTasks(): Observable<DashboardTask[]> {
     return forkJoin({
       reportsStats: this.getTeamReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
@@ -476,7 +504,7 @@ export class TasksService {
     );
   }
 
-  private getPotentialDuplicatesTasks() {
+  getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
     return this.handleDuplicatesService
       .getDuplicateSets()
       .pipe(
@@ -486,7 +514,7 @@ export class TasksService {
       );
   }
 
-  private mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]) {
+  mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]) {
     const duplicateIds = duplicateSets
       .map((value) => value.transaction_ids)
       .reduce((acc, curVal) => acc.concat(curVal), []);
@@ -508,7 +536,7 @@ export class TasksService {
     return [task];
   }
 
-  private getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false) {
+  getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[]> {
     //Unsubmitted reports task should not be shown if report auto-submission is scheduled
     if (isReportAutoSubmissionScheduled) {
       return of([]);
@@ -524,7 +552,7 @@ export class TasksService {
     );
   }
 
-  private getUnreportedExpensesStats() {
+  getUnreportedExpensesStats() {
     return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
       scalar: true,
       tx_state: 'in.(COMPLETE)',
@@ -533,7 +561,7 @@ export class TasksService {
     });
   }
 
-  private getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false) {
+  getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[]> {
     //Unreported expenses task should not be shown if report auto submission is scheduled
     if (isReportAutoSubmissionScheduled) {
       return of([]);
@@ -568,7 +596,7 @@ export class TasksService {
     );
   }
 
-  private getDraftExpensesStats() {
+  getDraftExpensesStats() {
     return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
       scalar: true,
       tx_state: 'in.(DRAFT)',
@@ -576,7 +604,7 @@ export class TasksService {
     });
   }
 
-  private getDraftExpensesTasks() {
+  getDraftExpensesTasks() {
     return forkJoin({
       transactionStats: this.getDraftExpensesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
@@ -587,11 +615,11 @@ export class TasksService {
     );
   }
 
-  private getAmountString(amount: number, currency: string): string {
+  getAmountString(amount: number, currency: string): string {
     return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency)} ` : '';
   }
 
-  private mapSentBackReportsToTasks(
+  mapSentBackReportsToTasks(
     aggregate: { totalCount: number; totalAmount: number },
     homeCurrency: string
   ): DashboardTask[] {
@@ -619,7 +647,7 @@ export class TasksService {
     }
   }
 
-  private mapSentBackAdvancesToTasks(
+  mapSentBackAdvancesToTasks(
     aggregate: { totalCount: number; totalAmount: number },
     homeCurrency: string
   ): DashboardTask[] {
@@ -650,7 +678,7 @@ export class TasksService {
     }
   }
 
-  private mapAggregateToUnsubmittedReportTask(
+  mapAggregateToUnsubmittedReportTask(
     aggregate: { totalCount: number; totalAmount: number },
     homeCurrency: string
   ): DashboardTask[] {
@@ -678,7 +706,7 @@ export class TasksService {
     }
   }
 
-  private mapAggregateToTeamReportTask(
+  mapAggregateToTeamReportTask(
     aggregate: { totalCount: number; totalAmount: number },
     homeCurrency: string
   ): DashboardTask[] {
@@ -706,7 +734,7 @@ export class TasksService {
     }
   }
 
-  private mapAggregateToDraftExpensesTask(
+  mapAggregateToDraftExpensesTask(
     aggregate: { totalCount: number; totalAmount: number },
     homeCurrency: string
   ): DashboardTask[] {
@@ -734,7 +762,7 @@ export class TasksService {
     }
   }
 
-  private mapAggregateToUnreportedExpensesTask(
+  mapAggregateToUnreportedExpensesTask(
     aggregate: { totalCount: number; totalAmount: number },
     homeCurrency: string,
     openReports: ExtendedReport[]
@@ -751,26 +779,18 @@ export class TasksService {
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'Create New Report',
-            event: TASKEVENT.expensesCreateNewReport,
+            content: 'Add to Report',
+            event: TASKEVENT.expensesAddToReport,
           },
         ],
       } as DashboardTask;
-
-      if (openReports.length > 0) {
-        task.ctas.push({
-          content: 'Add to Existing Report',
-          event: TASKEVENT.expensesAddToReport,
-        });
-      }
-
       return [task];
     } else {
       return [];
     }
   }
 
-  private getStatsFromResponse(statsResponse: StatsResponse, countName: string, sumName: string) {
+  getStatsFromResponse(statsResponse: StatsResponse, countName: string, sumName: string) {
     const countAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === countName) || 0;
     const amountAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === sumName) || 0;
     return {
@@ -779,15 +799,15 @@ export class TasksService {
     };
   }
 
-  private mapScalarReportStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
+  mapScalarReportStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(rp_id)', 'sum(rp_amount)');
   }
 
-  private mapScalarAdvanceStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
+  mapScalarAdvanceStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(areq_id)', 'sum(areq_amount)');
   }
 
-  private mapScalarStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
+  mapScalarStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(tx_id)', 'sum(tx_amount)');
   }
 }

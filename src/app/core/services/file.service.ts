@@ -5,6 +5,7 @@ import { File } from '../models/file.model';
 import { ApiService } from './api.service';
 import { FileObject } from '../models/file_obj.model';
 import { ReceiptInfo } from '../models/receipt-info.model';
+import heic2any from 'heic2any';
 
 @Injectable({
   providedIn: 'root',
@@ -124,11 +125,45 @@ export class FileService {
     });
   }
 
-  readFile(file) {
+  getBlobFromDataUrl(dataUrl: string): Blob {
+    //Convert dataUrl to raw binary data held in a string
+    const byteString = atob(dataUrl.split(',')[1]);
+    const mimeType = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+
+    //Write the bytes of the string to a typed array
+    const uintArray = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) {
+      uintArray[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([uintArray], { type: mimeType });
+  }
+
+  getDataUrlFromBlob(blob: Blob): Promise<string | ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  }
+
+  readFile(file: Blob): Promise<string | ArrayBuffer> {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
-      fileReader.onload = () => resolve(fileReader.result);
+      fileReader.onload = async () => {
+        if (file.type === 'image/heic') {
+          const result = await heic2any({
+            blob: this.getBlobFromDataUrl(fileReader.result as string),
+            toType: 'image/jpeg',
+            quality: 50,
+          });
+          const dataUrl = await this.getDataUrlFromBlob(result as Blob);
+          return resolve(dataUrl);
+        }
+        return resolve(fileReader.result);
+      };
       fileReader.readAsDataURL(file);
+      fileReader.onerror = (error) => reject(error);
     });
   }
 

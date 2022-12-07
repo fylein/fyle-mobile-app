@@ -24,6 +24,9 @@ import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
 import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
+import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
+import { BackButtonService } from './core/services/back-button.service';
+import { TextZoom } from '@capacitor/text-zoom';
 
 @Component({
   selector: 'app-root',
@@ -136,6 +139,13 @@ export class AppComponent implements OnInit {
         style: Style.Default,
       });
       setTimeout(async () => await SplashScreen.hide(), 1000);
+
+      /*
+       * Use the app's font size irrespective of the user's device font size.
+       * This is to ensure that the app's UI is consistent across devices.
+       * Ref: https://www.npmjs.com/package/@capacitor/text-zoom
+       */
+      await TextZoom.set({ value: 1 });
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(
