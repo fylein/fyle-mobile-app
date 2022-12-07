@@ -20,10 +20,6 @@ export class CorporateCreditCardExpenseService {
     private authService: AuthService
   ) {}
 
-  getPaginatedECorporateCreditCardExpenseStats(params) {
-    return this.apiService.get('/extended_corporate_credit_card_expenses/stats', { params });
-  }
-
   getv2CardTransactions(config: { offset: number; queryParams: any; limit: number; order?: string }): Observable<{
     count: number;
     data: CorporateCardExpense[];
