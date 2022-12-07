@@ -437,22 +437,6 @@ export class OrgSettingsService {
         allowed: outgoing.currencylayer_provider_settings.allowed,
         enabled: outgoing.currencylayer_provider_settings.enabled,
       },
-      fixer_provider_settings: {
-        allowed: outgoing.fixer_provider_settings.allowed,
-        enabled: outgoing.fixer_provider_settings.enabled,
-      },
-      openexchangerates_provider_settings: {
-        allowed: outgoing.openexchangerates_provider_settings.allowed,
-        enabled: outgoing.openexchangerates_provider_settings.enabled,
-      },
-      oanda_provider_settings: {
-        allowed: outgoing.oanda_provider_settings.allowed,
-        enabled: outgoing.oanda_provider_settings.enabled,
-      },
-      xe_provider_settings: {
-        allowed: outgoing.xe_provider_settings.allowed,
-        enabled: outgoing.xe_provider_settings.enabled,
-      },
       advances_settings: {
         allowed: outgoing.advances.allowed,
         enabled: outgoing.advances.enabled,
