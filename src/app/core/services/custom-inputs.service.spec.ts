@@ -1,6 +1,6 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
-import { from, lastValueFrom, of } from 'rxjs';
+import { of } from 'rxjs';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import {
@@ -144,6 +144,21 @@ describe('CustomInputsService', () => {
     expect(result).toEqual(expectedProperty);
   });
 
+  it('should get custom property to be displayed | DATE without value', () => {
+    const testProperty = {
+      name: 'select all 2',
+      value: null,
+      type: 'DATE',
+      mandatory: false,
+      options: [],
+    };
+
+    const expectedProperty = '-';
+
+    const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
+    expect(result).toEqual(expectedProperty);
+  });
+
   it('should get custom property to be displayed | NUMBER', () => {
     const testProperty = {
       name: 'select all 2',
@@ -174,7 +189,22 @@ describe('CustomInputsService', () => {
     expect(result).toEqual(expectedProperty);
   });
 
-  it('should get custom property to be displayed | LOCATION without display and with only value', () => {
+  it('should get custom property to be displayed | LOCATION without display value and with value object', () => {
+    const testProperty = {
+      name: 'select all 2',
+      value: { val: ['some', 'location'], display: null },
+      type: 'LOCATION',
+      mandatory: false,
+      options: [],
+    };
+
+    const expectedProperty = '-';
+
+    const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
+    expect(result).toEqual(expectedProperty);
+  });
+
+  it('should get custom property to be displayed | LOCATION without display object and with value object', () => {
     const testProperty = {
       name: 'select all 2',
       value: ['some', 'location'],
@@ -199,21 +229,6 @@ describe('CustomInputsService', () => {
     };
 
     const expectedProperty = 'display';
-
-    const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
-    expect(result).toEqual(expectedProperty);
-  });
-
-  it('should get custom property to be displayed | LOCATION without value', () => {
-    const testProperty = {
-      name: 'select all 2',
-      value: { val: ['some', 'location'], display: null },
-      type: 'LOCATION',
-      mandatory: false,
-      options: [],
-    };
-
-    const expectedProperty = '-';
 
     const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
     expect(result).toEqual(expectedProperty);

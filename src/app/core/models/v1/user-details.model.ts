@@ -1,6 +1,6 @@
 export interface UserDetails {
   allowed_cidrs: string[];
-  cluster_domain: string[];
+  cluster_domain: string[] | string;
   name: string;
   org_id: string;
   org_user_id: string;
