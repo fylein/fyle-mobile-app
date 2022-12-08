@@ -24,6 +24,21 @@ export class CustomInputsService {
     cacheBusterObserver: customInputssCacheBuster$,
   })
   getAll(active: boolean): Observable<ExpenseField[]> {
+    from(this.authService.getEou())
+      .pipe(
+        switchMap((eou) =>
+          this.apiService.get('/expense_fields', {
+            params: {
+              org_id: eou.ou.org_id,
+              is_enabled: active,
+              is_custom: true,
+            },
+          })
+        )
+      )
+      .subscribe((res) => {
+        console.log(res);
+      });
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiService.get('/expense_fields', {

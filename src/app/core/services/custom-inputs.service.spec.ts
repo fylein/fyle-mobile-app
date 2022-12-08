@@ -9,6 +9,7 @@ import {
   responseAfterAppliedFilter,
   filledCustomProperties,
   customProperties,
+  filterTestData,
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
 
@@ -50,7 +51,7 @@ describe('CustomInputsService', () => {
   });
 
   it('should filter expense fields by category', () => {
-    const result = customInputsService.filterByCategory(apiResponse, orgId);
+    const result = customInputsService.filterByCategory(filterTestData, orgId);
     expect(result).toEqual(responseAfterAppliedFilter);
   });
 
