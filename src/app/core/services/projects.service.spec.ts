@@ -8,9 +8,7 @@ import {
   apiV2ResponseSingle,
   testActiveCategoryList,
   allowedActiveCategories,
-  apiV2ResponseProjects,
-  apiResponseActiveWoOrgID,
-  projectsAfterParamsFormatted,
+  expectedProjectsResponse,
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 
@@ -89,9 +87,72 @@ fdescribe('ProjectsService', () => {
     });
   });
 
-  it('should create filter by id', () => {
-    const result = projectService.filterById(apiResponseActiveOnly[0].id, apiResponseActiveOnly);
-    expect(result).toEqual(apiResponseActiveOnly[0]);
+  it('should be able to fetch data when params are provided', (done) => {
+    apiV2Service.get.and.returnValue(of(apiV2ResponseMultiple));
+
+    const testProjectParams = {
+      orgId: 'orNVthTo2Zyo',
+      active: true,
+      sortDirection: 'asc',
+      sortOrder: 'project_name',
+      orgCategoryIds: [
+        null,
+        145429,
+        122269,
+        122271,
+        122270,
+        122273,
+        122272,
+        122275,
+        122274,
+        122277,
+        122276,
+        122279,
+        122278,
+        173093,
+        122281,
+        122280,
+        122283,
+        122282,
+        122285,
+        122284,
+        122287,
+        122286,
+        122289,
+        140530,
+        145458,
+        122288,
+        140531,
+        122291,
+        122290,
+        140529,
+        122293,
+        140534,
+        122292,
+        140535,
+        140532,
+        122294,
+        140533,
+        140538,
+        140539,
+        140536,
+        140537,
+        140542,
+        140540,
+        140541,
+      ],
+      projectIds: [3943, 305792, 148971, 247936],
+      offset: 0,
+      limit: 10,
+      searchNameText: 'search',
+    };
+
+    const result = projectService.getByParamsUnformatted(testProjectParams);
+
+    result.subscribe((res) => {
+      expect(res).toEqual(expectedProjectsResponse);
+      done();
+    });
   });
 
   it('should get allowed organisation category IDs | With project', () => {
@@ -154,100 +215,24 @@ fdescribe('ProjectsService', () => {
     });
   });
 
-  it('should get project count | with categoryID no matching projects', (done) => {
-    apiService.get.and.returnValue(of(apiResponseActiveWoOrgID));
-    const testParams = [
-      '145429',
-      '173093',
-      '122285',
-      '122284',
-      '122287',
-      '122286',
-      '122289',
-      '140530',
-      '145458',
-      '122288',
-      '140531',
-      '122291',
-      '122290',
-    ];
-    const result = projectService.getProjectCount({ categoryIds: testParams });
-    result.subscribe((res) => {
-      expect(res).toEqual(2);
-      done();
-    });
-  });
-
-  it('should get project count | Without categoryIDs', (done) => {
+  it('should get project count | without category IDs', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
-    const result = projectService.getProjectCount({ categoryIds: null });
+
+    const result = projectService.getProjectCount();
+
     result.subscribe((res) => {
       expect(res).toEqual(apiResponseActiveOnly.length);
       done();
     });
   });
 
-  it('should get project params', (done) => {
-    apiV2Service.get.and.returnValue(of(apiV2ResponseProjects));
+  it('should get project count | without category IDs', (done) => {
+    apiService.get.and.returnValue(of(apiResponseActiveOnly));
 
-    const testProjectParams = {
-      orgId: 'orNVthTo2Zyo',
-      active: true,
-      sortDirection: 'asc',
-      sortOrder: 'project_name',
-      orgCategoryIds: [
-        null,
-        145429,
-        122269,
-        122271,
-        122270,
-        122273,
-        122272,
-        122275,
-        122274,
-        122277,
-        122276,
-        122279,
-        122278,
-        173093,
-        122281,
-        122280,
-        122283,
-        122282,
-        122285,
-        122284,
-        122287,
-        122286,
-        122289,
-        140530,
-        145458,
-        122288,
-        140531,
-        122291,
-        122290,
-        140529,
-        122293,
-        140534,
-        122292,
-        140535,
-        140532,
-        122294,
-        140533,
-        140538,
-        140539,
-        140536,
-        140537,
-        140542,
-        140540,
-        140541,
-      ],
-      projectIds: [3943, 305792, 148971, 247936],
-      offset: 0,
-      limit: 10,
-      searchNameText: 'search',
-    };
-    const result = projectService.getByParamsUnformatted(testProjectParams);
+    const result = projectService.getProjectCount({ categoryIds: null });
+
     result.subscribe((res) => {
+      expect(res).toEqual(apiResponseActiveOnly.length);
       done();
     });
   });

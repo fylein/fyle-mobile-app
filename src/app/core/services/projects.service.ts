@@ -84,41 +84,28 @@ export class ProjectsService {
     );
   }
 
-  addNameSearchFilter(searchNameText: any, params: any) {
+  addNameSearchFilter(searchNameText: string, params: any) {
     if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
       params.project_name = 'ilike.%' + searchNameText + '%';
     }
   }
 
-  addProjectIdsFilter(projectIds: any, params: any) {
+  addProjectIdsFilter(projectIds: number[], params: any) {
     if (typeof projectIds !== 'undefined' && projectIds !== null) {
       params.project_id = 'in.(' + projectIds.join(',') + ')';
     }
   }
 
-  addOrgCategoryIdsFilter(orgCategoryIds: any, params: any) {
+  addOrgCategoryIdsFilter(orgCategoryIds: number[], params: any) {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
       params.project_org_category_ids = 'cs.{' + orgCategoryIds.join(',') + '}';
     }
   }
 
-  addActiveFilter(active: any, params: any) {
+  addActiveFilter(active: boolean, params: any) {
     if (typeof active !== 'undefined' && active !== null) {
       params.project_active = 'eq.' + active;
     }
-  }
-
-  filterById(projectId, projects) {
-    let matchingProject;
-
-    projects.some((project) => {
-      if (project.id === projectId) {
-        matchingProject = project;
-        return true;
-      }
-    });
-
-    return matchingProject;
   }
 
   getAllowedOrgCategoryIds(project, activeCategoryList) {
