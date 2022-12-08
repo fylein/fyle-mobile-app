@@ -173,7 +173,7 @@ fdescribe('ProjectsService', () => {
     ];
     const result = projectService.getProjectCount({ categoryIds: testParams });
     result.subscribe((res) => {
-      expect(res).toEqual(0);
+      expect(res).toEqual(2);
       done();
     });
   });
