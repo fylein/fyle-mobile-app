@@ -82,7 +82,7 @@
     "moment": "^2.29.3",
     "ng2-pdf-viewer": "^9.0.0",
     "ngx-image-cropper": "^6.1.0",
-    "ngx-pinch-zoom-13": "^2.5.6",
+    "ngx-pinch-zoom": "^2.6.2",
     "rxjs": "^7.5.5",
     "swiper": "^8.2.4",
     "ts-cacheable": "^1.0.9",
