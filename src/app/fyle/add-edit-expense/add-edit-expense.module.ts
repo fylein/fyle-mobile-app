@@ -15,7 +15,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,7 +37,6 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
     MatNativeDateModule,
     MatCheckboxModule,
     SharedModule,
-    PinchZoomModule,
     PdfViewerModule,
     MatButtonModule,
     MatSnackBarModule,

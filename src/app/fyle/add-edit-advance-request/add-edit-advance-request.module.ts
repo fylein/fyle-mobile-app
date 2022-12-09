@@ -17,7 +17,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 
@@ -33,7 +32,6 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
     MatInputModule,
     SharedModule,
     MatCheckboxModule,
-    PinchZoomModule,
     PdfViewerModule,
   ],
   declarations: [

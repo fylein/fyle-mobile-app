@@ -35,9 +35,9 @@
     (activeIndexChange)="ionSlideDidChange()"
   >
     <ng-template *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i" swiperSlide>
-      <pinch-zoom class="receipt-preview__image-container">
+      <div class="receipt-preview__image-container">
         <img [src]="base64ImageWithSource.base64Image" />
-      </pinch-zoom>
+      </div>
     </ng-template>
   </swiper>
 

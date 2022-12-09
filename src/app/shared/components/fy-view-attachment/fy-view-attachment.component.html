@@ -37,9 +37,9 @@
   >
     <ng-template *ngFor="let attachment of attachments" swiperSlide>
       <div>
-        <pinch-zoom *ngIf="attachment?.type !== 'pdf'" class="view-attachments--container">
+        <div *ngIf="attachment?.type !== 'pdf'" class="view-attachments--container">
           <img [src]="attachment?.url" />
-        </pinch-zoom>
+        </div>
 
         <div class="view-attachments--container" *ngIf="attachment?.type === 'pdf'">
           <pdf-viewer
