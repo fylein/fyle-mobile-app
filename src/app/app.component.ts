@@ -101,10 +101,9 @@ export class AppComponent implements OnInit {
       });
     });
 
-    SplashScreen.hide();
-
-    this.platform.ready().then(async () => {
-      await StatusBar.setStyle({
+    this.platform.ready().then(() => {
+      SplashScreen.hide();
+      StatusBar.setStyle({
         style: Style.Default,
       });
 
