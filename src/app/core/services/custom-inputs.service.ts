@@ -38,7 +38,7 @@ export class CustomInputsService {
     );
   }
 
-  filterByCategory(customInputs: ExpenseField[], orgCategoryId: number | string) {
+  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string | {}) {
     return customInputs
       .filter((customInput) =>
         customInput.org_category_ids
@@ -123,6 +123,8 @@ export class CustomInputsService {
 
   getCustomPropertyDisplayValue(customProperty: CustomField): string {
     let displayValue = '-';
+
+    console.log(customProperty);
 
     if (customProperty.type === 'TEXT' || customProperty.type === 'SELECT') {
       displayValue = customProperty.value || '-';
