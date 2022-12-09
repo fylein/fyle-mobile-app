@@ -1603,7 +1603,7 @@ export class AddEditExpensePage implements OnInit {
             this.fg.patchValue({
               currencyObj: {
                 amount: etxn.tx.amount,
-                currency: etxn.tx.currency,
+                currency: recentCurrencies[0].shortCode,
                 orig_amount: etxn.tx.orig_amount,
                 orig_currency: etxn.tx.orig_currency,
               },
@@ -1621,7 +1621,7 @@ export class AddEditExpensePage implements OnInit {
             this.fg.patchValue({
               currencyObj: {
                 amount: null,
-                currency: homeCurrency,
+                currency: recentCurrencies[0].shortCode,
                 orig_amount: null,
                 orig_currency: etxn.tx.currency,
               },
