@@ -54,7 +54,6 @@ import { FormButtonValidationDirective } from './directive/form-button-validatio
 import { FormatDateDirective } from './directive/format-date.directive';
 
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
-import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
@@ -133,6 +132,7 @@ import { VirtualSelectComponent } from './components/virtual-select/virtual-sele
 import { VirtualSelectModalComponent } from './components/virtual-select/virtual-select-modal/virtual-select-modal.component';
 import { AutoSubmissionInfoCardComponent } from '../fyle/dashboard/tasks/auto-submission-info-card/auto-submission-info-card.component';
 import { CameraPreviewComponent } from './components/capture-receipt/camera-preview/camera-preview.component';
+import { PinchZoomModule } from './lib/pinch-zoom.module';
 
 @NgModule({
   declarations: [
@@ -257,7 +257,6 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     MatCheckboxModule,
     MatButtonModule,
     ReactiveFormsModule,
-    PinchZoomModule,
     PdfViewerModule,
     MatRippleModule,
     MatRadioModule,
@@ -271,8 +270,10 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     MatBottomSheetModule,
     ImageCropperModule,
     ScrollingModule,
+    PinchZoomModule,
   ],
   exports: [
+    PinchZoomModule,
     EllipsisPipe,
     HumanizeCurrencyPipe,
     ReportState,

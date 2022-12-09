@@ -1,6 +1,6 @@
 {
   "root": true,
-  "ignorePatterns": ["projects/**/*"],
+  "ignorePatterns": ["projects/**/*", "lib/**/*"],
   "plugins": ["max-params-no-constructor"],
   "overrides": [
     {
