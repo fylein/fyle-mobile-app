@@ -26,7 +26,6 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    ,
     PdfViewerModule,
   ],
   declarations: [MyViewAdvanceRequestPage],

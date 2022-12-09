@@ -38,7 +38,6 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
     MatNativeDateModule,
     MatCheckboxModule,
     SharedModule,
-    ,
     PdfViewerModule,
     MatButtonModule,
     MatSnackBarModule,

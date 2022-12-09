@@ -33,7 +33,6 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
     MatInputModule,
     SharedModule,
     MatCheckboxModule,
-    ,
     PdfViewerModule,
   ],
   declarations: [

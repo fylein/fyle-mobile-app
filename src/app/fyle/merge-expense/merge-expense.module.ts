@@ -35,7 +35,6 @@ import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form/cus
     MatNativeDateModule,
     MatCheckboxModule,
     SharedModule,
-    ,
     PdfViewerModule,
     MatButtonModule,
     MatSnackBarModule,
