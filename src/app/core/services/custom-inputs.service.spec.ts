@@ -72,14 +72,14 @@ describe('CustomInputsService', () => {
 
   it('should get custom property to be displayed | MULTI SELECT', () => {
     const testProperty = {
-      name: 'userlist',
-      value: ['some', 'multi'],
-      type: 'USER_LIST',
-      mandatory: false,
-      options: [],
+      name: 'Multi Type',
+      value: ['record1', 'record2'],
+      type: 'MULTI_SELECT',
+      mandatory: true,
+      options: ['Multi 1'],
     };
 
-    const expectedProperty = 'some, multi';
+    const expectedProperty = 'record1, record2';
 
     const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
     expect(result).toEqual(expectedProperty);
@@ -91,7 +91,7 @@ describe('CustomInputsService', () => {
       value: '',
       type: 'TEXT',
       mandatory: false,
-      options: ['asdf', 'asdfa'],
+      options: ['value1', 'value2'],
     };
 
     const expectedProperty = '-';
@@ -100,13 +100,28 @@ describe('CustomInputsService', () => {
     expect(result).toEqual(expectedProperty);
   });
 
+  it('should get custom property to be displayed | SELECT', () => {
+    const testProperty = {
+      name: 'Status',
+      value: 'record',
+      type: 'SELECT',
+      mandatory: false,
+      options: ['record 1', 'record 2'],
+    };
+
+    const expectedProperty = 'record';
+
+    const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
+    expect(result).toEqual(expectedProperty);
+  });
+
   it('should get custom property to be displayed | BOOLEAN with value', () => {
     const testProperty = {
       name: 'category2',
-      value: 'some value',
+      value: 'value',
       type: 'BOOLEAN',
       mandatory: false,
-      options: ['asdf', 'asdfa'],
+      options: ['record1', 'record2'],
     };
 
     const expectedProperty = 'Yes';
@@ -121,7 +136,7 @@ describe('CustomInputsService', () => {
       value: '',
       type: 'BOOLEAN',
       mandatory: false,
-      options: ['asdf', 'asdfa'],
+      options: ['record1', 'record2'],
     };
 
     const expectedProperty = 'No';
