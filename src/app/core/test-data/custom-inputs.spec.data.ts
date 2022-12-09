@@ -1,3 +1,4 @@
+import { CustomProperty } from '../models/custom-properties.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 export const apiResponse = [
   {
@@ -4923,7 +4924,7 @@ export const responseAfterAppliedFilter: ExpenseField[] = [
   },
 ];
 
-export const customProperties = [
+export const customProperties: CustomProperty[] = [
   {
     name: 'userlist',
     value: [],

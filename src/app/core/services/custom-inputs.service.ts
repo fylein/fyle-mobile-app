@@ -7,6 +7,7 @@ import { from, Observable, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { CustomField } from '../models/custom_field.model';
+import { CustomProperty } from '../models/custom-properties.model';
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
@@ -24,21 +25,6 @@ export class CustomInputsService {
     cacheBusterObserver: customInputssCacheBuster$,
   })
   getAll(active: boolean): Observable<ExpenseField[]> {
-    from(this.authService.getEou())
-      .pipe(
-        switchMap((eou) =>
-          this.apiService.get('/expense_fields', {
-            params: {
-              org_id: eou.ou.org_id,
-              is_enabled: active,
-              is_custom: true,
-            },
-          })
-        )
-      )
-      .subscribe((res) => {
-        console.log(res);
-      });
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiService.get('/expense_fields', {
@@ -52,7 +38,7 @@ export class CustomInputsService {
     );
   }
 
-  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string | number) {
+  filterByCategory(customInputs: ExpenseField[], orgCategoryId: number | string) {
     return customInputs
       .filter((customInput) =>
         customInput.org_category_ids
@@ -70,7 +56,11 @@ export class CustomInputsService {
     return 0;
   }
 
-  fillCustomProperties(orgCategoryId: number, customProperties, active: boolean): Observable<CustomField[]> {
+  fillCustomProperties(
+    orgCategoryId: number,
+    customProperties: CustomProperty[],
+    active: boolean
+  ): Observable<CustomField[]> {
     return this.getAll(active).pipe(
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
