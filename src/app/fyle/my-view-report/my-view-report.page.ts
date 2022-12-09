@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop, concat, Subject, iif, of, forkJoin } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -36,7 +36,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
   templateUrl: './my-view-report.page.html',
   styleUrls: ['./my-view-report.page.scss'],
 })
-export class MyViewReportPage implements OnInit {
+export class MyViewReportPage {
   @ViewChild('commentInput') commentInput: ElementRef;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
@@ -151,7 +151,38 @@ export class MyViewReportPage implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ionViewWillLeave() {
+    this.onPageExit.next(null);
+  }
+
+  getVendorName(etxn) {
+    const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
+    let vendorName = etxn.tx_vendor || 'Expense';
+
+    if (category === 'mileage') {
+      vendorName = etxn.tx_distance || 0;
+      vendorName += ' ' + etxn.tx_distance_unit;
+    } else if (category === 'per diem') {
+      vendorName = etxn.tx_num_days || 0;
+      vendorName += ' Days';
+    }
+
+    return vendorName;
+  }
+
+  getShowViolation(etxn) {
+    return (
+      etxn.tx_id &&
+      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
+      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
+    );
+  }
+
+  ionViewWillEnter() {
+    this.setupNetworkWatcher();
+    this.isExpensesLoading = true;
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+
     this.erpt$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
       finalize(() => from(this.loaderService.hideLoader()))
@@ -202,39 +233,6 @@ export class MyViewReportPage implements OnInit {
     this.totalCommentsCount$ = this.estatuses$.pipe(
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
-  }
-
-  ionViewWillLeave() {
-    this.onPageExit.next(null);
-  }
-
-  getVendorName(etxn) {
-    const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
-    let vendorName = etxn.tx_vendor || 'Expense';
-
-    if (category === 'mileage') {
-      vendorName = etxn.tx_distance || 0;
-      vendorName += ' ' + etxn.tx_distance_unit;
-    } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days || 0;
-      vendorName += ' Days';
-    }
-
-    return vendorName;
-  }
-
-  getShowViolation(etxn) {
-    return (
-      etxn.tx_id &&
-      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
-      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
-    );
-  }
-
-  ionViewWillEnter() {
-    this.setupNetworkWatcher();
-    this.isExpensesLoading = true;
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.erpt$.subscribe((erpt) => {
       this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
@@ -425,17 +423,6 @@ export class MyViewReportPage implements OnInit {
 
     if (etxn.tx_org_category) {
       category = etxn.tx_org_category.toLowerCase();
-    }
-
-    if (category === 'activity') {
-      const action = canEdit ? 'Edit' : 'View';
-      return this.popupService.showPopup({
-        header: `Cannot ${action} Activity`,
-        message: `${action}ing activity is not supported in mobile app.`,
-        primaryCta: {
-          text: 'Cancel',
-        },
-      });
     }
 
     let route: string;

@@ -1,7 +1,7 @@
-<div class="task">
+<div class="task" matRipple>
   <div class="task--card">
     <ion-grid>
-      <ion-row class="task--row" [ngClass]="{ 'pb-0': showReportAutoSubmissionInfo }">
+      <ion-row class="task--row" (click)="taskCtaClicked(task)" [ngClass]="{ 'pb-0': showReportAutoSubmissionInfo }">
         <ion-col size="1" class="task--icon-col">
           <ion-row>
             <ion-col class="task--icon-col">
@@ -9,7 +9,8 @@
                 class="task--icon"
                 [ngClass]="{
                   'task--icon__warning': task.icon === 'warning-new',
-                  'task--icon__expense': task.icon === 'fy-expense'
+                  'task--icon__expense': task.icon === 'fy-expense',
+                  'task--icon__advance': task.icon === 'advances'
                 }"
                 [src]="'../../../../../assets/svg/' + task.icon + '.svg'"
               ></ion-icon>
@@ -36,8 +37,13 @@
             </ion-col>
           </ion-row>
           <ion-row class="ion-justify-content-between task--cta-row">
-            <ion-col size="6" *ngFor="let cta of task.ctas" class="task--cta" (click)="taskCtaClicked(cta)">
+            <ion-col size="11" *ngFor="let cta of task.ctas" class="task--cta">
               {{ cta.content }}
+            </ion-col>
+            <ion-col size="1">
+              <div>
+                <ion-icon class="task--cta-row-icon" src="../../../../../assets/svg/right-arrow.svg"></ion-icon>
+              </div>
             </ion-col>
           </ion-row>
         </ion-col>

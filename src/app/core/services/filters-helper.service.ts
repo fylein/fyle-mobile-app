@@ -3,18 +3,12 @@ import { TitleCasePipe } from '@angular/common';
 import { ModalController } from '@ionic/angular';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { AdvancesStates } from '../models/advances-states.model';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingValue } from '../models/sorting-value.model';
+import { Filters } from '../models/filters.model';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
-
-type Filters = Partial<{
-  state: AdvancesStates[];
-  sortParam: SortingParam;
-  sortDir: SortingDirection;
-}>;
 
 @Injectable({
   providedIn: 'root',

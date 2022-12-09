@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { AccountType } from '../enums/account-type.enum';
 import { AccountsService } from './accounts.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
@@ -34,10 +35,10 @@ const account1 = {
 const unflattenedAccount1 = {
   acc: {
     id: 'accfziaxbGFVW',
-    created_at: '2018-10-08T07:04:42.753Z',
-    updated_at: '2022-04-27T08:57:52.221Z',
+    created_at: new Date('2018-10-08T07:04:42.753Z'),
+    updated_at: new Date('2022-04-27T08:57:52.221Z'),
     name: 'Personal Account',
-    type: 'PERSONAL_ACCOUNT',
+    type: AccountType.PERSONAL,
     currency: 'INR',
     target_balance_amount: 0,
     current_balance_amount: 0,
@@ -90,10 +91,10 @@ const account2 = {
 const unflattenedAccount2 = {
   acc: {
     id: 'acct0IxPgGvLa',
-    created_at: '2018-11-05T18:35:59.912Z',
-    updated_at: '2021-09-29T19:35:23.965Z',
+    created_at: new Date('2018-11-05T18:35:59.912Z'),
+    updated_at: new Date('2021-09-29T19:35:23.965Z'),
     name: 'Advance Account',
-    type: 'PERSONAL_ADVANCE_ACCOUNT',
+    type: AccountType.ADVANCE,
     currency: 'INR',
     target_balance_amount: 0,
     current_balance_amount: 0,
