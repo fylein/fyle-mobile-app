@@ -19,7 +19,7 @@ const fixDate = (data) =>
     project_updated_at: new Date(datum.project_updated_at),
   }));
 
-fdescribe('ProjectsService', () => {
+describe('ProjectsService', () => {
   let projectService: ProjectsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
