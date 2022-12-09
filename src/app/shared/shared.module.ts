@@ -256,7 +256,6 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     MatCheckboxModule,
     MatButtonModule,
     ReactiveFormsModule,
-    PinchZoomModule,
     PdfViewerModule,
     MatRippleModule,
     MatRadioModule,
