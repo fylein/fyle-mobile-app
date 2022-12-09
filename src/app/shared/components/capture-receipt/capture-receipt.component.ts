@@ -9,7 +9,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap, first } from 'rxjs/operators';
+import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -60,8 +60,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   bulkModeToastMessageRef: MatSnackBarRef<ToastMessageComponent>;
 
-  recentlyUsedCurrencies$: Observable<Currency[]>;
-
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -91,14 +89,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnInit() {
-    this.recentlyUsedCurrencies$ = forkJoin({
-      recentValues: this.recentlyUsedItemsService.getRecentlyUsed(),
-      currencies: this.currencyService.getAll(),
-    }).pipe(
-      switchMap(({ recentValues, currencies }) =>
-        this.recentlyUsedItemsService.getRecentCurrencies(currencies, recentValues)
-      )
-    );
     this.setupNetworkWatcher();
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
@@ -122,27 +112,35 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   addExpenseToQueue(base64ImagesWithSource: Image) {
     let source = base64ImagesWithSource.source;
+    const recentlyUsedCurrencies$ = forkJoin({
+      recentValues: this.recentlyUsedItemsService.getRecentlyUsed(),
+      currencies: this.currencyService.getAll(),
+    }).pipe(
+      switchMap(({ recentValues, currencies }) =>
+        this.recentlyUsedItemsService.getRecentCurrencies(currencies, recentValues)
+      )
+    );
     return forkJoin({
       isOffline: this.isOffline$.pipe(take(1)),
       homeCurrency: this.currencyService.getHomeCurrency(),
       isInstafyleEnabled: this.isInstafyleEnabled$,
-      recentlyUsedCurrencies: this.recentlyUsedCurrencies$,
+      recentlyUsedCurrencies: recentlyUsedCurrencies$,
     }).pipe(
       switchMap(({ homeCurrency, isOffline, isInstafyleEnabled, recentlyUsedCurrencies }) => {
         if (isOffline) {
           source += '_OFFLINE';
         }
 
-        let useCurrency = recentlyUsedCurrencies[0].shortCode;
+        let etxnCurrency = homeCurrency;
 
-        if (!recentlyUsedCurrencies) {
-          useCurrency = homeCurrency;
+        if (recentlyUsedCurrencies) {
+          etxnCurrency = recentlyUsedCurrencies[0].shortCode;
         }
 
         const transaction = {
           source,
           txn_dt: new Date(),
-          currency: useCurrency,
+          currency: etxnCurrency,
         };
 
         const attachmentUrls = [
