@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, NgZone, ViewChild, HostListener } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop } from 'rxjs';
 import { switchMap, shareReplay, filter } from 'rxjs/operators';
@@ -75,6 +75,13 @@ export class AppComponent implements OnInit {
     this.registerBackButtonAction();
   }
 
+  @HostListener('document:readystatechange', ['$event'])
+  onReadyStateChanged(event) {
+    if (event.target.readyState === 'complete') {
+      SplashScreen.hide();
+    }
+  }
+
   registerBackButtonAction() {
     this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
       if (this.router.url.includes('sign_in')) {
@@ -102,7 +109,6 @@ export class AppComponent implements OnInit {
     });
 
     this.platform.ready().then(() => {
-      SplashScreen.hide();
       StatusBar.setStyle({
         style: Style.Default,
       });

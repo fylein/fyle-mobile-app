@@ -46,7 +46,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     SharedModule,
     HammerModule,
     HttpClientJsonpModule,
-    SharedModule,
     HammerModule,
   ],
   providers: [
