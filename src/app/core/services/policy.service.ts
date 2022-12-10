@@ -49,20 +49,23 @@ export class PolicyService {
       mileage_rate_id: transaction?.mileage_rate_id,
       mileage_calculated_distance: transaction?.mileage_calculated_distance,
       mileage_calculated_amount: transaction?.mileage_calculated_amount,
+      travel_classes: [],
     };
 
     if (
       transaction?.fyle_category?.toLowerCase() === 'flight' ||
       transaction?.fyle_category?.toLowerCase() === 'airlines'
     ) {
-      platformPolicyExpense.travel_classes = [
-        transaction?.flight_journey_travel_class,
-        transaction?.flight_return_travel_class,
-      ];
-    } else if (transaction?.fyle_category?.toLowerCase() === 'bus') {
-      platformPolicyExpense.travel_classes = [transaction?.bus_travel_class];
-    } else if (transaction?.fyle_category?.toLowerCase() === 'train') {
-      platformPolicyExpense.travel_classes = [transaction?.train_travel_class];
+      if (transaction?.flight_journey_travel_class) {
+        platformPolicyExpense.travel_classes.push(transaction?.flight_journey_travel_class);
+      }
+      if (transaction?.flight_return_travel_class) {
+        platformPolicyExpense.travel_classes.push(transaction?.flight_return_travel_class);
+      }
+    } else if (transaction?.fyle_category?.toLowerCase() === 'bus' && transaction?.bus_travel_class) {
+      platformPolicyExpense.travel_classes.push(transaction?.bus_travel_class);
+    } else if (transaction?.fyle_category?.toLowerCase() === 'train' && transaction?.train_travel_class) {
+      platformPolicyExpense.travel_classes.push(transaction?.train_travel_class);
     }
 
     return platformPolicyExpense;
