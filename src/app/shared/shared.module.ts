@@ -54,7 +54,7 @@ import { FormButtonValidationDirective } from './directive/form-button-validatio
 import { FormatDateDirective } from './directive/format-date.directive';
 
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
-import { PinchZoomModule } from 'ngx-pinch-zoom';
+
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
@@ -257,7 +257,7 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     MatCheckboxModule,
     MatButtonModule,
     ReactiveFormsModule,
-    PinchZoomModule,
+
     PdfViewerModule,
     MatRippleModule,
     MatRadioModule,
