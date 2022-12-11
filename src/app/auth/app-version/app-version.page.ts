@@ -5,7 +5,7 @@ import { filter } from 'rxjs/operators';
 import { Browser } from '@capacitor/browser';
 import { Platform } from '@ionic/angular';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { noop } from 'rxjs';
+import { noop } from 'rxjs/internal/util/noop';
 
 @Component({
   selector: 'app-app-version',

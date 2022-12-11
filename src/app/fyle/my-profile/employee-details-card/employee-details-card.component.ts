@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ElementRef, ViewChild, AfterViewChecked, Chan
 import { PopoverController } from '@ionic/angular';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { noop } from 'rxjs';
+import { noop } from 'rxjs/internal/util/noop';
 import { map, tap, concatMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';

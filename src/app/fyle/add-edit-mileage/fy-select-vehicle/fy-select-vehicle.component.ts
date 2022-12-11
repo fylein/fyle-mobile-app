@@ -1,6 +1,6 @@
 import { Component, OnInit, forwardRef, Input, Injector, OnDestroy } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
-import { noop } from 'rxjs';
+import { noop } from 'rxjs/internal/util/noop';
 
 @Component({
   selector: 'app-fy-select-vehicle',

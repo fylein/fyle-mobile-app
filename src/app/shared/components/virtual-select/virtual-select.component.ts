@@ -1,6 +1,6 @@
 import { Component, OnInit, forwardRef, Input, TemplateRef, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
-import { noop } from 'rxjs';
+import { noop } from 'rxjs/internal/util/noop';
 import { ModalController } from '@ionic/angular';
 import { VirtualSelectModalComponent } from './virtual-select-modal/virtual-select-modal.component';
 import { isEqual } from 'lodash';

@@ -1,6 +1,6 @@
 import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
-import { noop } from 'rxjs';
+import { noop } from 'rxjs/internal/util/noop';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';

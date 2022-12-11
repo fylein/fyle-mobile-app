@@ -1,6 +1,6 @@
 import { Component, forwardRef, Injector, Input, OnChanges, OnInit, TemplateRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor } from '@angular/forms';
-import { noop } from 'rxjs';
+import { noop } from 'rxjs/internal/util/noop';
 import { map, concatMap, tap } from 'rxjs/operators';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { isEqual } from 'lodash';

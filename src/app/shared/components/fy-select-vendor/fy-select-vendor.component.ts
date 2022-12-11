@@ -1,6 +1,6 @@
 import { Component, OnInit, forwardRef, Input, OnDestroy, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl, NgControl } from '@angular/forms';
-import { noop } from 'rxjs';
+import { noop } from 'rxjs/internal/util/noop';
 import { ModalController } from '@ionic/angular';
 import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';

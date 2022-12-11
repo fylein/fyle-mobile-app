@@ -1,7 +1,7 @@
 import { Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Platform } from '@ionic/angular';
-import { noop } from 'rxjs';
+import { noop } from 'rxjs/internal/util/noop';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({

@@ -101,11 +101,11 @@ export class AppComponent implements OnInit {
       });
     });
 
-    this.platform.ready().then(async () => {
-      await StatusBar.setStyle({
+    this.platform.ready().then(() => {
+      SplashScreen.hide();
+      StatusBar.setStyle({
         style: Style.Default,
       });
-      setTimeout(async () => await SplashScreen.hide(), 1000);
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(
