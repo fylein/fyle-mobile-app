@@ -1599,15 +1599,54 @@ export class AddEditExpensePage implements OnInit {
             }
           });
 
+          // Check if auto-fills is enabled
+          const isAutofillsEnabled =
+            orgSettings.org_expense_form_autofills &&
+            orgSettings.org_expense_form_autofills.allowed &&
+            orgSettings.org_expense_form_autofills.enabled &&
+            orgUserSettings.expense_form_autofills &&
+            orgUserSettings.expense_form_autofills.allowed &&
+            orgUserSettings.expense_form_autofills.enabled;
+
           if (etxn.tx.amount && etxn.tx.currency) {
             this.fg.patchValue({
               currencyObj: {
                 amount: etxn.tx.amount,
-                currency: recentCurrencies[0].shortCode,
+                currency: etxn.tx.currency,
                 orig_amount: etxn.tx.orig_amount,
                 orig_currency: etxn.tx.orig_currency,
               },
             });
+            if (isAutofillsEnabled && recentCurrencies) {
+              this.fg.patchValue({
+                currencyObj: {
+                  amount: etxn.tx.amount,
+                  currency: recentCurrencies[0].shortCode,
+                  orig_amount: etxn.tx.orig_amount,
+                  orig_currency: etxn.tx.orig_currency,
+                },
+              });
+            } else {
+              if (etxn.tx.currency !== homeCurrency) {
+                this.fg.patchValue({
+                  currencyObj: {
+                    amount: null,
+                    currency: homeCurrency,
+                    orig_amount: null,
+                    orig_currency: etxn.tx.currency,
+                  },
+                });
+              } else if (etxn.tx.currency === homeCurrency) {
+                this.fg.patchValue({
+                  currencyObj: {
+                    amount: null,
+                    currency: etxn.tx.currency,
+                    orig_amount: null,
+                    orig_currency: null,
+                  },
+                });
+              }
+            }
           } else if (etxn.tx.user_amount && isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001) {
             this.fg.patchValue({
               currencyObj: {
@@ -1615,24 +1654,6 @@ export class AddEditExpensePage implements OnInit {
                 currency: etxn.tx.currency,
                 orig_amount: etxn.tx.orig_amount,
                 orig_currency: etxn.tx.orig_currency,
-              },
-            });
-          } else if (etxn.tx.currency !== homeCurrency) {
-            this.fg.patchValue({
-              currencyObj: {
-                amount: null,
-                currency: recentCurrencies[0].shortCode,
-                orig_amount: null,
-                orig_currency: etxn.tx.currency,
-              },
-            });
-          } else if (etxn.tx.currency === homeCurrency) {
-            this.fg.patchValue({
-              currencyObj: {
-                amount: null,
-                currency: etxn.tx.currency,
-                orig_amount: null,
-                orig_currency: null,
               },
             });
           }
@@ -1643,15 +1664,6 @@ export class AddEditExpensePage implements OnInit {
               tax_group: tg,
             });
           }
-
-          // Check if auto-fills is enabled
-          const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            orgUserSettings.expense_form_autofills &&
-            orgUserSettings.expense_form_autofills.allowed &&
-            orgUserSettings.expense_form_autofills.enabled;
 
           // Check if recent projects exist
           const doRecentProjectIdsExist =
