@@ -4,7 +4,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 import { from, of, Subject } from 'rxjs';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { Cacheable } from 'ts-cacheable';
 import { getNumberOfCurrencyDigits } from '@angular/common';
 
@@ -16,7 +16,7 @@ export class CurrencyService {
 
   @Cacheable()
   getExchangeRate(fromCurrency, toCurrency, dt = new Date(), txnId?) {
-    const txnDt = moment(dt).format('y-MM-D');
+    const txnDt = dayjs(dt).format('y-MM-D');
     const queryParams = {
       from: fromCurrency,
       to: toCurrency,

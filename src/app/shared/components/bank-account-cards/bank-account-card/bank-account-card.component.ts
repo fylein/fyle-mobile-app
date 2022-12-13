@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from '../../../../core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { DateService } from 'src/app/core/services/date.service';
 @Component({
   selector: 'app-bank-account-card',
