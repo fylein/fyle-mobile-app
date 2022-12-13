@@ -133,7 +133,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
         let etxnCurrency = homeCurrency;
 
-        if (recentlyUsedCurrencies) {
+        if (recentlyUsedCurrencies?.length && recentlyUsedCurrencies[0].shortCode) {
           etxnCurrency = recentlyUsedCurrencies[0].shortCode;
         }
 

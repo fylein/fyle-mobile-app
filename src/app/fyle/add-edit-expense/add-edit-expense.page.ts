@@ -1601,12 +1601,12 @@ export class AddEditExpensePage implements OnInit {
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            orgUserSettings.expense_form_autofills &&
-            orgUserSettings.expense_form_autofills.allowed &&
-            orgUserSettings.expense_form_autofills.enabled;
+            orgSettings?.org_expense_form_autofills &&
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
+            orgUserSettings?.expense_form_autofills &&
+            orgUserSettings?.expense_form_autofills?.allowed &&
+            orgUserSettings?.expense_form_autofills?.enabled;
 
           if (etxn.tx.amount && etxn.tx.currency) {
             this.fg.patchValue({
@@ -1617,7 +1617,7 @@ export class AddEditExpensePage implements OnInit {
                 orig_currency: etxn.tx.orig_currency,
               },
             });
-            if (isAutofillsEnabled && recentCurrencies) {
+            if (isAutofillsEnabled && recentCurrencies?.length && recentCurrencies[0]?.shortCode) {
               this.fg.patchValue({
                 currencyObj: {
                   amount: etxn.tx.amount,
