@@ -6,7 +6,7 @@ import { ViewExpensePageRoutingModule } from './view-expense-routing.module';
 import { ViewExpensePage } from './view-expense.page';
 import { SharedModule } from '../../shared/shared.module';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
-import { PinchZoomModule } from 'ngx-pinch-zoom';
+
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
@@ -16,7 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
     IonicModule,
     ViewExpensePageRoutingModule,
     SharedModule,
-    PinchZoomModule,
+
     PdfViewerModule,
     MatButtonModule,
   ],

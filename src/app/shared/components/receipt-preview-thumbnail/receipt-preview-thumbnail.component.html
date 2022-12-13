@@ -45,16 +45,11 @@
   >
     <ng-template *ngFor="let attachment of attachments" swiperSlide>
       <div class="receipt-preview-thumbnail--container" (click)="previewAttachments()">
-        <pinch-zoom
-          class="pinch-zoom"
-          *ngIf="attachment?.type !== 'pdf'"
-          disableZoomControl="disable"
-          backgroundColor="white"
-        >
+        <div class="pinch-zoom" *ngIf="attachment?.type !== 'pdf'" disableZoomControl="disable" backgroundColor="white">
           <img (load)="onLoad()" class="receipt-preview-thumbnail--image" [src]="attachment?.url" />
-        </pinch-zoom>
+        </div>
         <div class="receipt-preview-thumbnail--image" *ngIf="attachment?.type === 'pdf'">
-          <pinch-zoom
+          <div
             class="pinch-zoom"
             *ngIf="attachment?.type === 'pdf'"
             disableZoomControl="disable"
@@ -70,7 +65,7 @@
               [fit-to-page]="true"
               (after-load-complete)="onLoad()"
             ></pdf-viewer>
-          </pinch-zoom>
+          </div>
         </div>
       </div>
     </ng-template>
