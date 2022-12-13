@@ -103,10 +103,10 @@ export class AppComponent implements OnInit {
     });
 
     this.platform.ready().then(async () => {
+      await SplashScreen.hide();
       await StatusBar.setStyle({
         style: Style.Default,
       });
-      setTimeout(async () => await SplashScreen.hide(), 1000);
 
       /*
        * Use the app's font size irrespective of the user's device font size.
