@@ -21,7 +21,7 @@ export class AppVersionService {
   ) {}
 
   // not fixing since copied from somewhere
-  // not human readable at the moment
+  // not human readable at the dayjs
   // eslint-disable-next-line complexity
   isVersionLower(version1, version2) {
     // https://gist.github.com/alexey-bass/1115557#file-compare-js

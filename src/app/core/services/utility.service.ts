@@ -3,7 +3,7 @@ import { map } from 'rxjs/operators';
 import { cloneDeep, isArray } from 'lodash';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 
 @Injectable({
   providedIn: 'root',
@@ -121,9 +121,9 @@ export class UtilityService {
 
   private getSortingValue(advance: any, sortParam: SortingParam) {
     if (sortParam === SortingParam.creationDate) {
-      return advance.areq_created_at ? moment(advance.areq_created_at) : moment(advance.adv_created_at);
+      return advance.areq_created_at ? dayjs(advance.areq_created_at) : dayjs(advance.adv_created_at);
     } else if (sortParam === SortingParam.approvalDate) {
-      return advance.areq_approved_at ? moment(advance.areq_approved_at) : moment(this.EPOCH).toString();
+      return advance.areq_approved_at ? dayjs(advance.areq_approved_at) : dayjs(this.EPOCH).toString();
     } else if (sortParam === SortingParam.project) {
       return advance.project_name;
     }
@@ -146,7 +146,7 @@ export class UtilityService {
       } else {
         return sortingValue1.localeCompare(sortingValue2) ? -1 : 1;
       }
-    } else if (moment.isMoment(sortingValue1)) {
+    } else if (dayjs.isdayjs(sortingValue1)) {
       if (sortDir === SortingDirection.ascending) {
         return sortingValue1.isAfter(sortingValue2) ? 1 : -1;
       } else {
@@ -161,7 +161,7 @@ export class UtilityService {
     if (sortingParam === SortingParam.project) {
       nullComparator = null;
     } else {
-      nullComparator = moment(this.EPOCH).toString(); //needed to allow comparison using === without using comparison methods from moment library
+      nullComparator = dayjs(this.EPOCH).toString(); //needed to allow comparison using === without using comparison methods from dayjs library
     }
     if (sortingValue1 === nullComparator && sortingValue2 === nullComparator) {
       return 0;
