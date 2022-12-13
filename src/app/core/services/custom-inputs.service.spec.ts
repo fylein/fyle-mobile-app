@@ -55,7 +55,7 @@ describe('CustomInputsService', () => {
     expect(result).toEqual(responseAfterAppliedFilter);
   });
 
-  it('should get custom property to be displayed | USER LIST', () => {
+  it('should get custom property to be displayed | USER LIST without value', () => {
     const testProperty = {
       name: 'userlist',
       value: [],
@@ -85,7 +85,7 @@ describe('CustomInputsService', () => {
     expect(result).toEqual(expectedProperty);
   });
 
-  it('should get custom property to be displayed | TEXT', () => {
+  it('should get custom property to be displayed | TEXT without value', () => {
     const testProperty = {
       name: 'category2',
       value: '',
