@@ -1,14 +1,13 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { Observable, from, noop, concat, Subject, iif, of, forkJoin } from 'rxjs';
+import { Observable, from, noop, concat, Subject, forkJoin, BehaviorSubject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, switchMap, finalize, shareReplay, takeUntil, tap, startWith } from 'rxjs/operators';
+import { map, switchMap, shareReplay, takeUntil, tap, startWith, take, finalize } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent, IonSegment } from '@ionic/angular';
-import { PopupService } from 'src/app/core/services/popup.service';
+import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
@@ -31,6 +30,12 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
+enum Segment {
+  EXPENSES,
+  COMMENTS,
+  HISTORY,
+}
+
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -41,19 +46,11 @@ export class MyViewReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  @ViewChild('ionSegment') ionSegment: IonSegment;
-
   erpt$: Observable<ExtendedReport>;
 
   etxns$: Observable<Expense[]>;
 
-  sharedWith$: Observable<any[]>;
-
   reportApprovals$: Observable<any>;
-
-  hideAllExpenses = true;
-
-  sharedWithLimit = 3;
 
   canEdit$: Observable<boolean>;
 
@@ -68,14 +65,6 @@ export class MyViewReportPage {
   onPageExit = new Subject();
 
   reportCurrencySymbol = '';
-
-  reportName: string;
-
-  isCommentsView = false;
-
-  isHistoryView = false;
-
-  isExpensesView = true;
 
   estatuses$: Observable<ExtendedStatus[]>;
 
@@ -95,27 +84,21 @@ export class MyViewReportPage {
 
   objectType = 'reports';
 
-  objectId = this.activatedRoute.snapshot.params.id;
-
   isCommentAdded: boolean;
 
   unReportedEtxns: Expense[];
-
-  addedExpensesIdList = [];
-
-  deleteExpensesIdList = [];
-
-  isReportEdited: any;
-
-  selectedTotalAmount: any;
-
-  selectedTotalTxns: any;
 
   reportEtxnIds: string[];
 
   isExpensesLoading: boolean;
 
   reportId: string;
+
+  loadReportDetails$ = new BehaviorSubject<void>(null);
+
+  loadReportTxns$ = new BehaviorSubject<void>(null);
+
+  segmentValue = Segment.EXPENSES;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -124,7 +107,6 @@ export class MyViewReportPage {
     private authService: AuthService,
     private loaderService: LoaderService,
     private router: Router,
-    private popupService: PopupService,
     private popoverController: PopoverController,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
@@ -135,6 +117,10 @@ export class MyViewReportPage {
     private statusService: StatusService,
     private refinerService: RefinerService
   ) {}
+
+  get Segment() {
+    return Segment;
+  }
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -180,12 +166,17 @@ export class MyViewReportPage {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
-    this.isExpensesLoading = true;
+    this.reportId = this.activatedRoute.snapshot.params.id;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.erpt$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
-      finalize(() => from(this.loaderService.hideLoader()))
+    this.segmentValue = Segment.EXPENSES;
+
+    this.erpt$ = this.loadReportDetails$.pipe(
+      tap(() => this.loaderService.showLoader()),
+      switchMap(() =>
+        this.reportService.getReport(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
+      ),
+      shareReplay(1)
     );
     const eou$ = from(this.authService.getEou());
 
@@ -193,7 +184,7 @@ export class MyViewReportPage {
       startWith(0),
       switchMap(() => eou$),
       switchMap((eou) =>
-        this.statusService.find(this.objectType, this.objectId).pipe(
+        this.statusService.find(this.objectType, this.reportId).pipe(
           map((res) =>
             res.map((status) => {
               status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
@@ -234,37 +225,30 @@ export class MyViewReportPage {
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
 
-    this.erpt$.subscribe((erpt) => {
+    this.erpt$.pipe(take(1)).subscribe((erpt) => {
       this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
-      this.reportName = erpt?.rp_purpose;
-      this.reportId = erpt?.rp_id;
 
       //For sent back reports, show the comments section instead of expenses when opening the report
       if (erpt.rp_state === 'APPROVER_INQUIRY') {
-        this.ionSegment.value = 'comments';
+        this.segmentValue = Segment.COMMENTS;
       }
     });
 
-    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
-      map((pdfExports) =>
-        pdfExports.results
-          .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
-          .map((pdfExport) => pdfExport.sent_to)
-          .filter((item, index, inputArray) => inputArray.indexOf(item) === index)
-      )
-    );
-
     this.reportApprovals$ = this.reportService
-      .getApproversByReportId(this.activatedRoute.snapshot.params.id)
+      .getApproversByReportId(this.reportId)
       .pipe(map((reportApprovals) => reportApprovals));
 
-    this.etxns$ = from(this.authService.getEou()).pipe(
+    this.etxns$ = this.loadReportTxns$.pipe(
+      tap(() => (this.isExpensesLoading = true)),
+      switchMap(() => this.authService.getEou()),
       switchMap((eou) =>
-        this.transactionService.getAllETxnc({
-          tx_org_user_id: 'eq.' + eou.ou.id,
-          tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
-          order: 'tx_txn_dt.desc,tx_id.desc',
-        })
+        this.transactionService
+          .getAllETxnc({
+            tx_org_user_id: 'eq.' + eou.ou.id,
+            tx_report_id: 'eq.' + this.reportId,
+            order: 'tx_txn_dt.desc,tx_id.desc',
+          })
+          .pipe(finalize(() => (this.isExpensesLoading = false)))
       ),
       map((etxns) =>
         etxns.map((etxn) => {
@@ -273,11 +257,10 @@ export class MyViewReportPage {
           return etxn;
         })
       ),
-      shareReplay(1),
-      finalize(() => (this.isExpensesLoading = false))
+      shareReplay(1)
     );
 
-    const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
+    const actions$ = this.reportService.actions(this.reportId).pipe(shareReplay(1));
 
     this.canEdit$ = actions$.pipe(map((actions) => actions.can_edit));
     this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
@@ -311,39 +294,45 @@ export class MyViewReportPage {
       .subscribe(noop);
   }
 
-  updateReportName(erpt: ExtendedReport, reportName: string) {
-    erpt.rp_purpose = reportName;
-    from(this.loaderService.showLoader())
+  updateReportName(reportName: string) {
+    this.erpt$
       .pipe(
-        switchMap(() => this.reportService.updateReportDetails(erpt)),
-        finalize(() => this.loaderService.hideLoader()),
-        shareReplay(1)
+        take(1),
+        switchMap((erpt) => {
+          erpt.rp_purpose = reportName;
+          return this.reportService.updateReportDetails(erpt);
+        })
       )
-      .subscribe(() => {
-        this.reportName = reportName;
+      .subscribe(() => this.loadReportDetails$.next());
+  }
+
+  editReportName() {
+    this.erpt$
+      .pipe(take(1))
+      .pipe(
+        switchMap((erpt) => {
+          const editReportNamePopover = this.popoverController.create({
+            component: EditReportNamePopoverComponent,
+            componentProps: {
+              reportName: erpt.rp_purpose,
+            },
+            cssClass: 'fy-dialog-popover',
+          });
+          return editReportNamePopover;
+        }),
+        tap((editReportNamePopover) => editReportNamePopover.present()),
+        switchMap((editReportNamePopover) => editReportNamePopover.onWillDismiss())
+      )
+      .subscribe((editReportNamePopoverDetails) => {
+        const newReportName = editReportNamePopoverDetails?.data?.reportName;
+        if (newReportName) {
+          this.updateReportName(newReportName);
+        }
       });
   }
 
-  async editReportName() {
-    const erpt = await this.erpt$.toPromise();
-    const editReportNamePopover = await this.popoverController.create({
-      component: EditReportNamePopoverComponent,
-      componentProps: {
-        reportName: erpt.rp_purpose,
-      },
-      cssClass: 'fy-dialog-popover',
-    });
-
-    await editReportNamePopover.present();
-    const { data } = await editReportNamePopover.onWillDismiss();
-
-    if (data && data.reportName) {
-      this.updateReportName(erpt, data.reportName);
-    }
-  }
-
   deleteReport() {
-    this.erpt$.subscribe((res) => this.deleteReportPopup(res));
+    this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
   async deleteReportPopup(erpt) {
@@ -359,9 +348,7 @@ export class MyViewReportPage {
             ? null
             : 'Deleting the report will not delete any of the expenses.',
         deleteMethod: () =>
-          this.reportService
-            .delete(this.activatedRoute.snapshot.params.id)
-            .pipe(tap(() => this.trackingService.deleteReport())),
+          this.reportService.delete(this.reportId).pipe(tap(() => this.trackingService.deleteReport())),
       },
     });
 
@@ -374,50 +361,34 @@ export class MyViewReportPage {
     }
   }
 
-  async showResubmitReportSummaryPopover() {
-    const erpt = await this.erpt$.toPromise();
-    const etxns = await this.etxns$.toPromise();
-    const popover = await this.popoverController.create({
-      componentProps: {
-        erpt,
-        etxns,
-      },
-      component: ResubmitReportPopoverComponent,
-      cssClass: 'dialog-popover',
-    });
-
-    await popover.present();
-
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
-    }
+  showReportSummaryPopover(mode: 'SUBMIT' | 'RESUBMIT') {
+    forkJoin({
+      erpt: this.erpt$.pipe(take(1)),
+      etxns: this.etxns$.pipe(take(1)),
+    })
+      .pipe(
+        switchMap(({ erpt, etxns }) => {
+          const resubmitReportPopover = this.popoverController.create({
+            componentProps: {
+              erpt,
+              etxns,
+            },
+            component: mode === 'SUBMIT' ? SubmitReportPopoverComponent : ResubmitReportPopoverComponent,
+            cssClass: 'dialog-popover',
+          });
+          return resubmitReportPopover;
+        }),
+        tap((resubmitReportPopover) => resubmitReportPopover.present()),
+        switchMap((resubmitReportPopover) => resubmitReportPopover.onWillDismiss())
+      )
+      .subscribe((resubmitReportPopoverDetails) => {
+        if (resubmitReportPopoverDetails?.data?.goBack) {
+          this.router.navigate(['/', 'enterprise', 'my_reports']);
+        }
+      });
   }
 
-  async showSubmitReportSummaryPopover() {
-    const erpt = await this.erpt$.toPromise();
-    const etxns = await this.etxns$.toPromise();
-    const popover = await this.popoverController.create({
-      componentProps: {
-        erpt,
-        etxns,
-      },
-      component: SubmitReportPopoverComponent,
-      cssClass: 'dialog-popover',
-    });
-
-    await popover.present();
-
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
-    }
-  }
-
-  async goToTransaction({ etxn, etxnIndex }) {
-    const erpt = await this.erpt$.toPromise();
+  goToTransaction({ etxn, etxnIndex }) {
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
 
@@ -444,14 +415,16 @@ export class MyViewReportPage {
       }
     }
     if (canEdit) {
-      this.router.navigate([
-        route,
-        {
-          id: etxn.tx_id,
-          navigate_back: true,
-          remove_from_report: erpt.rp_num_transactions > 1,
-        },
-      ]);
+      this.erpt$.pipe(take(1)).subscribe((erpt) =>
+        this.router.navigate([
+          route,
+          {
+            id: etxn.tx_id,
+            navigate_back: true,
+            remove_from_report: erpt.rp_num_transactions > 1,
+          },
+        ])
+      );
     } else {
       this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
       this.router.navigate([
@@ -482,10 +455,10 @@ export class MyViewReportPage {
 
     if (data && data.email) {
       const params = {
-        report_ids: [this.activatedRoute.snapshot.params.id],
+        report_ids: [this.reportId],
         email: data.email,
       };
-      this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
+      this.reportService.downloadSummaryPdfUrl(params).subscribe(() => {
         const message = `PDF download link has been emailed to ${data.email}`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
@@ -518,25 +491,8 @@ export class MyViewReportPage {
   }
 
   segmentChanged(event) {
-    if (event && event.detail && event.detail.value) {
-      if (event.detail.value === 'expenses') {
-        this.isExpensesView = true;
-        this.isCommentsView = false;
-        this.isHistoryView = false;
-      } else if (event.detail.value === 'comments') {
-        this.isCommentsView = true;
-        this.isExpensesView = false;
-        this.isHistoryView = false;
-        if (this.userComments && this.userComments.length > 0) {
-          setTimeout(() => {
-            this.content.scrollToBottom(500);
-          }, 500);
-        }
-      } else if (event.detail.value === 'history') {
-        this.isHistoryView = true;
-        this.isCommentsView = false;
-        this.isExpensesView = false;
-      }
+    if (event?.detail?.value) {
+      this.segmentValue = parseInt(event.detail.value, 10);
     }
   }
 
@@ -551,7 +507,7 @@ export class MyViewReportPage {
       this.isCommentAdded = true;
 
       this.statusService
-        .post(this.objectType, this.objectId, data)
+        .post(this.objectType, this.reportId, data)
         .pipe()
         .subscribe((res) => {
           this.refreshEstatuses$.next();
@@ -563,70 +519,42 @@ export class MyViewReportPage {
   }
 
   addExpense() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.activatedRoute.snapshot.params.id }]);
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.reportId }]);
   }
 
-  checkReportEdited() {
-    this.isReportEdited = this.deleteExpensesIdList.length > 0 || this.addedExpensesIdList.length > 0;
-  }
-
-  async showAddExpensesToReportModal() {
-    const AddExpensesToReportModal = await this.modalController.create({
+  showAddExpensesToReportModal() {
+    const addExpensesToReportModal = this.modalController.create({
       component: AddExpensesToReportComponent,
       componentProps: {
         unReportedEtxns: this.unReportedEtxns,
-        reportId: this.activatedRoute.snapshot.params.id,
+        reportId: this.reportId,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
-    await AddExpensesToReportModal.present();
-
-    const { data } = await AddExpensesToReportModal.onWillDismiss();
-    if (data && data.selectedTxnIds) {
-      this.addedExpensesIdList = data.selectedTxnIds;
-      this.selectedTotalAmount = data.selectedTotalAmount;
-      this.selectedTotalTxns = data.selectedTotalTxns;
-      this.checkReportEdited();
-      this.saveReport();
-    }
-  }
-
-  removeTxnFromReport() {
-    const removeTxnList$ = [];
-    this.deleteExpensesIdList.forEach((txnId) => {
-      removeTxnList$.push(this.reportService.removeTransaction(this.activatedRoute.snapshot.params.id, txnId));
-    });
-
-    return forkJoin(removeTxnList$);
-  }
-
-  saveReport() {
-    const report = {
-      purpose: this.reportName,
-      id: this.activatedRoute.snapshot.params.id,
-    };
-
-    this.reportService
-      .createDraft(report)
+    from(addExpensesToReportModal)
       .pipe(
-        switchMap((res) =>
-          iif(
-            () => this.addedExpensesIdList.length > 0,
-            this.reportService
-              .addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList)
-              .pipe(tap(() => this.trackingService.addToExistingReport())),
-            of(false)
-          )
-        ),
-        switchMap((res) => iif(() => this.deleteExpensesIdList.length > 0, this.removeTxnFromReport(), of(false))),
-        finalize(() => {
-          this.addedExpensesIdList = [];
-          this.deleteExpensesIdList = [];
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
-        })
+        tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
+        switchMap((addExpensesToReportModal) => addExpensesToReportModal.onWillDismiss())
       )
-      .subscribe(noop);
+      .subscribe((addExpensesToReportModalDetails) => {
+        const selectedTxnIds = addExpensesToReportModalDetails?.data?.selectedTxnIds;
+        if (selectedTxnIds?.length > 0) {
+          this.addEtxnsToReport(selectedTxnIds);
+        }
+      });
+  }
+
+  addEtxnsToReport(selectedEtxnIds: string[]) {
+    this.isExpensesLoading = true;
+    this.reportService.addTransactions(this.reportId, selectedEtxnIds).subscribe(() => {
+      this.loadReportDetails$.next();
+      this.loadReportTxns$.next();
+      this.trackingService.addToExistingReport();
+      this.unReportedEtxns = this.unReportedEtxns.filter(
+        (unReportedEtxn) => !selectedEtxnIds.includes(unReportedEtxn.tx_id)
+      );
+    });
   }
 }
