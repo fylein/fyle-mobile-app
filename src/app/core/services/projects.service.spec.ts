@@ -9,6 +9,9 @@ import {
   testActiveCategoryList,
   allowedActiveCategories,
   expectedProjectsResponse,
+  testProjectParams,
+  testProject,
+  testCategoryIds,
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 
@@ -90,63 +93,6 @@ describe('ProjectsService', () => {
   it('should be able to fetch data when params are provided', (done) => {
     apiV2Service.get.and.returnValue(of(apiV2ResponseMultiple));
 
-    const testProjectParams = {
-      orgId: 'orNVthTo2Zyo',
-      active: true,
-      sortDirection: 'asc',
-      sortOrder: 'project_name',
-      orgCategoryIds: [
-        null,
-        145429,
-        122269,
-        122271,
-        122270,
-        122273,
-        122272,
-        122275,
-        122274,
-        122277,
-        122276,
-        122279,
-        122278,
-        173093,
-        122281,
-        122280,
-        122283,
-        122282,
-        122285,
-        122284,
-        122287,
-        122286,
-        122289,
-        140530,
-        145458,
-        122288,
-        140531,
-        122291,
-        122290,
-        140529,
-        122293,
-        140534,
-        122292,
-        140535,
-        140532,
-        122294,
-        140533,
-        140538,
-        140539,
-        140536,
-        140537,
-        140542,
-        140540,
-        140541,
-      ],
-      projectIds: [3943, 305792, 148971, 247936],
-      offset: 0,
-      limit: 10,
-      searchNameText: 'search',
-    };
-
     const result = projectService.getByParamsUnformatted(testProjectParams);
 
     result.subscribe((res) => {
@@ -156,32 +102,6 @@ describe('ProjectsService', () => {
   });
 
   it('should get allowed organisation category IDs | With project', () => {
-    const testProject = {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
-      project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
-      project_code: null,
-      project_created_at: '2020-06-26T05:32:00.174Z',
-      project_description: null,
-      project_id: 3943,
-      project_name: 'Staging Project',
-      project_org_category_ids: [
-        16560, 16565, 51722, 52525, 52527, 54661, 58348, 58349, 74547, 89550, 115914, 115970, 117013, 123032, 195157,
-        195158, 195863, 201934, 201935, 201936, 201937, 201938, 201939, 201940, 201941, 201942, 201943, 201944, 201945,
-        201946, 201947, 201948, 201949, 201950, 201951, 201952, 201953, 201954, 201955, 201957, 201958, 201959, 201960,
-        201963, 201964, 201965, 201966, 201967, 208461, 209219, 211023, 211024, 212017, 212374, 212526, 212527, 212528,
-        212529, 212530, 212532, 212533, 212690, 212691, 212692, 213428, 213429, 224733, 224734,
-      ],
-      project_org_id: 'orNVthTo2Zyo',
-      project_updated_at: '2022-11-23T08:55:29.400Z',
-      projectv2_name: 'Staging Project',
-      sub_project_name: null,
-    };
-
     const result = projectService.getAllowedOrgCategoryIds(testProject, testActiveCategoryList);
     expect(result).toEqual(allowedActiveCategories);
   });
@@ -193,22 +113,8 @@ describe('ProjectsService', () => {
 
   it('should get project count | with categoryID', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
-    const testParams = [
-      '145429',
-      '173093',
-      '122285',
-      '122284',
-      '122287',
-      '122286',
-      '122289',
-      '140530',
-      '145458',
-      '122288',
-      '140531',
-      '122291',
-      '122290',
-    ];
-    const result = projectService.getProjectCount({ categoryIds: testParams });
+
+    const result = projectService.getProjectCount({ categoryIds: testCategoryIds });
     result.subscribe((res) => {
       expect(res).toEqual(2);
       done();

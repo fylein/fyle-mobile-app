@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
+import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
 
 @Injectable({
@@ -84,25 +85,25 @@ export class ProjectsService {
     );
   }
 
-  addNameSearchFilter(searchNameText: string, params: any) {
+  addNameSearchFilter(searchNameText: string, params: ProjectParams) {
     if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
       params.project_name = 'ilike.%' + searchNameText + '%';
     }
   }
 
-  addProjectIdsFilter(projectIds: number[], params: any) {
+  addProjectIdsFilter(projectIds: number[], params: ProjectParams) {
     if (typeof projectIds !== 'undefined' && projectIds !== null) {
       params.project_id = 'in.(' + projectIds.join(',') + ')';
     }
   }
 
-  addOrgCategoryIdsFilter(orgCategoryIds: number[], params: any) {
+  addOrgCategoryIdsFilter(orgCategoryIds: number[], params: ProjectParams) {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
       params.project_org_category_ids = 'cs.{' + orgCategoryIds.join(',') + '}';
     }
   }
 
-  addActiveFilter(active: boolean, params: any) {
+  addActiveFilter(active: boolean, params: ProjectParams) {
     if (typeof active !== 'undefined' && active !== null) {
       params.project_active = 'eq.' + active;
     }
