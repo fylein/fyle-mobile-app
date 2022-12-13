@@ -124,8 +124,6 @@ export class CustomInputsService {
   getCustomPropertyDisplayValue(customProperty: CustomField): string {
     let displayValue = '-';
 
-    console.log(customProperty);
-
     if (customProperty.type === 'TEXT' || customProperty.type === 'SELECT') {
       displayValue = customProperty.value || '-';
     } else if (customProperty.type === 'NUMBER') {

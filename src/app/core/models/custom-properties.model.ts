@@ -1,4 +1,4 @@
 export interface CustomProperty {
   name: string;
-  value: any;
+  value: string | number | string[] | Date | null;
 }
