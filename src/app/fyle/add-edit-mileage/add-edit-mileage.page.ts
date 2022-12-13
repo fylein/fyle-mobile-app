@@ -853,7 +853,7 @@ export class AddEditMileagePage implements OnInit {
     const maxDate = dayjs(new Date(today)).add(1, 'day');
     const passedInDate = control.value && dayjs(new Date(control.value));
     if (passedInDate) {
-      return passedInDate.isBetween(minDate, maxDate)
+      return passedInDate.isBefore(maxDate) && passedInDate.isAfter(minDate)
         ? null
         : {
             invalidDateSelection: true,

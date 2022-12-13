@@ -146,7 +146,7 @@ export class UtilityService {
       } else {
         return sortingValue1.localeCompare(sortingValue2) ? -1 : 1;
       }
-    } else if (dayjs.isdayjs(sortingValue1)) {
+    } else if (dayjs.isDayjs(sortingValue1)) {
       if (sortDir === SortingDirection.ascending) {
         return sortingValue1.isAfter(sortingValue2) ? 1 : -1;
       } else {

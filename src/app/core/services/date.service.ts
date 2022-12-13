@@ -329,6 +329,6 @@ export class DateService {
   }
 
   isValidDate(date) {
-    return dayjs(date, dayjs.ISO_8601, true).isValid();
+    return dayjs(date).isValid();
   }
 }

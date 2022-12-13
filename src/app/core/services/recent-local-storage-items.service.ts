@@ -14,7 +14,7 @@ export class RecentLocalStorageItemsService {
     const res = await this.storageService.get(cacheName);
 
     if (res && res.updatedAt) {
-      if (dayjs(res.updatedAt).diff(dayjs.now(), 'minute') > 2) {
+      if (dayjs(res.updatedAt).diff(Date.now(), 'minute') > 2) {
         await this.storageService.delete(cacheName);
         return [];
       }
