@@ -5,7 +5,7 @@ import { File } from '../models/file.model';
 import { ApiService } from './api.service';
 import { FileObject } from '../models/file_obj.model';
 import { ReceiptInfo } from '../models/receipt-info.model';
-import heic2any from 'heic2any';
+// import heic2any from 'heic2any';
 
 @Injectable({
   providedIn: 'root',
@@ -150,16 +150,17 @@ export class FileService {
   readFile(file: Blob): Promise<string | ArrayBuffer> {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
+      // eslint-disable-next-line arrow-body-style
       fileReader.onload = async () => {
-        if (file.type === 'image/heic') {
-          const result = await heic2any({
-            blob: this.getBlobFromDataUrl(fileReader.result as string),
-            toType: 'image/jpeg',
-            quality: 50,
-          });
-          const dataUrl = await this.getDataUrlFromBlob(result as Blob);
-          return resolve(dataUrl);
-        }
+        // if (file.type === 'image/heic') {
+        //   const result = await heic2any({
+        //     blob: this.getBlobFromDataUrl(fileReader.result as string),
+        //     toType: 'image/jpeg',
+        //     quality: 50,
+        //   });
+        //   const dataUrl = await this.getDataUrlFromBlob(result as Blob);
+        //   return resolve(dataUrl);
+        // }
         return resolve(fileReader.result);
       };
       fileReader.readAsDataURL(file);
