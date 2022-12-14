@@ -1936,9 +1936,13 @@ export class AddEditExpensePage implements OnInit {
             orgUserSettings.expense_form_autofills &&
             orgUserSettings.expense_form_autofills.allowed &&
             orgUserSettings.expense_form_autofills.enabled;
-          const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
+
+          //If DE extracts a valid category, then it is not overwritten here. Need to check the org's settings
+          const extractedCategory = etxn?.tx?.extracted_data?.category;
+          const isExtractedCategoryValid = extractedCategory && extractedCategory.toLowerCase() !== 'unspecified';
+
           if (
-            !isCategoryExtracted &&
+            !isExtractedCategoryValid &&
             (!etxn.tx.org_category_id ||
               (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))
           ) {
