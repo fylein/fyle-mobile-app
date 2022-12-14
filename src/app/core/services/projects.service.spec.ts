@@ -12,6 +12,7 @@ import {
   testProjectParams,
   testProject,
   testCategoryIds,
+  params,
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 
@@ -97,6 +98,9 @@ describe('ProjectsService', () => {
 
     result.subscribe((res) => {
       expect(res).toEqual(expectedProjectsResponse);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/projects', {
+        params,
+      });
       done();
     });
   });
