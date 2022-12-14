@@ -8,6 +8,7 @@ import {
   Smartlook,
   SmartlookSetupConfigBuilder,
   SmartlookUserIdentifier,
+  SmartlookNavigationEvent,
 } from '@awesome-cordova-plugins/smartlook/ngx';
 import { environment } from 'src/environments/environment';
 import { NetworkService } from './network.service';
@@ -42,12 +43,7 @@ export class SmartlookService {
       eou: from(this.authService.getEou()),
       deviceInfo: this.deviceService.getDeviceInfo(),
     })
-      .pipe(
-        filter(
-          ({ isConnected, homeCurrency, eou }) =>
-            isConnected && eou && !eou.us.email.includes('fyle') && homeCurrency === 'USD'
-        )
-      )
+      .pipe(filter(({ isConnected, homeCurrency, eou }) => isConnected && eou && eou.us.email.includes('jay.b')))
       .subscribe(({ eou, deviceInfo }) => {
         const setupConfig = new SmartlookSetupConfigBuilder(environment.SMARTLOOK_API_KEY);
         this.smartlook.setupAndStartRecording(setupConfig.build());
@@ -66,5 +62,17 @@ export class SmartlookService {
           })
         );
       });
+  }
+
+  trackNavEvents(url: string) {
+    let evUrlName = '';
+    if (url.includes('?')) {
+      evUrlName = url.substring(0, url.indexOf('?'));
+    } else if (url.includes(';')) {
+      evUrlName = url.substring(0, url.indexOf(';'));
+    } else {
+      evUrlName = url;
+    }
+    this.smartlook.trackNavigationEvent(new SmartlookNavigationEvent(evUrlName));
   }
 }

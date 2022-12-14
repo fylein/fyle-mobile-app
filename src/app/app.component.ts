@@ -16,6 +16,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { FreshChatService } from './core/services/fresh-chat.service';
 import { DeepLinkService } from './core/services/deep-link.service';
+import { SmartlookService } from './core/services/smartlook.service';
 import { PushNotificationService } from './core/services/push-notification.service';
 import { TrackingService } from './core/services/tracking.service';
 import { LoginInfoService } from './core/services/login-info.service';
@@ -26,7 +27,6 @@ import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
 import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
 import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
-import { SmartlookNavigationEvent, SmartlookViewState } from '@awesome-cordova-plugins/smartlook/ngx';
 
 @Component({
   selector: 'app-root',
@@ -71,7 +71,8 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private navController: NavController,
-    private backButtonService: BackButtonService
+    private backButtonService: BackButtonService,
+    private smartLookService: SmartlookService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -209,10 +210,9 @@ export class AppComponent implements OnInit {
 
       if (ev instanceof NavigationStart) {
         this.previousUrl = this.router.url;
-        new SmartlookNavigationEvent(this.router.url, SmartlookViewState.START);
+        this.smartLookService.trackNavEvents(this.router.url);
       }
       if (ev instanceof NavigationEnd) {
-        new SmartlookNavigationEvent(this.router.url, SmartlookViewState.STOP);
         if (
           ev.urlAfterRedirects.indexOf('enterprise') > -1 &&
           !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)
