@@ -1557,6 +1557,7 @@ export class AddEditExpensePage implements OnInit {
             recentCostCenters: this.recentlyUsedCostCenters$,
             recentCategories: this.recentlyUsedCategories$,
             taxGroups: this.taxGroups$,
+            isConnected: this.isConnected$,
           })
         ),
         finalize(() => from(this.loaderService.hideLoader()))
@@ -1581,6 +1582,7 @@ export class AddEditExpensePage implements OnInit {
           recentCurrencies,
           recentCostCenters,
           taxGroups,
+          isConnected,
         }) => {
           const customInputValues = customInputs.map((customInput) => {
             const cpor =
@@ -1617,7 +1619,7 @@ export class AddEditExpensePage implements OnInit {
                 orig_currency: etxn.tx.orig_currency,
               },
             });
-            if (isAutofillsEnabled && recentCurrencies?.length && recentCurrencies[0]?.shortCode) {
+            if (isAutofillsEnabled && recentCurrencies?.length && recentCurrencies[0]?.shortCode && isConnected) {
               this.fg.patchValue({
                 currencyObj: {
                   amount: etxn.tx.amount,
