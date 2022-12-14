@@ -1,16 +1,92 @@
 import { TestBed } from '@angular/core/testing';
-
 import { PerDiemService } from './per-diem.service';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { OrgUserSettingsService } from './org-user-settings.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
+import {
+  apiCountResponse,
+  apiPerDiemRates,
+  expectedPerDiemRates,
+  apiPerDiemByID,
+  allPerDiemRatesParam,
+  apiOrgUserSettings,
+  expectPerDiemByID,
+} from '../test-data/per-diem.service.spec.data';
+import { of } from 'rxjs';
+import { PerDiemRates } from '../models/v1/per-diem-rates.model';
 
-xdescribe('PerDiemService', () => {
-  let service: PerDiemService;
+const fixDate = (data) =>
+  data.map((data) => ({
+    ...data,
+    created_at: new Date(data.created_at),
+    updated_at: new Date(data.updated_at),
+  }));
+
+fdescribe('PerDiemService', () => {
+  let perDiemService: PerDiemService;
+  let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
+  let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(PerDiemService);
+    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformApiService', ['get']);
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+
+    TestBed.configureTestingModule({
+      providers: [
+        PerDiemService,
+        {
+          provide: SpenderPlatformApiService,
+          useValue: spenderPlatformApiServiceSpy,
+        },
+        {
+          provide: OrgUserSettingsService,
+          useValue: orgUserSettingsServiceSpy,
+        },
+        {
+          provide: PAGINATION_SIZE,
+          useValue: 2,
+        },
+      ],
+    });
+    perDiemService = TestBed.inject(PerDiemService);
+    spenderPlatformApiService = TestBed.inject(SpenderPlatformApiService) as jasmine.SpyObj<SpenderPlatformApiService>;
+    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(perDiemService).toBeTruthy();
+  });
+
+  it('should get per-diem rate by ID', (done) => {
+    spenderPlatformApiService.get.and.returnValue(of(apiPerDiemByID));
+    const testID = 538;
+
+    const result = perDiemService.getRate(testID);
+    result.subscribe((res) => {
+      expect(res).toEqual(expectPerDiemByID);
+      done();
+    });
+  });
+
+  it('should get per diem rates', (done) => {
+    spenderPlatformApiService.get.and.returnValue(of(apiCountResponse));
+    spenderPlatformApiService.get.and.returnValue(of(apiPerDiemRates));
+
+    const result = perDiemService.getRates();
+    result.subscribe((res) => {
+      expect(res).toEqual(fixDate(expectedPerDiemRates));
+      done();
+    });
+  });
+
+  it('should get all allowed per diems', (done) => {
+    orgUserSettingsService.get.and.returnValue(of(apiOrgUserSettings));
+
+    const result = perDiemService.getAllowedPerDiems(fixDate(allPerDiemRatesParam));
+
+    result.subscribe((res) => {
+      console.log(res);
+      done();
+    });
   });
 });

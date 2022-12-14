@@ -95,13 +95,13 @@ export class PerDiemService {
   transformFrom(platformPerDiemRates: PlatformPerDiemRates[]): PerDiemRates[] {
     const oldPerDiemRates = platformPerDiemRates.map((perDiemRate) => ({
       active: perDiemRate.is_enabled,
-      created_at: perDiemRate.created_at,
+      created_at: new Date(perDiemRate.created_at),
       currency: perDiemRate.currency,
       id: perDiemRate.id,
       name: perDiemRate.name,
       org_id: perDiemRate.org_id,
       rate: perDiemRate.rate,
-      updated_at: perDiemRate.updated_at,
+      updated_at: new Date(perDiemRate.updated_at),
     }));
 
     return oldPerDiemRates;
