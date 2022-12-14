@@ -26,6 +26,7 @@ import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
 import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
 import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
+import { SmartlookNavigationEvent, SmartlookViewState } from '@awesome-cordova-plugins/smartlook/ngx';
 
 @Component({
   selector: 'app-root',
@@ -208,8 +209,10 @@ export class AppComponent implements OnInit {
 
       if (ev instanceof NavigationStart) {
         this.previousUrl = this.router.url;
+        new SmartlookNavigationEvent(this.router.url, SmartlookViewState.START);
       }
       if (ev instanceof NavigationEnd) {
+        new SmartlookNavigationEvent(this.router.url, SmartlookViewState.STOP);
         if (
           ev.urlAfterRedirects.indexOf('enterprise') > -1 &&
           !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)
