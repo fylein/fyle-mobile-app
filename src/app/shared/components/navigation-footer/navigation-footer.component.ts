@@ -55,15 +55,6 @@ export class NavigationFooterComponent implements OnInit {
   goToTransaction(etxn: Expense, etxnIndex: number, goTo: 'prev' | 'next') {
     const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
 
-    if (category === 'activity') {
-      if (goTo === 'next') {
-        this.goToNext(etxnIndex);
-      } else {
-        this.goToPrev(etxnIndex);
-      }
-      return;
-    }
-
     let route: string;
     if (category === 'mileage') {
       route = '/enterprise/view_mileage';

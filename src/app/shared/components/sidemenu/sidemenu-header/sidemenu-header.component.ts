@@ -1,6 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Org } from 'src/app/core/models/org.model';
+import { EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-sidemenu-header',
@@ -12,7 +13,13 @@ export class SidemenuHeaderComponent implements OnInit {
 
   @Input() activeOrg: Org;
 
+  @Output() profileClicked = new EventEmitter();
+
   constructor() {}
+
+  onProfileClicked(event: Event) {
+    this.profileClicked.emit(event);
+  }
 
   ngOnInit(): void {}
 }
