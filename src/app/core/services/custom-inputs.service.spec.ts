@@ -13,12 +13,11 @@ import {
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
 
-describe('CustomInputsService', () => {
+fdescribe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
 
-  const orgId = 16582;
   const orgCatId = 110351;
 
   beforeEach(() => {
@@ -51,7 +50,7 @@ describe('CustomInputsService', () => {
   });
 
   it('should filter expense fields by category', () => {
-    const result = customInputsService.filterByCategory(filterTestData, orgId);
+    const result = customInputsService.filterByCategory(filterTestData, orgCatId);
     expect(result).toEqual(responseAfterAppliedFilter);
   });
 
@@ -103,13 +102,13 @@ describe('CustomInputsService', () => {
   it('should get custom property to be displayed | SELECT', () => {
     const testProperty = {
       name: 'Status',
-      value: 'record',
+      value: 'record1',
       type: 'SELECT',
       mandatory: false,
       options: ['record 1', 'record 2'],
     };
 
-    const expectedProperty = 'record';
+    const expectedProperty = 'record1';
 
     const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
     expect(result).toEqual(expectedProperty);
@@ -121,7 +120,7 @@ describe('CustomInputsService', () => {
       value: 'value',
       type: 'BOOLEAN',
       mandatory: false,
-      options: ['record1', 'record2'],
+      options: null,
     };
 
     const expectedProperty = 'Yes';
@@ -136,7 +135,7 @@ describe('CustomInputsService', () => {
       value: '',
       type: 'BOOLEAN',
       mandatory: false,
-      options: ['record1', 'record2'],
+      options: null,
     };
 
     const expectedProperty = 'No';
@@ -151,7 +150,7 @@ describe('CustomInputsService', () => {
       value: '2022-02-25T05:44:36.169Z',
       type: 'DATE',
       mandatory: false,
-      options: [],
+      options: null,
     };
 
     const expectedProperty = 'Feb 25, 2022';
@@ -166,7 +165,7 @@ describe('CustomInputsService', () => {
       value: null,
       type: 'DATE',
       mandatory: false,
-      options: [],
+      options: null,
     };
 
     const expectedProperty = '-';
@@ -181,7 +180,7 @@ describe('CustomInputsService', () => {
       value: 101,
       type: 'NUMBER',
       mandatory: false,
-      options: [],
+      options: null,
     };
 
     const expectedProperty = '101.00';
@@ -196,7 +195,7 @@ describe('CustomInputsService', () => {
       value: null,
       type: 'NUMBER',
       mandatory: false,
-      options: [],
+      options: null,
     };
 
     const expectedProperty = '-';

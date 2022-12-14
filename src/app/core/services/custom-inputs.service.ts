@@ -161,7 +161,7 @@ export class CustomInputsService {
     displayValue = '-';
     if (customProperty.value) {
       if (customProperty.value.hasOwnProperty('display')) {
-        displayValue = customProperty.value.display ? customProperty.value.display : '-';
+        displayValue = customProperty.value.display || '-';
       } else {
         displayValue = customProperty.value;
       }

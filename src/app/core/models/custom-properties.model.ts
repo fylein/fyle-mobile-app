@@ -1,4 +1,4 @@
-export interface CustomProperty {
+export interface CustomProperty<T> {
   name: string;
-  value: string | number | string[] | Date | null;
+  value: T;
 }
