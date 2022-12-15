@@ -2989,14 +2989,34 @@ export class AddEditExpensePage implements OnInit {
     }
 
     transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
-
-    /* Expense creation has not moved to platform yet and since policy is moved to platform,
-     * it expects the expense object in terms of platform world. Until then, the method
-     * `transformTo` act as a bridge by translating the public expense object to platform
-     * expense.
-     */
-    const policyExpense = this.policyService.transformTo(transactionCopy);
-    return this.transactionService.checkPolicy(policyExpense);
+    if (!transactionCopy.org_category_id) {
+      return this.categoriesService.getAll().pipe(
+        map((categories: OrgCategory[]) => {
+          const unspecifiedCategory = categories.find(
+            (category) => category.fyle_category.toLowerCase() === 'unspecified'
+          );
+          transactionCopy.org_category_id = unspecifiedCategory.id;
+          return transactionCopy;
+        }),
+        switchMap((unspecifiedTransaction) => {
+          /* Expense creation has not moved to platform yet and since policy is moved to platform,
+           * it expects the expense object in terms of platform world. Until then, the method
+           * `transformTo` act as a bridge by translating the public expense object to platform
+           * expense.
+           */
+          const policyExpense = this.policyService.transformTo(unspecifiedTransaction);
+          return this.transactionService.checkPolicy(policyExpense);
+        })
+      );
+    } else {
+      /* Expense creation has not moved to platform yet and since policy is moved to platform,
+       * it expects the expense object in terms of platform world. Until then, the method
+       * `transformTo` act as a bridge by translating the public expense object to platform
+       * expense.
+       */
+      const policyExpense = this.policyService.transformTo(transactionCopy);
+      return this.transactionService.checkPolicy(policyExpense);
+    }
   }
 
   getCustomFields() {
