@@ -1713,6 +1713,13 @@ export class AddEditExpensePage implements OnInit {
               etxn,
               category,
             });
+
+            /*
+             * Patching the category value here to trigger 'customInputs$' to get the
+             * custom inputs for this category. The patchValue call below uses
+             * 'emitEvent: false' which does not trigger valueChanges.
+             */
+            this.fg.controls.category.patchValue(category);
           }
 
           // Check if recent cost centers exist
