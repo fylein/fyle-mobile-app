@@ -9,6 +9,7 @@ import {
   apiResponseTransaction,
   expectedTransactionResponseFromAPI,
   apiTransactionCountResponse,
+  apiSingleTransactionResponse,
   apiAuthEouResponse,
   apiExpAndCCC,
   expectedCardResponse,
@@ -16,6 +17,7 @@ import {
   eCCCApiResponse,
   expectedUnifyExpenses,
   expectedECccResponse,
+  expectedSingleTransaction,
   uniqueCardsReponse,
   statsResponse,
 } from '../test-data/corporate-credit-card-expense.spec.data';
@@ -48,10 +50,7 @@ fdescribe('CorporateCreditCardExpenseService', () => {
           provide: AuthService,
           useValue: authServiceSpy,
         },
-        {
-          provide: DataTransformService,
-          useValue: dataTransformServiceSpy,
-        },
+        DataTransformService,
       ],
     });
 
@@ -80,12 +79,13 @@ fdescribe('CorporateCreditCardExpenseService', () => {
   });
 
   xit('should give a single transaction from ID', (done) => {
-    apiV2Service.get.and.returnValue(of(apiResponseTransaction.data));
+    apiV2Service.get.and.returnValue(of(apiSingleTransactionResponse));
 
-    const testID = 'ccceWauzF1A3oS';
+    const testID = 'ccceRhYsN8Fj78';
 
     const result = cccExpenseService.getv2CardTransaction(testID);
     result.subscribe((res) => {
+      expect(res).toEqual(expectedSingleTransaction);
       done();
     });
   });
@@ -115,15 +115,15 @@ fdescribe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  xit('should get Corporate Credit Card expenses by group ID', (done) => {
+  it('should get Corporate Credit Card expenses by group ID', (done) => {
     apiService.get.and.returnValue(of(eCCCApiResponse));
 
-    const testID = 'ccceJ6V4ifvNLM';
+    const testID = 'ccceYIJhT8Aj6U';
 
     const result = cccExpenseService.getEccceByGroupId(testID);
 
     result.subscribe((res) => {
-      console.log(res);
+      expect(res).toEqual(expectedECccResponse);
       done();
     });
   });
@@ -139,7 +139,7 @@ fdescribe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('should get non-unify cards', (done) => {
+  xit('should get non-unify cards', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(apiAuthEouResponse));
     apiV2Service.get.and.returnValue(of(apiAssignedAcc));
 
