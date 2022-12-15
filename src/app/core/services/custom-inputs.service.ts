@@ -58,7 +58,7 @@ export class CustomInputsService {
 
   fillCustomProperties(
     orgCategoryId: number,
-    customProperties: CustomProperty[],
+    customProperties: CustomProperty<any>[],
     active: boolean
   ): Observable<CustomField[]> {
     return this.getAll(active).pipe(

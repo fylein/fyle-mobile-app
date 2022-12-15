@@ -3322,7 +3322,7 @@ export const responseAfterAppliedFilter: ExpenseField[] = [
   },
 ];
 
-export const customProperties: CustomProperty[] = [
+export const customProperties: CustomProperty<any>[] = [
   {
     name: 'userlist',
     value: [],
