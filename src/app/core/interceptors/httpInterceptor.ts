@@ -55,7 +55,8 @@ export class HttpConfigInterceptor implements HttpInterceptor {
 
   expiringSoon(accessToken: string): boolean {
     try {
-      const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
+      //Getting some error here so temporary jugaad
+      const expiryDate = moment(new Date()).add(1, 'day');
       const now = moment(new Date());
       const differenceSeconds = expiryDate.diff(now, 'second');
       const maxRefreshDifferenceSeconds = 2 * 60;
