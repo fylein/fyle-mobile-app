@@ -160,7 +160,7 @@ export class MyExpensesPage implements OnInit {
 
   allExpensesCount: number;
 
-  onPageExit$ = new Subject();
+  onPageExit$;
 
   expensesTaskCount = 0;
 
@@ -279,7 +279,7 @@ export class MyExpensesPage implements OnInit {
 
     // for first expense etxnc size will be 0
     if (!isFirstExpenseCreated) {
-      this.allExpensesStats$.subscribe(async (res) => {
+      this.allExpensesStats$.pipe(takeUntil(this.onPageExit$)).subscribe(async (res) => {
         if (res.count === 0) {
           this.trackingService.createFirstExpense();
           await this.storageService.set('isFirstExpenseCreated', true);
@@ -432,6 +432,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.onPageExit$ = new Subject();
     this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.MEDIUM, () => {
       if (this.headerState === HeaderState.multiselect) {
         this.switchSelectionMode();
@@ -442,9 +443,12 @@ export class MyExpensesPage implements OnInit {
       }
     });
 
-    this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
-      this.expensesTaskCount = expensesTaskCount;
-    });
+    this.tasksService
+      .getExpensesTaskCount()
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((expensesTaskCount) => {
+        this.expensesTaskCount = expensesTaskCount;
+      });
 
     this.isInstaFyleEnabled$ = this.orgUserSettingsService
       .get()
@@ -462,13 +466,16 @@ export class MyExpensesPage implements OnInit {
     this.isMileageEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage.enabled));
     this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
-    this.orgSettingsService.get().subscribe((orgSettings) => {
-      this.isUnifyCCCExpensesSettings =
-        orgSettings.unify_ccce_expenses_settings &&
-        orgSettings.unify_ccce_expenses_settings.allowed &&
-        orgSettings.unify_ccce_expenses_settings.enabled;
-      this.setupActionSheet(orgSettings);
-    });
+    this.orgSettingsService
+      .get()
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((orgSettings) => {
+        this.isUnifyCCCExpensesSettings =
+          orgSettings.unify_ccce_expenses_settings &&
+          orgSettings.unify_ccce_expenses_settings.allowed &&
+          orgSettings.unify_ccce_expenses_settings.enabled;
+        this.setupActionSheet(orgSettings);
+      });
 
     this.allCardTransactionsAndDetailsNonUnifyCCC$ = this.getNonUnifyCCCDetails().pipe(
       map((res) => res),
@@ -491,7 +498,8 @@ export class MyExpensesPage implements OnInit {
       .pipe(
         filter(({ isConnected, isUnifyCCCEnabled }) => isConnected && isUnifyCCCEnabled),
         switchMap(() => this.corporateCreditCardService.getAssignedCards()),
-        switchMap((unifyCards) => this.getNonUnifyCCCDetails().pipe(map((allCards) => ({ unifyCards, allCards }))))
+        switchMap((unifyCards) => this.getNonUnifyCCCDetails().pipe(map((allCards) => ({ unifyCards, allCards })))),
+        takeUntil(this.onPageExit$)
       )
       .subscribe(({ unifyCards, allCards }) => {
         const cards = this.getCardDetail(unifyCards.cardDetails);
@@ -520,9 +528,11 @@ export class MyExpensesPage implements OnInit {
     this.isLoading = true;
     this.reviewMode = false;
 
-    from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
-      this.clusterDomain = clusterDomain;
-    });
+    from(this.tokenService.getClusterDomain())
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((clusterDomain) => {
+        this.clusterDomain = clusterDomain;
+      });
 
     this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
 
@@ -548,16 +558,20 @@ export class MyExpensesPage implements OnInit {
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
-    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
-      this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-    });
+    this.currencyService
+      .getHomeCurrency()
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((homeCurrency) => {
+        this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+      });
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event: any) => event.srcElement.value as string),
         distinctUntilChanged(),
-        debounceTime(400)
+        debounceTime(400),
+        takeUntil(this.onPageExit$)
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -658,7 +672,7 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.loadData$.subscribe((params) => {
+    this.loadData$.pipe(takeUntil(this.onPageExit$)).subscribe((params) => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -667,9 +681,9 @@ export class MyExpensesPage implements OnInit {
       });
     });
 
-    this.myExpenses$.subscribe(noop);
-    this.count$.subscribe(noop);
-    this.isInfiniteScrollRequired$.subscribe(noop);
+    this.myExpenses$.pipe(takeUntil(this.onPageExit$)).subscribe(noop);
+    this.count$.pipe(takeUntil(this.onPageExit$)).subscribe(noop);
+    this.isInfiniteScrollRequired$.pipe(takeUntil(this.onPageExit$)).subscribe(noop);
     if (this.activatedRoute.snapshot.queryParams.filters) {
       this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
       this.currentPageNumber = 1;
@@ -750,7 +764,8 @@ export class MyExpensesPage implements OnInit {
             if (pendingTransactions.length === 0) {
               this.doRefresh();
             }
-          })
+          }),
+          takeUntil(this.onPageExit$)
         )
         .subscribe(noop);
     }
@@ -764,14 +779,17 @@ export class MyExpensesPage implements OnInit {
     }
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
-    this.transactionService.clearCache().subscribe(() => {
-      this.loadData$.next(params);
-      if (event) {
-        setTimeout(() => {
-          event?.target?.complete();
-        }, 1000);
-      }
-    });
+    this.transactionService
+      .clearCache()
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe(() => {
+        this.loadData$.next(params);
+        if (event) {
+          setTimeout(() => {
+            event?.target?.complete();
+          }, 1000);
+        }
+      });
   }
 
   generateFilterPills(filter: Filters) {
@@ -843,7 +861,7 @@ export class MyExpensesPage implements OnInit {
 
   async openFilters(activeFilterInitialName?: string) {
     const filterMain = this.myExpensesService.getFilters();
-    this.isUnifyCCCEnabled$.subscribe((isEnabled) => {
+    this.isUnifyCCCEnabled$.pipe(takeUntil(this.onPageExit$)).subscribe((isEnabled) => {
       if (isEnabled && this.cardNumbers?.length > 0) {
         filterMain.push({
           name: 'Cards',
@@ -919,7 +937,8 @@ export class MyExpensesPage implements OnInit {
           finalize(async () => {
             await this.loaderService.hideLoader();
             this.doRefresh();
-          })
+          }),
+          takeUntil(this.onPageExit$)
         )
         .subscribe(noop);
     }
@@ -1072,7 +1091,7 @@ export class MyExpensesPage implements OnInit {
       let message = '';
 
       if (noOfExpensesWithCriticalPolicyViolations > 0 || noOfExpensesInDraftState > 0) {
-        this.homeCurrency$.subscribe((homeCurrency) => {
+        this.homeCurrency$.pipe(takeUntil(this.onPageExit$)).subscribe((homeCurrency) => {
           if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
             title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
               ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
@@ -1171,7 +1190,8 @@ export class MyExpensesPage implements OnInit {
             }))
           );
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
+        takeUntil(this.onPageExit$)
       )
       .subscribe(({ inital, allIds }) => {
         let category;
@@ -1257,14 +1277,17 @@ export class MyExpensesPage implements OnInit {
     this.headerState = HeaderState.base;
     this.doRefresh();
 
-    expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'my_view_report',
-        { id: config.report.rp_id || config.report.id, navigateBack: true },
-      ]);
-    });
+    expensesAddedToReportSnackBar
+      .onAction()
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe(() => {
+        this.router.navigate([
+          '/',
+          'enterprise',
+          'my_view_report',
+          { id: config.report.rp_id || config.report.id, navigateBack: true },
+        ]);
+      });
   }
 
   addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
@@ -1293,7 +1316,8 @@ export class MyExpensesPage implements OnInit {
           } else {
             return of(null);
           }
-        })
+        }),
+        takeUntil(this.onPageExit$)
       )
       .subscribe((report: ExtendedReport) => {
         if (report) {
@@ -1415,7 +1439,8 @@ export class MyExpensesPage implements OnInit {
             queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
             return queryParams;
           }),
-          switchMap((queryParams) => this.transactionService.getAllExpenses({ queryParams }))
+          switchMap((queryParams) => this.transactionService.getAllExpenses({ queryParams })),
+          takeUntil(this.onPageExit$)
         )
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
