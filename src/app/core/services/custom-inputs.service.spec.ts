@@ -13,7 +13,7 @@ import {
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
 
-fdescribe('CustomInputsService', () => {
+describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -210,7 +210,7 @@ fdescribe('CustomInputsService', () => {
       value: { val: ['some', 'location'], display: null },
       type: 'LOCATION',
       mandatory: false,
-      options: [],
+      options: null,
     };
 
     const expectedProperty = '-';
@@ -225,7 +225,7 @@ fdescribe('CustomInputsService', () => {
       value: ['some', 'location'],
       type: 'LOCATION',
       mandatory: false,
-      options: [],
+      options: null,
     };
 
     const expectedProperty = ['some', 'location'];
@@ -240,7 +240,7 @@ fdescribe('CustomInputsService', () => {
       value: { val: ['some', 'location'], display: 'display' },
       type: 'LOCATION',
       mandatory: false,
-      options: [],
+      options: null,
     };
 
     const expectedProperty = 'display';
@@ -255,7 +255,7 @@ fdescribe('CustomInputsService', () => {
       value: null,
       type: 'LOCATION',
       mandatory: false,
-      options: [],
+      options: null,
     };
 
     const expectedProperty = '-';
