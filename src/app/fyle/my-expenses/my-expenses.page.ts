@@ -160,7 +160,7 @@ export class MyExpensesPage implements OnInit {
 
   allExpensesCount: number;
 
-  onPageExit$;
+  onPageExit$: Subject<void>;
 
   expensesTaskCount = 0;
 
@@ -425,6 +425,7 @@ export class MyExpensesPage implements OnInit {
   ionViewWillLeave() {
     this.hardwareBackButton.unsubscribe();
     this.onPageExit$.next(null);
+    this.onPageExit$.complete();
   }
 
   getNonUnifyCCCDetails(): Observable<BankAccountsAssigned[]> {
