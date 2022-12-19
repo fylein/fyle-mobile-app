@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { from, throwError } from 'rxjs';
+import { from, Subject, throwError } from 'rxjs';
 import { InvitationRequestsService } from 'src/app/core/services/invitation-requests.service';
-import { catchError, concatMap, finalize } from 'rxjs/operators';
+import { catchError, concatMap, finalize, takeUntil } from 'rxjs/operators';
 
 enum RequestInvitationPageState {
   notSent,
@@ -18,10 +18,12 @@ enum RequestInvitationPageState {
   templateUrl: './request-invitation.page.html',
   styleUrls: ['./request-invitation.page.scss'],
 })
-export class RequestInvitationPage implements OnInit {
+export class RequestInvitationPage {
   fg: FormGroup;
 
   currentPageState: RequestInvitationPageState = RequestInvitationPageState.notSent;
+
+  onPageExit$: Subject<void>;
 
   constructor(
     private fb: FormBuilder,
@@ -34,7 +36,13 @@ export class RequestInvitationPage implements OnInit {
     return RequestInvitationPageState;
   }
 
-  ngOnInit() {
+  ionViewWillLeave() {
+    this.onPageExit$.next();
+    this.onPageExit$.complete();
+  }
+
+  ionViewWillEnter() {
+    this.onPageExit$ = new Subject();
     const emailParam = this.activateRoute.snapshot.params.email;
 
     this.fg = this.fb.group({
@@ -56,7 +64,8 @@ export class RequestInvitationPage implements OnInit {
             this.currentPageState = this.RequestInvitationStates.failure;
           }
           return throwError(err);
-        })
+        }),
+        takeUntil(this.onPageExit$)
       )
       .subscribe(() => {
         this.currentPageState = this.RequestInvitationStates.success;

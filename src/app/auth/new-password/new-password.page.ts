@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { finalize, map, switchMap, tap } from 'rxjs/operators';
-import { from, Observable } from 'rxjs';
+import { finalize, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { from, Observable, Subject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -17,7 +17,7 @@ import { LoginInfoService } from '../../core/services/login-info.service';
   templateUrl: './new-password.page.html',
   styleUrls: ['./new-password.page.scss'],
 })
-export class NewPasswordPage implements OnInit {
+export class NewPasswordPage {
   fg: FormGroup;
 
   lengthValidationDisplay$: Observable<boolean>;
@@ -32,6 +32,8 @@ export class NewPasswordPage implements OnInit {
 
   hide = false;
 
+  onPageExit$: Subject<void>;
+
   constructor(
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,
@@ -44,7 +46,14 @@ export class NewPasswordPage implements OnInit {
     private loginInfoService: LoginInfoService
   ) {}
 
-  ngOnInit() {
+  ionViewWillLeave() {
+    this.onPageExit$.next();
+    this.onPageExit$.complete();
+  }
+
+  ionViewWillEnter() {
+    this.onPageExit$ = new Subject();
+
     this.fg = this.fb.group({
       password: [
         '',
@@ -93,7 +102,8 @@ export class NewPasswordPage implements OnInit {
           this.trackingService.resetPassword();
           await this.trackLoginInfo();
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
+        takeUntil(this.onPageExit$)
       )
       .subscribe(
         async () => {

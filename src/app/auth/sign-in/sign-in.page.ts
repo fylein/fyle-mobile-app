@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { from, throwError, Observable, of, noop } from 'rxjs';
+import { from, throwError, Observable, of, noop, Subject } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
-import { shareReplay, filter, finalize, switchMap, map, tap, take } from 'rxjs/operators';
+import { shareReplay, filter, finalize, switchMap, map, tap, take, takeUntil } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -21,7 +21,7 @@ import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
   templateUrl: './sign-in.page.html',
   styleUrls: ['./sign-in.page.scss'],
 })
-export class SignInPage implements OnInit {
+export class SignInPage {
   fg: FormGroup;
 
   emailSet = false;
@@ -35,6 +35,8 @@ export class SignInPage implements OnInit {
   hide = true;
 
   checkEmailExists$: Observable<any>;
+
+  onPageExit$: Subject<void>;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -74,7 +76,8 @@ export class SignInPage implements OnInit {
             this.trackingService.onSignin(this.fg.value.email, {
               label: 'Email',
             });
-          })
+          }),
+          takeUntil(this.onPageExit$)
         )
         .subscribe(() => {
           this.pushNotificationService.initPush();
@@ -128,12 +131,12 @@ export class SignInPage implements OnInit {
 
       const basicSignIn$ = checkEmailExists$.pipe(filter((res) => (!res.saml ? true : false)));
 
-      basicSignIn$.subscribe({
+      basicSignIn$.pipe(takeUntil(this.onPageExit$)).subscribe({
         next: () => (this.emailSet = true),
         error: (err) => this.handleError(err),
       });
 
-      saml$.subscribe({
+      saml$.pipe(takeUntil(this.onPageExit$)).subscribe({
         next: (res) => this.handleSamlSignIn(res),
         error: (err) => this.handleError(err),
       });
@@ -186,7 +189,8 @@ export class SignInPage implements OnInit {
             });
             await this.trackLoginInfo();
           }),
-          finalize(() => (this.passwordLoading = false))
+          finalize(() => (this.passwordLoading = false)),
+          takeUntil(this.onPageExit$)
         )
         .subscribe({
           next: () => {
@@ -234,7 +238,8 @@ export class SignInPage implements OnInit {
         finalize(() => {
           this.loaderService.hideLoader();
           this.googleSignInLoading = false;
-        })
+        }),
+        takeUntil(this.onPageExit$)
       )
       .subscribe({
         next: () => {
@@ -252,11 +257,13 @@ export class SignInPage implements OnInit {
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 
-  ionViewWillEnter() {
-    this.emailSet = !!this.fg.value.email;
+  ionViewWillLeave() {
+    this.onPageExit$.next();
+    this.onPageExit$.complete();
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
+    this.onPageExit$ = new Subject();
     const presentEmail = this.activatedRoute.snapshot.params.email;
     this.fg = this.formBuilder.group({
       email: [presentEmail || '', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
@@ -266,12 +273,15 @@ export class SignInPage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => from(this.routerAuthService.isLoggedIn())),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
+        takeUntil(this.onPageExit$)
       )
       .subscribe((isLoggedIn) => {
         if (isLoggedIn) {
           this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
         }
       });
+
+    this.emailSet = !!this.fg.value.email;
   }
 }

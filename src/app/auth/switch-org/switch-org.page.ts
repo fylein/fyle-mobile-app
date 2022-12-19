@@ -1,7 +1,16 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError } from 'rxjs';
-import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError, Subject } from 'rxjs';
+import {
+  distinctUntilChanged,
+  filter,
+  finalize,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+  takeUntil,
+} from 'rxjs/operators';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -34,7 +43,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
   templateUrl: './switch-org.page.html',
   styleUrls: ['./switch-org.page.scss'],
 })
-export class SwitchOrgPage implements OnInit, AfterViewChecked {
+export class SwitchOrgPage implements AfterViewChecked {
   @ViewChild('search') searchRef: ElementRef;
 
   @ViewChild('content') contentRef: ElementRef;
@@ -59,6 +68,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   orgs: Org[];
 
+  onPageExit$: Subject<void>;
+
   constructor(
     private platform: Platform,
     private loaderService: LoaderService,
@@ -68,7 +79,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private secureStorageService: SecureStorageService,
     private storageService: StorageService,
     private router: Router,
-    private networkService: NetworkService,
     private orgService: OrgService,
     private userEventService: UserEventService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
@@ -83,22 +93,25 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private routerAuthService: RouterAuthService
   ) {}
 
-  ngOnInit() {
-    this.isIos = this.platform.is('ios');
-  }
-
   ngAfterViewChecked() {
     this.cdRef.detectChanges();
   }
 
+  ionViewWillLeave() {
+    this.onPageExit$.next();
+    this.onPageExit$.complete();
+  }
+
   ionViewWillEnter() {
     const that = this;
+    that.onPageExit$ = new Subject();
+    that.isIos = this.platform.is('ios');
     that.searchInput = '';
     that.isLoading = true;
     that.orgs$ = that.orgService.getOrgs().pipe(shareReplay(1));
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
-    that.orgs$.subscribe((orgs) => {
+    that.orgs$.pipe(takeUntil(that.onPageExit$)).subscribe((orgs) => {
       this.orgs = orgs;
       that.cdRef.detectChanges();
     });
@@ -109,13 +122,19 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     if (!choose) {
       from(that.loaderService.showLoader())
-        .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
+        .pipe(
+          switchMap(() => from(that.proceed(isFromInviteLink))),
+          takeUntil(this.onPageExit$)
+        )
         .subscribe(noop);
     } else {
-      that.orgs$.subscribe((orgs) => {
+      that.orgs$.pipe(takeUntil(this.onPageExit$)).subscribe((orgs) => {
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
-            .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
+            .pipe(
+              switchMap(() => from(that.proceed(isFromInviteLink))),
+              takeUntil(this.onPageExit$)
+            )
             .subscribe(noop);
         }
       });
@@ -134,7 +153,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       shareReplay(1)
     );
 
-    currentOrgs$.subscribe(() => {
+    currentOrgs$.pipe(takeUntil(this.onPageExit$)).subscribe(() => {
       this.isLoading = false;
       this.trackSwitchOrgLaunchTime();
     });
@@ -192,7 +211,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           catchError((error) => {
             this.showToastNotification('Verification link could not be sent. Please try again!');
             return throwError(() => error);
-          })
+          }),
+          takeUntil(this.onPageExit$)
         )
         .subscribe(() => {
           this.showToastNotification('Verification Email Sent');
@@ -310,7 +330,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.setSentryUser(eou);
           return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
+        takeUntil(this.onPageExit$)
       )
       .subscribe();
 
@@ -322,7 +343,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.appVersionService.load(deviceInfo);
           return this.appVersionService.getUserAppVersionDetails(deviceInfo);
         }),
-        filter((userAppVersionDetails) => !!userAppVersionDetails)
+        filter((userAppVersionDetails) => !!userAppVersionDetails),
+        takeUntil(this.onPageExit$)
       )
       .subscribe((userAppVersionDetails) => {
         const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
@@ -338,21 +360,23 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   trackSwitchOrg(org: Org, originalEou) {
     const isDestinationOrgActive = originalEou.ou && originalEou.ou.org_id === org.id;
     const isCurrentOrgPrimary = originalEou.ou && originalEou.ou.is_primary;
-    from(this.authService.getEou()).subscribe((currentEou) => {
-      const properties = {
-        Asset: 'Mobile',
-        'Switch To': org.name,
-        'Is Destination Org Active': isDestinationOrgActive,
-        'Is Destination Org Primary': currentEou && currentEou.ou && currentEou.ou.is_primary,
-        'Is Current Org Primary': isCurrentOrgPrimary,
-        Source: 'User Clicked',
-        'User Email': originalEou.us && originalEou.us.email,
-        'User Org Name': originalEou.ou && originalEou.ou.org_name,
-        'User Org ID': originalEou.ou && originalEou.ou.org_id,
-        'User Full Name': originalEou.us && originalEou.us.full_name,
-      };
-      this.trackingService.onSwitchOrg(properties);
-    });
+    from(this.authService.getEou())
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((currentEou) => {
+        const properties = {
+          Asset: 'Mobile',
+          'Switch To': org.name,
+          'Is Destination Org Active': isDestinationOrgActive,
+          'Is Destination Org Primary': currentEou && currentEou.ou && currentEou.ou.is_primary,
+          'Is Current Org Primary': isCurrentOrgPrimary,
+          Source: 'User Clicked',
+          'User Email': originalEou.us && originalEou.us.email,
+          'User Org Name': originalEou.ou && originalEou.ou.org_name,
+          'User Org ID': originalEou.ou && originalEou.ou.org_id,
+          'User Full Name': originalEou.us && originalEou.us.full_name,
+        };
+        this.trackingService.onSwitchOrg(properties);
+      });
   }
 
   async switchOrg(org: Org) {
@@ -360,7 +384,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     performance.mark(PerfTrackers.onClickSwitchOrg);
     const originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader('Please wait...', 2000))
-      .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
+      .pipe(
+        switchMap(() => this.orgService.switchOrg(org.id)),
+        takeUntil(this.onPageExit$)
+      )
       .subscribe(
         () => {
           globalCacheBusterNotifier.next();
@@ -369,7 +396,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           }
           this.userEventService.clearTaskCache();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          from(this.proceed()).subscribe(noop);
+          from(this.proceed()).pipe(takeUntil(this.onPageExit$)).subscribe(noop);
         },
         async (err) => {
           await this.secureStorageService.clearAll();
@@ -399,7 +426,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
-          })
+          }),
+          takeUntil(this.onPageExit$)
         )
         .subscribe(noop);
     } catch (e) {
