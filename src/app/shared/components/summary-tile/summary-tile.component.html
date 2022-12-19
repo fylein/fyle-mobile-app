@@ -50,7 +50,7 @@
         <div class="summary-tile--approver-name">{{ ap.approver_name }}</div>
         <div class="summary-tile--approver-state-section">
           <div class="summary-tile--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
-            <span>{{ ap.updated_at | date: 'MMM dd, yyyy' }}</span>
+            <span>{{ ap.updated_at | date: 'MMM dd, YYYY' }}</span>
           </div>
           <div
             class="summary-tile--approver-state-pill summary-tile--approver-state-pill__{{ ap.state | lowercase }}"
