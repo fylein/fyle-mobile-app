@@ -60,7 +60,7 @@ describe('CustomInputsService', () => {
       value: [],
       type: 'USER_LIST',
       mandatory: false,
-      options: [],
+      options: ['scooby@fyle.com', 'mickey@wd.com', 'johnny@cn.com'],
     };
 
     const expectedProperty = '-';
