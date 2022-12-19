@@ -3,8 +3,8 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
-import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest, Subject } from 'rxjs';
+import { finalize, map, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
@@ -53,6 +53,8 @@ export class TasksComponent implements OnInit {
 
   autoSubmissionReportDate$: Observable<Date>;
 
+  onPageExit$: Subject<void>;
+
   constructor(
     private taskService: TasksService,
     private transactionService: TransactionService,
@@ -83,7 +85,14 @@ export class TasksComponent implements OnInit {
     });
   }
 
+  close() {
+    this.onPageExit$.next();
+    this.onPageExit$.complete();
+  }
+
   init() {
+    this.onPageExit$ = new Subject();
+
     this.autoSubmissionReportDate$ = this.reportService
       .getReportAutoSubmissionDetails()
       .pipe(map((autoSubmissionReportDetails) => autoSubmissionReportDetails?.data?.next_at));
@@ -92,11 +101,13 @@ export class TasksComponent implements OnInit {
       taskFilters: this.loadData$,
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
     }).pipe(
-      switchMap(({ taskFilters, autoSubmissionReportDate }) => this.taskService.getTasks(false, taskFilters)),
+      switchMap(({ taskFilters, autoSubmissionReportDate }) =>
+        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters)
+      ),
       shareReplay(1)
     );
 
-    this.tasks$.subscribe((tasks) => {
+    this.tasks$.pipe(takeUntil(this.onPageExit$)).subscribe((tasks) => {
       this.trackTasks(tasks);
       this.taskCount = tasks.length;
     });
@@ -104,19 +115,21 @@ export class TasksComponent implements OnInit {
     combineLatest({
       tasks: this.tasks$,
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
-    }).subscribe(({ tasks, autoSubmissionReportDate }) => {
-      const isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
-      const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
+    })
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe(({ tasks, autoSubmissionReportDate }) => {
+        const isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
+        const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
 
-      /*
-       * Show the auto-submission info card at the top of tasks page only if an auto-submission is scheduled
-       * and incomplete expenses task is not shown (else it'll be shown with that task)
-       * and hide it if the user is navigating to tasks section from teams section
-       * Since we don't have tasks for team advances, have added a check only for team reports filter
-       */
-      this.showReportAutoSubmissionInfoCard =
-        autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
-    });
+        /*
+         * Show the auto-submission info card at the top of tasks page only if an auto-submission is scheduled
+         * and incomplete expenses task is not shown (else it'll be shown with that task)
+         * and hide it if the user is navigating to tasks section from teams section
+         * Since we don't have tasks for team advances, have added a check only for team reports filter
+         */
+        this.showReportAutoSubmissionInfoCard =
+          autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
+      });
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
     if (paramFilters === 'expenses') {
@@ -191,14 +204,16 @@ export class TasksComponent implements OnInit {
   }
 
   doRefresh(event?) {
-    forkJoin([this.transactionService.clearCache(), this.reportService.clearCache()]).subscribe(() => {
-      this.loadData$.next(this.loadData$.getValue());
-      if (event) {
-        setTimeout(() => {
-          event?.target?.complete();
-        }, 1500);
-      }
-    });
+    forkJoin([this.transactionService.clearCache(), this.reportService.clearCache()])
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe(() => {
+        this.loadData$.next(this.loadData$.getValue());
+        if (event) {
+          setTimeout(() => {
+            event?.target?.complete();
+          }, 1500);
+        }
+      });
   }
 
   applyFilters(filters?) {
@@ -389,7 +404,8 @@ export class TasksComponent implements OnInit {
             }))
           );
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
+        takeUntil(this.onPageExit$)
       )
       .subscribe(({ inital, allIds }) => {
         let category;
@@ -444,9 +460,10 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
           switchMap(() => this.reportService.getMyReports({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
+          takeUntil(this.onPageExit$)
         )
-        .subscribe((res) => {
+        .subscribe((res: any) => {
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
         });
     } else {
@@ -468,9 +485,10 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader('Opening your advance request...'))
         .pipe(
           switchMap(() => this.advanceRequestService.getMyadvanceRequests({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
+          takeUntil(this.onPageExit$)
         )
-        .subscribe((res) => {
+        .subscribe((res: any) => {
           this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: res.data[0].areq_id }]);
         });
     } else {
@@ -492,7 +510,8 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
           switchMap(() => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
+          takeUntil(this.onPageExit$)
         )
         .subscribe((res) => {
           this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res.data[0].rp_id, navigate_back: true }]);
@@ -515,7 +534,8 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
           switchMap(() => this.reportService.getMyReports({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
+          takeUntil(this.onPageExit$)
         )
         .subscribe((res) => {
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
@@ -554,14 +574,17 @@ export class TasksComponent implements OnInit {
 
     this.doRefresh();
 
-    expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'my_view_report',
-        { id: config.report.rp_id || config.report.id, navigateBack: true },
-      ]);
-    });
+    expensesAddedToReportSnackBar
+      .onAction()
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe(() => {
+        this.router.navigate([
+          '/',
+          'enterprise',
+          'my_view_report',
+          { id: config.report.rp_id || config.report.id, navigateBack: true },
+        ]);
+      });
   }
 
   showOldReportsMatBottomSheet() {
@@ -605,7 +628,8 @@ export class TasksComponent implements OnInit {
           } else {
             return of(null);
           }
-        })
+        }),
+        takeUntil(this.onPageExit$)
       )
       .subscribe((report: ExtendedReport) => {
         if (report) {
