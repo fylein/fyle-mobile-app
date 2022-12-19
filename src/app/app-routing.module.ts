@@ -11,17 +11,16 @@ const routes: Routes = [
   },
   {
     path: 'auth',
-    loadChildren: () => import('./auth/auth-routing.module').then((m) => m.AuthRoutingModule),
+    loadChildren: () => import('./auth/auth.module').then((m) => m.AuthModule),
   },
   {
     path: 'post_verification',
-    loadChildren: () =>
-      import('./post-verification/post-verification-routing.module').then((m) => m.PostVerificationRoutingModule),
+    loadChildren: () => import('./post-verification/post-verification.module').then((m) => m.PostVerificationModule),
     canActivate: [AuthGuard],
   },
   {
     path: 'enterprise',
-    loadChildren: () => import('./fyle/fyle-routing.module').then((m) => m.FyleRoutingModule),
+    loadChildren: () => import('./fyle/fyle.module').then((m) => m.FyleModule),
     canActivate: [AuthGuard, VerifiedOrgAuthGuard],
   },
   {
@@ -32,7 +31,13 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, relativeLinkResolution: 'legacy' })],
+  imports: [
+    RouterModule.forRoot(routes, {
+      preloadingStrategy: PreloadAllModules,
+      relativeLinkResolution: 'legacy',
+      useHash: true,
+    }),
+  ],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

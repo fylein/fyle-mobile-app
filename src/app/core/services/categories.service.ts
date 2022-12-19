@@ -144,27 +144,27 @@ export class CategoriesService {
   }
 
   getSystemCategories(): string[] {
-    const systemCategories = ['Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'];
+    const systemCategories = ['Bus', 'Airlines', 'Lodging', 'Train'];
     return systemCategories;
   }
 
   getSystemCategoriesWithTaxi(): string[] {
-    const systemCategoriesWithTaxi = ['Taxi', 'Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'];
+    const systemCategoriesWithTaxi = ['Taxi', 'Bus', 'Airlines', 'Lodging', 'Train'];
     return systemCategoriesWithTaxi;
   }
 
   getBreakfastSystemCategories(): string[] {
-    const breakfastSystemCategories = ['Hotel', 'Lodging'];
+    const breakfastSystemCategories = ['Lodging'];
     return breakfastSystemCategories;
   }
 
   getTravelSystemCategories(): string[] {
-    const travelSystemCategories = ['Bus', 'Flight', 'Airlines', 'Train'];
+    const travelSystemCategories = ['Bus', 'Airlines', 'Train'];
     return travelSystemCategories;
   }
 
   getFlightSystemCategories(): string[] {
-    const flightSystemCategories = ['Flight', 'Airlines'];
+    const flightSystemCategories = ['Airlines'];
     return flightSystemCategories;
   }
 }
