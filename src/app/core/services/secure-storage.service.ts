@@ -10,10 +10,14 @@ export class SecureStorageService {
   constructor() {}
 
   async set(key: string, value: any) {
-    return await SecureStoragePlugin.set({
-      key,
-      value: JSON.stringify(value),
-    });
+    try {
+      return await SecureStoragePlugin.set({
+        key,
+        value: JSON.stringify(value),
+      });
+    } catch {
+      return null;
+    }
   }
 
   async get(key: string) {
