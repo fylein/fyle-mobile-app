@@ -157,7 +157,7 @@ export class CustomInputsService {
   }
 
   private formatDateCustomProperty(customProperty: any): string {
-    return customProperty ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
+    return customProperty ? this.datePipe.transform(customProperty.value, 'MMM dd, YYYY') : '-';
   }
 
   private formatMultiselectCustomProperty(customProperty: any): string {
