@@ -105,17 +105,17 @@ describe('ProjectsService', () => {
     });
   });
 
-  it('should get allowed organisation category IDs | With project', () => {
+  it('should category list after filter as per project passed', () => {
     const result = projectService.getAllowedOrgCategoryIds(testProject, testActiveCategoryList);
     expect(result).toEqual(allowedActiveCategories);
   });
 
-  it('should get allowed organisation category IDs | Without project', () => {
+  it('should return whole category list if project passed is not present', () => {
     const result = projectService.getAllowedOrgCategoryIds(null, testActiveCategoryList);
     expect(result).toEqual(testActiveCategoryList);
   });
 
-  it('should get project count | with categoryID', (done) => {
+  it('should get project count restricted by a set of category IDs', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
 
     const result = projectService.getProjectCount({ categoryIds: testCategoryIds });
@@ -125,25 +125,18 @@ describe('ProjectsService', () => {
     });
   });
 
-  it('should get project count | without category IDs', (done) => {
+  it('should get project count not restricted by a set of category IDs', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
 
-    const result = projectService.getProjectCount();
+    const resWoParam = projectService.getProjectCount();
+    const resWParam = projectService.getProjectCount({ categoryIds: null });
 
-    result.subscribe((res) => {
+    resWoParam.subscribe((res) => {
       expect(res).toEqual(apiResponseActiveOnly.length);
-      done();
     });
-  });
-
-  it('should get project count | without category IDs', (done) => {
-    apiService.get.and.returnValue(of(apiResponseActiveOnly));
-
-    const result = projectService.getProjectCount({ categoryIds: null });
-
-    result.subscribe((res) => {
+    resWParam.subscribe((res) => {
       expect(res).toEqual(apiResponseActiveOnly.length);
-      done();
     });
+    done();
   });
 });
