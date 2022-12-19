@@ -19,7 +19,7 @@ import { ModalController, Platform } from '@ionic/angular';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { DateService } from 'src/app/core/services/date.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
@@ -386,7 +386,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks' };
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'none' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
@@ -690,7 +690,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       return;
     }
 
-    const txnDate = moment(txnDetails.btxn_transaction_dt).format('yyyy-MM-DD');
+    const txnDate = dayjs(txnDetails.btxn_transaction_dt).format('YYYY-MM-DD');
 
     this.loadingMatchedExpenseCount = true;
     this.loadingTxnId = txnDetails.btxn_id;
@@ -745,8 +745,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.zone.run(() => {
         this.txnDateRange = data.range;
         if (data.range === 'Custom Range') {
-          const startDate = data.startDate && moment(data.startDate).format('MMM D');
-          const endDate = data.endDate && moment(data.endDate).format('MMM D');
+          const startDate = data.startDate && dayjs(data.startDate).format('MMM D');
+          const endDate = data.endDate && dayjs(data.endDate).format('MMM D');
           this.txnDateRange = `${startDate} - ${endDate}`;
         }
       });

@@ -24,8 +24,6 @@ export interface ExtendedAdvanceRequest {
   areq_purpose: string;
   areq_source: string;
   areq_state: string;
-  areq_trip_request_id: string;
-  areq_trip_request_state: string;
   areq_updated_at: Date;
   custom_properties: any;
   ou_business_unit: string;

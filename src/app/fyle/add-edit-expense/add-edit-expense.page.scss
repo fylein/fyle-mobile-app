@@ -322,6 +322,7 @@
     margin-left: 20px;
 
     &__with-border {
+      margin: 8px 0px;
       border: 1px solid $grey-lighter;
       margin-left: 0;
       border-radius: 4px;
@@ -628,7 +629,7 @@
   }
 
   &--orig-amount-error {
-    margin: -68px 4px 48px 52%;
+    margin: -68px 4px 48px 33%;
   }
 
   &--mandatory {

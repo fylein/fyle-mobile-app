@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PolicyApiService } from './policy-api.service';
+import { BackButtonService } from './back-button.service';
 
-xdescribe('PolicyApiService', () => {
-  let service: PolicyApiService;
+xdescribe('BackButtonService', () => {
+  let service: BackButtonService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(PolicyApiService);
+    service = TestBed.inject(BackButtonService);
   });
 
   it('should be created', () => {

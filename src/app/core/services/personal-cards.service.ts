@@ -11,7 +11,7 @@ import { DateService } from './date.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 
 type matchExpenseResponse = Partial<{
   external_expense_id: string;
@@ -343,7 +343,75 @@ export class PersonalCardsService {
     return filterPills;
   }
 
-  generateDateFilterPills(type, filters, filterPills: FilterPill[]) {
+  private generateUpdatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
+    const startDate = filters.updatedOn.customDateStart && dayjs(filters.updatedOn.customDateStart).format('YYYY-MM-D');
+    const endDate = filters.updatedOn.customDateEnd && dayjs(filters.updatedOn.customDateEnd).format('YYYY-MM-D');
+
+    if (startDate && endDate) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: `${startDate} to ${endDate}`,
+      });
+    } else if (startDate) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: `>= ${startDate}`,
+      });
+    } else if (endDate) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: `<= ${endDate}`,
+      });
+    }
+  }
+
+  private generateCreditTrasactionsFilterPills(filters, filterPills: FilterPill[]) {
+    if (filters.transactionType === 'Credit') {
+      filterPills.push({
+        label: 'Transactions Type',
+        type: 'string',
+        value: 'Credit',
+      });
+    }
+
+    if (filters.transactionType === 'Debit') {
+      filterPills.push({
+        label: 'Transactions Type',
+        type: 'string',
+        value: 'Debit',
+      });
+    }
+  }
+
+  private generateCreatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
+    const startDate = filters.createdOn.customDateStart && dayjs(filters.createdOn.customDateStart).format('YYYY-MM-D');
+    const endDate = filters.createdOn.customDateEnd && dayjs(filters.createdOn.customDateEnd).format('YYYY-MM-D');
+
+    if (startDate && endDate) {
+      filterPills.push({
+        label: 'Created On',
+        type: 'date',
+        value: `${startDate} to ${endDate}`,
+      });
+    } else if (startDate) {
+      filterPills.push({
+        label: 'Created On',
+        type: 'date',
+        value: `>= ${startDate}`,
+      });
+    } else if (endDate) {
+      filterPills.push({
+        label: 'Created On',
+        type: 'date',
+        value: `<= ${endDate}`,
+      });
+    }
+  }
+
+  private generateDateFilterPills(type, filters, filterPills: FilterPill[]) {
     if (filters[type].name === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Created On',
@@ -383,74 +451,6 @@ export class PersonalCardsService {
       if (type === 'updatedOn') {
         this.generateUpdatedOnCustomDatePill(filters, filterPills);
       }
-    }
-  }
-
-  generateCreatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
-    const startDate = filters.createdOn.customDateStart && moment(filters.createdOn.customDateStart).format('y-MM-D');
-    const endDate = filters.createdOn.customDateEnd && moment(filters.createdOn.customDateEnd).format('y-MM-D');
-
-    if (startDate && endDate) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: `${startDate} to ${endDate}`,
-      });
-    } else if (startDate) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: `>= ${startDate}`,
-      });
-    } else if (endDate) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: `<= ${endDate}`,
-      });
-    }
-  }
-
-  generateUpdatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
-    const startDate = filters.updatedOn.customDateStart && moment(filters.updatedOn.customDateStart).format('y-MM-D');
-    const endDate = filters.updatedOn.customDateEnd && moment(filters.updatedOn.customDateEnd).format('y-MM-D');
-
-    if (startDate && endDate) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: `${startDate} to ${endDate}`,
-      });
-    } else if (startDate) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: `>= ${startDate}`,
-      });
-    } else if (endDate) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: `<= ${endDate}`,
-      });
-    }
-  }
-
-  generateCreditTrasactionsFilterPills(filters, filterPills: FilterPill[]) {
-    if (filters.transactionType === 'Credit') {
-      filterPills.push({
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Credit',
-      });
-    }
-
-    if (filters.transactionType === 'Debit') {
-      filterPills.push({
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Debit',
-      });
     }
   }
 }

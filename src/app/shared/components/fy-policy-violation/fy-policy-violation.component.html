@@ -20,7 +20,7 @@
       </ng-container>
     </div>
 
-    <ng-container *ngIf="policyActionDescription">
+    <ng-container *ngIf="policyAction?.run_summary?.length">
       <div>
         <p class="policy-violation--action-header">The policy violation will trigger the following action(s):</p>
       </div>
@@ -29,7 +29,7 @@
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/flag-outline.svg'"
           [message]="'Expense will be flagged for verification and approval'"
-          [actionsCount]="availableActionsCount"
+          [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
       </ng-container>
 
@@ -37,7 +37,7 @@
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/profile-outline.svg'"
           [message]="'Primary approver will be skipped'"
-          [actionsCount]="availableActionsCount"
+          [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
       </ng-container>
 
@@ -45,7 +45,7 @@
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/capped-amount.svg'"
           [message]="cappedAmountString"
-          [actionsCount]="availableActionsCount"
+          [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
       </ng-container>
 
@@ -53,7 +53,7 @@
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/2-users.svg'"
           [message]="approverEmailsRequiredMsg"
-          [actionsCount]="availableActionsCount"
+          [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
       </ng-container>
     </ng-container>
@@ -63,12 +63,12 @@
         <div>
           <p class="policy-violation--additional-details-header">
             Please provide additional details for approval
-            <span class="policy-violation--additional-details-comment-length">{{ form.value.comment.length }}/250</span>
+            <span class="policy-violation--additional-details-comment-length">{{ form.value.comment.length }}/500</span>
           </p>
         </div>
 
         <textarea
-          maxlength="250"
+          maxlength="500"
           class="policy-violation--textarea"
           formControlName="comment"
           placeholder="Enter the details here"

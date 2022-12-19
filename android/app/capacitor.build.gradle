@@ -22,12 +22,15 @@ dependencies {
     implementation project(':capacitor-splash-screen')
     implementation project(':capacitor-status-bar')
     implementation project(':capacitor-storage')
+    implementation project(':capacitor-text-zoom')
+    implementation project(':capacitor-native-settings')
     implementation project(':capacitor-secure-storage-plugin')
     implementation "com.google.android.gms:play-services-auth:15.0.1"
     implementation "com.google.android.gms:play-services-identity:15.0.1"
     implementation "com.android.support:appcompat-v7:27.+"
 }
 apply from: "../../node_modules/cordova-plugin-ionic/src/android/cordovapluginionic.gradle"
+apply from: "../../node_modules/cordova-plugin-smartlook/src/android/plugin.gradle"
 apply from: "../../node_modules/cordova-plugin-telerik-imagepicker/src/android/ignorelinterrors.gradle"
 apply from: "../../node_modules/cordova-plugin-telerik-imagepicker/src/android/androidtarget.gradle"
 

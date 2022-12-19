@@ -19,10 +19,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 14
+          node-version: 16
 
       - name: Install dependencies
-        run: npm install --save-dev
+        run: npm install --save-dev --legacy-peer-deps
 
       - name: Run Tests
         run: npm run test
+
+      - name: Unit Test Coverage
+        uses: fylein/comment-test-coverage@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: coverage/coverage-summary.json
+          title: Unit Test Coverage

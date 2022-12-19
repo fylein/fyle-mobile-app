@@ -194,7 +194,7 @@
               </ion-col>
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Created Date</div>
-                <div class="view-mileage--value">{{ extendedMileage.tx_created_at | date: 'MMM dd, yyyy' }}</div>
+                <div class="view-mileage--value">{{ extendedMileage.tx_created_at | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -212,7 +212,7 @@
               </ion-col>
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Spend Date</div>
-                <div class="view-mileage--value">{{ extendedMileage.tx_txn_dt | date: 'MMM dd, yyyy' }}</div>
+                <div class="view-mileage--value">{{ extendedMileage.tx_txn_dt | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -220,7 +220,7 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid *ngIf="showPaymentMode" class="view-mileage--grid">
+    <ion-grid class="view-mileage--grid">
       <ion-row>
         <ion-col class="view-mileage--icon-container">
           <div class="view-mileage--icon-container__background">

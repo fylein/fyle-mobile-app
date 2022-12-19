@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { AccountsService } from './accounts.service';
 import { LaunchDarklyService } from './launch-darkly.service';
-import { Expense } from '../models/expense.model';
 import { map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
-import { ExpenseType } from '../enums/expense-type.enum';
 import { AccountType } from '../enums/account-type.enum';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgUserSettingsService } from './org-user-settings.service';
-
+import { TrackingService } from '../../core/services/tracking.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 @Injectable({
   providedIn: 'root',
 })
@@ -17,51 +18,21 @@ export class PaymentModesService {
   constructor(
     private accountsService: AccountsService,
     private launchDarklyService: LaunchDarklyService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private trackingService: TrackingService
   ) {}
 
   checkIfPaymentModeConfigurationsIsEnabled() {
-    return forkJoin({
-      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
-      orgUserSettings: this.orgUserSettingsService.get(),
-    }).pipe(
-      map(
-        ({ isPaymentModeConfigurationsEnabled, orgUserSettings }) =>
-          isPaymentModeConfigurationsEnabled &&
-          orgUserSettings.payment_mode_settings.allowed &&
-          orgUserSettings.payment_mode_settings.enabled
-      )
-    );
-  }
-
-  shouldPaymentModeBeShown(etxn: Expense, expenseType: ExpenseType): Observable<boolean> {
-    return forkJoin({
-      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.checkIfPaymentModeConfigurationsIsEnabled(),
-    }).pipe(
-      map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-        const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
-        if (isMileageOrPerDiemExpense) {
-          allowedPaymentModes = allowedPaymentModes.filter(
-            (allowedPaymentMode) => allowedPaymentMode !== AccountType.CCC
-          );
-
-          /*
-           * For mileage and per-diem expenses, since default payment mode is PERSONAL_ACCOUNT,
-           * we don't show Payment Mode field if COMPANY_ACCOUNT and PERSONAL_ADVANCE_ACCOUNT
-           * are not present
-           */
-          if (!allowedPaymentModes.length) {
-            return false;
-          }
-        }
-        if (isPaymentModeConfigurationsEnabled && allowedPaymentModes.length === 1) {
-          const etxnAccountType = this.accountsService.getEtxnAccountType(etxn);
-          return allowedPaymentModes[0] !== etxnAccountType;
-        }
-        return true;
-      })
-    );
+    return this.orgUserSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgUserSettings) =>
+            orgUserSettings.payment_mode_settings.allowed && orgUserSettings.payment_mode_settings.enabled
+        )
+      );
   }
 
   getDefaultAccount(
@@ -107,5 +78,14 @@ export class PaymentModesService {
         return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
       })
     );
+  }
+
+  showInvalidPaymentModeToast() {
+    const message = 'Insufficient balance in the selected account. Please choose a different payment mode.';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+      panelClass: ['msb-failure-with-report-btn'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
   }
 }

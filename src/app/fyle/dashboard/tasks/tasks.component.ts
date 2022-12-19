@@ -169,6 +169,18 @@ export class TasksComponent implements OnInit {
       });
     }
 
+    if (paramFilters === 'none') {
+      this.loadData$.next({
+        sentBackReports: false,
+        draftReports: false,
+        draftExpenses: false,
+        unreportedExpenses: false,
+        teamReports: false,
+        sentBackAdvances: false,
+        potentialDuplicates: false,
+      });
+    }
+
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());
   }
 
@@ -331,9 +343,6 @@ export class TasksComponent implements OnInit {
     switch (taskCta.event) {
       case TASKEVENT.expensesAddToReport:
         this.onExpensesToReportTaskClick(taskCta, task);
-        break;
-      case TASKEVENT.expensesCreateNewReport:
-        this.onCreateReportTaskClick(taskCta, task);
         break;
       case TASKEVENT.openDraftReports:
         this.onOpenDraftReportsTaskClick(taskCta, task);
@@ -520,10 +529,6 @@ export class TasksComponent implements OnInit {
         },
       });
     }
-  }
-
-  onCreateReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
-    this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
   onPotentialDuplicatesTaskClick(taskCta: TaskCta, task: DashboardTask) {
