@@ -21,8 +21,9 @@ import {
   uniqueCardsReponse,
   statsResponse,
 } from '../test-data/corporate-credit-card-expense.spec.data';
+import { DateService } from './date.service';
 
-fdescribe('CorporateCreditCardExpenseService', () => {
+describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
@@ -33,7 +34,6 @@ fdescribe('CorporateCreditCardExpenseService', () => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformServiceSpy', ['unflatten']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -51,6 +51,7 @@ fdescribe('CorporateCreditCardExpenseService', () => {
           useValue: authServiceSpy,
         },
         DataTransformService,
+        DateService,
       ],
     });
 
@@ -81,21 +82,35 @@ fdescribe('CorporateCreditCardExpenseService', () => {
   xit('should give a single transaction from ID', (done) => {
     apiV2Service.get.and.returnValue(of(apiSingleTransactionResponse));
 
-    const testID = 'ccceRhYsN8Fj78';
+    const testID = 'ccceWauzF1A3oS';
 
     const result = cccExpenseService.getv2CardTransaction(testID);
     result.subscribe((res) => {
+      console.log(res);
       expect(res).toEqual(expectedSingleTransaction);
       done();
     });
   });
 
-  it('should mark an expense as personal', () => {
+  it('should mark an expense as personal', (done) => {
     apiService.post.and.returnValue(of(null));
     const testId = 'ccceJN3PWAR94U';
     const result = cccExpenseService.markPersonal(testId);
     result.subscribe((res) => {
-      expect(res).toEqual(null);
+      expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/personal');
+      expect(res).toBe(null);
+      done();
+    });
+  });
+
+  it('should unmark an expense as personal', (done) => {
+    apiService.post.and.returnValue(of(null));
+    const testId = 'ccceJN3PWAR94U';
+    const result = cccExpenseService.unmarkPersonal(testId);
+    result.subscribe((res) => {
+      expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/unmark_personal');
+      expect(res).toBe(null);
+      done();
     });
   });
 
@@ -137,6 +152,11 @@ fdescribe('CorporateCreditCardExpenseService', () => {
       expect(res).toEqual(expectedCardResponse);
       done();
     });
+  });
+
+  xit('should get expense detils in cards', () => {
+    // const result = cccExpenseService.getExpenseDetailsInCards(uniqueCardsReponse, statsResponse);
+    // console.log(result);
   });
 
   xit('should get non-unify cards', (done) => {
