@@ -38,7 +38,7 @@ export class CustomInputsService {
     );
   }
 
-  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string | {}) {
+  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string | {}): ExpenseField[] {
     return customInputs
       .filter((customInput) =>
         customInput.org_category_ids
