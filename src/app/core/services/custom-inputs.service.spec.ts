@@ -75,7 +75,7 @@ describe('CustomInputsService', () => {
       value: ['record1', 'record2'],
       type: 'MULTI_SELECT',
       mandatory: true,
-      options: ['Multi 1'],
+      options: ['record1', 'record2', 'record3'],
     };
 
     const expectedProperty = 'record1, record2';
@@ -90,7 +90,7 @@ describe('CustomInputsService', () => {
       value: '',
       type: 'TEXT',
       mandatory: false,
-      options: ['value1', 'value2'],
+      options: null,
     };
 
     const expectedProperty = '-';
@@ -117,7 +117,7 @@ describe('CustomInputsService', () => {
   it('should get custom property to be displayed | BOOLEAN with value', () => {
     const testProperty = {
       name: 'category2',
-      value: 'value',
+      value: true,
       type: 'BOOLEAN',
       mandatory: false,
       options: null,
@@ -132,7 +132,7 @@ describe('CustomInputsService', () => {
   it('should get custom property to be displayed | BOOLEAN without value', () => {
     const testProperty = {
       name: 'category2',
-      value: '',
+      value: false,
       type: 'BOOLEAN',
       mandatory: false,
       options: null,
