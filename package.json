@@ -100,7 +100,7 @@
     "@angular/compiler": "^13.3.10",
     "@angular/compiler-cli": "^13.3.10",
     "@angular/language-service": "^13.3.10",
-    "@capacitor/cli": "^4.0.0",
+    "@capacitor/cli": "^4.6.1",
     "@ionic/angular-toolkit": "^6.1.0",
     "@types/jasmine": "^4.0.3",
     "@types/jasminewd2": "^2.0.10",
