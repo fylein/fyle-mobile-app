@@ -565,8 +565,8 @@ export class MergeExpensePage implements OnInit {
 
   setupCustomInputs() {
     this.customInputs$ = this.loadCustomFields$.pipe(
-      startWith({}),
-      switchMap((categoryId) =>
+      startWith(null),
+      switchMap((categoryId: string) =>
         this.customInputsService.getAll(true).pipe(
           switchMap((fields) => {
             const customFields = this.customFieldsService.standardizeCustomFields(
