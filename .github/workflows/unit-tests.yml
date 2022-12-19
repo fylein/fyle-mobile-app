@@ -22,7 +22,7 @@ jobs:
           node-version: 14
 
       - name: Install dependencies
-        run: npm install --save-dev
+        run: npm install --save-dev --legacy-peer-deps
 
       - name: Run Tests
         run: npm run test
