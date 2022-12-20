@@ -142,7 +142,7 @@
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Date</div>
                 <div class="add-edit-expense--card-container__value">
-                  {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, YYYY' }}
+                  {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, yyyy' }}
                 </div>
               </ion-col>
               <ion-col>
@@ -399,7 +399,7 @@
                 <span class="text-capitalize"
                   >{{ (selectedCCCTransaction.vendor || selectedCCCTransaction.description) | ellipsis:20}},
                 </span>
-                <span>{{ selectedCCCTransaction.txn_dt | date: 'MMM dd, YYYY'}} - </span>
+                <span>{{ selectedCCCTransaction.txn_dt | date: 'MMM dd, yyyy'}} - </span>
                 <span
                   >{{ selectedCCCTransaction.amount | currency: selectedCCCTransaction.currency: 'symbol-narrow'}}</span
                 >

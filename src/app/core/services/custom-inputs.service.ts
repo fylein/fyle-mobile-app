@@ -145,8 +145,8 @@ export class CustomInputsService {
     return customProperty.value ? 'Yes' : 'No';
   }
 
-  private formatDateCustomProperty(customProperty: CustomField): string {
-    return customProperty.value ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
+  private formatDateCustomProperty(customProperty: any): string {
+    return customProperty ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
   }
 
   private formatMultiselectCustomProperty(customProperty: CustomField): string {

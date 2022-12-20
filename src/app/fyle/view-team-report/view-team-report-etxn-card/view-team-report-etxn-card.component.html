@@ -2,7 +2,7 @@
   <div class="etxn-card--date" *ngIf="showDate">
     <span> {{ etxn?.tx_txn_dt | date: 'EEEE' }} </span>,
     <span>
-      {{ etxn?.tx_txn_dt | date: 'MMM dd, YYYY' }}
+      {{ etxn?.tx_txn_dt | date: 'MMM dd, yyyy' }}
     </span>
   </div>
   <div class="etxn-card--body" matRipple (click)="goToTransactionClicked()">

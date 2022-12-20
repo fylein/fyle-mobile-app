@@ -72,7 +72,7 @@
                       >{{erpt.rp_state === "DRAFT" ? "Created on : " : "Submitted on : " }}
                     </span>
                     <span class="view-reports--submitted-date__date"
-                      >{{erpt.rp_created_at | date: 'MMM dd, YYYY'}}</span
+                      >{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span
                     >
                   </div>
                 </div>
@@ -103,7 +103,7 @@
                 <div>{{ ap.approver_name }}</div>
                 <div class="view-reports--approver-state-section">
                   <div class="view-reports--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
-                    <span>{{ap.updated_at | date: 'MMM dd, YYYY'}}</span>
+                    <span>{{ap.updated_at | date: 'MMM dd, yyyy'}}</span>
                   </div>
                   <div
                     class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
@@ -197,7 +197,7 @@
           <div *ngIf="userComments?.length > 0" class="view-comment--container">
             <div *ngFor="let estatus of userComments">
               <div *ngIf="estatus.show_dt">
-                <div class="view-comment--date text-center">{{ estatus.st_created_at | date: 'MMM D, YYYY' }}</div>
+                <div class="view-comment--date text-center">{{ estatus.st_created_at | date: 'MMM d, yyyy' }}</div>
               </div>
               <div
                 class="view-comment--block"

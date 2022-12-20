@@ -1,11 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 
 @Pipe({
   name: 'dateFormat',
 })
 export class DateFormatPipe implements PipeTransform {
   transform(value) {
-    return dayjs(value).format('MMM DD, YYYY');
+    return moment(value).format('MMM DD, yyyy');
   }
 }

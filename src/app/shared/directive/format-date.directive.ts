@@ -1,7 +1,7 @@
 // @Link:  https://stackoverflow.com/a/31162426
 
 import { Directive, ElementRef, OnInit, HostListener, Renderer2 } from '@angular/core';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 
 @Directive({
   selector: '[appFormatDate]',
@@ -17,7 +17,7 @@ export class FormatDateDirective implements OnInit {
     if (this.elementRef && this.elementRef.nativeElement) {
       if (value) {
         this.renderer.removeClass(this.elementRef.nativeElement, 'date-input__placeholder');
-        this.elementRef.nativeElement.setAttribute('data-date', dayjs(value).format('MMM DD, YYYY'));
+        this.elementRef.nativeElement.setAttribute('data-date', moment(value).format('MMM DD, YYYY'));
       } else {
         this.renderer.addClass(this.elementRef.nativeElement, 'date-input__placeholder');
         if (this.elementRef.nativeElement.name) {

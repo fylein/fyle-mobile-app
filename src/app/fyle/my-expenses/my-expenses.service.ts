@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { cloneDeep } from 'lodash';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
@@ -158,8 +158,8 @@ export class MyExpensesService {
 
   generateCustomDatePill(filter: Filters, filterPills: FilterPill[]) {
     const filterPillsCopy = cloneDeep(filterPills);
-    const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
-    const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
+    const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
+    const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
 
     if (startDate && endDate) {
       filterPillsCopy.push({

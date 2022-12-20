@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 @Component({
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
@@ -32,7 +32,7 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
   ngOnInit() {}
 
   ionViewWillEnter() {
-    const txnDate = dayjs(this.txnDetails.btxn_transaction_dt).format('YYYY-MM-DD');
+    const txnDate = moment(this.txnDetails.btxn_transaction_dt).format('yyyy-MM-DD');
     this.matchedExpenses$ = this.personalCardsService.getMatchedExpenses(this.txnDetails.btxn_amount, txnDate);
   }
 
