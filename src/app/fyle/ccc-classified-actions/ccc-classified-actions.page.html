@@ -19,7 +19,7 @@
         <span class="ccc-classified-actions--currency"> {{cccExpense.currency}} </span>
         <span class="ccc-classified-actions--amount"> {{cccExpense.amount}} </span>
       </div>
-      <div class="ccc-classified-actions--date">{{cccExpense.txn_dt | date: 'MMM dd, YYYY'}}</div>
+      <div class="ccc-classified-actions--date">{{cccExpense.txn_dt | date: 'MMM dd, yyyy'}}</div>
       <div class="ccc-classified-actions--vendor">
         <ng-container *ngIf="cccExpense.vendor; else description"> {{cccExpense.vendor | ellipsis:25}} </ng-container>
         <ng-template #description>
@@ -108,7 +108,7 @@
             </div>
             <div class="ccc-classified-actions--input-container">
               <div class="ccc-classified-actions--input-container-title">Spend Date</div>
-              <div class="ccc-classified-actions--input-container-value">{{txn.txn_dt | date: 'MMM dd, YYYY'}}</div>
+              <div class="ccc-classified-actions--input-container-value">{{txn.txn_dt | date: 'MMM dd, yyyy'}}</div>
             </div>
             <div class="ccc-classified-actions--input-container">
               <div class="ccc-classified-actions--input-container-title">Amount</div>

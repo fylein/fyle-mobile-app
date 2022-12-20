@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { from } from 'rxjs';
 import { StorageService } from './storage.service';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +14,7 @@ export class RecentLocalStorageItemsService {
     const res = await this.storageService.get(cacheName);
 
     if (res && res.updatedAt) {
-      if (dayjs(res.updatedAt).diff(Date.now(), 'minute') > 2) {
+      if (moment(res.updatedAt).diff(moment.now(), 'minute') > 2) {
         await this.storageService.delete(cacheName);
         return [];
       }

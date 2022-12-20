@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root',
@@ -293,11 +293,11 @@ export class DateService {
   }
 
   firstOfThisWeek() {
-    return dayjs().startOf('week');
+    return moment().startOf('week');
   }
 
   lastOfThisWeek() {
-    return dayjs().startOf('week').add(7, 'days');
+    return moment().startOf('week').add(7, 'days');
   }
 
   getThisWeekRange() {
@@ -325,10 +325,10 @@ export class DateService {
   }
 
   isSameDate(date1: Date, date2: Date) {
-    return dayjs(date1).startOf('day').isSame(dayjs(date2).startOf('day'));
+    return moment(date1).startOf('day').isSame(moment(date2).startOf('day'));
   }
 
   isValidDate(date) {
-    return dayjs(date).isValid();
+    return moment(date, moment.ISO_8601, true).isValid();
   }
 }
