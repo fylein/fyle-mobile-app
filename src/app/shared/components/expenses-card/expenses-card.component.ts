@@ -404,6 +404,7 @@ export class ExpensesCardComponent implements OnInit {
           const file = nativeElement.files[0];
           if (file) {
             const dataUrl = await this.fileService.readFile(file);
+            this.trackingService.addAttachment({ type: file.type });
             receiptDetails = {
               type: file.type,
               dataUrl,

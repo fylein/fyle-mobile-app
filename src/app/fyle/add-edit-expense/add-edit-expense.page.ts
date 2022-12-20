@@ -3941,6 +3941,7 @@ export class AddEditExpensePage implements OnInit {
         const file = nativeElement.files[0];
         if (file) {
           const dataUrl = await this.fileService.readFile(file);
+          this.trackingService.addAttachment({ type: file.type });
           fileData = {
             type: file.type,
             dataUrl,
