@@ -84,7 +84,6 @@ export class DashboardPage implements OnInit {
 
   ionViewWillLeave() {
     this.onPageExit$.next(null);
-    this.onPageExit$.complete();
     this.hardwareBackButtonAction?.unsubscribe();
   }
 
@@ -114,7 +113,7 @@ export class DashboardPage implements OnInit {
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
-    this.orgSettings$.pipe(takeUntil(this.onPageExit$)).subscribe((orgSettings) => {
+    this.orgSettings$.subscribe((orgSettings) => {
       this.setupActionSheet(orgSettings);
     });
 
@@ -128,15 +127,12 @@ export class DashboardPage implements OnInit {
      * */
 
     this.isConnected$
-      .pipe(
-        switchMap((isConnected) => (isConnected ? this.tasksService.getTotalTaskCount() : of(0))),
-        takeUntil(this.onPageExit$)
-      )
+      .pipe(switchMap((isConnected) => (isConnected ? this.tasksService.getTotalTaskCount() : of(0))))
       .subscribe((taskCount) => {
         this.taskCount = taskCount;
       });
 
-    this.isConnected$.pipe(takeUntil(this.onPageExit$)).subscribe((isOnline) => {
+    this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
         const queryParams: Params = { state: 'home' };
         this.router.navigate(['/', 'enterprise', 'my_dashboard', { queryParams }]);
