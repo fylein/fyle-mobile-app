@@ -9,7 +9,6 @@ import { Observable, from } from 'rxjs';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { ApiV2Service } from './api-v2.service';
 import { LocationService } from './location.service';
-import { PolicyApiService } from './policy-api.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { PushNotificationService } from './push-notification.service';
@@ -29,7 +28,6 @@ export class RouterAuthService {
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
     private locationService: LocationService,
-    private policyApiService: PolicyApiService,
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
     private pushNotificationService: PushNotificationService,
@@ -59,7 +57,6 @@ export class RouterAuthService {
     this.advanceRequestPolicyService.setRoot(domain);
     this.apiv2Service.setRoot(domain);
     this.locationService.setRoot(domain);
-    this.policyApiService.setRoot(domain);
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
     this.pushNotificationService.setRoot(domain);
