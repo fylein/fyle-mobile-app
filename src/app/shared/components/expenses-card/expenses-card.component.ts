@@ -1,10 +1,10 @@
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { from, noop, Observable, Subject } from 'rxjs';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { from, noop, Observable } from 'rxjs';
 import { concat } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { concatMap, finalize, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import { concatMap, finalize, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { isNumber, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
 import { PopoverController, ModalController, Platform } from '@ionic/angular';
@@ -37,7 +37,7 @@ type ReceiptDetail = {
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
 })
-export class ExpensesCardComponent implements OnInit, OnDestroy {
+export class ExpensesCardComponent implements OnInit {
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
   @Input() expense: Expense;
@@ -120,8 +120,6 @@ export class ExpensesCardComponent implements OnInit, OnDestroy {
 
   showPaymentModeIcon: boolean;
 
-  onPageExit$: Subject<void>;
-
   isIos = false;
 
   constructor(
@@ -179,8 +177,7 @@ export class ExpensesCardComponent implements OnInit, OnDestroy {
                   .pipe(
                     map((downloadUrl: FileObject[]) => {
                       this.receiptThumbnail = downloadUrl[0].url;
-                    }),
-                    takeUntil(this.onPageExit$)
+                    })
                   )
                   .subscribe(noop);
               } else {
@@ -193,13 +190,11 @@ export class ExpensesCardComponent implements OnInit, OnDestroy {
                       } else {
                         this.receiptIcon = 'assets/svg/fy-expense.svg';
                       }
-                    }),
-                    takeUntil(this.onPageExit$)
+                    })
                   )
                   .subscribe(noop);
               }
-            }),
-            takeUntil(this.onPageExit$)
+            })
           )
           .subscribe(noop);
       }
@@ -244,41 +239,35 @@ export class ExpensesCardComponent implements OnInit, OnDestroy {
     that.isScanCompleted = false;
 
     if (!that.isOutboxExpense) {
-      that.orgUserSettingsService
-        .get()
-        .pipe(takeUntil(that.onPageExit$))
-        .subscribe((orgUserSettings) => {
-          if (
-            orgUserSettings.insta_fyle_settings.allowed &&
-            orgUserSettings.insta_fyle_settings.enabled &&
-            (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
-          ) {
-            that.isScanCompleted = that.checkIfScanIsCompleted();
-            that.isScanInProgress =
-              !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
-            if (that.isScanInProgress) {
-              that.pollDataExtractionStatus(function () {
-                that.transactionService
-                  .getETxn(that.expense.tx_id)
-                  .pipe(takeUntil(that.onPageExit$))
-                  .subscribe((etxn) => {
-                    const extractedData = etxn.tx.extracted_data;
-                    if (extractedData?.amount && extractedData?.currency) {
-                      that.isScanCompleted = true;
-                      that.isScanInProgress = false;
-                      that.expense.tx_extracted_data = extractedData;
-                    } else {
-                      that.isScanInProgress = false;
-                      that.isScanCompleted = false;
-                    }
-                  });
+      that.orgUserSettingsService.get().subscribe((orgUserSettings) => {
+        if (
+          orgUserSettings.insta_fyle_settings.allowed &&
+          orgUserSettings.insta_fyle_settings.enabled &&
+          (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
+        ) {
+          that.isScanCompleted = that.checkIfScanIsCompleted();
+          that.isScanInProgress =
+            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+          if (that.isScanInProgress) {
+            that.pollDataExtractionStatus(function () {
+              that.transactionService.getETxn(that.expense.tx_id).subscribe((etxn) => {
+                const extractedData = etxn.tx.extracted_data;
+                if (extractedData?.amount && extractedData?.currency) {
+                  that.isScanCompleted = true;
+                  that.isScanInProgress = false;
+                  that.expense.tx_extracted_data = extractedData;
+                } else {
+                  that.isScanInProgress = false;
+                  that.isScanCompleted = false;
+                }
               });
-            }
-          } else {
-            that.isScanCompleted = true;
-            that.isScanInProgress = false;
+            });
           }
-        });
+        } else {
+          that.isScanCompleted = true;
+          that.isScanInProgress = false;
+        }
+      });
     }
   }
 
@@ -287,13 +276,7 @@ export class ExpensesCardComponent implements OnInit, OnDestroy {
       this.expense.source_account_type === AccountType.PERSONAL && !this.expense.tx_skip_reimbursement;
   }
 
-  ngOnDestroy() {
-    this.onPageExit$.next();
-    this.onPageExit$.complete();
-  }
-
   ngOnInit() {
-    this.onPageExit$ = new Subject();
     this.setupNetworkWatcher();
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
@@ -310,20 +293,16 @@ export class ExpensesCardComponent implements OnInit, OnDestroy {
     this.expense.isPolicyViolated = this.expense.tx_manual_flag || this.expense.tx_policy_flag;
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
-    this.expenseFieldsService
-      .getAllMap()
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((expenseFields) => {
-        this.expenseFields = expenseFields;
-      });
+    this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
+      this.expenseFields = expenseFields;
+    });
 
     this.currencyService
       .getHomeCurrency()
       .pipe(
         map((homeCurrency) => {
           this.homeCurrency = homeCurrency;
-        }),
-        takeUntil(this.onPageExit$)
+        })
       )
       .subscribe(noop);
 
@@ -332,15 +311,13 @@ export class ExpensesCardComponent implements OnInit, OnDestroy {
       shareReplay(1)
     );
 
-    orgSettings$
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe(
-        (orgSettings) =>
-          (this.isUnifyCcceExpensesSettings =
-            orgSettings.unify_ccce_expenses_settings &&
-            orgSettings.unify_ccce_expenses_settings.allowed &&
-            orgSettings.unify_ccce_expenses_settings.enabled)
-      );
+    orgSettings$.subscribe(
+      (orgSettings) =>
+        (this.isUnifyCcceExpensesSettings =
+          orgSettings.unify_ccce_expenses_settings &&
+          orgSettings.unify_ccce_expenses_settings.allowed &&
+          orgSettings.unify_ccce_expenses_settings.enabled)
+    );
 
     if (!this.expense.tx_id) {
       this.showDt = !!this.isFirstOfflineExpense;
@@ -484,16 +461,13 @@ export class ExpensesCardComponent implements OnInit, OnDestroy {
   }
 
   setThumbnail(fileObjId: string, attachmentType: string) {
-    this.fileService
-      .downloadUrl(fileObjId)
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((downloadUrl) => {
-        if (attachmentType === 'pdf') {
-          this.receiptIcon = 'assets/svg/pdf.svg';
-        } else {
-          this.receiptThumbnail = downloadUrl;
-        }
-      });
+    this.fileService.downloadUrl(fileObjId).subscribe((downloadUrl) => {
+      if (attachmentType === 'pdf') {
+        this.receiptIcon = 'assets/svg/pdf.svg';
+      } else {
+        this.receiptThumbnail = downloadUrl;
+      }
+    });
   }
 
   matchReceiptWithEtxn(fileObj: FileObject) {
@@ -515,8 +489,7 @@ export class ExpensesCardComponent implements OnInit, OnDestroy {
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;
-        }),
-        takeUntil(this.onPageExit$)
+        })
       )
       .subscribe((fileObj) => {
         this.setThumbnail(fileObj.id, attachmentType);
