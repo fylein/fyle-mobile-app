@@ -2,7 +2,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-my-advances-card',
@@ -27,7 +27,7 @@ export class MyAdvancesCardComponent implements OnInit {
 
   ngOnInit() {
     if (this.advanceRequest && this.prevDate) {
-      this.showDate = dayjs(this.advanceRequest.created_at).isSame(this.prevDate, 'day');
+      this.showDate = moment(this.advanceRequest.created_at).isSame(this.prevDate, 'day');
     }
     this.currencySymbol = getCurrencySymbol(this.advanceRequest.currency, 'wide');
     this.internalState =

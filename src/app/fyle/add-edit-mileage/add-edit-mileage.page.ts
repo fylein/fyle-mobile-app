@@ -18,7 +18,7 @@ import {
   tap,
 } from 'rxjs/operators';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
@@ -631,7 +631,7 @@ export class AddEditMileagePage implements OnInit {
                 this.fb.group({
                   name: [customField.name],
                   value: [
-                    customField.type !== 'DATE' ? customField.value : dayjs(customField.value).format('YYYY-MM-DD'),
+                    customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
                     isConnected &&
                       customField.type !== 'BOOLEAN' &&
                       customField.type !== 'USER_LIST' &&
@@ -849,11 +849,11 @@ export class AddEditMileagePage implements OnInit {
 
   customDateValidator(control: AbstractControl) {
     const today = new Date();
-    const minDate = dayjs(new Date('Jan 1, 2001'));
-    const maxDate = dayjs(new Date(today)).add(1, 'day');
-    const passedInDate = control.value && dayjs(new Date(control.value));
+    const minDate = moment(new Date('Jan 1, 2001'));
+    const maxDate = moment(new Date(today)).add(1, 'day');
+    const passedInDate = control.value && moment(new Date(control.value));
     if (passedInDate) {
-      return passedInDate.isBefore(maxDate) && passedInDate.isAfter(minDate)
+      return passedInDate.isBetween(minDate, maxDate)
         ? null
         : {
             invalidDateSelection: true,
@@ -902,7 +902,7 @@ export class AddEditMileagePage implements OnInit {
     });
 
     const today = new Date();
-    this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
+    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
     this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.fg.reset();
@@ -1392,7 +1392,7 @@ export class AddEditMileagePage implements OnInit {
             if (customInput.type === 'DATE') {
               return {
                 name: customInput.name,
-                value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
+                value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null,
               };
             } else {
               return {
@@ -1491,7 +1491,7 @@ export class AddEditMileagePage implements OnInit {
           }
           this.fg.patchValue({
             mileage_rate_name,
-            dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
+            dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
             paymentMode: paymentMode || defaultPaymentMode,
             purpose: etxn.tx.purpose,
             route: {

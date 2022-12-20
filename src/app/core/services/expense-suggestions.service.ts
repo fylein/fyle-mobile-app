@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +12,7 @@ export class ExpenseSuggestionsService {
     const data: any = {
       params: {
         amount: queryParams.amount,
-        txn_dt: dayjs(queryParams.txn_dt).format('YYYY-MM-DD'),
+        txn_dt: moment(queryParams.txn_dt).format('yyyy-MM-DD'),
       },
     };
 

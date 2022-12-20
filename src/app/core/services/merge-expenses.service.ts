@@ -6,7 +6,7 @@ import { Expense } from '../models/expense.model';
 import { ExpensesInfo } from './expenses-info.model';
 import { FileService } from './file.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';
@@ -180,7 +180,7 @@ export class MergeExpensesService {
 
         let date = '';
         if (expense.tx_txn_dt) {
-          date = dayjs(expense.tx_txn_dt).format('MMM DD');
+          date = moment(expense.tx_txn_dt).format('MMM DD');
         }
         let amount = this.humanizeCurrency.transform(expense.tx_amount, expense.tx_currency);
         if (!date) {
@@ -256,7 +256,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_txn_dt !== null),
       map((expense) => ({
-        label: dayjs(expense.tx_txn_dt).format('MMM DD, YYYY'),
+        label: moment(expense.tx_txn_dt).format('MMM DD, YYYY'),
         value: expense.tx_txn_dt,
       })),
       reduce((acc, curr) => {
@@ -264,7 +264,7 @@ export class MergeExpensesService {
         return acc;
       }, []),
       map((options: Option[]) => {
-        const optionValues = options.map((option) => dayjs(option.value).format('YYYY-MM-DD'));
+        const optionValues = options.map((option) => moment(option.value).format('YYYY-MM-DD'));
         return {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
@@ -426,7 +426,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_from_dt !== null),
       map((expense) => ({
-        label: dayjs(expense.tx_from_dt).format('MMM DD, YYYY'),
+        label: moment(expense.tx_from_dt).format('MMM DD, YYYY'),
         value: expense.tx_from_dt,
       })),
       reduce((acc, curr) => {
@@ -434,7 +434,7 @@ export class MergeExpensesService {
         return acc;
       }, []),
       map((options: Option[]) => {
-        const optionValues = options.map((option) => dayjs(option.value).format('YYYY-MM-DD'));
+        const optionValues = options.map((option) => moment(option.value).format('YYYY-MM-DD'));
         return {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
@@ -447,7 +447,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_to_dt !== null),
       map((expense) => ({
-        label: dayjs(expense.tx_to_dt).format('MMM DD, YYYY'),
+        label: moment(expense.tx_to_dt).format('MMM DD, YYYY'),
         value: expense.tx_to_dt,
       })),
       reduce((acc, curr) => {
@@ -455,7 +455,7 @@ export class MergeExpensesService {
         return acc;
       }, []),
       map((options: Option[]) => {
-        const optionValues = options.map((option) => dayjs(option.value).format('YYYY-MM-DD'));
+        const optionValues = options.map((option) => moment(option.value).format('YYYY-MM-DD'));
         return {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
@@ -636,7 +636,7 @@ export class MergeExpensesService {
       if (field.value) {
         let formatedlabel;
         if (this.dateService.isValidDate(field.value)) {
-          formatedlabel = dayjs(field.value).format('MMM DD, YYYY');
+          formatedlabel = moment(field.value).format('MMM DD, YYYY');
         } else {
           formatedlabel = field.value.toString();
         }
