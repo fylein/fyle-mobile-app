@@ -5,6 +5,7 @@ import { ApiService } from './api.service';
 import {
   apiResponseActiveOnly,
   apiV2ResponseMultiple,
+  expectedReponseActiveOnly,
   apiV2ResponseSingle,
   testActiveCategoryList,
   allowedActiveCategories,
@@ -71,7 +72,7 @@ describe('ProjectsService', () => {
   it('should be able to fetch all active projects', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
     projectService.getAllActive().subscribe((res) => {
-      expect(res).toEqual(fixDate(apiResponseActiveOnly));
+      expect(res).toEqual(expectedReponseActiveOnly);
       done();
     });
 

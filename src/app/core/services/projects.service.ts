@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
+import { ExtendedProjectV1 } from '../models/v1/extended-project.model';
 import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
 
@@ -123,18 +124,22 @@ export class ProjectsService {
   }
 
   // TODO: We should remove this from being used and replace with transform
-  getAllActive(): Observable<ExtendedProject[]> {
+  getAllActive(): Observable<ExtendedProjectV1[]> {
     const data = {
       params: {
         active_only: true,
       },
     };
 
-    this.apiService.get('/projects', data).subscribe((res) => {
-      console.log(res);
-    });
-
-    return this.apiService.get('/projects', data);
+    return this.apiService.get('/projects', data).pipe(
+      map((res) =>
+        res.map((datum) => ({
+          ...datum,
+          created_at: new Date(datum.created_at),
+          updated_at: new Date(datum.updated_at),
+        }))
+      )
+    );
   }
 
   getbyId(projectId: number): Observable<ExtendedProject> {
