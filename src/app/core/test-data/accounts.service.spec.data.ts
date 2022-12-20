@@ -1,4 +1,5 @@
 import { AccountType } from '../enums/account-type.enum';
+import { ExtendedAccount } from '../models/extended-account.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 
 export const account1Data = {
@@ -989,3 +990,120 @@ export const paymentModeDataMultipleAdvWithoutOrigAmt = {
   currency: 'USD',
   amount: 800000,
 };
+
+export const multiplePaymentModesData: ExtendedAccount[] = [
+  {
+    acc: {
+      id: 'accWUsrRlinFb',
+      created_at: new Date('2018-08-05T06:02:11.742Z'),
+      updated_at: new Date('2022-12-09T10:16:22.082Z'),
+      name: 'Personal Account',
+      type: AccountType.PERSONAL,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 159097.536645,
+      category: null,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      // eslint-disable-next-line id-blacklist
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'accYoo40xd0C1',
+      created_at: new Date('2018-08-05T08:32:51.583Z'),
+      updated_at: new Date('2022-12-13T13:24:33.814Z'),
+      name: 'Corporate Credit Card Account',
+      type: AccountType.CCC,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 36338.5081,
+      tentative_balance_amount: -380009.039763,
+      category: null,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      // eslint-disable-next-line id-blacklist
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'acc6mK6CEesGL',
+      created_at: new Date('2018-11-15T06:25:00.402Z'),
+      updated_at: new Date('2022-09-14T09:20:46.442Z'),
+      name: 'Advance Account',
+      type: AccountType.ADVANCE,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 223146436,
+      tentative_balance_amount: 223146386.93,
+      category: null,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: 'erertert',
+      // eslint-disable-next-line id-blacklist
+      number: 'A/2022/03/T/4',
+      id: 'adve6o3JdrDbI',
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: 'USD',
+    amount: 23213,
+  },
+];

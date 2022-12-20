@@ -58,7 +58,6 @@ export class AccountsService {
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
 
     let userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-
     if (!isPaymentModeConfigurationsEnabled) {
       /**
        * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
@@ -179,17 +178,12 @@ export class AccountsService {
     return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
   }
 
-  filterAccountsWithSufficientBalance(
-    accounts: ExtendedAccount[],
-    isAdvanceEnabled: boolean,
-    accountId?: string
-  ): ExtendedAccount[] {
+  filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled: boolean): ExtendedAccount[] {
     return accounts.filter(
       (account) =>
         // Personal Account and CCC account are considered to always have sufficient funds
         (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||
-        [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1 ||
-        accountId === account.acc.id
+        [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1
     );
   }
 

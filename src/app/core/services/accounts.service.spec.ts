@@ -5,6 +5,7 @@ import { AccountType } from '../enums/account-type.enum';
 import {
   account1Data,
   account2Data,
+  multiplePaymentModesData,
   paymentModeDataAdvance,
   paymentModeDataCCC,
   paymentModeDataCCCWithoutAccountProperty,
@@ -57,6 +58,8 @@ const unflattenedAccount3 = unflattenedAccount3Data;
 const paymentModeMultipleAdvWithoutOrigAmt = paymentModeDataMultipleAdvWithoutOrigAmt;
 
 const unflattenedAccount4 = unflattenedAccount4Data;
+
+const multiplePaymentModes = multiplePaymentModesData;
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -161,6 +164,12 @@ describe('AccountsService', () => {
   it('should be able to set account properties for multiple advance account as default without orig amount', () => {
     expect(accountsService.setAccountProperties(unflattenedAccount4, AccountType.ADVANCE, true)).toEqual(
       paymentModeMultipleAdvWithoutOrigAmt
+    );
+  });
+
+  it('should be able to filter the accounts with sufficient balance', () => {
+    expect(accountsService.filterAccountsWithSufficientBalance(multiplePaymentModes, true)).toEqual(
+      multiplePaymentModes
     );
   });
 });
