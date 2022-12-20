@@ -123,12 +123,16 @@ export class ProjectsService {
   }
 
   // TODO: We should remove this from being used and replace with transform
-  getAllActive() {
+  getAllActive(): Observable<ExtendedProject[]> {
     const data = {
       params: {
         active_only: true,
       },
     };
+
+    this.apiService.get('/projects', data).subscribe((res) => {
+      console.log(res);
+    });
 
     return this.apiService.get('/projects', data);
   }

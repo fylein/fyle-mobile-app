@@ -71,7 +71,8 @@ describe('ProjectsService', () => {
   it('should be able to fetch all active projects', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
     projectService.getAllActive().subscribe((res) => {
-      expect(res).toEqual(apiResponseActiveOnly);
+      expect(res).toEqual(fixDate(apiResponseActiveOnly));
+      console.log(res);
       done();
     });
 
