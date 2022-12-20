@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
+import { Subject } from 'rxjs';
 
 enum VerifyPageState {
   verifying,
@@ -15,8 +16,10 @@ enum VerifyPageState {
   templateUrl: './verify.page.html',
   styleUrls: ['./verify.page.scss'],
 })
-export class VerifyPage implements OnInit {
+export class VerifyPage {
   currentPageState: VerifyPageState = VerifyPageState.verifying;
+
+  onPageExit$: Subject<void>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -30,7 +33,13 @@ export class VerifyPage implements OnInit {
     return VerifyPageState;
   }
 
-  ngOnInit() {
+  ionViewWillLeave() {
+    this.onPageExit$.next();
+    this.onPageExit$.complete();
+  }
+
+  ionViewWillEnter() {
+    this.onPageExit$ = new Subject();
     const verificationCode = this.activatedRoute.snapshot.params.verification_code;
     this.routerAuthService
       .emailVerify(verificationCode)
@@ -39,7 +48,8 @@ export class VerifyPage implements OnInit {
         tap((eou) => {
           this.trackingService.emailVerified();
           this.trackingService.onSignin(eou.us.email);
-        })
+        }),
+        takeUntil(this.onPageExit$)
       )
       .subscribe({
         next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),

@@ -1,6 +1,6 @@
 import { DateFormatPipe } from './date-format.pipe';
 
-fdescribe('DateFormatPipe', () => {
+describe('DateFormatPipe', () => {
   const pipe = new DateFormatPipe();
   const d = new Date('02-02-2020');
   const dateInString = '05/06/2021';
