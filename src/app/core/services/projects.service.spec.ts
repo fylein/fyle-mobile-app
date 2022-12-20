@@ -98,7 +98,7 @@ describe('ProjectsService', () => {
     const result = projectService.getByParamsUnformatted(testProjectParams);
 
     result.subscribe((res) => {
-      expect(res).toEqual(expectedProjectsResponse);
+      expect(res).toEqual(fixDate(expectedProjectsResponse));
       expect(apiV2Service.get).toHaveBeenCalledWith('/projects', {
         params,
       });
