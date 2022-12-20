@@ -72,7 +72,6 @@ describe('ProjectsService', () => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
     projectService.getAllActive().subscribe((res) => {
       expect(res).toEqual(fixDate(apiResponseActiveOnly));
-      console.log(res);
       done();
     });
 
