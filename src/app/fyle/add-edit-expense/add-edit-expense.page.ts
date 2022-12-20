@@ -3000,7 +3000,7 @@ export class AddEditExpensePage implements OnInit {
       return this.categoriesService.getAll().pipe(
         map((categories: OrgCategory[]) => {
           const unspecifiedCategory = categories.find(
-            (category) => category.fyle_category.toLowerCase() === 'unspecified'
+            (category) => category?.fyle_category?.toLowerCase() === 'unspecified'
           );
           transactionCopy.org_category_id = unspecifiedCategory.id;
           return transactionCopy;
