@@ -1,3 +1,4 @@
+/* eslint-disable id-blacklist */
 import { AccountType } from '../enums/account-type.enum';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
@@ -49,7 +50,6 @@ export const unflattenedAccount1Data = {
   org: { id: null, domain: null },
   advance: {
     purpose: null,
-    // eslint-disable-next-line id-blacklist
     number: null,
     id: null,
   },
@@ -100,7 +100,6 @@ export const unflattenedAccount2Data = {
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  // eslint-disable-next-line id-blacklist
   advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: { currency: null, amount: null },
   currency: 'INR',
@@ -123,7 +122,6 @@ export const unflattenedAccount3Data = {
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  // eslint-disable-next-line id-blacklist
   advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: { currency: 'USD', amount: 500 },
   currency: 'USD',
@@ -146,7 +144,6 @@ export const unflattenedAccount4Data = {
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  // eslint-disable-next-line id-blacklist
   advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: null,
   currency: 'USD',
@@ -352,7 +349,6 @@ export const paymentModeDataPersonal = {
   },
   advance: {
     purpose: null,
-    // eslint-disable-next-line id-blacklist
     number: null,
     id: null,
   },
@@ -563,7 +559,6 @@ export const paymentModeDataCCC = {
   },
   advance: {
     purpose: null,
-    // eslint-disable-next-line id-blacklist
     number: null,
     id: null,
   },
@@ -607,7 +602,6 @@ export const paymentModesData = [
       },
       advance: {
         purpose: null,
-        // eslint-disable-next-line id-blacklist
         number: null,
         id: null,
       },
@@ -650,7 +644,6 @@ export const paymentModesData = [
       },
       advance: {
         purpose: null,
-        // eslint-disable-next-line id-blacklist
         number: null,
         id: null,
       },
@@ -693,7 +686,6 @@ export const paymentModesData = [
       },
       advance: {
         purpose: null,
-        // eslint-disable-next-line id-blacklist
         number: null,
         id: null,
       },
@@ -904,7 +896,6 @@ export const paymentModeDataCCCWithoutAccountProperty = {
   },
   advance: {
     purpose: null,
-    // eslint-disable-next-line id-blacklist
     number: null,
     id: null,
   },
@@ -934,7 +925,6 @@ export const paymentModeDataAdvance = {
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  // eslint-disable-next-line id-blacklist
   advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: { currency: null, amount: null },
   currency: 'INR',
@@ -959,7 +949,6 @@ export const paymentModeDataMultipleAdvance = {
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  // eslint-disable-next-line id-blacklist
   advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: { currency: 'USD', amount: 500 },
   currency: 'USD',
@@ -984,7 +973,6 @@ export const paymentModeDataMultipleAdvWithoutOrigAmt = {
   ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
   us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
   org: { id: null, domain: null },
-  // eslint-disable-next-line id-blacklist
   advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
   orig: null,
   currency: 'USD',
@@ -1019,7 +1007,6 @@ export const multiplePaymentModesData: ExtendedAccount[] = [
     },
     advance: {
       purpose: null,
-      // eslint-disable-next-line id-blacklist
       number: null,
       id: null,
     },
@@ -1057,7 +1044,6 @@ export const multiplePaymentModesData: ExtendedAccount[] = [
     },
     advance: {
       purpose: null,
-      // eslint-disable-next-line id-blacklist
       number: null,
       id: null,
     },
@@ -1095,7 +1081,6 @@ export const multiplePaymentModesData: ExtendedAccount[] = [
     },
     advance: {
       purpose: 'erertert',
-      // eslint-disable-next-line id-blacklist
       number: 'A/2022/03/T/4',
       id: 'adve6o3JdrDbI',
     },
@@ -1107,3 +1092,217 @@ export const multiplePaymentModesData: ExtendedAccount[] = [
     amount: 23213,
   },
 ];
+
+export const multiplePaymentModesWithoutAdvData: ExtendedAccount[] = [
+  {
+    acc: {
+      id: 'accWUsrRlinFb',
+      created_at: new Date('2018-08-05T06:02:11.742Z'),
+      updated_at: new Date('2022-12-09T10:16:22.082Z'),
+      name: 'Personal Account',
+      type: AccountType.PERSONAL,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 159097.536645,
+      category: null,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'accYoo40xd0C1',
+      created_at: new Date('2018-08-05T08:32:51.583Z'),
+      updated_at: new Date('2022-12-13T13:24:33.814Z'),
+      name: 'Corporate Credit Card Account',
+      type: AccountType.CCC,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 36338.5081,
+      tentative_balance_amount: -380009.039763,
+      category: null,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+];
+
+export const multiplePaymentModesWithCompanyAccData: ExtendedAccount[] = [
+  {
+    acc: {
+      id: 'accYoo40xd0C1',
+      created_at: new Date('2018-08-05T08:32:51.583Z'),
+      updated_at: new Date('2022-12-13T13:24:33.814Z'),
+      name: 'Corporate Credit Card Account',
+      type: AccountType.CCC,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 36338.5081,
+      tentative_balance_amount: -380009.039763,
+      category: null,
+      displayName: 'Corporate Card',
+      isReimbursable: false,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'accWUsrRlinFb',
+      created_at: new Date('2018-08-05T06:02:11.742Z'),
+      updated_at: new Date('2022-12-09T10:16:22.082Z'),
+      name: 'Personal Account',
+      type: AccountType.PERSONAL,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 159097.536645,
+      category: null,
+      displayName: 'Personal Card/Cash',
+      isReimbursable: true,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'accWUsrRlinFb',
+      created_at: new Date('2018-08-05T06:02:11.742Z'),
+      updated_at: new Date('2022-12-09T10:16:22.082Z'),
+      name: 'Personal Account',
+      type: AccountType.PERSONAL,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 159097.536645,
+      category: null,
+      displayName: 'Paid by Company',
+      isReimbursable: false,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+];
+
+export const extnObjData = {
+  tx: {
+    skip_reimbursement: false,
+    source: 'MOBILE',
+    txn_dt: new Date('2022-12-20T20:41:40.771Z'),
+    currency: 'USD',
+    amount: null,
+    orig_currency: null,
+    orig_amount: null,
+    policy_amount: null,
+    custom_properties: [],
+    num_files: 0,
+    org_user_id: 'ouvyOFOSx5bh',
+  },
+  dataUrls: [],
+};

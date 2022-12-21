@@ -5,7 +5,10 @@ import { AccountType } from '../enums/account-type.enum';
 import {
   account1Data,
   account2Data,
+  extnObjData,
   multiplePaymentModesData,
+  multiplePaymentModesWithCompanyAccData,
+  multiplePaymentModesWithoutAdvData,
   paymentModeDataAdvance,
   paymentModeDataCCC,
   paymentModeDataCCCWithoutAccountProperty,
@@ -60,6 +63,12 @@ const paymentModeMultipleAdvWithoutOrigAmt = paymentModeDataMultipleAdvWithoutOr
 const unflattenedAccount4 = unflattenedAccount4Data;
 
 const multiplePaymentModes = multiplePaymentModesData;
+
+const extnObj = extnObjData;
+
+const multiplePaymentModesWithCompanyAcc = multiplePaymentModesWithCompanyAccData;
+
+const multiplePaymentModesWithoutAdv = multiplePaymentModesWithoutAdvData;
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -171,5 +180,12 @@ describe('AccountsService', () => {
     expect(accountsService.filterAccountsWithSufficientBalance(multiplePaymentModes, true)).toEqual(
       multiplePaymentModes
     );
+  });
+
+  it('should be able to get payment modes', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj, false)
+    ).toEqual(multiplePaymentModesWithCompanyAcc);
   });
 });

@@ -1456,9 +1456,6 @@ export class AddEditExpensePage implements OnInit {
           return CCCAccount.value;
         }
 
-        if (!isPaymentModeConfigurationsEnabled) {
-          return this.accountsService.getDefaultAccountFromUserPreference(paymentModes, orgUserSettings);
-        }
         return paymentModes[0].value;
       })
     );

@@ -141,32 +141,6 @@ export class AccountsService {
     return accountCopy;
   }
 
-  getDefaultAccountFromUserPreference(
-    paymentModes: AccountOption[],
-    orgUserSettings: OrgUserSettings
-  ): ExtendedAccount {
-    const hasCCCAccount = paymentModes.some((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
-
-    const paidByCompanyAccount = paymentModes.find(
-      (paymentMode) => paymentMode.value.acc.displayName === 'Paid by Company'
-    );
-
-    if (hasCCCAccount && orgUserSettings?.preferences?.default_payment_mode === AccountType.CCC) {
-      const CCCAccount = paymentModes.find((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
-      return CCCAccount.value;
-    } else if (
-      paidByCompanyAccount?.value &&
-      orgUserSettings?.preferences?.default_payment_mode === AccountType.COMPANY
-    ) {
-      return paidByCompanyAccount.value;
-    }
-
-    const personalAccount = paymentModes.find(
-      (paymentMode) => paymentMode.value.acc.displayName === 'Personal Card/Cash'
-    );
-    return personalAccount.value;
-  }
-
   getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean): string {
     let accountCurrency = account.currency;
     let accountBalance = account.acc.tentative_balance_amount;
