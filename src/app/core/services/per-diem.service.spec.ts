@@ -11,9 +11,9 @@ import {
   allPerDiemRatesParam,
   apiOrgUserSettings,
   expectPerDiemByID,
+  allowedPerDiem,
 } from '../test-data/per-diem.service.spec.data';
 import { of } from 'rxjs';
-import { PerDiemRates } from '../models/v1/per-diem-rates.model';
 
 const fixDate = (data) =>
   data.map((data) => ({
@@ -22,7 +22,7 @@ const fixDate = (data) =>
     updated_at: new Date(data.updated_at),
   }));
 
-fdescribe('PerDiemService', () => {
+describe('PerDiemService', () => {
   let perDiemService: PerDiemService;
   let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -85,7 +85,7 @@ fdescribe('PerDiemService', () => {
     const result = perDiemService.getAllowedPerDiems(fixDate(allPerDiemRatesParam));
 
     result.subscribe((res) => {
-      console.log(res);
+      expect(res).toEqual(fixDate(allowedPerDiem));
       done();
     });
   });

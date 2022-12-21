@@ -36,7 +36,7 @@ export class PerDiemService {
   }
 
   @Cacheable()
-  getAllowedPerDiems(allPerDiemRates: PerDiemRates[]) {
+  getAllowedPerDiems(allPerDiemRates: PerDiemRates[]): Observable<PerDiemRates[]> {
     return this.orgUserSettingsService.get().pipe(
       map((settings) => {
         let allowedPerDiems = [];
