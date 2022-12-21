@@ -282,7 +282,7 @@ export const testProjectParams = {
   searchNameText: 'search',
 };
 
-export const testProject = {
+export const testProjectV2 = {
   ap1_email: null,
   ap1_full_name: null,
   ap2_email: null,

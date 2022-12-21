@@ -11,7 +11,7 @@ import {
   allowedActiveCategories,
   expectedProjectsResponse,
   testProjectParams,
-  testProject,
+  testProjectV2,
   testCategoryIds,
   params,
 } from '../test-data/projects.spec.data';
@@ -107,7 +107,7 @@ describe('ProjectsService', () => {
   });
 
   it('should category list after filter as per project passed', () => {
-    const result = projectService.getAllowedOrgCategoryIds(testProject, testActiveCategoryList);
+    const result = projectService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList);
     expect(result).toEqual(allowedActiveCategories);
   });
 
@@ -129,13 +129,13 @@ describe('ProjectsService', () => {
   it('should get project count not restricted by a set of category IDs', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
 
-    const resWoParam = projectService.getProjectCount();
-    const resWParam = projectService.getProjectCount({ categoryIds: null });
+    const resultWithOutParam = projectService.getProjectCount();
+    const resultWithParam = projectService.getProjectCount({ categoryIds: null });
 
-    resWoParam.subscribe((res) => {
+    resultWithOutParam.subscribe((res) => {
       expect(res).toEqual(apiResponseActiveOnly.length);
     });
-    resWParam.subscribe((res) => {
+    resultWithParam.subscribe((res) => {
       expect(res).toEqual(apiResponseActiveOnly.length);
     });
     done();

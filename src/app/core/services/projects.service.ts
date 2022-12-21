@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
-import { ExtendedProjectV1 } from '../models/v1/extended-project.model';
+import { ProjectV1 } from '../models/v1/extended-project.model';
 import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
 
@@ -124,7 +124,7 @@ export class ProjectsService {
   }
 
   // TODO: We should remove this from being used and replace with transform
-  getAllActive(): Observable<ExtendedProjectV1[]> {
+  getAllActive(): Observable<ProjectV1[]> {
     const data = {
       params: {
         active_only: true,

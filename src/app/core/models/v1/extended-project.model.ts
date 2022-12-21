@@ -1,4 +1,4 @@
-export interface ExtendedProjectV1 {
+export interface ProjectV1 {
   id: number;
   created_at: Date;
   updated_at: Date;

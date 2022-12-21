@@ -31,7 +31,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
-import { ExtendedProjectV1 } from 'src/app/core/models/v1/extended-project.model';
+import { ProjectV1 } from 'src/app/core/models/v1/extended-project.model';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -53,7 +53,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   homeCurrency$: Observable<any>;
 
-  projects$: Observable<ExtendedProjectV1[]>;
+  projects$: Observable<ProjectV1[]>;
 
   customFields$: Observable<any>;
 
