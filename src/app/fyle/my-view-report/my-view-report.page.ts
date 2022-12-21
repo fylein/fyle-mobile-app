@@ -229,7 +229,7 @@ export class MyViewReportPage {
       this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
-      if (erpt.rp_state === 'APPROVER_INQUIRY') {
+      if (erpt?.rp_state === 'APPROVER_INQUIRY') {
         this.segmentValue = Segment.COMMENTS;
       }
     });
