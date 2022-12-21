@@ -19,7 +19,7 @@
         <span class="ccc-classify-actions--currency"> {{cccExpense.currency}} </span>
         <span class="ccc-classify-actions--amount"> {{cccExpense.amount}} </span>
       </div>
-      <div class="ccc-classify-actions--date">{{cccExpense.txn_dt | date: 'MMM dd, yyyy'}}</div>
+      <div class="ccc-classify-actions--date">{{cccExpense.txn_dt | date: 'MMM dd, YYYY'}}</div>
       <div class="ccc-classify-actions--vendor">
         <ng-container *ngIf="cccExpense.vendor; else description"> {{cccExpense.vendor | ellipsis:25}} </ng-container>
         <ng-template #description>
@@ -64,7 +64,7 @@
         *ngFor="let expense of expenseSuggestions"
         class="ccc-classify-actions--classify-details"
       >
-        <div class="ccc-classify-actions--classify-details-date">{{expense.txn_dt | date:'MMM dd, yyyy'}}</div>
+        <div class="ccc-classify-actions--classify-details-date">{{expense.txn_dt | date:'MMM dd, YYYY'}}</div>
         <div class="ccc-classify-actions--classify-details-amount">
           {{expense.amount | currency:expense.currency: 'symbol-narrow'}}
         </div>
