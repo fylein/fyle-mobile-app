@@ -11,7 +11,7 @@ import { DateService } from './date.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 
 type matchExpenseResponse = Partial<{
   external_expense_id: string;
@@ -344,8 +344,8 @@ export class PersonalCardsService {
   }
 
   private generateUpdatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
-    const startDate = filters.updatedOn.customDateStart && dayjs(filters.updatedOn.customDateStart).format('YYYY-MM-D');
-    const endDate = filters.updatedOn.customDateEnd && dayjs(filters.updatedOn.customDateEnd).format('YYYY-MM-D');
+    const startDate = filters.updatedOn.customDateStart && moment(filters.updatedOn.customDateStart).format('y-MM-D');
+    const endDate = filters.updatedOn.customDateEnd && moment(filters.updatedOn.customDateEnd).format('y-MM-D');
 
     if (startDate && endDate) {
       filterPills.push({
@@ -387,8 +387,8 @@ export class PersonalCardsService {
   }
 
   private generateCreatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
-    const startDate = filters.createdOn.customDateStart && dayjs(filters.createdOn.customDateStart).format('YYYY-MM-D');
-    const endDate = filters.createdOn.customDateEnd && dayjs(filters.createdOn.customDateEnd).format('YYYY-MM-D');
+    const startDate = filters.createdOn.customDateStart && moment(filters.createdOn.customDateStart).format('y-MM-D');
+    const endDate = filters.createdOn.customDateEnd && moment(filters.createdOn.customDateEnd).format('y-MM-D');
 
     if (startDate && endDate) {
       filterPills.push({

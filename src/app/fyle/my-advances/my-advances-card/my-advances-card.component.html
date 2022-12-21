@@ -1,5 +1,5 @@
 <div *ngIf="!showDate" class="advance-card--date">
-  {{ advanceRequest.created_at | date: 'MMM dd, YYYY' }}
+  {{ advanceRequest.created_at | date: 'MMM dd, yyyy' }}
 </div>
 
 <div class="advance-card" (click)="onAdvanceClick()" [ngClass]="{ 'advance-card__with-border': showDate }">
@@ -22,7 +22,7 @@
     <div class="advance-card--secondary-info-block">
       <div class="advance-card--approval">
         <div *ngIf="advanceRequest.areq_approved_at">
-          <span>Approved on {{ advanceRequest.areq_approved_at | date: 'MMM dd, YYYY' }}</span>
+          <span>Approved on {{ advanceRequest.areq_approved_at | date: 'MMM dd, yyyy' }}</span>
         </div>
       </div>
       <div class="state-pill" [class]="'state-' + internalState.state">

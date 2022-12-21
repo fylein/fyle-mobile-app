@@ -15,7 +15,7 @@ import { catchError, mergeMap, concatMap, filter, take, tap } from 'rxjs/operato
 
 import { JwtHelperService } from '../services/jwt-helper.service';
 
-import * as dayjs from 'dayjs';
+import * as moment from 'moment';
 import { TokenService } from '../services/token.service';
 import { RouterAuthService } from '../services/router-auth.service';
 import { DeviceService } from '../services/device.service';
@@ -55,8 +55,8 @@ export class HttpConfigInterceptor implements HttpInterceptor {
 
   expiringSoon(accessToken: string): boolean {
     try {
-      const expiryDate = dayjs(this.jwtHelperService.getExpirationDate(accessToken));
-      const now = dayjs(new Date());
+      const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
+      const now = moment(new Date());
       const differenceSeconds = expiryDate.diff(now, 'second');
       const maxRefreshDifferenceSeconds = 2 * 60;
       return differenceSeconds < maxRefreshDifferenceSeconds;
