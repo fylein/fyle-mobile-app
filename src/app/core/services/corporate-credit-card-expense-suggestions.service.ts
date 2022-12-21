@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -12,7 +12,7 @@ export class CorporateCreditCardExpenseSuggestionsService {
     const data: any = {
       params: {
         amount: queryParams.amount,
-        txn_dt: moment(queryParams.txn_dt).format('yyyy-MM-DD'),
+        txn_dt: dayjs(queryParams.txn_dt).format('YYYY-MM-DD'),
       },
     };
 
