@@ -288,6 +288,150 @@ export const apiOrgUserSettings = {
   },
 };
 
+export const apiOrgUserSettingsWithoutPerDiem = {
+  id: 'ous7cvGj3iOsi',
+  created_at: new Date('2019-10-10T06:33:08.192Z'),
+  updated_at: new Date('2022-12-07T10:37:57.155Z'),
+  org_user_id: 'ouWmQvnfr9x0',
+  auto_fyle_settings: {
+    allowed: false,
+    enabled: false,
+    background_enabled: false,
+  },
+  mileage_settings: {
+    mileage_rate_labels: [],
+    annual_mileage_of_user_before_joining_fyle: null,
+  },
+  cost_center_ids: [11910, 11911, 11912, 11913, 11914, 11915, 1191],
+  project_ids: [305678, 305679, 305672, 148287, 305674],
+  cost_center_settings: {
+    default_cost_center_id: 48,
+    default_cost_center_name: 'Test1',
+  },
+  per_diem_rate_settings: null,
+  access_delegation_settings: {
+    allowed: false,
+  },
+  insta_fyle_settings: {
+    allowed: true,
+    enabled: true,
+    static_camera_overlay_enabled: true,
+    extract_fields: ['AMOUNT', 'CURRENCY', 'CATEGORY', 'TXN_DT'],
+  },
+  bulk_fyle_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  gmail_fmr_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  whatsapp_fyle_settings: {
+    allowed: true,
+    enabled: false,
+  },
+  sms_fyle_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  one_click_action_settings: {
+    enabled: false,
+    allowed: true,
+    module: null,
+  },
+  notification_settings: {
+    email: {
+      allowed: true,
+      enabled: true,
+      unsubscribed_events: [],
+    },
+    push: {
+      allowed: false,
+      enabled: false,
+      unsubscribed_events: [
+        'ERPTS_SUBMITTED',
+        'EADVANCE_REQUESTS_CREATED',
+        'EADVANCE_REQUESTS_UPDATED',
+        'EADVANCE_REQUESTS_INQUIRY',
+      ],
+    },
+    whatsapp: {
+      allowed: false,
+      enabled: false,
+      unsubscribed_events: null,
+    },
+    notify_user: true,
+    notify_delegatee: false,
+  },
+  currency_settings: {
+    enabled: false,
+    preferred_currency: 'INR',
+  },
+  preferences: {
+    default_project_id: null,
+    default_vehicle_type: 'two_wheeler',
+    default_payment_mode: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+  },
+  locale: {
+    timezone: 'Asia/Kolkata',
+    abbreviation: 'IST',
+    offset: '05:30:00',
+  },
+  in_app_chat_settings: {
+    allowed: false,
+    enabled: false,
+    restore_id: null,
+  },
+  hotjar_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  fyler_ccc_flow_settings: {
+    allowed: true,
+    enabled: true,
+    advanced_auto_match_enabled: true,
+  },
+  beta_auto_submit_workflow_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  beta_report_workflow_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  bank_data_aggregation_settings: {
+    enabled: true,
+    aggregator: 'YODLEE',
+    auto_assign: true,
+  },
+  personal_cards_settings: {
+    enabled: true,
+    personal_cards_data_aggregator: 'PLAID',
+  },
+  expense_form_autofills: {
+    allowed: false,
+    enabled: true,
+  },
+  card_expense_creation_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  data_extractor_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  onboarding_settings: {
+    enabled: true,
+    skip_add_bank_account: true,
+    skip_link_card: true,
+  },
+  payment_mode_settings: {
+    allowed: true,
+    enabled: true,
+    allowed_payment_modes: [AccountType.PERSONAL],
+  },
+};
+
 export const allowedPerDiem = [
   {
     active: true,

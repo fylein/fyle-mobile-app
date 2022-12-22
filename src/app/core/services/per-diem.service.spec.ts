@@ -10,6 +10,7 @@ import {
   apiPerDiemByID,
   allPerDiemRatesParam,
   apiOrgUserSettings,
+  apiOrgUserSettingsWithoutPerDiem,
   expectPerDiemByID,
   allowedPerDiem,
 } from '../test-data/per-diem.service.spec.data';
@@ -22,7 +23,7 @@ const fixDate = (data) =>
     updated_at: new Date(data.updated_at),
   }));
 
-describe('PerDiemService', () => {
+fdescribe('PerDiemService', () => {
   let perDiemService: PerDiemService;
   let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -86,6 +87,17 @@ describe('PerDiemService', () => {
 
     result.subscribe((res) => {
       expect(res).toEqual(fixDate(allowedPerDiem));
+      done();
+    });
+  });
+
+  it('should return empty array as per diems not specified in settings or params', (done) => {
+    orgUserSettingsService.get.and.returnValue(of(apiOrgUserSettingsWithoutPerDiem));
+
+    const result = perDiemService.getAllowedPerDiems([]);
+
+    result.subscribe((res) => {
+      expect(res).toEqual([]);
       done();
     });
   });
