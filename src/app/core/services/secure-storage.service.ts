@@ -16,7 +16,9 @@ export class SecureStorageService {
         value: JSON.stringify(value),
       });
     } catch {
-      return null;
+      //Need to clear the storage when this method throws an error
+      //Ref: https://github.com/martinkasa/capacitor-secure-storage-plugin/issues/54#issuecomment-1185446767
+      return this.clearAll();
     }
   }
 
