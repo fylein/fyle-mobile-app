@@ -51,10 +51,6 @@ export class PolicyService {
       mileage_calculated_amount: transaction?.mileage_calculated_amount,
       travel_classes: [],
     };
-    console.log(
-      platformPolicyExpense,
-      transaction?.locations?.filter((location) => location)
-    );
 
     if (
       transaction?.fyle_category?.toLowerCase() === 'flight' ||
