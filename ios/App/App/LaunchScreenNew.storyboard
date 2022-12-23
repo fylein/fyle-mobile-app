@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="fyle-logo-white.png" translatesAutoresizingMaskIntoConstraints="NO" id="gqV-Yi-zfB">
+                                <rect key="frame" x="67" y="384" width="280" height="149.5"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="gqV-Yi-zfB" secondAttribute="height" multiplier="15:8" id="kJj-Fq-e6J"/>
+                                    <constraint firstAttribute="width" secondItem="gqV-Yi-zfB" secondAttribute="height" multiplier="15:8" id="oIV-83-WHi"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
+                        <color key="backgroundColor" red="0.13333333333333333" green="0.0" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="gqV-Yi-zfB" firstAttribute="top" secondItem="Bcu-3y-fUS" secondAttribute="top" constant="336" id="3KC-QL-xGR"/>
+                            <constraint firstItem="gqV-Yi-zfB" firstAttribute="leading" secondItem="Bcu-3y-fUS" secondAttribute="leading" constant="67" id="UaO-4c-aML"/>
+                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="trailing" secondItem="gqV-Yi-zfB" secondAttribute="trailing" constant="67" id="apK-Sa-iUd"/>
+                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="bottom" secondItem="gqV-Yi-zfB" secondAttribute="bottom" constant="350" id="qTg-3h-8fj"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52.173913043478265" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="fyle-logo-white.png" width="70" height="24"/>
+    </resources>
+</document>

@@ -64,7 +64,7 @@ module.exports.getIosInfo = () =>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Fyle needs photo library access to upload receipts that you choose.</string>
       <key>UILaunchStoryboardName</key>
-      <string>LaunchScreen</string>
+      <string>LaunchLatest</string>
       <key>UIMainStoryboardFile</key>
       <string>Main</string>
       <key>UIRequiredDeviceCapabilities</key>
