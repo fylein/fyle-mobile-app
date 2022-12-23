@@ -86,24 +86,42 @@ export const account2Data = {
 
 export const unflattenedAccount2Data = {
   acc: {
-    id: 'acct0IxPgGvLa',
-    created_at: new Date('2018-11-05T18:35:59.912Z'),
-    updated_at: new Date('2021-09-29T19:35:23.965Z'),
+    id: 'acc6mK6CEesGL',
+    created_at: new Date('2018-11-15T06:25:00.402Z'),
+    updated_at: new Date('2022-09-14T09:20:46.442Z'),
     name: 'Advance Account',
     type: AccountType.ADVANCE,
-    currency: 'INR',
+    currency: 'USD',
     target_balance_amount: 0,
-    current_balance_amount: 0,
-    tentative_balance_amount: 0,
+    current_balance_amount: 223146436,
+    tentative_balance_amount: 223146386.93,
     category: null,
+    displayName: 'Advance (Balance: $223,146,386.93)',
+    isReimbursable: false,
   },
-  ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
-  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
-  org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
-  orig: { currency: null, amount: null },
-  currency: 'INR',
-  amount: 800000,
+  ou: {
+    id: 'ouvyOFOSx5bh',
+    org_id: 'orrb8EW1zZsy',
+  },
+  us: {
+    email: 'ajain@fyle.in',
+    full_name: 'Abhishek Jain',
+  },
+  org: {
+    id: null,
+    domain: null,
+  },
+  advance: {
+    purpose: 'erertert',
+    number: 'A/2022/03/T/4',
+    id: 'adve6o3JdrDbI',
+  },
+  orig: {
+    currency: null,
+    amount: null,
+  },
+  currency: 'USD',
+  amount: 23213,
 };
 
 export const unflattenedAccount3Data = {
@@ -909,26 +927,42 @@ export const paymentModeDataCCCWithoutAccountProperty = {
 
 export const paymentModeDataAdvance = {
   acc: {
-    id: 'acct0IxPgGvLa',
-    created_at: new Date('2018-11-05T18:35:59.912Z'),
-    updated_at: new Date('2021-09-29T19:35:23.965Z'),
+    id: 'acc6mK6CEesGL',
+    created_at: new Date('2018-11-15T06:25:00.402Z'),
+    updated_at: new Date('2022-09-14T09:20:46.442Z'),
     name: 'Advance Account',
     type: AccountType.ADVANCE,
-    currency: 'INR',
+    currency: 'USD',
     target_balance_amount: 0,
-    current_balance_amount: 0,
-    tentative_balance_amount: 0,
+    current_balance_amount: 223146436,
+    tentative_balance_amount: 223146386.93,
     category: null,
-    displayName: 'Advance (Balance: undefined)',
+    displayName: 'Advance (Balance: $223,146,386.93)',
     isReimbursable: false,
   },
-  ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
-  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
-  org: { id: null, domain: null },
-  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
-  orig: { currency: null, amount: null },
-  currency: 'INR',
-  amount: 800000,
+  ou: {
+    id: 'ouvyOFOSx5bh',
+    org_id: 'orrb8EW1zZsy',
+  },
+  us: {
+    email: 'ajain@fyle.in',
+    full_name: 'Abhishek Jain',
+  },
+  org: {
+    id: null,
+    domain: null,
+  },
+  advance: {
+    purpose: 'erertert',
+    number: 'A/2022/03/T/4',
+    id: 'adve6o3JdrDbI',
+  },
+  orig: {
+    currency: null,
+    amount: null,
+  },
+  currency: 'USD',
+  amount: 23213,
 };
 
 export const paymentModeDataMultipleAdvance = {

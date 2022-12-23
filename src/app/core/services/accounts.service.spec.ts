@@ -155,9 +155,11 @@ describe('AccountsService', () => {
   });
 
   it('should be able to set account properties for advance account', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
     expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE, false)).toEqual(
       paymentModeAdvance
     );
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
   it('should be able to set account properties for multiple advance account', () => {
