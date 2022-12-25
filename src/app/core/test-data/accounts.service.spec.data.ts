@@ -1324,6 +1324,87 @@ export const multiplePaymentModesWithCompanyAccData: ExtendedAccount[] = [
   },
 ];
 
+export const multiplePaymentModesWithoutCCCAccData: ExtendedAccount[] = [
+  {
+    acc: {
+      id: 'accWUsrRlinFb',
+      created_at: new Date('2018-08-05T06:02:11.742Z'),
+      updated_at: new Date('2022-12-09T10:16:22.082Z'),
+      name: 'Personal Account',
+      type: AccountType.PERSONAL,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 159097.536645,
+      category: null,
+      displayName: 'Personal Card/Cash',
+      isReimbursable: true,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'accWUsrRlinFb',
+      created_at: new Date('2018-08-05T06:02:11.742Z'),
+      updated_at: new Date('2022-12-09T10:16:22.082Z'),
+      name: 'Personal Account',
+      type: AccountType.PERSONAL,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 159097.536645,
+      category: null,
+      displayName: 'Paid by Company',
+      isReimbursable: false,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+];
+
 export const extnObjData = {
   tx: {
     skip_reimbursement: false,

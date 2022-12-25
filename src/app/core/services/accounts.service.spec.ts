@@ -9,6 +9,7 @@ import {
   multiplePaymentModesData,
   multiplePaymentModesWithCompanyAccData,
   multiplePaymentModesWithoutAdvData,
+  multiplePaymentModesWithoutCCCAccData,
   paymentModeDataAdvance,
   paymentModeDataCCC,
   paymentModeDataCCCWithoutAccountProperty,
@@ -69,6 +70,8 @@ const extnObj = extnObjData;
 const multiplePaymentModesWithCompanyAcc = multiplePaymentModesWithCompanyAccData;
 
 const multiplePaymentModesWithoutAdv = multiplePaymentModesWithoutAdvData;
+
+const multiplePaymentModesWithoutCCCAcc = multiplePaymentModesWithoutCCCAccData;
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -189,5 +192,26 @@ describe('AccountsService', () => {
     expect(
       accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj, false)
     ).toEqual(multiplePaymentModesWithCompanyAcc);
+  });
+
+  it('should be able to get payment modes without passing isMileageOrPerDiem param', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj)
+    ).toEqual(multiplePaymentModesWithCompanyAcc);
+  });
+
+  it('should be able to get payment modes without passing etxn param', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    expect(accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false)).toEqual(
+      multiplePaymentModesWithCompanyAcc
+    );
+  });
+
+  it('should be able to get payment modes for mileage and per diem', () => {
+    const allowedPaymentModes = ['PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj, true)
+    ).toEqual(multiplePaymentModesWithoutCCCAcc);
   });
 });
