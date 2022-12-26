@@ -432,6 +432,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    throw new Error('Method not implemented.');
     this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.MEDIUM, () => {
       if (this.headerState === HeaderState.multiselect) {
         this.switchSelectionMode();

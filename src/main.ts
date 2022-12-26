@@ -11,15 +11,19 @@ import 'hammerjs';
 import { Integrations as TracingIntegrations } from '@sentry/tracing';
 
 Sentry.init({
-  dsn: environment.SENTRY_DSN,
+  dsn: 'https://26a3b90b0c6a49608b873aa099625f21@o341960.ingest.sentry.io/5622998',
   integrations: [
     new TracingIntegrations.BrowserTracing({
       routingInstrumentation: Sentry.routingInstrumentation,
     }),
-    new Sentry.Replay(),
+    new Sentry.Replay({
+      inlineStylesheet: true,
+      inlineImages: true,
+      collectFonts: true,
+    }),
   ],
-  tracesSampleRate: 0.1,
-  replaysSessionSampleRate: 0.1,
+  tracesSampleRate: 1,
+  replaysSessionSampleRate: 1.0,
   replaysOnErrorSampleRate: 1.0,
   release: 'please-replace-your-git-commit-version',
   ignoreErrors: ['Non-Error exception captured', 'Non-Error promise rejection captured'],
