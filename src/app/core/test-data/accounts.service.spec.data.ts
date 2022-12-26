@@ -1421,3 +1421,24 @@ export const extnObjData = {
   },
   dataUrls: [],
 };
+
+export const extnObjWithSourceData = {
+  tx: {
+    skip_reimbursement: true,
+    source: 'MOBILE',
+    txn_dt: new Date('2022-12-20T20:41:40.771Z'),
+    currency: 'USD',
+    amount: null,
+    orig_currency: null,
+    orig_amount: null,
+    policy_amount: null,
+    custom_properties: [],
+    num_files: 0,
+    org_user_id: 'ouvyOFOSx5bh',
+  },
+  dataUrls: [],
+  source: {
+    account_type: AccountType.PERSONAL,
+    account_id: 'accZ1IWjhjLv4',
+  },
+};

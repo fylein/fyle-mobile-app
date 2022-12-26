@@ -6,6 +6,7 @@ import {
   account1Data,
   account2Data,
   extnObjData,
+  extnObjWithSourceData,
   multiplePaymentModesData,
   multiplePaymentModesWithCompanyAccData,
   multiplePaymentModesWithoutAdvData,
@@ -72,6 +73,8 @@ const multiplePaymentModesWithCompanyAcc = multiplePaymentModesWithCompanyAccDat
 const multiplePaymentModesWithoutAdv = multiplePaymentModesWithoutAdvData;
 
 const multiplePaymentModesWithoutCCCAcc = multiplePaymentModesWithoutCCCAccData;
+
+const extnObjWithSource = extnObjWithSourceData;
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -187,28 +190,41 @@ describe('AccountsService', () => {
     );
   });
 
-  it('should be able to get payment modes', () => {
+  it('should be able to get allowed accounts', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj, false)
     ).toEqual(multiplePaymentModesWithCompanyAcc);
   });
 
-  it('should be able to get payment modes without passing isMileageOrPerDiem param', () => {
+  it('should be able to get allowed accounts with source in etxn obj', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(
+        multiplePaymentModesWithoutAdv,
+        allowedPaymentModes,
+        false,
+        extnObjWithSource,
+        false
+      )
+    ).toEqual(multiplePaymentModesWithCompanyAcc);
+  });
+
+  it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj)
     ).toEqual(multiplePaymentModesWithCompanyAcc);
   });
 
-  it('should be able to get payment modes without passing etxn param', () => {
+  it('should be able to get allowed accounts without passing etxn param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false)).toEqual(
       multiplePaymentModesWithCompanyAcc
     );
   });
 
-  it('should be able to get payment modes for mileage and per diem', () => {
+  it('should be able to get allowed accounts for mileage and per diem', () => {
     const allowedPaymentModes = ['PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj, true)
