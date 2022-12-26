@@ -16,8 +16,11 @@ Sentry.init({
     new TracingIntegrations.BrowserTracing({
       routingInstrumentation: Sentry.routingInstrumentation,
     }),
+    new Sentry.Replay(),
   ],
   tracesSampleRate: 0.1,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
   release: 'please-replace-your-git-commit-version',
   ignoreErrors: ['Non-Error exception captured', 'Non-Error promise rejection captured'],
 });
