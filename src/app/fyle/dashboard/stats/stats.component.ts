@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { delay, finalize, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { delay, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
@@ -54,8 +54,6 @@ export class StatsComponent implements OnInit {
   cardTransactionsAndDetails: CardDetail[];
 
   isUnifyCCCExpensesSettings: boolean;
-
-  onPageExit$: Subject<void>;
 
   constructor(
     private dashboardService: DashboardService,
@@ -128,18 +126,10 @@ export class StatsComponent implements OnInit {
   }
 
   initializeCCCStats() {
-    this.dashboardService
-      .getCCCDetails()
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((details) => {
-        this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-      });
+    this.dashboardService.getCCCDetails().subscribe((details) => {
+      this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
+    });
     finalize(() => (this.isCCCStatsLoading = false));
-  }
-
-  close() {
-    this.onPageExit$.next();
-    this.onPageExit$.complete();
   }
 
   /*
@@ -149,8 +139,6 @@ export class StatsComponent implements OnInit {
    * **/
   init() {
     const that = this;
-
-    this.onPageExit$ = new Subject();
     that.cardTransactionsAndDetails = [];
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
@@ -159,56 +147,46 @@ export class StatsComponent implements OnInit {
 
     that.initializeReportStats();
     that.initializeExpensesStats();
-    that.orgSettingsService
-      .get()
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((orgSettings) => {
-        if (orgSettings?.corporate_credit_card_settings?.enabled) {
-          this.isUnifyCCCExpensesSettings =
-            orgSettings.unify_ccce_expenses_settings &&
-            orgSettings.unify_ccce_expenses_settings.allowed &&
-            orgSettings.unify_ccce_expenses_settings.enabled;
-          that.isCCCStatsLoading = true;
-          that.initializeCCCStats();
-        } else {
-          this.cardTransactionsAndDetails = [];
-        }
-      });
+    that.orgSettingsService.get().subscribe((orgSettings) => {
+      if (orgSettings?.corporate_credit_card_settings?.enabled) {
+        this.isUnifyCCCExpensesSettings =
+          orgSettings.unify_ccce_expenses_settings &&
+          orgSettings.unify_ccce_expenses_settings.allowed &&
+          orgSettings.unify_ccce_expenses_settings.enabled;
+        that.isCCCStatsLoading = true;
+        that.initializeCCCStats();
+      } else {
+        this.cardTransactionsAndDetails = [];
+      }
+    });
 
-    this.orgService
-      .getOrgs()
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((orgs) => {
-        const isMultiOrg = orgs?.length > 1;
+    this.orgService.getOrgs().subscribe((orgs) => {
+      const isMultiOrg = orgs?.length > 1;
 
-        if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
-          // Time taken for the app to launch and display the first screen
-          performance.mark(PerfTrackers.appLaunchEndTime);
+      if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
+        // Time taken for the app to launch and display the first screen
+        performance.mark(PerfTrackers.appLaunchEndTime);
 
-          // Measure time taken to launch app
-          performance.measure(
-            PerfTrackers.appLaunchTime,
-            PerfTrackers.appLaunchStartTime,
-            PerfTrackers.appLaunchEndTime
-          );
+        // Measure time taken to launch app
+        performance.measure(PerfTrackers.appLaunchTime, PerfTrackers.appLaunchStartTime, PerfTrackers.appLaunchEndTime);
 
-          const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
+        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
 
-          // eslint-disable-next-line @typescript-eslint/dot-notation
-          const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
 
-          // Converting the duration to seconds and fix it to 3 decimal places
-          const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
+        // Converting the duration to seconds and fix it to 3 decimal places
+        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
 
-          this.trackingService.appLaunchTime({
-            'App launch time': launchTimeDuration,
-            'Is logged in': isLoggedIn,
-            'Is multi org': isMultiOrg,
-          });
-        }
+        this.trackingService.appLaunchTime({
+          'App launch time': launchTimeDuration,
+          'Is logged in': isLoggedIn,
+          'Is multi org': isMultiOrg,
+        });
+      }
 
-        this.trackDashboardLaunchTime();
-      });
+      this.trackDashboardLaunchTime();
+    });
   }
 
   ngOnInit() {

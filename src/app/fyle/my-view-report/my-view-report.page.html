@@ -197,7 +197,7 @@
           <div *ngIf="userComments?.length > 0" class="view-comment--container">
             <div *ngFor="let estatus of userComments">
               <div *ngIf="estatus.show_dt">
-                <div class="view-comment--date text-center">{{ estatus.st_created_at | date: 'MMM D, YYYY' }}</div>
+                <div class="view-comment--date text-center">{{ estatus.st_created_at | dateFormat }}</div>
               </div>
               <div
                 class="view-comment--block"

@@ -3000,7 +3000,7 @@ export class AddEditExpensePage implements OnInit {
       return this.categoriesService.getAll().pipe(
         map((categories: OrgCategory[]) => {
           const unspecifiedCategory = categories.find(
-            (category) => category.fyle_category.toLowerCase() === 'unspecified'
+            (category) => category?.fyle_category?.toLowerCase() === 'unspecified'
           );
           transactionCopy.org_category_id = unspecifiedCategory.id;
           return transactionCopy;
@@ -3941,6 +3941,7 @@ export class AddEditExpensePage implements OnInit {
         const file = nativeElement.files[0];
         if (file) {
           const dataUrl = await this.fileService.readFile(file);
+          this.trackingService.addAttachment({ type: file.type });
           fileData = {
             type: file.type,
             dataUrl,
