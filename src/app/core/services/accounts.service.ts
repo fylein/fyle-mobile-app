@@ -224,7 +224,7 @@ export class AccountsService {
 
     //PERSONAL_ACCOUNT should always be present for mileage/per-diem or in case backend does not return any payment mode
     if (
-      !allowedPaymentModes?.length ||
+      !allowedPaymentModes.length ||
       (isMileageOrPerDiemExpense && !allowedPaymentModes.includes(AccountType.PERSONAL))
     ) {
       allowedPaymentModes = [AccountType.PERSONAL, ...allowedPaymentModes];
@@ -254,15 +254,12 @@ export class AccountsService {
 
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
   checkIfEtxnHasSamePaymentMode(etxn: UnflattenedTransaction, paymentMode: ExtendedAccount): boolean {
-    console.log('check the etxn,', etxn);
-    console.log('check the paymentmode', paymentMode);
     if (etxn.source.account_type === AccountType.PERSONAL) {
       return (
         paymentMode.acc.id === etxn.tx.source_account_id &&
         paymentMode.acc.isReimbursable !== etxn.tx.skip_reimbursement
       );
     }
-    console.log('check if it is true', paymentMode.acc.id === etxn.tx.source_account_id);
     return paymentMode.acc.id === etxn.tx.source_account_id;
   }
 }
