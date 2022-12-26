@@ -2,22 +2,26 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountType } from '../enums/account-type.enum';
+import { ExpenseType } from '../enums/expense-type.enum';
 import {
   account1Data,
   account2Data,
-  extnObjData,
-  extnObjWithSourceData,
+  etxnObjData,
+  etxnObjWithSourceData,
   multiplePaymentModesData,
   multiplePaymentModesWithCompanyAccData,
   multiplePaymentModesWithoutAdvData,
   multiplePaymentModesWithoutCCCAccData,
+  orgSettingsData,
   paymentModeDataAdvance,
   paymentModeDataCCC,
   paymentModeDataCCCWithoutAccountProperty,
   paymentModeDataMultipleAdvance,
   paymentModeDataMultipleAdvWithoutOrigAmt,
   paymentModeDataPersonal,
+  paymentModesAccountsData,
   paymentModesData,
+  paymentModesResData,
   unflattenedAccount1Data,
   unflattenedAccount2Data,
   unflattenedAccount3Data,
@@ -66,7 +70,7 @@ const unflattenedAccount4 = unflattenedAccount4Data;
 
 const multiplePaymentModes = multiplePaymentModesData;
 
-const extnObj = extnObjData;
+const etxnObj = etxnObjData;
 
 const multiplePaymentModesWithCompanyAcc = multiplePaymentModesWithCompanyAccData;
 
@@ -74,7 +78,11 @@ const multiplePaymentModesWithoutAdv = multiplePaymentModesWithoutAdvData;
 
 const multiplePaymentModesWithoutCCCAcc = multiplePaymentModesWithoutCCCAccData;
 
-const extnObjWithSource = extnObjWithSourceData;
+const etxnObjWithSource = etxnObjWithSourceData;
+
+const paymentModesRes = paymentModesResData;
+
+const paymentModesAccounts = paymentModesAccountsData;
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -193,7 +201,7 @@ describe('AccountsService', () => {
   it('should be able to get allowed accounts', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
-      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj, false)
+      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, etxnObj, false)
     ).toEqual(multiplePaymentModesWithCompanyAcc);
   });
 
@@ -204,7 +212,7 @@ describe('AccountsService', () => {
         multiplePaymentModesWithoutAdv,
         allowedPaymentModes,
         false,
-        extnObjWithSource,
+        etxnObjWithSource,
         false
       )
     ).toEqual(multiplePaymentModesWithCompanyAcc);
@@ -213,7 +221,7 @@ describe('AccountsService', () => {
   it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
-      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj)
+      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, etxnObj)
     ).toEqual(multiplePaymentModesWithCompanyAcc);
   });
 
@@ -227,7 +235,26 @@ describe('AccountsService', () => {
   it('should be able to get allowed accounts for mileage and per diem', () => {
     const allowedPaymentModes = ['PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
-      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, extnObj, true)
+      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, etxnObj, true)
     ).toEqual(multiplePaymentModesWithoutCCCAcc);
+  });
+
+  it('should be able to get payment modes', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    const config = {
+      etxn: etxnObj,
+      expenseType: ExpenseType.EXPENSE,
+      isPaidByCompanyHidden: true,
+      isPaymentModeConfigurationsEnabled: true,
+      orgSettings: orgSettingsData,
+    };
+    const allowedPaymentModes = [
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      'PERSONAL_ACCOUNT',
+      'COMPANY_ACCOUNT',
+      'PERSONAL_ADVANCE_ACCOUNT',
+    ];
+    expect(accountsService.getPaymentModes(paymentModesAccounts, allowedPaymentModes, config)).toEqual(paymentModesRes);
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 });

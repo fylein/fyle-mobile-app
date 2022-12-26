@@ -52,6 +52,7 @@ export class AccountsService {
       isPaidByCompanyHidden: boolean;
     }
   ): AccountOption[] {
+    console.log('check getPaymentModes params', accounts, allowedPaymentModes, config);
     const { etxn, orgSettings, expenseType, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden } = config;
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
@@ -167,7 +168,7 @@ export class AccountsService {
     isPaidByCompanyHidden: boolean
   ): ExtendedAccount[] {
     const that = this;
-
+    console.log('check the cpm params', accounts, isMultipleAdvanceEnabled, isPaidByCompanyHidden);
     const accountsMap = {
       PERSONAL_ACCOUNT(account: ExtendedAccount) {
         account.acc.displayName = 'Personal Card/Cash';
@@ -205,7 +206,7 @@ export class AccountsService {
         mappedAccounts.push(personalNonreimbursableAccount);
       }
     }
-
+    console.log('check mapped accounts', mappedAccounts);
     return mappedAccounts;
   }
 

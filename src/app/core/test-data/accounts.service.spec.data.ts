@@ -1405,7 +1405,7 @@ export const multiplePaymentModesWithoutCCCAccData: ExtendedAccount[] = [
   },
 ];
 
-export const extnObjData = {
+export const etxnObjData = {
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1422,7 +1422,7 @@ export const extnObjData = {
   dataUrls: [],
 };
 
-export const extnObjWithSourceData = {
+export const etxnObjWithSourceData = {
   tx: {
     skip_reimbursement: true,
     source: 'MOBILE',
@@ -1442,3 +1442,689 @@ export const extnObjWithSourceData = {
     account_id: 'accZ1IWjhjLv4',
   },
 };
+
+export const orgSettingsData = {
+  org_id: 'orrb8EW1zZsy',
+  mileage: {
+    allowed: true,
+    enabled: true,
+    location_mandatory: false,
+    unit: 'MILES',
+    fiscal_year_start_date: '01-5',
+    fiscal_year_end_date: '01-4',
+    two_wheeler: 0.545,
+    four_wheeler: 0.545,
+    four_wheeler1: 0.7,
+    four_wheeler3: 101,
+    four_wheeler4: null,
+    bicycle: 5,
+    electric_car: null,
+    two_wheeler_slabbed_rate: 0.4,
+    four_wheeler_slabbed_rate: null,
+    four_wheeler1_slabbed_rate: 32,
+    four_wheeler3_slabbed_rate: null,
+    four_wheeler4_slabbed_rate: null,
+    bicycle_slabbed_rate: 10,
+    electric_car_slabbed_rate: null,
+    two_wheeler_distance_limit: 10,
+    four_wheeler_distance_limit: null,
+    four_wheeler1_distance_limit: 33,
+    four_wheeler3_distance_limit: null,
+    four_wheeler4_distance_limit: null,
+    bicycle_distance_limit: 10,
+    electric_car_distance_limit: null,
+    enable_individual_mileage_rates: true,
+  },
+  advances: {
+    allowed: true,
+    enabled: true,
+  },
+  projects: {
+    allowed: true,
+    enabled: true,
+  },
+  advanced_projects: {
+    allowed: true,
+    enabled: true,
+    enable_individual_projects: false,
+  },
+  advance_requests: {
+    allowed: true,
+    enabled: true,
+  },
+  cost_centers: {
+    allowed: true,
+    enabled: true,
+  },
+  policies: {
+    allowed: true,
+    enabled: true,
+    self_serve_enabled: true,
+    advance_request_policy_enabled: true,
+    duplicate_detection_enabled: true,
+    policyApprovalWorkflow: false,
+  },
+  org_creation: {
+    allowed: true,
+    enabled: true,
+  },
+  admin_allowed_ip_settings: {
+    allowed: true,
+    enabled: false,
+    allowed_cidrs: [],
+  },
+  admin_email_settings: {
+    allowed: true,
+    enabled: true,
+    unsubscribed_events: [],
+  },
+  org_personal_cards_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  receipt_settings: {
+    enabled: false,
+    allowed: true,
+    enable_magnifier: null,
+  },
+  corporate_credit_card_settings: {
+    allowed: true,
+    allow_approved_plus_states: true,
+    enabled: true,
+    auto_match_allowed: true,
+    enable_auto_match: true,
+    bank_data_aggregation_settings: {
+      enabled: false,
+      aggregator: null,
+    },
+    bank_statement_upload_settings: {
+      enabled: true,
+      generic_statement_parser_enabled: true,
+      bank_statement_parser_endpoint_settings: [
+        {
+          bank_name: 'AMerican Express - Excel statement - LT',
+          file_type: '.xls',
+          parser_url: '/laguna_tools_amex_ccc',
+        },
+        {
+          bank_name: 'American Express - Excel Statement - SP',
+          file_type: '.xls',
+          parser_url: '/structure_properties_amex_ccc',
+        },
+        {
+          bank_name: 'Bank of America',
+          file_type: '.pdf',
+          parser_url: '/pipeline_solutions_bofa_ccc',
+        },
+      ],
+    },
+  },
+  bank_data_aggregation_settings: {
+    allowed: true,
+    enabled: true,
+    date_to_sync_from: null,
+  },
+  bank_feed_request_settings: {
+    allowed: true,
+    enabled: true,
+    bank_name: 'afd',
+    card_provider: 'asdf',
+    number_of_cards: 3,
+    status: 'IN_PROGRESS',
+    last_updated_at: null,
+    secret_key: 'bank-feed-request6iR9g13ks9',
+  },
+  ach_settings: {
+    enabled: false,
+    allowed: false,
+    provider: 'dwolla',
+    expedite_source: false,
+    expedite_destination: false,
+    pipeline_amount_limit: null,
+  },
+  per_diem: {
+    allowed: true,
+    enabled: true,
+    enable_individual_per_diem_rates: false,
+  },
+  payment_mode_settings: {
+    allowed: true,
+    enabled: true,
+    payment_modes_order: [
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      'PERSONAL_ACCOUNT',
+      'COMPANY_ACCOUNT',
+      'PERSONAL_ADVANCE_ACCOUNT',
+    ],
+  },
+  access_delegation: {
+    allowed: true,
+    enabled: true,
+  },
+  tax_settings: {
+    allowed: true,
+    enabled: true,
+    name: null,
+    groups: [
+      {
+        name: 'GST',
+        percentage: 0.23,
+      },
+      {
+        name: 'GST-free capital @0%',
+        percentage: 0,
+      },
+      {
+        name: 'GST-free non-capital @0%',
+        percentage: 0,
+      },
+    ],
+  },
+  integrations_settings: {
+    allowed: false,
+    enabled: false,
+    integrations: [],
+  },
+  taxi_settings: {
+    allowed: true,
+    distance_mandatory: false,
+  },
+  expense_limit_settings: {
+    policy_ids: ['tprIXMh8y1WXN', 'tpr1iLLz3JkLT', 'tprxZJGW71PvH'],
+  },
+  approval_settings: {
+    allowed: true,
+    admin_approve_own_report: true,
+    enable_secondary_approvers: false,
+    enable_sequential_approvers: false,
+  },
+  accounting: {
+    enabled: false,
+    type: null,
+    settings: null,
+    integration_exports_enabled: false,
+  },
+  transaction_fields_settings: {
+    allowed: true,
+    enabled: true,
+    transaction_mandatory_fields: {
+      category: false,
+      purpose: false,
+      vendor: null,
+      project: false,
+      cost_center: null,
+      flight_travel_class: null,
+      train_travel_class: null,
+      hotel_city: null,
+      hotel_check_in: null,
+      hotel_check_out: null,
+    },
+  },
+  org_user_fields_settings: {
+    allowed: true,
+    enabled: true,
+    org_user_mandatory_fields: null,
+  },
+  advance_request_fields_settings: {
+    allowed: true,
+    enabled: true,
+    advance_request_mandatory_fields: {
+      activity: false,
+    },
+  },
+  org_logo_settings: {
+    allowed: true,
+    enabled: true,
+    file_id: 'fiZU3RFPLaFK',
+  },
+  org_branding_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  verification: {
+    allowed: true,
+    mandatory: true,
+    late_mode_enabled: null,
+  },
+  data_extractor_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advance_account_settings: {
+    allowed: true,
+    multiple_accounts: false,
+  },
+  settlements_excel_settings: {
+    allowed: true,
+    cost_center_wise_split: false,
+  },
+  bank_payment_file_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  expense_settings: {
+    allowed: false,
+    split_expense_settings: {
+      enabled: false,
+    },
+  },
+  exchange_rate_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  currencylayer_provider_settings: {
+    allowed: true,
+    enabled: true,
+    id: 'CURRENCYLAYER',
+    name: 'Currency Layer',
+  },
+  transaction_field_configurations: [],
+  gmail_addon_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  duplicate_detection_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  custom_category_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  bulk_fyle_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  auto_reminder_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  analytics_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advanced_rbac_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  sso_integration_settings: {
+    allowed: false,
+    enabled: false,
+    idp_name: null,
+    meta_data_file_id: null,
+  },
+  advanced_access_delegation_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  dynamic_form_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  budget_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  saved_filters_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  org_currency_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  recurrences_settings: {
+    allowed: true,
+    enabled: false,
+  },
+  mis_reporting_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  risk_score_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  workflow_settings: {
+    allowed: true,
+    enabled: true,
+    report_workflow_settings: true,
+  },
+  card_assignment_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  transaction_reversal_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  auto_match_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  universal_statement_parser_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  in_app_chat_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  ccc_draft_expense_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  expense_widget_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  suggested_expense_merge_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  org_expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+  visa_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  mastercard_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  company_expenses_beta_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  unify_ccce_expenses_settings: {
+    allowed: true,
+    enabled: true,
+  },
+};
+
+export const paymentModesResData = [
+  {
+    label: 'Corporate Card',
+    value: {
+      acc: {
+        id: 'accYoo40xd0C1',
+        created_at: new Date('2018-08-05T08:32:51.583Z'),
+        updated_at: new Date('2022-12-23T08:34:46.658Z'),
+        name: 'Corporate Credit Card Account',
+        type: AccountType.CCC,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 107069.2181,
+        tentative_balance_amount: -379832.039763,
+        category: null,
+        displayName: 'Corporate Card',
+        isReimbursable: false,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Personal Card/Cash',
+    value: {
+      acc: {
+        id: 'accWUsrRlinFb',
+        created_at: new Date('2018-08-05T06:02:11.742Z'),
+        updated_at: new Date('2022-12-23T08:32:19.246Z'),
+        name: 'Personal Account',
+        type: AccountType.PERSONAL,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 0,
+        tentative_balance_amount: 159640.246645,
+        category: null,
+        displayName: 'Personal Card/Cash',
+        isReimbursable: true,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Paid by Company',
+    value: {
+      acc: {
+        id: 'accWUsrRlinFb',
+        created_at: new Date('2018-08-05T06:02:11.742Z'),
+        updated_at: new Date('2022-12-23T08:32:19.246Z'),
+        name: 'Personal Account',
+        type: AccountType.PERSONAL,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 0,
+        tentative_balance_amount: 159640.246645,
+        category: null,
+        displayName: 'Paid by Company',
+        isReimbursable: false,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: null,
+        number: null,
+        id: null,
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: null,
+      amount: null,
+    },
+  },
+  {
+    label: 'Advance (Balance: $223,146,386.93)',
+    value: {
+      acc: {
+        id: 'acc6mK6CEesGL',
+        created_at: new Date('2018-11-15T06:25:00.402Z'),
+        updated_at: new Date('2022-09-14T09:20:46.442Z'),
+        name: 'Advance Account',
+        type: AccountType.ADVANCE,
+        currency: 'USD',
+        target_balance_amount: 0,
+        current_balance_amount: 223146436,
+        tentative_balance_amount: 223146386.93,
+        category: null,
+        displayName: 'Advance (Balance: $223,146,386.93)',
+        isReimbursable: false,
+      },
+      ou: {
+        id: 'ouvyOFOSx5bh',
+        org_id: 'orrb8EW1zZsy',
+      },
+      us: {
+        email: 'ajain@fyle.in',
+        full_name: 'Abhishek Jain',
+      },
+      org: {
+        id: null,
+        domain: null,
+      },
+      advance: {
+        purpose: 'erertert',
+        number: 'A/2022/03/T/4',
+        id: 'adve6o3JdrDbI',
+      },
+      orig: {
+        currency: null,
+        amount: null,
+      },
+      currency: 'USD',
+      amount: 23213,
+    },
+  },
+];
+
+export const paymentModesAccountsData = [
+  {
+    acc: {
+      id: 'accWUsrRlinFb',
+      created_at: new Date('2018-08-05T06:02:11.742Z'),
+      updated_at: new Date('2022-12-23T08:32:19.246Z'),
+      name: 'Personal Account',
+      type: AccountType.PERSONAL,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: 159640.246645,
+      category: null,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'accYoo40xd0C1',
+      created_at: new Date('2018-08-05T08:32:51.583Z'),
+      updated_at: new Date('2022-12-23T08:34:46.658Z'),
+      name: 'Corporate Credit Card Account',
+      type: AccountType.CCC,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 107069.2181,
+      tentative_balance_amount: -379832.039763,
+      category: null,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'acc6mK6CEesGL',
+      created_at: new Date('2018-11-15T06:25:00.402Z'),
+      updated_at: new Date('2022-09-14T09:20:46.442Z'),
+      name: 'Advance Account',
+      type: AccountType.ADVANCE,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 223146436,
+      tentative_balance_amount: 223146386.93,
+      category: null,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: 'erertert',
+      number: 'A/2022/03/T/4',
+      id: 'adve6o3JdrDbI',
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: 'USD',
+    amount: 23213,
+  },
+];
