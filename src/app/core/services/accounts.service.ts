@@ -8,7 +8,6 @@ import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { Cacheable } from 'ts-cacheable';
 import { AccountOption } from '../models/account-option.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ExpenseType } from '../enums/expense-type.enum';
 import { Observable } from 'rxjs';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';

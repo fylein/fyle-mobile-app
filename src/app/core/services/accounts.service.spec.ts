@@ -9,9 +9,11 @@ import {
   etxnObjData,
   etxnObjWithSourceData,
   multiplePaymentModesData,
+  multiplePaymentModesIncPersonalAccData,
   multiplePaymentModesWithCompanyAccData,
   multiplePaymentModesWithoutAdvData,
   multiplePaymentModesWithoutCCCAccData,
+  multiplePaymentModesWithoutPersonalAccData,
   orgSettingsData,
   paymentModeDataAdvance,
   paymentModeDataCCC,
@@ -83,6 +85,8 @@ const etxnObjWithSource = etxnObjWithSourceData;
 const paymentModesRes = paymentModesResData;
 
 const paymentModesAccounts = paymentModesAccountsData;
+
+const multiplePaymentModesIncPersonalAcc = multiplePaymentModesIncPersonalAccData;
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -233,10 +237,23 @@ describe('AccountsService', () => {
   });
 
   it('should be able to get allowed accounts for mileage and per diem', () => {
-    const allowedPaymentModes = ['PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    const allowedPaymentModes = ['COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, etxnObj, true)
     ).toEqual(multiplePaymentModesWithoutCCCAcc);
+  });
+
+  it('should be able to get allowed accounts when current expense payment mode is not allowed', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(
+        multiplePaymentModesWithoutPersonalAccData,
+        allowedPaymentModes,
+        false,
+        etxnObjWithSource,
+        false
+      )
+    ).toEqual(multiplePaymentModesIncPersonalAcc);
   });
 
   it('should be able to get payment modes', () => {
