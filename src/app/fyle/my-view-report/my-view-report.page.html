@@ -313,7 +313,7 @@
       <div class="view-reports--add-expenses-container">
         <div
           class="view-reports--add-expenses-container__icon_container"
-          *ngIf="(canResubmitReport$ | async) || (erpt$|async)?.rp_state === 'DRAFT'"
+          *ngIf="((canResubmitReport$ | async) || (erpt$|async)?.rp_state === 'DRAFT') && unReportedEtxns"
         >
           <mat-icon
             (click)="showAddExpensesToReportModal()"
