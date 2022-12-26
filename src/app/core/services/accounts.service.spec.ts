@@ -14,6 +14,7 @@ import {
   multiplePaymentModesWithoutAdvData,
   multiplePaymentModesWithoutCCCAccData,
   multiplePaymentModesWithoutPersonalAccData,
+  orgSettingsAdvDisabledData,
   orgSettingsData,
   paymentModeDataAdvance,
   paymentModeDataCCC,
@@ -264,6 +265,25 @@ describe('AccountsService', () => {
       isPaidByCompanyHidden: true,
       isPaymentModeConfigurationsEnabled: true,
       orgSettings: orgSettingsData,
+    };
+    const allowedPaymentModes = [
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      'PERSONAL_ACCOUNT',
+      'COMPANY_ACCOUNT',
+      'PERSONAL_ADVANCE_ACCOUNT',
+    ];
+    expect(accountsService.getPaymentModes(paymentModesAccounts, allowedPaymentModes, config)).toEqual(paymentModesRes);
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
+  });
+
+  it('should be able to get payment modes when advances is disabled and advance requests is enabled', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    const config = {
+      etxn: etxnObj,
+      expenseType: ExpenseType.EXPENSE,
+      isPaidByCompanyHidden: true,
+      isPaymentModeConfigurationsEnabled: true,
+      orgSettings: orgSettingsAdvDisabledData,
     };
     const allowedPaymentModes = [
       'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',

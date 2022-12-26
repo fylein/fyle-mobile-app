@@ -11,6 +11,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseType } from '../enums/expense-type.enum';
 import { Observable } from 'rxjs';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
+import { OrgSettings } from '../models/org-settings.model';
 
 @Injectable({
   providedIn: 'root',
@@ -45,16 +46,15 @@ export class AccountsService {
     allowedPaymentModes: string[],
     config: {
       etxn: UnflattenedTransaction;
-      orgSettings: any;
+      orgSettings: OrgSettings;
       expenseType: ExpenseType;
       isPaymentModeConfigurationsEnabled: boolean;
       isPaidByCompanyHidden: boolean;
     }
   ): AccountOption[] {
-    console.log('check getPaymentModes params', accounts, allowedPaymentModes, config);
     const { etxn, orgSettings, expenseType, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden } = config;
-    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
-    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
+    const isAdvanceEnabled = orgSettings.advances.enabled || orgSettings.advance_requests.enabled;
+    const isMultipleAdvanceEnabled = orgSettings.advance_account_settings.multiple_accounts;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
 
     const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
