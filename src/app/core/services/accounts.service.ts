@@ -134,54 +134,6 @@ export class AccountsService {
     );
   }
 
-  constructPaymentModes(
-    accounts: ExtendedAccount[],
-    isMultipleAdvanceEnabled: boolean,
-    isPaidByCompanyHidden: boolean
-  ): ExtendedAccount[] {
-    const that = this;
-    console.log('check the cpm params', accounts, isMultipleAdvanceEnabled, isPaidByCompanyHidden);
-    const accountsMap = {
-      PERSONAL_ACCOUNT(account: ExtendedAccount) {
-        account.acc.displayName = 'Personal Card/Cash';
-        account.acc.isReimbursable = true;
-        return account;
-      },
-      PERSONAL_ADVANCE_ACCOUNT(account: ExtendedAccount) {
-        let currency = account.currency;
-        let balance = account.acc.tentative_balance_amount;
-        if (isMultipleAdvanceEnabled && account.orig && account.orig.amount) {
-          balance = (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
-          currency = account.orig.currency;
-        }
-
-        account.acc.displayName = 'Advance (Balance: ' + that.fyCurrencyPipe.transform(balance, currency) + ')';
-
-        account.acc.isReimbursable = false;
-        return account;
-      },
-      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account: ExtendedAccount) {
-        account.acc.displayName = 'Corporate Card';
-        account.acc.isReimbursable = false;
-        return account;
-      },
-    };
-
-    const mappedAccounts = accounts.map((account) => account && accountsMap[account.acc.type](account));
-
-    if (!isPaidByCompanyHidden) {
-      const personalAccount = accounts.find((account) => account.acc.type === AccountType.PERSONAL);
-      if (personalAccount) {
-        const personalNonreimbursableAccount = cloneDeep(personalAccount);
-        personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
-        personalNonreimbursableAccount.acc.isReimbursable = false;
-        mappedAccounts.push(personalNonreimbursableAccount);
-      }
-    }
-    console.log('check mapped accounts', mappedAccounts);
-    return mappedAccounts;
-  }
-
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getAllowedAccounts(
     allAccounts: ExtendedAccount[],
