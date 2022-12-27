@@ -3094,11 +3094,25 @@ export class AddEditExpensePage implements OnInit {
                     this.saveExpenseLoader = false;
                   })
                 )
-                .subscribe(() => this.goBack());
+                .subscribe({
+                  next: () => this.goBack(),
+                  error: (err) => {
+                    if (err.url.includes('reports')) {
+                      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+                    }
+                  },
+                });
             }
           } else {
             // to do edit
-            that.editExpense('SAVE_EXPENSE').subscribe(() => this.goBack());
+            that.editExpense('SAVE_EXPENSE').subscribe({
+              next: () => this.goBack(),
+              error: (err) => {
+                if (err.url.includes('reports')) {
+                  this.router.navigate(['/', 'enterprise', 'my_expenses']);
+                }
+              },
+            });
           }
         } else {
           that.fg.markAllAsTouched();
