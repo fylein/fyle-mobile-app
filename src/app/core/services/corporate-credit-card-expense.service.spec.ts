@@ -86,7 +86,6 @@ describe('CorporateCreditCardExpenseService', () => {
 
     const result = cccExpenseService.getv2CardTransaction(testID);
     result.subscribe((res) => {
-      console.log(res);
       expect(res).toEqual(expectedSingleTransaction);
       done();
     });
@@ -98,7 +97,6 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.markPersonal(testId);
     result.subscribe((res) => {
       expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/personal');
-      expect(res).toBe(null);
       done();
     });
   });
@@ -109,7 +107,26 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.unmarkPersonal(testId);
     result.subscribe((res) => {
       expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/unmark_personal');
-      expect(res).toBe(null);
+      done();
+    });
+  });
+
+  it('should dismiss a transaction as corporate credit card expense', (done) => {
+    apiService.post.and.returnValue(of(null));
+    const testId = 'ccceRhYsN8Fj78';
+    const result = cccExpenseService.dismissCreditTransaction(testId);
+    result.subscribe((res) => {
+      expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/ignore');
+      done();
+    });
+  });
+
+  it('should undo dismiss a transaction as corporate credit card expense', (done) => {
+    apiService.post.and.returnValue(of(null));
+    const testId = 'ccceRhYsN8Fj78';
+    const result = cccExpenseService.undoDismissedCreditTransaction(testId);
+    result.subscribe((res) => {
+      expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/undo_ignore');
       done();
     });
   });

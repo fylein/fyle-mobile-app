@@ -130,7 +130,6 @@ export class CorporateCreditCardExpenseService {
   }
 
   getExpenseDetailsInCards(uniqueCards: { cardNumber: string; cardName: string }, statsResponse: CardAggregateStat[]) {
-    console.log(uniqueCards);
     const cardsCopy = JSON.parse(JSON.stringify(uniqueCards));
     const uniqueCardsCopy = [];
     cardsCopy?.forEach((card) => {
