@@ -23,7 +23,7 @@ const fixDate = (data) =>
     updated_at: new Date(data.updated_at),
   }));
 
-fdescribe('PerDiemService', () => {
+describe('PerDiemService', () => {
   let perDiemService: PerDiemService;
   let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -60,9 +60,9 @@ fdescribe('PerDiemService', () => {
 
   it('should get per-diem rate by ID', (done) => {
     spenderPlatformApiService.get.and.returnValue(of(apiPerDiemByID));
-    const testID = 538;
+    const actualId = 538;
 
-    const result = perDiemService.getRate(testID);
+    const result = perDiemService.getRate(actualId);
     result.subscribe((res) => {
       expect(res).toEqual(expectPerDiemByID);
       done();
@@ -91,7 +91,7 @@ fdescribe('PerDiemService', () => {
     });
   });
 
-  it('should return empty array as per diems not specified in settings or params', (done) => {
+  it('should return empty list if there are no allowed per diems', (done) => {
     orgUserSettingsService.get.and.returnValue(of(apiOrgUserSettingsWithoutPerDiem));
 
     const result = perDiemService.getAllowedPerDiems([]);
