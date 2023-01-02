@@ -184,7 +184,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  handleDismissPopup(action: string, email: string, orgId: string) {
+  handleDismissPopup(action = 'cancel', email: string, orgId: string) {
     if (action === 'resend') {
       // If user clicks on resend Button, Resend Invite to the user and then logout if user have only one org.
       this.resendInvite(email, orgId)
@@ -204,10 +204,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async showEmailNotVerifiedAlert() {
-    this.authService.getEou().then(async (eou) => {
-      const orgName = eou.ou.org_name;
-      const orgId = eou.ou.org_id;
-      const email = eou.us.email;
+    const eou$ = from(this.authService.getEou());
+    forkJoin([eou$, this.orgs$]).subscribe(async (result) => {
+      const orgName = result[0].ou.org_name;
+      const orgId = result[0].ou.org_id;
+      const email = result[0].us.email;
+      this.orgs = result[1];
 
       const popover = await this.popoverController.create({
         componentProps: {
@@ -224,12 +226,13 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         },
         component: PopupAlertComponentComponent,
         cssClass: 'pop-up-in-center',
+        backdropDismiss: false,
       });
       await popover.present();
 
       const { data } = await popover.onWillDismiss();
 
-      this.handleDismissPopup(data.action, email, orgId);
+      this.handleDismissPopup(data?.action, email, orgId);
     });
   }
 
