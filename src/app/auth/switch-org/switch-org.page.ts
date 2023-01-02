@@ -205,12 +205,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   async showEmailNotVerifiedAlert() {
     const eou$ = from(this.authService.getEou());
-    forkJoin([eou$, this.orgs$]).subscribe(async (result) => {
-      const orgName = result[0].ou.org_name;
-      const orgId = result[0].ou.org_id;
-      const email = result[0].us.email;
-      this.orgs = result[1];
-
+    forkJoin({
+      eou: eou$,
+      orgs: this.orgs$,
+    }).subscribe(async ({ eou, orgs }) => {
+      const orgName = eou.ou.org_name;
+      const orgId = eou.ou.org_id;
+      const email = eou.us.email;
+      this.orgs = orgs;
       const popover = await this.popoverController.create({
         componentProps: {
           title: 'Invite Not Accepted',
