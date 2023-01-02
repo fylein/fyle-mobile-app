@@ -417,13 +417,17 @@ export class AddEditExpensePage implements OnInit {
   goBack() {
     const bankTxn =
       this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-    if (this.activatedRoute.snapshot.params.persist_filters) {
+    if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
       if (bankTxn) {
         this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        const reportId = this.fg.value.report?.rp?.id;
+        if (reportId) {
+          this.showAddToReportSuccessToast(reportId);
+        }
       }
     }
   }
@@ -3090,23 +3094,11 @@ export class AddEditExpensePage implements OnInit {
                     this.saveExpenseLoader = false;
                   })
                 )
-                .subscribe((res: any) => {
-                  if (that.fg.value.report?.rp?.id) {
-                    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-                  } else {
-                    that.goBack();
-                  }
-                });
+                .subscribe(() => this.goBack());
             }
           } else {
             // to do edit
-            that.editExpense('SAVE_EXPENSE').subscribe((res) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.goBack();
-              }
-            });
+            that.editExpense('SAVE_EXPENSE').subscribe(() => this.goBack());
           }
         } else {
           that.fg.markAllAsTouched();
