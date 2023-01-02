@@ -10,7 +10,6 @@ import {
   apiPerDiemByID,
   allPerDiemRatesParam,
   apiOrgUserSettings,
-  apiOrgUserSettingsWithoutPerDiem,
   expectPerDiemByID,
   allowedPerDiem,
 } from '../test-data/per-diem.service.spec.data';
@@ -92,7 +91,18 @@ describe('PerDiemService', () => {
   });
 
   it('should return empty list if there are no allowed per diems', (done) => {
-    orgUserSettingsService.get.and.returnValue(of(apiOrgUserSettingsWithoutPerDiem));
+    orgUserSettingsService.get.and.returnValue(of(apiOrgUserSettings));
+
+    const result = perDiemService.getAllowedPerDiems(null);
+
+    result.subscribe((res) => {
+      expect(res).toEqual([]);
+      done();
+    });
+  });
+
+  it('should return empty list if there is no settings returned', (done) => {
+    orgUserSettingsService.get.and.returnValue(of(null));
 
     const result = perDiemService.getAllowedPerDiems([]);
 
