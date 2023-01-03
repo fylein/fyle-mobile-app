@@ -179,7 +179,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
      * After showing the alert, the user will be redirected to the sign-in page since there is no other org they are a part of.
      * If the user has more than 1 org, the user will stay on the switch org page to choose another org.
      */
-    if (orgs?.length > 1) {
+    if (orgs?.length === 1) {
       this.signOut();
     }
   }
