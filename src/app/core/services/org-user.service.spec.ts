@@ -159,4 +159,17 @@ describe('OrgUserService', () => {
     const status = 'DISABLED';
     expect(orgUserService.excludeByStatus(null, status)).toEqual([]);
   });
+
+  it('should be able to find delegated accounts', (done) => {
+    const eouList = [currentEouUnflatted];
+    apiService.get.and.returnValue(of(eouList));
+    eouList.map((delegatedAccount) =>
+      dataTransformService.unflatten.withArgs(delegatedAccount).and.returnValue(currentEouRes)
+    );
+
+    orgUserService.findDelegatedAccounts().subscribe((res) => {
+      expect(res).toEqual([currentEouRes]);
+      done();
+    });
+  });
 });
