@@ -195,3 +195,41 @@ export const employeesRes = {
   offset: 0,
   url: '/v2/spender_employees',
 };
+
+export const employeesParamsRes = {
+  count: 929,
+  data: [
+    {
+      ou_id: 'oubQzXeZbwbS',
+      ou_org_id: 'orNVthTo2Zyo',
+      ou_roles: '["FYLER","APPROVER","HOD","HOP"]',
+      ou_status: '"ACTIVE"',
+      us_email: 'ajain+12+12+1@fyle.in',
+      us_full_name: 'AA23',
+      us_id: 'usTdvbcxOqjs',
+      is_selected: false,
+    },
+    {
+      ou_id: 'ouXYHXfr4w0b',
+      ou_org_id: 'orNVthTo2Zyo',
+      ou_roles: '["FYLER","APPROVER","HOP"]',
+      ou_status: '"PENDING_DETAILS"',
+      us_email: 'aaaaaaa@aaaabbbb.com',
+      us_full_name: 'AAA',
+      us_id: 'usBBavu872gu',
+      is_selected: false,
+    },
+    {
+      ou_id: 'ouX8dwsbLCLv',
+      ou_org_id: 'orNVthTo2Zyo',
+      ou_roles: '["FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","AUDITOR","HOP","HOD","OWNER"]',
+      ou_status: '"ACTIVE"',
+      us_email: 'ajain@fyle.in',
+      us_full_name: 'Abhishek Jain',
+      us_id: 'usvKA4X8Ugcr',
+    },
+  ],
+  limit: 20,
+  offset: 0,
+  url: '/v2/spender_employees',
+};

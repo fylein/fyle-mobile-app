@@ -1,6 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { currentEouRes, currentEouUnflatted, employeesRes } from '../test-data/org-user.service.spec.data';
+import {
+  currentEouRes,
+  currentEouUnflatted,
+  employeesParamsRes,
+  employeesRes,
+} from '../test-data/org-user.service.spec.data';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
@@ -106,5 +111,40 @@ describe('OrgUserService', () => {
     });
 
     expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
+  });
+
+  it('should be able to get employees by search with OR param', (done) => {
+    const params = {
+      order: 'us_full_name.asc,us_email.asc,ou_id',
+      us_email: 'in.(ajain@fyle.in)',
+      or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")',
+      and: '(or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"),or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))',
+    };
+    apiV2Service.get.and.returnValue(of(employeesParamsRes));
+    orgUserService.getEmployeesByParams(params).subscribe((res) => {
+      expect(res).toEqual(employeesParamsRes);
+    });
+    expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
+    orgUserService.getEmployeesBySearch(params).subscribe((res) => {
+      expect(res).toEqual(employeesParamsRes.data);
+      done();
+    });
+  });
+
+  it('should be able to get employees by search without OR param', (done) => {
+    const params = {
+      order: 'us_full_name.asc,us_email.asc,ou_id',
+      us_email: 'in.(ajain@fyle.in)',
+      and: '(or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"),or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))',
+    };
+    apiV2Service.get.and.returnValue(of(employeesParamsRes));
+    orgUserService.getEmployeesByParams(params).subscribe((res) => {
+      expect(res).toEqual(employeesParamsRes);
+    });
+    expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
+    orgUserService.getEmployeesBySearch(params).subscribe((res) => {
+      expect(res).toEqual(employeesParamsRes.data);
+      done();
+    });
   });
 });
