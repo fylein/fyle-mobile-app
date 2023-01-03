@@ -5,6 +5,7 @@ import {
   currentEouUnflatted,
   employeesParamsRes,
   employeesRes,
+  eouListWithDisabledUser,
 } from '../test-data/org-user.service.spec.data';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
@@ -146,5 +147,16 @@ describe('OrgUserService', () => {
       expect(res).toEqual(employeesParamsRes.data);
       done();
     });
+  });
+
+  it('should be able to exclude eou by employee status', () => {
+    const status = 'DISABLED';
+    const eousFiltered = eouListWithDisabledUser.filter((eou) => status.indexOf(eou.ou.status) === -1);
+    expect(orgUserService.excludeByStatus(eouListWithDisabledUser, status)).toEqual(eousFiltered);
+  });
+
+  it('should be able to return undefined if eou param is missing when excluding eou by status', () => {
+    const status = 'DISABLED';
+    expect(orgUserService.excludeByStatus(null, status)).toEqual([]);
   });
 });

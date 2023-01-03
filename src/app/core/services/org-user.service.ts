@@ -105,7 +105,10 @@ export class OrgUserService {
   }
 
   excludeByStatus(eous: ExtendedOrgUser[], status: string): ExtendedOrgUser[] {
-    const eousFiltered = eous?.filter((eou) => status.indexOf(eou.ou.status) === -1);
+    let eousFiltered = [];
+    if (eous) {
+      eousFiltered = eous.filter((eou) => status.indexOf(eou.ou.status) === -1);
+    }
     return eousFiltered;
   }
 
