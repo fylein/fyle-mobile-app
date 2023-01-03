@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { currentEouRes, currentEouUnflatted } from '../test-data/org-user.service.spec.data';
+import { currentEouRes, currentEouUnflatted, employeesRes } from '../test-data/org-user.service.spec.data';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
@@ -76,5 +76,35 @@ describe('OrgUserService', () => {
       expect(res).toEqual(currentEouRes);
       done();
     });
+  });
+
+  it('should be able to get user by ID', (done) => {
+    apiService.get.and.returnValue(of(currentEouUnflatted));
+    const userId = 'ouhOiO1Tfs3f';
+    orgUserService.getUserById(userId).subscribe((res) => {
+      expect(res).toEqual(currentEouUnflatted);
+      done();
+    });
+
+    expect(apiService.get).toHaveBeenCalledWith('/eous/' + userId);
+  });
+
+  it('should be able to get employees by params', (done) => {
+    apiV2Service.get.and.returnValue(of(employeesRes));
+    const params = {
+      limit: 5,
+      order: 'us_full_name.asc,ou_id',
+      ou_id: 'not.eq.ouX8dwsbLCLv',
+      ou_org_id: 'eq.orNVthTo2Zyo',
+      ou_roles: 'like.%ADMIN%',
+      ou_status: 'eq."ACTIVE"',
+      select: 'us_full_name,us_email',
+    };
+    orgUserService.getEmployeesByParams(params).subscribe((res) => {
+      expect(res).toEqual(employeesRes);
+      done();
+    });
+
+    expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
   });
 });

@@ -37,13 +37,12 @@ export class OrgUserService {
     return this.apiService.get('/eous/current').pipe(map((eou) => this.dataTransformService.unflatten(eou)));
   }
 
-  // TODO: move to v2
   @Cacheable({
     cacheBusterObserver: orgUsersCacheBuster$,
   })
   getEmployeesByParams(params: EmployeeParams): Observable<{
     count: number;
-    data: Employee[];
+    data: Partial<Employee[]>;
     limit: number;
     offset: number;
     url: string;
@@ -90,7 +89,7 @@ export class OrgUserService {
     );
   }
 
-  getEmployeesBySearch(params: EmployeeParams): Observable<Employee[]> {
+  getEmployeesBySearch(params: EmployeeParams): Observable<Partial<Employee[]>> {
     if (params.or) {
       params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
     } else {
@@ -103,10 +102,6 @@ export class OrgUserService {
 
   getUserById(userId: string): Observable<UnflattenedEou> {
     return this.apiService.get('/eous/' + userId);
-  }
-
-  exclude(eous: ExtendedOrgUser[], userIds: string[]): ExtendedOrgUser[] {
-    return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
   }
 
   excludeByStatus(eous: ExtendedOrgUser[], status: string): ExtendedOrgUser[] {

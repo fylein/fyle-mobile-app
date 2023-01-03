@@ -1,4 +1,5 @@
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { UnflattenedEou } from '../models/unflattened-eou.model';
 
 export const currentEouRes: ExtendedOrgUser = {
   ou: {
@@ -86,7 +87,7 @@ export const currentEouRes: ExtendedOrgUser = {
   },
 };
 
-export const currentEouUnflatted = {
+export const currentEouUnflatted: UnflattenedEou = {
   ou_id: 'ouX8dwsbLCLv',
   ou_created_at: new Date('2018-02-01T02:32:25.267Z'),
   ou_org_id: 'orNVthTo2Zyo',
@@ -164,4 +165,33 @@ export const currentEouUnflatted = {
   dwolla_customer_id: 'dwcJzfwZCgwkdfG',
   dwolla_bank_account_added: true,
   ou_cost_center_ids: [13792, 13793, 13794],
+};
+
+export const employeesRes = {
+  count: 95,
+  data: [
+    {
+      us_email: 'abhishek.kumar@fyle.in',
+      us_full_name: 'Abhi',
+    },
+    {
+      us_email: 'ajain+sp@fyle.in',
+      us_full_name: 'Abhishek',
+    },
+    {
+      us_email: 'ajain+fyle123@fyle.in',
+      us_full_name: 'Abhishet CPM',
+    },
+    {
+      us_email: 'aditya.agrawal@fyle.in',
+      us_full_name: 'Adi',
+    },
+    {
+      us_email: 'adithya.kavuluru@fyle.in',
+      us_full_name: 'adithya',
+    },
+  ],
+  limit: 5,
+  offset: 0,
+  url: '/v2/spender_employees',
 };

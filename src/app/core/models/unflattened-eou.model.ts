@@ -33,7 +33,7 @@ export interface UnflattenedEou {
   ou_custom_field_values: {
     id: number;
     name: string;
-    value: string;
+    value: string | number;
   }[];
   ou_org_name: string;
   org_domain: string;
