@@ -1,18 +1,20 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { User } from '../models/user.model';
-import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Observable, range, Subject, from } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { DataTransformService } from './data-transform.service';
 import { Cacheable, globalCacheBusterNotifier, CacheBuster } from 'ts-cacheable';
 import { TrackingService } from './tracking.service';
 import { ApiV2Service } from './api-v2.service';
 import { Employee } from '../models/spender/employee.model';
-import { PAGINATION_SIZE } from 'src/app/constants';
+import { EmployeeParams } from '../models/employee-params.model';
+import { OrgUser } from '../models/org-user.model';
+import { UnflattenedEou } from '../models/unflattened-eou.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -21,7 +23,6 @@ const orgUsersCacheBuster$ = new Subject<void>();
 })
 export class OrgUserService {
   constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
     private apiService: ApiService,
@@ -32,7 +33,7 @@ export class OrgUserService {
   ) {}
 
   @Cacheable()
-  getCurrent() {
+  getCurrent(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(map((eou) => this.dataTransformService.unflatten(eou)));
   }
 
@@ -40,7 +41,7 @@ export class OrgUserService {
   @Cacheable({
     cacheBusterObserver: orgUsersCacheBuster$,
   })
-  getEmployeesByParams(params): Observable<{
+  getEmployeesByParams(params: EmployeeParams): Observable<{
     count: number;
     data: Employee[];
     limit: number;
@@ -53,14 +54,14 @@ export class OrgUserService {
   @CacheBuster({
     cacheBusterNotifier: orgUsersCacheBuster$,
   })
-  switchToDelegator(orgUser) {
+  switchToDelegator(orgUser: ExtendedOrgUser): Observable<ExtendedOrgUser> {
     return this.apiService
       .post('/orgusers/delegator_refresh_token', orgUser)
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 
   @Cacheable()
-  findDelegatedAccounts() {
+  findDelegatedAccounts(): Observable<ExtendedOrgUser[]> {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map((delegatedAccounts) => {
         delegatedAccounts = delegatedAccounts.map((delegatedAccount) =>
@@ -72,24 +73,24 @@ export class OrgUserService {
     );
   }
 
-  postUser(user: User) {
+  postUser(user: User): Observable<User> {
     globalCacheBusterNotifier.next();
     return this.apiService.post('/users', user);
   }
 
-  postOrgUser(orgUser) {
+  postOrgUser(orgUser: OrgUser): Observable<OrgUser> {
     globalCacheBusterNotifier.next();
     return this.apiService.post('/orgusers', orgUser);
   }
 
-  markActive() {
+  markActive(): Observable<ExtendedOrgUser> {
     return this.apiService.post('/orgusers/current/mark_active').pipe(
       switchMap(() => this.authService.refreshEou()),
       tap(() => this.trackingService.activated())
     );
   }
 
-  getEmployeesBySearch(params): Observable<Employee[]> {
+  getEmployeesBySearch(params: EmployeeParams): Observable<Employee[]> {
     if (params.or) {
       params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
     } else {
@@ -100,26 +101,26 @@ export class OrgUserService {
     }).pipe(map((res) => res.data));
   }
 
-  getUserById(userId: string) {
+  getUserById(userId: string): Observable<UnflattenedEou> {
     return this.apiService.get('/eous/' + userId);
   }
 
-  exclude(eous: ExtendedOrgUser[], userIds: string[]) {
+  exclude(eous: ExtendedOrgUser[], userIds: string[]): ExtendedOrgUser[] {
     return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
   }
 
-  excludeByStatus(eous: ExtendedOrgUser[], status: string) {
+  excludeByStatus(eous: ExtendedOrgUser[], status: string): ExtendedOrgUser[] {
     const eousFiltered = eous?.filter((eou) => status.indexOf(eou.ou.status) === -1);
     return eousFiltered;
   }
 
-  switchToDelegatee() {
+  switchToDelegatee(): Observable<ExtendedOrgUser> {
     return this.apiService
       .post('/orgusers/delegatee_refresh_token')
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 
-  async isSwitchedToDelegator() {
+  async isSwitchedToDelegator(): Promise<boolean> {
     const accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
     return accessToken && !!accessToken.proxy_org_user_id;
   }
