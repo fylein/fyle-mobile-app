@@ -45,7 +45,7 @@ export class AccountsService {
     accounts: ExtendedAccount[],
     allowedPaymentModes: string[],
     config: {
-      etxn: UnflattenedTransaction;
+      etxn: Partial<UnflattenedTransaction>;
       orgSettings: OrgSettings;
       expenseType: ExpenseType;
       isPaymentModeConfigurationsEnabled: boolean;
@@ -138,7 +138,7 @@ export class AccountsService {
     allAccounts: ExtendedAccount[],
     allowedPaymentModes: string[],
     isMultipleAdvanceEnabled: boolean,
-    etxn?: UnflattenedTransaction,
+    etxn?: Partial<UnflattenedTransaction>,
     isMileageOrPerDiemExpense = false
   ): ExtendedAccount[] {
     //Mileage and per diem expenses cannot have PCCC as a payment mode

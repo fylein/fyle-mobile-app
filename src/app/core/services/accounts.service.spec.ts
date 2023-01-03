@@ -37,57 +37,7 @@ import { AccountsService } from './accounts.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 
-const account1 = account1Data;
-
-const unflattenedAccount1 = unflattenedAccount1Data;
-
-const account2 = account2Data;
-
-const unflattenedAccount2 = unflattenedAccount2Data;
-
-const accountsCallResponse1 = [account1, account2];
-
-const etxnCCC = unflattenedTransactionCCC;
-
-const paymentModeCCC = paymentModeDataCCC;
-
-const etxnPersonal = unflattenedTransactionPersonal;
-
-const paymentModePersonal = paymentModeDataPersonal;
-
-const paymentModeAdvance = paymentModeDataAdvance;
-
-const paymentModes = paymentModesData;
-
-const unflattenedTxnWithoutSourceAccountId = unflattenedTxnWithoutSourceAccountIdData;
-
-const paymentModeDataCCCWithoutAccProperty = paymentModeDataCCCWithoutAccountProperty;
-
-const paymentModeMultipleAdvance = paymentModeDataMultipleAdvance;
-
-const unflattenedAccount3 = unflattenedAccount3Data;
-
-const paymentModeMultipleAdvWithoutOrigAmt = paymentModeDataMultipleAdvWithoutOrigAmt;
-
-const unflattenedAccount4 = unflattenedAccount4Data;
-
-const multiplePaymentModes = multiplePaymentModesData;
-
-const etxnObj = etxnObjData;
-
-const multiplePaymentModesWithCompanyAcc = multiplePaymentModesWithCompanyAccData;
-
-const multiplePaymentModesWithoutAdv = multiplePaymentModesWithoutAdvData;
-
-const multiplePaymentModesWithoutCCCAcc = multiplePaymentModesWithoutCCCAccData;
-
-const etxnObjWithSource = etxnObjWithSourceData;
-
-const paymentModesRes = paymentModesResData;
-
-const paymentModesAccounts = paymentModesAccountsData;
-
-const multiplePaymentModesIncPersonalAcc = multiplePaymentModesIncPersonalAccData;
+const accountsCallResponse1 = [account1Data, account2Data];
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -130,37 +80,41 @@ describe('AccountsService', () => {
 
   it('should be able to fetch data from api in proper format', (done) => {
     apiService.get.and.returnValue(of(accountsCallResponse1));
-    dataTransformService.unflatten.withArgs(account1).and.returnValue(unflattenedAccount1);
-    dataTransformService.unflatten.withArgs(account2).and.returnValue(unflattenedAccount2);
+    dataTransformService.unflatten.withArgs(account1Data).and.returnValue(unflattenedAccount1Data);
+    dataTransformService.unflatten.withArgs(account2Data).and.returnValue(unflattenedAccount2Data);
 
     accountsService.getEMyAccounts().subscribe((res) => {
-      expect(res[0]).toEqual(unflattenedAccount1);
-      expect(res[1]).toEqual(unflattenedAccount2);
+      expect(res[0]).toEqual(unflattenedAccount1Data);
+      expect(res[1]).toEqual(unflattenedAccount2Data);
       expect(res.length === 2);
       done();
     });
   });
 
   it('should be able to check if etxn has same payment mode', () => {
-    expect(accountsService.checkIfEtxnHasSamePaymentMode(etxnCCC, paymentModeCCC)).toEqual(true);
+    expect(accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionCCC, paymentModeDataCCC)).toEqual(true);
   });
 
   it('should be able to check if etxn has same personal account payment mode', () => {
-    expect(accountsService.checkIfEtxnHasSamePaymentMode(etxnPersonal, paymentModePersonal)).toEqual(false);
+    expect(
+      accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal)
+    ).toEqual(false);
   });
 
   it('should be able to get etxn selected payment mode with source account id', () => {
-    expect(accountsService.getEtxnSelectedPaymentMode(unflattenedTransactionCCC, paymentModes)).toEqual(paymentModeCCC);
-  });
-
-  it('should be able to get etxn selected payment mode null without source account id', () => {
-    expect(accountsService.getEtxnSelectedPaymentMode(unflattenedTxnWithoutSourceAccountId, paymentModes)).toEqual(
-      null
+    expect(accountsService.getEtxnSelectedPaymentMode(unflattenedTransactionCCC, paymentModesData)).toEqual(
+      paymentModeDataCCC
     );
   });
 
+  it('should be able to get etxn selected payment mode null without source account id', () => {
+    expect(
+      accountsService.getEtxnSelectedPaymentMode(unflattenedTxnWithoutSourceAccountIdData, paymentModesData)
+    ).toEqual(null);
+  });
+
   it('should be able to get account type from payment mode', () => {
-    expect(accountsService.getAccountTypeFromPaymentMode(paymentModeCCC)).toEqual(AccountType.CCC);
+    expect(accountsService.getAccountTypeFromPaymentMode(paymentModeDataCCC)).toEqual(AccountType.CCC);
   });
 
   it('should be able to get company account type from payment mode', () => {
@@ -168,22 +122,22 @@ describe('AccountsService', () => {
   });
 
   it('should be able to set account properties', () => {
-    expect(accountsService.setAccountProperties(paymentModeDataCCCWithoutAccProperty, AccountType.CCC, false)).toEqual(
-      paymentModeDataCCC
-    );
+    expect(
+      accountsService.setAccountProperties(paymentModeDataCCCWithoutAccountProperty, AccountType.CCC, false)
+    ).toEqual(paymentModeDataCCC);
   });
 
   it('should be able to set account properties for advance account', () => {
     fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
     expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE, false)).toEqual(
-      paymentModeAdvance
+      paymentModeDataAdvance
     );
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
   it('should be able to set account properties for multiple advance account', () => {
-    expect(accountsService.setAccountProperties(unflattenedAccount3, AccountType.ADVANCE, true)).toEqual(
-      paymentModeMultipleAdvance
+    expect(accountsService.setAccountProperties(unflattenedAccount3Data, AccountType.ADVANCE, true)).toEqual(
+      paymentModeDataMultipleAdvance
     );
   });
 
@@ -192,56 +146,68 @@ describe('AccountsService', () => {
   });
 
   it('should be able to set account properties for multiple advance account as default without orig amount', () => {
-    expect(accountsService.setAccountProperties(unflattenedAccount4, AccountType.ADVANCE, true)).toEqual(
-      paymentModeMultipleAdvWithoutOrigAmt
+    expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE, true)).toEqual(
+      paymentModeDataMultipleAdvWithoutOrigAmt
     );
   });
 
   it('should be able to filter the accounts with sufficient balance', () => {
-    expect(accountsService.filterAccountsWithSufficientBalance(multiplePaymentModes, true)).toEqual(
-      multiplePaymentModes
+    expect(accountsService.filterAccountsWithSufficientBalance(multiplePaymentModesData, true)).toEqual(
+      multiplePaymentModesData
     );
   });
 
   it('should be able to get allowed accounts', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
-      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, etxnObj, false)
-    ).toEqual(multiplePaymentModesWithCompanyAcc);
+      accountsService.getAllowedAccounts(
+        multiplePaymentModesWithoutAdvData,
+        allowedPaymentModes,
+        false,
+        etxnObjData,
+        false
+      )
+    ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
   it('should be able to get allowed accounts with source in etxn obj', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
       accountsService.getAllowedAccounts(
-        multiplePaymentModesWithoutAdv,
+        multiplePaymentModesWithoutAdvData,
         allowedPaymentModes,
         false,
-        etxnObjWithSource,
+        etxnObjWithSourceData,
         false
       )
-    ).toEqual(multiplePaymentModesWithCompanyAcc);
+    ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
   it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
     expect(
-      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, etxnObj)
-    ).toEqual(multiplePaymentModesWithCompanyAcc);
+      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdvData, allowedPaymentModes, false, etxnObjData)
+    ).toEqual(multiplePaymentModesWithCompanyAccData);
   });
 
   it('should be able to get allowed accounts without passing etxn param', () => {
     const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
-    expect(accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false)).toEqual(
-      multiplePaymentModesWithCompanyAcc
+    expect(accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdvData, allowedPaymentModes, false)).toEqual(
+      multiplePaymentModesWithCompanyAccData
     );
   });
 
   it('should be able to get allowed accounts for mileage and per diem', () => {
     const allowedPaymentModes = ['COMPANY_ACCOUNT'];
     expect(
-      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdv, allowedPaymentModes, false, etxnObj, true)
-    ).toEqual(multiplePaymentModesWithoutCCCAcc);
+      accountsService.getAllowedAccounts(
+        multiplePaymentModesWithoutAdvData,
+        allowedPaymentModes,
+        false,
+        etxnObjData,
+        true
+      )
+    ).toEqual(multiplePaymentModesWithoutCCCAccData);
   });
 
   it('should be able to get allowed accounts when current expense payment mode is not allowed', () => {
@@ -251,16 +217,16 @@ describe('AccountsService', () => {
         multiplePaymentModesWithoutPersonalAccData,
         allowedPaymentModes,
         false,
-        etxnObjWithSource,
+        etxnObjWithSourceData,
         false
       )
-    ).toEqual(multiplePaymentModesIncPersonalAcc);
+    ).toEqual(multiplePaymentModesIncPersonalAccData);
   });
 
   it('should be able to get payment modes', () => {
     fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
     const config = {
-      etxn: etxnObj,
+      etxn: etxnObjData,
       expenseType: ExpenseType.EXPENSE,
       isPaidByCompanyHidden: true,
       isPaymentModeConfigurationsEnabled: true,
@@ -272,14 +238,16 @@ describe('AccountsService', () => {
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
-    expect(accountsService.getPaymentModes(paymentModesAccounts, allowedPaymentModes, config)).toEqual(paymentModesRes);
+    expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
+      paymentModesResData
+    );
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
   it('should be able to get payment modes when advances is disabled and advance requests is enabled', () => {
     fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
     const config = {
-      etxn: etxnObj,
+      etxn: etxnObjData,
       expenseType: ExpenseType.EXPENSE,
       isPaidByCompanyHidden: true,
       isPaymentModeConfigurationsEnabled: true,
@@ -291,7 +259,9 @@ describe('AccountsService', () => {
       'COMPANY_ACCOUNT',
       'PERSONAL_ADVANCE_ACCOUNT',
     ];
-    expect(accountsService.getPaymentModes(paymentModesAccounts, allowedPaymentModes, config)).toEqual(paymentModesRes);
+    expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
+      paymentModesResData
+    );
     expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 });
