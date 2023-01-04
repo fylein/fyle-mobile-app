@@ -645,7 +645,7 @@ export class TransactionService {
   getRemoveCardExpenseDialogBody(isSplitExpensesPresent: boolean): string {
     const dialogBody = isSplitExpensesPresent
       ? `<ul class="text-left">
-    <li>Since this is a split expense, clicking on Confirm will remove the card details from all the related split expenses.</li>
+    <li>Since this is a split expense, clicking on <strong>Confirm</strong> will remove the card details from all the related split expenses.</li>
     <li>A new expense will be created from the card expense removed here.</li>
     <li>Are you sure to remove your card expense from this expense?</li>
     </ul>`
