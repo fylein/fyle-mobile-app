@@ -75,7 +75,7 @@ module.exports = function (ctx) {
   var pbxprojPathContents = fs.readFileSync(pbxprojPath).toString();
   fs.writeFileSync(
     pbxprojPath,
-    pbxprojPathContents.replace('FYLE_MOBILE_RELEASE_VERSION', ctx.env.FYLE_MOBILE_RELEASE_VERSION),
+    pbxprojPathContents.replace(/FYLE_MOBILE_RELEASE_VERSION/g, ctx.env.FYLE_MOBILE_RELEASE_VERSION),
     'utf8'
   );
 
