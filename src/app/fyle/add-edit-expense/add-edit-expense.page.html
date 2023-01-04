@@ -120,14 +120,14 @@
               <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
               <div
                 class="add-edit-expense--split-info-message"
-                *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canRemoveCardExpense)"
+                *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
               >
-                If the expense is merged with incorrect card details, click on Options (<span
+                If the expense is linked with incorrect card details, click on Options (<span
                   ><ion-icon
                     class="add-edit-expense--icon-dots"
                     [src]="'../../../assets/svg/dot-menu.svg'"
                   ></ion-icon></span
-                >) to remove the card details.
+                >) to unlink the card details.
               </div>
             </div>
           </ng-container>

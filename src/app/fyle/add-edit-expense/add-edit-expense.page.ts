@@ -338,7 +338,7 @@ export class AddEditExpensePage implements OnInit {
 
   canDismissCCCE: boolean;
 
-  canRemoveCardExpense: boolean;
+  canUnlinkCCCE: boolean;
 
   isCorporateCreditCardEnabled: boolean;
 
@@ -769,10 +769,10 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  async removeCorporateCardExpense() {
+  async unlinkCorporateCardExpense() {
     const id = this.activatedRoute.snapshot.params.id;
-    const header = 'Remove Card Expense';
-    const body = this.transactionService.getRemoveCardExpenseDialogBody(this.isSplitExpensesPresent);
+    const header = 'Unlink Card Details';
+    const body = this.transactionService.getUnlinkDialogBody(this.isSplitExpensesPresent);
     const ctaText = 'Confirm';
     const ctaLoadingText = 'Confirming';
     const deletePopover = await this.popoverController.create({
@@ -784,7 +784,7 @@ export class AddEditExpensePage implements OnInit {
         body,
         ctaText,
         ctaLoadingText,
-        deleteMethod: () => this.transactionService.removeCorporateCardExpense(id),
+        deleteMethod: () => this.transactionService.unlinkCorporateCardExpense(id),
       },
     });
 
@@ -963,11 +963,11 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
+        if (this.isCorporateCreditCardEnabled && this.canUnlinkCCCE) {
           actionSheetOptions.push({
-            text: 'Remove Card Expense',
+            text: 'Unlink Card Details',
             handler: () => {
-              this.removeCorporateCardExpense();
+              this.unlinkCorporateCardExpense();
             },
           });
         }
@@ -2831,7 +2831,7 @@ export class AddEditExpensePage implements OnInit {
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
-      this.canRemoveCardExpense =
+      this.canUnlinkCCCE =
         !!etxn?.tx?.corporate_credit_card_expense_group_id &&
         ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn?.tx?.state);
     });
