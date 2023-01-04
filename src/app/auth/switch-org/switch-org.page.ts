@@ -173,18 +173,18 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
   }
 
-  logoutIfSingleOrg() {
+  logoutIfSingleOrg(orgs: Org[]) {
     /*
      * Case: When a user is added to an SSO org but hasn't verified their account through the link.
      * After showing the alert, the user will be redirected to the sign-in page since there is no other org they are a part of.
      * If the user has more than 1 org, the user will stay on the switch org page to choose another org.
      */
-    if (this.orgs.length === 1) {
+    if (orgs?.length === 1) {
       this.signOut();
     }
   }
 
-  handleDismissPopup(action: string, email: string, orgId: string) {
+  handleDismissPopup(action = 'cancel', email: string, orgId: string, orgs: Org[]) {
     if (action === 'resend') {
       // If user clicks on resend Button, Resend Invite to the user and then logout if user have only one org.
       this.resendInvite(email, orgId)
@@ -196,19 +196,22 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         )
         .subscribe(() => {
           this.showToastNotification('Verification Email Sent');
-          this.logoutIfSingleOrg();
+          this.logoutIfSingleOrg(orgs);
         });
     } else {
-      this.logoutIfSingleOrg();
+      this.logoutIfSingleOrg(orgs);
     }
   }
 
   async showEmailNotVerifiedAlert() {
-    this.authService.getEou().then(async (eou) => {
+    const eou$ = from(this.authService.getEou());
+    forkJoin({
+      eou: eou$,
+      orgs: this.orgs$,
+    }).subscribe(async ({ eou, orgs }) => {
       const orgName = eou.ou.org_name;
       const orgId = eou.ou.org_id;
       const email = eou.us.email;
-
       const popover = await this.popoverController.create({
         componentProps: {
           title: 'Invite Not Accepted',
@@ -224,12 +227,13 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         },
         component: PopupAlertComponentComponent,
         cssClass: 'pop-up-in-center',
+        backdropDismiss: false,
       });
       await popover.present();
 
       const { data } = await popover.onWillDismiss();
 
-      this.handleDismissPopup(data.action, email, orgId);
+      this.handleDismissPopup(data?.action, email, orgId, orgs);
     });
   }
 
