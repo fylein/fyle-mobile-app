@@ -42,7 +42,7 @@ export class OrgUserService {
   })
   getEmployeesByParams(params: Partial<EmployeeParams>): Observable<{
     count: number;
-    data: Partial<Employee[]>;
+    data: Partial<Employee>[];
     limit: number;
     offset: number;
     url: string;
@@ -89,7 +89,7 @@ export class OrgUserService {
     );
   }
 
-  getEmployeesBySearch(params: Partial<EmployeeParams>): Observable<Partial<Employee[]>> {
+  getEmployeesBySearch(params: Partial<EmployeeParams>): Observable<Partial<Employee>[]> {
     if (params.or) {
       params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
     } else {
