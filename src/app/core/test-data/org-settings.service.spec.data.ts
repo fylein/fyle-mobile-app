@@ -4,7 +4,7 @@ import {
   IncomingAccountObject,
   OrgSettings,
   OrgSettingsResponse,
-} from '../org-settings.model';
+} from '../models/org-settings.model';
 
 export const orgSettingsGetData: OrgSettings = {
   org_id: 'orNVthTo2Zyo',
