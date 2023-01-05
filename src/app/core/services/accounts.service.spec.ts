@@ -22,6 +22,7 @@ import {
   paymentModeDataMultipleAdvance,
   paymentModeDataMultipleAdvWithoutOrigAmt,
   paymentModeDataPersonal,
+  paymentModeDataPersonal2,
   paymentModesAccountsData,
   paymentModesData,
   paymentModesResData,
@@ -99,6 +100,10 @@ describe('AccountsService', () => {
     expect(
       accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal)
     ).toEqual(false);
+
+    expect(
+      accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal2)
+    ).toEqual(true);
   });
 
   it('should be able to get etxn selected payment mode with source account id', () => {
@@ -107,7 +112,7 @@ describe('AccountsService', () => {
     );
   });
 
-  it('should be able to get etxn selected payment mode null without source account id', () => {
+  it('should be able to get selected payment mode as null when extn is without source account id', () => {
     expect(
       accountsService.getEtxnSelectedPaymentMode(unflattenedTxnWithoutSourceAccountIdData, paymentModesData)
     ).toEqual(null);

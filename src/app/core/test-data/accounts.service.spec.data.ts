@@ -379,6 +379,46 @@ export const paymentModeDataPersonal = {
   amount: null,
 };
 
+export const paymentModeDataPersonal2 = {
+  acc: {
+    id: 'accZ1IWjhjLyu4',
+    created_at: new Date('2019-01-11T16:41:56.485Z'),
+    updated_at: new Date('2022-11-28T06:43:36.456Z'),
+    name: 'Personal Account',
+    type: AccountType.PERSONAL,
+    currency: 'INR',
+    target_balance_amount: 0,
+    current_balance_amount: 0,
+    tentative_balance_amount: 0,
+    category: null,
+    displayName: 'Personal',
+    isReimbursable: true,
+  },
+  ou: {
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+  },
+  us: {
+    email: 'ajain@fyle.in',
+    full_name: 'Abhishekkk',
+  },
+  org: {
+    id: null,
+    domain: null,
+  },
+  advance: {
+    purpose: null,
+    number: null,
+    id: null,
+  },
+  orig: {
+    currency: null,
+    amount: null,
+  },
+  currency: null,
+  amount: null,
+};
+
 export const unflattenedTransactionCCC: UnflattenedTransaction = {
   tx: {
     risk_state: null,

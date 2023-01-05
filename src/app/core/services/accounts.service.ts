@@ -12,6 +12,7 @@ import { ExpenseType } from '../enums/expense-type.enum';
 import { Observable } from 'rxjs';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { OrgSettings } from '../models/org-settings.model';
+import { DateService } from './date.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,8 @@ export class AccountsService {
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private fyCurrencyPipe: FyCurrencyPipe
+    private fyCurrencyPipe: FyCurrencyPipe,
+    private dateService: DateService
   ) {}
 
   @Cacheable()
@@ -31,6 +33,7 @@ export class AccountsService {
 
         accountsRaw.forEach((accountRaw) => {
           const account = this.dataTransformService.unflatten(accountRaw);
+          this.dateService.fixDates(account);
           accounts.push(account);
         });
 
