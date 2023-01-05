@@ -6,6 +6,11 @@ import {
   employeesParamsRes,
   employeesRes,
   eouListWithDisabledUser,
+  switchToDelegatorParams,
+  switchToDelegatorResponse,
+  postUserResponse,
+  postUserParam,
+  postOrgUser,
 } from '../test-data/org-user.service.spec.data';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
@@ -25,7 +30,7 @@ describe('OrgUserService', () => {
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
 
   beforeEach(() => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
+    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['decodeToken']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getAccessToken']);
@@ -169,6 +174,32 @@ describe('OrgUserService', () => {
 
     orgUserService.findDelegatedAccounts().subscribe((res) => {
       expect(res).toEqual([currentEouRes]);
+      done();
+    });
+  });
+
+  it('should be able to switch to delegator account', (done) => {
+    apiService.post.and.returnValue(of(switchToDelegatorResponse));
+    authService.newRefreshToken.and.returnValue(of(switchToDelegatorResponse));
+
+    orgUserService.switchToDelegator(switchToDelegatorParams).subscribe((res) => {
+      expect(res).toEqual(switchToDelegatorResponse);
+      done();
+    });
+  });
+
+  it('should be able to post user', (done) => {
+    apiService.post.and.returnValue(of(postUserResponse));
+    orgUserService.postUser(postUserParam).subscribe((res) => {
+      expect(res).toEqual(postUserResponse);
+      done();
+    });
+  });
+
+  it('should be able to post org user', (done) => {
+    apiService.post.and.returnValue(of(postOrgUser));
+    orgUserService.postOrgUser(postOrgUser).subscribe((res) => {
+      expect(res).toEqual(postOrgUser);
       done();
     });
   });

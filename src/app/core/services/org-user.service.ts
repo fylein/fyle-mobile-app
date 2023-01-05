@@ -53,7 +53,7 @@ export class OrgUserService {
   @CacheBuster({
     cacheBusterNotifier: orgUsersCacheBuster$,
   })
-  switchToDelegator(orgUser: ExtendedOrgUser): Observable<ExtendedOrgUser> {
+  switchToDelegator(orgUser: OrgUser): Observable<ExtendedOrgUser> {
     return this.apiService
       .post('/orgusers/delegator_refresh_token', orgUser)
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
@@ -77,7 +77,7 @@ export class OrgUserService {
     return this.apiService.post('/users', user);
   }
 
-  postOrgUser(orgUser: OrgUser): Observable<OrgUser> {
+  postOrgUser(orgUser: Partial<OrgUser>): Observable<OrgUser> {
     globalCacheBusterNotifier.next();
     return this.apiService.post('/orgusers', orgUser);
   }
