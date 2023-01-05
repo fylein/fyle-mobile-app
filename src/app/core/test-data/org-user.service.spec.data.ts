@@ -1,5 +1,5 @@
+import { EouApiResponse } from '../models/eou-api-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { UnflattenedEou } from '../models/unflattened-eou.model';
 
 export const currentEouRes: ExtendedOrgUser = {
   ou: {
@@ -87,7 +87,7 @@ export const currentEouRes: ExtendedOrgUser = {
   },
 };
 
-export const currentEouUnflatted: UnflattenedEou = {
+export const currentEouUnflatted: EouApiResponse = {
   ou_id: 'ouX8dwsbLCLv',
   ou_created_at: new Date('2018-02-01T02:32:25.267Z'),
   ou_org_id: 'orNVthTo2Zyo',
@@ -134,7 +134,7 @@ export const currentEouUnflatted: UnflattenedEou = {
     {
       id: 415,
       name: 'nj',
-      value: 2222,
+      value: '2222',
     },
     {
       id: 685,

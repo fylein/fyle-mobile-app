@@ -14,7 +14,7 @@ import { ApiV2Service } from './api-v2.service';
 import { Employee } from '../models/spender/employee.model';
 import { EmployeeParams } from '../models/employee-params.model';
 import { OrgUser } from '../models/org-user.model';
-import { UnflattenedEou } from '../models/unflattened-eou.model';
+import { EouApiResponse } from '../models/eou-api-response.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -40,7 +40,7 @@ export class OrgUserService {
   @Cacheable({
     cacheBusterObserver: orgUsersCacheBuster$,
   })
-  getEmployeesByParams(params: EmployeeParams): Observable<{
+  getEmployeesByParams(params: Partial<EmployeeParams>): Observable<{
     count: number;
     data: Partial<Employee[]>;
     limit: number;
@@ -89,7 +89,7 @@ export class OrgUserService {
     );
   }
 
-  getEmployeesBySearch(params: EmployeeParams): Observable<Partial<Employee[]>> {
+  getEmployeesBySearch(params: Partial<EmployeeParams>): Observable<Employee[]> {
     if (params.or) {
       params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
     } else {
@@ -100,7 +100,7 @@ export class OrgUserService {
     }).pipe(map((res) => res.data));
   }
 
-  getUserById(userId: string): Observable<UnflattenedEou> {
+  getUserById(userId: string): Observable<EouApiResponse> {
     return this.apiService.get('/eous/' + userId);
   }
 

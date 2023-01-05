@@ -1564,10 +1564,14 @@ export class AddEditMileagePage implements OnInit {
   }
 
   close() {
-    if (this.activatedRoute.snapshot.params.persist_filters) {
+    if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      const reportId = this.fg.value.report?.rp?.id;
+      if (reportId) {
+        this.showAddToReportSuccessToast(reportId);
+      }
     }
   }
 
@@ -1620,22 +1624,10 @@ export class AddEditMileagePage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.close();
-              }
-            });
+            that.addExpense('SAVE_MILEAGE').subscribe(() => this.close());
           } else {
             // to do edit
-            that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.close();
-              }
-            });
+            that.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
           }
         } else {
           that.fg.markAllAsTouched();
