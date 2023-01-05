@@ -24,3 +24,21 @@
     ></mat-icon>
   </div>
 </label>
+
+<ng-container *ngIf="selectedOption?.dependent_field_ids?.length">
+  <div *ngFor="let fieldId of selectedOption?.dependent_field_ids" class="add-edit-expense--primary-block">
+    <div [formGroup]="fg" class="add-edit-expense--internal-block">
+      <div>
+        <app-fy-select
+          [label]="depFields.expense_fields?.data[fieldId].name"
+          [mandatory]="false"
+          [options]="depFields.getFieldValuesById(fieldId).data"
+          [selectModalHeader]="'Select ' + depFields.expense_fields?.data[fieldId].name"
+          formControlName="depField"
+          [depFields]="depFields"
+        >
+        </app-fy-select>
+      </div>
+    </div>
+  </div>
+</ng-container>

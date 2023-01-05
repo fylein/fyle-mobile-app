@@ -1,5 +1,5 @@
 import { Component, OnInit, forwardRef, Input, TemplateRef, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl, FormGroup, Validators, FormControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
@@ -49,7 +49,13 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
 
-  displayValue;
+  @Input() depFields;
+
+  displayValue = '';
+
+  selectedOption;
+
+  fg: FormGroup;
 
   private innerValue;
 
@@ -80,6 +86,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
+      this.displayValue = null;
       if (this.options) {
         const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
         if (selectedOption && selectedOption.label) {
@@ -91,6 +98,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
         } else {
           this.displayValue = '';
         }
+
+        this.selectedOption = selectedOption;
       }
 
       this.onChangeCallback(v);
@@ -99,6 +108,10 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
+
+    this.fg = new FormGroup({
+      depField: new FormControl('', Validators.required),
+    });
   }
 
   async openModal() {

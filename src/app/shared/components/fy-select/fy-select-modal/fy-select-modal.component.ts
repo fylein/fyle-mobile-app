@@ -120,7 +120,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
           return initial.concat(
             this.options
               .concat(extraOption)
-              .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
+              .filter((option) => option.label?.toLowerCase().includes(searchText?.toLowerCase()))
               .sort((element1, element2) => element1.label.localeCompare(element2.label))
               .map((option) => {
                 option.selected = isEqual(option.value, this.currentSelection);

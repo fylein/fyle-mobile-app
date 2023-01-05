@@ -903,6 +903,21 @@
           </ng-container>
         </div>
       </div>
+      <div *ngIf="data?.expense_fields?.data?.length" class="add-edit-expense--primary-block">
+        <div class="add-edit-expense--internal-block">
+          <div>
+            <app-fy-select
+              [label]="data.expense_fields?.data[0].name"
+              [mandatory]="false"
+              [options]="data.getFieldValuesById(0).data"
+              [selectModalHeader]="'Select '"
+              formControlName="chai"
+              [depFields]="data"
+            >
+            </app-fy-select>
+          </div>
+        </div>
+      </div>
 
       <ng-container *ngIf="isConnected$|async as isConnected">
         <div class="add-edit-expense--primary-block">

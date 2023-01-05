@@ -110,6 +110,7 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { sampleData } from 'src/app/data/sample-data';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -355,6 +356,8 @@ export class AddEditExpensePage implements OnInit {
   breakfastSystemCategories: string[];
 
   hardwareBackButtonAction: Subscription;
+
+  data: any;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2458,6 +2461,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.data = sampleData;
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
