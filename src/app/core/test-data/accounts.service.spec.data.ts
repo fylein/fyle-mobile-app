@@ -7,8 +7,8 @@ import { UnflattenedTransaction } from '../models/unflattened-transaction.model'
 
 export const account1Data = {
   acc_id: 'accfziaxbGFVW',
-  acc_created_at: '2018-10-08T07:04:42.753Z',
-  acc_updated_at: '2022-04-27T08:57:52.221Z',
+  acc_created_at: new Date('2018-10-08T07:04:42.753Z'),
+  acc_updated_at: new Date('2022-04-27T08:57:52.221Z'),
   acc_name: 'Personal Account',
   acc_type: 'PERSONAL_ACCOUNT',
   acc_currency: 'INR',
@@ -62,8 +62,8 @@ export const unflattenedAccount1Data = {
 
 export const account2Data = {
   acc_id: 'acct0IxPgGvLa',
-  acc_created_at: '2018-11-05T18:35:59.912Z',
-  acc_updated_at: '2021-09-29T19:35:23.965Z',
+  acc_created_at: new Date('2018-11-05T18:35:59.912Z'),
+  acc_updated_at: new Date('2021-09-29T19:35:23.965Z'),
   acc_name: 'Advance Account',
   acc_type: 'PERSONAL_ADVANCE_ACCOUNT',
   acc_currency: 'INR',

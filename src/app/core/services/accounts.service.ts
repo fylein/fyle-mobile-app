@@ -33,7 +33,6 @@ export class AccountsService {
 
         accountsRaw.forEach((accountRaw) => {
           const account = this.dataTransformService.unflatten(accountRaw);
-          this.dateService.fixDates(account);
           accounts.push(account);
         });
 
