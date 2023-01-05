@@ -338,7 +338,7 @@ export class AddEditExpensePage implements OnInit {
 
   canDismissCCCE: boolean;
 
-  canUnlinkCCCE: boolean;
+  canRemoveCardExpense: boolean;
 
   isCorporateCreditCardEnabled: boolean;
 
@@ -417,13 +417,17 @@ export class AddEditExpensePage implements OnInit {
   goBack() {
     const bankTxn =
       this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-    if (this.activatedRoute.snapshot.params.persist_filters) {
+    if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
       if (bankTxn) {
         this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        const reportId = this.fg.value.report?.rp?.id;
+        if (reportId) {
+          this.showAddToReportSuccessToast(reportId);
+        }
       }
     }
   }
@@ -765,10 +769,10 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  async unlinkCorporateCardExpense() {
+  async removeCorporateCardExpense() {
     const id = this.activatedRoute.snapshot.params.id;
-    const header = 'Unlink Card Details';
-    const body = this.transactionService.getUnlinkDialogBody(this.isSplitExpensesPresent);
+    const header = 'Remove Card Expense';
+    const body = this.transactionService.getRemoveCardExpenseDialogBody(this.isSplitExpensesPresent);
     const ctaText = 'Confirm';
     const ctaLoadingText = 'Confirming';
     const deletePopover = await this.popoverController.create({
@@ -780,7 +784,7 @@ export class AddEditExpensePage implements OnInit {
         body,
         ctaText,
         ctaLoadingText,
-        deleteMethod: () => this.transactionService.unlinkCorporateCardExpense(id),
+        deleteMethod: () => this.transactionService.removeCorporateCardExpense(id),
       },
     });
 
@@ -959,11 +963,11 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (this.isCorporateCreditCardEnabled && this.canUnlinkCCCE) {
+        if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
           actionSheetOptions.push({
-            text: 'Unlink Card Details',
+            text: 'Remove Card Expense',
             handler: () => {
-              this.unlinkCorporateCardExpense();
+              this.removeCorporateCardExpense();
             },
           });
         }
@@ -2827,7 +2831,7 @@ export class AddEditExpensePage implements OnInit {
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
-      this.canUnlinkCCCE =
+      this.canRemoveCardExpense =
         !!etxn?.tx?.corporate_credit_card_expense_group_id &&
         ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn?.tx?.state);
     });
@@ -3090,23 +3094,11 @@ export class AddEditExpensePage implements OnInit {
                     this.saveExpenseLoader = false;
                   })
                 )
-                .subscribe((res: any) => {
-                  if (that.fg.value.report?.rp?.id) {
-                    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-                  } else {
-                    that.goBack();
-                  }
-                });
+                .subscribe(() => this.goBack());
             }
           } else {
             // to do edit
-            that.editExpense('SAVE_EXPENSE').subscribe((res) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.goBack();
-              }
-            });
+            that.editExpense('SAVE_EXPENSE').subscribe(() => this.goBack());
           }
         } else {
           that.fg.markAllAsTouched();
