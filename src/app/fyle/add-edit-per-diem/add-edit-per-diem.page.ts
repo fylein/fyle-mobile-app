@@ -304,10 +304,14 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   goBack() {
-    if (this.activatedRoute.snapshot.params.persist_filters) {
+    if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      const reportId = this.fg.value.report?.rp?.id;
+      if (reportId) {
+        this.showAddToReportSuccessToast(reportId);
+      }
     }
   }
 
@@ -1923,21 +1927,9 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.goBack();
-              }
-            });
+            that.addExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
           } else {
-            that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.goBack();
-              }
-            });
+            that.editExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
           }
         } else {
           that.fg.markAllAsTouched();

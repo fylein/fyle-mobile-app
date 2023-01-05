@@ -10,10 +10,16 @@ export class SecureStorageService {
   constructor() {}
 
   async set(key: string, value: any) {
-    return await SecureStoragePlugin.set({
-      key,
-      value: JSON.stringify(value),
-    });
+    try {
+      return await SecureStoragePlugin.set({
+        key,
+        value: JSON.stringify(value),
+      });
+    } catch {
+      //Need to clear the storage when this method throws an error
+      //Ref: https://github.com/martinkasa/capacitor-secure-storage-plugin/issues/54#issuecomment-1185446767
+      return this.clearAll();
+    }
   }
 
   async get(key: string) {
