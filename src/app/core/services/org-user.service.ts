@@ -89,19 +89,6 @@ export class OrgUserService {
     );
   }
 
-  getEmployees(params): Observable<Employee[]> {
-    return this.getEmployeesByParams({ ...params, limit: 1 }).pipe(
-      switchMap((res) => {
-        const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) =>
-        this.getEmployeesByParams({ ...params, offset: this.paginationSize * page, limit: this.paginationSize })
-      ),
-      reduce((acc, curr) => acc.concat(curr.data), [] as Employee[])
-    );
-  }
-
   getEmployeesBySearch(params): Observable<Employee[]> {
     if (params.or) {
       params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
@@ -124,24 +111,6 @@ export class OrgUserService {
   excludeByStatus(eous: ExtendedOrgUser[], status: string) {
     const eousFiltered = eous?.filter((eou) => status.indexOf(eou.ou.status) === -1);
     return eousFiltered;
-  }
-
-  filterByRole(eous: ExtendedOrgUser[], role: string) {
-    const eousFiltered = eous.filter((eou) => eou.ou.roles.indexOf(role));
-
-    return eousFiltered;
-  }
-
-  filterByRoles(eous: ExtendedOrgUser[], role) {
-    const filteredEous = eous.filter((eou) =>
-      role.some((userRole) => {
-        if (eou.ou.roles.indexOf(userRole) > -1) {
-          return true;
-        }
-      })
-    );
-
-    return filteredEous;
   }
 
   switchToDelegatee() {
