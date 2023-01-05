@@ -1,4 +1,4 @@
-export interface UnflattenedEou {
+export interface EouApiResponse {
   ou_id: string;
   ou_created_at: Date;
   ou_org_id: string;
