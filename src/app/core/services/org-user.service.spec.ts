@@ -7,10 +7,12 @@ import {
   employeesRes,
   eouListWithDisabledUser,
   switchToDelegatorParams,
-  switchToDelegatorResponse,
+  extendedOrgUserResponse,
   postUserResponse,
   postUserParam,
   postOrgUser,
+  accessTokenData,
+  accessTokenWithProxyOrgUserId,
 } from '../test-data/org-user.service.spec.data';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
@@ -179,11 +181,11 @@ describe('OrgUserService', () => {
   });
 
   it('should be able to switch to delegator account', (done) => {
-    apiService.post.and.returnValue(of(switchToDelegatorResponse));
-    authService.newRefreshToken.and.returnValue(of(switchToDelegatorResponse));
+    apiService.post.and.returnValue(of(extendedOrgUserResponse));
+    authService.newRefreshToken.and.returnValue(of(extendedOrgUserResponse));
 
     orgUserService.switchToDelegator(switchToDelegatorParams).subscribe((res) => {
-      expect(res).toEqual(switchToDelegatorResponse);
+      expect(res).toEqual(extendedOrgUserResponse);
       done();
     });
   });
@@ -201,6 +203,53 @@ describe('OrgUserService', () => {
     orgUserService.postOrgUser(postOrgUser).subscribe((res) => {
       expect(res).toEqual(postOrgUser);
       done();
+    });
+  });
+
+  it('should be able to mark active', (done) => {
+    apiService.post.and.returnValue(of(extendedOrgUserResponse));
+    authService.refreshEou.and.returnValue(of(extendedOrgUserResponse));
+    orgUserService.markActive().subscribe((res) => {
+      expect(res).toEqual(extendedOrgUserResponse);
+      done();
+    });
+  });
+
+  it('should be able to switch to delegatee account', (done) => {
+    apiService.post.and.returnValue(of(extendedOrgUserResponse));
+    authService.newRefreshToken.and.returnValue(of(extendedOrgUserResponse));
+
+    orgUserService.switchToDelegatee().subscribe((res) => {
+      expect(res).toEqual(extendedOrgUserResponse);
+      done();
+    });
+  });
+
+  it('should return false if the user is not switched to a delegator', async () => {
+    jwtHelperService.decodeToken.and.returnValue(accessTokenData);
+    const token =
+      'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzI5MTcyMDAsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXNNakxpYm15ZTdzIiwib3JnX3VzZXJfaWQiOiJvdXJ3N0hpNG1tcE8iLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkZZTEVSXCIsXCJGSU5BTkNFXCIsXCJBRE1JTlwiLFwiQVBQUk9WRVJcIixcIlZFUklGSUVSXCIsXCJQQVlNRU5UX1BST0NFU1NPUlwiLFwiSE9QXCJdIiwic2NvcGVzIjoiW10iLCJhbGxvd2VkX0NJRFJzIjoiW10iLCJ2ZXJzaW9uIjoiMyIsImNsdXN0ZXJfZG9tYWluIjoiXCJodHRwczovL3N0YWdpbmcuZnlsZS50ZWNoXCIiLCJleHAiOjE2NzI5MjA4MDB9.hTMJ56cPH_HgKhZSKNCOIEGAzaAXCfIgbEYcaudhXwk';
+    tokenService.getAccessToken.and.returnValue(Promise.resolve(token));
+
+    const result = await orgUserService.isSwitchedToDelegator();
+    expect(result).toBe(false);
+
+    orgUserService.isSwitchedToDelegator().then(async (res) => {
+      expect(res).toEqual(false);
+    });
+  });
+
+  it('should return true if the user is switched to a delegator', async () => {
+    jwtHelperService.decodeToken.and.returnValue(accessTokenWithProxyOrgUserId);
+    const token =
+      'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzI5MTcxNTgsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXNCa0pEMVVtMTc0Iiwib3JnX3VzZXJfaWQiOiJvdTVxclBKYkdmV00iLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkZZTEVSXCIsXCJWRVJJRklFUlwiXSIsInNjb3BlcyI6IltdIiwicHJveHlfb3JnX3VzZXJfaWQiOiJvdXJ3N0hpNG1tcE8iLCJhbGxvd2VkX0NJRFJzIjoiW10iLCJ2ZXJzaW9uIjoiMyIsImNsdXN0ZXJfZG9tYWluIjoiXCJodHRwczovL3N0YWdpbmcuZnlsZS50ZWNoXCIiLCJleHAiOjE2NzI5MjA3NTh9.VqpiTmEd_Kp-fK11gBV-VfjEkPhCja-diu-TGDGPeKA';
+    tokenService.getAccessToken.and.returnValue(Promise.resolve(token));
+
+    const result = await orgUserService.isSwitchedToDelegator();
+    expect(result).toBe(true);
+
+    orgUserService.isSwitchedToDelegator().then(async (res) => {
+      expect(res).toEqual(true);
     });
   });
 });

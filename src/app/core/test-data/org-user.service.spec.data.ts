@@ -448,7 +448,7 @@ export const switchToDelegatorParams = {
   cost_center_ids: [13696, 14018, 13701],
 };
 
-export const switchToDelegatorResponse = {
+export const extendedOrgUserResponse = {
   ou: {
     id: 'ou5qrPJbGfWM',
     created_at: new Date('2019-06-20T07:33:45.690Z'),
@@ -582,4 +582,33 @@ export const postOrgUser = {
   dwolla_customers_metadata_id: null,
   bank_account_type: null,
   bank_routing_number: null,
+};
+
+export const accessTokenData = {
+  allowed_CIDRs: '[]',
+  cluster_domain: '"https://staging.fyle.tech"',
+  exp: 1672915952,
+  iat: 1672912352,
+  iss: 'FyleApp',
+  org_id: 'orYtMVz2qisQ',
+  org_user_id: 'ou5tyO64Eg0L',
+  roles: '["FYLER","APPROVER","HOP"]',
+  scopes: '[]',
+  user_id: 'usMjLibmye7s',
+  version: '3',
+};
+
+export const accessTokenWithProxyOrgUserId = {
+  allowed_CIDRs: '[]',
+  cluster_domain: '"https://staging.fyle.tech"',
+  exp: 1672915952,
+  iat: 1672912352,
+  iss: 'FyleApp',
+  org_id: 'orYtMVz2qisQ',
+  org_user_id: 'ou5tyO64Eg0L',
+  proxy_org_user_id: 'ourw7Hi4mmpO',
+  roles: '["FYLER","APPROVER","HOP"]',
+  scopes: '[]',
+  user_id: 'usMjLibmye7s',
+  version: '3',
 };
