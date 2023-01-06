@@ -38,5 +38,6 @@ export interface OrgUser {
   default_cost_center_id: number;
   default_cost_center_name: string;
   default_cost_center_code: string;
-  rank: number;
+  rank?: number;
+  cost_center_ids: number[];
 }

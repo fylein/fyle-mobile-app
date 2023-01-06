@@ -21,7 +21,7 @@ import {
   incomingQuickbooksAccountingObjWithoutSettings,
   outgoingAccountingQuickbooksObjWithoutSettings,
   outgoingAccountingTallyObjWithoutSettings,
-} from '../models/test-data/org-settings-data';
+} from '../test-data/org-settings.service.spec.data';
 
 import { OrgSettingsService } from './org-settings.service';
 
