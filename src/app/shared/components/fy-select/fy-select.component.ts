@@ -100,6 +100,10 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
         }
 
         this.selectedOption = selectedOption;
+
+        //Set child field value to null and mark it as untouched if parent field value changes
+        this.fg.controls.depField.setValue(null);
+        this.fg.controls.depField.markAsUntouched();
       }
 
       this.onChangeCallback(v);
