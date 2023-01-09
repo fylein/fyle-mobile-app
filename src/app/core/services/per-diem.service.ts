@@ -41,7 +41,10 @@ export class PerDiemService {
       map((settings) => {
         let allowedPerDiems = [];
 
-        if (settings?.per_diem_rate_settings?.allowed_per_diem_ids) {
+        if (
+          settings.per_diem_rate_settings.allowed_per_diem_ids &&
+          settings.per_diem_rate_settings.allowed_per_diem_ids.length > 0
+        ) {
           const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids;
 
           if (allPerDiemRates?.length > 0) {

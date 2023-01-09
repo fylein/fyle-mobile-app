@@ -1,24 +1,5 @@
 import { AccountType } from '../enums/account-type.enum';
 
-export const apiCountResponse = {
-  count: 57,
-  data: [
-    {
-      code: null,
-      created_at: '2018-02-01T07:23:52.848283+00:00',
-      currency: 'INR',
-      description: null,
-      id: 25,
-      is_enabled: true,
-      name: 'Inter City',
-      org_id: 'orNVthTo2Zyo',
-      rate: 320,
-      updated_at: '2018-02-01T07:23:53.848283+00:00',
-    },
-  ],
-  offset: 0,
-};
-
 export const apiPerDiemByID = {
   count: 1,
   data: [
@@ -49,8 +30,8 @@ export const expectPerDiemByID = {
   updated_at: new Date('2022-08-11T09:50:26.804Z'),
 };
 
-export const apiPerDiemRates = {
-  count: 2,
+export const apiPerDiem = {
+  count: 3,
   data: [
     {
       code: null,
@@ -62,7 +43,7 @@ export const apiPerDiemRates = {
       name: 'Inter City',
       org_id: 'orNVthTo2Zyo',
       rate: 320,
-      updated_at: '2018-02-01T07:23:53.848283+00:00',
+      updated_at: '2023-01-08T12:26:59.947730+00:00',
     },
     {
       code: null,
@@ -74,7 +55,19 @@ export const apiPerDiemRates = {
       name: 'Fyle-Test2',
       org_id: 'orNVthTo2Zyo',
       rate: 65,
-      updated_at: '2020-11-20T13:36:16.154989+00:00',
+      updated_at: '2023-01-08T12:26:58.235658+00:00',
+    },
+    {
+      code: null,
+      created_at: '2018-10-08T15:45:06.392658+00:00',
+      currency: 'INR',
+      description: null,
+      id: 508,
+      is_enabled: true,
+      name: 'Abcd',
+      org_id: 'orNVthTo2Zyo',
+      rate: 50,
+      updated_at: '2023-01-08T12:18:02.106593+00:00',
     },
   ],
   offset: 0,
@@ -89,7 +82,7 @@ export const expectedPerDiemRates = [
     name: 'Inter City',
     org_id: 'orNVthTo2Zyo',
     rate: 320,
-    updated_at: '2018-02-01T07:23:53.848Z',
+    updated_at: '2023-01-08T12:26:59.947Z',
   },
   {
     active: true,
@@ -99,7 +92,47 @@ export const expectedPerDiemRates = [
     name: 'Fyle-Test2',
     org_id: 'orNVthTo2Zyo',
     rate: 65,
-    updated_at: '2020-11-20T13:36:16.154Z',
+    updated_at: '2023-01-08T12:26:58.235Z',
+  },
+  {
+    active: true,
+    created_at: '2018-10-08T15:45:06.392Z',
+    currency: 'INR',
+    id: 508,
+    name: 'Abcd',
+    org_id: 'orNVthTo2Zyo',
+    rate: 50,
+    updated_at: '2023-01-08T12:18:02.106Z',
+  },
+  {
+    active: true,
+    created_at: '2018-02-01T07:23:52.848Z',
+    currency: 'INR',
+    id: 25,
+    name: 'Inter City',
+    org_id: 'orNVthTo2Zyo',
+    rate: 320,
+    updated_at: '2023-01-08T12:26:59.947Z',
+  },
+  {
+    active: true,
+    created_at: '2018-10-08T06:37:01.337Z',
+    currency: 'INR',
+    id: 502,
+    name: 'Fyle-Test2',
+    org_id: 'orNVthTo2Zyo',
+    rate: 65,
+    updated_at: '2023-01-08T12:26:58.235Z',
+  },
+  {
+    active: true,
+    created_at: '2018-10-08T15:45:06.392Z',
+    currency: 'INR',
+    id: 508,
+    name: 'Abcd',
+    org_id: 'orNVthTo2Zyo',
+    rate: 50,
+    updated_at: '2023-01-08T12:18:02.106Z',
   },
 ];
 
