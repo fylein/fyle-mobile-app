@@ -96,10 +96,9 @@ describe('OrgUserService', () => {
     const userId = 'ouhOiO1Tfs3f';
     orgUserService.getUserById(userId).subscribe((res) => {
       expect(res).toEqual(currentEouUnflatted);
+      expect(apiService.get).toHaveBeenCalledWith('/eous/' + userId);
       done();
     });
-
-    expect(apiService.get).toHaveBeenCalledWith('/eous/' + userId);
   });
 
   it('should be able to get employees by params', (done) => {
@@ -115,10 +114,9 @@ describe('OrgUserService', () => {
     };
     orgUserService.getEmployeesByParams(params).subscribe((res) => {
       expect(res).toEqual(employeesRes);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
       done();
     });
-
-    expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
   });
 
   it('should be able to get employees by search with OR param', (done) => {
@@ -132,9 +130,9 @@ describe('OrgUserService', () => {
     orgUserService.getEmployeesByParams(params).subscribe((res) => {
       expect(res).toEqual(employeesParamsRes);
     });
-    expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
     orgUserService.getEmployeesBySearch(params).subscribe((res) => {
       expect(res).toEqual(employeesParamsRes.data);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
       done();
     });
   });
@@ -149,9 +147,10 @@ describe('OrgUserService', () => {
     orgUserService.getEmployeesByParams(params).subscribe((res) => {
       expect(res).toEqual(employeesParamsRes);
     });
-    expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
+
     orgUserService.getEmployeesBySearch(params).subscribe((res) => {
       expect(res).toEqual(employeesParamsRes.data);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
       done();
     });
   });
@@ -227,12 +226,10 @@ describe('OrgUserService', () => {
 
   it('should return false if the user is not switched to a delegator', async () => {
     jwtHelperService.decodeToken.and.returnValue(accessTokenData);
+    // This token contains the user details such as user id, org id, org user id, roles, scopes, etc.
     const token =
       'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzI5MTcyMDAsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXNNakxpYm15ZTdzIiwib3JnX3VzZXJfaWQiOiJvdXJ3N0hpNG1tcE8iLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkZZTEVSXCIsXCJGSU5BTkNFXCIsXCJBRE1JTlwiLFwiQVBQUk9WRVJcIixcIlZFUklGSUVSXCIsXCJQQVlNRU5UX1BST0NFU1NPUlwiLFwiSE9QXCJdIiwic2NvcGVzIjoiW10iLCJhbGxvd2VkX0NJRFJzIjoiW10iLCJ2ZXJzaW9uIjoiMyIsImNsdXN0ZXJfZG9tYWluIjoiXCJodHRwczovL3N0YWdpbmcuZnlsZS50ZWNoXCIiLCJleHAiOjE2NzI5MjA4MDB9.hTMJ56cPH_HgKhZSKNCOIEGAzaAXCfIgbEYcaudhXwk';
     tokenService.getAccessToken.and.returnValue(Promise.resolve(token));
-
-    const result = await orgUserService.isSwitchedToDelegator();
-    expect(result).toBe(false);
 
     orgUserService.isSwitchedToDelegator().then(async (res) => {
       expect(res).toEqual(false);
@@ -241,12 +238,10 @@ describe('OrgUserService', () => {
 
   it('should return true if the user is switched to a delegator', async () => {
     jwtHelperService.decodeToken.and.returnValue(accessTokenWithProxyOrgUserId);
+    // This token contains the user details such as user id, org id, org user id, roles, scopes, etc.
     const token =
       'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzI5MTcxNTgsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXNCa0pEMVVtMTc0Iiwib3JnX3VzZXJfaWQiOiJvdTVxclBKYkdmV00iLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkZZTEVSXCIsXCJWRVJJRklFUlwiXSIsInNjb3BlcyI6IltdIiwicHJveHlfb3JnX3VzZXJfaWQiOiJvdXJ3N0hpNG1tcE8iLCJhbGxvd2VkX0NJRFJzIjoiW10iLCJ2ZXJzaW9uIjoiMyIsImNsdXN0ZXJfZG9tYWluIjoiXCJodHRwczovL3N0YWdpbmcuZnlsZS50ZWNoXCIiLCJleHAiOjE2NzI5MjA3NTh9.VqpiTmEd_Kp-fK11gBV-VfjEkPhCja-diu-TGDGPeKA';
     tokenService.getAccessToken.and.returnValue(Promise.resolve(token));
-
-    const result = await orgUserService.isSwitchedToDelegator();
-    expect(result).toBe(true);
 
     orgUserService.isSwitchedToDelegator().then(async (res) => {
       expect(res).toEqual(true);
