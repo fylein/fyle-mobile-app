@@ -6,8 +6,6 @@ import { AuthService } from './auth.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { DataTransformService } from './data-transform.service';
 import {
-  apiResponseTransaction,
-  expectedTransactionResponseFromAPI,
   apiTransactionCountResponse,
   apiSingleTransactionResponse,
   apiAuthEouResponse,
@@ -79,10 +77,10 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  xit('should give a single transaction from ID', (done) => {
+  it('should give a single transaction from ID', (done) => {
     apiV2Service.get.and.returnValue(of(apiSingleTransactionResponse));
 
-    const testID = 'ccceWauzF1A3oS';
+    const testID = 'ccceRhYsN8Fj78';
 
     const result = cccExpenseService.getv2CardTransaction(testID);
     result.subscribe((res) => {
@@ -131,22 +129,6 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  xit('should get all transactions from a search', (done) => {
-    apiV2Service.get.and.returnValue(of(apiTransactionCountResponse.count));
-    const testParams = {
-      queryParams: {
-        state: 'in.(IN_PROGRESS,SETTLED)',
-      },
-      order: 'txn_dt.desc',
-    };
-
-    const result = cccExpenseService.getAllv2CardTransactions(testParams);
-    result.subscribe((res) => {
-      expect(res).toEqual([undefined]);
-      done();
-    });
-  });
-
   it('should get Corporate Credit Card expenses by group ID', (done) => {
     apiService.get.and.returnValue(of(eCCCApiResponse));
 
@@ -171,12 +153,7 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  xit('should get expense detils in cards', () => {
-    // const result = cccExpenseService.getExpenseDetailsInCards(uniqueCardsReponse, statsResponse);
-    // console.log(result);
-  });
-
-  xit('should get non-unify cards', (done) => {
+  it('should get non-unify cards', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(apiAuthEouResponse));
     apiV2Service.get.and.returnValue(of(apiAssignedAcc));
 

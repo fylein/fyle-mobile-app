@@ -196,6 +196,10 @@ export class CorporateCreditCardExpenseService {
           },
         })
       ),
+      map((res) => ({
+        ...res,
+        data: res.data.map((datum) => this.dateService.fixDates(datum)),
+      })),
       map((res) => res.data as BankAccountsAssigned[])
     );
   }
