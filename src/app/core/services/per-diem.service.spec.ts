@@ -67,7 +67,7 @@ describe('PerDiemService', () => {
     });
   });
 
-  xit('should get per diem rates', (done) => {
+  it('should get per diem rates', (done) => {
     spenderPlatformApiService.get.and.returnValue(of(apiPerDiemSingleResponse));
     spenderPlatformApiService.get.and.returnValue(of(apiPerDiem));
 
