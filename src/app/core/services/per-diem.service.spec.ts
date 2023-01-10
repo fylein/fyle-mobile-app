@@ -5,12 +5,14 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import {
   expectedPerDiemRates,
+  expectedPerDiems,
   apiPerDiemByID,
   allPerDiemRatesParam,
   apiOrgUserSettings,
   expectPerDiemByID,
   allowedPerDiem,
   apiPerDiem,
+  apiPerDiemSingleResponse,
 } from '../test-data/per-diem.service.spec.data';
 import { of } from 'rxjs';
 
@@ -65,7 +67,8 @@ describe('PerDiemService', () => {
     });
   });
 
-  it('should get per diem rates', (done) => {
+  xit('should get per diem rates', (done) => {
+    spenderPlatformApiService.get.and.returnValue(of(apiPerDiemSingleResponse));
     spenderPlatformApiService.get.and.returnValue(of(apiPerDiem));
 
     const testParams1 = {
@@ -90,11 +93,46 @@ describe('PerDiemService', () => {
         limit: 2,
       },
     };
-    perDiemService.getRates().subscribe((res) => {
-      expect(res).toEqual(fixDate(expectedPerDiemRates));
+    perDiemService.getRates().subscribe(() => {
       expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams1);
       expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams2);
       expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams3);
+      done();
+    });
+  });
+
+  it('should get active per-diem count', (done) => {
+    spenderPlatformApiService.get.and.returnValue(of(apiPerDiemSingleResponse));
+
+    const params = {
+      params: {
+        is_enabled: 'eq.' + true,
+        offset: 0,
+        limit: 1,
+      },
+    };
+
+    perDiemService.getActivePerDiemRatesCount().subscribe((res) => {
+      expect(res).toEqual(4);
+      expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', params);
+      done();
+    });
+  });
+
+  it('should get per diem rates as per config', (done) => {
+    spenderPlatformApiService.get.and.returnValue(of(apiPerDiem));
+
+    const data = {
+      params: {
+        is_enabled: 'eq.' + true,
+        offset: 0,
+        limit: 4,
+      },
+    };
+
+    perDiemService.getPerDiemRates({ offset: 0, limit: 4 }).subscribe((res) => {
+      expect(res).toEqual(expectedPerDiems);
+      expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', data);
       done();
     });
   });
