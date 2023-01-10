@@ -5,7 +5,7 @@ export const expense_fields = {
       dependentFields.push({
         id: i,
         name: 'Dependent field ' + i,
-        is_mandatory: false,
+        is_mandatory: true,
       });
     }
     return dependentFields;

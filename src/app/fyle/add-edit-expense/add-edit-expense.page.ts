@@ -407,6 +407,10 @@ export class AddEditExpensePage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
+  get dependentFields() {
+    return this.fg.controls.dependent_fields as FormArray;
+  }
+
   @HostListener('keydown')
   scrollInputIntoView() {
     const el = document.activeElement;
@@ -2006,6 +2010,7 @@ export class AddEditExpensePage implements OnInit {
           map((isConnected) => {
             const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
             customFieldsFormArray.clear();
+            // console.log('CUSTOM FIELDS', customFields);
             for (const customField of customFields) {
               customFieldsFormArray.push(
                 this.formBuilder.group({
@@ -2503,6 +2508,7 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
+      dependent_fields: this.formBuilder.array([this.formBuilder.control([])]),
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
@@ -2865,6 +2871,16 @@ export class AddEditExpensePage implements OnInit {
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
+
+    // this.fg.valueChanges.subscribe((value) => console.log('NEW FORM CALLED', value));
+    // console.log('this.fg.controls.dependent_fields', this.fg.controls.dependent_fields);
+    // this.fg.controls.dependent_fields.valueChanges.subscribe((dependentFields) =>
+    //   console.log('CHANGED dependentFields', this.fg.value)
+    // );
+  }
+
+  updateParentFg(event) {
+    // this.fg.controls.dependent_fields = (event.fg);
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
