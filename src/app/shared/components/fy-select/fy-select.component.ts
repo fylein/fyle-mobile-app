@@ -122,7 +122,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
         if (this.depFields) {
           const dependentFieldsArray = this.fg.controls.dependent_fields as FormArray;
-          // dependentFieldsArray.clear();
+          dependentFieldsArray.clear();
 
           const mappedDependentFieldsWithControl = this.selectedOption.dependent_field_ids.map((depField) => {
             //Create array of dependent fields for the formControl
