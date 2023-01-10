@@ -37,13 +37,12 @@ export class OrgUserService {
     return this.apiService.get('/eous/current').pipe(map((eou) => this.dataTransformService.unflatten(eou)));
   }
 
-  // TODO: move to v2
   @Cacheable({
     cacheBusterObserver: orgUsersCacheBuster$,
   })
   getEmployeesByParams(params: Partial<EmployeeParams>): Observable<{
     count: number;
-    data: Employee[];
+    data: Partial<Employee>[];
     limit: number;
     offset: number;
     url: string;
@@ -54,7 +53,7 @@ export class OrgUserService {
   @CacheBuster({
     cacheBusterNotifier: orgUsersCacheBuster$,
   })
-  switchToDelegator(orgUser: ExtendedOrgUser): Observable<ExtendedOrgUser> {
+  switchToDelegator(orgUser: OrgUser): Observable<ExtendedOrgUser> {
     return this.apiService
       .post('/orgusers/delegator_refresh_token', orgUser)
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
@@ -78,7 +77,7 @@ export class OrgUserService {
     return this.apiService.post('/users', user);
   }
 
-  postOrgUser(orgUser: OrgUser): Observable<OrgUser> {
+  postOrgUser(orgUser: Partial<OrgUser>): Observable<Partial<OrgUser>> {
     globalCacheBusterNotifier.next();
     return this.apiService.post('/orgusers', orgUser);
   }
@@ -90,7 +89,7 @@ export class OrgUserService {
     );
   }
 
-  getEmployeesBySearch(params: Partial<EmployeeParams>): Observable<Employee[]> {
+  getEmployeesBySearch(params: Partial<EmployeeParams>): Observable<Partial<Employee>[]> {
     if (params.or) {
       params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
     } else {
@@ -105,12 +104,11 @@ export class OrgUserService {
     return this.apiService.get('/eous/' + userId);
   }
 
-  exclude(eous: ExtendedOrgUser[], userIds: string[]): ExtendedOrgUser[] {
-    return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
-  }
-
   excludeByStatus(eous: ExtendedOrgUser[], status: string): ExtendedOrgUser[] {
-    const eousFiltered = eous?.filter((eou) => status.indexOf(eou.ou.status) === -1);
+    let eousFiltered = [];
+    if (eous) {
+      eousFiltered = eous.filter((eou) => status.indexOf(eou.ou.status) === -1);
+    }
     return eousFiltered;
   }
 
