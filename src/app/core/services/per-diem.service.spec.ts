@@ -59,9 +59,7 @@ describe('PerDiemService', () => {
   it('should get per-diem rate by ID', (done) => {
     spenderPlatformApiService.get.and.returnValue(of(apiPerDiemByID));
     const actualId = 538;
-
-    const result = perDiemService.getRate(actualId);
-    result.subscribe((res) => {
+    perDiemService.getRate(actualId).subscribe((res) => {
       expect(res).toEqual(expectPerDiemByID);
       done();
     });
@@ -70,7 +68,6 @@ describe('PerDiemService', () => {
   it('should get per diem rates', (done) => {
     spenderPlatformApiService.get.and.returnValue(of(apiPerDiem));
 
-    const result = perDiemService.getRates();
     const testParams1 = {
       params: {
         is_enabled: 'eq.true',
@@ -93,7 +90,7 @@ describe('PerDiemService', () => {
         limit: 2,
       },
     };
-    result.subscribe((res) => {
+    perDiemService.getRates().subscribe((res) => {
       expect(res).toEqual(fixDate(expectedPerDiemRates));
       expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams1);
       expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams2);
@@ -105,9 +102,7 @@ describe('PerDiemService', () => {
   it('should get all allowed per diems', (done) => {
     orgUserSettingsService.get.and.returnValue(of(apiOrgUserSettings));
 
-    const result = perDiemService.getAllowedPerDiems(fixDate(allPerDiemRatesParam));
-
-    result.subscribe((res) => {
+    perDiemService.getAllowedPerDiems(fixDate(allPerDiemRatesParam)).subscribe((res) => {
       expect(res).toEqual(fixDate(allowedPerDiem));
       done();
     });
@@ -116,9 +111,7 @@ describe('PerDiemService', () => {
   it('should return empty list if there are no allowed per diems', (done) => {
     orgUserSettingsService.get.and.returnValue(of(apiOrgUserSettings));
 
-    const result = perDiemService.getAllowedPerDiems(null);
-
-    result.subscribe((res) => {
+    perDiemService.getAllowedPerDiems(null).subscribe((res) => {
       expect(res).toEqual([]);
       done();
     });
