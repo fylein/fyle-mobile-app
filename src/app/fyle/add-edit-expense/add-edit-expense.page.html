@@ -111,14 +111,14 @@
               <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
               <div
                 class="add-edit-expense--split-info-message"
-                *ngIf="(!(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
+                *ngIf="(!(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canRemoveCardExpense)"
               >
-                If the expense is linked with incorrect card details, click on Options (<span
+                If the expense is merged with incorrect card details, click on Options (<span
                   ><ion-icon
                     class="add-edit-expense--icon-dots"
                     [src]="'../../../assets/svg/dot-menu.svg'"
                   ></ion-icon></span
-                >) to unlink the card details.
+                >) to remove the card details.
               </div>
             </div>
           </ng-container>
@@ -133,7 +133,7 @@
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Date</div>
                 <div class="add-edit-expense--card-container__value">
-                  {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, yyyy' }}
+                  {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, YYYY' }}
                 </div>
               </ion-col>
               <ion-col>

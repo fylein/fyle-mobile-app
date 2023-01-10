@@ -72,7 +72,7 @@
                       >{{erpt.rp_state === "DRAFT" ? "Created on : " : "Submitted on : " }}
                     </span>
                     <span class="view-reports--submitted-date__date"
-                      >{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span
+                      >{{erpt.rp_created_at | date: 'MMM dd, YYYY'}}</span
                     >
                   </div>
                 </div>
@@ -103,7 +103,7 @@
                 <div>{{ ap.approver_name }}</div>
                 <div class="view-reports--approver-state-section">
                   <div class="view-reports--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
-                    <span>{{ap.updated_at | date: 'MMM dd, yyyy'}}</span>
+                    <span>{{ap.updated_at | date: 'MMM dd, YYYY'}}</span>
                   </div>
                   <div
                     class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
@@ -197,7 +197,7 @@
           <div *ngIf="userComments?.length > 0" class="view-comment--container">
             <div *ngFor="let estatus of userComments">
               <div *ngIf="estatus.show_dt">
-                <div class="view-comment--date text-center">{{ estatus.st_created_at | date: 'MMM d, yyyy' }}</div>
+                <div class="view-comment--date text-center">{{ estatus.st_created_at | dateFormat }}</div>
               </div>
               <div
                 class="view-comment--block"
@@ -310,11 +310,8 @@
 >
   <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
     <div class="view-reports--cta-container">
-      <div class="view-reports--add-expenses-container">
-        <div
-          class="view-reports--add-expenses-container__icon_container"
-          *ngIf="(canResubmitReport$ | async) || (erpt$|async)?.rp_state === 'DRAFT'"
-        >
+      <div class="view-reports--add-expenses-container" *ngIf="unReportedEtxns">
+        <div class="view-reports--add-expenses-container__icon_container">
           <mat-icon
             (click)="showAddExpensesToReportModal()"
             class="view-reports--add-expenses-container__icon"
