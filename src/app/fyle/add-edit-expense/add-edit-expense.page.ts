@@ -49,7 +49,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { DateService } from 'src/app/core/services/date.service';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
@@ -106,6 +106,9 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
+import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
+import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
@@ -335,7 +338,7 @@ export class AddEditExpensePage implements OnInit {
 
   canDismissCCCE: boolean;
 
-  canUnlinkCCCE: boolean;
+  canRemoveCardExpense: boolean;
 
   isCorporateCreditCardEnabled: boolean;
 
@@ -414,13 +417,17 @@ export class AddEditExpensePage implements OnInit {
   goBack() {
     const bankTxn =
       this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-    if (this.activatedRoute.snapshot.params.persist_filters) {
+    if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
       if (bankTxn) {
         this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        const reportId = this.fg.value.report?.rp?.id;
+        if (reportId) {
+          this.showAddToReportSuccessToast(reportId);
+        }
       }
     }
   }
@@ -762,10 +769,10 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  async unlinkCorporateCardExpense() {
+  async removeCorporateCardExpense() {
     const id = this.activatedRoute.snapshot.params.id;
-    const header = 'Unlink Card Details';
-    const body = this.transactionService.getUnlinkDialogBody(this.isSplitExpensesPresent);
+    const header = 'Remove Card Expense';
+    const body = this.transactionService.getRemoveCardExpenseDialogBody(this.isSplitExpensesPresent);
     const ctaText = 'Confirm';
     const ctaLoadingText = 'Confirming';
     const deletePopover = await this.popoverController.create({
@@ -777,7 +784,7 @@ export class AddEditExpensePage implements OnInit {
         body,
         ctaText,
         ctaLoadingText,
-        deleteMethod: () => this.transactionService.unlinkCorporateCardExpense(id),
+        deleteMethod: () => this.transactionService.removeCorporateCardExpense(id),
       },
     });
 
@@ -956,11 +963,11 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (this.isCorporateCreditCardEnabled && this.canUnlinkCCCE) {
+        if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
           actionSheetOptions.push({
-            text: 'Unlink Card Details',
+            text: 'Remove Card Expense',
             handler: () => {
-              this.unlinkCorporateCardExpense();
+              this.removeCorporateCardExpense();
             },
           });
         }
@@ -1453,9 +1460,6 @@ export class AddEditExpensePage implements OnInit {
           return CCCAccount.value;
         }
 
-        if (!isPaymentModeConfigurationsEnabled) {
-          return this.accountsService.getDefaultAccountFromUserPreference(paymentModes, orgUserSettings);
-        }
         return paymentModes[0].value;
       })
     );
@@ -1589,7 +1593,7 @@ export class AddEditExpensePage implements OnInit {
             if (customInput.type === 'DATE') {
               return {
                 name: customInput.name,
-                value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null,
+                value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
               };
             } else {
               return {
@@ -1710,6 +1714,13 @@ export class AddEditExpensePage implements OnInit {
               etxn,
               category,
             });
+
+            /*
+             * Patching the category value here to trigger 'customInputs$' to get the
+             * custom inputs for this category. The patchValue call below uses
+             * 'emitEvent: false' which does not trigger valueChanges.
+             */
+            this.fg.controls.category.patchValue(category);
           }
 
           // Check if recent cost centers exist
@@ -1745,7 +1756,7 @@ export class AddEditExpensePage implements OnInit {
             {
               project,
               category,
-              dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
+              dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
               vendor_id: etxn.tx.vendor
                 ? {
                     display_name: etxn.tx.vendor,
@@ -1756,8 +1767,8 @@ export class AddEditExpensePage implements OnInit {
               tax_amount: etxn.tx.tax_amount,
               location_1: etxn.tx.locations[0],
               location_2: etxn.tx.locations[1],
-              from_dt: etxn.tx.from_dt && moment(etxn.tx.from_dt).format('y-MM-DD'),
-              to_dt: etxn.tx.to_dt && moment(etxn.tx.to_dt).format('y-MM-DD'),
+              from_dt: etxn.tx.from_dt && dayjs(etxn.tx.from_dt).format('YYYY-MM-DD'),
+              to_dt: etxn.tx.to_dt && dayjs(etxn.tx.to_dt).format('YYYY-MM-DD'),
               flight_journey_travel_class: etxn.tx.flight_journey_travel_class,
               flight_return_travel_class: etxn.tx.flight_return_travel_class,
               train_travel_class: etxn.tx.train_travel_class,
@@ -1997,7 +2008,7 @@ export class AddEditExpensePage implements OnInit {
                   value: [
                     customField.type !== 'DATE'
                       ? customField.value
-                      : customField.value && moment(customField.value).format('y-MM-DD'),
+                      : customField.value && dayjs(customField.value).format('YYYY-MM-DD'),
                     customField.type !== 'BOOLEAN' && customField.mandatory && isConnected && Validators.required,
                   ],
                 })
@@ -2431,11 +2442,11 @@ export class AddEditExpensePage implements OnInit {
 
   customDateValidator(control: AbstractControl) {
     const today = new Date();
-    const minDate = moment(new Date('Jan 1, 2001'));
-    const maxDate = moment(new Date(today)).add(1, 'day');
-    const passedInDate = control.value && moment(new Date(control.value));
+    const minDate = dayjs(new Date('Jan 1, 2001'));
+    const maxDate = dayjs(new Date(today)).add(1, 'day');
+    const passedInDate = control.value && dayjs(new Date(control.value));
     if (passedInDate) {
-      return passedInDate.isBetween(minDate, maxDate)
+      return passedInDate.isBefore(maxDate) && passedInDate.isAfter(minDate)
         ? null
         : {
             invalidDateSelection: true,
@@ -2627,8 +2638,8 @@ export class AddEditExpensePage implements OnInit {
     this.setupBalanceFlag();
 
     const today = new Date();
-    this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
-    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+    this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
+    this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
 
     const activeCategories$ = this.getActiveCategories();
 
@@ -2737,7 +2748,7 @@ export class AddEditExpensePage implements OnInit {
 
           etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
 
-          const txnDt = moment(this.selectedCCCTransaction.txn_dt).format('MMM d, y');
+          const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
 
           this.selectedCCCTransaction.displayObject =
             txnDt +
@@ -2817,7 +2828,7 @@ export class AddEditExpensePage implements OnInit {
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
-      this.canUnlinkCCCE =
+      this.canRemoveCardExpense =
         !!etxn?.tx?.corporate_credit_card_expense_group_id &&
         ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn?.tx?.state);
     });
@@ -2915,6 +2926,12 @@ export class AddEditExpensePage implements OnInit {
           etxn.tx.extracted_data = this.inpageExtractedData;
         }
 
+        // If user has not edited the amount, then send user_amount to check_policies
+        let amount = this.fg.value?.currencyObj?.amount;
+        if (isPolicyEtxn && this.fg.value?.currencyObj?.amount === etxn.tx.amount && etxn.tx.user_amount) {
+          amount = etxn.tx.user_amount;
+        }
+
         return {
           tx: {
             ...etxn.tx,
@@ -2926,7 +2943,7 @@ export class AddEditExpensePage implements OnInit {
               !this.fg.value?.paymentMode?.acc?.isReimbursable,
             txn_dt: this.fg.value?.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value?.dateOfSpend)),
             currency: this.fg.value?.currencyObj?.currency,
-            amount: this.fg.value?.currencyObj?.amount,
+            amount,
             orig_currency: this.fg.value?.currencyObj?.orig_currency,
             orig_amount: this.fg.value?.currencyObj?.orig_amount,
             project_id: this.fg.value?.project?.project_id,
@@ -2965,52 +2982,49 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn) {
-    // Prepare etxn object with just tx and ou object required for test call
-    return from(this.authService.getEou()).pipe(
-      switchMap((currentEou) => {
-        const policyETxn = {
-          tx: cloneDeep(etxn.tx),
-          ou: cloneDeep(etxn.ou),
-        };
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
+    const transactionCopy = cloneDeep(etxn.tx);
+    /* Adding number of attachements and sending in test call as tx_num_files
+     * If editing an expense with receipts, check for already uploaded receipts
+     */
+    if (etxn.tx) {
+      transactionCopy.num_files = etxn.tx.num_files;
 
-        if (!etxn.tx.id) {
-          policyETxn.ou = currentEou.ou;
-        }
-        /* Adding number of attachements and sending in test call as tx_num_files
-         * If editing an expense with receipts, check for already uploaded receipts
-         */
-        if (etxn.tx) {
-          policyETxn.tx.num_files = etxn.tx.num_files;
+      // Check for receipts uploaded from mobile
+      if (etxn.dataUrls && etxn.dataUrls.length > 0) {
+        transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
+      }
+    }
 
-          // Check for receipts uploaded from mobile
-          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-            policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-          }
-        }
-
-        policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
-
-        return this.categoriesService.getAll().pipe(
-          map((categories: any[]) => {
-            // policy engine expects org_category and sub_category fields
-            if (policyETxn.tx.org_category_id) {
-              const orgCategory = categories.find((cat) => cat.id === policyETxn.tx.org_category_id);
-              policyETxn.tx.org_category = orgCategory && orgCategory.name;
-              policyETxn.tx.sub_category = orgCategory && orgCategory.sub_category;
-            } else {
-              policyETxn.tx.org_category_id = null;
-              policyETxn.tx.sub_category = null;
-              policyETxn.tx.org_category = null;
-            }
-
-            // Flatten the etxn obj
-            return this.dataTransformService.etxnRaw(policyETxn);
-          })
-        );
-      }),
-      switchMap((policyETxn) => this.transactionService.testPolicy(policyETxn))
-    );
+    transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
+    if (!transactionCopy.org_category_id) {
+      return this.categoriesService.getAll().pipe(
+        map((categories: OrgCategory[]) => {
+          const unspecifiedCategory = categories.find(
+            (category) => category?.fyle_category?.toLowerCase() === 'unspecified'
+          );
+          transactionCopy.org_category_id = unspecifiedCategory.id;
+          return transactionCopy;
+        }),
+        switchMap((unspecifiedTransaction) => {
+          /* Expense creation has not moved to platform yet and since policy is moved to platform,
+           * it expects the expense object in terms of platform world. Until then, the method
+           * `transformTo` act as a bridge by translating the public expense object to platform
+           * expense.
+           */
+          const policyExpense = this.policyService.transformTo(unspecifiedTransaction);
+          return this.transactionService.checkPolicy(policyExpense);
+        })
+      );
+    } else {
+      /* Expense creation has not moved to platform yet and since policy is moved to platform,
+       * it expects the expense object in terms of platform world. Until then, the method
+       * `transformTo` act as a bridge by translating the public expense object to platform
+       * expense.
+       */
+      const policyExpense = this.policyService.transformTo(transactionCopy);
+      return this.transactionService.checkPolicy(policyExpense);
+    }
   }
 
   getCustomFields() {
@@ -3077,23 +3091,11 @@ export class AddEditExpensePage implements OnInit {
                     this.saveExpenseLoader = false;
                   })
                 )
-                .subscribe((res: any) => {
-                  if (that.fg.value.report?.rp?.id) {
-                    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-                  } else {
-                    that.goBack();
-                  }
-                });
+                .subscribe(() => this.goBack());
             }
           } else {
             // to do edit
-            that.editExpense('SAVE_EXPENSE').subscribe((res) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.goBack();
-              }
-            });
+            that.editExpense('SAVE_EXPENSE').subscribe(() => this.goBack());
           }
         } else {
           that.fg.markAllAsTouched();
@@ -3242,12 +3244,12 @@ export class AddEditExpensePage implements OnInit {
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
+  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
-        policyActionDescription,
+        policyAction,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -3304,18 +3306,16 @@ export class AddEditExpensePage implements OnInit {
               return policyViolations$;
             }
           }),
-          map((policyViolations: any) => [
+          map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
             this.policyService.getPolicyRules(policyViolations),
-            policyViolations &&
-              policyViolations.transaction_desired_state &&
-              policyViolations.transaction_desired_state.action_description,
+            policyViolations?.data?.final_desired_state,
           ]),
-          switchMap(([policyViolations, policyActionDescription]) => {
+          switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
             if (policyViolations.length > 0) {
               return throwError({
                 type: 'policyViolations',
                 policyViolations,
-                policyActionDescription,
+                policyAction,
                 etxn,
               });
             } else {
@@ -3351,7 +3351,7 @@ export class AddEditExpensePage implements OnInit {
           );
         } else if (err.type === 'policyViolations') {
           return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -3566,18 +3566,16 @@ export class AddEditExpensePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: any) => [
+                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations &&
-                    policyViolations.transaction_desired_state &&
-                    policyViolations.transaction_desired_state.action_description,
+                  policyViolations?.data?.final_desired_state,
                 ]),
-                switchMap(([policyViolations, policyActionDescription]) => {
+                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyActionDescription,
+                      policyAction,
                       etxn,
                     });
                   } else {
@@ -3619,7 +3617,7 @@ export class AddEditExpensePage implements OnInit {
           );
         } else if (err.type === 'policyViolations') {
           return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -3932,6 +3930,7 @@ export class AddEditExpensePage implements OnInit {
         const file = nativeElement.files[0];
         if (file) {
           const dataUrl = await this.fileService.readFile(file);
+          this.trackingService.addAttachment({ type: file.type });
           fileData = {
             type: file.type,
             dataUrl,
@@ -4210,18 +4209,16 @@ export class AddEditExpensePage implements OnInit {
                       return policyViolations$;
                     }
                   }),
-                  map((policyViolations: any) => [
+                  map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
                     this.policyService.getPolicyRules(policyViolations),
-                    policyViolations &&
-                      policyViolations.transaction_desired_state &&
-                      policyViolations.transaction_desired_state.action_description,
+                    policyViolations?.data?.final_desired_state,
                   ]),
-                  switchMap(([policyViolations, policyActionDescription]) => {
+                  switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
                     if (policyViolations.length > 0) {
                       return throwError({
                         type: 'policyViolations',
                         policyViolations,
-                        policyActionDescription,
+                        policyAction,
                         etxn,
                       });
                     } else {
@@ -4263,7 +4260,7 @@ export class AddEditExpensePage implements OnInit {
             );
           } else if (err.type === 'policyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(

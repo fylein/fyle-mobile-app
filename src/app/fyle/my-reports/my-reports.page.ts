@@ -32,7 +32,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 
 type Filters = Partial<{
   state: string[];
@@ -738,8 +738,8 @@ export class MyReportsPage implements OnInit {
   }
 
   generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
-    const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
-    const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
+    const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
+    const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
 
     if (startDate && endDate) {
       filterPills.push({

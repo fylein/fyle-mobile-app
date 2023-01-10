@@ -12,7 +12,6 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
@@ -25,6 +24,9 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
 import { AccountsService } from './accounts.service';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
+import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -57,7 +59,7 @@ export class TransactionService {
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService,
-    private policyApiService: PolicyApiService,
+    private spenderPlatformApiService: SpenderPlatformApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
@@ -387,41 +389,46 @@ export class TransactionService {
       .pipe(map((res) => this.fixDates(res.data[0]) as Expense));
   }
 
-  testPolicy(etxn) {
+  checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
-        if (etxn.tx_tax) {
-          delete etxn.tx_tax;
-        }
         // setting txn_dt time to T10:00:00:000 in local time zone
-        if (etxn.tx_txn_dt) {
-          etxn.tx_txn_dt.setHours(12);
-          etxn.tx_txn_dt.setMinutes(0);
-          etxn.tx_txn_dt.setSeconds(0);
-          etxn.tx_txn_dt.setMilliseconds(0);
-          etxn.tx_txn_dt = this.timezoneService.convertToUtc(etxn.tx_txn_dt, orgUserSettings.locale.offset);
+        if (platformPolicyExpense.spent_at) {
+          platformPolicyExpense.spent_at.setHours(12);
+          platformPolicyExpense.spent_at.setMinutes(0);
+          platformPolicyExpense.spent_at.setSeconds(0);
+          platformPolicyExpense.spent_at.setMilliseconds(0);
+          platformPolicyExpense.spent_at = this.timezoneService.convertToUtc(
+            platformPolicyExpense.spent_at,
+            orgUserSettings.locale.offset
+          );
         }
 
-        if (etxn.tx_from_dt) {
-          etxn.tx_from_dt.setHours(12);
-          etxn.tx_from_dt.setMinutes(0);
-          etxn.tx_from_dt.setSeconds(0);
-          etxn.tx_from_dt.setMilliseconds(0);
-          etxn.tx_from_dt = this.timezoneService.convertToUtc(etxn.tx_from_dt, orgUserSettings.locale.offset);
+        if (platformPolicyExpense.started_at) {
+          platformPolicyExpense.started_at.setHours(12);
+          platformPolicyExpense.started_at.setMinutes(0);
+          platformPolicyExpense.started_at.setSeconds(0);
+          platformPolicyExpense.started_at.setMilliseconds(0);
+          platformPolicyExpense.started_at = this.timezoneService.convertToUtc(
+            platformPolicyExpense.started_at,
+            orgUserSettings.locale.offset
+          );
         }
 
-        if (etxn.tx_to_dt) {
-          etxn.tx_to_dt.setHours(12);
-          etxn.tx_to_dt.setMinutes(0);
-          etxn.tx_to_dt.setSeconds(0);
-          etxn.tx_to_dt.setMilliseconds(0);
-          etxn.tx_to_dt = this.timezoneService.convertToUtc(etxn.tx_to_dt, orgUserSettings.locale.offset);
+        if (platformPolicyExpense.ended_at) {
+          platformPolicyExpense.ended_at.setHours(12);
+          platformPolicyExpense.ended_at.setMinutes(0);
+          platformPolicyExpense.ended_at.setSeconds(0);
+          platformPolicyExpense.ended_at.setMilliseconds(0);
+          platformPolicyExpense.ended_at = this.timezoneService.convertToUtc(
+            platformPolicyExpense.ended_at,
+            orgUserSettings.locale.offset
+          );
         }
-
-        // FYLE-6148. Don't send custom_attributes.
-        etxn.tx_custom_attributes = null;
-
-        return this.policyApiService.post('/policy/test', etxn);
+        const payload = {
+          data: platformPolicyExpense,
+        };
+        return this.spenderPlatformApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
       })
     );
   }
@@ -635,22 +642,22 @@ export class TransactionService {
     return dialogBody;
   }
 
-  getUnlinkDialogBody(isSplitExpensesPresent: boolean): string {
+  getRemoveCardExpenseDialogBody(isSplitExpensesPresent: boolean): string {
     const dialogBody = isSplitExpensesPresent
       ? `<ul class="text-left">
-    <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
-    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
-    <li>Since this is a split expense, clicking on Confirm will remove the card details from all the related split expenses.</li>
+    <li>Since this is a split expense, clicking on <strong>Confirm</strong> will remove the card details from all the related split expenses.</li>
+    <li>A new expense will be created from the card expense removed here.</li>
+    <li>Are you sure to remove your card expense from this expense?</li>
     </ul>`
       : `<ul class="text-left">
-    <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
-    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
+    <li>A new expense will be created from the card expense removed here.</li>
+    <li>Are you sure to remove your card expense from this expense?</li>
     </ul>`;
 
     return dialogBody;
   }
 
-  unlinkCorporateCardExpense(txnId: string): Observable<UndoMerge> {
+  removeCorporateCardExpense(txnId: string): Observable<UndoMerge> {
     const data: Object = {
       txn_id: txnId,
     };

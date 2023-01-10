@@ -10,7 +10,7 @@
 			"androidScaleType": "CENTER_CROP"
 		},
 		"Keyboard": {
-			"style": "light"
+			"style": "LIGHT"
 		}
 	},
 	"cordova": {

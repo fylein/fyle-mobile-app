@@ -9,12 +9,23 @@
     <div (click)="onDismissCameraPreview()">
       <img class="camera-preview__top-container__icon" src="../../../assets/images/close.png" />
     </div>
-    <div *ngIf="flashMode" (click)="onToggleFlashMode()">
-      <mat-icon
-        class="camera-preview__top-container__icon"
-        svgIcon="{{ flashMode === 'on' ? 'flash-on' : 'flash-off' }}"
-      ></mat-icon>
-    </div>
+    <ng-container *ngIf="flashMode">
+      <div *ngIf="!isIos" class="camera-preview__top-container__info-box text-center">
+        Use
+        <ion-icon
+          class="camera-preview__top-container__info-box__icon"
+          src="../../../../assets/svg/flash.svg"
+          slot="icon-only"
+        ></ion-icon
+        >FLASH for better quality
+      </div>
+      <div (click)="onToggleFlashMode()">
+        <mat-icon
+          class="camera-preview__top-container__icon"
+          svgIcon="{{ flashMode === 'on' ? 'flash-on' : 'flash-off' }}"
+        ></mat-icon>
+      </div>
+    </ng-container>
   </div>
 
   <div>

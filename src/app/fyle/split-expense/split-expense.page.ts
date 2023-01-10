@@ -3,7 +3,7 @@ import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -545,11 +545,11 @@ export class SplitExpensePage implements OnInit {
 
   customDateValidator(control: AbstractControl) {
     const today = new Date();
-    const minDate = moment(new Date('Jan 1, 2001'));
-    const maxDate = moment(new Date(today)).add(1, 'day');
-    const passedInDate = control.value && moment(new Date(control.value));
+    const minDate = dayjs(new Date('Jan 1, 2001'));
+    const maxDate = dayjs(new Date(today)).add(1, 'day');
+    const passedInDate = control.value && dayjs(new Date(control.value));
     if (passedInDate) {
-      return passedInDate.isBetween(minDate, maxDate)
+      return passedInDate.isBefore(maxDate) && passedInDate.isAfter(minDate)
         ? null
         : {
             invalidDateSelection: true,
@@ -562,7 +562,7 @@ export class SplitExpensePage implements OnInit {
       const dateOfTxn = this.transaction?.txn_dt;
       const today: any = new Date();
       txnDt = dateOfTxn ? new Date(dateOfTxn) : today;
-      txnDt = moment(txnDt).format('yyyy-MM-DD');
+      txnDt = dayjs(txnDt).format('YYYY-MM-DD');
     }
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],

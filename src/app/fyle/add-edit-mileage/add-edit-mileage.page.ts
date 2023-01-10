@@ -18,7 +18,7 @@ import {
   tap,
 } from 'rxjs/operators';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
@@ -66,6 +66,9 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
+import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
@@ -628,7 +631,7 @@ export class AddEditMileagePage implements OnInit {
                 this.fb.group({
                   name: [customField.name],
                   value: [
-                    customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
+                    customField.type !== 'DATE' ? customField.value : dayjs(customField.value).format('YYYY-MM-DD'),
                     isConnected &&
                       customField.type !== 'BOOLEAN' &&
                       customField.type !== 'USER_LIST' &&
@@ -846,11 +849,11 @@ export class AddEditMileagePage implements OnInit {
 
   customDateValidator(control: AbstractControl) {
     const today = new Date();
-    const minDate = moment(new Date('Jan 1, 2001'));
-    const maxDate = moment(new Date(today)).add(1, 'day');
-    const passedInDate = control.value && moment(new Date(control.value));
+    const minDate = dayjs(new Date('Jan 1, 2001'));
+    const maxDate = dayjs(new Date(today)).add(1, 'day');
+    const passedInDate = control.value && dayjs(new Date(control.value));
     if (passedInDate) {
-      return passedInDate.isBetween(minDate, maxDate)
+      return passedInDate.isBefore(maxDate) && passedInDate.isAfter(minDate)
         ? null
         : {
             invalidDateSelection: true,
@@ -899,7 +902,7 @@ export class AddEditMileagePage implements OnInit {
     });
 
     const today = new Date();
-    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+    this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
     this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.fg.reset();
@@ -956,7 +959,8 @@ export class AddEditMileagePage implements OnInit {
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds }))
+      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
+      map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
@@ -1389,7 +1393,7 @@ export class AddEditMileagePage implements OnInit {
             if (customInput.type === 'DATE') {
               return {
                 name: customInput.name,
-                value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null,
+                value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
               };
             } else {
               return {
@@ -1488,7 +1492,7 @@ export class AddEditMileagePage implements OnInit {
           }
           this.fg.patchValue({
             mileage_rate_name,
-            dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
+            dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
             paymentMode: paymentMode || defaultPaymentMode,
             purpose: etxn.tx.purpose,
             route: {
@@ -1560,10 +1564,14 @@ export class AddEditMileagePage implements OnInit {
   }
 
   close() {
-    if (this.activatedRoute.snapshot.params.persist_filters) {
+    if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      const reportId = this.fg.value.report?.rp?.id;
+      if (reportId) {
+        this.showAddToReportSuccessToast(reportId);
+      }
     }
   }
 
@@ -1616,22 +1624,10 @@ export class AddEditMileagePage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.close();
-              }
-            });
+            that.addExpense('SAVE_MILEAGE').subscribe(() => this.close());
           } else {
             // to do edit
-            that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.close();
-              }
-            });
+            that.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
           }
         } else {
           that.fg.markAllAsTouched();
@@ -1787,49 +1783,21 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn) {
-    // Prepare etxn object with just tx and ou object required for test call
-    return from(this.authService.getEou()).pipe(
-      switchMap((currentEou) => {
-        const policyETxn = {
-          tx: cloneDeep(etxn.tx),
-          ou: cloneDeep(etxn.ou),
-        };
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
+    return from(this.mileageRates$).pipe(
+      switchMap((rates) => {
+        const transactionCopy = cloneDeep(etxn.tx);
+        const selectedMileageRate = this.getMileageByVehicleType(rates, etxn.tx.mileage_vehicle_type);
+        transactionCopy.mileage_rate_id = selectedMileageRate.id;
 
-        if (!etxn.tx.id) {
-          policyETxn.ou = currentEou.ou;
-        }
-        /* Adding number of attachements and sending in test call as tx_num_files
-         * If editing an expense with receipts, check for already uploaded receipts
+        /* Expense creation has not moved to platform yet and since policy is moved to platform,
+         * it expects the expense object in terms of platform world. Until then, the method
+         * `transformTo` act as a bridge by translating the public expense object to platform
+         * expense.
          */
-        if (etxn.tx) {
-          policyETxn.tx.num_files = etxn.tx.num_files;
-
-          // Check for receipts uploaded from mobile
-          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-            policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-          }
-        }
-
-        return this.categoriesService.getAll().pipe(
-          map((categories: any[]) => {
-            // policy engine expects org_category and sub_category fields
-            if (policyETxn.tx.org_category_id) {
-              const orgCategory = categories.find((cat) => cat.id === policyETxn.tx.org_category_id);
-              policyETxn.tx.org_category = orgCategory && orgCategory.name;
-              policyETxn.tx.sub_category = orgCategory && orgCategory.sub_category;
-            } else {
-              policyETxn.tx.org_category_id = null;
-              policyETxn.tx.sub_category = null;
-              policyETxn.tx.org_category = null;
-            }
-
-            // Flatten the etxn obj
-            return this.dataTransformService.etxnRaw(policyETxn);
-          })
-        );
-      }),
-      switchMap((policyETxn) => this.transactionService.testPolicy(policyETxn))
+        const policyExpense = this.policyService.transformTo(transactionCopy);
+        return this.transactionService.checkPolicy(policyExpense);
+      })
     );
   }
 
@@ -1850,12 +1818,12 @@ export class AddEditMileagePage implements OnInit {
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
+  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
-        policyActionDescription,
+        policyAction,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -2008,18 +1976,16 @@ export class AddEditMileagePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: any) => [
+                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations &&
-                    policyViolations.transaction_desired_state &&
-                    policyViolations.transaction_desired_state.action_description,
+                  policyViolations?.data?.final_desired_state,
                 ]),
-                switchMap(([policyViolations, policyActionDescription]) => {
+                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyActionDescription,
+                      policyAction,
                       etxn,
                     });
                   } else {
@@ -2050,7 +2016,7 @@ export class AddEditMileagePage implements OnInit {
             })
           );
         } else if (err.type === 'policyViolations') {
-          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
+          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -2235,18 +2201,16 @@ export class AddEditMileagePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: any) => [
+                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations &&
-                    policyViolations.transaction_desired_state &&
-                    policyViolations.transaction_desired_state.action_description,
+                  policyViolations?.data?.final_desired_state,
                 ]),
-                switchMap(([policyViolations, policyActionDescription]) => {
+                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyActionDescription,
+                      policyAction,
                       etxn,
                     });
                   } else {
@@ -2277,7 +2241,7 @@ export class AddEditMileagePage implements OnInit {
             })
           );
         } else if (err.type === 'policyViolations') {
-          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
+          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
