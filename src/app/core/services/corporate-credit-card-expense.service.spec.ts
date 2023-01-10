@@ -11,9 +11,7 @@ import {
   apiAuthEouResponse,
   apiExpAndCCC,
   expectedCardResponse,
-  apiAssignedAcc,
   eCCCApiResponse,
-  expectedUnifyExpenses,
   expectedECccResponse,
   expectedSingleTransaction,
   uniqueCardsReponse,
@@ -149,17 +147,6 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.getAssignedCards();
     result.subscribe((res) => {
       expect(res).toEqual(expectedCardResponse);
-      done();
-    });
-  });
-
-  it('should get non-unify cards', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiAuthEouResponse));
-    apiV2Service.get.and.returnValue(of(apiAssignedAcc));
-
-    const result = cccExpenseService.getNonUnifyCCCAssignedCards();
-    result.subscribe((res) => {
-      expect(res).toEqual(expectedUnifyExpenses);
       done();
     });
   });
