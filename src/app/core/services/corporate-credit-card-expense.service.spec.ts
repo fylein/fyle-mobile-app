@@ -21,6 +21,7 @@ import { DateService } from './date.service';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
+  let dateService: DateService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -69,6 +70,7 @@ describe('CorporateCreditCardExpenseService', () => {
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
+    dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
   });
 
   it('should be created', () => {
@@ -95,7 +97,7 @@ describe('CorporateCreditCardExpenseService', () => {
 
     const result = cccExpenseService.getv2CardTransaction(testID);
     result.subscribe((res) => {
-      expect(res).toEqual(fixDate(expectedSingleTransaction));
+      expect(res).toEqual(dateService.fixDates(expectedSingleTransaction));
       done();
     });
   });
