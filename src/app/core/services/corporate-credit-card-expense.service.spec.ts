@@ -26,6 +26,19 @@ describe('CorporateCreditCardExpenseService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
 
+  const fixDate = (data) => {
+    if (data.created_at) {
+      data.created_at = new Date(data.created_at);
+    }
+    if (data.updated_at) {
+      data.updated_at = new Date(data.updated_at);
+    }
+    if (data.txn_dt) {
+      data.txn_dt = new Date(data.txn_dt);
+    }
+    return data;
+  };
+
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
@@ -82,7 +95,7 @@ describe('CorporateCreditCardExpenseService', () => {
 
     const result = cccExpenseService.getv2CardTransaction(testID);
     result.subscribe((res) => {
-      expect(res).toEqual(expectedSingleTransaction);
+      expect(res).toEqual(fixDate(expectedSingleTransaction));
       done();
     });
   });
