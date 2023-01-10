@@ -127,9 +127,7 @@ describe('OrgUserService', () => {
       and: '(or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"),or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))',
     };
     apiV2Service.get.and.returnValue(of(employeesParamsRes));
-    orgUserService.getEmployeesByParams(params).subscribe((res) => {
-      expect(res).toEqual(employeesParamsRes);
-    });
+
     orgUserService.getEmployeesBySearch(params).subscribe((res) => {
       expect(res).toEqual(employeesParamsRes.data);
       expect(apiV2Service.get).toHaveBeenCalledWith('/spender_employees', { params });
@@ -144,9 +142,6 @@ describe('OrgUserService', () => {
       and: '(or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"),or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))',
     };
     apiV2Service.get.and.returnValue(of(employeesParamsRes));
-    orgUserService.getEmployeesByParams(params).subscribe((res) => {
-      expect(res).toEqual(employeesParamsRes);
-    });
 
     orgUserService.getEmployeesBySearch(params).subscribe((res) => {
       expect(res).toEqual(employeesParamsRes.data);
