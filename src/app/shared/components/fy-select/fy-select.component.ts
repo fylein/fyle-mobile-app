@@ -5,16 +5,14 @@ import {
   NgControl,
   FormGroup,
   Validators,
-  FormControl,
   FormArray,
   FormBuilder,
 } from '@angular/forms';
-import { noop, from, of } from 'rxjs';
+import { noop, of } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 
 @Component({
   selector: 'app-fy-select',
@@ -148,18 +146,10 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
             action: 'ADD',
           });
 
-          console.log('mappedDependentFieldsWithControl', mappedDependentFieldsWithControl);
-
           //We'll be getting this from the API, so mocking it here.
           this.dependentFields$ = of(mappedDependentFieldsWithControl);
 
-          this.dependentFields$.subscribe((res) => console.log('res', res));
-
           dependentFieldsArray.updateValueAndValidity();
-
-          //Set child field value to null and mark it as untouched if parent field value changes
-          // this.fg.controls.depField.setValue(null);
-          // this.fg.controls.depField.markAsUntouched();
         }
       }
 
@@ -171,13 +161,9 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
     this.ngControl = this.injector.get(NgControl);
 
     this.fg = this.fb.group({
-      // field: [this.label],
-      // value: [],
       parent: this.label,
       dependent_fields: new FormArray([]),
     });
-
-    // this.fg.valueChanges.subscribe((res) => console.log('FG VALUE', res));
   }
 
   async openModal() {
@@ -246,16 +232,9 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
   }
 
   updateParentFg(event) {
-    // console.log('EVENT AAYA', event);
-    // console.log('PARENT DEP FIELD', (this.fg.controls.dependent_fields as FormArray).controls);
-
-    // event.fg.value.parent === this.fg.value.dependent_fields.controls[0].field
-
     const parentFg = (this.fg.controls.dependent_fields as FormArray).controls.find(
       (dep) => dep.value.field === event.fg.value.parent
     );
-
-    // console.log('PARENT FG', parentFg);
     (parentFg as FormGroup).addControl('dependent_fields', event.fg.controls.dependent_fields);
   }
 }

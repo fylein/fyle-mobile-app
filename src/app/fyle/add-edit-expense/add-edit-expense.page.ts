@@ -2010,7 +2010,6 @@ export class AddEditExpensePage implements OnInit {
           map((isConnected) => {
             const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
             customFieldsFormArray.clear();
-            // console.log('CUSTOM FIELDS', customFields);
             for (const customField of customFields) {
               customFieldsFormArray.push(
                 this.formBuilder.group({
@@ -2876,12 +2875,6 @@ export class AddEditExpensePage implements OnInit {
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
-
-    this.fg.valueChanges.subscribe((value) => console.log('NEW FORM CALLED', value));
-    // console.log('this.fg.controls.dependent_fields', this.fg.controls.dependent_fields);
-    // this.fg.controls.dependent_fields.valueChanges.subscribe((dependentFields) =>
-    //   console.log('CHANGED dependentFields', this.fg.value)
-    // );
   }
 
   updateParentFg(event) {
