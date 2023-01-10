@@ -2508,7 +2508,12 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
-      dependent_fields: this.formBuilder.array([this.formBuilder.control([])]),
+      dependent_fields: this.formBuilder.array([
+        this.formBuilder.group({
+          field: this.data.expense_fields?.data[0].name,
+          value: [],
+        }),
+      ]),
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
@@ -2872,7 +2877,7 @@ export class AddEditExpensePage implements OnInit {
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
 
-    // this.fg.valueChanges.subscribe((value) => console.log('NEW FORM CALLED', value));
+    this.fg.valueChanges.subscribe((value) => console.log('NEW FORM CALLED', value));
     // console.log('this.fg.controls.dependent_fields', this.fg.controls.dependent_fields);
     // this.fg.controls.dependent_fields.valueChanges.subscribe((dependentFields) =>
     //   console.log('CHANGED dependentFields', this.fg.value)
@@ -2880,7 +2885,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   updateParentFg(event) {
-    // this.fg.controls.dependent_fields = (event.fg);
+    ((this.fg.controls.dependent_fields as FormArray).controls[0] as FormGroup).addControl(
+      'dependent_fields',
+      event.fg.controls.dependent_fields
+    );
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {

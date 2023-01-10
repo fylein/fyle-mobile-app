@@ -120,46 +120,47 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
         this.selectedOption = selectedOption;
 
-        const dependentFieldsArray = this.fg.controls.dependent_fields as FormArray;
-        // dependentFieldsArray.clear();
+        if (this.depFields) {
+          const dependentFieldsArray = this.fg.controls.dependent_fields as FormArray;
+          // dependentFieldsArray.clear();
 
-        const mappedDependentFieldsWithControl = this.selectedOption.dependent_field_ids.map((depField) => {
-          //Create array of dependent fields for the formControl
-          dependentFieldsArray.push(
-            //Why am i creating formgroups here instead of just pushing the formcontrol?
-            this.fb.group({
-              field: this.depFields.expense_fields?.data[depField].name,
-              value: [null, [this.depFields.expense_fields?.data[depField].is_mandatory && Validators.required]],
-            })
-          );
+          const mappedDependentFieldsWithControl = this.selectedOption.dependent_field_ids.map((depField) => {
+            //Create array of dependent fields for the formControl
+            dependentFieldsArray.push(
+              this.fb.group({
+                field: this.depFields.expense_fields?.data[depField].name,
+                value: [null, [this.depFields.expense_fields?.data[depField].is_mandatory && Validators.required]],
+              })
+            );
 
-          //Get options for dependent fields and construct an array of objects
-          return {
-            name: this.depFields.expense_fields?.data[depField].name,
-            value: null,
-            options: this.depFields.getFieldValuesById(depField).data,
-            is_mandatory: this.depFields.expense_fields?.data[depField].is_mandatory,
-            control: dependentFieldsArray.at(dependentFieldsArray.length - 1),
-          };
-        });
+            //Get options for dependent fields and construct an array of objects
+            return {
+              name: this.depFields.expense_fields?.data[depField].name,
+              value: null,
+              options: this.depFields.getFieldValuesById(depField).data,
+              is_mandatory: this.depFields.expense_fields?.data[depField].is_mandatory,
+              control: dependentFieldsArray.at(dependentFieldsArray.length - 1),
+            };
+          });
 
-        this.fgupdate.emit({
-          fg: this.fg,
-          action: 'ADD',
-        });
+          this.fgupdate.emit({
+            fg: this.fg,
+            action: 'ADD',
+          });
 
-        console.log('mappedDependentFieldsWithControl', mappedDependentFieldsWithControl);
+          console.log('mappedDependentFieldsWithControl', mappedDependentFieldsWithControl);
 
-        //We'll be getting this from the API, so mocking it here.
-        this.dependentFields$ = of(mappedDependentFieldsWithControl);
+          //We'll be getting this from the API, so mocking it here.
+          this.dependentFields$ = of(mappedDependentFieldsWithControl);
 
-        this.dependentFields$.subscribe((res) => console.log('res', res));
+          this.dependentFields$.subscribe((res) => console.log('res', res));
 
-        dependentFieldsArray.updateValueAndValidity();
+          dependentFieldsArray.updateValueAndValidity();
 
-        //Set child field value to null and mark it as untouched if parent field value changes
-        // this.fg.controls.depField.setValue(null);
-        // this.fg.controls.depField.markAsUntouched();
+          //Set child field value to null and mark it as untouched if parent field value changes
+          // this.fg.controls.depField.setValue(null);
+          // this.fg.controls.depField.markAsUntouched();
+        }
       }
 
       this.onChangeCallback(v);
@@ -176,7 +177,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
       dependent_fields: new FormArray([]),
     });
 
-    this.fg.valueChanges.subscribe((res) => console.log('FG VALUE', res));
+    // this.fg.valueChanges.subscribe((res) => console.log('FG VALUE', res));
   }
 
   async openModal() {
