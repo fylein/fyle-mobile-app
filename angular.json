@@ -42,7 +42,6 @@
               }
             ],
             "scripts": [],
-            "aot": false,
             "vendorChunk": true,
             "extractLicenses": false,
             "buildOptimizer": false,
@@ -100,8 +99,7 @@
             "staging": {
               "browserTarget": "app:build:staging"
             },
-            "ci": {
-            }
+            "ci": {}
           }
         },
         "extract-i18n": {
@@ -118,7 +116,9 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "codeCoverage": true,
-            "codeCoverageExclude": ["src/app/core/services/tracking.service.ts"],
+            "codeCoverageExclude": [
+              "src/app/core/services/tracking.service.ts"
+            ],
             "styles": [],
             "scripts": [],
             "assets": [
@@ -162,30 +162,6 @@
             },
             "ci": {
               "devServerTarget": "app:serve:ci"
-            }
-          }
-        },
-        "ionic-cordova-build": {
-          "builder": "@ionic/angular-toolkit:cordova-build",
-          "options": {
-            "browserTarget": "app:build"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "app:build:production"
-            }
-          }
-        },
-        "ionic-cordova-serve": {
-          "builder": "@ionic/angular-toolkit:cordova-serve",
-          "options": {
-            "cordovaBuildTarget": "app:ionic-cordova-build",
-            "devServerTarget": "app:serve"
-          },
-          "configurations": {
-            "production": {
-              "cordovaBuildTarget": "app:ionic-cordova-build:production",
-              "devServerTarget": "app:serve:production"
             }
           }
         }

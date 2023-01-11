@@ -1,0 +1,80 @@
+@import '../../../../../assets/styles/fy_select';
+
+$list-element-color: #333;
+
+.selection-modal {
+  color: black;
+  &--list-element {
+    padding: 18px 0;
+    margin: 0 16px;
+    // border-color-font
+    @extend %fy-select-list-element-default-border-color-font;
+    // list-item-layout
+    @extend %fy-select-list-element-layout;
+  }
+
+  &--title {
+    @extend %fy-select-title;
+  }
+
+  &--label {
+    text-align: justify;
+    word-break: break-word;
+  }
+
+  &--header {
+    @extend %fy-select-header;
+  }
+
+  &--search-input {
+    @extend %fy-select-search-input;
+  }
+
+  &--form-field {
+    @extend %fy-select-mat-form-field;
+  }
+
+  &--search-icon {
+    @extend %fy-select-search-icon;
+  }
+
+  &--container {
+    @extend %flex-layout-column;
+  }
+
+  &--recently-used-block {
+    margin-bottom: 20px;
+  }
+
+  &--single-element-block {
+    margin-bottom: 20px;
+  }
+
+  &--cta-container {
+    margin: 12px;
+  }
+
+  &--primary-cta {
+    width: 100%;
+    height: 48px;
+    --border-radius: 4px !important;
+  }
+
+  &--recently-used-icon {
+    height: 22px;
+    width: 22px;
+    min-height: 22px;
+    min-width: 22px;
+    fill: $list-element-color;
+    margin-right: 12px;
+  }
+
+  &--recently-used-item-content {
+    @extend %flex-layout-row;
+    align-items: center;
+  }
+
+  &--check {
+    @extend %fy-select-check;
+  }
+}

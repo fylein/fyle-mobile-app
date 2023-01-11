@@ -1,6 +1,6 @@
 import { Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef, ElementRef } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
-import { noop } from 'rxjs';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl, FormGroup, FormBuilder, FormArray } from '@angular/forms';
+import { distinctUntilChanged, noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
@@ -35,20 +35,30 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
 
   @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
+  dependantFieldConfig: {
+    label: string;
+    id: string;
+    parent: string;
+  };
+
+  fg: FormGroup;
+
   displayValue;
 
   private ngControl: NgControl;
-
-  private innerValue;
 
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
 
+  // project: { id: 'something', name: 'something_else' }
+  // project: { value: { id: 'something', name: 'something_else' }, dependant_fields: ... }
+
   constructor(
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private injector: Injector
+    private injector: Injector,
+    private fb: FormBuilder
   ) {}
 
   get valid() {
@@ -60,28 +70,30 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   }
 
   get value(): any {
-    return this.innerValue;
+    return this.fg.value;
   }
 
-  set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      const selectedOption = this.innerValue;
-      if (selectedOption) {
-        this.displayValue = selectedOption.project_name;
-      } else {
-        this.displayValue = '';
-      }
-
-      this.onChangeCallback(v);
-    }
+  set value(v: { project: ExtendedProject; dependant_fields: any[] }) {
+    this.fg.setValue(v);
   }
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
+
+    this.fg = this.fb.group({
+      value: [],
+      dependant_field: [], // { value: , dependant_fields: ... }
+    });
+
+    this.fg.valueChanges.pipe(distinctUntilChanged()).subscribe((v) => {
+      this.displayValue = v.value.name;
+      this.onChangeCallback(v);
+    });
   }
 
   ngOnDestroy(): void {}
+
+  getDependantFieldFormGroup() {}
 
   async openModal() {
     const projectModal = await this.modalController.create({
@@ -104,7 +116,13 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
     const { data } = await projectModal.onWillDismiss();
 
     if (data) {
-      this.value = data.value;
+      if (data.value !== this.fg.controls.project.value) {
+        this.fg.controls.project.setValue(data.value);
+        this.fg.controls.dependant_field.setValue(null);
+        this.dependantFieldsService.get('project', data.value).subscribe((res) => {
+          this.dependantFieldConfig = res;
+        });
+      }
     }
   }
 
@@ -113,15 +131,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   }
 
   writeValue(value: any): void {
-    if (value !== this.innerValue) {
-      this.innerValue = value;
-      const selectedOption = this.innerValue;
-      if (selectedOption) {
-        this.displayValue = selectedOption.project_name;
-      } else {
-        this.displayValue = '';
-      }
-    }
+    this.fg.setValue(value);
   }
 
   // validate(fc: FormControl) {
