@@ -421,10 +421,6 @@ export class MyExpensesPage implements OnInit {
     this.onPageExit$.next(null);
   }
 
-  getNonUnifyCCCDetails(): Observable<BankAccountsAssigned[]> {
-    return this.corporateCreditCardService.getNonUnifyCCCAssignedCards();
-  }
-
   ionViewWillEnter() {
     this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.MEDIUM, () => {
       if (this.headerState === HeaderState.multiselect) {
@@ -465,28 +461,12 @@ export class MyExpensesPage implements OnInit {
     })
       .pipe(
         filter(({ isConnected }) => isConnected),
-        switchMap(() => this.corporateCreditCardService.getAssignedCards()),
-        switchMap((unifyCards) => this.getNonUnifyCCCDetails().pipe(map((allCards) => ({ unifyCards, allCards }))))
+        switchMap(() => this.corporateCreditCardService.getAssignedCards())
       )
-      .subscribe(({ unifyCards, allCards }) => {
-        const cards = this.getCardDetail(unifyCards.cardDetails);
-
-        this.cardNumbers = [];
+      .subscribe((allCards) => {
+        const cards = this.getCardDetail(allCards.cardDetails);
         cards.forEach((card) => {
           this.cardNumbers.push({ label: this.maskNumber.transform(card.cardNumber), value: card.cardNumber });
-        });
-
-        allCards.forEach((detail) => {
-          if (
-            this.cardNumbers.filter(
-              (cardDetail) => cardDetail.label === this.maskNumber.transform(detail.ba_account_number)
-            ).length === 0
-          ) {
-            this.cardNumbers.push({
-              label: this.maskNumber.transform(detail.ba_account_number),
-              value: detail.ba_account_number,
-            });
-          }
         });
       });
 
@@ -818,7 +798,6 @@ export class MyExpensesPage implements OnInit {
 
   async openFilters(activeFilterInitialName?: string) {
     const filterMain = this.myExpensesService.getFilters();
-
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
         name: 'Cards',
