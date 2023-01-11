@@ -81,7 +81,7 @@ export class StatusService {
         break;
       case lowerCaseComment.indexOf('added to the report') > -1:
         statusCategory = {
-          category: 'Expense added',
+          category: 'Expense added to report',
           icon: 'circle',
         };
         break;

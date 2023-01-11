@@ -35,7 +35,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   approverList$: Observable<any>;
 
-  searchedApprovers$: Observable<Employee[]>;
+  searchedApprovers$: Observable<Partial<Employee>[]>;
 
   selectedApproversList: Approver[] = [];
 
@@ -182,7 +182,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     }
   }
 
-  getSearchedEmployees(searchedEmployees: Employee[], employees: Employee[]) {
+  getSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]) {
     searchedEmployees = searchedEmployees.filter(
       (searchedEmployee) => !employees.find((employee) => employee.us_email === searchedEmployee.us_email)
     );
