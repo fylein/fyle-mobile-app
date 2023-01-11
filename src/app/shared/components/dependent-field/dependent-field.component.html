@@ -1,0 +1,53 @@
+<label class="fy-select--label">
+  <div class="fy-select--label-content">
+    {{ label }}
+    <span *ngIf="mandatory" class="fy-select--mandatory"> * </span>
+  </div>
+  <div
+    class="fy-select--input-container"
+    [ngClass]="{ 'fy-select--input-invalid': !valid, 'fy-select--disabled': disabled }"
+  >
+    <input
+      class="fy-select--input smartlook-show"
+      type="text"
+      [placeholder]="!disabled ? placeholder || 'Select ' + label : ''"
+      [ngModel]="displayValue"
+      (blur)="onBlur()"
+      (click)="openModal()"
+      [ngClass]="{ 'fy-select--input-disabled': disabled }"
+      [disabled]="disabled"
+    />
+    <mat-icon
+      class="fy-select--icon"
+      [ngClass]="{ 'fy-select--input-disabled': disabled }"
+      svgIcon="fy-arrow-down"
+    ></mat-icon>
+  </div>
+</label>
+
+<ng-container *ngIf="selectedOption?.dependent_field_ids?.length">
+  <ng-container *ngIf="dependentFields$ | async as dependentFields">
+    <div *ngFor="let dependentField of dependentFields" class="add-edit-expense--primary-block">
+      <div [formGroup]="dependentField.control" class="add-edit-expense--internal-block">
+        <div>
+          <app-dependent-field
+            [label]="dependentField.name"
+            [mandatory]="dependentField.is_mandatory"
+            [options]="dependentField.options"
+            [selectModalHeader]="'Select ' + dependentField.name"
+            formControlName="value"
+            [depFields]="depFields"
+            (fgupdate)="updateParentFg($event)"
+          >
+          </app-dependent-field>
+        </div>
+        <div
+          *ngIf="dependentField.control.controls.value.touched && !dependentField.control.controls.value.valid"
+          class="add-edit-expense--error"
+        >
+          Please enter {{ dependentField.name }}.
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</ng-container>

@@ -110,6 +110,7 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { sampleData } from 'src/app/data/sample-data';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -356,6 +357,8 @@ export class AddEditExpensePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  data: any;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -403,6 +406,10 @@ export class AddEditExpensePage implements OnInit {
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
+
+  get dependentFields() {
+    return this.fg.controls.dependent_fields as FormArray;
+  }
 
   @HostListener('keydown')
   scrollInputIntoView() {
@@ -2455,6 +2462,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.data = sampleData;
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -2496,6 +2504,12 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
+      dependent_fields: this.formBuilder.array([
+        this.formBuilder.group({
+          field: this.data.expense_fields?.data[0].name,
+          value: [],
+        }),
+      ]),
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
@@ -2858,6 +2872,13 @@ export class AddEditExpensePage implements OnInit {
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
+  }
+
+  updateParentFg(event) {
+    ((this.fg.controls.dependent_fields as FormArray).controls[0] as FormGroup).addControl(
+      'dependent_fields',
+      event.fg.controls.dependent_fields
+    );
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
