@@ -4,13 +4,14 @@ import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import {
-  expectedPerDiemRates,
   expectedPerDiems,
   apiPerDiemByID,
   allPerDiemRatesParam,
   apiOrgUserSettings,
   expectPerDiemByID,
   allowedPerDiem,
+  apiPerDiemFirst,
+  apiPerDiemSecond,
   apiPerDiem,
   apiPerDiemSingleResponse,
 } from '../test-data/per-diem.service.spec.data';
@@ -68,9 +69,6 @@ describe('PerDiemService', () => {
   });
 
   it('should get per diem rates', (done) => {
-    spenderPlatformApiService.get.and.returnValue(of(apiPerDiemSingleResponse));
-    spenderPlatformApiService.get.and.returnValue(of(apiPerDiem));
-
     const testParams1 = {
       params: {
         is_enabled: 'eq.true',
@@ -93,7 +91,15 @@ describe('PerDiemService', () => {
         limit: 2,
       },
     };
-    perDiemService.getRates().subscribe(() => {
+
+    spenderPlatformApiService.get
+      .withArgs('/per_diem_rates', testParams1)
+      .and.returnValue(of(apiPerDiemSingleResponse));
+    spenderPlatformApiService.get.withArgs('/per_diem_rates', testParams2).and.returnValue(of(apiPerDiemFirst));
+    spenderPlatformApiService.get.withArgs('/per_diem_rates', testParams3).and.returnValue(of(apiPerDiemSecond));
+
+    perDiemService.getRates().subscribe((res) => {
+      expect(res).toEqual(expectedPerDiems);
       expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams1);
       expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams2);
       expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams3);
