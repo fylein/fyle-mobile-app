@@ -33,7 +33,7 @@ export interface EouApiResponse {
   ou_custom_field_values: {
     id: number;
     name: string;
-    value: string;
+    value: number | string;
   }[];
   ou_org_name: string;
   org_domain: string;
