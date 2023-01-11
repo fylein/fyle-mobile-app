@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
+import { from, Observable, of } from 'rxjs';
+import { map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
+import { OrgCategory } from '../models/v1/org-category.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
@@ -27,15 +28,6 @@ export class ExpenseFieldsService {
         })
       )
     );
-  }
-
-  formatBillableFields(expenseFields: ExpenseField[]) {
-    return expenseFields.map((field) => {
-      if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
-        field.default_value = field.default_value === 'true';
-      }
-      return field;
-    });
   }
 
   /* getAllMap() method returns a mapping of column_names and their respective mapped fields
@@ -72,19 +64,11 @@ export class ExpenseFieldsService {
     );
   }
 
-  getUserRoles(): Observable<string[]> {
-    return from(this.authService.getRoles());
-  }
-
-  findCommonRoles(roles): Observable<string[]> {
-    return this.getUserRoles().pipe(map((userRoles) => roles.filter((role) => userRoles.indexOf(role) > -1)));
-  }
-
-  canEdit(roles): Observable<boolean> {
-    return this.findCommonRoles(roles).pipe(map((commonRoles) => commonRoles.length > 0));
-  }
-
-  filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<Partial<ExpenseFieldsMap>> {
+  filterByOrgCategoryId(
+    tfcMap: Partial<ExpenseFieldsMap>,
+    fields: string[],
+    orgCategory: OrgCategory
+  ): Observable<Partial<ExpenseFieldsMap>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map((fields) =>
@@ -119,16 +103,9 @@ export class ExpenseFieldsService {
           .filter((filteredField) => !!filteredField)
       ),
       switchMap((fields) => from(fields)),
-      concatMap((field) =>
-        forkJoin({
-          canEdit: this.canEdit(field.roles_editable),
-        }).pipe(
-          map((res) => ({
-            ...field,
-            ...res,
-          }))
-        )
-      ),
+      map((field) => ({
+        ...field,
+      })),
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;
@@ -136,7 +113,7 @@ export class ExpenseFieldsService {
     );
   }
 
-  getDefaultTxnFieldValues(txnFields): DefaultTxnFieldValues {
+  getDefaultTxnFieldValues(txnFields: Partial<ExpenseFieldsMap>): DefaultTxnFieldValues {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {
       if (txnFields.hasOwnProperty(configurationColumn)) {
@@ -147,5 +124,14 @@ export class ExpenseFieldsService {
     }
 
     return defaultValues;
+  }
+
+  private formatBillableFields(expenseFields: ExpenseField[]): ExpenseField[] {
+    return expenseFields.map((field) => {
+      if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
+        field.default_value = field.default_value === 'true';
+      }
+      return field;
+    });
   }
 }
