@@ -2035,10 +2035,6 @@ export const orgSettingsData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
-  unify_ccce_expenses_settings: {
-    allowed: true,
-    enabled: true,
-  },
 };
 
 export const orgSettingsAdvDisabledData: OrgSettings = {
@@ -2432,10 +2428,6 @@ export const orgSettingsAdvDisabledData: OrgSettings = {
     enabled: true,
   },
   company_expenses_beta_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  unify_ccce_expenses_settings: {
     allowed: true,
     enabled: true,
   },

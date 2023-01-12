@@ -100,8 +100,7 @@
       <div>
         <ion-grid
           [ngClass]="{
-            'stats--ccc-cards-grid': !isUnifyCCCExpensesSettings,
-            'stats--ccc-cards-grid-multiple': isUnifyCCCExpensesSettings
+            'stats--ccc-cards-grid-multiple': true
           }"
           class=""
         >
@@ -111,7 +110,7 @@
             </ion-col>
           </ion-row>
         </ion-grid>
-        <ng-container *ngIf="isUnifyCCCExpensesSettings">
+        <ng-container>
           <app-spent-cards
             *ngIf="cardTransactionsAndDetails?.length > 1"
             [spentCards]="cardTransactionsAndDetails"
