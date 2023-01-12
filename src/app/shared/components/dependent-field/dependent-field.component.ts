@@ -97,7 +97,9 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
       dependent_field: [],
     });
 
-    this.fg.valueChanges.subscribe((val) => console.log('VAL IS ', val));
+    this.fg.valueChanges.subscribe((val) => {
+      this.onChangeCallback(this.fg.value);
+    });
   }
 
   async openModal() {
@@ -130,24 +132,19 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.fg.patchValue({
-        value: data.value,
-        dependent_field: null,
-      });
-      this.dependentFields$ = null;
+      this.fg.controls.value.patchValue(data.value);
       const selectedOption = this.options.find((option) => isEqual(option.value, data.value));
       const dependentFieldId = selectedOption.dependent_field_id;
-      if (dependentFieldId) {
+      if (!!dependentFieldId) {
         this.dependentFields$ = of({
           name: this.depFields.expense_fields?.data[dependentFieldId].name,
           value: null,
           options: this.depFields.getFieldValuesById(dependentFieldId).data,
           is_mandatory: this.depFields.expense_fields?.data[dependentFieldId].is_mandatory,
-          control: this.fg.controls.dependent_field,
         });
+      } else {
+        this.dependentFields$ = of(null);
       }
-
-      this.onChangeCallback(this.fg.value);
     }
   }
 

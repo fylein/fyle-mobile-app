@@ -2500,11 +2500,10 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
-      dependent_field: this.formBuilder.group({
-        field: this.data.expense_fields?.data[0].name,
-        value: [],
-      }),
+      dependent_field: [],
     });
+
+    this.fg.controls.dependent_field.valueChanges.subscribe((value) => console.log('FORM FG', value));
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();

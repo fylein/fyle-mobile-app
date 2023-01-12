@@ -904,19 +904,19 @@
         </div>
       </div>
       <div *ngIf="data?.expense_fields?.data?.length" class="add-edit-expense--primary-block">
-        <div [formGroup]="fg.controls.dependent_field" class="add-edit-expense--internal-block">
+        <div class="add-edit-expense--internal-block">
           <app-dependent-field
             [label]="data.expense_fields?.data[0].name"
             [mandatory]="true"
             [options]="data.getFieldValuesById(0).data"
             [selectModalHeader]="'Select '"
-            formControlName="value"
+            formControlName="dependent_field"
             [depFields]="data"
             (fgupdate)="updateParentFg($event)"
           >
           </app-dependent-field>
           <div
-            *ngIf="fg.controls.dependent_field.value.touched && !fg.controls.dependent_field.value.valid"
+            *ngIf="fg.controls.dependent_field.touched && !fg.controls.dependent_field.valid"
             class="add-edit-expense--error"
           >
             Please enter {{ data.expense_fields?.data[0].name }}.
