@@ -1,14 +1,6 @@
-import { Component, OnInit, forwardRef, Input, TemplateRef, Injector, Output, EventEmitter } from '@angular/core';
-import {
-  NG_VALUE_ACCESSOR,
-  ControlValueAccessor,
-  NgControl,
-  FormGroup,
-  Validators,
-  FormArray,
-  FormBuilder,
-} from '@angular/forms';
-import { noop, of } from 'rxjs';
+import { Component, OnInit, forwardRef, Input, TemplateRef, Injector, OnChanges, SimpleChanges } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
@@ -26,7 +18,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     },
   ],
 })
-export class DependentFieldComponent implements OnInit, ControlValueAccessor {
+export class DependentFieldComponent implements OnInit, ControlValueAccessor, OnChanges {
   @Input() options: { label: string; value: any; dependent_field_id: number }[] = [];
 
   @Input() disabled = false;
@@ -61,7 +53,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   fg: FormGroup;
 
-  dependentFields$;
+  dependentField;
 
   private ngControl: NgControl;
 
@@ -98,8 +90,20 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     });
 
     this.fg.valueChanges.subscribe((val) => {
-      this.onChangeCallback(this.fg.value);
+      this.onChangeCallback(val);
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    //Update the form when parent field changes
+    if (changes.label && !changes.label.firstChange) {
+      this.fg?.patchValue({
+        field: changes.label.currentValue,
+        value: null,
+        dependent_field: null,
+      });
+      this.dependentField = null;
+    }
   }
 
   async openModal() {
@@ -132,18 +136,20 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.fg.controls.value.patchValue(data.value);
+      this.fg.patchValue({
+        value: data.value,
+        dependent_field: null,
+      });
       const selectedOption = this.options.find((option) => isEqual(option.value, data.value));
       const dependentFieldId = selectedOption.dependent_field_id;
+      this.dependentField = null;
       if (!!dependentFieldId) {
-        this.dependentFields$ = of({
+        this.dependentField = {
           name: this.depFields.expense_fields?.data[dependentFieldId].name,
           value: null,
           options: this.depFields.getFieldValuesById(dependentFieldId).data,
           is_mandatory: this.depFields.expense_fields?.data[dependentFieldId].is_mandatory,
-        });
-      } else {
-        this.dependentFields$ = of(null);
+        };
       }
     }
   }
