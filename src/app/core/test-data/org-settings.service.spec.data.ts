@@ -379,10 +379,6 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
-  unify_ccce_expenses_settings: {
-    allowed: true,
-    enabled: true,
-  },
   ccc_draft_expense_settings: {
     allowed: true,
     enabled: true,
@@ -807,10 +803,6 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   ccc_draft_expense_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  unify_ccce_expenses_settings: {
     allowed: true,
     enabled: true,
   },
