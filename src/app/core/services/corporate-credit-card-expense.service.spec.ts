@@ -14,6 +14,8 @@ import {
   eCCCApiResponse,
   expectedECccResponse,
   expectedSingleTransaction,
+  searchCCCTxnResponse,
+  expectedCCCTxn,
   uniqueCardsReponse,
   statsResponse,
 } from '../test-data/corporate-credit-card-expense.spec.data';
@@ -162,6 +164,23 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.getAssignedCards();
     result.subscribe((res) => {
       expect(res).toEqual(expectedCardResponse);
+      done();
+    });
+  });
+
+  xit('should get all transactions from using search', (done) => {
+    apiV2Service.get.and.returnValue(of(searchCCCTxnResponse));
+    const params = {
+      queryParams: {
+        state: 'in.(INITIALIZED)',
+      },
+      order: 'txn_dt.desc',
+    };
+
+    const result = cccExpenseService.getAllv2CardTransactions(params);
+    result.subscribe((res) => {
+      console.log(res);
+      // expect(res).toEqual();
       done();
     });
   });
