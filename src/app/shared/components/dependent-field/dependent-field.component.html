@@ -11,7 +11,7 @@
       class="fy-select--input smartlook-show"
       type="text"
       [placeholder]="!disabled ? placeholder || 'Select ' + label : ''"
-      [ngModel]="displayValue"
+      [ngModel]="value"
       (blur)="onBlur()"
       (click)="openModal()"
       [ngClass]="{ 'fy-select--input-disabled': disabled }"
@@ -25,29 +25,26 @@
   </div>
 </label>
 
-<ng-container *ngIf="selectedOption?.dependent_field_ids?.length">
-  <ng-container *ngIf="dependentFields$ | async as dependentFields">
-    <div *ngFor="let dependentField of dependentFields" class="add-edit-expense--primary-block">
-      <div [formGroup]="dependentField.control" class="add-edit-expense--internal-block">
-        <div>
-          <app-dependent-field
-            [label]="dependentField.name"
-            [mandatory]="dependentField.is_mandatory"
-            [options]="dependentField.options"
-            [selectModalHeader]="'Select ' + dependentField.name"
-            formControlName="value"
-            [depFields]="depFields"
-            (fgupdate)="updateParentFg($event)"
-          >
-          </app-dependent-field>
-        </div>
-        <div
-          *ngIf="dependentField.control.controls.value.touched && !dependentField.control.controls.value.valid"
-          class="add-edit-expense--error"
+<ng-container *ngIf="dependentFields$ | async as dependentField">
+  <div [formGroup]="fg" class="add-edit-expense--primary-block">
+    <div class="add-edit-expense--internal-block">
+      <div>
+        <app-dependent-field
+          [label]="dependentField.name"
+          [mandatory]="dependentField.is_mandatory"
+          [options]="dependentField.options"
+          [selectModalHeader]="'Select ' + dependentField.name"
+          formControlName="dependent_field"
+          [depFields]="depFields"
         >
-          Please enter {{ dependentField.name }}.
-        </div>
+        </app-dependent-field>
+      </div>
+      <div
+        *ngIf="fg.controls.dependent_field.touched && !fg.controls.dependent_field.valid"
+        class="add-edit-expense--error"
+      >
+        Please enter {{ dependentField.name }}.
       </div>
     </div>
-  </ng-container>
+  </div>
 </ng-container>

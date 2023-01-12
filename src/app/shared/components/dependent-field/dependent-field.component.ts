@@ -18,9 +18,16 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   selector: 'app-dependent-field',
   templateUrl: './dependent-field.component.html',
   styleUrls: ['./dependent-field.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DependentFieldComponent),
+      multi: true,
+    },
+  ],
 })
-export class DependentFieldComponent implements OnInit {
-  @Input() options: { label: string; value: any }[] = [];
+export class DependentFieldComponent implements OnInit, ControlValueAccessor {
+  @Input() options: { label: string; value: any; dependent_field_id: number }[] = [];
 
   @Input() disabled = false;
 
@@ -52,17 +59,9 @@ export class DependentFieldComponent implements OnInit {
 
   @Input() depFields;
 
-  @Output() fgupdate = new EventEmitter<{ fg: FormGroup; action: 'ADD' | 'REMOVE' }>();
-
-  displayValue = '';
-
-  selectedOption;
-
   fg: FormGroup;
 
   dependentFields$;
-
-  private innerValue;
 
   private ngControl: NgControl;
 
@@ -85,78 +84,20 @@ export class DependentFieldComponent implements OnInit {
     }
   }
 
-  get dependentFields() {
-    return this.fg.get('dependent_fields') as FormArray;
-  }
-
   get value(): any {
-    return this.innerValue;
-  }
-
-  set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      this.displayValue = null;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-        if (selectedOption && selectedOption.label) {
-          this.displayValue = selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else if (this.innerValue && this.defaultLabelProp) {
-          this.displayValue = this.innerValue[this.defaultLabelProp];
-        } else {
-          this.displayValue = '';
-        }
-
-        this.selectedOption = selectedOption;
-
-        if (this.depFields) {
-          const dependentFieldsArray = this.fg.controls.dependent_fields as FormArray;
-          dependentFieldsArray.clear();
-
-          const mappedDependentFieldsWithControl = this.selectedOption.dependent_field_ids.map((depField) => {
-            //Create array of dependent fields for the formControl
-            dependentFieldsArray.push(
-              this.fb.group({
-                field: this.depFields.expense_fields?.data[depField].name,
-                value: [null, [this.depFields.expense_fields?.data[depField].is_mandatory && Validators.required]],
-              })
-            );
-
-            //Get options for dependent fields and construct an array of objects
-            return {
-              name: this.depFields.expense_fields?.data[depField].name,
-              value: null,
-              options: this.depFields.getFieldValuesById(depField).data,
-              is_mandatory: this.depFields.expense_fields?.data[depField].is_mandatory,
-              control: dependentFieldsArray.at(dependentFieldsArray.length - 1),
-            };
-          });
-
-          this.fgupdate.emit({
-            fg: this.fg,
-            action: 'ADD',
-          });
-
-          //We'll be getting this from the API, so mocking it here.
-          this.dependentFields$ = of(mappedDependentFieldsWithControl);
-
-          dependentFieldsArray.updateValueAndValidity();
-        }
-      }
-
-      this.onChangeCallback(v);
-    }
+    return this.fg.value.value;
   }
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
 
     this.fg = this.fb.group({
-      parent: this.label,
-      dependent_fields: new FormArray([]),
+      field: [this.label],
+      value: [null, [this.mandatory && Validators.required]],
+      dependent_field: [],
     });
+
+    this.fg.valueChanges.subscribe((val) => console.log('VAL IS ', val));
   }
 
   async openModal() {
@@ -189,7 +130,24 @@ export class DependentFieldComponent implements OnInit {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.value = data.value;
+      this.fg.patchValue({
+        value: data.value,
+        dependent_field: null,
+      });
+      this.dependentFields$ = null;
+      const selectedOption = this.options.find((option) => isEqual(option.value, data.value));
+      const dependentFieldId = selectedOption.dependent_field_id;
+      if (dependentFieldId) {
+        this.dependentFields$ = of({
+          name: this.depFields.expense_fields?.data[dependentFieldId].name,
+          value: null,
+          options: this.depFields.getFieldValuesById(dependentFieldId).data,
+          is_mandatory: this.depFields.expense_fields?.data[dependentFieldId].is_mandatory,
+          control: this.fg.controls.dependent_field,
+        });
+      }
+
+      this.onChangeCallback(this.fg.value);
     }
   }
 
@@ -198,22 +156,7 @@ export class DependentFieldComponent implements OnInit {
   }
 
   writeValue(value: any): void {
-    if (value !== this.innerValue) {
-      this.innerValue = value;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-
-        if (selectedOption && selectedOption.label) {
-          this.displayValue = selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else if (this.innerValue && this.defaultLabelProp) {
-          this.displayValue = this.innerValue[this.defaultLabelProp];
-        } else {
-          this.displayValue = '';
-        }
-      }
-    }
+    this.fg.patchValue(value);
   }
 
   registerOnChange(fn: any) {
@@ -222,12 +165,5 @@ export class DependentFieldComponent implements OnInit {
 
   registerOnTouched(fn: any) {
     this.onTouchedCallback = fn;
-  }
-
-  updateParentFg(event) {
-    const parentFg = (this.fg.controls.dependent_fields as FormArray).controls.find(
-      (dep) => dep.value.field === event.fg.value.parent
-    );
-    (parentFg as FormGroup).addControl('dependent_fields', event.fg.controls.dependent_fields);
   }
 }

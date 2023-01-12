@@ -904,28 +904,24 @@
         </div>
       </div>
       <div *ngIf="data?.expense_fields?.data?.length" class="add-edit-expense--primary-block">
-        <ng-container formArrayName="dependent_fields">
-          <div
-            *ngFor="let dependent_field of dependentFields.controls; index as i"
-            class="add-edit-expense--internal-block"
+        <div [formGroup]="fg.controls.dependent_field" class="add-edit-expense--internal-block">
+          <app-dependent-field
+            [label]="data.expense_fields?.data[0].name"
+            [mandatory]="true"
+            [options]="data.getFieldValuesById(0).data"
+            [selectModalHeader]="'Select '"
+            formControlName="value"
+            [depFields]="data"
+            (fgupdate)="updateParentFg($event)"
           >
-            <div>
-              <app-dependent-field
-                [label]="data.expense_fields?.data[0].name"
-                [mandatory]="true"
-                [options]="data.getFieldValuesById(0).data"
-                [selectModalHeader]="'Select '"
-                formControlName="value"
-                [depFields]="data"
-                (fgupdate)="updateParentFg($event)"
-              >
-              </app-dependent-field>
-            </div>
-            <div *ngIf="dependent_field.value.touched && !dependent_field.value.valid" class="add-edit-expense--error">
-              Please enter {{ data.expense_fields?.data[0].name }}.
-            </div>
+          </app-dependent-field>
+          <div
+            *ngIf="fg.controls.dependent_field.value.touched && !fg.controls.dependent_field.value.valid"
+            class="add-edit-expense--error"
+          >
+            Please enter {{ data.expense_fields?.data[0].name }}.
           </div>
-        </ng-container>
+        </div>
       </div>
 
       <ng-container *ngIf="isConnected$|async as isConnected">

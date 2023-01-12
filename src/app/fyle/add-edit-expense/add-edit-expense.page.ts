@@ -407,10 +407,6 @@ export class AddEditExpensePage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
-  get dependentFields() {
-    return this.fg.controls.dependent_fields as FormArray;
-  }
-
   @HostListener('keydown')
   scrollInputIntoView() {
     const el = document.activeElement;
@@ -2504,12 +2500,10 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
-      dependent_fields: this.formBuilder.array([
-        this.formBuilder.group({
-          field: this.data.expense_fields?.data[0].name,
-          value: [],
-        }),
-      ]),
+      dependent_field: this.formBuilder.group({
+        field: this.data.expense_fields?.data[0].name,
+        value: [],
+      }),
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
