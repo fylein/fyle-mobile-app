@@ -436,7 +436,6 @@ export interface OrgSettingsResponse {
   data_extraction_settings?: DataExtractionSettings;
   card_assignment_settings?: CommonOrgSettings;
   transaction_reversal_settings?: CommonOrgSettings;
-  suggested_expense_merge_settings?: CommonOrgSettings;
   visa_enrollment_settings?: CommonOrgSettings;
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
@@ -549,7 +548,6 @@ export interface OrgSettings {
   auto_match_settings?: CommonOrgSettings;
   universal_statement_parser_settings?: CommonOrgSettings;
   in_app_chat_settings?: CommonOrgSettings;
-  suggested_expense_merge_settings?: CommonOrgSettings;
   visa_enrollment_settings?: CommonOrgSettings;
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
