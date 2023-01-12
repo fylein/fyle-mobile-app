@@ -39,12 +39,7 @@
         >
         </app-dependent-field>
       </div>
-      <div
-        *ngIf="fg.controls.dependent_field.touched && !fg.controls.dependent_field.valid"
-        class="add-edit-expense--error"
-      >
-        Please enter {{ dependentField.name }}.
-      </div>
+      <div *ngIf="showError()" class="add-edit-expense--error">Please enter {{ dependentField.name }}.</div>
     </div>
   </div>
 </ng-container>

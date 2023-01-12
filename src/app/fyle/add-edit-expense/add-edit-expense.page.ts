@@ -2867,13 +2867,6 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  updateParentFg(event) {
-    ((this.fg.controls.dependent_fields as FormArray).controls[0] as FormGroup).addControl(
-      'dependent_fields',
-      event.fg.controls.dependent_fields
-    );
-  }
-
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
     const editExpenseAttachments = etxn$.pipe(
       switchMap((etxn: any) => this.fileService.findByTransactionId(etxn.tx.id)),

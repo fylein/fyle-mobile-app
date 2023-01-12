@@ -85,11 +85,13 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
 
     this.fg = this.fb.group({
       field: [this.label],
-      value: [null, [this.mandatory && Validators.required]],
-      dependent_field: [],
+      value: [null, [Validators.required]],
+      dependent_field: [null, [Validators.required]],
     });
 
     this.fg.valueChanges.subscribe((val) => {
+      // console.log('IS form valid', this.label, this.fg.controls.value.valid);
+      // console.log('IS dependent_field valid', this.label, this.fg.controls.dependent_field.valid);
       this.onChangeCallback(val);
     });
   }
@@ -168,5 +170,10 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
 
   registerOnTouched(fn: any) {
     this.onTouchedCallback = fn;
+  }
+
+  showError() {
+    console.log(this.fg.controls.dependent_field.touched, this.fg.controls.dependent_field.valid);
+    return this.fg.controls.dependent_field.touched && !this.fg.controls.dependent_field.valid;
   }
 }
