@@ -14,6 +14,7 @@ import {
   BehaviorSubject,
   throwError,
   Subscription,
+  noop,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
@@ -3086,7 +3087,6 @@ export class AddEditExpensePage implements OnInit {
               that
                 .addExpense('SAVE_EXPENSE')
                 .pipe(
-                  switchMap((txnData: Promise<any>) => from(txnData)),
                   finalize(() => {
                     this.saveExpenseLoader = false;
                   })
@@ -3705,16 +3705,11 @@ export class AddEditExpensePage implements OnInit {
                     etxn.tx.source += '_OFFLINE';
                   }
 
-                  return of(
-                    this.transactionOutboxService.addEntryAndSync(
-                      etxn.tx,
-                      etxn.dataUrls,
-                      comments,
-                      reportId,
-                      null,
-                      receiptsData
-                    )
-                  );
+                  this.transactionOutboxService
+                    .addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
+                    .then(noop);
+
+                  return of({});
                 })
               );
             }
