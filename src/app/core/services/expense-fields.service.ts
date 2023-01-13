@@ -113,7 +113,7 @@ export class ExpenseFieldsService {
     );
   }
 
-  getDefaultTxnFieldValues(txnFields: Partial<ExpenseFieldsMap>): DefaultTxnFieldValues {
+  getDefaultTxnFieldValues(txnFields: Partial<ExpenseFieldsMap>): Partial<DefaultTxnFieldValues> {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {
       if (txnFields.hasOwnProperty(configurationColumn)) {

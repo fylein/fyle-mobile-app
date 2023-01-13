@@ -1,4 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { defaultTxnFieldValuesData } from '../mock-data/default-txn-field-values.data';
+import { expenseFieldResponse } from '../mock-data/expense-field.data';
+import { txnFieldsData } from '../mock-data/expense-fields-map.data';
+import { extendedOrgUserResponse } from '../test-data/tasks.service.spec.data';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
@@ -34,5 +39,19 @@ describe('ExpenseFieldsService', () => {
 
   it('should be created', () => {
     expect(expenseFieldsService).toBeTruthy();
+  });
+
+  it('getAllEnabled(): should get all enabled expense fields', (done) => {
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
+    apiService.get.and.returnValue(of(expenseFieldResponse));
+
+    expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
+      expect(expenseFields).toEqual(expenseFieldResponse);
+    });
+    done();
+  });
+
+  it('getDefaultTxnFieldValues(): should get the default values for transaction fields', () => {
+    expect(expenseFieldsService.getDefaultTxnFieldValues(txnFieldsData)).toEqual(defaultTxnFieldValuesData);
   });
 });
