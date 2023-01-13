@@ -404,6 +404,10 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  suggested_expense_merge_settings: {
+    allowed: true,
+    enabled: true,
+  },
   card_assignment_settings: {
     allowed: true,
     enabled: true,
@@ -803,6 +807,10 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   expense_widget_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  suggested_expense_merge_settings: {
     allowed: true,
     enabled: true,
   },
