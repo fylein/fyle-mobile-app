@@ -162,7 +162,7 @@
                             </div>
                             <input
                               appFormatDate
-                              [disabled]="isAmountDisabled || !txnFields?.from_dt.canEdit"
+                              [disabled]="isAmountDisabled"
                               [min]="minDate"
                               class="add-edit-per-diem--date-input date-input__format smartlook-show"
                               [placeholder]="'Select ' + txnFields?.from_dt"
@@ -197,7 +197,7 @@
                             </div>
                             <input
                               appFormatDate
-                              [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit"
+                              [disabled]="isAmountDisabled"
                               [min]="minPerDiemDate"
                               class="add-edit-per-diem--date-input date-input__format smartlook-show"
                               formControlName="to_dt"
@@ -233,7 +233,7 @@
                         <app-fy-number
                           formControlName="num_days"
                           [min]="0"
-                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
+                          [disabled]="isAmountDisabled"
                           [placeholder]="txnFields.num_days.placeholder || 'Enter ' + txnFields.num_days.field_name | ellipsis: 30"
                         ></app-fy-number>
                       </div>
@@ -428,7 +428,6 @@
                               >
                             </div>
                             <input
-                              [disabled]="!txnFields.purpose?.canEdit"
                               [placeholder]="txnFields.purpose.placeholder || 'Enter ' + txnFields.purpose.field_name | ellipsis: 30"
                               [required]="txnFields.purpose?.is_mandatory"
                               [title]="'Enter'+txnFields.purpose?.field_name"
@@ -439,7 +438,7 @@
                         </div>
                         <div *ngIf="txnFields?.purpose.type === 'SELECT'" class="add-edit-per-diem--internal-block">
                           <app-fy-select
-                            [disabled]="mode === 'edit' && !txnFields?.purpose.canEdit"
+                            [disabled]="mode === 'edit'"
                             [label]="txnFields?.purpose.field_name"
                             [options]="txnFields?.purpose?.options"
                             [mandatory]="txnFields?.purpose?.is_mandatory"
