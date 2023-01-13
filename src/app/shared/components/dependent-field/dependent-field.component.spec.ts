@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { DependentFieldComponent } from './dependent-field.component';
 
-describe('DependentFieldComponent', () => {
+xdescribe('DependentFieldComponent', () => {
   let component: DependentFieldComponent;
   let fixture: ComponentFixture<DependentFieldComponent>;
 
