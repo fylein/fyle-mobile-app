@@ -1,5 +1,14 @@
 import { Component, OnInit, forwardRef, Input, TemplateRef, Injector, OnChanges, SimpleChanges } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
+import {
+  NG_VALUE_ACCESSOR,
+  ControlValueAccessor,
+  NgControl,
+  FormGroup,
+  Validator,
+  Validators,
+  FormBuilder,
+  NG_VALIDATORS,
+} from '@angular/forms';
 import { BehaviorSubject, noop, skip, tap } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
@@ -16,9 +25,14 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       useExisting: forwardRef(() => DependentFieldComponent),
       multi: true,
     },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => DependentFieldComponent),
+      multi: true,
+    },
   ],
 })
-export class DependentFieldComponent implements OnInit, ControlValueAccessor, OnChanges {
+export class DependentFieldComponent implements OnInit, ControlValueAccessor, OnChanges, Validator {
   @Input() options: { label: string; value: any; dependent_field_id: number }[] = [];
 
   @Input() disabled = false;
@@ -98,8 +112,6 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
     });
 
     this.fg.valueChanges.subscribe((val) => {
-      // console.log('IS form valid', this.label, this.fg.controls.value.valid);
-      // console.log('IS dependent_field valid', this.label, this.fg.controls.dependent_field.valid);
       this.onChangeCallback(val);
     });
   }
@@ -114,6 +126,10 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
       });
       this.dependentField = null;
     }
+  }
+
+  validate() {
+    return this.fg.valid ? null : { invalidForm: { valid: false, message: 'dependentField fields are invalid' } };
   }
 
   async openModal() {
@@ -178,10 +194,5 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
 
   registerOnTouched(fn: any) {
     this.onTouchedCallback = fn;
-  }
-
-  showError() {
-    // console.log(this.fg.controls.dependent_field.touched, this.fg.controls.dependent_field.valid);
-    return this.fg.controls.dependent_field.touched && !this.fg.controls.dependent_field.valid;
   }
 }
