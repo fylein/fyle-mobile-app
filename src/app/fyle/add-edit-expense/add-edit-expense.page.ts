@@ -359,6 +359,8 @@ export class AddEditExpensePage implements OnInit {
 
   data: any;
 
+  redirectionTriggered$ = new BehaviorSubject(false);
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -878,8 +880,13 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  showFormValidationErrors() {
+  setValidationStatus() {
     this.fg.markAllAsTouched();
+    this.redirectionTriggered = true;
+  }
+
+  showFormValidationErrors() {
+    this.setValidationStatus();
     const formContainer = this.formContainer.nativeElement as HTMLElement;
     if (formContainer) {
       const invalidElement = formContainer.querySelector('.ng-invalid');
@@ -2458,6 +2465,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.redirectionTriggered = false;
     this.data = sampleData;
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -2500,10 +2508,14 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
-      dependent_field: [],
+      dependent_field: [null, Validators.required],
     });
 
-    this.fg.controls.dependent_field.valueChanges.subscribe((value) => console.log('FORM FG', value));
+    this.fg.controls.dependent_field.valueChanges.subscribe((value) =>
+      console.log('FORM FG', this.fg.controls.dependent_field)
+    );
+
+    this.fg.valueChanges.subscribe(() => (this.redirectionTriggered = false));
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
@@ -3105,7 +3117,7 @@ export class AddEditExpensePage implements OnInit {
             that.editExpense('SAVE_EXPENSE').subscribe(() => this.goBack());
           }
         } else {
-          that.fg.markAllAsTouched();
+          this.setValidationStatus();
           const formContainer = that.formContainer.nativeElement as HTMLElement;
           if (formContainer) {
             const invalidElement = formContainer.querySelector('.ng-invalid');
@@ -3144,7 +3156,7 @@ export class AddEditExpensePage implements OnInit {
             });
           }
         } else {
-          that.fg.markAllAsTouched();
+          this.setValidationStatus();
           const formContainer = that.formContainer.nativeElement as HTMLElement;
           if (formContainer) {
             const invalidElement = formContainer.querySelector('.ng-invalid');
@@ -3186,7 +3198,7 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
+      this.setValidationStatus();
       const formContainer = that.formContainer.nativeElement as HTMLElement;
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
@@ -3221,7 +3233,7 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
+      this.setValidationStatus();
       const formContainer = that.formContainer.nativeElement as HTMLElement;
       if (formContainer) {
         const invalidElement = formContainer.querySelector('.ng-invalid');
