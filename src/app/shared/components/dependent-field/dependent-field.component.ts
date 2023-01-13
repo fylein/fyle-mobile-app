@@ -93,15 +93,9 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
       dependent_field: [null, [Validators.required]],
     });
 
-    this.touchedInParent
-      .pipe(
-        tap((x) => console.log(x, this.label)),
-        skip(1),
-        tap((x) => console.log(x, this.label + 'lalalal'))
-      )
-      .subscribe(() => {
-        this.fg.controls.value.markAsTouched();
-      });
+    this.touchedInParent.pipe(skip(1)).subscribe(() => {
+      this.fg.controls.value.markAsTouched();
+    });
 
     this.fg.valueChanges.subscribe((val) => {
       // console.log('IS form valid', this.label, this.fg.controls.value.valid);
