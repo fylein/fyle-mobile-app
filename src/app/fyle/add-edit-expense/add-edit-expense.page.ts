@@ -882,7 +882,7 @@ export class AddEditExpensePage implements OnInit {
 
   setValidationStatus() {
     this.fg.markAllAsTouched();
-    this.redirectionTriggered = true;
+    this.redirectionTriggered$.next(true);
   }
 
   showFormValidationErrors() {
@@ -2465,7 +2465,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.redirectionTriggered = false;
+    this.redirectionTriggered$.next(true);
     this.data = sampleData;
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -2515,7 +2515,7 @@ export class AddEditExpensePage implements OnInit {
       console.log('FORM FG', this.fg.controls.dependent_field)
     );
 
-    this.fg.valueChanges.subscribe(() => (this.redirectionTriggered = false));
+    // this.fg.valueChanges.subscribe(() => (this.redirectionTriggered = false));
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();

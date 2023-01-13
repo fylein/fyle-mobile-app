@@ -915,12 +915,6 @@
             [touchedInParent]="redirectionTriggered$"
           >
           </app-dependent-field>
-          <div
-            *ngIf="fg.controls.dependent_field.touched && !fg.controls.dependent_field.valid"
-            class="add-edit-expense--error"
-          >
-            Please enter {{ data.expense_fields?.data[0].name }}.
-          </div>
         </div>
       </div>
 

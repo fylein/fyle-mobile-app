@@ -25,6 +25,8 @@
   </div>
 </label>
 
+<div *ngIf="!valid" class="add-edit-expense--error">Please enter {{ label }}.</div>
+
 <ng-container *ngIf="dependentField">
   <div [formGroup]="fg" class="add-edit-expense--primary-block">
     <div class="add-edit-expense--internal-block">
@@ -40,7 +42,6 @@
         >
         </app-dependent-field>
       </div>
-      <div *ngIf="showError()" class="add-edit-expense--error">Please enter {{ dependentField.name }}.</div>
     </div>
   </div>
 </ng-container>

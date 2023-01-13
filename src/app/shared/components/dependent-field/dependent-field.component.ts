@@ -1,6 +1,6 @@
 import { Component, OnInit, forwardRef, Input, TemplateRef, Injector, OnChanges, SimpleChanges } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
-import { BehaviorSubject, noop } from 'rxjs';
+import { BehaviorSubject, noop, skip, tap } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
@@ -51,9 +51,9 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
 
   @Input() depFields;
 
-  @Input() touchedInParent;
+  @Input() touchedInParent: BehaviorSubject<boolean>;
 
-  childTouched$ = new BehaviorSubject(false);
+  newlyAdded = true;
 
   fg: FormGroup;
 
@@ -73,8 +73,8 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
   ) {}
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
+    if (this.fg.controls.value.touched) {
+      return this.fg.controls.value.valid;
     } else {
       return true;
     }
@@ -93,10 +93,15 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
       dependent_field: [null, [Validators.required]],
     });
 
-    if (this.touchedInParent) {
-      this.fg?.markAllAsTouched();
-      this.onTouchedCallback();
-    }
+    this.touchedInParent
+      .pipe(
+        tap((x) => console.log(x, this.label)),
+        skip(1),
+        tap((x) => console.log(x, this.label + 'lalalal'))
+      )
+      .subscribe(() => {
+        this.fg.controls.value.markAsTouched();
+      });
 
     this.fg.valueChanges.subscribe((val) => {
       // console.log('IS form valid', this.label, this.fg.controls.value.valid);
@@ -114,11 +119,6 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
         dependent_field: null,
       });
       this.dependentField = null;
-    }
-
-    if (this.touchedInParent) {
-      this.fg?.markAllAsTouched();
-      this.onTouchedCallback();
     }
   }
 
