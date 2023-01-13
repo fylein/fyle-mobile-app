@@ -377,10 +377,6 @@ export class OrgSettingsService {
         allowed: incoming.expense_widget_settings && incoming.expense_widget_settings.allowed,
         enabled: incoming.expense_widget_settings && incoming.expense_widget_settings.enabled,
       },
-      suggested_expense_merge_settings: {
-        allowed: incoming.suggested_expense_merge_settings && incoming.suggested_expense_merge_settings.allowed,
-        enabled: incoming.suggested_expense_merge_settings && incoming.suggested_expense_merge_settings.enabled,
-      },
       org_expense_form_autofills: {
         allowed: incoming.org_expense_form_autofills && incoming.org_expense_form_autofills.allowed,
         enabled: incoming.org_expense_form_autofills && incoming.org_expense_form_autofills.enabled,
@@ -539,7 +535,6 @@ export class OrgSettingsService {
       org_in_app_chat_settings: outgoing.in_app_chat_settings,
       ccc_draft_expense_settings: outgoing.ccc_draft_expense_settings,
       expense_widget_settings: outgoing.expense_widget_settings,
-      suggested_expense_merge_settings: outgoing.suggested_expense_merge_settings,
       org_expense_form_autofills: outgoing.org_expense_form_autofills,
       company_expenses_beta_settings: outgoing.company_expenses_beta_settings,
       visa_enrollment_settings: outgoing.visa_enrollment_settings,
