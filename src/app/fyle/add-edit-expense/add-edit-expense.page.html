@@ -907,7 +907,7 @@
         <div class="add-edit-expense--internal-block">
           <app-dependent-field
             [label]="data.expense_fields?.data[0].name"
-            [mandatory]="true"
+            [mandatory]="data.expense_fields?.data[0].is_mandatory"
             [options]="data.getFieldValuesById(0).data"
             [selectModalHeader]="'Select '"
             formControlName="dependent_field"

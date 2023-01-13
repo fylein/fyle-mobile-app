@@ -2508,12 +2508,8 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
-      dependent_field: [null, Validators.required],
+      dependent_field: [],
     });
-
-    this.fg.controls.dependent_field.valueChanges.subscribe((value) =>
-      console.log('FORM FG', this.fg.controls.dependent_field)
-    );
 
     // this.fg.valueChanges.subscribe(() => (this.redirectionTriggered = false));
 

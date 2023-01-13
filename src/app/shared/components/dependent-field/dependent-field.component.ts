@@ -103,8 +103,8 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
 
     this.fg = this.fb.group({
       field: [this.label],
-      value: [null, [Validators.required]],
-      dependent_field: [null, [Validators.required]],
+      value: [null, this.mandatory && Validators.required],
+      dependent_field: [],
     });
 
     this.touchedInParent.pipe(skip(1)).subscribe(() => {
@@ -128,6 +128,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
     }
   }
 
+  //This will propagate the current formvalidation to parent form
   validate() {
     return this.fg.valid ? null : { invalidForm: { valid: false, message: 'dependentField fields are invalid' } };
   }
@@ -176,6 +177,13 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor, On
           options: this.depFields.getFieldValuesById(dependentFieldId).data,
           is_mandatory: this.depFields.expense_fields?.data[dependentFieldId].is_mandatory,
         };
+
+        //Add validators if dependent field is mandatory
+        //Need to add this explicitly as the dependent field is not a part of the form yet.
+        if (this.dependentField.is_mandatory) {
+          this.fg.controls.dependent_field.addValidators(Validators.required);
+          this.fg.controls.dependent_field.updateValueAndValidity();
+        }
       }
     }
   }
