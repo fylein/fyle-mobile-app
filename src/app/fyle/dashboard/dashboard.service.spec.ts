@@ -5,13 +5,15 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DashboardService } from './dashboard.service';
 import {
-  apiTransactionUnreportedStatsRes,
-  apiTransactionIncompleteStatsRes,
-  apiReportStatsRes,
   expectedUnreportedExpStats,
   expectedIncompleteExpStats,
   expectedReportStats,
-} from '../../core/test-data/dashboard.service.spec.data';
+} from '../../core/mock-data/dashboard-stats.data';
+import {
+  apiTransactionUnreportedStatsRes,
+  apiTransactionIncompleteStatsRes,
+} from '../../core/mock-data/stats-one-dimension.data';
+import { apiReportStatsRes } from '../../core/mock-data/stats-response.data';
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
 
