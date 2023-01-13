@@ -116,8 +116,6 @@ export class ExpensesCardComponent implements OnInit {
 
   isPerDiem: boolean;
 
-  isUnifyCcceExpensesSettings: boolean;
-
   showPaymentModeIcon: boolean;
 
   isIos = false;
@@ -309,14 +307,6 @@ export class ExpensesCardComponent implements OnInit {
     this.isProjectEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
       shareReplay(1)
-    );
-
-    orgSettings$.subscribe(
-      (orgSettings) =>
-        (this.isUnifyCcceExpensesSettings =
-          orgSettings.unify_ccce_expenses_settings &&
-          orgSettings.unify_ccce_expenses_settings.allowed &&
-          orgSettings.unify_ccce_expenses_settings.enabled)
     );
 
     if (!this.expense.tx_id) {

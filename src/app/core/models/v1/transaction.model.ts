@@ -8,7 +8,7 @@ export interface Transaction {
   created_at: Date;
   creator_id: string;
   currency: string;
-  custom_properties: [];
+  custom_properties: { name: string; value: string[] }[];
   distance: number;
   distance_unit: string;
   exchange_rate: number;
@@ -71,4 +71,24 @@ export interface Transaction {
   vendor: string;
   vendor_id: number;
   corporate_credit_card_expense_group_id: string;
+  risk_state: string;
+  is_duplicate_expense: boolean;
+  duplicates: [];
+  receipt_required: boolean;
+  user_can_delete: boolean;
+  project_name: string;
+  project_code: string;
+  cost_center_name: string;
+  cost_center_code: string;
+  transcription_state: string;
+  verification_state: string;
+  org_category: string;
+  sub_category: string;
+  org_category_code: string;
+  user_review_needed: boolean;
+  activity_policy_pending: boolean;
+  activity_details: string;
+  is_implicit_merge_blocked: boolean;
+  categoryDisplayName: string;
+  matchCCCId: string;
 }

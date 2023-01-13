@@ -426,7 +426,6 @@ export interface OrgSettingsResponse {
   ccc_draft_expense_settings?: CommonOrgSettings;
   expense_widget_settings?: CommonOrgSettings;
   org_expense_form_autofills?: CommonOrgSettings;
-  unify_ccce_expenses_settings?: CommonOrgSettings;
   payment_mode_settings?: PaymentmodeSettings;
   last_updated_by?: User;
   activity?: ActivitySettings;
@@ -530,7 +529,6 @@ export interface OrgSettings {
   ccc_draft_expense_settings?: CommonOrgSettings;
   expense_widget_settings?: CommonOrgSettings;
   org_expense_form_autofills?: CommonOrgSettings;
-  unify_ccce_expenses_settings?: CommonOrgSettings;
   payment_mode_settings?: PaymentmodeSettings;
   advanced_project_settings?: AdvancedProjectSettings;
   expense_settings?: ExpenseSettings;

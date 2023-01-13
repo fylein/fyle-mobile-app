@@ -36,8 +36,8 @@ export class BankAccountCardsComponent implements OnInit {
   }
 
   onCardChange(event) {
-    if (!this.minimal) {
-      this.changed.emit(this.linkedAccounts[event.realIndex]?.id);
+    if (!this.minimal && event.length) {
+      this.changed.emit(this.linkedAccounts[event[0].realIndex]?.id);
     }
   }
 }

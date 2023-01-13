@@ -4,7 +4,7 @@ import {
   IncomingAccountObject,
   OrgSettings,
   OrgSettingsResponse,
-} from '../org-settings.model';
+} from '../models/org-settings.model';
 
 export const orgSettingsGetData: OrgSettings = {
   org_id: 'orNVthTo2Zyo',
@@ -376,10 +376,6 @@ export const orgSettingsGetData: OrgSettings = {
     report_workflow_settings: undefined,
   },
   org_personal_cards_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  unify_ccce_expenses_settings: {
     allowed: true,
     enabled: true,
   },
@@ -803,10 +799,6 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   ccc_draft_expense_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  unify_ccce_expenses_settings: {
     allowed: true,
     enabled: true,
   },

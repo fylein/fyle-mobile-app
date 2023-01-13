@@ -393,10 +393,6 @@ export class OrgSettingsService {
         allowed: incoming.company_expenses_beta_settings && incoming.company_expenses_beta_settings.allowed,
         enabled: incoming.company_expenses_beta_settings && incoming.company_expenses_beta_settings.enabled,
       },
-      unify_ccce_expenses_settings: {
-        allowed: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.allowed,
-        enabled: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.enabled,
-      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
@@ -538,7 +534,6 @@ export class OrgSettingsService {
       universal_statement_parser_settings: outgoing.universal_statement_parser_settings,
       org_in_app_chat_settings: outgoing.in_app_chat_settings,
       ccc_draft_expense_settings: outgoing.ccc_draft_expense_settings,
-      unify_ccce_expenses_settings: outgoing.unify_ccce_expenses_settings,
       expense_widget_settings: outgoing.expense_widget_settings,
       org_expense_form_autofills: outgoing.org_expense_form_autofills,
       company_expenses_beta_settings: outgoing.company_expenses_beta_settings,

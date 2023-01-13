@@ -318,8 +318,6 @@ export class AddEditExpensePage implements OnInit {
 
   canRemoveFromReport = false;
 
-  isUnifyCcceExpensesSettingsEnabled: boolean;
-
   isCccExpense: boolean;
 
   cardNumber: string;
@@ -338,7 +336,7 @@ export class AddEditExpensePage implements OnInit {
 
   canDismissCCCE: boolean;
 
-  canUnlinkCCCE: boolean;
+  canRemoveCardExpense: boolean;
 
   isCorporateCreditCardEnabled: boolean;
 
@@ -769,10 +767,10 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  async unlinkCorporateCardExpense() {
+  async removeCorporateCardExpense() {
     const id = this.activatedRoute.snapshot.params.id;
-    const header = 'Unlink Card Details';
-    const body = this.transactionService.getUnlinkDialogBody(this.isSplitExpensesPresent);
+    const header = 'Remove Card Expense';
+    const body = this.transactionService.getRemoveCardExpenseDialogBody(this.isSplitExpensesPresent);
     const ctaText = 'Confirm';
     const ctaLoadingText = 'Confirming';
     const deletePopover = await this.popoverController.create({
@@ -784,7 +782,7 @@ export class AddEditExpensePage implements OnInit {
         body,
         ctaText,
         ctaLoadingText,
-        deleteMethod: () => this.transactionService.unlinkCorporateCardExpense(id),
+        deleteMethod: () => this.transactionService.removeCorporateCardExpense(id),
       },
     });
 
@@ -943,7 +941,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense) {
+        if (this.isCccExpense) {
           if (this.isExpenseMatchedForDebitCCCE) {
             actionSheetOptions.push({
               text: 'Mark as Personal',
@@ -963,11 +961,11 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (this.isCorporateCreditCardEnabled && this.canUnlinkCCCE) {
+        if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
           actionSheetOptions.push({
-            text: 'Unlink Card Details',
+            text: 'Remove Card Expense',
             handler: () => {
-              this.unlinkCorporateCardExpense();
+              this.removeCorporateCardExpense();
             },
           });
         }
@@ -1460,9 +1458,6 @@ export class AddEditExpensePage implements OnInit {
           return CCCAccount.value;
         }
 
-        if (!isPaymentModeConfigurationsEnabled) {
-          return this.accountsService.getDefaultAccountFromUserPreference(paymentModes, orgUserSettings);
-        }
         return paymentModes[0].value;
       })
     );
@@ -2561,11 +2556,6 @@ export class AddEditExpensePage implements OnInit {
     );
 
     orgSettings$.subscribe((orgSettings) => {
-      this.isUnifyCcceExpensesSettingsEnabled =
-        orgSettings.unify_ccce_expenses_settings &&
-        orgSettings.unify_ccce_expenses_settings.allowed &&
-        orgSettings.unify_ccce_expenses_settings.enabled;
-
       this.isCorporateCreditCardEnabled =
         orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
@@ -2831,7 +2821,7 @@ export class AddEditExpensePage implements OnInit {
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
-      this.canUnlinkCCCE =
+      this.canRemoveCardExpense =
         !!etxn?.tx?.corporate_credit_card_expense_group_id &&
         ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn?.tx?.state);
     });
