@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { TokenService } from './token.service';
 
-xdescribe('TokenService', () => {
+fdescribe('TokenService', () => {
   let service: TokenService;
 
   beforeEach(() => {
@@ -10,7 +10,7 @@ xdescribe('TokenService', () => {
     service = TestBed.inject(TokenService);
   });
 
-  it('should be created', () => {
+  fit('should be created', () => {
     expect(service).toBeTruthy();
   });
 });
