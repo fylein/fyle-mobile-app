@@ -2015,10 +2015,6 @@ export const orgSettingsData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
-  suggested_expense_merge_settings: {
-    allowed: true,
-    enabled: true,
-  },
   org_expense_form_autofills: {
     allowed: true,
     enabled: true,
@@ -2408,10 +2404,6 @@ export const orgSettingsAdvDisabledData: OrgSettings = {
     enabled: true,
   },
   expense_widget_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  suggested_expense_merge_settings: {
     allowed: true,
     enabled: true,
   },
