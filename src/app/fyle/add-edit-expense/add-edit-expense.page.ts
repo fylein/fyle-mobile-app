@@ -3087,6 +3087,13 @@ export class AddEditExpensePage implements OnInit {
               that
                 .addExpense('SAVE_EXPENSE')
                 .pipe(
+                  switchMap((txnData: Promise<any>) => {
+                    if (txnData) {
+                      return from(txnData);
+                    } else {
+                      return of(null);
+                    }
+                  }),
                   finalize(() => {
                     this.saveExpenseLoader = false;
                   })
@@ -3705,11 +3712,24 @@ export class AddEditExpensePage implements OnInit {
                     etxn.tx.source += '_OFFLINE';
                   }
 
-                  this.transactionOutboxService
-                    .addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
-                    .then(noop);
+                  if (this.activatedRoute.snapshot.params.rp_id) {
+                    return of(
+                      this.transactionOutboxService.addEntryAndSync(
+                        etxn.tx,
+                        etxn.dataUrls,
+                        comments,
+                        reportId,
+                        null,
+                        receiptsData
+                      )
+                    );
+                  } else {
+                    this.transactionOutboxService
+                      .addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
+                      .then(noop);
 
-                  return of({});
+                    return of(null);
+                  }
                 })
               );
             }
