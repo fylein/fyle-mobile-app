@@ -1,4 +1,4 @@
-import { Stats } from './dashboard-stats.model';
+import { Stats } from './stats.model';
 
 export interface ReportStats {
   draft: Stats;

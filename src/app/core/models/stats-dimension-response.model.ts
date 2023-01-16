@@ -1,9 +1,9 @@
-export interface StatsDResponse {
+export interface StatsDimensionResponse {
   aggregates: {
     function_name: string;
     function_value: number;
   }[];
-  dimensions: any;
+  dimensions: string[] | [];
   name: string;
   scalar?: boolean;
   tx_state?: string;

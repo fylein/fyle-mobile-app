@@ -1,4 +1,25 @@
-import { StatsResponse } from '../models/v2/stats-response.model';
+type StatsResponse = {
+  data: [
+    {
+      dimensions: string[];
+      name: string;
+      value: {
+        aggregates: {
+          function_name: string;
+          function_value: number;
+        }[];
+        key: {
+          column_name: string;
+          column_value: string;
+        }[];
+      }[];
+    }
+  ];
+  url: string;
+  scalar?: boolean;
+  dimension_1_1?: string;
+  aggregates?: string;
+};
 
 export const apiReportStatsRes: StatsResponse = {
   data: [
