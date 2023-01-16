@@ -111,6 +111,7 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { sampleData } from 'src/app/data/sample-data';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -355,6 +356,10 @@ export class AddEditExpensePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  data: any;
+
+  depFields = [];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -402,6 +407,10 @@ export class AddEditExpensePage implements OnInit {
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
+
+  get dependentFields() {
+    return this.fg?.controls.dependent_fields as FormArray;
+  }
 
   @HostListener('keydown')
   scrollInputIntoView() {
@@ -2454,6 +2463,8 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.data = sampleData;
+
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -2495,7 +2506,10 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
+      dependent_fields: this.formBuilder.array([]),
     });
+
+    this.fg.controls.dependent_fields.valueChanges.subscribe((val) => console.log('dependent_fields', val));
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
@@ -2852,6 +2866,56 @@ export class AddEditExpensePage implements OnInit {
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
+
+    this.addDependentField(0);
+
+    // this.depFields = [
+    //   {
+    //     field: this.data.expense_fields?.data[0].name,
+    //     options: this.data.getFieldValuesById(0).data,
+    //     mandatory: this.data.expense_fields?.data[0].is_mandatory,
+    //     control: this.dependentFields.controls[0],
+    //   },
+    // ];
+
+    // this.fg.controls.dependent_fields.valueChanges.subscribe((val) => console.log('NEW VAL', val));
+  }
+
+  addDependentField(id: number) {
+    console.log('ID IS', id, typeof id);
+    const formArray = this.fg.get('dependent_fields') as FormArray;
+
+    const newField = this.formBuilder.group({
+      fieldIndex: [formArray.length || 0],
+      label: this.data.expense_fields?.data[id].name,
+      value: [],
+    });
+
+    newField.valueChanges.subscribe((value) => {
+      this.onDependentFieldChanged(value);
+    });
+
+    this.depFields.push({
+      field: this.data.expense_fields?.data[id].name,
+      options: this.data.getFieldValuesById(id).data,
+      mandatory: this.data.expense_fields?.data[id].is_mandatory,
+      control: newField,
+    });
+
+    formArray.push(newField, { emitEvent: false });
+  }
+
+  onDependentFieldChanged(data) {
+    console.log('FIELD CHANGES', data);
+    const updatedDependentField = (this.fg.get('dependent_fields') as FormArray).controls[data.fieldIndex] as FormGroup;
+
+    //If this is the last dependent field then create new depenendt field based on this field
+
+    if (updatedDependentField.value.value) {
+      this.addDependentField(updatedDependentField.value.value);
+    }
+
+    //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {

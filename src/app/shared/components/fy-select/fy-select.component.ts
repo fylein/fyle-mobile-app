@@ -19,7 +19,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ],
 })
 export class FySelectComponent implements ControlValueAccessor, OnInit {
-  @Input() options: { label: string; value: any }[] = [];
+  @Input() options = [];
 
   @Input() disabled = false;
 
@@ -91,9 +91,8 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
         } else {
           this.displayValue = '';
         }
+        this.onChangeCallback(selectedOption.dependent_field_id);
       }
-
-      this.onChangeCallback(v);
     }
   }
 
