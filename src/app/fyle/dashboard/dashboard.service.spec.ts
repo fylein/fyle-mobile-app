@@ -6,10 +6,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DashboardService } from './dashboard.service';
 import { expectedUnreportedExpStats, expectedIncompleteExpStats } from '../../core/mock-data/dashboard-stats.data';
 import { expectedReportStats } from '../../core/mock-data/report-stats.data';
-import {
-  apiTransactionUnreportedStatsRes,
-  apiTransactionIncompleteStatsRes,
-} from '../../core/mock-data/stats-dimension-response.data';
+import { apiTxnUnreportedStatsRes, apiTxnIncompleteStatsRes } from '../../core/mock-data/stats-dimension-response.data';
 import { apiReportStatsRes } from '../../core/mock-data/stats-response.data';
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
@@ -55,7 +52,7 @@ describe('DashboardService', () => {
   });
 
   it('getUnreportedExpensesStats(): should get UNREPORTED expense stats', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of(apiTransactionUnreportedStatsRes));
+    transactionService.getTransactionStats.and.returnValue(of(apiTxnUnreportedStatsRes));
 
     const apiParams = {
       scalar: true,
@@ -72,7 +69,7 @@ describe('DashboardService', () => {
   });
 
   it('getIncompleteExpenseStats(): should get INCOMPLETE expense stats', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of(apiTransactionIncompleteStatsRes));
+    transactionService.getTransactionStats.and.returnValue(of(apiTxnIncompleteStatsRes));
 
     const apiParams = {
       scalar: true,

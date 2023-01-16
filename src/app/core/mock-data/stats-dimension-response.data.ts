@@ -1,6 +1,6 @@
 import { StatsDResponse } from '../models/stats-dimension-response.model';
 
-export const apiTransactionUnreportedStatsRes: StatsDResponse[] = [
+export const apiTxnUnreportedStatsRes: StatsDResponse[] = [
   {
     aggregates: [
       {
@@ -17,7 +17,7 @@ export const apiTransactionUnreportedStatsRes: StatsDResponse[] = [
   },
 ];
 
-export const apiTransactionIncompleteStatsRes: StatsDResponse[] = [
+export const apiTxnIncompleteStatsRes: StatsDResponse[] = [
   {
     aggregates: [
       {
