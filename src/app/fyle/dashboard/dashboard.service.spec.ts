@@ -9,7 +9,7 @@ import { expectedReportStats } from '../../core/mock-data/report-stats.data';
 import {
   apiTransactionUnreportedStatsRes,
   apiTransactionIncompleteStatsRes,
-} from '../../core/mock-data/stats-one-dimension.data';
+} from '../../core/mock-data/stats-dimension-response.data';
 import { apiReportStatsRes } from '../../core/mock-data/stats-response.data';
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
