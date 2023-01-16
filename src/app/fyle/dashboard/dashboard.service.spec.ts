@@ -6,8 +6,13 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DashboardService } from './dashboard.service';
 import { expectedUnreportedExpStats, expectedIncompleteExpStats } from '../../core/mock-data/dashboard-stats.data';
 import { expectedReportStats } from '../../core/mock-data/report-stats.data';
-import { apiTxnUnreportedStatsRes, apiTxnIncompleteStatsRes } from '../../core/mock-data/stats-dimension-response.data';
-import { apiReportStatsRes } from '../../core/mock-data/stats-response.data';
+import {
+  apiTxnUnreportedStatsRes,
+  apiTxnIncompleteStatsRes,
+  apiIncompleteParams,
+  apiUnreportedParams,
+} from '../../core/mock-data/stats-dimension-response.data';
+import { apiReportStatsRes, apiReportStatParams } from '../../core/mock-data/stats-response.data';
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
 
@@ -54,16 +59,12 @@ describe('DashboardService', () => {
   it('getUnreportedExpensesStats(): should get UNREPORTED expense stats', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTxnUnreportedStatsRes));
 
-    const apiParams = {
-      scalar: true,
-      tx_state: 'in.(COMPLETE)',
-      or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-      tx_report_id: 'is.null',
-    };
-
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedUnreportedExpStats);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', apiParams);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
+        'count(tx_id),sum(tx_amount)',
+        apiUnreportedParams
+      );
       done();
     });
   });
@@ -71,29 +72,22 @@ describe('DashboardService', () => {
   it('getIncompleteExpenseStats(): should get INCOMPLETE expense stats', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTxnIncompleteStatsRes));
 
-    const apiParams = {
-      scalar: true,
-      tx_state: 'in.(DRAFT)',
-      tx_report_id: 'is.null',
-    };
-
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedIncompleteExpStats);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', apiParams);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
+        'count(tx_id),sum(tx_amount)',
+        apiIncompleteParams
+      );
       done();
     });
   });
 
   it('getReportStats(): should get Report stats', (done) => {
     reportService.getReportStats.and.returnValue(of(new StatsResponse(apiReportStatsRes)));
-    const apiParams = {
-      scalar: false,
-      dimension_1_1: 'rp_state',
-      aggregates: 'sum(rp_amount),count(rp_id)',
-    };
 
     dashboardService.getReportsStats().subscribe((res) => {
       expect(res).toEqual(expectedReportStats);
+      expect(reportService.getReportStats).toHaveBeenCalledWith(apiReportStatParams);
       done();
     });
   });

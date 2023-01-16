@@ -33,3 +33,16 @@ export const apiTxnIncompleteStatsRes: StatsDResponse[] = [
     name: 'scalar_stat',
   },
 ];
+
+export const apiUnreportedParams: Partial<StatsDResponse> = {
+  scalar: true,
+  tx_state: 'in.(COMPLETE)',
+  or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+  tx_report_id: 'is.null',
+};
+
+export const apiIncompleteParams: Partial<StatsDResponse> = {
+  scalar: true,
+  tx_state: 'in.(DRAFT)',
+  tx_report_id: 'is.null',
+};

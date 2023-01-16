@@ -119,3 +119,9 @@ export const apiReportStatsRes: StatsResponse = {
   ],
   url: '/v2/reports/stats',
 };
+
+export const apiReportStatParams: Partial<StatsResponse> = {
+  scalar: false,
+  dimension_1_1: 'rp_state',
+  aggregates: 'sum(rp_amount),count(rp_id)',
+};
