@@ -91,6 +91,12 @@ export class StatusService {
           icon: 'attachment',
         };
         break;
+      case lowerCaseComment.indexOf('submitted by') > -1:
+        statusCategory = {
+          category: 'Report Submitted',
+          icon: 'list',
+        };
+        break;
       case lowerCaseComment.indexOf('deleted') > -1:
         statusCategory = {
           category: 'Receipt Removed',
