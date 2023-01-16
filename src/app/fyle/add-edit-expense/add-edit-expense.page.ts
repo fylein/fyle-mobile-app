@@ -2870,13 +2870,10 @@ export class AddEditExpensePage implements OnInit {
     this.addDependentField(0);
   }
 
-  addDependentField(id: number) {
-    const formArray = this.fg.get('dependent_fields') as FormArray;
-
+  addDependentField(dependentFieldId: number) {
     const newField = this.formBuilder.group({
-      fieldIndex: [formArray.length || 0],
-      label: this.data.expense_fields?.data[id].name,
-      data: [null, this.data.expense_fields?.data[id].is_mandatory && Validators.required],
+      label: this.data.expense_fields?.data[dependentFieldId].name,
+      data: [null, this.data.expense_fields?.data[dependentFieldId].is_mandatory && Validators.required],
     });
 
     newField.valueChanges.subscribe((value) => {
@@ -2884,25 +2881,27 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.depFields.push({
-      field: this.data.expense_fields?.data[id].name,
-      options: this.data.getFieldValuesById(id).data,
-      mandatory: this.data.expense_fields?.data[id].is_mandatory,
+      field: this.data.expense_fields?.data[dependentFieldId].name,
+      options: this.data.getFieldValuesById(dependentFieldId).data,
+      mandatory: this.data.expense_fields?.data[dependentFieldId].is_mandatory,
       control: newField,
     });
 
-    formArray.push(newField, { emitEvent: false });
+    this.dependentFields.push(newField, { emitEvent: false });
   }
 
   onDependentFieldChanged(data) {
+    const updatedFieldIndex = this.dependentFields.value.findIndex((depField) => depField.label === data.label);
+
     //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
-    if (data.fieldIndex !== this.dependentFields.length - 1) {
+    if (updatedFieldIndex !== this.dependentFields.length - 1) {
       //Remove all dependent field controls after the changed one
-      for (let i = this.dependentFields.length - 1; i > data.fieldIndex; i--) {
+      for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
         this.dependentFields.removeAt(i);
       }
 
       //Removing fields from UI
-      this.depFields = this.depFields.slice(0, data.fieldIndex + 1);
+      this.depFields = this.depFields.slice(0, updatedFieldIndex + 1);
     }
 
     //Create new depenendt field based on this field
