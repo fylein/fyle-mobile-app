@@ -24,12 +24,18 @@ export class StatsResponse {
 
   url: string;
 
+  scalar?: boolean;
+
+  dimension_1_1?: string;
+
+  aggregates?: string;
+
   constructor({ data, url }) {
     this.data = data;
     this.url = url;
   }
 
-  getDatum(index: number) {
+  getDatum?(index: number) {
     return this.data && this.data.length > 0 && this.data[index];
   }
 }
