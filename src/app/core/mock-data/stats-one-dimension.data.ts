@@ -1,3 +1,5 @@
+import { StatsOneDResponse } from '../models/stats-one-dimension.model';
+
 export const apiTransactionUnreportedStatsRes = [
   {
     aggregates: [

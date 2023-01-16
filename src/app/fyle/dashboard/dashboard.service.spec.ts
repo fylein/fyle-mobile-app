@@ -4,11 +4,8 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DashboardService } from './dashboard.service';
-import {
-  expectedUnreportedExpStats,
-  expectedIncompleteExpStats,
-  expectedReportStats,
-} from '../../core/mock-data/dashboard-stats.data';
+import { expectedUnreportedExpStats, expectedIncompleteExpStats } from '../../core/mock-data/dashboard-stats.data';
+import { expectedReportStats } from '../../core/mock-data/report-stats.data';
 import {
   apiTransactionUnreportedStatsRes,
   apiTransactionIncompleteStatsRes,
@@ -57,7 +54,7 @@ describe('DashboardService', () => {
     expect(dashboardService).toBeTruthy();
   });
 
-  it('should get UNREPORTED expense stats', (done) => {
+  it('getUnreportedExpensesStats(): should get UNREPORTED expense stats', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTransactionUnreportedStatsRes));
 
     const apiParams = {
@@ -74,7 +71,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('should get INCOMPLETE expense stats', (done) => {
+  it('getIncompleteExpenseStats(): should get INCOMPLETE expense stats', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTransactionIncompleteStatsRes));
 
     const apiParams = {
@@ -90,7 +87,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('should get Report stats', (done) => {
+  it('getReportStats(): should get Report stats', (done) => {
     reportService.getReportStats.and.returnValue(of(new StatsResponse(apiReportStatsRes)));
     const apiParams = {
       scalar: false,

@@ -1,4 +1,6 @@
-export const apiReportStatsRes = {
+import { StatsResponse } from '../models/v2/stats-response.model';
+
+export const apiReportStatsRes: StatsResponse = {
   data: [
     {
       dimensions: ['rp_state'],

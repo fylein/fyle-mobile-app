@@ -1,11 +1,4 @@
-export interface DashboardStats {
+export interface Stats {
   count: number;
   sum: number;
-}
-
-export interface ReportDashboardStats {
-  draft: DashboardStats;
-  report: DashboardStats;
-  approved: DashboardStats;
-  paymentPending: DashboardStats;
 }
