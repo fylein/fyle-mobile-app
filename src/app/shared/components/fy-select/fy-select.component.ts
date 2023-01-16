@@ -91,7 +91,10 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
         } else {
           this.displayValue = '';
         }
-        this.onChangeCallback(selectedOption.dependent_field_id);
+        this.onChangeCallback({
+          value: v,
+          dependent_field_id: selectedOption.dependent_field_id,
+        });
       }
     }
   }
