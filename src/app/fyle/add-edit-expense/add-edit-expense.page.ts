@@ -2906,16 +2906,22 @@ export class AddEditExpensePage implements OnInit {
   }
 
   onDependentFieldChanged(data) {
-    console.log('FIELD CHANGES', data);
-    const updatedDependentField = (this.fg.get('dependent_fields') as FormArray).controls[data.fieldIndex] as FormGroup;
+    //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
+    if (data.fieldIndex !== this.dependentFields.length - 1) {
+      //Remove all dependent field controls after the changed one
+      for (let i = this.dependentFields.length - 1; i > data.fieldIndex; i--) {
+        console.log('REMOVING AT', i);
+        this.dependentFields.removeAt(i);
+      }
 
-    //If this is the last dependent field then create new depenendt field based on this field
-
-    if (updatedDependentField.value.value) {
-      this.addDependentField(updatedDependentField.value.value);
+      //Removing fields from UI
+      this.depFields = this.depFields.slice(0, data.fieldIndex + 1);
     }
 
-    //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
+    //Create new depenendt field based on this field
+    if (![undefined, null].includes(data.value)) {
+      this.addDependentField(data.value);
+    }
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
