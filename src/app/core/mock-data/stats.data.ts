@@ -1,4 +1,4 @@
-import { Stats } from '../models/dashboard-stats.model';
+import { Stats } from '../models/stats.model';
 
 export const expectedUnreportedExpStats: Stats = {
   count: 6,

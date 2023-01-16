@@ -4,7 +4,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DashboardService } from './dashboard.service';
-import { expectedUnreportedExpStats, expectedIncompleteExpStats } from '../../core/mock-data/dashboard-stats.data';
+import { expectedUnreportedExpStats, expectedIncompleteExpStats } from '../../core/mock-data/stats.data';
 import { expectedReportStats } from '../../core/mock-data/report-stats.data';
 import {
   apiTxnUnreportedStatsRes,

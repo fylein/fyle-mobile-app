@@ -1,6 +1,6 @@
-import { StatsDResponse } from '../models/stats-dimension-response.model';
+import { StatsDimensionResponse } from '../models/stats-dimension-response.model';
 
-export const apiTxnUnreportedStatsRes: StatsDResponse[] = [
+export const apiTxnUnreportedStatsRes: StatsDimensionResponse[] = [
   {
     aggregates: [
       {
@@ -17,7 +17,7 @@ export const apiTxnUnreportedStatsRes: StatsDResponse[] = [
   },
 ];
 
-export const apiTxnIncompleteStatsRes: StatsDResponse[] = [
+export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = [
   {
     aggregates: [
       {
@@ -34,14 +34,14 @@ export const apiTxnIncompleteStatsRes: StatsDResponse[] = [
   },
 ];
 
-export const apiUnreportedParams: Partial<StatsDResponse> = {
+export const apiUnreportedParams: Partial<StatsDimensionResponse> = {
   scalar: true,
   tx_state: 'in.(COMPLETE)',
   or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
   tx_report_id: 'is.null',
 };
 
-export const apiIncompleteParams: Partial<StatsDResponse> = {
+export const apiIncompleteParams: Partial<StatsDimensionResponse> = {
   scalar: true,
   tx_state: 'in.(DRAFT)',
   tx_report_id: 'is.null',
