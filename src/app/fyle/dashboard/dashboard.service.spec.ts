@@ -13,8 +13,11 @@ import {
   apiUnreportedParams,
 } from '../../core/mock-data/stats-dimension-response.data';
 import { apiReportStatsRes, apiReportStatParams } from '../../core/mock-data/stats-response.data';
+import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
+import { cardAggregateStatParam } from 'src/app/core/mock-data/card-aggregate-stat.model';
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
+import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -90,5 +93,11 @@ describe('DashboardService', () => {
       expect(reportService.getReportStats).toHaveBeenCalledWith(apiReportStatParams);
       done();
     });
+  });
+
+  it('getExpenseDetailsInCards(): should get expense details in cards', () => {
+    const result = dashboardService.getExpenseDetailsInCards(uniqueCardsParam, cardAggregateStatParam);
+
+    expect(result).toEqual(expectedUniqueCardStats);
   });
 });

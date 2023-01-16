@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
+import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 
 @Injectable()
 export class DashboardService {
@@ -112,7 +113,7 @@ export class DashboardService {
     };
   }
 
-  getExpenseDetailsInCards(uniqueCards: { cardNumber: string; cardName: string }, statsResponse: CardAggregateStat[]) {
+  getExpenseDetailsInCards(uniqueCards: UniqueCards[], statsResponse: CardAggregateStat[]) {
     return this.corporateCreditCardExpenseService.getExpenseDetailsInCards(uniqueCards, statsResponse);
   }
 
