@@ -18,6 +18,7 @@ import { cardAggregateStatParam } from 'src/app/core/mock-data/card-aggregate-st
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
 import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -51,6 +52,9 @@ describe('DashboardService', () => {
       ],
     });
     dashboardService = TestBed.inject(DashboardService);
+    cccExpenseService = TestBed.inject(
+      CorporateCreditCardExpenseService
+    ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
   });

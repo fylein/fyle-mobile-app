@@ -5,9 +5,11 @@ import { StatsResponse } from '../../core/models/v2/stats-response.model';
 import { TransactionService } from '../../core/services/transaction.service';
 import { Observable } from 'rxjs';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
+import { Stats } from '../../core/models/stats.model';
+import { ReportStats } from 'src/app/core/models/report-stats.model';
+import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 
 @Injectable()
 export class DashboardService {
@@ -17,7 +19,7 @@ export class DashboardService {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
 
-  getUnreportedExpensesStats() {
+  getUnreportedExpensesStats(): Observable<Stats> {
     return this.transactionService
       .getTransactionStats('count(tx_id),sum(tx_amount)', {
         scalar: true,
@@ -41,7 +43,7 @@ export class DashboardService {
       );
   }
 
-  getIncompleteExpensesStats() {
+  getIncompleteExpensesStats(): Observable<Stats> {
     return this.transactionService
       .getTransactionStats('count(tx_id),sum(tx_amount)', {
         scalar: true,
@@ -64,7 +66,7 @@ export class DashboardService {
       );
   }
 
-  getReportsStats() {
+  getReportsStats(): Observable<ReportStats> {
     return this.reportService
       .getReportStats({
         scalar: false,
@@ -74,7 +76,7 @@ export class DashboardService {
       .pipe(map((statsResponse) => this.getReportAggregates(statsResponse)));
   }
 
-  getReportAggregates(reportsStatsResponse: StatsResponse) {
+  getReportAggregates(reportsStatsResponse: StatsResponse): ReportStats {
     const reportDatum = reportsStatsResponse.getDatum(0);
     const reportAggregateValues = reportDatum.value;
     const stateWiseAggregatesMap = reportAggregateValues
@@ -113,7 +115,7 @@ export class DashboardService {
     };
   }
 
-  getExpenseDetailsInCards(uniqueCards: UniqueCards[], statsResponse: CardAggregateStat[]) {
+  getExpenseDetailsInCards(uniqueCards: UniqueCards[], statsResponse: CardAggregateStat[]): UniqueCardStats[] {
     return this.corporateCreditCardExpenseService.getExpenseDetailsInCards(uniqueCards, statsResponse);
   }
 
