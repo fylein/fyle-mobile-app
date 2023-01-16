@@ -2509,7 +2509,7 @@ export class AddEditExpensePage implements OnInit {
       dependent_fields: this.formBuilder.array([]),
     });
 
-    this.fg.controls.dependent_fields.valueChanges.subscribe((val) => console.log('dependent_fields', val));
+    this.fg.valueChanges.subscribe((val) => console.log('NEW FG', val));
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
@@ -2868,27 +2868,15 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
 
     this.addDependentField(0);
-
-    // this.depFields = [
-    //   {
-    //     field: this.data.expense_fields?.data[0].name,
-    //     options: this.data.getFieldValuesById(0).data,
-    //     mandatory: this.data.expense_fields?.data[0].is_mandatory,
-    //     control: this.dependentFields.controls[0],
-    //   },
-    // ];
-
-    // this.fg.controls.dependent_fields.valueChanges.subscribe((val) => console.log('NEW VAL', val));
   }
 
   addDependentField(id: number) {
-    console.log('ID IS', id, typeof id);
     const formArray = this.fg.get('dependent_fields') as FormArray;
 
     const newField = this.formBuilder.group({
       fieldIndex: [formArray.length || 0],
       label: this.data.expense_fields?.data[id].name,
-      value: [],
+      value: [null, this.data.expense_fields?.data[id].is_mandatory && Validators.required],
     });
 
     newField.valueChanges.subscribe((value) => {
@@ -2910,7 +2898,6 @@ export class AddEditExpensePage implements OnInit {
     if (data.fieldIndex !== this.dependentFields.length - 1) {
       //Remove all dependent field controls after the changed one
       for (let i = this.dependentFields.length - 1; i > data.fieldIndex; i--) {
-        console.log('REMOVING AT', i);
         this.dependentFields.removeAt(i);
       }
 
@@ -2919,7 +2906,7 @@ export class AddEditExpensePage implements OnInit {
     }
 
     //Create new depenendt field based on this field
-    if (![undefined, null].includes(data.value)) {
+    if (data.value >= 0) {
       this.addDependentField(data.value);
     }
   }
