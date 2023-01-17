@@ -32,7 +32,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ProjectV1 } from 'src/app/core/models/v1/extended-project.model';
-
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 @Component({
   selector: 'app-add-edit-advance-request',
   templateUrl: './add-edit-advance-request.page.html',
@@ -239,8 +239,21 @@ export class AddEditAdvanceRequestPage implements OnInit {
   async showAdvanceSummaryPopover() {
     if (this.fg.valid) {
       const advanceSummaryPopover = await this.popoverController.create({
-        component: DraftAdvanceSummaryComponent,
-        cssClass: 'dialog-popover',
+        component: PopupAlertComponentComponent,
+        componentProps: {
+          title: 'Review',
+          message:
+            'This action will save a draft advance request and will not be submitted to your approvers directly . You need to explicitly submit a draft advance request.',
+          primaryCta: {
+            text: 'Finish',
+            action: 'continue',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
+        },
+        cssClass: 'pop-up-in-center',
       });
 
       await advanceSummaryPopover.present();
