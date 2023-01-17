@@ -1,8 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { defaultTxnFieldValuesData } from '../mock-data/default-txn-field-values.data';
+import { expenseFieldObjData } from '../mock-data/expense-field-obj.data';
 import { expenseFieldResponse, expenseFieldWithBillable, expenseFieldWithSeq } from '../mock-data/expense-field.data';
-import { expenseFieldsMapResponse2, txnFieldsData } from '../mock-data/expense-fields-map.data';
+import {
+  expenseFieldsMapResponse,
+  expenseFieldsMapResponse2,
+  txnFieldsData,
+} from '../mock-data/expense-fields-map.data';
+import { orgCategoryData } from '../mock-data/org-category.data';
 import { extendedOrgUserResponse } from '../test-data/tasks.service.spec.data';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
@@ -68,5 +74,14 @@ describe('ExpenseFieldsService', () => {
       expect(expenseFieldsMap).toEqual(expenseFieldsMapResponse2);
     });
     done();
+  });
+
+  it('filterbyCategory(): should filter expense fields by category', () => {
+    const fields = ['purpose', 'txn_dt', 'vendor_id', 'org_category_id'];
+    expenseFieldsService
+      .filterByOrgCategoryId(expenseFieldsMapResponse, fields, orgCategoryData)
+      .subscribe((expenseFields) => {
+        expect(expenseFields).toEqual(expenseFieldObjData);
+      });
   });
 });

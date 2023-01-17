@@ -71,7 +71,7 @@ export class ExpenseFieldsService {
     tfcMap: Partial<ExpenseFieldsMap>,
     fields: string[],
     orgCategory: OrgCategory
-  ): Observable<Partial<ExpenseFieldsMap>> {
+  ): Observable<Partial<ExpenseFieldsMap | ExpenseFieldsObj>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map((fields) =>
