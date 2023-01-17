@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { defaultTxnFieldValuesData } from '../mock-data/default-txn-field-values.data';
-import { expenseFieldResponse } from '../mock-data/expense-field.data';
-import { txnFieldsData } from '../mock-data/expense-fields-map.data';
+import { expenseFieldResponse, expenseFieldWithBillable, expenseFieldWithSeq } from '../mock-data/expense-field.data';
+import { expenseFieldsMapResponse2, txnFieldsData } from '../mock-data/expense-fields-map.data';
 import { extendedOrgUserResponse } from '../test-data/tasks.service.spec.data';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
@@ -53,5 +53,20 @@ describe('ExpenseFieldsService', () => {
 
   it('getDefaultTxnFieldValues(): should get the default values for transaction fields', () => {
     expect(expenseFieldsService.getDefaultTxnFieldValues(txnFieldsData)).toEqual(defaultTxnFieldValuesData);
+  });
+
+  it('formatBillableFields(): should format billable fields', () => {
+    // @ts-ignore
+    expect(expenseFieldsService.formatBillableFields(expenseFieldWithBillable)).toEqual(expenseFieldWithBillable);
+  });
+
+  it('getAllMap(): should get all expense fields map', (done) => {
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
+    apiService.get.and.returnValue(of(expenseFieldWithSeq));
+
+    expenseFieldsService.getAllMap().subscribe((expenseFieldsMap) => {
+      expect(expenseFieldsMap).toEqual(expenseFieldsMapResponse2);
+    });
+    done();
   });
 });
