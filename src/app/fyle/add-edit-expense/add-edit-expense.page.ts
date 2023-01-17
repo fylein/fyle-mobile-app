@@ -2867,7 +2867,16 @@ export class AddEditExpensePage implements OnInit {
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
 
-    this.addDependentField(0);
+    this.fg.controls.project.valueChanges.subscribe((val) => {
+      this.dependentFields.clear();
+      this.depFields = [];
+
+      if (val?.dependent_field_id) {
+        this.addDependentField(val?.dependent_field_id);
+
+        console.log('SHOW FIELD', val.dependent_field_id);
+      }
+    });
   }
 
   addDependentField(dependentFieldId: number) {

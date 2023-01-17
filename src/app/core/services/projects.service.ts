@@ -59,13 +59,15 @@ export class ProjectsService {
         params,
       })
       .pipe(
-        map((res) =>
-          res.data.map((datum) => ({
+        map((res) => {
+          let num = 0;
+          return res.data.map((datum) => ({
             ...datum,
+            dependent_field_id: ++num % 2 ? 1 : null,
             project_created_at: new Date(datum.project_created_at),
             project_updated_at: new Date(datum.project_updated_at),
-          }))
-        )
+          }));
+        })
       );
   }
 

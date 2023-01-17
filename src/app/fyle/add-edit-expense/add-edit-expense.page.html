@@ -400,6 +400,29 @@
             </div>
           </ng-container>
 
+          <div *ngIf="depFields?.length" class="add-edit-expense--primary-block">
+            <ng-container formArrayName="dependent_fields">
+              <div *ngFor="let dependentField of depFields; index as i" class="add-edit-expense--internal-block">
+                <div [formGroup]="dependentField.control">
+                  <app-fy-select
+                    [label]="dependentField.field"
+                    [mandatory]="dependentField.mandatory"
+                    [options]="dependentField.options"
+                    [selectModalHeader]="'Select '"
+                    formControlName="data"
+                  >
+                  </app-fy-select>
+                </div>
+                <div
+                  *ngIf="dependentField.control.touched && !dependentField.control.valid"
+                  class="add-edit-expense--error"
+                >
+                  Please enter {{ data.expense_fields?.data[0].name }}.
+                </div>
+              </div>
+            </ng-container>
+          </div>
+
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
               <ng-container *ngIf="filteredCategories$|async as categories">
@@ -828,7 +851,7 @@
         </div>
       </div>
 
-      <div *ngIf="data?.expense_fields?.data?.length" class="add-edit-expense--primary-block">
+      <!-- <div *ngIf="data?.expense_fields?.data?.length" class="add-edit-expense--primary-block">
         <ng-container formArrayName="dependent_fields">
           <div *ngFor="let dependentField of depFields; index as i" class="add-edit-expense--internal-block">
             <div [formGroup]="dependentField.control">
@@ -849,7 +872,7 @@
             </div>
           </div>
         </ng-container>
-      </div>
+      </div> -->
 
       <ng-container *ngIf="isConnected$|async as isConnected">
         <div class="add-edit-expense--primary-block">
