@@ -21,9 +21,6 @@ jobs:
     outputs:
       apkUrl: ${{ steps.diwaiAndroid.outputs.url }}
     steps:
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
 
@@ -32,6 +29,7 @@ jobs:
           app-id: 32316914
           platform: Android
           build-type: debug
+          build-stack: Linux - 2022.07
           environment: ${{ github.event.inputs.name }}
           native-config: prod
           upload-artifact: Android
@@ -57,9 +55,6 @@ jobs:
     outputs:
       iosURL: ${{ steps.diwaiIos.outputs.url }}
     steps:
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
       - name: Build iOS on Appflow
         uses: ionic-team/appflow-build@v1
         with:
@@ -67,6 +62,7 @@ jobs:
           app-id: 32316914
           platform: iOS
           build-type: development
+          build-stack: macOS - 2022.09
           certificate: Fyle signing
           environment: ${{ github.event.inputs.name }}
           native-config: prod
