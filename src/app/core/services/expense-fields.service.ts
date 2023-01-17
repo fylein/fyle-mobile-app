@@ -1,19 +1,21 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
-import { map, reduce, switchMap } from 'rxjs/operators';
+import { map, reduce, switchMap, tap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
+import { ExpenseFieldsObj } from '../models/v1/expense-fields-obj.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
+import { DateService } from './date.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseFieldsService {
-  constructor(private apiService: ApiService, private authService: AuthService) {}
+  constructor(private apiService: ApiService, private authService: AuthService, private dateService: DateService) {}
 
   @Cacheable()
   getAllEnabled(): Observable<ExpenseField[]> {
@@ -26,7 +28,8 @@ export class ExpenseFieldsService {
             is_custom: false,
           },
         })
-      )
+      ),
+      map((res) => this.dateService.fixDates(res))
     );
   }
 
@@ -113,7 +116,9 @@ export class ExpenseFieldsService {
     );
   }
 
-  getDefaultTxnFieldValues(txnFields: Partial<ExpenseFieldsMap>): Partial<DefaultTxnFieldValues> {
+  getDefaultTxnFieldValues(
+    txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>
+  ): Partial<DefaultTxnFieldValues> {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {
       if (txnFields.hasOwnProperty(configurationColumn)) {
