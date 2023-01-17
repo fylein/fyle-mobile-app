@@ -10,7 +10,7 @@ export const expectedIncompleteExpStats: Stats = {
   sum: 1148487.57555147,
 };
 
-export const expectedUnreportedEmptyStats: Stats = {
+export const expectedEmptyStats: Stats = {
   count: undefined,
   sum: undefined,
 };

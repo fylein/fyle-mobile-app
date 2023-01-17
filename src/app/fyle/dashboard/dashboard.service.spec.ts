@@ -9,7 +9,7 @@ import { DashboardService } from './dashboard.service';
 import {
   expectedUnreportedExpStats,
   expectedIncompleteExpStats,
-  expectedUnreportedEmptyStats,
+  expectedEmptyStats,
 } from '../../core/mock-data/stats.data';
 import { expectedReportStats, expectedEmptyReportStats } from '../../core/mock-data/report-stats.data';
 import {
@@ -45,11 +45,6 @@ describe('DashboardService', () => {
   beforeEach(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportStats']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
-    // const cccExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
-    //   'getExpenseDetailsInCards',
-    //   'getAssignedCards',
-    //   'constructInQueryParamStringForV2',
-    // ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     TestBed.configureTestingModule({
@@ -100,11 +95,24 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getUnreportedExpensesStats(): should return empty response as UNREPORTED expense stats is empty', (done) => {
+  it('getUnreportedExpensesStats(): should return empty UNREPORTED expense stats as api sends null values for aggregates', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTxnUnreportedStatsEmptyRes));
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
-      expect(res).toEqual(expectedUnreportedEmptyStats);
+      expect(res).toEqual(expectedEmptyStats);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
+        'count(tx_id),sum(tx_amount)',
+        apiUnreportedParams
+      );
+      done();
+    });
+  });
+
+  it('getUnreportedExpensesStats():  should return null INCOMPLETE expense stats as api sends empty values as response', (done) => {
+    transactionService.getTransactionStats.and.returnValue(of({}));
+
+    dashboardService.getUnreportedExpensesStats().subscribe((res) => {
+      expect(res).toEqual(expectedEmptyStats);
       expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
         'count(tx_id),sum(tx_amount)',
         apiUnreportedParams
@@ -126,11 +134,24 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getIncompleteExpenseStats(): should return empty INCOMPLETE expense stats as api sends empty values', (done) => {
+  it('getIncompleteExpenseStats(): should return empty INCOMPLETE expense stats as api sends null values for aggregates', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTxnIncompleteStatsEmptyRes));
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
-      expect(res).toEqual(expectedUnreportedEmptyStats);
+      expect(res).toEqual(expectedEmptyStats);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
+        'count(tx_id),sum(tx_amount)',
+        apiIncompleteParams
+      );
+      done();
+    });
+  });
+
+  it('getIncompleteExpenseStats(): should return null INCOMPLETE expense stats as api sends empty values as response', (done) => {
+    transactionService.getTransactionStats.and.returnValue(of({}));
+
+    dashboardService.getIncompleteExpensesStats().subscribe((res) => {
+      expect(res).toEqual(expectedEmptyStats);
       expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
         'count(tx_id),sum(tx_amount)',
         apiIncompleteParams
