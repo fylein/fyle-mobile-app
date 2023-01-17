@@ -426,7 +426,6 @@ export interface OrgSettingsResponse {
   ccc_draft_expense_settings?: CommonOrgSettings;
   expense_widget_settings?: CommonOrgSettings;
   org_expense_form_autofills?: CommonOrgSettings;
-  unify_ccce_expenses_settings?: CommonOrgSettings;
   payment_mode_settings?: PaymentmodeSettings;
   last_updated_by?: User;
   activity?: ActivitySettings;
@@ -436,7 +435,6 @@ export interface OrgSettingsResponse {
   data_extraction_settings?: DataExtractionSettings;
   card_assignment_settings?: CommonOrgSettings;
   transaction_reversal_settings?: CommonOrgSettings;
-  suggested_expense_merge_settings?: CommonOrgSettings;
   visa_enrollment_settings?: CommonOrgSettings;
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
@@ -531,7 +529,6 @@ export interface OrgSettings {
   ccc_draft_expense_settings?: CommonOrgSettings;
   expense_widget_settings?: CommonOrgSettings;
   org_expense_form_autofills?: CommonOrgSettings;
-  unify_ccce_expenses_settings?: CommonOrgSettings;
   payment_mode_settings?: PaymentmodeSettings;
   advanced_project_settings?: AdvancedProjectSettings;
   expense_settings?: ExpenseSettings;
@@ -549,7 +546,6 @@ export interface OrgSettings {
   auto_match_settings?: CommonOrgSettings;
   universal_statement_parser_settings?: CommonOrgSettings;
   in_app_chat_settings?: CommonOrgSettings;
-  suggested_expense_merge_settings?: CommonOrgSettings;
   visa_enrollment_settings?: CommonOrgSettings;
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;

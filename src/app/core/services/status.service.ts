@@ -79,10 +79,22 @@ export class StatusService {
           icon: 'danger',
         };
         break;
+      case lowerCaseComment.indexOf('added to the report') > -1:
+        statusCategory = {
+          category: 'Expense added',
+          icon: 'circle',
+        };
+        break;
       case lowerCaseComment.indexOf('added') > -1:
         statusCategory = {
           category: 'Receipt Attached',
           icon: 'attachment',
+        };
+        break;
+      case lowerCaseComment.indexOf('submitted by') > -1:
+        statusCategory = {
+          category: 'Report Submitted',
+          icon: 'list',
         };
         break;
       case lowerCaseComment.indexOf('deleted') > -1:

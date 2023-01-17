@@ -101,8 +101,6 @@ export class ViewExpensePage implements OnInit {
 
   isLoading = true;
 
-  isUnifyCcceExpensesSettingsEnabled: boolean;
-
   cardNumber: string;
 
   systemCategories: string[];
@@ -339,9 +337,6 @@ export class ViewExpensePage implements OnInit {
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
-      this.isUnifyCcceExpensesSettingsEnabled =
-        this.orgSettings?.unify_ccce_expenses_settings?.allowed &&
-        this.orgSettings?.unify_ccce_expenses_settings?.enabled;
     });
 
     this.expenseFieldsService
