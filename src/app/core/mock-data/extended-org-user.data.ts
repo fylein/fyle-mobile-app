@@ -1,7 +1,9 @@
-export const apiEouRes = {
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+
+export const apiEouRes: ExtendedOrgUser = {
   ou: {
     id: 'ouX8dwsbLCLv',
-    created_at: '2018-02-01T02:32:25.267Z',
+    created_at: new Date('2018-02-01T02:32:25.267Z'),
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
     employee_id: '',
@@ -31,7 +33,7 @@ export const apiEouRes = {
     mobile_verified_at: null,
     is_primary: true,
     owner: false,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
     special_email: 'receipts+ajain_6@fyle.ai',
     custom_field_values: [
       {
@@ -133,10 +135,10 @@ export const apiEouRes = {
   },
   us: {
     id: 'usvKA4X8Ugcr',
-    created_at: '2016-06-13T12:21:16.803Z',
+    created_at: new Date('2016-06-13T12:21:16.803Z'),
     full_name: 'Abhishek Jain',
     email: 'ajain@fyle.in',
-    email_verified_at: '2022-09-06T05:26:19.898Z',
+    email_verified_at: new Date('2022-09-06T05:26:19.898Z'),
     onboarded: true,
   },
   ap1: {

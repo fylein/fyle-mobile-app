@@ -10,6 +10,7 @@ import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Stats } from '../../core/models/stats.model';
 import { ReportStats } from 'src/app/core/models/report-stats.model';
 import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
+import { CCCDetails } from 'src/app/core/models/ccc-expense-details.model';
 
 @Injectable()
 export class DashboardService {
@@ -119,7 +120,7 @@ export class DashboardService {
     return this.corporateCreditCardExpenseService.getExpenseDetailsInCards(uniqueCards, statsResponse);
   }
 
-  getCCCDetails(): Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }> {
+  getCCCDetails(): Observable<CCCDetails> {
     return this.corporateCreditCardExpenseService.getAssignedCards();
   }
 }
