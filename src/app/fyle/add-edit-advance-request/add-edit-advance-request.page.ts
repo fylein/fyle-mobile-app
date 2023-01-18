@@ -17,7 +17,6 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -243,7 +242,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         componentProps: {
           title: 'Review',
           message:
-            'This action will save a draft advance request and will not be submitted to your approvers directly . You need to explicitly submit a draft advance request.',
+            'This action will save a draft advance request and will not be submitted to your approvers directly. You need to explicitly submit a draft advance request.',
           primaryCta: {
             text: 'Finish',
             action: 'continue',
