@@ -95,7 +95,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getUnreportedExpensesStats(): should return empty UNREPORTED expense stats as api sends null values for aggregates', (done) => {
+  it('getUnreportedExpensesStats(): should return empty or undefined UNREPORTED expense stats as api sends empty list for aggregates', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTxnUnreportedStatsEmptyRes));
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
@@ -108,7 +108,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getUnreportedExpensesStats():  should return null INCOMPLETE expense stats as api sends empty values as response', (done) => {
+  it('getUnreportedExpensesStats(): should return empty or undefined UNREPORTED expense stats as api sends empty values as response', (done) => {
     transactionService.getTransactionStats.and.returnValue(of({}));
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
@@ -134,7 +134,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getIncompleteExpenseStats(): should return empty INCOMPLETE expense stats as api sends null values for aggregates', (done) => {
+  it('getIncompleteExpenseStats(): should return empty or undefined INCOMPLETE expense stats as api sends empty list for aggregates', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTxnIncompleteStatsEmptyRes));
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
@@ -147,7 +147,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getIncompleteExpenseStats(): should return null INCOMPLETE expense stats as api sends empty values as response', (done) => {
+  it('getIncompleteExpenseStats(): should return empty or undefined INCOMPLETE expense stats as api sends empty values as response', (done) => {
     transactionService.getTransactionStats.and.returnValue(of({}));
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
