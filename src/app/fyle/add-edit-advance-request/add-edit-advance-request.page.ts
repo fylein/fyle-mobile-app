@@ -259,7 +259,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
       const { data } = await advanceSummaryPopover.onWillDismiss();
 
-      if (data && data.saveAdvanceRequest) {
+      if (data && data.action === 'continue') {
         this.save('Draft');
       }
     } else {
