@@ -423,6 +423,7 @@ export class TransactionsOutboxService {
           that
             .matchIfRequired(resp.id, entry.transaction.matchCCCId)
             .then(() => {
+              that.removeEntry(entry);
               if (reportId) {
                 const txnIds = [resp.id];
                 that.reportService
@@ -430,7 +431,6 @@ export class TransactionsOutboxService {
                   .toPromise()
                   .then(() => {
                     this.trackingService.addToExistingReportAddEditExpense();
-                    that.removeEntry(entry);
                     resolve(entry);
                   })
                   .catch((err) => {
@@ -438,7 +438,6 @@ export class TransactionsOutboxService {
                     reject(err);
                   });
               } else {
-                that.removeEntry(entry);
                 resolve(entry);
               }
             })

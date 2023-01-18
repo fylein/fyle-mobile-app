@@ -2,298 +2,20 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
-import { ExtendedProject } from '../models/v2/extended-project.model';
-
+import {
+  apiResponseActiveOnly,
+  apiV2ResponseMultiple,
+  expectedReponseActiveOnly,
+  apiV2ResponseSingle,
+  testActiveCategoryList,
+  allowedActiveCategories,
+  expectedProjectsResponse,
+  testProjectParams,
+  testProjectV2,
+  testCategoryIds,
+  params,
+} from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
-
-const apiResponseActiveOnly = [
-  {
-    id: 257528,
-    created_at: '2021-05-12T10:28:40.834Z',
-    updated_at: '2021-07-08T10:28:27.686Z',
-    name: 'Customer Mapped Project',
-    sub_project: null,
-    code: '1184',
-    org_id: 'orFdTTTNcyye',
-    description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
-    active: true,
-    approver1_id: null,
-    approver2_id: null,
-    org_category_ids: [
-      null,
-      145429,
-      122269,
-      122271,
-      122270,
-      122273,
-      122272,
-      122275,
-      122274,
-      122277,
-      122276,
-      122279,
-      122278,
-      173093,
-      122281,
-      122280,
-      122283,
-      122282,
-      122285,
-      122284,
-      122287,
-      122286,
-      122289,
-      140530,
-      145458,
-      122288,
-      140531,
-      122291,
-      122290,
-      140529,
-      122293,
-      140534,
-      122292,
-      140535,
-      140532,
-      122294,
-      140533,
-      140538,
-      140539,
-      140536,
-      140537,
-      140542,
-      140540,
-      140541,
-    ],
-  },
-  {
-    id: 257541,
-    created_at: '2021-05-12T10:28:40.834Z',
-    updated_at: '2021-07-08T10:28:27.686Z',
-    name: 'Sage Project 8',
-    sub_project: null,
-    code: '1178',
-    org_id: 'orFdTTTNcyye',
-    description: 'Sage Intacct Project - Sage Project 8, Id - 1178',
-    active: true,
-    approver1_id: null,
-    approver2_id: null,
-    org_category_ids: [
-      null,
-      145429,
-      122269,
-      122271,
-      122270,
-      122273,
-      122272,
-      122275,
-      122274,
-      122277,
-      122276,
-      122279,
-      122278,
-      173093,
-      122281,
-      122280,
-      122283,
-      122282,
-      122285,
-      122284,
-      122287,
-      122286,
-      122289,
-      140530,
-      145458,
-      122288,
-      140531,
-      122291,
-      122290,
-      140529,
-      122293,
-      140534,
-      122292,
-      140535,
-      140532,
-      122294,
-      140533,
-      140538,
-      140539,
-      140536,
-      140537,
-      140542,
-      140540,
-      140541,
-    ],
-  },
-  {
-    id: 257531,
-    created_at: '2021-05-12T10:28:40.834Z',
-    updated_at: '2021-07-08T10:28:27.686Z',
-    name: 'Fyle Team Integrations',
-    sub_project: null,
-    code: '1183',
-    org_id: 'orFdTTTNcyye',
-    description: 'Sage Intacct Project - Fyle Team Integrations, Id - 1183',
-    active: true,
-    approver1_id: null,
-    approver2_id: null,
-    org_category_ids: [
-      null,
-      145429,
-      122269,
-      122271,
-      122270,
-      122273,
-      122272,
-      122275,
-      122274,
-      122277,
-      122276,
-      122279,
-      122278,
-      173093,
-      122281,
-      122280,
-      122283,
-      122282,
-      122285,
-      122284,
-      122287,
-      122286,
-      122289,
-      140530,
-      145458,
-      122288,
-      140531,
-      122291,
-      122290,
-      140529,
-      122293,
-      140534,
-      122292,
-      140535,
-      140532,
-      122294,
-      140533,
-      140538,
-      140539,
-      140536,
-      140537,
-      140542,
-      140540,
-      140541,
-    ],
-  },
-];
-
-const apiV2ResponseMultiple = {
-  count: 2,
-  data: [
-    {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
-      project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
-      project_code: '1184',
-      project_created_at: '2021-05-12T10:28:40.834844',
-      project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
-      project_id: 257528,
-      project_name: 'Customer Mapped Project',
-      project_org_category_ids: [
-        122269,
-        122270,
-        122271,
-        122272,
-        122273,
-        122274,
-        122275,
-        122276,
-        122277,
-        122278,
-        122279,
-        122280,
-        122281,
-        122282,
-        122283,
-        null,
-      ],
-      project_org_id: 'orFdTTTNcyye',
-      project_updated_at: '2021-07-08T10:28:27.686886',
-      projectv2_name: 'Customer Mapped Project',
-      sub_project_name: null,
-    },
-    {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
-      project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
-      project_code: '1182',
-      project_created_at: '2021-05-12T10:28:40.834844',
-      project_description: 'Sage Intacct Project - Fyle Engineering, Id - 1182',
-      project_id: 257529,
-      project_name: 'Fyle Engineering',
-      project_org_category_ids: [122269, 122270, 122271],
-      project_org_id: 'orFdTTTNcyye',
-      project_updated_at: '2021-07-08T10:28:27.686886',
-      projectv2_name: 'Fyle Engineering',
-      sub_project_name: null,
-    },
-  ],
-  limit: 4,
-  offset: 0,
-  url: '/v2/projects',
-};
-
-const apiV2ResponseSingle = {
-  count: 1,
-  data: [
-    {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
-      project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
-      project_code: '1184',
-      project_created_at: '2021-05-12T10:28:40.834844',
-      project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
-      project_id: 257528,
-      project_name: 'Customer Mapped Project',
-      project_org_category_ids: [
-        122269,
-        122270,
-        122271,
-        122272,
-        122273,
-        122274,
-        122275,
-        122276,
-        122277,
-        122278,
-        122279,
-        122280,
-        122281,
-        122282,
-        122283,
-        null,
-      ],
-      project_org_id: 'orFdTTTNcyye',
-      project_updated_at: '2021-07-08T10:28:27.686886',
-      projectv2_name: 'Customer Mapped Project',
-      sub_project_name: null,
-    },
-  ],
-  limit: 1,
-  offset: 0,
-  url: '/v2/projects',
-};
 
 const fixDate = (data) =>
   data.map((datum) => ({
@@ -350,7 +72,7 @@ describe('ProjectsService', () => {
   it('should be able to fetch all active projects', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
     projectService.getAllActive().subscribe((res) => {
-      expect(res).toEqual(apiResponseActiveOnly);
+      expect(res).toEqual(expectedReponseActiveOnly);
       done();
     });
 
@@ -368,5 +90,54 @@ describe('ProjectsService', () => {
       expect(res).toEqual(fixDate(apiV2ResponseMultiple.data));
       done();
     });
+  });
+
+  it('should be able to fetch data when params are provided', (done) => {
+    apiV2Service.get.and.returnValue(of(apiV2ResponseMultiple));
+
+    const result = projectService.getByParamsUnformatted(testProjectParams);
+
+    result.subscribe((res) => {
+      expect(res).toEqual(expectedProjectsResponse);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/projects', {
+        params,
+      });
+      done();
+    });
+  });
+
+  it('should category list after filter as per project passed', () => {
+    const result = projectService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList);
+    expect(result).toEqual(allowedActiveCategories);
+  });
+
+  it('should return whole category list if project passed is not present', () => {
+    const result = projectService.getAllowedOrgCategoryIds(null, testActiveCategoryList);
+    expect(result).toEqual(testActiveCategoryList);
+  });
+
+  it('should get project count restricted by a set of category IDs', (done) => {
+    apiService.get.and.returnValue(of(apiResponseActiveOnly));
+
+    const result = projectService.getProjectCount({ categoryIds: testCategoryIds });
+    result.subscribe((res) => {
+      expect(res).toEqual(2);
+      done();
+    });
+  });
+
+  it('should get project count not restricted by a set of category IDs', (done) => {
+    apiService.get.and.returnValue(of(apiResponseActiveOnly));
+
+    const resultWithOutParam = projectService.getProjectCount();
+    const resultWithParam = projectService.getProjectCount({ categoryIds: null });
+
+    resultWithOutParam.subscribe((res) => {
+      expect(res).toEqual(apiResponseActiveOnly.length);
+    });
+    resultWithParam.subscribe((res) => {
+      expect(res).toEqual(apiResponseActiveOnly.length);
+    });
+    done();
   });
 });

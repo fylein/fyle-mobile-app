@@ -16,17 +16,15 @@ export interface PlatformPolicyExpense {
   is_reimbursable?: boolean;
   distance?: number;
   distance_unit?: string;
-  locations?: [
-    {
-      city?: string;
-      state?: string;
-      display_name?: string;
-      country?: string;
-      formatted_address?: string;
-      latitude?: number;
-      longitude?: number;
-    }
-  ];
+  locations?: {
+    city?: string;
+    state?: string;
+    display_name?: string;
+    country?: string;
+    formatted_address?: string;
+    latitude?: number;
+    longitude?: number;
+  }[];
   custom_fields?: [
     {
       name?: string;

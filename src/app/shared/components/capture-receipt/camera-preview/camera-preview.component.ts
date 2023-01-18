@@ -54,10 +54,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   isIos = true;
 
-  constructor(
-    private loaderService: LoaderService,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
-  ) {}
+  constructor(@Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web') {}
 
   get CameraState() {
     return CameraState;
@@ -96,11 +93,9 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         disableAudio: true,
       };
 
-      this.loaderService.showLoader();
       from(CameraPreview.start(cameraPreviewOptions)).subscribe((_) => {
         this.cameraState = CameraState.RUNNING;
         this.getFlashModes();
-        this.loaderService.hideLoader();
       });
     }
   }
@@ -157,7 +152,9 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   onCaptureReceipt() {
-    this.captureReceipt.emit();
+    if (this.cameraState === CameraState.RUNNING) {
+      this.captureReceipt.emit();
+    }
   }
 
   ngOnInit() {}

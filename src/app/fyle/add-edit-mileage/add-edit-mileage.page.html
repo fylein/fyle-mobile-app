@@ -137,7 +137,7 @@
                           [recentlyUsedMileageLocations]="recentlyUsedMileageLocations"
                           [formInitialized]="formInitializedFlag"
                           [txnFields]="txnFields"
-                          [isAmountDisabled]="(isAmountDisabled$|async) || (txnFields?.distance?(!txnFields?.distance?.canEdit):false)"
+                          [isAmountDisabled]="(isAmountDisabled$|async)"
                           [isDistanceMandatory]="txnFields?.distance?.is_mandatory"
                           [mileageConfig]="mileageConfig"
                           [unit]="etxn.tx.distance_unit || mileageConfig.unit"
@@ -399,7 +399,6 @@
                         <span class="add-edit-mileage--mandatory" *ngIf="txnFields.purpose?.is_mandatory"> * </span>
                       </div>
                       <input
-                        [disabled]="!txnFields.purpose?.canEdit"
                         [placeholder]="txnFields.purpose?.placeholder || 'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
                         [required]="txnFields.purpose?.is_mandatory"
                         [title]="'Enter'+txnFields.purpose?.field_name"
@@ -409,7 +408,6 @@
                     </div>
                     <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-mileage--internal-block">
                       <app-fy-select
-                        [disabled]="!txnFields.purpose?.canEdit"
                         [label]="txnFields.purpose?.field_name"
                         [mandatory]="txnFields.purpose?.is_mandatory"
                         [options]="txnFields.purpose?.options"

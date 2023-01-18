@@ -95,7 +95,12 @@ export class AddExpensesToReportComponent implements OnInit {
   }
 
   addNewExpense() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.reportId }]);
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'add_edit_expense',
+      { rp_id: this.reportId, remove_from_report: false, navigate_back: true },
+    ]);
     this.modalController.dismiss();
   }
 

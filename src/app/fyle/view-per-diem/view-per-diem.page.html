@@ -147,7 +147,7 @@
         </ion-col>
         <ion-col class="view-per-diem--content-container">
           <div class="view-per-diem--label">Created Date</div>
-          <div class="view-per-diem--value">{{ extendedPerDiem.tx_created_at | date: 'MMM dd, yyyy' }}</div>
+          <div class="view-per-diem--value">{{ extendedPerDiem.tx_created_at | date: 'MMM dd, YYYY' }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -167,7 +167,7 @@
               </ion-col>
               <ion-col class="view-per-diem--content-container">
                 <div class="view-per-diem--label">Onward Date</div>
-                <div class="view-per-diem--value">{{ extendedPerDiem.tx_from_dt | date: 'MMM dd, yyyy' }}</div>
+                <div class="view-per-diem--value">{{ extendedPerDiem.tx_from_dt | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -185,7 +185,7 @@
               </ion-col>
               <ion-col class="view-per-diem--content-container">
                 <div class="view-per-diem--label">Return Date</div>
-                <div class="view-per-diem--value">{{ extendedPerDiem.tx_to_dt | date: 'MMM dd, yyyy' }}</div>
+                <div class="view-per-diem--value">{{ extendedPerDiem.tx_to_dt | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>

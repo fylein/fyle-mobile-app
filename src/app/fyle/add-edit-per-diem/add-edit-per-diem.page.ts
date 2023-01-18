@@ -22,7 +22,7 @@ import {
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { DateService } from 'src/app/core/services/date.service';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { cloneDeep, isEmpty, isEqual, isNumber } from 'lodash';
@@ -235,7 +235,9 @@ export class AddEditPerDiemPage implements OnInit {
   ) {}
 
   get minPerDiemDate() {
-    return this.fg.controls.from_dt.value && moment(this.fg.controls.from_dt.value).subtract(1, 'day').format('y-MM-D');
+    return (
+      this.fg.controls.from_dt.value && dayjs(this.fg.controls.from_dt.value).subtract(1, 'day').format('YYYY-MM-D')
+    );
   }
 
   get showSaveAndNext() {
@@ -302,10 +304,14 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   goBack() {
-    if (this.activatedRoute.snapshot.params.persist_filters) {
+    if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      const reportId = this.fg.value.report?.rp?.id;
+      if (reportId) {
+        this.showAddToReportSuccessToast(reportId);
+      }
     }
   }
 
@@ -694,7 +700,7 @@ export class AddEditPerDiemPage implements OnInit {
                 this.fb.group({
                   name: [customField.name],
                   value: [
-                    customField.type !== 'DATE' ? customField.value : moment(customField.value).format('y-MM-DD'),
+                    customField.type !== 'DATE' ? customField.value : dayjs(customField.value).format('YYYY-MM-DD'),
                     isConnected &&
                       customField.type !== 'BOOLEAN' &&
                       customField.type !== 'USER_LIST' &&
@@ -716,8 +722,8 @@ export class AddEditPerDiemPage implements OnInit {
     if (!this.fg) {
       return;
     }
-    const fromDt = moment(new Date(this.fg.value.from_dt));
-    const passedInDate = control.value && moment(new Date(control.value));
+    const fromDt = dayjs(new Date(this.fg.value.from_dt));
+    const passedInDate = control.value && dayjs(new Date(control.value));
     if (passedInDate) {
       return passedInDate.isSame(fromDt) || passedInDate.isAfter(fromDt)
         ? null
@@ -738,8 +744,8 @@ export class AddEditPerDiemPage implements OnInit {
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     const today = new Date();
-    this.minDate = moment(new Date('Jan 1, 2001')).format('y-MM-D');
-    this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
+    this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
+    this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
@@ -870,7 +876,8 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds }))
+      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
+      map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
@@ -1040,8 +1047,8 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
       .subscribe(([fromDt, toDt]) => {
         if (fromDt && toDt) {
-          const fromDate = moment(new Date(fromDt));
-          const toDate = moment(new Date(toDt));
+          const fromDate = dayjs(new Date(fromDt));
+          const toDate = dayjs(new Date(toDt));
           if (toDate.isSame(fromDate)) {
             this.fg.controls.num_days.setValue(1);
           } else if (toDate.isAfter(fromDate)) {
@@ -1054,8 +1061,8 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
       .subscribe(([fromDt, numDays]) => {
         if (fromDt && numDays && numDays > 0) {
-          const fromDate = moment(this.dateService.getUTCDate(new Date(fromDt)));
-          this.fg.controls.to_dt.setValue(fromDate.add(+numDays - 1, 'day').format('y-MM-DD'), {
+          const fromDate = dayjs(this.dateService.getUTCDate(new Date(fromDt)));
+          this.fg.controls.to_dt.setValue(fromDate.add(+numDays - 1, 'day').format('YYYY-MM-DD'), {
             emitEvent: false,
           });
         }
@@ -1336,7 +1343,7 @@ export class AddEditPerDiemPage implements OnInit {
             if (customInput.type === 'DATE') {
               return {
                 name: customInput.name,
-                value: (cpor && cpor.value && moment(new Date(cpor.value)).format('y-MM-DD')) || null,
+                value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
               };
             } else {
               return {
@@ -1420,8 +1427,8 @@ export class AddEditPerDiemPage implements OnInit {
             purpose: etxn.tx.purpose,
             num_days: etxn.tx.num_days,
             report,
-            from_dt: etxn.tx.from_dt ? moment(new Date(etxn.tx.from_dt)).format('y-MM-DD') : null,
-            to_dt: etxn.tx.to_dt ? moment(new Date(etxn.tx.to_dt)).format('y-MM-DD') : null,
+            from_dt: etxn.tx.from_dt ? dayjs(new Date(etxn.tx.from_dt)).format('YYYY-MM-DD') : null,
+            to_dt: etxn.tx.to_dt ? dayjs(new Date(etxn.tx.to_dt)).format('YYYY-MM-DD') : null,
             billable: etxn.tx.billable,
             duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
             costCenter,
@@ -1920,21 +1927,9 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.goBack();
-              }
-            });
+            that.addExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
           } else {
-            that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
-              if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-              } else {
-                that.goBack();
-              }
-            });
+            that.editExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
           }
         } else {
           that.fg.markAllAsTouched();

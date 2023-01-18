@@ -13,4 +13,8 @@ export interface ExtendedOrgUser {
   bb: BankBranch;
   dwolla: Dwolla;
   checked?: boolean;
+  org: {
+    domain: string;
+    currency: string;
+  };
 }

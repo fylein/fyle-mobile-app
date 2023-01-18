@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { App } from '@capacitor/app';
 import { PopoverController } from '@ionic/angular';
-import { from } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { from, noop } from 'rxjs';
+import { switchMap, tap, map } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
 @Injectable({
@@ -32,12 +32,13 @@ export class BackButtonService {
     from(exitAppPopover)
       .pipe(
         tap((exitAppPopover) => exitAppPopover.present()),
-        switchMap((exitAppPopover) => exitAppPopover.onWillDismiss())
+        switchMap((exitAppPopover) => exitAppPopover.onWillDismiss()),
+        map((popoverDetails) => {
+          if (popoverDetails?.data?.action === 'close') {
+            return App.exitApp();
+          }
+        })
       )
-      .subscribe((popoverDetails) => {
-        if (popoverDetails?.data?.action === 'close') {
-          App.exitApp();
-        }
-      });
+      .subscribe(noop);
   }
 }

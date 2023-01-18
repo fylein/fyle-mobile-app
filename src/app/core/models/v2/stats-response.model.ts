@@ -24,6 +24,12 @@ export class StatsResponse {
 
   url: string;
 
+  scalar?: boolean;
+
+  dimension_1_1?: string;
+
+  aggregates?: string;
+
   constructor({ data, url }) {
     this.data = data;
     this.url = url;

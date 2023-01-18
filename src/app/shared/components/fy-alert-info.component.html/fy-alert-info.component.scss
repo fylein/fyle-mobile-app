@@ -30,4 +30,20 @@ $container-border: #dfdfe2;
     --padding-top: 0;
     height: 12px;
   }
+
+  @media (max-width: 360px) {
+    padding: 12px 4px;
+    &--message {
+      width: auto;
+    }
+    &--icon {
+      margin-right: 4px;
+    }
+
+    &--button-container {
+      width: 12%;
+      display: flex;
+      justify-content: center;
+    }
+  }
 }

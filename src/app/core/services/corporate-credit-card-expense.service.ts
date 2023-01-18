@@ -189,17 +189,4 @@ export class CorporateCreditCardExpenseService {
       })
     );
   }
-
-  getNonUnifyCCCAssignedCards() {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.get('/bank_accounts_assigned', {
-          params: {
-            assigned_to_ou_id: 'eq.' + eou.ou.id,
-          },
-        })
-      ),
-      map((res) => res.data as BankAccountsAssigned[])
-    );
-  }
 }

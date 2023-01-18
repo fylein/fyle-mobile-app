@@ -1,5 +1,5 @@
 export interface CustomField {
-  id: number;
+  id?: number;
   name: string;
   value: any;
   type?: string;

@@ -119,8 +119,4 @@ export class DashboardService {
   getCCCDetails(): Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }> {
     return this.corporateCreditCardExpenseService.getAssignedCards();
   }
-
-  getNonUnifyCCCDetails(): Observable<BankAccountsAssigned[]> {
-    return this.corporateCreditCardExpenseService.getNonUnifyCCCAssignedCards();
-  }
 }

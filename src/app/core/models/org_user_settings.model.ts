@@ -150,7 +150,6 @@ export interface OrgUserSettings {
   insta_fyle_settings: InstaFyleSettings;
   bulk_fyle_settings: BulkFyleSettings;
   gmail_fmr_settings: GmailFmrSettings;
-  trip_request_org_user_settings: TripRequestOrgUserSettings;
   whatsapp_fyle_settings: WhatsappFyleSettings;
   sms_fyle_settings: SmsFyleSettings;
   one_click_action_settings: OneClickActionSettings;

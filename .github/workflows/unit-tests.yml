@@ -19,10 +19,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 14
+          node-version: 16
 
       - name: Install dependencies
-        run: npm install --save-dev
+        run: npm install --save-dev --legacy-peer-deps
 
       - name: Run Tests
         run: npm run test

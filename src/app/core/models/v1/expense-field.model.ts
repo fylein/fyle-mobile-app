@@ -15,7 +15,7 @@ export interface ExpenseField {
   org_category_ids: number[];
   org_id: string;
   placeholder: string;
-  roles_editable: string[];
+  roles_editable?: string[];
   seq: number;
   type: string;
   updated_at: Date;

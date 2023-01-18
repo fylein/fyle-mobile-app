@@ -27,7 +27,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelections: any[] = [];
 
-  @Input() filteredOptions$: Observable<Employee[]>;
+  @Input() filteredOptions$: Observable<Partial<Employee>[]>;
 
   @Input() placeholder;
 
@@ -35,7 +35,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   value;
 
-  eouc$: Observable<Employee[]>;
+  eouc$: Observable<Partial<Employee>[]>;
 
   options: { label: string; value: any; selected?: boolean }[] = [];
 
@@ -185,7 +185,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  filterSearchedEmployees(searchedEmployees: Employee[], employees: Employee[]) {
+  filterSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]) {
     searchedEmployees = searchedEmployees.filter(
       (searchedEmployee) => !employees.find((employee) => employee.us_email === searchedEmployee.us_email)
     );

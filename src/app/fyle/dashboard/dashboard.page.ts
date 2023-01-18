@@ -113,6 +113,10 @@ export class DashboardPage implements OnInit {
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
+    this.orgSettings$.subscribe((orgSettings) => {
+      this.setupActionSheet(orgSettings);
+    });
+
     this.statsComponent.init();
     this.tasksComponent.init();
     /**
@@ -156,12 +160,7 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  ngOnInit() {
-    const that = this;
-    that.orgSettingsService.get().subscribe((orgSettings) => {
-      this.setupActionSheet(orgSettings);
-    });
-  }
+  ngOnInit() {}
 
   onTaskClicked() {
     this.currentStateIndex = 1;

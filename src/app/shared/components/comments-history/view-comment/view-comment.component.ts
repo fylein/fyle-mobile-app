@@ -10,7 +10,7 @@ import { TransactionService } from '../../../../core/services/transaction.servic
 import { Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 
 @Component({
   selector: 'app-view-comment',
@@ -202,9 +202,9 @@ export class ViewCommentComponent implements OnInit {
       this.userComments = estatuses.filter((status) => status.us_full_name);
 
       for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = moment(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
-        const currentCommentDt = moment(this.userComments[i] && this.userComments[i].st_created_at);
-        if (moment(prevCommentDt).isSame(currentCommentDt, 'day')) {
+        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
+        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].st_created_at);
+        if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
           this.userComments[i].show_dt = false;
         } else {
           this.userComments[i].show_dt = true;

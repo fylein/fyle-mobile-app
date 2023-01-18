@@ -642,22 +642,22 @@ export class TransactionService {
     return dialogBody;
   }
 
-  getUnlinkDialogBody(isSplitExpensesPresent: boolean): string {
+  getRemoveCardExpenseDialogBody(isSplitExpensesPresent: boolean): string {
     const dialogBody = isSplitExpensesPresent
       ? `<ul class="text-left">
-    <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
-    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
-    <li>Since this is a split expense, clicking on Confirm will remove the card details from all the related split expenses.</li>
+    <li>Since this is a split expense, clicking on <strong>Confirm</strong> will remove the card details from all the related split expenses.</li>
+    <li>A new expense will be created from the card expense removed here.</li>
+    <li>Are you sure to remove your card expense from this expense?</li>
     </ul>`
       : `<ul class="text-left">
-    <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
-    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
+    <li>A new expense will be created from the card expense removed here.</li>
+    <li>Are you sure to remove your card expense from this expense?</li>
     </ul>`;
 
     return dialogBody;
   }
 
-  unlinkCorporateCardExpense(txnId: string): Observable<UndoMerge> {
+  removeCorporateCardExpense(txnId: string): Observable<UndoMerge> {
     const data: Object = {
       txn_id: txnId,
     };

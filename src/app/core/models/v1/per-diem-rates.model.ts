@@ -7,4 +7,6 @@ export interface PerDiemRates {
   org_id: string;
   rate: number;
   updated_at: Date;
+  full_name?: string;
+  readableRate?: string;
 }

@@ -2,7 +2,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 
 @Component({
   selector: 'app-team-adv-card',
@@ -28,7 +28,7 @@ export class TeamAdvCardComponent implements OnInit {
 
   ngOnInit() {
     if (this.advanceRequest && this.prevDate) {
-      this.showDate = moment(this.advanceRequest.areq_created_at).isSame(this.prevDate, 'day');
+      this.showDate = dayjs(this.advanceRequest.areq_created_at).isSame(this.prevDate, 'day');
     }
     this.currencySymbol = getCurrencySymbol(this.advanceRequest.areq_currency, 'wide');
     this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest);
