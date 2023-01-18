@@ -58,10 +58,10 @@ export class DependentFieldsService {
     const val = [];
     for (let i = 0; i <= 10; i++) {
       val.push({
-        fieldId: fieldId * i,
+        id: fieldId * i,
         name: `Parent field ${fieldId}, Option ${i}`,
         is_enabled: true,
-        dependent_field_id: parentFieldId,
+        field_id: parentFieldId,
       });
     }
     return val;
