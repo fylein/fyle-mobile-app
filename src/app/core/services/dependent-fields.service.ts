@@ -23,7 +23,7 @@ export class DependentFieldsService {
         id: 2,
         name: 'Dependent Field 2',
         is_enabled: true,
-        is_mandatory: true,
+        is_mandatory: false,
         placeholder: 'Select Field',
         dependent_field_id: 3,
       },
@@ -38,15 +38,15 @@ export class DependentFieldsService {
       {
         id: 4,
         name: 'Dependent Field 4',
-        is_enabled: true,
-        is_mandatory: true,
+        is_enabled: false,
+        is_mandatory: false,
         placeholder: 'Select Field',
         dependent_field_id: 5,
       },
       {
         id: 5,
         name: 'Dependent Field 5',
-        is_enabled: true,
+        is_enabled: false,
         is_mandatory: true,
         placeholder: 'Select Field',
         dependent_field_id: null,
@@ -59,9 +59,9 @@ export class DependentFieldsService {
     for (let i = 0; i <= 10; i++) {
       val.push({
         id: fieldId * i,
-        name: `Parent field ${fieldId}, Option ${i}`,
+        name: `Parent field ${parentFieldId}, Option ${i}`,
         is_enabled: true,
-        field_id: parentFieldId,
+        field_id: fieldId,
       });
     }
     return val;
