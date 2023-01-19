@@ -87,6 +87,7 @@ describe('DashboardService', () => {
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedUnreportedExpStats);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
       expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
         'count(tx_id),sum(tx_amount)',
         apiUnreportedParams
@@ -100,6 +101,7 @@ describe('DashboardService', () => {
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedEmptyStats);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
       expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
         'count(tx_id),sum(tx_amount)',
         apiUnreportedParams
@@ -113,6 +115,7 @@ describe('DashboardService', () => {
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedEmptyStats);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
       expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
         'count(tx_id),sum(tx_amount)',
         apiUnreportedParams
@@ -126,6 +129,7 @@ describe('DashboardService', () => {
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedIncompleteExpStats);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
       expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
         'count(tx_id),sum(tx_amount)',
         apiIncompleteParams
@@ -139,6 +143,7 @@ describe('DashboardService', () => {
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedEmptyStats);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
       expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
         'count(tx_id),sum(tx_amount)',
         apiIncompleteParams
@@ -152,6 +157,7 @@ describe('DashboardService', () => {
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedEmptyStats);
+      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
       expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
         'count(tx_id),sum(tx_amount)',
         apiIncompleteParams
@@ -165,6 +171,7 @@ describe('DashboardService', () => {
 
     dashboardService.getReportsStats().subscribe((res) => {
       expect(res).toEqual(expectedReportStats);
+      expect(reportService.getReportStats).toHaveBeenCalledTimes(1);
       expect(reportService.getReportStats).toHaveBeenCalledWith(apiReportStatParams);
       done();
     });
@@ -175,6 +182,7 @@ describe('DashboardService', () => {
 
     dashboardService.getReportsStats().subscribe((res) => {
       expect(res).toEqual(expectedEmptyReportStats);
+      expect(reportService.getReportStats).toHaveBeenCalledTimes(1);
       expect(reportService.getReportStats).toHaveBeenCalledWith(apiReportStatParams);
       done();
     });
@@ -198,6 +206,8 @@ describe('DashboardService', () => {
 
     dashboardService.getCCCDetails().subscribe((res) => {
       expect(res).toEqual(expectedAssignedCCCStats);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       expect(apiV2Service.get).toHaveBeenCalledWith(apiParams, {});
       done();
     });
