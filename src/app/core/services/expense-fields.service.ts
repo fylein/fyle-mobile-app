@@ -116,6 +116,15 @@ export class ExpenseFieldsService {
     );
   }
 
+  /* TODO: txnFields should be of one type, handle inconsistency in forms
+      There are 3 types of responses here:
+      1st type, expense field -> {column_name, id..} etc
+      2nd type, expense field obj -> {purpose: {}, txn_dt: {}……}
+      3rd type, expense field map -> {purpose: [{}], txn_dt: [{}, {},…]….}
+      Till date the type was any, so this issue didn't come up,
+      This is wrong, all our expense forms pages expects the results as expense field map, but, before that, we filter these by org category, so the response changes to expense field obj
+      To handle both case added this, it can take the type based on use case, but, ideally, we should have a single type of response
+  */
   getDefaultTxnFieldValues(
     txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>
   ): Partial<DefaultTxnFieldValues> {
