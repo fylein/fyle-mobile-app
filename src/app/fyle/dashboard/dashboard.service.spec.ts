@@ -95,7 +95,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getUnreportedExpensesStats(): should return empty or undefined UNREPORTED expense stats as api sends empty list for aggregates', (done) => {
+  it('getUnreportedExpensesStats(): should return empty or undefined for UNREPORTED expense stats as api sends empty list for aggregates', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTxnUnreportedStatsEmptyRes));
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
@@ -108,7 +108,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getUnreportedExpensesStats(): should return empty or undefined UNREPORTED expense stats as api sends empty values as response', (done) => {
+  it('getUnreportedExpensesStats(): should return empty or undefined for UNREPORTED expense stats as api sends empty values as response', (done) => {
     transactionService.getTransactionStats.and.returnValue(of({}));
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
@@ -134,7 +134,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getIncompleteExpenseStats(): should return empty or undefined INCOMPLETE expense stats as api sends empty list for aggregates', (done) => {
+  it('getIncompleteExpenseStats(): should return empty or undefined for INCOMPLETE expense stats as api sends empty list for aggregates', (done) => {
     transactionService.getTransactionStats.and.returnValue(of(apiTxnIncompleteStatsEmptyRes));
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
@@ -147,7 +147,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getIncompleteExpenseStats(): should return empty or undefined INCOMPLETE expense stats as api sends empty values as response', (done) => {
+  it('getIncompleteExpenseStats(): should return empty or undefined for INCOMPLETE expense stats as api sends empty values as response', (done) => {
     transactionService.getTransactionStats.and.returnValue(of({}));
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
@@ -170,7 +170,7 @@ describe('DashboardService', () => {
     });
   });
 
-  it('getReportStats(): should return empty response as various report states data is empty', (done) => {
+  it('getReportStats(): should return empty response as various report stats data is empty', (done) => {
     reportService.getReportStats.and.returnValue(of(new StatsResponse(apiReportStatsEmptyRes)));
 
     dashboardService.getReportsStats().subscribe((res) => {
