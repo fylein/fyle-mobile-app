@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
-import { map, reduce, switchMap, tap } from 'rxjs/operators';
+import { map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
