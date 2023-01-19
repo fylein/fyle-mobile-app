@@ -19,7 +19,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PinchZoomModule } from 'ngx13-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
-import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 
 @NgModule({
   imports: [
@@ -43,7 +42,6 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
     FyCurrencyExchangeRateComponent,
     PolicyViolationDialogComponent,
     CameraOptionsPopupComponent,
-    DraftAdvanceSummaryComponent,
   ],
 })
 export class AddEditAdvanceRequestPageModule {}
