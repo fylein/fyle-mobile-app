@@ -23,7 +23,6 @@ import {
 import {
   apiReportStatsRes,
   apiReportStatsEmptyRes,
-  apiReportStatParams,
   apiAssignedCardDetailsRes,
 } from '../../core/mock-data/stats-response.data';
 import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
@@ -41,6 +40,12 @@ describe('DashboardService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
   let authService: jasmine.SpyObj<AuthService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
+
+  const apiReportStatParams: Partial<StatsResponse> = {
+    scalar: false,
+    dimension_1_1: 'rp_state',
+    aggregates: 'sum(rp_amount),count(rp_id)',
+  };
 
   beforeEach(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportStats']);

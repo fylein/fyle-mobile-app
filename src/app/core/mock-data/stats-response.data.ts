@@ -259,9 +259,3 @@ export const apiAssignedCardDetailsRes: StatsResponse = {
   ],
   url: '/v2/expenses_and_ccce/stats',
 };
-
-export const apiReportStatParams: Partial<StatsResponse> = {
-  scalar: false,
-  dimension_1_1: 'rp_state',
-  aggregates: 'sum(rp_amount),count(rp_id)',
-};
