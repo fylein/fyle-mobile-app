@@ -53,8 +53,8 @@ describe('ExpenseFieldsService', () => {
 
     expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       expect(expenseFields).toEqual(expenseFieldResponse);
+      done();
     });
-    done();
   });
 
   it('getDefaultTxnFieldValues(): should get the default values for transaction fields', () => {
@@ -67,8 +67,7 @@ describe('ExpenseFieldsService', () => {
   });
 
   it('getAllMap(): should get all expense fields map', (done) => {
-    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
-    apiService.get.and.returnValue(of(expenseFieldWithSeq));
+    spyOn(expenseFieldsService, 'getAllEnabled').and.returnValue(of(expenseFieldWithSeq));
 
     expenseFieldsService.getAllMap().subscribe((expenseFieldsMap) => {
       expect(expenseFieldsMap).toEqual(expenseFieldsMapResponse2);
