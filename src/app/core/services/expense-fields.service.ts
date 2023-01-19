@@ -5,15 +5,17 @@ import { Cacheable } from 'ts-cacheable';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
+import { ExpenseFieldsObj } from '../models/v1/expense-fields-obj.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
+import { DateService } from './date.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseFieldsService {
-  constructor(private apiService: ApiService, private authService: AuthService) {}
+  constructor(private apiService: ApiService, private authService: AuthService, private dateService: DateService) {}
 
   @Cacheable()
   getAllEnabled(): Observable<ExpenseField[]> {
@@ -26,7 +28,8 @@ export class ExpenseFieldsService {
             is_custom: false,
           },
         })
-      )
+      ),
+      map((res) => this.dateService.fixDates(res))
     );
   }
 
@@ -68,7 +71,7 @@ export class ExpenseFieldsService {
     tfcMap: Partial<ExpenseFieldsMap>,
     fields: string[],
     orgCategory: OrgCategory
-  ): Observable<Partial<ExpenseFieldsMap>> {
+  ): Observable<Partial<ExpenseFieldsMap | ExpenseFieldsObj>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map((fields) =>
@@ -113,7 +116,18 @@ export class ExpenseFieldsService {
     );
   }
 
-  getDefaultTxnFieldValues(txnFields: Partial<ExpenseFieldsMap>): DefaultTxnFieldValues {
+  /* TODO: txnFields should be of one type, handle inconsistency in forms
+      There are 3 types of responses here:
+      1st type, expense field -> {column_name, id..} etc
+      2nd type, expense field obj -> {purpose: {}, txn_dt: {}……}
+      3rd type, expense field map -> {purpose: [{}], txn_dt: [{}, {},…]….}
+      Till date the type was any, so this issue didn't come up,
+      This is wrong, all our expense forms pages expects the results as expense field map, but, before that, we filter these by org category, so the response changes to expense field obj
+      To handle both case added this, it can take the type based on use case, but, ideally, we should have a single type of response
+  */
+  getDefaultTxnFieldValues(
+    txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>
+  ): Partial<DefaultTxnFieldValues> {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {
       if (txnFields.hasOwnProperty(configurationColumn)) {
