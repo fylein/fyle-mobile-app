@@ -72,16 +72,17 @@ describe('ExpenseFieldsService', () => {
 
     expenseFieldsService.getAllMap().subscribe((expenseFieldsMap) => {
       expect(expenseFieldsMap).toEqual(expenseFieldsMapResponse2);
+      done();
     });
-    done();
   });
 
-  it('filterbyCategory(): should filter expense fields by category', () => {
+  it('filterbyCategory(): should filter expense fields by category', (done) => {
     const fields = ['purpose', 'txn_dt', 'vendor_id', 'org_category_id'];
     expenseFieldsService
       .filterByOrgCategoryId(expenseFieldsMapResponse, fields, orgCategoryData)
       .subscribe((expenseFields) => {
         expect(expenseFields).toEqual(expenseFieldObjData);
+        done();
       });
   });
 });
