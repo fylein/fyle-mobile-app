@@ -21,6 +21,8 @@ import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { apiReportRes1, apiReportRes2, apiReportRes } from '../mock-data/api-reports.data';
 import { apiReportActions } from '../mock-data/report-actions.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
+import { apiReportStatsRes, apiReportStatParams } from '../../core/mock-data/stats-response.data';
+import { StatsResponse } from '../models/v2/stats-response.model';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -198,6 +200,19 @@ describe('ReportService', () => {
         params: {
           approver_id: orgUserID,
         },
+      });
+      done();
+    });
+  });
+
+  it('getReportStats(): should get report stats to display on dashboard', (done) => {
+    getExtendedOrgUser();
+    apiv2Service.get.and.returnValue(of(new StatsResponse(apiReportStatsRes)));
+
+    reportService.getReportStats(apiReportStatParams).subscribe((res) => {
+      expect(res).toEqual(new StatsResponse(apiReportStatsRes));
+      expect(apiv2Service.get).toHaveBeenCalledWith('/reports/stats', {
+        params: { rp_org_user_id: `eq.ouX8dwsbLCLv`, ...apiReportStatParams },
       });
       done();
     });
