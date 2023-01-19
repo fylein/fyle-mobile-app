@@ -13,13 +13,16 @@ import { isEqual } from 'lodash';
 import { DataTransformService } from './data-transform.service';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { TransactionService } from './transaction.service';
-import { StatsResponse } from '../models/v2/stats-response.model';
+import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { UserEventService } from './user-event.service';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PermissionsService } from './permissions.service';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { OrgSettings } from '../models/org-settings.model';
+import { Expense } from '../models/expense.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -65,7 +68,7 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getMyReportsCount(queryParams = {}) {
+  getMyReportsCount(queryParams = {}): Observable<number> {
     return this.getMyReports({
       offset: 0,
       limit: 1,
@@ -96,7 +99,7 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getERpt(rptId) {
+  getERpt(rptId: string) {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map((data) => {
         const erpt = this.dataTransformService.unflatten(data);
@@ -112,7 +115,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addTransactions(rptId, txnIds) {
+  addTransactions(rptId: string, txnIds: string[]) {
     return this.apiService
       .post('/reports/' + rptId + '/txns', {
         ids: txnIds,
@@ -136,7 +139,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  create(report, txnIds) {
+  create(report, txnIds: string[]) {
     return this.createDraft(report).pipe(
       switchMap((newReport) =>
         this.apiService
@@ -149,7 +152,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  removeTransaction(rptId, txnId, comment?) {
+  removeTransaction(rptId: string, txnId: string, comment?) {
     const aspy = {
       status: {
         comment,
@@ -163,7 +166,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  submit(rptId) {
+  submit(rptId: string) {
     return this.apiService
       .post('/reports/' + rptId + '/submit')
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
@@ -172,28 +175,28 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  resubmit(rptId) {
+  resubmit(rptId: string) {
     return this.apiService.post('/reports/' + rptId + '/resubmit');
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  inquire(rptId, addStatusPayload) {
+  inquire(rptId: string, addStatusPayload) {
     return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  approve(rptId) {
+  approve(rptId: string) {
     return this.apiService.post('/reports/' + rptId + '/approve');
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addApprover(rptId, approverEmail, comment) {
+  addApprover(rptId: string, approverEmail: string, comment) {
     const data = {
       approver_email: approverEmail,
       comment,
@@ -204,14 +207,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  removeApprover(rptId, approvalId) {
-    return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
-  updateReportDetails(erpt) {
+  updateReportDetails(erpt: ExtendedReport) {
     const reportData = this.dataTransformService.unflatten(erpt);
     return this.apiService
       .post('/reports', reportData.rp)
@@ -239,7 +235,7 @@ export class ReportService {
   }
 
   @Cacheable()
-  getReportPermissions(orgSettings) {
+  getReportPermissions(orgSettings: OrgSettings) {
     return this.permissionsService
       .allowedActions('reports', ['approve', 'create', 'delete'], orgSettings)
       .pipe(catchError((err) => []));
@@ -297,10 +293,6 @@ export class ReportService {
     };
 
     return stateMap[state];
-  }
-
-  getPaginatedERptcStats(params) {
-    return this.apiService.get('/erpts/stats', { params });
   }
 
   getPaginatedERptcCount(params) {
@@ -399,7 +391,7 @@ export class ReportService {
     );
   }
 
-  getReport(id: string) {
+  getReport(id: string): Observable<ExtendedReport> {
     return this.getMyReports({
       offset: 0,
       limit: 1,
@@ -409,7 +401,7 @@ export class ReportService {
     }).pipe(map((res) => res.data[0]));
   }
 
-  getTeamReport(id: string) {
+  getTeamReport(id: string): Observable<ExtendedReport> {
     return this.getTeamReports({
       offset: 0,
       limit: 1,
@@ -431,7 +423,7 @@ export class ReportService {
     return this.apiService.get('/reports/' + rptId + '/approvers');
   }
 
-  delete(rptId) {
+  delete(rptId: string) {
     return this.apiService
       .delete('/reports/' + rptId)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
@@ -441,7 +433,7 @@ export class ReportService {
     return this.apiService.post('/reports/summary/download', data);
   }
 
-  getAllExtendedReports(config: Partial<{ order: string; queryParams: any }>) {
+  getAllExtendedReports(config: Partial<{ order: string; queryParams: any }>): Observable<ExtendedReport[]> {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
@@ -452,36 +444,6 @@ export class ReportService {
           offset: this.paginationSize * page,
           limit: this.paginationSize,
           queryParams: config.queryParams,
-          order: config.order,
-        })
-      ),
-      map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
-    );
-  }
-
-  getAllOpenReportsCount() {
-    return this.getMyReportsCount({
-      rp_state: 'in.(DRAFT,APPROVER_PENDING)',
-    }).pipe(shareReplay(1));
-  }
-
-  getAllTeamExtendedReports(
-    config: Partial<{ order: string; queryParams: any }> = {
-      order: '',
-      queryParams: {},
-    }
-  ) {
-    return this.getTeamReportsCount().pipe(
-      switchMap((count) => {
-        count = count > this.paginationSize ? count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) =>
-        this.getTeamReports({
-          offset: this.paginationSize * page,
-          limit: this.paginationSize,
-          ...config.queryParams,
           order: config.order,
         })
       ),
@@ -543,7 +505,7 @@ export class ReportService {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
 
-  getApproversInBulk(rptIds) {
+  getApproversInBulk(rptIds: string[]) {
     if (!rptIds || rptIds.length === 0) {
       return of([]);
     }
@@ -611,7 +573,7 @@ export class ReportService {
     );
   }
 
-  getReportETxnc(rptId, orgUserId) {
+  getReportETxnc(rptId: string, orgUserId: string): Observable<Expense[]> {
     const data: any = {
       params: {},
     };
@@ -623,7 +585,7 @@ export class ReportService {
     return this.apiService.get('/erpts/' + rptId + '/etxns', data);
   }
 
-  getReportStats(params) {
+  getReportStats(params: Partial<StatsResponse>): Observable<StatsResponse> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/reports/stats', {
