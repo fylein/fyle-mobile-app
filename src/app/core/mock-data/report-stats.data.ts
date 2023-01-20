@@ -18,3 +18,22 @@ export const expectedReportStats: ReportStats = {
     sum: 501602.12,
   },
 };
+
+export const expectedEmptyReportStats: ReportStats = {
+  draft: {
+    sum: 0,
+    count: 0,
+  },
+  report: {
+    sum: 0,
+    count: 0,
+  },
+  approved: {
+    sum: 0,
+    count: 0,
+  },
+  paymentPending: {
+    sum: 0,
+    count: 0,
+  },
+};
