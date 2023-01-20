@@ -165,7 +165,7 @@ describe('ReportService', () => {
     });
   });
 
-  it('actions(): should get related actions for a report', (done) => {
+  it('actions(): should get report actions', (done) => {
     apiService.get.and.returnValue(of(apiReportActions));
 
     const reportID = 'rpxtbiLXQZUm';

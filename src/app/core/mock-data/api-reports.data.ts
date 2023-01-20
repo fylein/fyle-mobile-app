@@ -1,4 +1,6 @@
-export const apiReportRes = {
+import { ApiReports } from '../models/api-reports.model';
+
+export const apiReportRes: ApiReports = {
   count: 4,
   data: [
     {
@@ -25,7 +27,7 @@ export const apiReportRes = {
       rp_approval_state: null,
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/11',
-      rp_created_at: '2023-01-17T06:35:06.814556',
+      rp_created_at: new Date('2023-01-17T06:35:06.814556'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -84,7 +86,7 @@ export const apiReportRes = {
       rp_approval_state: 'APPROVAL_PENDING',
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/10',
-      rp_created_at: '2023-01-17T06:34:58.398683',
+      rp_created_at: new Date('2023-01-17T06:34:58.398683'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -143,7 +145,7 @@ export const apiReportRes = {
       rp_approval_state: 'APPROVAL_DONE',
       rp_approved_at: '2023-01-17T06:33:29.049',
       rp_claim_number: 'C/2023/01/R/9',
-      rp_created_at: '2023-01-13T07:29:00.963045',
+      rp_created_at: new Date('2023-01-13T07:29:00.963045'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -202,7 +204,7 @@ export const apiReportRes = {
       rp_approval_state: 'APPROVAL_PENDING',
       rp_approved_at: null,
       rp_claim_number: 'C/2022/12/R/34',
-      rp_created_at: '2022-12-26T07:29:00.734031',
+      rp_created_at: new Date('2022-12-26T07:29:00.734031'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -238,7 +240,7 @@ export const apiReportRes = {
   url: '/v2/reports',
 };
 
-export const apiReportRes1 = {
+export const apiReportRes1: ApiReports = {
   count: 4,
   data: [
     {
@@ -319,7 +321,7 @@ export const apiReportRes1 = {
       rp_approval_state: null,
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/12',
-      rp_created_at: '2023-01-17T07:29:00.800733',
+      rp_created_at: new Date('2023-01-17T07:29:00.800733'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -355,7 +357,7 @@ export const apiReportRes1 = {
   url: '/v2/reports',
 };
 
-export const apiReportRes2 = {
+export const apiReportRes2: ApiReports = {
   count: 4,
   data: [
     {
@@ -382,7 +384,7 @@ export const apiReportRes2 = {
       rp_approval_state: null,
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/11',
-      rp_created_at: '2023-01-17T06:35:06.814556',
+      rp_created_at: new Date('2023-01-17T06:35:06.814556'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -441,7 +443,7 @@ export const apiReportRes2 = {
       rp_approval_state: 'APPROVAL_PENDING',
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/10',
-      rp_created_at: '2023-01-17T06:34:58.398683',
+      rp_created_at: new Date('2023-01-17T06:34:58.398683'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -477,7 +479,7 @@ export const apiReportRes2 = {
   url: '/v2/reports',
 };
 
-export const expectedReports = {
+export const expectedReports: ApiReports = {
   count: 4,
   data: [
     {
@@ -504,7 +506,7 @@ export const expectedReports = {
       rp_approval_state: null,
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/11',
-      rp_created_at: '2023-01-17T06:35:06.814556',
+      rp_created_at: new Date('2023-01-17T06:35:06.814556'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -563,7 +565,7 @@ export const expectedReports = {
       rp_approval_state: 'APPROVAL_PENDING',
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/10',
-      rp_created_at: '2023-01-17T06:34:58.398683',
+      rp_created_at: new Date('2023-01-17T06:34:58.398683'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -622,7 +624,7 @@ export const expectedReports = {
       rp_approval_state: 'APPROVAL_DONE',
       rp_approved_at: '2023-01-17T06:33:29.049',
       rp_claim_number: 'C/2023/01/R/9',
-      rp_created_at: '2023-01-13T07:29:00.963045',
+      rp_created_at: new Date('2023-01-13T07:29:00.963045'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -681,7 +683,7 @@ export const expectedReports = {
       rp_approval_state: 'APPROVAL_PENDING',
       rp_approved_at: null,
       rp_claim_number: 'C/2022/12/R/34',
-      rp_created_at: '2022-12-26T07:29:00.734031',
+      rp_created_at: new Date('2022-12-26T07:29:00.734031'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
