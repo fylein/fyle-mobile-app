@@ -113,7 +113,10 @@
 
         <ng-container *ngIf="isCccExpense">
           <ng-container *ngIf="etxn$|async as etxn">
-            <div class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border">
+            <div
+              class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border"
+              *ngIf="(!(etxn?.tx?.report_id) && !(reviewList?.length > 1)) && (isCorporateCreditCardEnabled && canRemoveCardExpense)"
+            >
               <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
               <div
                 class="add-edit-expense--split-info-message"
@@ -529,7 +532,6 @@
                         </div>
                         <input
                           appFormatDate
-                          [disabled]="!txnFields.from_dt?.canEdit"
                           class="add-edit-expense--date-input date-input__format smartlook-show"
                           formControlName="from_dt"
                           [name]="txnFields.from_dt?.field_name"
@@ -554,7 +556,6 @@
                         </div>
                         <input
                           appFormatDate
-                          [disabled]="!txnFields.to_dt?.canEdit"
                           class="add-edit-expense--date-input date-input__format smartlook-show"
                           formControlName="to_dt"
                           [name]="txnFields.to_dt?.field_name"
@@ -577,7 +578,6 @@
                       >
                         <app-fy-select
                           *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-                          [disabled]="!txnFields.flight_journey_travel_class?.canEdit"
                           [label]="txnFields.flight_journey_travel_class?.field_name"
                           [mandatory]="txnFields.flight_journey_travel_class?.is_mandatory"
                           [options]="txnFields.flight_journey_travel_class?.options"
@@ -597,7 +597,6 @@
                       >
                         <app-fy-select
                           *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-                          [disabled]="!txnFields.flight_return_travel_class?.canEdit"
                           [label]="txnFields.flight_return_travel_class?.field_name"
                           [mandatory]="txnFields.flight_return_travel_class?.is_mandatory"
                           [options]="txnFields.flight_journey_travel_class?.options"
@@ -628,7 +627,6 @@
                     <input
                       (blur)="focusState = false"
                       (focus)="focusState = true"
-                      [disabled]="!txnFields.train_travel_class?.canEdit"
                       [placeholder]="txnFields.train_travel_class.placeholder || 'Enter ' + txnFields.train_travel_class.field_name"
                       class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
                       formControlName="train_travel_class"
@@ -638,7 +636,6 @@
 
                   <app-fy-select
                     *ngIf="txnFields.train_travel_class?.type === 'SELECT'"
-                    [disabled]="!txnFields.train_travel_class?.canEdit"
                     [label]="txnFields.train_travel_class?.field_name"
                     [mandatory]="txnFields.train_travel_class?.is_mandatory"
                     [options]="txnFields.train_travel_class?.options"
@@ -666,14 +663,12 @@
                     (focus)="focusState = true"
                     [placeholder]="txnFields.bus_travel_class?.placeholder || 'Enter ' + txnFields.bus_travel_class?.field_name"
                     *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
-                    [disabled]="!txnFields.bus_travel_class?.canEdit"
                     class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
                     formControlName="bus_travel_class"
                     type="text"
                   />
                   <app-fy-select
                     *ngIf="txnFields.bus_travel_class?.type === 'SELECT'"
-                    [disabled]="!txnFields.bus_travel_class?.canEdit"
                     [label]="txnFields.bus_travel_class?.field_name"
                     [mandatory]="txnFields.bus_travel_class?.is_mandatory"
                     [options]="txnFields.bus_travel_class?.options"
@@ -738,7 +733,6 @@
             >
               <app-fy-select-vendor
                 *ngIf="!txnFields.vendor_id?.options?.length"
-                [disabled]="!txnFields?.vendor_id?.canEdit"
                 [label]="txnFields.vendor_id?.field_name"
                 [mandatory]="txnFields?.vendor_id?.is_mandatory"
                 formControlName="vendor_id"
@@ -747,7 +741,6 @@
               </app-fy-select-vendor>
               <app-virtual-select
                 *ngIf="txnFields.vendor_id?.options?.length"
-                [disabled]="!txnFields.vendor_id?.canEdit"
                 [label]="txnFields.vendor_id?.field_name"
                 [mandatory]="txnFields.vendor_id?.is_mandatory"
                 [options]="txnFields.vendor_id?.options"
@@ -805,7 +798,6 @@
                     <span class="add-edit-expense--mandatory" *ngIf="txnFields.purpose?.is_mandatory"> * </span>
                   </div>
                   <input
-                    [disabled]="!txnFields.purpose?.canEdit"
                     [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | slice: 0:30"
                     [required]="txnFields.purpose?.is_mandatory"
                     [title]="'Enter'+txnFields.purpose?.field_name"
@@ -820,7 +812,6 @@
                 >
                   <app-fy-select
                     [cacheName]="'recentPurposeList'"
-                    [disabled]="!txnFields.purpose?.canEdit"
                     [label]="txnFields.purpose?.field_name"
                     [mandatory]="txnFields.purpose?.is_mandatory"
                     [nullOption]="txnFields.purpose?.is_mandatory ? false : true"

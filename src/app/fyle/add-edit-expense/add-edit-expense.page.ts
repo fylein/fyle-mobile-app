@@ -14,6 +14,7 @@ import {
   BehaviorSubject,
   throwError,
   Subscription,
+  noop,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
@@ -3079,7 +3080,13 @@ export class AddEditExpensePage implements OnInit {
               that
                 .addExpense('SAVE_EXPENSE')
                 .pipe(
-                  switchMap((txnData: Promise<any>) => from(txnData)),
+                  switchMap((txnData: Promise<any>) => {
+                    if (txnData) {
+                      return from(txnData);
+                    } else {
+                      return of(null);
+                    }
+                  }),
                   finalize(() => {
                     this.saveExpenseLoader = false;
                   })
@@ -3698,16 +3705,24 @@ export class AddEditExpensePage implements OnInit {
                     etxn.tx.source += '_OFFLINE';
                   }
 
-                  return of(
-                    this.transactionOutboxService.addEntryAndSync(
-                      etxn.tx,
-                      etxn.dataUrls,
-                      comments,
-                      reportId,
-                      null,
-                      receiptsData
-                    )
-                  );
+                  if (this.activatedRoute.snapshot.params.rp_id) {
+                    return of(
+                      this.transactionOutboxService.addEntryAndSync(
+                        etxn.tx,
+                        etxn.dataUrls,
+                        comments,
+                        reportId,
+                        null,
+                        receiptsData
+                      )
+                    );
+                  } else {
+                    this.transactionOutboxService
+                      .addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
+                      .then(noop);
+
+                    return of(null);
+                  }
                 })
               );
             }

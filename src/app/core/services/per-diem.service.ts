@@ -36,12 +36,15 @@ export class PerDiemService {
   }
 
   @Cacheable()
-  getAllowedPerDiems(allPerDiemRates: PerDiemRates[]) {
+  getAllowedPerDiems(allPerDiemRates: PerDiemRates[]): Observable<PerDiemRates[]> {
     return this.orgUserSettingsService.get().pipe(
       map((settings) => {
         let allowedPerDiems = [];
 
-        if (settings?.per_diem_rate_settings?.allowed_per_diem_ids) {
+        if (
+          settings.per_diem_rate_settings.allowed_per_diem_ids &&
+          settings.per_diem_rate_settings.allowed_per_diem_ids.length > 0
+        ) {
           const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids;
 
           if (allPerDiemRates?.length > 0) {
@@ -95,13 +98,13 @@ export class PerDiemService {
   transformFrom(platformPerDiemRates: PlatformPerDiemRates[]): PerDiemRates[] {
     const oldPerDiemRates = platformPerDiemRates.map((perDiemRate) => ({
       active: perDiemRate.is_enabled,
-      created_at: perDiemRate.created_at,
+      created_at: new Date(perDiemRate.created_at),
       currency: perDiemRate.currency,
       id: perDiemRate.id,
       name: perDiemRate.name,
       org_id: perDiemRate.org_id,
       rate: perDiemRate.rate,
-      updated_at: perDiemRate.updated_at,
+      updated_at: new Date(perDiemRate.updated_at),
     }));
 
     return oldPerDiemRates;
