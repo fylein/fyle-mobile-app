@@ -17,6 +17,13 @@ export const apiTxnUnreportedStatsRes: StatsDimensionResponse[] = [
   },
 ];
 
+export const apiTxnUnreportedStatsEmptyRes: StatsDimensionResponse[] = [
+  {
+    dimensions: [],
+    name: 'scalar_stat',
+  },
+];
+
 export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = [
   {
     aggregates: [
@@ -29,6 +36,13 @@ export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = [
         function_value: 1148487.57555147,
       },
     ],
+    dimensions: [],
+    name: 'scalar_stat',
+  },
+];
+
+export const apiTxnIncompleteStatsEmptyRes: StatsDimensionResponse[] = [
+  {
     dimensions: [],
     name: 'scalar_stat',
   },
