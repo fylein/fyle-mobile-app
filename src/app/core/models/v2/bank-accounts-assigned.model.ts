@@ -8,7 +8,7 @@ export interface BankAccountsAssigned {
   ba_created_at: Date;
   ba_currency: string;
   ba_id: string;
-  ba_last_synced_at: Date;
+  ba_last_synced_at: Date | null;
   ba_mask: string;
   ba_nickname: string;
   ba_sync_type: string;

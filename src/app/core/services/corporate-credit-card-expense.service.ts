@@ -8,7 +8,7 @@ import { DataTransformService } from './data-transform.service';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { BankAccountsAssigned } from '../models/v2/bank-accounts-assigned.model';
 import { CardAggregateStat } from '../models/card-aggregate-stat.model';
-
+import { DateService } from './date.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -17,12 +17,9 @@ export class CorporateCreditCardExpenseService {
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
-    private authService: AuthService
+    private authService: AuthService,
+    private dateService: DateService
   ) {}
-
-  getPaginatedECorporateCreditCardExpenseStats(params) {
-    return this.apiService.get('/extended_corporate_credit_card_expenses/stats', { params });
-  }
 
   getv2CardTransactions(config: { offset: number; queryParams: any; limit: number; order?: string }): Observable<{
     count: number;
@@ -61,7 +58,7 @@ export class CorporateCreditCardExpenseService {
           id: `eq.${id}`,
         },
       })
-      .pipe(map((res) => res && res.data && res.data[0]));
+      .pipe(map((res) => this.dateService.fixDates(res && res.data && res.data[0])));
   }
 
   getv2CardTransactionsCount(queryParams = {}): Observable<number> {
