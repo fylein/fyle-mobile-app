@@ -27,7 +27,6 @@ export class CorporateCreditCardExpenseService {
     offset: number;
     url: string;
   }> {
-    console.log(config);
     return this.apiV2Service
       .get('/corporate_card_transactions', {
         params: {
