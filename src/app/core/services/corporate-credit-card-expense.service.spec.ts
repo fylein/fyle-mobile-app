@@ -8,9 +8,6 @@ import { DataTransformService } from './data-transform.service';
 import {
   apiTransactionCountResponse,
   apiSingleTransactionResponse,
-  apiAuthEouResponse,
-  apiExpAndCCC,
-  expectedCardResponse,
   eCCCApiResponse,
   expectedECccResponse,
   expectedSingleTransaction,
@@ -21,6 +18,9 @@ import { uniqueCardsParam } from '../mock-data/unique-cards.data';
 import { cardAggregateStatParam } from '../mock-data/card-aggregate-stat.data';
 import { DateService } from './date.service';
 import { expectedUniqueCardStats } from '../mock-data/unique-cards-stats.data';
+import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
+import { expectedAssignedCCCStats } from '../mock-data/ccc-expense.details.data';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
@@ -29,19 +29,6 @@ describe('CorporateCreditCardExpenseService', () => {
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let authService: jasmine.SpyObj<AuthService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
-
-  const fixDate = (data) => {
-    if (data.created_at) {
-      data.created_at = new Date(data.created_at);
-    }
-    if (data.updated_at) {
-      data.updated_at = new Date(data.updated_at);
-    }
-    if (data.txn_dt) {
-      data.txn_dt = new Date(data.txn_dt);
-    }
-    return data;
-  };
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
@@ -80,7 +67,7 @@ describe('CorporateCreditCardExpenseService', () => {
     expect(cccExpenseService).toBeTruthy();
   });
 
-  it('should get transaction counts', (done) => {
+  it('getv2CardTransactionsCount(): should get transaction counts', (done) => {
     apiV2Service.get.and.returnValue(of(apiTransactionCountResponse));
     const testParams = {
       state: 'in.(IN_PROGRESS,SETTLED)',
@@ -94,7 +81,7 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('should give a single transaction from ID', (done) => {
+  it('getv2CardTransaction(): should give a single transaction from ID', (done) => {
     apiV2Service.get.and.returnValue(of(apiSingleTransactionResponse));
 
     const testID = 'ccceRhYsN8Fj78';
@@ -107,7 +94,7 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('should mark an expense as personal', (done) => {
+  it('markPersonal(): should mark an expense as personal', (done) => {
     apiService.post.and.returnValue(of(null));
     const testId = 'ccceJN3PWAR94U';
     const result = cccExpenseService.markPersonal(testId);
@@ -118,7 +105,7 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('should unmark an expense as personal', (done) => {
+  it('unmarkPersonal(): should unmark an expense as personal', (done) => {
     apiService.post.and.returnValue(of(null));
     const testId = 'ccceJN3PWAR94U';
     const result = cccExpenseService.unmarkPersonal(testId);
@@ -129,7 +116,7 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('should dismiss a transaction as corporate credit card expense', (done) => {
+  it('dismissCreditTransaction(): should dismiss a transaction as corporate credit card expense', (done) => {
     apiService.post.and.returnValue(of(null));
     const testId = 'ccceRhYsN8Fj78';
     const result = cccExpenseService.dismissCreditTransaction(testId);
@@ -140,7 +127,7 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('should undo dismiss a transaction as corporate credit card expense', (done) => {
+  it('undoDismissedCreditTransaction(): should undo dismiss a transaction as corporate credit card expense', (done) => {
     apiService.post.and.returnValue(of(null));
     const testId = 'ccceRhYsN8Fj78';
     const result = cccExpenseService.undoDismissedCreditTransaction(testId);
@@ -151,7 +138,7 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('should get Corporate Credit Card expenses by group ID', (done) => {
+  it('getEccceByGroupId(): should get Corporate Credit Card expenses by group ID', (done) => {
     apiService.get.and.returnValue(of(eCCCApiResponse));
 
     const testID = 'ccceYIJhT8Aj6U';
@@ -165,26 +152,26 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('should get all assigned cards', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiAuthEouResponse));
-    apiV2Service.get.and.returnValue(of(apiExpAndCCC));
+  it('getAssignedCards(): should get all assigned cards', (done) => {
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    apiV2Service.get.and.returnValue(of(apiAssignedCardDetailsRes));
 
     const result = cccExpenseService.getAssignedCards();
     result.subscribe((res) => {
-      expect(res).toEqual(expectedCardResponse);
+      expect(res).toEqual(expectedAssignedCCCStats);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
-  it('should get expense details in card', () => {
+  it('getExpenseDetailsInCards(): should get expense details in card', () => {
     const result = cccExpenseService.getExpenseDetailsInCards(uniqueCardsParam, cardAggregateStatParam);
 
     expect(result).toEqual(expectedUniqueCardStats);
   });
 
-  it('should get all transactions from using search', (done) => {
+  it('getAllv2CardTransactions(): should get all transactions from using search', (done) => {
     apiV2Service.get.and.returnValue(of(searchCCCTxnResponse));
     const params = {
       queryParams: {
@@ -195,7 +182,7 @@ describe('CorporateCreditCardExpenseService', () => {
 
     const result = cccExpenseService.getAllv2CardTransactions(params);
     result.subscribe((res) => {
-      expect(res).toEqual(expectedSearchTxn);
+      expect(res).toEqual(dateService.fixDates(expectedSearchTxn));
       expect(apiV2Service.get).toHaveBeenCalledTimes(2);
       done();
     });
