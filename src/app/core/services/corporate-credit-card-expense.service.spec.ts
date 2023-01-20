@@ -182,7 +182,7 @@ describe('CorporateCreditCardExpenseService', () => {
 
     const result = cccExpenseService.getAllv2CardTransactions(params);
     result.subscribe((res) => {
-      expect(res).toEqual(dateService.fixDates(expectedSearchTxn));
+      expect(res).toEqual(expectedSearchTxn);
       expect(apiV2Service.get).toHaveBeenCalledTimes(2);
       done();
     });
