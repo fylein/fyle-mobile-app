@@ -129,7 +129,10 @@ export class CorporateCreditCardExpenseService {
     return queryString;
   }
 
-  getExpenseDetailsInCards(uniqueCards: { cardNumber: string; cardName: string }, statsResponse: CardAggregateStat[]) {
+  getExpenseDetailsInCards(
+    uniqueCards: { cardNumber: string; cardName: string }[],
+    statsResponse: CardAggregateStat[]
+  ) {
     const cardsCopy = JSON.parse(JSON.stringify(uniqueCards));
     const uniqueCardsCopy = [];
     cardsCopy?.forEach((card) => {
