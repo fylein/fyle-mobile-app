@@ -15,11 +15,12 @@ import {
   expectedECccResponse,
   expectedSingleTransaction,
   searchCCCTxnResponse,
-  expectedCCCTxn,
-  uniqueCardsReponse,
-  statsResponse,
+  expectedSearchTxn,
 } from '../test-data/corporate-credit-card-expense.spec.data';
+import { uniqueCardsParam } from '../mock-data/unique-cards.data';
+import { cardAggregateStatParam } from '../mock-data/card-aggregate-stat.data';
 import { DateService } from './date.service';
+import { expectedUniqueCardStats } from '../mock-data/unique-cards-stats.data';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
@@ -88,6 +89,7 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.getv2CardTransactionsCount(testParams);
     result.subscribe((res) => {
       expect(res).toEqual(apiTransactionCountResponse.count);
+      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -100,6 +102,7 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.getv2CardTransaction(testID);
     result.subscribe((res) => {
       expect(res).toEqual(dateService.fixDates(expectedSingleTransaction));
+      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -110,6 +113,7 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.markPersonal(testId);
     result.subscribe((res) => {
       expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/personal');
+      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -120,6 +124,7 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.unmarkPersonal(testId);
     result.subscribe((res) => {
       expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/unmark_personal');
+      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -130,6 +135,7 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.dismissCreditTransaction(testId);
     result.subscribe((res) => {
       expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/ignore');
+      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -140,6 +146,7 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.undoDismissedCreditTransaction(testId);
     result.subscribe((res) => {
       expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/undo_ignore');
+      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -153,6 +160,7 @@ describe('CorporateCreditCardExpenseService', () => {
 
     result.subscribe((res) => {
       expect(res).toEqual(expectedECccResponse);
+      expect(apiService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -164,11 +172,19 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.getAssignedCards();
     result.subscribe((res) => {
       expect(res).toEqual(expectedCardResponse);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
-  xit('should get all transactions from using search', (done) => {
+  it('should get expense details in card', () => {
+    const result = cccExpenseService.getExpenseDetailsInCards(uniqueCardsParam, cardAggregateStatParam);
+
+    expect(result).toEqual(expectedUniqueCardStats);
+  });
+
+  it('should get all transactions from using search', (done) => {
     apiV2Service.get.and.returnValue(of(searchCCCTxnResponse));
     const params = {
       queryParams: {
@@ -179,8 +195,8 @@ describe('CorporateCreditCardExpenseService', () => {
 
     const result = cccExpenseService.getAllv2CardTransactions(params);
     result.subscribe((res) => {
-      console.log(res);
-      // expect(res).toEqual();
+      expect(res).toEqual(expectedSearchTxn);
+      expect(apiV2Service.get).toHaveBeenCalledTimes(2);
       done();
     });
   });

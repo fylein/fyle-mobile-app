@@ -6,7 +6,7 @@ export interface CorporateCardExpense {
   balance_transfer_settlement_id: string;
   bank_txn_id: string;
   corporate_credit_card_account_number: string;
-  created_at: Date;
+  created_at: Date | string;
   creator_id: string;
   currency: string;
   description: string;
@@ -27,8 +27,8 @@ export interface CorporateCardExpense {
   state: string;
   tx_split_group_id: string;
   txn_details: TxnDetail[];
-  txn_dt: Date;
-  updated_at: Date;
+  txn_dt: Date | string;
+  updated_at: Date | string;
   us_email: string;
   us_full_name: string;
   vendor: string;

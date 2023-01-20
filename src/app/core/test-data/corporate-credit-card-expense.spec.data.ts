@@ -512,37 +512,6 @@ export const apiExpAndCCC = {
   url: '/v2/expenses_and_ccce/stats',
 };
 
-export const uniqueCardsReponse = [
-  {
-    cardNumber: '8698',
-    cardName: 'DAMNA',
-  },
-  {
-    cardNumber: '8698',
-    cardName: 'DAMNA',
-  },
-  {
-    cardNumber: '869',
-    cardName: 'PEX BANK',
-  },
-  {
-    cardNumber: '869',
-    cardName: 'PEX BANK',
-  },
-  {
-    cardNumber: '6975',
-    cardName: 'TEST-999',
-  },
-  {
-    cardNumber: 'Sample-Bank-xxx3420',
-    cardName: null,
-  },
-  {
-    cardNumber: 'Sample-Bank-xxxxxx-99171',
-    cardName: null,
-  },
-];
-
 export const expectedCardResponse = {
   totalTxns: 1095,
   totalAmount: 591841.142,
@@ -732,191 +701,6 @@ export const expectedCardResponse = {
   ],
 };
 
-export const statsResponse = [
-  {
-    aggregates: [
-      {
-        function_name: 'count(tx_id)',
-        function_value: 1,
-      },
-      {
-        function_name: 'sum(tx_amount)',
-        function_value: 706,
-      },
-    ],
-    key: [
-      {
-        column_name: 'corporate_credit_card_bank_name',
-        column_value: 'DAMNA',
-      },
-      {
-        column_name: 'corporate_credit_card_account_number',
-        column_value: '8698',
-      },
-      {
-        column_name: 'tx_state',
-        column_value: 'COMPLETE',
-      },
-    ],
-  },
-  {
-    aggregates: [
-      {
-        function_name: 'count(tx_id)',
-        function_value: 971,
-      },
-      {
-        function_name: 'sum(tx_amount)',
-        function_value: 573548,
-      },
-    ],
-    key: [
-      {
-        column_name: 'corporate_credit_card_bank_name',
-        column_value: 'DAMNA',
-      },
-      {
-        column_name: 'corporate_credit_card_account_number',
-        column_value: '8698',
-      },
-      {
-        column_name: 'tx_state',
-        column_value: 'DRAFT',
-      },
-    ],
-  },
-  {
-    aggregates: [
-      {
-        function_name: 'count(tx_id)',
-        function_value: 7,
-      },
-      {
-        function_name: 'sum(tx_amount)',
-        function_value: 524.76,
-      },
-    ],
-    key: [
-      {
-        column_name: 'corporate_credit_card_bank_name',
-        column_value: 'PEX BANK',
-      },
-      {
-        column_name: 'corporate_credit_card_account_number',
-        column_value: '869',
-      },
-      {
-        column_name: 'tx_state',
-        column_value: 'COMPLETE',
-      },
-    ],
-  },
-  {
-    aggregates: [
-      {
-        function_name: 'count(tx_id)',
-        function_value: 105,
-      },
-      {
-        function_name: 'sum(tx_amount)',
-        function_value: 6398.842,
-      },
-    ],
-    key: [
-      {
-        column_name: 'corporate_credit_card_bank_name',
-        column_value: 'PEX BANK',
-      },
-      {
-        column_name: 'corporate_credit_card_account_number',
-        column_value: '869',
-      },
-      {
-        column_name: 'tx_state',
-        column_value: 'DRAFT',
-      },
-    ],
-  },
-  {
-    aggregates: [
-      {
-        function_name: 'count(tx_id)',
-        function_value: 9,
-      },
-      {
-        function_name: 'sum(tx_amount)',
-        function_value: 2623.58,
-      },
-    ],
-    key: [
-      {
-        column_name: 'corporate_credit_card_bank_name',
-        column_value: 'TEST-999',
-      },
-      {
-        column_name: 'corporate_credit_card_account_number',
-        column_value: '6975',
-      },
-      {
-        column_name: 'tx_state',
-        column_value: 'DRAFT',
-      },
-    ],
-  },
-  {
-    aggregates: [
-      {
-        function_name: 'count(tx_id)',
-        function_value: 1,
-      },
-      {
-        function_name: 'sum(tx_amount)',
-        function_value: 5782.73,
-      },
-    ],
-    key: [
-      {
-        column_name: 'corporate_credit_card_bank_name',
-        column_value: null,
-      },
-      {
-        column_name: 'corporate_credit_card_account_number',
-        column_value: 'Sample-Bank-xxx3420',
-      },
-      {
-        column_name: 'tx_state',
-        column_value: 'DRAFT',
-      },
-    ],
-  },
-  {
-    aggregates: [
-      {
-        function_name: 'count(tx_id)',
-        function_value: 1,
-      },
-      {
-        function_name: 'sum(tx_amount)',
-        function_value: 2257.23,
-      },
-    ],
-    key: [
-      {
-        column_name: 'corporate_credit_card_bank_name',
-        column_value: null,
-      },
-      {
-        column_name: 'corporate_credit_card_account_number',
-        column_value: 'Sample-Bank-xxxxxx-99171',
-      },
-      {
-        column_name: 'tx_state',
-        column_value: 'DRAFT',
-      },
-    ],
-  },
-];
-
 export const eCCCApiResponse = [
   {
     ccce_id: 'ccceYIJhT8Aj6U',
@@ -1084,3 +868,42 @@ export const expectedCCCTxn = {
   us_full_name: 'Abhishek Jain',
   vendor: 'Test merchant',
 };
+
+export const expectedSearchTxn = [
+  {
+    _search_document: "'19202.0':1 '19202.00':2 'inr':3 'merchant':5 'test':4",
+    amount: 19202,
+    balance_transfer_id: null,
+    balance_transfer_settlement_id: null,
+    bank_txn_id: 'btxnByM07Fbm0e',
+    corporate_credit_card_account_number: 'XXXXXXXXXXXX8090',
+    created_at: '2022-12-08T17:38:04.561422',
+    creator_id: 'ouX8dwsbLCLv',
+    currency: 'INR',
+    description: null,
+    group_amount: 19202,
+    group_id: 'ccceRhYsN8Fj78',
+    id: 'ccceRhYsN8Fj78',
+    ignored: false,
+    matched_at: null,
+    matched_by: null,
+    orig_amount: null,
+    orig_currency: null,
+    ou_department_id: 'deptpmQ0SsMO0S',
+    ou_id: 'ouX8dwsbLCLv',
+    ou_org_id: 'orNVthTo2Zyo',
+    payment_id: 'paysAflHgG1Jk',
+    personal: false,
+    reversed: false,
+    settlement_id: null,
+    state: 'INITIALIZED',
+    transaction_type: 'debit',
+    tx_split_group_id: null,
+    txn_details: null,
+    txn_dt: '2022-08-12T00:00:00',
+    updated_at: '2022-12-18T15:54:05.164101',
+    us_email: 'ajain@fyle.in',
+    us_full_name: 'Abhishek Jain',
+    vendor: 'Test merchant',
+  },
+];

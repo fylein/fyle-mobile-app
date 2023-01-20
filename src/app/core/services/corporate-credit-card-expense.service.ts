@@ -6,7 +6,6 @@ import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
-import { BankAccountsAssigned } from '../models/v2/bank-accounts-assigned.model';
 import { CardAggregateStat } from '../models/card-aggregate-stat.model';
 import { DateService } from './date.service';
 @Injectable({
@@ -28,6 +27,7 @@ export class CorporateCreditCardExpenseService {
     offset: number;
     url: string;
   }> {
+    console.log(config);
     return this.apiV2Service
       .get('/corporate_card_transactions', {
         params: {
@@ -69,7 +69,7 @@ export class CorporateCreditCardExpenseService {
     }).pipe(map((res) => res.count));
   }
 
-  getAllv2CardTransactions(config: Partial<{ order: string; queryParams: any }>): Observable<CorporateCardExpense[]> {
+  getAllv2CardTransactions(config: Partial<{ order: string; queryParams: any }>) {
     return this.getv2CardTransactionsCount(config.queryParams).pipe(
       switchMap((count) => {
         count = count > 50 ? count / 50 : 1;
