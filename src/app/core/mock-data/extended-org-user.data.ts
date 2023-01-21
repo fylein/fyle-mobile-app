@@ -33,7 +33,7 @@ export const apiEouRes: ExtendedOrgUser = {
     mobile_verified_at: null,
     is_primary: true,
     owner: false,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
     special_email: 'receipts+ajain_6@fyle.ai',
     custom_field_values: [
       {

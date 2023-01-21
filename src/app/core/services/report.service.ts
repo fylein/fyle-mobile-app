@@ -23,6 +23,9 @@ import { PermissionsService } from './permissions.service';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { Expense } from '../models/expense.model';
+import { Approver } from '../models/v1/approver.model';
+import { ReportActions } from '../models/report-actions.model';
+import { ReportPurpose } from '../models/report-purpose.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -130,7 +133,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  createDraft(report) {
+  createDraft(report: ReportPurpose) {
     return this.apiService
       .post('/reports', report)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
@@ -139,7 +142,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  create(report, txnIds: string[]) {
+  create(report: ReportPurpose, txnIds: string[]) {
     return this.createDraft(report).pipe(
       switchMap((newReport) =>
         this.apiService
@@ -295,7 +298,7 @@ export class ReportService {
     return stateMap[state];
   }
 
-  getPaginatedERptcCount(params) {
+  getPaginatedERptcCount(params): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
@@ -411,7 +414,7 @@ export class ReportService {
     }).pipe(map((res) => res.data[0]));
   }
 
-  actions(rptId: string) {
+  actions(rptId: string): Observable<ReportActions> {
     return this.apiService.get('/reports/' + rptId + '/actions');
   }
 
@@ -419,7 +422,7 @@ export class ReportService {
     return this.apiService.get('/reports/' + rptId + '/exports');
   }
 
-  getApproversByReportId(rptId: string) {
+  getApproversByReportId(rptId: string): Observable<Approver[]> {
     return this.apiService.get('/reports/' + rptId + '/approvers');
   }
 
@@ -501,7 +504,7 @@ export class ReportService {
     return Object.assign({}, params, searchParams, dateParams);
   }
 
-  getReportPurpose(reportPurpose) {
+  getReportPurpose(reportPurpose: { ids: string[] }) {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
 
