@@ -12,8 +12,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
-import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
@@ -38,8 +36,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MyViewReportPage,
     MyViewReportEtxnCardComponent,
     ShareReportComponent,
-    SubmitReportPopoverComponent,
-    ResubmitReportPopoverComponent,
     EditReportNamePopoverComponent,
     AddExpensesToReportComponent,
   ],
