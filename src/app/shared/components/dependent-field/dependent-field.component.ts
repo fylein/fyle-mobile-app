@@ -86,8 +86,6 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
   }
 
   async openModal() {
-    const cssClass = this.label === 'Payment Mode' ? 'payment-mode-modal' : 'fy-modal';
-
     const selectionModal = await this.modalController.create({
       component: FySelectModalComponent,
       componentProps: {
@@ -100,7 +98,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
         label: this.label,
       },
       mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties(cssClass),
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await selectionModal.present();
