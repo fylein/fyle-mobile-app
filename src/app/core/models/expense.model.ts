@@ -184,4 +184,22 @@ export interface Expense {
   tx_dataUrls?: { thumbnail: string }[];
   vendor?: string;
   violation?: boolean;
+  tx_duplicates?: string[];
+  tx_tax_amount?: number;
+  tg_name?: string;
+  tg_percentage?: number;
+  ou_rank?: number;
+  tx_platform_vendor?: string;
+  tx_platform_vendor_id?: string;
+  is_test_call?: boolean;
+  tx_taxi_travel_class?: string;
+  tx_activity_policy_pending?: boolean;
+  tx_activity_details?: string;
+  tx_is_implicit_merge_blocked?: boolean;
+  _search_document?: string;
+  corporate_credit_card_account_number?: string;
+  credit?: boolean;
+  debit?: boolean;
+  duplicates?: string[];
+  tx_is_split_expense?: boolean;
 }

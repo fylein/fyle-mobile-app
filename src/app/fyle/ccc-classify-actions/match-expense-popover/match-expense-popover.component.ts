@@ -20,7 +20,7 @@ export class MatchExpensePopoverComponent implements OnInit {
 
   @Input() splitGroupId: string;
 
-  matchedExpense$: Observable<Expense>;
+  matchedExpense$: Observable<Partial<Expense>>;
 
   constructor(
     private transactionService: TransactionService,

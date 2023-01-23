@@ -48,7 +48,7 @@ export class MyViewReportPage {
 
   erpt$: Observable<ExtendedReport>;
 
-  etxns$: Observable<Expense[]>;
+  etxns$: Observable<Partial<Expense>[]>;
 
   reportApprovals$: Observable<any>;
 

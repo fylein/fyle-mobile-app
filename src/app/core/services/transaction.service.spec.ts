@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { etxncData, expenseDataFlagged, expenseDataUnflagged } from '../mock-data/expense.data';
 import { AccountsService } from './accounts.service';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
@@ -159,5 +161,71 @@ describe('TransactionService', () => {
 
   it('should be created', () => {
     expect(transactionService).toBeTruthy();
+  });
+
+  it('clearCache(): should clear cache', (done) => {
+    transactionService.clearCache().subscribe((res) => {
+      expect(res).toBeFalsy();
+      done();
+    });
+  });
+
+  it('manualFlag(): should manually flag a transaction', (done) => {
+    const transactionID = 'tx5fBcPBAxLv';
+    apiService.post.and.returnValue(of(expenseDataFlagged));
+
+    transactionService.manualFlag(transactionID).subscribe((res) => {
+      expect(res).toEqual(expenseDataFlagged);
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionID + '/manual_flag');
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('manualUnflag(): should manually unflag a transaction', (done) => {
+    const transactionID = 'tx5fBcPBAxLv';
+    apiService.post.and.returnValue(of(expenseDataUnflagged));
+
+    transactionService.manualUnflag(transactionID).subscribe((res) => {
+      expect(res).toEqual(expenseDataUnflagged);
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionID + '/manual_unflag');
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('delete(): should delete a transaction', (done) => {
+    const transactionID = 'tx5fBcPBAxLv';
+    apiService.delete.and.returnValue(of(expenseDataUnflagged));
+
+    transactionService.delete(transactionID).subscribe((res) => {
+      expect(res).toEqual(expenseDataUnflagged);
+      expect(apiService.delete).toHaveBeenCalledWith('/transactions/' + transactionID);
+      expect(apiService.delete).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getETxnc(): should get list of extended transactions', (done) => {
+    apiV2Service.get.and.returnValue(of(etxncData));
+
+    const params = {
+      offset: 0,
+      limit: 1,
+      params: {
+        tx_org_user_id: 'eq.ouX8dwsbLCLv',
+        tx_report_id: 'eq.rpFvmTgyeBjN',
+        order: 'tx_txn_dt.desc,tx_id.desc',
+      },
+    };
+
+    transactionService.getETxnc(params).subscribe((res) => {
+      expect(res).toEqual(etxncData.data);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
+        ...params,
+      });
+      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      done();
+    });
   });
 });

@@ -116,21 +116,21 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  manualFlag(txnId: string): Observable<Expense> {
+  manualFlag(txnId: string): Observable<Partial<Expense>> {
     return this.apiService.post('/transactions/' + txnId + '/manual_flag');
   }
 
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  manualUnflag(txnId: string): Observable<Expense> {
+  manualUnflag(txnId: string): Observable<Partial<Expense>> {
     return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
   }
 
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getAllETxnc(params: EtxnParams): Observable<Expense[]> {
+  getAllETxnc(params: EtxnParams): Observable<Partial<Expense>[]> {
     return this.getETxnCount(params).pipe(
       switchMap((res) => {
         const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
@@ -224,7 +224,7 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  delete(txnId: string): Observable<Expense> {
+  delete(txnId: string): Observable<Partial<Expense>> {
     return this.apiService.delete('/transactions/' + txnId);
   }
 
@@ -373,7 +373,7 @@ export class TransactionService {
     );
   }
 
-  getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
+  getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Partial<Expense>[]> {
     return this.apiV2Service
       .get('/expenses', {
         ...params,
@@ -485,7 +485,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
-  getSplitExpenses(txnSplitGroupId: string): Observable<Expense[]> {
+  getSplitExpenses(txnSplitGroupId: string): Observable<Partial<Expense>[]> {
     const data = {
       tx_split_group_id: 'eq.' + txnSplitGroupId,
     };
