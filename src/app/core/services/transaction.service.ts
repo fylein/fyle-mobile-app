@@ -35,6 +35,7 @@ import { UnflattenedTransaction } from '../models/unflattened-transaction.model'
 import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
+import { PaymentModeSummary } from '../models/payment-mode-summary.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -48,15 +49,6 @@ const transactionsCacheBuster$ = new Subject<void>();
 type PaymentMode = {
   name: string;
   key: string;
-};
-
-type PaymentModeSummary = {
-  [paymentMode: string]: {
-    name: string;
-    key: string;
-    amount: number;
-    count: number;
-  };
 };
 
 @Injectable({
@@ -153,7 +145,7 @@ export class TransactionService {
     cacheBusterObserver: transactionsCacheBuster$,
   })
   getMyExpenses(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: {} }> = {
+    config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
       offset: 0,
       limit: 10,
       queryParams: {},
@@ -191,7 +183,7 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getAllExpenses(config: Partial<{ order: string; queryParams: {} }>): Observable<Expense[]> {
+  getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
@@ -213,7 +205,8 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getTransactionStats(aggregates: string, queryParams = {}): Observable<any> {
+  // TODO: Remove `any` type once the stats response implementation is fixed
+  getTransactionStats(aggregates: string, queryParams: EtxnParams = {}): Observable<any> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiV2Service.get('/expenses/stats', {
@@ -380,7 +373,7 @@ export class TransactionService {
     );
   }
 
-  getETxnc(params: { offset: number; limit: number; params: {} }): Observable<Expense[]> {
+  getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
     return this.apiV2Service
       .get('/expenses', {
         ...params,
@@ -388,7 +381,7 @@ export class TransactionService {
       .pipe(map((etxns) => etxns.data));
   }
 
-  getMyExpensesCount(queryParams = {}): Observable<number> {
+  getMyExpensesCount(queryParams: EtxnParams = {}): Observable<number> {
     return this.getMyExpenses({
       offset: 0,
       limit: 1,
