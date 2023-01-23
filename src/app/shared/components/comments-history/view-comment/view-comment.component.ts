@@ -38,7 +38,7 @@ export class ViewCommentComponent implements OnInit {
 
   reversalComment: string;
 
-  matchedExpense: Expense;
+  matchedExpense: Partial<Expense>;
 
   expenseNumber: string;
 

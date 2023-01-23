@@ -389,7 +389,7 @@ export class TransactionService {
     }).pipe(map((res) => res.count));
   }
 
-  getExpenseV2(id: string): Observable<Expense> {
+  getExpenseV2(id: string): Observable<Partial<Expense>> {
     return this.apiV2Service
       .get('/expenses', {
         params: {
@@ -502,7 +502,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/unmatch', data);
   }
 
-  getTransactionByExpenseNumber(expenseNumber: string): Observable<Expense> {
+  getTransactionByExpenseNumber(expenseNumber: string): Observable<Partial<Expense>> {
     return this.apiService.get('/transactions', {
       params: {
         expense_number: expenseNumber,

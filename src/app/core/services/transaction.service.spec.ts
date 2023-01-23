@@ -228,4 +228,47 @@ describe('TransactionService', () => {
       done();
     });
   });
+
+  it('getExpenseV2(): should get expense from ID', (done) => {
+    apiV2Service.get.and.returnValue(of(etxncData));
+
+    const transactionID = 'tx5fBcPBAxLv';
+
+    transactionService.getExpenseV2(transactionID).subscribe((res) => {
+      expect(res).toEqual(etxncData.data[0]);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
+        params: {
+          tx_id: `eq.${transactionID}`,
+        },
+      });
+      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getDefaultVehicleType(): should get default vehicle type', (done) => {
+    const defaultVehicleType = 'two_wheeler';
+    storageService.get.and.returnValue(new Promise((resolve) => resolve(defaultVehicleType)));
+
+    transactionService.getDefaultVehicleType().subscribe((res) => {
+      expect(res).toEqual(defaultVehicleType);
+      done();
+    });
+  });
+
+  it('getTransactionByExpenseNumber(): should get transaction by expense number', (done) => {
+    const expenseNumber = 'E/2022/11/T/62';
+    apiService.get.and.returnValue(of(expenseDataUnflagged));
+
+    transactionService.getTransactionByExpenseNumber(expenseNumber).subscribe((res) => {
+      expect(res).toEqual(expenseDataUnflagged);
+      expect(apiService.get).toHaveBeenCalledWith('/transactions', {
+        params: {
+          expense_number: expenseNumber,
+        },
+      });
+      expect(apiService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
 });

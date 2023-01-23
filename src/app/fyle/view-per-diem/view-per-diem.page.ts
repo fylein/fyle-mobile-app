@@ -32,7 +32,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 export class ViewPerDiemPage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  extendedPerDiem$: Observable<Expense>;
+  extendedPerDiem$: Observable<Partial<Expense>>;
 
   orgSettings: any;
 
