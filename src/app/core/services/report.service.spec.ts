@@ -37,6 +37,8 @@ import { orgSettingsParams } from '../mock-data/org-settings.data';
 import { apiAllowedActionRes } from '../mock-data/allowed-actions.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { apiErptcReportsRes, apiCreateDraftRes, apiCreateReportRes } from '../mock-data/report-response.data';
+import { apiExtendedReportRes } from '../mock-data/report.data';
+import { expectedErpt, expectedSingleErpt } from '../mock-data/report-unflattened.data';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -227,6 +229,42 @@ describe('ReportService', () => {
     reportService.getMyReports(params).subscribe((res) => {
       expect(res).toEqual(fixDates(res));
       expect(apiv2Service.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getPaginatedERptc(): should get paginated extended-reports', (done) => {
+    apiService.get.and.returnValue(of(apiExtendedReportRes));
+
+    const params = {
+      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+    };
+
+    const apiParams = {
+      params: {
+        offset: 0,
+        limit: 4,
+        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+      },
+    };
+
+    reportService.getPaginatedERptc(0, apiExtendedReportRes.length, params).subscribe((res) => {
+      expect(res).toEqual(expectedErpt);
+      expect(apiService.get).toHaveBeenCalledWith('/erpts', apiParams);
+      expect(apiService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getERpt(): should get an extended report', (done) => {
+    apiService.get.and.returnValue(of(apiExtendedReportRes[0]));
+
+    const reportID = 'rprAfNrce73O';
+
+    reportService.getERpt(reportID).subscribe((res) => {
+      expect(res).toEqual(expectedSingleErpt);
+      expect(apiService.get).toHaveBeenCalledWith(`/erpts/${reportID}`);
+      expect(apiService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });

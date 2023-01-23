@@ -82,7 +82,7 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getPaginatedERptc(offset, limit, params) {
+  getPaginatedERptc(offset: number, limit: number, params: any) {
     const data = {
       params: {
         offset,
