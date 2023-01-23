@@ -1,7 +1,7 @@
 export interface ExtendedReport {
   _search_document?: string;
-  approved_by?: any;
-  ou_business_unit?: any;
+  approved_by?: string[];
+  ou_business_unit?: string;
   ou_department: string;
   ou_department_id: string;
   ou_employee_id?: any;

@@ -140,7 +140,7 @@ describe('ReportService', () => {
     getExtendedOrgUser();
     getReports();
 
-    const params = {
+    const reportParams = {
       offset: 0,
       limit: 10,
       queryParams: {
@@ -149,7 +149,7 @@ describe('ReportService', () => {
       order: 'rp_created_at.desc',
     };
 
-    reportService.getMyReports(params).subscribe((res) => {
+    reportService.getMyReports(reportParams).subscribe((res) => {
       expect(res).toEqual(fixDates(res));
       done();
     });
