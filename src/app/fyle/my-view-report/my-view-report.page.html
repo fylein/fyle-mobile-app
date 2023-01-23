@@ -323,7 +323,7 @@
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
         *ngIf="canResubmitReport$ | async"
-        (click)="showReportSummaryPopover('RESUBMIT')"
+        (click)="resubmitReport()"
       >
         Resubmit Report
       </ion-button>

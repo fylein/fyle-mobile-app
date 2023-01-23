@@ -361,6 +361,19 @@ export class MyViewReportPage {
     }
   }
 
+  resubmitReport() {
+    this.reportService.resubmit(this.reportId).subscribe(() => {
+      this.refinerService.startSurvey({ actionName: 'Resubmit Report ' });
+      this.router.navigate(['/', 'enterprise', 'my_reports']);
+      const message = `Report resubmitted successfully.`;
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      this.trackingService.showToastMessage({ ToastContent: message });
+    });
+  }
+
   showReportSummaryPopover(mode: 'SUBMIT' | 'RESUBMIT') {
     forkJoin({
       erpt: this.erpt$.pipe(take(1)),
