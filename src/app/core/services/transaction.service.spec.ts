@@ -328,4 +328,20 @@ describe('TransactionService', () => {
       done();
     });
   });
+
+  describe('generateReceiptAttachedParams():', () => {
+    it('should return receipt attached params if receipt attached is YES', () => {
+      const filters = { receiptsAttached: 'YES' };
+      const params = { or: [] };
+      const receiptsAttachedParams = { or: [], tx_num_files: 'gt.0' };
+      expect(transactionService.generateReceiptAttachedParams(params, filters)).toEqual(receiptsAttachedParams);
+    });
+
+    it('should return receipt attached params if receipt attached is NO', () => {
+      const filters = { receiptsAttached: 'NO' };
+      const params = { or: [] };
+      const receiptsAttachedParams = { or: [], tx_num_files: 'eq.0' };
+      expect(transactionService.generateReceiptAttachedParams(params, filters)).toEqual(receiptsAttachedParams);
+    });
+  });
 });
