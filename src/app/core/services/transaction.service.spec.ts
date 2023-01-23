@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { etxncData, expenseDataFlagged, expenseDataUnflagged } from '../mock-data/expense.data';
+import { etxncData, expenseData2, expenseData1 } from '../mock-data/expense.data';
+import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
@@ -172,10 +173,10 @@ describe('TransactionService', () => {
 
   it('manualFlag(): should manually flag a transaction', (done) => {
     const transactionID = 'tx5fBcPBAxLv';
-    apiService.post.and.returnValue(of(expenseDataFlagged));
+    apiService.post.and.returnValue(of(expenseData2));
 
     transactionService.manualFlag(transactionID).subscribe((res) => {
-      expect(res).toEqual(expenseDataFlagged);
+      expect(res).toEqual(expenseData2);
       expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionID + '/manual_flag');
       expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
@@ -184,10 +185,10 @@ describe('TransactionService', () => {
 
   it('manualUnflag(): should manually unflag a transaction', (done) => {
     const transactionID = 'tx5fBcPBAxLv';
-    apiService.post.and.returnValue(of(expenseDataUnflagged));
+    apiService.post.and.returnValue(of(expenseData1));
 
     transactionService.manualUnflag(transactionID).subscribe((res) => {
-      expect(res).toEqual(expenseDataUnflagged);
+      expect(res).toEqual(expenseData1);
       expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionID + '/manual_unflag');
       expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
@@ -196,10 +197,10 @@ describe('TransactionService', () => {
 
   it('delete(): should delete a transaction', (done) => {
     const transactionID = 'tx5fBcPBAxLv';
-    apiService.delete.and.returnValue(of(expenseDataUnflagged));
+    apiService.delete.and.returnValue(of(expenseData1));
 
     transactionService.delete(transactionID).subscribe((res) => {
-      expect(res).toEqual(expenseDataUnflagged);
+      expect(res).toEqual(expenseData1);
       expect(apiService.delete).toHaveBeenCalledWith('/transactions/' + transactionID);
       expect(apiService.delete).toHaveBeenCalledTimes(1);
       done();
@@ -258,16 +259,72 @@ describe('TransactionService', () => {
 
   it('getTransactionByExpenseNumber(): should get transaction by expense number', (done) => {
     const expenseNumber = 'E/2022/11/T/62';
-    apiService.get.and.returnValue(of(expenseDataUnflagged));
+    apiService.get.and.returnValue(of(expenseData1));
 
     transactionService.getTransactionByExpenseNumber(expenseNumber).subscribe((res) => {
-      expect(res).toEqual(expenseDataUnflagged);
+      expect(res).toEqual(expenseData1);
       expect(apiService.get).toHaveBeenCalledWith('/transactions', {
         params: {
           expense_number: expenseNumber,
         },
       });
       expect(apiService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('getIsCriticalPolicyViolated():', () => {
+    it('should return false if critical policy is not violated', () => {
+      expect(transactionService.getIsCriticalPolicyViolated(expenseData1)).toBeFalse();
+    });
+
+    it('should return true if critical policy is violated', () => {
+      expect(transactionService.getIsCriticalPolicyViolated(expenseData2)).toBeTrue();
+    });
+  });
+
+  describe('getIsDraft():', () => {
+    it('should return true if transaction is draft', () => {
+      expect(transactionService.getIsDraft(expenseData1)).toBeTrue();
+    });
+
+    it('should return false if transaction is not draft', () => {
+      expect(transactionService.getIsDraft(expenseData2)).toBeFalse();
+    });
+  });
+
+  describe('getRemoveCardExpenseDialogBody():', () => {
+    const dialogBodyWithSplitExpense = `<ul class="text-left">
+    <li>Since this is a split expense, clicking on <strong>Confirm</strong> will remove the card details from all the related split expenses.</li>
+    <li>A new expense will be created from the card expense removed here.</li>
+    <li>Are you sure to remove your card expense from this expense?</li>
+    </ul>`;
+
+    const dialogBodyWithoutSplitExpense = `<ul class="text-left">
+    <li>A new expense will be created from the card expense removed here.</li>
+    <li>Are you sure to remove your card expense from this expense?</li>
+    </ul>`;
+
+    it('should return remove card expense dialog body with split expnese', () => {
+      expect(transactionService.getRemoveCardExpenseDialogBody(true)).toEqual(dialogBodyWithSplitExpense);
+    });
+
+    it('should return remove card expense dialog body without split expnese', () => {
+      expect(transactionService.getRemoveCardExpenseDialogBody(false)).toEqual(dialogBodyWithoutSplitExpense);
+    });
+  });
+
+  it('removeCorporateCardExpense(): should remove corporate card expense', (done) => {
+    const transactionID = 'tx7NU3Dviv4K';
+
+    apiService.post.and.returnValue(of(UndoMergeData));
+
+    transactionService.removeCorporateCardExpense(transactionID).subscribe((res) => {
+      expect(res).toEqual(UndoMergeData);
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/unlink_card_expense', {
+        txn_id: transactionID,
+      });
+      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });

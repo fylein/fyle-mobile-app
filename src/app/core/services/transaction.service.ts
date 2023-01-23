@@ -535,11 +535,11 @@ export class TransactionService {
     );
   }
 
-  getIsCriticalPolicyViolated(expense: Expense): boolean {
+  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
     return typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001;
   }
 
-  getIsDraft(expense: Expense): boolean {
+  getIsDraft(expense: Partial<Expense>): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 

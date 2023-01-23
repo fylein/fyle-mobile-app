@@ -1,7 +1,7 @@
 import { Expense } from '../models/expense.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 
-export const expenseDataUnflagged: Partial<Expense> = {
+export const expenseData1: Partial<Expense> = {
   tx_risk_state: null,
   tx_is_duplicate_expense: null,
   tx_duplicates: null,
@@ -25,7 +25,7 @@ export const expenseDataUnflagged: Partial<Expense> = {
   tx_currency: 'INR',
   tx_report_id: 'rpT7x1BFlLOi',
   tx_reported_at: '2022-11-30T17:31:53.719Z',
-  tx_state: 'APPROVER_PENDING',
+  tx_state: 'DRAFT',
   tx_num_files: 0,
   tx_invoice_number: null,
   tx_purpose: null,
@@ -126,7 +126,7 @@ export const expenseDataUnflagged: Partial<Expense> = {
   tx_is_implicit_merge_blocked: false,
 };
 
-export const expenseDataFlagged: Partial<Expense> = {
+export const expenseData2: Partial<Expense> = {
   tx_risk_state: null,
   tx_is_duplicate_expense: null,
   tx_duplicates: null,
@@ -140,7 +140,7 @@ export const expenseDataFlagged: Partial<Expense> = {
   tx_category: null,
   tx_amount: 956,
   tx_user_amount: 956,
-  tx_policy_amount: null,
+  tx_policy_amount: 0.00009,
   tx_admin_amount: null,
   tx_tax: 78.94,
   tx_tax_amount: 78.94,
