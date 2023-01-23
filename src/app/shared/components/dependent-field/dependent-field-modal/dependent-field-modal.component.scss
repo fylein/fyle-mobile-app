@@ -1,0 +1,50 @@
+@import '../../../../../assets/styles/fy_select';
+
+.dependent-field-modal {
+  color: $pure-black;
+  &--list-element {
+    padding: 18px 0;
+    margin: 0 16px;
+    // border-color-font
+    @extend %fy-select-list-element-default-border-color-font;
+    // list-item-layout
+    @extend %fy-select-list-element-layout;
+  }
+
+  &--title {
+    @extend %fy-select-title;
+  }
+
+  &--label {
+    text-align: justify;
+    word-break: break-word;
+  }
+
+  &--header {
+    @extend %fy-select-header;
+  }
+
+  &--search-input {
+    @extend %fy-select-search-input;
+  }
+
+  &--form-field {
+    @extend %fy-select-mat-form-field;
+  }
+
+  &--search-icon {
+    @extend %fy-select-search-icon;
+  }
+
+  &--container {
+    @extend %flex-layout-column;
+  }
+
+  &--single-element-block {
+    margin-bottom: 20px;
+  }
+
+  &--check {
+    @extend %fy-select-check;
+  }
+}

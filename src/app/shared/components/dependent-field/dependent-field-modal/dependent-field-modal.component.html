@@ -1,0 +1,65 @@
+<ion-header mode="md">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar mode="md" class="fy-modal-toolbar">
+    <ion-title>
+      <div class="dependent-field-modal--title">
+        {{ selectModalHeader }}
+      </div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="onDoneClick()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="enableSearch" class="text-center">
+    <mat-form-field appearance="none" class="dependent-field-modal--form-field mat-form-field-no-padding">
+      <mat-icon class="dependent-field-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+      <input
+        #searchBar
+        [(ngModel)]="value"
+        class="dependent-field-modal--search-input smartlook-show"
+        id="election-modal--search-input"
+        matInput
+        placeholder="{{ placeholder || 'Search' }}"
+      />
+      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="dependent-field-modal--container">
+    <ng-container *ngIf="filteredOptions$ | async as filteredOptions">
+      <div *ngIf="filteredOptions.length === 0">
+        <app-fy-zero-state
+          [header]="'No such ' + label + ' found'"
+          [submessage]="'Search for another ' + label + ' or select one from the list.'"
+          [image]="'../../../../assets/images/zero-states/search-not-found.svg'"
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+        ></app-fy-zero-state>
+      </div>
+    </ng-container>
+
+    <div *ngIf="(filteredOptions$ | async)?.length > 0" class="dependent-field-modal--single-element-block">
+      <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
+        <div
+          (click)="onElementSelect(filteredListItem)"
+          *ngIf="!filteredListItem.value && filteredListItem.label.length > 0"
+          class="dependent-field-modal--list-element"
+          matRipple
+        >
+          <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+            <div class="dependent-field-modal--label">
+              <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+            </div>
+            <mat-icon *ngIf="selected" class="dependent-field-modal--check"> check </mat-icon>
+          </ng-template>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</ion-content>

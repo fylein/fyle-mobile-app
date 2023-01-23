@@ -134,6 +134,7 @@ import { VirtualSelectModalComponent } from './components/virtual-select/virtual
 import { AutoSubmissionInfoCardComponent } from '../fyle/dashboard/tasks/auto-submission-info-card/auto-submission-info-card.component';
 import { CameraPreviewComponent } from './components/capture-receipt/camera-preview/camera-preview.component';
 import { DependentFieldComponent } from './components/dependent-field/dependent-field.component';
+import { DependentFieldModalComponent } from './components/dependent-field/dependent-field-modal/dependent-field-modal.component';
 
 @NgModule({
   declarations: [
@@ -246,6 +247,7 @@ import { DependentFieldComponent } from './components/dependent-field/dependent-
     AutoSubmissionInfoCardComponent,
     CameraPreviewComponent,
     DependentFieldComponent,
+    DependentFieldModalComponent,
   ],
   imports: [
     CommonModule,
@@ -364,6 +366,7 @@ import { DependentFieldComponent } from './components/dependent-field/dependent-
     AutoSubmissionInfoCardComponent,
     CameraPreviewComponent,
     DependentFieldComponent,
+    DependentFieldModalComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
 })
