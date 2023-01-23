@@ -330,7 +330,7 @@
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
         *ngIf="(erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
-        (click)="showReportSummaryPopover('SUBMIT')"
+        (click)="submitReport()"
       >
         Submit Report
       </ion-button>
