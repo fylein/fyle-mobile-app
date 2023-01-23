@@ -35,9 +35,9 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   @Input() selectModalHeader = '';
 
-  displayValue;
+  displayValue: string;
 
-  private innerValue;
+  private innerValue: string;
 
   private ngControl: NgControl;
 
