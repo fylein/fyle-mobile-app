@@ -37,8 +37,13 @@ import { orgSettingsParams } from '../mock-data/org-settings.data';
 import { apiAllowedActionRes } from '../mock-data/allowed-actions.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { apiErptcReportsRes, apiCreateDraftRes, apiCreateReportRes } from '../mock-data/report-response.data';
-import { apiExtendedReportRes } from '../mock-data/report.data';
-import { expectedErpt, expectedSingleErpt } from '../mock-data/report-unflattened.data';
+import { apiExtendedReportRes, reportParam } from '../mock-data/report.data';
+import {
+  apiErptReporDataParam,
+  apiReportUpdatedDetails,
+  expectedErpt,
+  expectedSingleErpt,
+} from '../mock-data/report-unflattened.data';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -415,6 +420,18 @@ describe('ReportService', () => {
     const reportID = 'rpShFuVCUIXk';
     reportService.approve(reportID).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/approve`);
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('updateReportDetails(): should update a report name', (done) => {
+    apiService.post.and.returnValue(of(apiReportUpdatedDetails));
+    transactionService.clearCache.and.returnValue(of(null));
+
+    reportService.updateReportDetails(reportParam).subscribe((res) => {
+      expect(res).toEqual(apiReportUpdatedDetails);
+      expect(apiService.post).toHaveBeenCalledWith('/reports', apiErptReporDataParam.rp);
       expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
