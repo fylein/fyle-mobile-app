@@ -1,26 +1,28 @@
-<label class="dependent-field--label">
-  <div class="dependent-field--label-content">
+<label class="dependent-field__label">
+  <div class="dependent-field__label-content">
     {{ label }}
-    <span *ngIf="mandatory" class="dependent-field--mandatory"> * </span>
+    <span *ngIf="mandatory" class="dependent-field__mandatory"> * </span>
   </div>
   <div
-    class="dependent-field--input-container"
-    [ngClass]="{ 'dependent-field--input-invalid': !valid, 'dependent-field--disabled': disabled }"
+    class="dependent-field__input-container"
+    [ngClass]="{ 'dependent-field__input-invalid': !valid, 'dependent-field__disabled': disabled }"
   >
     <input
-      class="dependent-field--input smartlook-show"
+      class="dependent-field__input smartlook-show"
       type="text"
       [placeholder]="!disabled ? placeholder || 'Select ' + label : ''"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-      [ngClass]="{ 'dependent-field--input-disabled': disabled }"
+      [ngClass]="{ 'dependent-field__input-disabled': disabled }"
       [disabled]="disabled"
     />
     <mat-icon
-      class="dependent-field--icon"
-      [ngClass]="{ 'dependent-field--input-disabled': disabled }"
+      class="dependent-field__icon"
+      [ngClass]="{ 'dependent-field__input-disabled': disabled }"
       svgIcon="fy-arrow-down"
     ></mat-icon>
   </div>
 </label>
+
+<div *ngIf="!valid" class="dependent-field__error">Please enter {{ label }}.</div>

@@ -1,5 +1,5 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
@@ -33,31 +33,19 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   @Input() enableSearch = true;
 
+  @Input() valid = true;
+
   @Input() selectModalHeader = '';
 
   displayValue: string;
 
   private innerValue: string;
 
-  private ngControl: NgControl;
-
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
 
-  constructor(
-    private modalController: ModalController,
-    private injector: Injector,
-    private modalProperties: ModalPropertiesService
-  ) {}
-
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
+  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get value(): any {
     return this.innerValue;
@@ -81,13 +69,9 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-  }
+  ngOnInit() {}
 
   async openModal() {
-    const cssClass = this.label === 'Payment Mode' ? 'payment-mode-modal' : 'fy-modal';
-
     const selectionModal = await this.modalController.create({
       component: FySelectModalComponent,
       componentProps: {
@@ -100,7 +84,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
         label: this.label,
       },
       mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties(cssClass),
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await selectionModal.present();

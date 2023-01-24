@@ -1,13 +1,13 @@
 @import '../../../../theme/colors.scss';
 
 .dependent-field {
-  &--label {
+  &__label {
     width: 100%;
     background-color: inherit;
     font-weight: 400;
   }
 
-  &--label-content {
+  &__label-content {
     margin: 0 8px 0 0;
     max-width: 90%;
     min-width: 120px;
@@ -17,11 +17,11 @@
     white-space: nowrap;
   }
 
-  &--disabled {
+  &__disabled {
     background: $grey-7;
   }
 
-  &--input-container {
+  &__input-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -29,7 +29,7 @@
     border-bottom: 1px solid $grey-lighter;
   }
 
-  &--input {
+  &__input {
     font-size: 14px;
     line-height: 18px;
     color: $blue-black;
@@ -38,21 +38,25 @@
     padding: 0;
   }
 
-  &--input-invalid {
+  &__input-invalid {
     border-bottom: 1px solid $red;
   }
 
-  &--mandatory {
+  &__mandatory {
     color: $brand-primary;
     font-size: 14px;
     font-weight: 400;
   }
 
-  &--icon {
+  &__icon {
     color: $grey-light;
   }
 
-  &--input-disabled {
+  &__input-disabled {
     opacity: 0.5;
+  }
+
+  &__error {
+    color: $red;
   }
 }
