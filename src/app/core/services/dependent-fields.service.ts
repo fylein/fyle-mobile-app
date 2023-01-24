@@ -54,19 +54,6 @@ export class DependentFieldsService {
     ]);
   }
 
-  generateOptions(fieldId: number, parentFieldId: number) {
-    const val = [];
-    for (let i = 0; i <= 10; i++) {
-      val.push({
-        id: fieldId * i,
-        name: `Parent field ${parentFieldId}, Option ${i}`,
-        is_enabled: true,
-        field_id: fieldId,
-      });
-    }
-    return val;
-  }
-
   getOptionsForDependentField(config: {
     fieldId: number;
     parentFieldId: number;
@@ -79,5 +66,18 @@ export class DependentFieldsService {
 
     //Show two options for every selected field
     return of([options[config.parentValueId], options[(config.parentValueId * 2) % 10]]);
+  }
+
+  private generateOptions(fieldId: number, parentFieldId: number) {
+    const val = [];
+    for (let i = 0; i <= 10; i++) {
+      val.push({
+        id: fieldId * i,
+        name: `Parent field ${parentFieldId}, Option ${i}`,
+        is_enabled: true,
+        field_id: fieldId,
+      });
+    }
+    return val;
   }
 }

@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef } from '@angular/core';
 import { fromEvent, Observable, of } from 'rxjs';
-import { map, startWith, distinctUntilChanged } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
+import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 
 @Component({
   selector: 'app-dependent-field-modal',
@@ -11,8 +12,6 @@ import { isEqual } from 'lodash';
 })
 export class DependentFieldModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-
-  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
 
   @Input() currentSelection: any;
 
@@ -28,11 +27,39 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
 
-  value = '';
+  value;
 
-  constructor(private modalController: ModalController, private cdr: ChangeDetectorRef) {}
+  isLoading = false;
+
+  constructor(
+    private modalController: ModalController,
+    private cdr: ChangeDetectorRef,
+    private dependentFieldsService: DependentFieldsService
+  ) {}
 
   ngOnInit() {}
+
+  getDependentFieldOptions(searchQuery: string) {
+    this.isLoading = true;
+
+    this.cdr.detectChanges();
+
+    return this.dependentFieldsService
+      .getOptionsForDependentField({
+        fieldId: 1,
+        parentFieldId: 3,
+        parentValueId: 3,
+        offset: 0,
+        limit: 20,
+        searchQuery,
+      })
+      .pipe(
+        finalize(() => {
+          this.cdr.detectChanges();
+          this.isLoading = false;
+        })
+      );
+  }
 
   clearValue() {
     this.value = '';
@@ -42,59 +69,20 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (this.searchBarRef && this.searchBarRef.nativeElement) {
-      this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-        map((event: any) => event.srcElement.value),
-        startWith(''),
-        distinctUntilChanged(),
-        map((searchText) => {
-          const initial = [];
-
-          if (this.showNullOption && this.currentSelection) {
-            initial.push({ label: 'None', value: null });
+    this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: any) => event.srcElement.value),
+      startWith(''),
+      distinctUntilChanged(),
+      switchMap((searchString) => this.getDependentFieldOptions(searchString)),
+      map((projects: any[]) =>
+        projects.map((project) => {
+          if (isEqual(project.value, this.currentSelection)) {
+            project.selected = true;
           }
-
-          //Check this logic
-          let extraOption = [];
-          if (this.currentSelection) {
-            const selectedOption = this.options.find((option) => isEqual(option.value, this.currentSelection));
-            if (!selectedOption) {
-              extraOption = extraOption.concat({
-                label: 'Some label',
-                value: this.currentSelection,
-                selected: false,
-              });
-            }
-          }
-
-          return initial.concat(
-            this.options
-              .concat(extraOption)
-              .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
-              .sort((element1, element2) => element1.label.localeCompare(element2.label))
-              .map((option) => {
-                option.selected = isEqual(option.value, this.currentSelection);
-                return option;
-              })
-          );
+          return project;
         })
-      );
-    } else {
-      const initial = [];
-
-      if (this.showNullOption && this.currentSelection) {
-        initial.push({ label: 'None', value: null });
-      }
-
-      this.filteredOptions$ = of(
-        initial.concat(
-          this.options.map((option) => {
-            option.selected = isEqual(option.value, this.currentSelection);
-            return option;
-          })
-        )
-      );
-    }
+      )
+    );
 
     this.cdr.detectChanges();
   }

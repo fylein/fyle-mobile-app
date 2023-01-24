@@ -21,8 +21,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 export class DependentFieldComponent implements OnInit, ControlValueAccessor {
   @Input() label = '';
 
-  @Input() options: { label: string; value: any }[] = [];
-
   @Input() placeholder: string;
 
   @Input() mandatory = false;
@@ -39,7 +37,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   displayValue: string;
 
-  private innerValue: string;
+  private innerValue;
 
   private onTouchedCallback: () => void = noop;
 
@@ -54,15 +52,11 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-        if (selectedOption && selectedOption.label) {
-          this.displayValue = selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else {
-          this.displayValue = '';
-        }
+      const selectedOption = this.innerValue;
+      if (selectedOption) {
+        this.displayValue = selectedOption.name;
+      } else {
+        this.displayValue = '';
       }
 
       this.onChangeCallback(v);
@@ -75,7 +69,6 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     const selectionModal = await this.modalController.create({
       component: FySelectModalComponent,
       componentProps: {
-        options: this.options,
         currentSelection: this.value,
         showNullOption: this.showNullOption,
         enableSearch: this.enableSearch,
@@ -103,16 +96,11 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
   writeValue(value: any): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-
-        if (selectedOption && selectedOption.label) {
-          this.displayValue = selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else {
-          this.displayValue = '';
-        }
+      const selectedOption = this.innerValue;
+      if (selectedOption) {
+        this.displayValue = selectedOption.name;
+      } else {
+        this.displayValue = '';
       }
     }
   }

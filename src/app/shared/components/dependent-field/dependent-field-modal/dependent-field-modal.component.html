@@ -23,7 +23,20 @@
         matInput
         placeholder="{{ placeholder || 'Search' }}"
       />
-      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+      <mat-icon
+        *ngIf="isLoading"
+        class="selection-modal--autocomplete-loader"
+        svgIcon="fy-spinner-circle"
+        matSuffix
+      ></mat-icon>
+      <button
+        (click)="clearValue()"
+        *ngIf="value && !isLoading"
+        aria-label="Clear"
+        mat-button
+        mat-icon-button
+        matSuffix
+      >
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
@@ -42,24 +55,20 @@
           [useNewStyling]="true"
         ></app-fy-zero-state>
       </div>
-    </ng-container>
 
-    <div *ngIf="(filteredOptions$ | async)?.length > 0" class="dependent-field-modal--single-element-block">
-      <ng-container *ngFor="let filteredListItem of filteredOptions$ | async as list">
+      <div *ngIf="filteredOptions.length > 0" class="dependent-field-modal--single-element-block">
         <div
           (click)="onElementSelect(filteredListItem)"
-          *ngIf="!filteredListItem.value && filteredListItem.label.length > 0"
+          *ngFor="let filteredListItem of filteredOptions as list"
           class="dependent-field-modal--list-element"
           matRipple
         >
-          <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-            <div class="dependent-field-modal--label">
-              <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-            </div>
-            <mat-icon *ngIf="selected" class="dependent-field-modal--check"> check </mat-icon>
-          </ng-template>
+          <div class="dependent-field-modal--label">
+            <app-fy-highlight-text [fullText]="filteredOptions.label" [queryText]="value"> </app-fy-highlight-text>
+          </div>
+          <mat-icon *ngIf="filteredListItem.selected" class="dependent-field-modal--check"> check </mat-icon>
         </div>
-      </ng-container>
-    </div>
+      </div>
+    </ng-container>
   </div>
 </ion-content>

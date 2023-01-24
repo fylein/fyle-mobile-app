@@ -400,6 +400,22 @@
             </div>
           </ng-container>
 
+          <div *ngIf="dependentFields?.length" class="add-edit-expense--primary-block">
+            <ng-container formArrayName="dependent_fields">
+              <div *ngFor="let dependentField of dependentFields; index as i" class="add-edit-expense--internal-block">
+                <div [formGroup]="dependentField.control">
+                  <app-dependent-field
+                    [label]="dependentField.field"
+                    [mandatory]="dependentField.mandatory"
+                    [valid]="!(dependentField?.control?.touched && !dependentField?.control?.valid)"
+                    formControlName="data"
+                  >
+                  </app-dependent-field>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
               <ng-container *ngIf="filteredCategories$|async as categories">
