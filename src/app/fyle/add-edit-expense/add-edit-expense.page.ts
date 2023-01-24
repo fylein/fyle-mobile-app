@@ -2880,7 +2880,8 @@ export class AddEditExpensePage implements OnInit {
 
       const newField = this.formBuilder.group({
         label: dependentField.name,
-        data: [null, dependentField.is_mandatory && Validators.required],
+        dependentField: dependentField.dependent_field_id,
+        value: [null, dependentField.is_mandatory && Validators.required],
       });
 
       newField.valueChanges.subscribe((value) => {
@@ -2913,8 +2914,8 @@ export class AddEditExpensePage implements OnInit {
     }
 
     //Create new depenendt field based on this field
-    if (data.data.dependent_field_id) {
-      this.addDependentField(data.data.dependent_field_id);
+    if (data.dependent_field_id) {
+      this.addDependentField(data.dependent_field_id);
     }
   }
 

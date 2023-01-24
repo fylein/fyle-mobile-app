@@ -2,9 +2,9 @@ import { Component, OnInit, forwardRef, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
 
 @Component({
   selector: 'app-dependent-field',
@@ -67,7 +67,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   async openModal() {
     const selectionModal = await this.modalController.create({
-      component: FySelectModalComponent,
+      component: DependentFieldModalComponent,
       componentProps: {
         currentSelection: this.value,
         showNullOption: this.showNullOption,
@@ -85,7 +85,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.value = data.value;
+      this.value = data;
     }
   }
 

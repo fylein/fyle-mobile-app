@@ -74,12 +74,12 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchString) => this.getDependentFieldOptions(searchString)),
-      map((projects: any[]) =>
-        projects.map((project) => {
-          if (isEqual(project.value, this.currentSelection)) {
-            project.selected = true;
+      map((dependentFieldOptions: any[]) =>
+        dependentFieldOptions.map((option) => {
+          if (isEqual(option.id, this.currentSelection)) {
+            option.selected = true;
           }
-          return project;
+          return option;
         })
       )
     );
