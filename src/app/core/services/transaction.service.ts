@@ -224,7 +224,7 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  delete(txnId: string): Observable<Partial<Expense>> {
+  delete(txnId: string): Observable<Expense> {
     return this.apiService.delete('/transactions/' + txnId);
   }
 
