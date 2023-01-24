@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { etxncData, expenseData2, expenseData1 } from '../mock-data/expense.data';
+import { etxncData, expenseData2, expenseData1, expenseDataWithDateString } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
 import { ApiV2Service } from './api-v2.service';
@@ -343,5 +343,112 @@ describe('TransactionService', () => {
       const receiptsAttachedParams = { or: [], tx_num_files: 'eq.0' };
       expect(transactionService.generateReceiptAttachedParams(params, filters)).toEqual(receiptsAttachedParams);
     });
+  });
+
+  describe('generateStateOrFilter():', () => {
+    const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'CANNOT_REPORT', 'DRAFT'] };
+    const params = { or: [] };
+
+    it('should generate a state filter for the query parameters', () => {
+      const result = transactionService.generateStateFilters(params, filters);
+      expect(result.or).toContain(
+        '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))'
+      );
+    });
+
+    it('should return a deep clone of the input query parameters', () => {
+      const newQueryParams = { or: [] };
+      const result = transactionService.generateStateFilters(params, filters);
+      expect(result).not.toBe(newQueryParams);
+    });
+
+    it('should return an empty filter if the input filter is empty', () => {
+      const emptyFilter = {};
+      const result = transactionService.generateStateFilters(params, emptyFilter);
+      expect(result.or).toEqual([]);
+    });
+
+    it('should return an empty filter if the state filter is empty', () => {
+      const emptyStateFilter = { state: [] };
+      const result = transactionService.generateStateFilters(params, emptyStateFilter);
+      expect(result.or).toEqual([]);
+    });
+  });
+
+  it('generateStateOrFilter(): should generate state Or filters', () => {
+    const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'CANNOT_REPORT', 'DRAFT'] };
+    const params = {
+      or: [
+        '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))',
+      ],
+      tx_report_id: 'is.null',
+    };
+
+    const stateOrFilter = [
+      'and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))',
+      'and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))',
+      'tx_policy_amount.lt.0.0001',
+      'tx_state.in.(DRAFT)',
+    ];
+    // @ts-ignore
+    expect(transactionService.generateStateOrFilter(filters, params)).toEqual(stateOrFilter);
+  });
+
+  it('generateTypeOrFilter(): should generate type Or filters', () => {
+    const filters = { type: ['Mileage', 'PerDiem', 'RegularExpenses'] };
+    const typeOrFilter = [
+      'tx_fyle_category.eq.Mileage',
+      'tx_fyle_category.eq.Per Diem',
+      'and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)',
+    ];
+
+    // @ts-ignore
+    expect(transactionService.generateTypeOrFilter(filters)).toEqual(typeOrFilter);
+  });
+
+  it('fixDates(): should fix dates', () => {
+    // @ts-ignore
+    expect(transactionService.fixDates(expenseDataWithDateString)).toEqual(expenseData1);
+  });
+
+  it('getETxnCount(): should return etxn count', (done) => {
+    apiV2Service.get.and.returnValue(of(etxncData));
+    const params = {
+      tx_org_user_id: 'eq.ouX8dwsbLCLv',
+      tx_report_id: 'eq.rpFvmTgyeBjN',
+      order: 'tx_txn_dt.desc,tx_id.desc',
+    };
+
+    // @ts-ignore
+    transactionService.getETxnCount(params).subscribe((res) => {
+      expect(res.count).toEqual(1);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', { params });
+      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
+    const paymentModeList = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+    const etxnPaymentMode = { name: 'Reimbursable', key: 'reimbursable' };
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn(expenseData1, paymentModeList)).toEqual(etxnPaymentMode);
   });
 });
