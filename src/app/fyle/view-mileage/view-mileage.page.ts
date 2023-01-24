@@ -32,7 +32,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 export class ViewMileagePage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  extendedMileage$: Observable<Partial<Expense>>;
+  extendedMileage$: Observable<Expense>;
 
   orgSettings: any;
 

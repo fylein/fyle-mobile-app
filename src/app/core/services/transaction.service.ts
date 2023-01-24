@@ -116,21 +116,21 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  manualFlag(txnId: string): Observable<Partial<Expense>> {
+  manualFlag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_flag');
   }
 
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  manualUnflag(txnId: string): Observable<Partial<Expense>> {
+  manualUnflag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
   }
 
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getAllETxnc(params: EtxnParams): Observable<Partial<Expense>[]> {
+  getAllETxnc(params: EtxnParams): Observable<Expense[]> {
     return this.getETxnCount(params).pipe(
       switchMap((res) => {
         const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
@@ -373,7 +373,7 @@ export class TransactionService {
     );
   }
 
-  getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Partial<Expense>[]> {
+  getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
     return this.apiV2Service
       .get('/expenses', {
         ...params,
@@ -389,7 +389,7 @@ export class TransactionService {
     }).pipe(map((res) => res.count));
   }
 
-  getExpenseV2(id: string): Observable<Partial<Expense>> {
+  getExpenseV2(id: string): Observable<Expense> {
     return this.apiV2Service
       .get('/expenses', {
         params: {
@@ -485,7 +485,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
-  getSplitExpenses(txnSplitGroupId: string): Observable<Partial<Expense>[]> {
+  getSplitExpenses(txnSplitGroupId: string): Observable<Expense[]> {
     const data = {
       tx_split_group_id: 'eq.' + txnSplitGroupId,
     };
@@ -502,7 +502,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/unmatch', data);
   }
 
-  getTransactionByExpenseNumber(expenseNumber: string): Observable<Partial<Expense>> {
+  getTransactionByExpenseNumber(expenseNumber: string): Observable<Expense> {
     return this.apiService.get('/transactions', {
       params: {
         expense_number: expenseNumber,
@@ -535,11 +535,11 @@ export class TransactionService {
     );
   }
 
-  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
+  getIsCriticalPolicyViolated(expense: Expense): boolean {
     return typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001;
   }
 
-  getIsDraft(expense: Partial<Expense>): boolean {
+  getIsDraft(expense: Expense): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 

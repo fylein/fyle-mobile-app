@@ -166,7 +166,7 @@ describe('TransactionService', () => {
 
   it('clearCache(): should clear cache', (done) => {
     transactionService.clearCache().subscribe((res) => {
-      expect(res).toBeFalsy();
+      expect(res).toBeNull();
       done();
     });
   });

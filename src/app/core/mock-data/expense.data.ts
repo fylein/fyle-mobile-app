@@ -1,7 +1,7 @@
 import { Expense } from '../models/expense.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 
-export const expenseData1: Partial<Expense> = {
+export const expenseData1: Expense = {
   tx_risk_state: null,
   tx_is_duplicate_expense: null,
   tx_duplicates: null,
@@ -22,7 +22,7 @@ export const expenseData1: Partial<Expense> = {
   tx_tax_group_id: 'tgia4INHcDWs',
   tg_name: 'kk',
   tg_percentage: 0.09,
-  tx_currency: 'INR',
+  tx_currency: 'USD',
   tx_report_id: 'rpT7x1BFlLOi',
   tx_reported_at: '2022-11-30T17:31:53.719Z',
   tx_state: 'DRAFT',
@@ -59,7 +59,7 @@ export const expenseData1: Partial<Expense> = {
   ou_org_id: 'orrjqbDbeP9p',
   ou_user_id: 'usrGrejHhlcy',
   ou_employee_id: 'testEmployeeUID',
-  ou_location: 'INdia',
+  ou_location: 'India',
   ou_level: null,
   ou_band: null,
   ou_rank: null,
@@ -126,7 +126,7 @@ export const expenseData1: Partial<Expense> = {
   tx_is_implicit_merge_blocked: false,
 };
 
-export const expenseData2: Partial<Expense> = {
+export const expenseData2: Expense = {
   tx_risk_state: null,
   tx_is_duplicate_expense: null,
   tx_duplicates: null,
@@ -147,7 +147,7 @@ export const expenseData2: Partial<Expense> = {
   tx_tax_group_id: 'tgia4INHcDWs',
   tg_name: 'kk',
   tg_percentage: 0.09,
-  tx_currency: 'INR',
+  tx_currency: 'USD',
   tx_report_id: 'rpT7x1BFlLOi',
   tx_reported_at: '2022-11-30T17:31:53.719Z',
   tx_state: 'APPROVER_PENDING',
@@ -184,7 +184,7 @@ export const expenseData2: Partial<Expense> = {
   ou_org_id: 'orrjqbDbeP9p',
   ou_user_id: 'usrGrejHhlcy',
   ou_employee_id: 'testEmployeeUID',
-  ou_location: 'INdia',
+  ou_location: 'India',
   ou_level: null,
   ou_band: null,
   ou_rank: null,
@@ -251,7 +251,7 @@ export const expenseData2: Partial<Expense> = {
   tx_is_implicit_merge_blocked: false,
 };
 
-export const etxncData: ApiV2Response<Partial<Expense>> = {
+export const etxncData: ApiV2Response<Expense> = {
   limit: 1,
   offset: 0,
   count: 1,
@@ -316,7 +316,7 @@ export const etxncData: ApiV2Response<Partial<Expense>> = {
       tx_cost_center_name: '01test2',
       tx_created_at: new Date('2023-01-23T05:15:03.797599'),
       tx_creator_id: 'ouX8dwsbLCLv',
-      tx_currency: 'INR',
+      tx_currency: 'USD',
       tx_custom_properties: [
         {
           name: 'userlist',
