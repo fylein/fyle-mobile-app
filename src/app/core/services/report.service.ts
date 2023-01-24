@@ -185,7 +185,15 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  inquire(rptId: string, addStatusPayload) {
+  inquire(
+    rptId: string,
+    addStatusPayload: {
+      status: {
+        comment: string;
+      };
+      notify: boolean;
+    }
+  ) {
     return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
   }
 
@@ -199,7 +207,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addApprover(rptId: string, approverEmail: string, comment) {
+  addApprover(rptId: string, approverEmail: string, comment: string) {
     const data = {
       approver_email: approverEmail,
       comment,

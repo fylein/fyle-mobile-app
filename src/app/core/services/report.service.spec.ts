@@ -37,7 +37,7 @@ import { orgSettingsParams } from '../mock-data/org-settings.data';
 import { apiAllowedActionRes } from '../mock-data/allowed-actions.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { apiErptcReportsRes, apiCreateDraftRes, apiCreateReportRes } from '../mock-data/report-response.data';
-import { apiExtendedReportRes, reportParam } from '../mock-data/report.data';
+import { apiExtendedReportRes, expectedAllReports, reportParam } from '../mock-data/report.data';
 import {
   apiErptReporDataParam,
   apiReportUpdatedDetails,
@@ -76,7 +76,7 @@ describe('ReportService', () => {
   };
 
   beforeEach(() => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
+    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
     const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'post']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'getRoles']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkSpy', ['isOnline']);
@@ -84,7 +84,7 @@ describe('ReportService', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache', 'onLogout']);
     const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
-    const permissionsServiceSpy = jasmine.createSpyObj('PermissionService', ['allowedActions']);
+    const permissionsServiceSpy = jasmine.createSpyObj('PermissionService', ['allowedActions', 'allowAccess']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -166,8 +166,39 @@ describe('ReportService', () => {
   }
 
   function getPaginatedReports() {
-    apiv2Service.get.and.returnValue(of(apiReportRes1));
-    apiv2Service.get.and.returnValue(of(apiReportRes2));
+    const apiCountParam = {
+      params: {
+        offset: 0,
+        limit: 1,
+        order: 'rp_created_at.desc,rp_id.desc',
+        rp_org_user_id: 'eq.ouX8dwsbLCLv',
+        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      },
+    };
+
+    const apiPage1Param = {
+      params: {
+        offset: 0,
+        limit: 2,
+        order: 'rp_created_at.desc,rp_id.desc',
+        rp_org_user_id: 'eq.ouX8dwsbLCLv',
+        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      },
+    };
+
+    const apiPage2Param = {
+      params: {
+        offset: 2,
+        limit: 2,
+        order: 'rp_created_at.desc,rp_id.desc',
+        rp_org_user_id: 'eq.ouX8dwsbLCLv',
+        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      },
+    };
+
+    apiv2Service.get.withArgs('/reports', apiCountParam).and.returnValue(of(apiReportRes));
+    apiv2Service.get.withArgs('/reports', apiPage1Param).and.returnValue(of(apiReportRes1));
+    apiv2Service.get.withArgs('/reports', apiPage2Param).and.returnValue(of(apiReportRes2));
   }
 
   it('should be created', () => {
@@ -414,6 +445,23 @@ describe('ReportService', () => {
     });
   });
 
+  it('inquire(): should send back a report', (done) => {
+    apiService.post.and.returnValue(of(null));
+    const reportID = 'rpSECyvCyyc6';
+    const statusPayloadParam = {
+      status: {
+        comment: 'Testing for code coverage',
+      },
+      notify: false,
+    };
+
+    reportService.inquire(reportID, statusPayloadParam).subscribe(() => {
+      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/inquire`, statusPayloadParam);
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
   it('approve(): should approve a report', (done) => {
     apiService.post.and.returnValue(of(null));
 
@@ -421,6 +469,35 @@ describe('ReportService', () => {
     reportService.approve(reportID).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/approve`);
       expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('addApprovers(): should add approver to a report', (done) => {
+    apiService.post.and.returnValue(of(null));
+
+    const reportID = 'rprj1zHHpW2W';
+    const approverEmail = 'asilk@akls.in';
+    const comment = 'comment';
+
+    reportService.addApprover(reportID, approverEmail, comment).subscribe(() => {
+      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/approvals`, {
+        approver_email: approverEmail,
+        comment,
+      });
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('delete(): should delete a report', (done) => {
+    apiService.delete.and.returnValue(of(null));
+    transactionService.clearCache.and.returnValue(of(null));
+
+    const reportID = 'rpShFuVCUIXk';
+    reportService.delete(reportID).subscribe(() => {
+      expect(apiService.delete).toHaveBeenCalledWith(`/reports/${reportID}`);
+      expect(apiService.delete).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -438,9 +515,11 @@ describe('ReportService', () => {
   });
 
   xit('getReportPermissions(): should get report permissions', (done) => {
-    authService.getRoles.and.returnValue(of(apiAllowedActionRes));
+    const apiRoles = ['ADMIN', 'APPROVER', 'FYLER', 'HOP', 'HOD', 'OWNER'];
+    authService.getRoles.and.returnValue(of(apiRoles));
 
     reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
+      console.log(res);
       done();
     });
   });
@@ -474,6 +553,24 @@ describe('ReportService', () => {
       expect(res).toEqual(reportURL);
       expect(apiService.post).toHaveBeenCalledWith('/reports/summary/download', data);
       expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getAllExtendedReports(): should all reports', (done) => {
+    getExtendedOrgUser();
+    getPaginatedReports();
+
+    const params = {
+      queryParams: {
+        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      },
+    };
+
+    reportService.getAllExtendedReports(params).subscribe((res) => {
+      expect(res).toEqual(expectedAllReports);
+      expect(authService.getEou).toHaveBeenCalledTimes(3);
+      expect(apiv2Service.get).toHaveBeenCalledTimes(3);
       done();
     });
   });
