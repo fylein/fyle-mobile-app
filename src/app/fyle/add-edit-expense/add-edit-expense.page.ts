@@ -2868,8 +2868,6 @@ export class AddEditExpensePage implements OnInit {
 
       if (val?.dependent_field_id) {
         this.addDependentField(val?.dependent_field_id);
-
-        console.log('SHOW FIELD', val.dependent_field_id);
       }
     });
   }

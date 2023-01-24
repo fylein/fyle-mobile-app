@@ -2,7 +2,7 @@
 
 .dependent-field-modal {
   color: $pure-black;
-  &--list-element {
+  &__list-element {
     padding: 18px 0;
     margin: 0 16px;
     // border-color-font
@@ -11,40 +11,49 @@
     @extend %fy-select-list-element-layout;
   }
 
-  &--title {
+  &__title {
     @extend %fy-select-title;
   }
 
-  &--label {
+  &__label {
     text-align: justify;
     word-break: break-word;
   }
 
-  &--header {
+  &__header {
     @extend %fy-select-header;
   }
 
-  &--search-input {
+  &__clear-button {
+    background: transparent;
+    color: black;
+  }
+
+  &__search-input {
     @extend %fy-select-search-input;
   }
 
-  &--form-field {
+  &__form-field {
     @extend %fy-select-mat-form-field;
   }
 
-  &--search-icon {
+  &__search-icon {
     @extend %fy-select-search-icon;
   }
 
-  &--container {
+  &__container {
     @extend %flex-layout-column;
   }
 
-  &--single-element-block {
+  &__single-element-block {
     margin-bottom: 20px;
   }
 
-  &--check {
+  &__autocomplete-loader {
+    @extend %autocomplete-loader;
+  }
+
+  &__check {
     @extend %fy-select-check;
   }
 }

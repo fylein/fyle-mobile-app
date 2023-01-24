@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="dependent-field-modal--title">
+      <div class="dependent-field-modal__title">
         {{ selectModalHeader }}
       </div>
     </ion-title>
@@ -13,24 +13,24 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar *ngIf="enableSearch" class="text-center">
-    <mat-form-field appearance="none" class="dependent-field-modal--form-field mat-form-field-no-padding">
-      <mat-icon class="dependent-field-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+    <mat-form-field appearance="none" class="dependent-field-modal__form-field mat-form-field-no-padding">
+      <mat-icon class="dependent-field-modal__search-icon" matPrefix svgIcon="fy-search"></mat-icon>
       <input
         #searchBar
         [(ngModel)]="value"
-        class="dependent-field-modal--search-input smartlook-show"
-        id="election-modal--search-input"
+        class="dependent-field-modal__search-input smartlook-show"
         matInput
         placeholder="{{ placeholder || 'Search' }}"
       />
       <mat-icon
         *ngIf="isLoading"
-        class="selection-modal--autocomplete-loader"
+        class="dependent-field-modal__autocomplete-loader"
         svgIcon="fy-spinner-circle"
         matSuffix
       ></mat-icon>
       <button
         (click)="clearValue()"
+        class="dependent-field-modal__clear-button"
         *ngIf="value && !isLoading"
         aria-label="Clear"
         mat-button
@@ -44,7 +44,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="dependent-field-modal--container">
+  <div class="dependent-field-modal__container">
     <ng-container *ngIf="filteredOptions$ | async as filteredOptions">
       <div *ngIf="filteredOptions.length === 0">
         <app-fy-zero-state
@@ -56,17 +56,17 @@
         ></app-fy-zero-state>
       </div>
 
-      <div *ngIf="filteredOptions.length > 0" class="dependent-field-modal--single-element-block">
+      <div *ngIf="filteredOptions.length > 0" class="dependent-field-modal__single-element-block">
         <div
           (click)="onElementSelect(filteredListItem)"
           *ngFor="let filteredListItem of filteredOptions as list"
-          class="dependent-field-modal--list-element"
+          class="dependent-field-modal__list-element"
           matRipple
         >
-          <div class="dependent-field-modal--label">
+          <div class="dependent-field-modal__label">
             <app-fy-highlight-text [fullText]="filteredListItem.name" [queryText]="value"> </app-fy-highlight-text>
           </div>
-          <mat-icon *ngIf="filteredListItem.selected" class="dependent-field-modal--check"> check </mat-icon>
+          <mat-icon *ngIf="filteredListItem.selected" class="dependent-field-modal__check"> check </mat-icon>
         </div>
       </div>
     </ng-container>
