@@ -308,10 +308,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      const reportId = this.fg.value.report?.rp?.id;
-      if (reportId) {
-        this.showAddToReportSuccessToast(reportId);
-      }
     }
   }
 

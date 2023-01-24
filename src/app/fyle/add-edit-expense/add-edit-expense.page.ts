@@ -423,10 +423,6 @@ export class AddEditExpensePage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        const reportId = this.fg.value.report?.rp?.id;
-        if (reportId) {
-          this.showAddToReportSuccessToast(reportId);
-        }
       }
     }
   }
