@@ -15,7 +15,15 @@ export interface Transaction {
   exchange_rate_diff_percentage: number;
   expense_number: string;
   external_id: string;
-  extracted_data: Object;
+  extracted_data: {
+    amount?: number;
+    currency?: string;
+    date?: Date;
+    description?: string;
+    vendor?: string;
+    category?: string;
+    invoice_dt?: Date;
+  };
   flight_journey_travel_class: string;
   flight_return_travel_class: string;
   from_dt: Date;
@@ -91,4 +99,5 @@ export interface Transaction {
   is_implicit_merge_blocked: boolean;
   categoryDisplayName: string;
   matchCCCId: string;
+  custom_attributes?: { name: string; value: string }[];
 }
