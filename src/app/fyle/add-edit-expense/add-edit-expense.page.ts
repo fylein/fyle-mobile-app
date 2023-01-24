@@ -2880,7 +2880,7 @@ export class AddEditExpensePage implements OnInit {
 
       const newField = this.formBuilder.group({
         label: dependentField.name,
-        dependentField: dependentField.dependent_field_id,
+        dependent_field_id: dependentField.dependent_field_id,
         value: [null, dependentField.is_mandatory && Validators.required],
       });
 
