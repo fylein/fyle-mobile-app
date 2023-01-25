@@ -891,8 +891,8 @@ export class TransactionService {
   private generateCustomDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {
-      const startDate = filters?.customDateStart?.toISOString();
-      const endDate = filters?.customDateEnd?.toISOString();
+      const startDate = filters.customDateStart?.toISOString();
+      const endDate = filters.customDateEnd?.toISOString();
       if (filters.customDateStart && filters.customDateEnd) {
         newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
       } else if (filters.customDateStart) {

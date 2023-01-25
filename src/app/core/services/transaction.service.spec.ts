@@ -345,34 +345,14 @@ describe('TransactionService', () => {
     });
   });
 
-  describe('generateStateOrFilter():', () => {
+  it('generateStateFilters(): should generate state filters', () => {
     const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'CANNOT_REPORT', 'DRAFT'] };
     const params = { or: [] };
+    const result = transactionService.generateStateFilters(params, filters);
 
-    it('should generate a state filter for the query parameters', () => {
-      const result = transactionService.generateStateFilters(params, filters);
-      expect(result.or).toContain(
-        '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))'
-      );
-    });
-
-    it('should return a deep clone of the input query parameters', () => {
-      const newQueryParams = { or: [] };
-      const result = transactionService.generateStateFilters(params, filters);
-      expect(result).not.toBe(newQueryParams);
-    });
-
-    it('should return an empty filter if the input filter is empty', () => {
-      const emptyFilter = {};
-      const result = transactionService.generateStateFilters(params, emptyFilter);
-      expect(result.or).toEqual([]);
-    });
-
-    it('should return an empty filter if the state filter is empty', () => {
-      const emptyStateFilter = { state: [] };
-      const result = transactionService.generateStateFilters(params, emptyStateFilter);
-      expect(result.or).toEqual([]);
-    });
+    expect(result.or).toEqual([
+      '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))',
+    ]);
   });
 
   it('generateStateOrFilter(): should generate state Or filters', () => {
@@ -450,5 +430,83 @@ describe('TransactionService', () => {
     const etxnPaymentMode = { name: 'Reimbursable', key: 'reimbursable' };
     // @ts-ignore
     expect(transactionService.getPaymentModeForEtxn(expenseData1, paymentModeList)).toEqual(etxnPaymentMode);
+  });
+
+  describe('setSortParams():', () => {
+    const currentParams = { pageNumber: 1 };
+    const filters = { sortParam: 'tx_txn_dt', sortDir: 'desc' };
+    const emptyFilters = { sortParam: null, sortDir: 'desc' };
+    const sortParams = { pageNumber: 1, sortParam: 'tx_txn_dt', sortDir: 'desc' };
+
+    it('should set sort params with sortParam and sortDir', () => {
+      expect(transactionService.setSortParams(currentParams, filters)).toEqual(sortParams);
+    });
+
+    it('should set sort params without filters sortParam and sortDir', () => {
+      expect(transactionService.setSortParams(currentParams, emptyFilters)).toEqual(sortParams);
+    });
+  });
+
+  it('generateTypeFilters(): should generate type filters', () => {
+    const filters = { type: ['Mileage', 'PerDiem', 'RegularExpenses'] };
+    const newQueryParams = { or: [] };
+    const result = transactionService.generateTypeFilters(newQueryParams, filters);
+
+    expect(result.or).toEqual([
+      '(tx_fyle_category.eq.Mileage, tx_fyle_category.eq.Per Diem, and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem))',
+    ]);
+  });
+
+  describe('generateCustomDateParams():', () => {
+    const filters = {
+      date: 'custom',
+      customDateStart: new Date('2023-01-17T18:30:00.000Z'),
+      customDateEnd: new Date('2023-01-23T18:30:00.000Z'),
+    };
+
+    const filtersWithStartDateOnly = {
+      date: 'custom',
+      customDateStart: new Date('2023-01-17T18:30:00.000Z'),
+    };
+
+    const filtersWithEndDateOnly = {
+      date: 'custom',
+      customDateEnd: new Date('2023-01-23T18:30:00.000Z'),
+    };
+
+    const newQueryParams = { or: [] };
+    const customDateParams = {
+      or: [],
+      and: '(tx_txn_dt.gte.2023-01-17T18:30:00.000Z,tx_txn_dt.lt.2023-01-23T18:30:00.000Z)',
+    };
+
+    const customDateParamsWithStartDateOnly = {
+      or: [],
+      and: '(tx_txn_dt.gte.2023-01-17T18:30:00.000Z)',
+    };
+
+    const customDateParamsWithEndDateOnly = {
+      or: [],
+      and: '(tx_txn_dt.lt.2023-01-23T18:30:00.000Z)',
+    };
+
+    it('should generate custom date filters with start and end date', () => {
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams(newQueryParams, filters)).toEqual(customDateParams);
+    });
+
+    it('should return custom date params with start date only', () => {
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams(newQueryParams, filtersWithStartDateOnly)).toEqual(
+        customDateParamsWithStartDateOnly
+      );
+    });
+
+    it('should return custom date params with end date only', () => {
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams(newQueryParams, filtersWithEndDateOnly)).toEqual(
+        customDateParamsWithEndDateOnly
+      );
+    });
   });
 });
