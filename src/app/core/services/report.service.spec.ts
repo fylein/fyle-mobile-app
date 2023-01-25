@@ -32,7 +32,7 @@ import { apiReportActions } from '../mock-data/report-actions.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiReportStatsRes, apiReportStatsRawRes } from '../../core/mock-data/stats-response.data';
 import { expectedReportRawStats } from '../mock-data/stats-dimension-response.data';
-import { apiApproverRes } from '../mock-data/approver.data';
+import { apiApproverRes, apiAllApproverRes1, apiAllApproverRes2 } from '../mock-data/approver.data';
 import { orgSettingsParams } from '../mock-data/org-settings.data';
 import { apiAllowedActionRes } from '../mock-data/allowed-actions.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
@@ -43,7 +43,10 @@ import {
   apiReportUpdatedDetails,
   expectedErpt,
   expectedSingleErpt,
+  expectedUnflattenedReports,
+  extendedReportParam,
 } from '../mock-data/report-unflattened.data';
+import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -74,6 +77,8 @@ describe('ReportService', () => {
     aggregates: 'count(rp_id),sum(rp_amount)',
     scalar: true,
   };
+
+  const apiApproversParam = ['rpvwqzb9Jqq0', 'rpvcIMRMyM3A', 'rpDyD26O3qpV', 'rpqzKD4bPXpW'];
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
@@ -462,6 +467,38 @@ describe('ReportService', () => {
     });
   });
 
+  it('getAutoSubmissionReportName(): should get auto submitted report name', (done) => {
+    spenderPlatformApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
+
+    reportService.getAutoSubmissionReportName().subscribe((res) => {
+      expect(res).toEqual('(Automatic Submission On Feb 1)');
+      expect(spenderPlatformApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
+        data: null,
+      });
+      expect(spenderPlatformApiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  xit('getAutoSubmissionReportName(): should report null', (done) => {
+    spenderPlatformApiService.post.and.returnValue(
+      of({
+        data: {
+          next_at: null,
+        },
+      })
+    );
+
+    reportService.getAutoSubmissionReportName().subscribe((res) => {
+      expect(res).toEqual(null);
+      expect(spenderPlatformApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
+        data: null,
+      });
+      expect(spenderPlatformApiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
   it('approve(): should approve a report', (done) => {
     apiService.post.and.returnValue(of(null));
 
@@ -515,8 +552,18 @@ describe('ReportService', () => {
   });
 
   xit('getReportPermissions(): should get report permissions', (done) => {
-    const apiRoles = ['ADMIN', 'APPROVER', 'FYLER', 'HOP', 'HOD', 'OWNER'];
-    authService.getRoles.and.returnValue(of(apiRoles));
+    const apiRoles = [
+      'APPROVER',
+      'ADMIN',
+      'FYLER',
+      'HOP',
+      'FINANCE',
+      'PAYMENT_PROCESSOR',
+      'VERIFIER',
+      'AUDITOR',
+      'OWNER',
+    ];
+    authService.getRoles.and.returnValue(of({ apiRoles }));
 
     reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
       console.log(res);
@@ -586,54 +633,15 @@ describe('ReportService', () => {
 
     const apiErptcCountParam = { params: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
 
-    const apiApproverParam = [
-      'rpfClhA1lglE',
-      'rpG0qW1oL4DX',
-      'rpqzKD4bPXpW',
-      'rpRmtgbN7P3F',
-      'rp5AGFuqx26u',
-      'rpro9OZJaOtK',
-      'rpbsba0TCpgk',
-      'rpAZmXrXdyrf',
-      'rpLQfUBgbJb1',
-      'rpu8DkP6u4Zk',
-      'rpjWaCwqnZGC',
-      'rpIDyuHbT691',
-      'rp3ykJnpiR9Y',
-      'rppP9yLziG5K',
-      'rpiR3wpDkCQ7',
-      'rpuksn0sXXQb',
-      'rpWd9w9M3FrO',
-      'rpYdBr8mdHS3',
-      'rpC7V3H7LN0I',
-      'rpm06H3f7QuZ',
-      'rpZ5qpXj23sa',
-      'rpFSElgBTTDH',
-      'rpSIll90z2LR',
-      'rpNvP8T9jRnE',
-      'rpy8rDiSwtj0',
-      'rp0KoZ6XtwnY',
-      'rp34AJ9340CI',
-      'rpPT4pz3RJWo',
-      'rpPJraCd8VeW',
-      'rpCmkiPlNP27',
-      'rpYPkqMCOVNs',
-      'rpDyD26O3qpV',
-      'rpjbdLrtPhsf',
-      'rpzZYzYN5UWW',
-      'rpShFuVCUIXk',
-      'rpmWXXqWzCq9',
-      'rpOkJV7jIHIP',
-      'rpRFQGEk1Sqi',
-    ];
     networkService.isOnline.and.returnValue(of(true));
-    apiService.get.withArgs('/erpts/count', apiErptcCountParam).and.returnValue(of({ count: 4 }));
-    apiService.get.withArgs('/erpts').and.returnValue(of(apiErptcReportsRes));
-    apiService.get.withArgs('/reports/approvers').and.returnValue(of(apiApproverRes));
+    apiService.get.withArgs('/erpts/count', {}).and.returnValue(of({ count: 4 }));
+    apiService.get.withArgs('/erpts', apiErptcParam).and.returnValue(of(apiErptcReportsRes));
+    apiService.get.withArgs('/reports/approvers', { params: apiApproversParam }).and.returnValue(of(apiApproverRes));
 
     reportService
       .getFilteredPendingReports({ state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] })
       .subscribe((res) => {
+        console.log(res);
         done();
       });
   });
@@ -646,6 +654,41 @@ describe('ReportService', () => {
       expect(res).toEqual(reportName);
       expect(apiService.post).toHaveBeenCalledWith('/reports/purpose', { ids: [] });
       expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  xit('getApproversInBulk(): should get approvers in bulk for all report IDs speified', (done) => {
+    apiService.get
+      .withArgs('/reports/approvers', { params: { report_ids: apiApproversParam.slice(0, 1) } })
+      .and.returnValue(of(apiAllApproverRes1));
+    apiService.get
+      .withArgs('/reports/approvers', { params: { report_ids: apiApproversParam.slice(2, 3) } })
+      .and.returnValue(of(apiAllApproverRes2));
+
+    reportService.getApproversInBulk(apiApproversParam).subscribe((res) => {
+      console.log(res);
+      expect(apiService.get).toHaveBeenCalledWith('/reports/approvers', {});
+      done();
+    });
+  });
+
+  xit('addApprovers(): add approvers to a report', () => {
+    const result = reportService.addApprovers(extendedReportParam, apiApproverRes);
+
+    expect(result).toEqual(expectedUnflattenedReports);
+  });
+
+  it('getPaginatedERptcCount(): should get extended reports count', (done) => {
+    networkService.isOnline.and.returnValue(of(true));
+    apiService.get.and.returnValue(of({ count: 4 }));
+
+    const apiParam = ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'];
+
+    reportService.getPaginatedERptcCount(apiParam).subscribe((res) => {
+      expect(res).toEqual({ count: 4 });
+      expect(apiService.get).toHaveBeenCalledWith('/erpts/count', { params: apiParam });
+      expect(apiService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
