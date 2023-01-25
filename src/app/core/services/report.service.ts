@@ -463,7 +463,13 @@ export class ReportService {
     );
   }
 
-  addOrderByParams(params, sortOrder?) {
+  addOrderByParams(
+    params: any,
+    sortOrder?: string
+  ): {
+    state: string[];
+    order_by?: string;
+  } {
     if (sortOrder) {
       return Object.assign(params, { order_by: sortOrder });
     } else {

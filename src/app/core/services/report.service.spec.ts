@@ -551,22 +551,12 @@ describe('ReportService', () => {
     });
   });
 
-  xit('getReportPermissions(): should get report permissions', (done) => {
-    const apiRoles = [
-      'APPROVER',
-      'ADMIN',
-      'FYLER',
-      'HOP',
-      'FINANCE',
-      'PAYMENT_PROCESSOR',
-      'VERIFIER',
-      'AUDITOR',
-      'OWNER',
-    ];
-    authService.getRoles.and.returnValue(of({ apiRoles }));
+  it('getReportPermissions(): should get report permissions', (done) => {
+    permissionsService.allowedActions.and.returnValue(of(apiAllowedActionRes));
 
     reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
-      console.log(res);
+      expect(res).toEqual(apiAllowedActionRes);
+      expect(permissionsService.allowedActions).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -691,6 +681,120 @@ describe('ReportService', () => {
       expect(apiService.get).toHaveBeenCalledTimes(1);
       done();
     });
+  });
+
+  it('addOrderByParams(): return the params since no order is specified', () => {
+    const params = { state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
+
+    const result = reportService.addOrderByParams(params);
+    expect(result).toEqual(params);
+  });
+
+  it('getUserReportParams(): generate parameters as per state | edit', () => {
+    const params = 'edit';
+
+    const expectParam = {
+      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+    };
+
+    const result = reportService.getUserReportParams(params);
+    expect(result).toEqual(expectParam);
+    expect(expectParam.state.length).toEqual(3);
+  });
+
+  it('getUserReportParams(): generate parameters as per state | draft', () => {
+    const params = 'draft';
+
+    const expectParam = {
+      state: ['DRAFT', 'DRAFT_INQUIRY'],
+    };
+
+    const result = reportService.getUserReportParams(params);
+    expect(result).toEqual(expectParam);
+    expect(expectParam.state.length).toEqual(2);
+  });
+
+  it('getUserReportParams(): generate parameters as per state | pending', () => {
+    const params = 'pending';
+
+    const expectParam = {
+      state: ['APPROVER_PENDING'],
+    };
+
+    const result = reportService.getUserReportParams(params);
+    expect(result).toEqual(expectParam);
+    expect(expectParam.state.length).toEqual(1);
+  });
+
+  it('getUserReportParams(): generate parameters as per state | inquiry', () => {
+    const params = 'inquiry';
+
+    const expectParam = {
+      state: ['APPROVER_INQUIRY'],
+    };
+
+    const result = reportService.getUserReportParams(params);
+    expect(result).toEqual(expectParam);
+    expect(expectParam.state.length).toEqual(1);
+  });
+
+  it('getUserReportParams(): generate parameters as per state | approved', () => {
+    const params = 'approved';
+
+    const expectParam = {
+      state: ['APPROVED'],
+    };
+
+    const result = reportService.getUserReportParams(params);
+    expect(result).toEqual(expectParam);
+    expect(expectParam.state.length).toEqual(1);
+  });
+
+  it('getUserReportParams(): generate parameters as per state | payment_queue', () => {
+    const params = 'payment_queue';
+
+    const expectParam = {
+      state: ['PAYMENT_PENDING'],
+    };
+
+    const result = reportService.getUserReportParams(params);
+    expect(result).toEqual(expectParam);
+    expect(expectParam.state.length).toEqual(1);
+  });
+
+  it('getUserReportParams(): generate parameters as per state | paid', () => {
+    const params = 'paid';
+
+    const expectParam = {
+      state: ['PAID'],
+    };
+
+    const result = reportService.getUserReportParams(params);
+    expect(result).toEqual(expectParam);
+    expect(expectParam.state.length).toEqual(1);
+  });
+
+  it('getUserReportParams(): generate parameters as per state | all', () => {
+    const params = 'all';
+
+    const expectParam = {
+      state: [
+        'DRAFT',
+        'DRAFT_INQUIRY',
+        'COMPLETE',
+        'APPROVED',
+        'APPROVER_PENDING',
+        'APPROVER_INQUIRY',
+        'PAYMENT_PENDING',
+        'PAYMENT_PROCESSING',
+        'PAID',
+        'REJECTED',
+      ],
+    };
+
+    const result = reportService.getUserReportParams(params);
+    expect(result).toEqual(expectParam);
+    expect(expectParam.state.length).toEqual(10);
   });
 
   it('getReportETxnc(): should get report transactions', (done) => {
