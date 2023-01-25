@@ -9,11 +9,11 @@ describe('ModalPropertiesService', () => {
     service = TestBed.inject(ModalPropertiesService);
   });
 
-  it('should be created', () => {
+  it('getModalDefaultProperties(): should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should return default properties for a modal', () => {
+  it('getModalDefaultProperties():should return default properties for a modal', () => {
     const properties = service.getModalDefaultProperties();
     expect(properties).toEqual({
       cssClass: 'fy-modal',
@@ -27,7 +27,7 @@ describe('ModalPropertiesService', () => {
     });
   });
 
-  it('should return custom properties for a modal', () => {
+  it('getModalDefaultProperties():should return custom properties for a modal', () => {
     const properties = service.getModalDefaultProperties('custom-class');
     expect(properties).toEqual({
       cssClass: 'custom-class',
