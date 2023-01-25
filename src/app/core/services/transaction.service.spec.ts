@@ -21,6 +21,7 @@ import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
 import { transactionsCacheBuster$ } from './transaction.service';
+import * as dayjs from 'dayjs';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -507,6 +508,68 @@ describe('TransactionService', () => {
       expect(transactionService.generateCustomDateParams(newQueryParams, filtersWithEndDateOnly)).toEqual(
         customDateParamsWithEndDateOnly
       );
+    });
+  });
+
+  describe('generateDateParams():', () => {
+    const queryParams = { or: [] };
+    it('should generate date params with date filter of this month', () => {
+      dateService.getThisMonthRange.and.returnValue({
+        from: new Date('2022-12-31T18:30:00.000Z'),
+        to: new Date('2023-01-31T18:29:00.000Z'),
+      });
+      const filters = { date: 'thisMonth' };
+      const dateParams = {
+        or: [],
+        and: '(tx_txn_dt.gte.2022-12-31T18:30:00.000Z,tx_txn_dt.lt.2023-01-31T18:29:00.000Z)',
+      };
+
+      // @ts-ignore
+      expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
+    });
+
+    it('should generate date params with date filter of this week', () => {
+      dateService.getThisWeekRange.and.returnValue({
+        from: dayjs().startOf('week'),
+        to: dayjs().startOf('week').add(7, 'days'),
+      });
+      const filters = { date: 'thisWeek' };
+      const dateParams = {
+        or: [],
+        and: '(tx_txn_dt.gte.2023-01-21T18:30:00.000Z,tx_txn_dt.lt.2023-01-28T18:30:00.000Z)',
+      };
+
+      // @ts-ignore
+      expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
+    });
+
+    it('should generate date params with date filter of last month', () => {
+      dateService.getLastMonthRange.and.returnValue({
+        from: new Date('2022-11-30T18:30:00.000Z'),
+        to: new Date('2022-12-31T18:29:00.000Z'),
+      });
+      const filters = { date: 'lastMonth' };
+      const dateParams = {
+        or: [],
+        and: '(tx_txn_dt.gte.2022-11-30T18:30:00.000Z,tx_txn_dt.lt.2022-12-31T18:29:00.000Z)',
+      };
+
+      // @ts-ignore
+      expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
+    });
+
+    it('should generate date params with custom date filter', () => {
+      const filters = {
+        date: 'custom',
+        customDateStart: new Date('2023-01-17T18:30:00.000Z'),
+        customDateEnd: new Date('2023-01-23T18:30:00.000Z'),
+      };
+      const dateParams = {
+        or: [],
+        and: '(tx_txn_dt.gte.2023-01-17T18:30:00.000Z,tx_txn_dt.lt.2023-01-23T18:30:00.000Z)',
+      };
+      // @ts-ignore
+      expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
     });
   });
 });

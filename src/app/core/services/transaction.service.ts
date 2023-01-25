@@ -750,7 +750,7 @@ export class TransactionService {
         newQueryParamsCopy.and = `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
       }
 
-      newQueryParamsCopy = this.generateCustomDateParams(newQueryParams, filters);
+      newQueryParamsCopy = this.generateCustomDateParams(newQueryParamsCopy, filters);
     }
 
     return newQueryParamsCopy;
