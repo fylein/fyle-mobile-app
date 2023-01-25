@@ -119,15 +119,15 @@ describe('ReportService', () => {
     };
   }
 
-  function getExtendedOrgUser() {
+  function mockExtendedOrgUser() {
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
   }
 
-  function getReports() {
+  function mockReports() {
     apiv2Service.get.and.returnValue(of(apiReportRes));
   }
 
-  function getPaginatedReports() {
+  function mockPagintedReports() {
     apiv2Service.get.and.returnValue(of(apiReportRes1));
     apiv2Service.get.and.returnValue(of(apiReportRes2));
   }
@@ -137,8 +137,8 @@ describe('ReportService', () => {
   });
 
   it('getMyReports(): should get reports from API as specified by params', (done) => {
-    getExtendedOrgUser();
-    getReports();
+    mockExtendedOrgUser();
+    mockReports();
 
     const reportParams = {
       offset: 0,
@@ -149,18 +149,39 @@ describe('ReportService', () => {
       order: 'rp_created_at.desc',
     };
 
+    const apiParams = {
+      offset: 0,
+      limit: 10,
+      order: 'rp_created_at.desc,rp_id.desc',
+      rp_org_user_id: 'eq.ouX8dwsbLCLv',
+      or: [],
+    };
+
     reportService.getMyReports(reportParams).subscribe((res) => {
       expect(res).toEqual(fixDates(res));
+      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', { params: apiParams });
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('getMyReportsCount(): should get reports count', (done) => {
-    getExtendedOrgUser();
-    getReports();
+    mockExtendedOrgUser();
+    mockReports();
+
+    const apiParams = {
+      offset: 0,
+      limit: 1,
+      order: 'rp_created_at.desc,rp_id.desc',
+      rp_org_user_id: 'eq.ouX8dwsbLCLv',
+    };
 
     reportService.getMyReportsCount({}).subscribe((res) => {
       expect(res).toEqual(4);
+      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', { params: apiParams });
+      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -173,6 +194,7 @@ describe('ReportService', () => {
     reportService.actions(reportID).subscribe((res) => {
       expect(res).toEqual(apiReportActions);
       expect(apiService.get).toHaveBeenCalledWith(`/reports/${reportID}/actions`);
+      expect(apiService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -184,6 +206,7 @@ describe('ReportService', () => {
 
     reportService.getExports(reportID).subscribe(() => {
       expect(apiService.get).toHaveBeenCalledWith(`/reports/${reportID}/exports`);
+      expect(apiService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -199,6 +222,7 @@ describe('ReportService', () => {
           approver_id: orgUserID,
         },
       });
+      expect(apiService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
