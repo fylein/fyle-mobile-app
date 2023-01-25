@@ -20,6 +20,7 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
+import { transactionsCacheBuster$ } from './transaction.service';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -165,7 +166,9 @@ describe('TransactionService', () => {
   });
 
   it('clearCache(): should clear cache', (done) => {
+    const notifierSpy = spyOn(transactionsCacheBuster$, 'next').and.callThrough();
     transactionService.clearCache().subscribe((res) => {
+      expect(notifierSpy).toHaveBeenCalledTimes(1);
       expect(res).toBeNull();
       done();
     });
@@ -222,9 +225,7 @@ describe('TransactionService', () => {
 
     transactionService.getETxnc(params).subscribe((res) => {
       expect(res).toEqual(etxncData.data);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
-        ...params,
-      });
+      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', params);
       expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
@@ -249,8 +250,7 @@ describe('TransactionService', () => {
 
   it('getDefaultVehicleType(): should get default vehicle type', (done) => {
     const defaultVehicleType = 'two_wheeler';
-    storageService.get.and.returnValue(new Promise((resolve) => resolve(defaultVehicleType)));
-
+    storageService.get.and.returnValue(Promise.resolve(defaultVehicleType));
     transactionService.getDefaultVehicleType().subscribe((res) => {
       expect(res).toEqual(defaultVehicleType);
       done();

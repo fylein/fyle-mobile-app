@@ -44,7 +44,7 @@ enum FilterState {
   DRAFT = 'DRAFT',
 }
 
-const transactionsCacheBuster$ = new Subject<void>();
+export const transactionsCacheBuster$ = new Subject<void>();
 
 type PaymentMode = {
   name: string;
