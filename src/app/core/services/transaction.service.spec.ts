@@ -222,9 +222,7 @@ describe('TransactionService', () => {
 
     transactionService.getETxnc(params).subscribe((res) => {
       expect(res).toEqual(etxncData.data);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
-        ...params,
-      });
+      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', params);
       expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
@@ -249,7 +247,7 @@ describe('TransactionService', () => {
 
   it('getDefaultVehicleType(): should get default vehicle type', (done) => {
     const defaultVehicleType = 'two_wheeler';
-    storageService.get.and.returnValue(new Promise((resolve) => resolve(defaultVehicleType)));
+    storageService.get.and.returnValue(Promise.resolve(defaultVehicleType));
 
     transactionService.getDefaultVehicleType().subscribe((res) => {
       expect(res).toEqual(defaultVehicleType);
