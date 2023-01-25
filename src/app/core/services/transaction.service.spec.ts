@@ -20,6 +20,7 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
+import { transactionsCacheBuster$ } from './transaction.service';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -165,7 +166,9 @@ describe('TransactionService', () => {
   });
 
   it('clearCache(): should clear cache', (done) => {
+    const notifierSpy = spyOn(transactionsCacheBuster$, 'next').and.callThrough();
     transactionService.clearCache().subscribe((res) => {
+      expect(notifierSpy).toHaveBeenCalledTimes(1);
       expect(res).toBeNull();
       done();
     });
