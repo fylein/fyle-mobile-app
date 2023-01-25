@@ -1,6 +1,6 @@
 import { Expense } from '../models/expense.model';
 
-export const apiExpenseRes = [
+export const apiExpenseRes: Expense[] = [
   {
     tx_risk_state: null,
     tx_is_duplicate_expense: null,

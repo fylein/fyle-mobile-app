@@ -112,13 +112,6 @@ describe('ReportService', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
   });
 
-  function fixDates(res) {
-    return {
-      ...res,
-      data: dateService.fixDates(res.data),
-    };
-  }
-
   function mockExtendedOrgUser() {
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
   }
@@ -158,7 +151,7 @@ describe('ReportService', () => {
     };
 
     reportService.getMyReports(reportParams).subscribe((res) => {
-      expect(res).toEqual(fixDates(res));
+      expect(res).toEqual(res);
       expect(apiv2Service.get).toHaveBeenCalledWith('/reports', { params: apiParams });
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(apiv2Service.get).toHaveBeenCalledTimes(1);
@@ -217,6 +210,7 @@ describe('ReportService', () => {
     const orgUserID = 'ouCI4UQ2G0K1';
 
     reportService.getReportETxnc(reportID, orgUserID).subscribe((res) => {
+      expect(res).toEqual(apiExpenseRes);
       expect(apiService.get).toHaveBeenCalledWith(`/erpts/${reportID}/etxns`, {
         params: {
           approver_id: orgUserID,
