@@ -104,3 +104,38 @@ export const apiAllApproverRes2 = [
     comment: null,
   },
 ];
+
+export const expectedApprovers = [
+  {
+    id: 44024,
+    created_at: null,
+    updated_at: null,
+    report_id: 'rpDyD26O3qpV',
+    approver_id: 'ouPLa4wwryk7',
+    request_id: null,
+    state: 'APPROVAL_PENDING',
+    added_by: null,
+    disabled_by: null,
+    last_updated_by: null,
+    rank: 0,
+    approver_name: 'Aditya Baddur',
+    approver_email: 'adityabaddur+test_accounts@gmail.com',
+    comment: null,
+  },
+  {
+    id: 44201,
+    created_at: null,
+    updated_at: null,
+    report_id: 'rpqzKD4bPXpW',
+    approver_id: 'ouog7ej7Thsd',
+    request_id: null,
+    state: 'APPROVAL_DISABLED',
+    added_by: null,
+    disabled_by: null,
+    last_updated_by: null,
+    rank: 0,
+    approver_name: 'YAsh',
+    approver_email: 'yash.s@fyle.in',
+    comment: null,
+  },
+];

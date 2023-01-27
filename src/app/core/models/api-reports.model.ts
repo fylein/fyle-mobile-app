@@ -1,6 +1,6 @@
 import { ExtendedReport } from './report.model';
 
-export interface ApiReports {
+export interface ApiV2Reports {
   count: number;
   data: ExtendedReport[];
   limit: number;

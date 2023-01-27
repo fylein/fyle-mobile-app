@@ -1,6 +1,6 @@
-import { ApiReports } from '../models/api-reports.model';
+import { ApiV2Reports } from '../models/api-reports.model';
 
-export const apiReportRes: ApiReports = {
+export const apiReportRes: ApiV2Reports = {
   count: 4,
   data: [
     {
@@ -307,7 +307,7 @@ export const apiReportSingleRes = {
   url: '/v2/reports',
 };
 
-export const apiReportRes1: ApiReports = {
+export const apiReportRes1: ApiV2Reports = {
   count: 4,
   data: [
     {
@@ -424,7 +424,7 @@ export const apiReportRes1: ApiReports = {
   url: '/v2/reports',
 };
 
-export const apiReportRes2: ApiReports = {
+export const apiReportRes2: ApiV2Reports = {
   count: 4,
   data: [
     {
@@ -585,7 +585,7 @@ export const apiEmptyReportRes = {
   type: null,
 };
 
-export const expectedReports: ApiReports = {
+export const expectedReports: ApiV2Reports = {
   count: 4,
   data: [
     {
@@ -884,7 +884,7 @@ export const expectedReportsSingle = {
   us_full_name: 'Abhishek Jain',
 };
 
-export const apiTeamRptCountRes: ApiReports = {
+export const apiTeamRptCountRes: ApiV2Reports = {
   count: 25,
   data: [
     {
@@ -955,7 +955,7 @@ export const apiTeamRptCountRes: ApiReports = {
   url: '/v2/reports',
 };
 
-export const apiTeamRptSingleRes: ApiReports = {
+export const apiTeamRptSingleRes: ApiV2Reports = {
   count: 1,
   data: [
     {

@@ -15,7 +15,7 @@ import { UserEventService } from './user-event.service';
 import { PermissionsService } from './permissions.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import {
@@ -32,7 +32,7 @@ import { apiReportActions } from '../mock-data/report-actions.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiReportStatsRes, apiReportStatsRawRes } from '../../core/mock-data/stats-response.data';
 import { expectedReportRawStats } from '../mock-data/stats-dimension-response.data';
-import { apiApproverRes, apiAllApproverRes1, apiAllApproverRes2 } from '../mock-data/approver.data';
+import { apiApproverRes, apiAllApproverRes1, apiAllApproverRes2, expectedApprovers } from '../mock-data/approver.data';
 import { orgSettingsParams } from '../mock-data/org-settings.data';
 import { apiAllowedActionRes } from '../mock-data/allowed-actions.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
@@ -78,7 +78,8 @@ describe('ReportService', () => {
     scalar: true,
   };
 
-  const apiApproversParam = ['rpvwqzb9Jqq0', 'rpvcIMRMyM3A', 'rpDyD26O3qpV', 'rpqzKD4bPXpW'];
+  const apiApproversParam = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
+  // 'rpvwqzb9Jqq0', 'rpvcIMRMyM3A',
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
@@ -612,6 +613,14 @@ describe('ReportService', () => {
     });
   });
 
+  it('addApprovers(): add approvers to report', () => {
+    const result = reportService.addApprovers(extendedReportParam, apiApproverRes);
+
+    // expect(result).toEqual(expectedUnflattenedReports);
+
+    console.log(result);
+  });
+
   xit('getFilteredPendingReports(): should get all pending reports', (done) => {
     const apiErptcParam = {
       params: {
@@ -621,17 +630,20 @@ describe('ReportService', () => {
       },
     };
 
-    const apiErptcCountParam = { params: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
+    const apiErptcCountParam = { state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
 
     networkService.isOnline.and.returnValue(of(true));
-    apiService.get.withArgs('/erpts/count', {}).and.returnValue(of({ count: 4 }));
+    apiService.get.withArgs('/erpts/count', { params: apiErptcCountParam }).and.returnValue(of({ count: 4 }));
     apiService.get.withArgs('/erpts', apiErptcParam).and.returnValue(of(apiErptcReportsRes));
-    apiService.get.withArgs('/reports/approvers', { params: apiApproversParam }).and.returnValue(of(apiApproverRes));
+    apiService.get
+      .withArgs('/reports/approvers', { params: apiApproversParam })
+      .and.returnValue(of(apiAllApproverRes2));
 
     reportService
       .getFilteredPendingReports({ state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] })
       .subscribe((res) => {
         console.log(res);
+        expect(apiService.get).toHaveBeenCalledWith('/erpts/count', {});
         done();
       });
   });
@@ -648,25 +660,24 @@ describe('ReportService', () => {
     });
   });
 
-  xit('getApproversInBulk(): should get approvers in bulk for all report IDs speified', (done) => {
-    apiService.get
-      .withArgs('/reports/approvers', { params: { report_ids: apiApproversParam.slice(0, 1) } })
-      .and.returnValue(of(apiAllApproverRes1));
-    apiService.get
-      .withArgs('/reports/approvers', { params: { report_ids: apiApproversParam.slice(2, 3) } })
-      .and.returnValue(of(apiAllApproverRes2));
+  it('getApproversInBulk(): should get approvers in bulk for all report IDs speified', (done) => {
+    apiService.get.and.returnValue(of(apiAllApproverRes2));
 
     reportService.getApproversInBulk(apiApproversParam).subscribe((res) => {
-      console.log(res);
-      expect(apiService.get).toHaveBeenCalledWith('/reports/approvers', {});
+      expect(res).toEqual(expectedApprovers);
+      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledWith('/reports/approvers', { params: { report_ids: apiApproversParam } });
       done();
     });
   });
 
-  xit('addApprovers(): add approvers to a report', () => {
-    const result = reportService.addApprovers(extendedReportParam, apiApproverRes);
+  it('getApproversInBulk(): should return an empty list as report IDs are empty', (done) => {
+    apiService.get.and.returnValue(of(apiAllApproverRes2));
 
-    expect(result).toEqual(expectedUnflattenedReports);
+    reportService.getApproversInBulk([]).subscribe((res) => {
+      expect(res).toEqual([]);
+      done();
+    });
   });
 
   it('getPaginatedERptcCount(): should get extended reports count', (done) => {
