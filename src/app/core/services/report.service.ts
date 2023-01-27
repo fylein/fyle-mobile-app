@@ -23,7 +23,7 @@ import { PermissionsService } from './permissions.service';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { Expense } from '../models/expense.model';
-import { ApiV2Reports } from '../models/api-reports.model';
+import { ApiV2Response } from '../models/api-v2.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -318,7 +318,7 @@ export class ReportService {
       limit: 10,
       queryParams: {},
     }
-  ): Observable<ApiV2Reports> {
+  ): Observable<ApiV2Response<ExtendedReport>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/reports', {

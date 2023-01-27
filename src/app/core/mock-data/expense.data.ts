@@ -22,7 +22,7 @@ export const apiExpenseRes: Expense[] = [
     tx_tax_group_id: 'tgFDWBpJL3vy',
     tg_name: 'bnb',
     tg_percentage: 0.12,
-    tx_currency: 'INR',
+    tx_currency: 'USD',
     tx_report_id: 'rp1xCiq5WA1R',
     tx_reported_at: '2022-10-19T08:25:13.993Z',
     tx_state: 'APPROVED',

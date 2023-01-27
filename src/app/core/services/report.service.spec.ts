@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { inject, TestBed } from '@angular/core/testing';
 
 import { ReportService } from './report.service';
 import { NetworkService } from './network.service';
@@ -160,21 +160,16 @@ describe('ReportService', () => {
   });
 
   it('getMyReportsCount(): should get reports count', (done) => {
-    mockExtendedOrgUser();
-    mockReports();
-
-    const apiParams = {
+    spyOn(reportService, 'getMyReports').and.returnValue(of(apiReportRes));
+    const param = {
       offset: 0,
       limit: 1,
-      order: 'rp_created_at.desc,rp_id.desc',
-      rp_org_user_id: 'eq.ouX8dwsbLCLv',
+      queryParams: {},
     };
 
     reportService.getMyReportsCount({}).subscribe((res) => {
       expect(res).toEqual(4);
-      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', { params: apiParams });
-      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(reportService.getMyReports).toHaveBeenCalledWith(param);
       done();
     });
   });

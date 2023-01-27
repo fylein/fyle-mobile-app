@@ -1,6 +1,6 @@
-import { ApiV2Reports } from '../models/api-reports.model';
-
-export const apiReportRes: ApiV2Reports = {
+import { ExtendedReport } from '../models/report.model';
+import { ApiV2Response } from '../models/api-v2.model';
+export const apiReportRes: ApiV2Response<ExtendedReport> = {
   count: 4,
   data: [
     {
@@ -240,7 +240,7 @@ export const apiReportRes: ApiV2Reports = {
   url: '/v2/reports',
 };
 
-export const apiReportRes1: ApiV2Reports = {
+export const apiReportRes1: ApiV2Response<ExtendedReport> = {
   count: 4,
   data: [
     {
@@ -357,7 +357,7 @@ export const apiReportRes1: ApiV2Reports = {
   url: '/v2/reports',
 };
 
-export const apiReportRes2: ApiV2Reports = {
+export const apiReportRes2: ApiV2Response<ExtendedReport> = {
   count: 4,
   data: [
     {
@@ -479,7 +479,7 @@ export const apiReportRes2: ApiV2Reports = {
   url: '/v2/reports',
 };
 
-export const expectedReports: ApiV2Reports = {
+export const expectedReports: ApiV2Response<ExtendedReport> = {
   count: 4,
   data: [
     {
