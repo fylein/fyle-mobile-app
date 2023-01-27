@@ -337,31 +337,43 @@ describe('ReportService', () => {
   });
 
   it('getTeamReportsCount(): should get a count of team reports', (done) => {
-    spyOn(reportService, 'getTeamReports').and.returnValue(of(apiTeamRptCountRes));
+    getExtendedOrgUser();
+    apiv2Service.get.and.returnValue(of(apiTeamRptCountRes));
+
+    const apiParam = {
+      params: { offset: 0, limit: 1, approved_by: 'cs.{ouX8dwsbLCLv}', order: 'rp_created_at.desc,rp_id.desc' },
+    };
 
     reportService.getTeamReportsCount({}).subscribe((res) => {
       expect(res).toEqual(25);
-      expect(reportService.getTeamReports).toHaveBeenCalledWith({ offset: 0, limit: 1, queryParams: {} });
-      expect(reportService.getTeamReports).toHaveBeenCalledTimes(1);
+      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', apiParam);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('getTeamReport(): should get a team report', (done) => {
-    spyOn(reportService, 'getTeamReports').and.returnValue(of(apiTeamRptSingleRes));
+    getExtendedOrgUser();
+    apiv2Service.get.and.returnValue(of(apiTeamRptSingleRes));
 
     const reportID = 'rphNNUiCISkD';
 
-    reportService.getTeamReport(reportID).subscribe((res) => {
-      expect(res).toEqual(apiTeamRptSingleRes.data[0]);
-      expect(reportService.getTeamReports).toHaveBeenCalledWith({
+    const apiParam = {
+      params: {
         offset: 0,
         limit: 1,
-        queryParams: {
-          rp_id: `eq.${reportID}`,
-        },
-      });
-      expect(reportService.getTeamReports).toHaveBeenCalledTimes(1);
+        approved_by: 'cs.{ouX8dwsbLCLv}',
+        order: 'rp_created_at.desc,rp_id.desc',
+        rp_id: 'eq.rphNNUiCISkD',
+      },
+    };
+
+    reportService.getTeamReport(reportID).subscribe((res) => {
+      expect(res).toEqual(apiTeamRptSingleRes.data[0]);
+      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', apiParam);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
