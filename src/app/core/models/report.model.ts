@@ -1,9 +1,10 @@
 export interface ExtendedReport {
-  approved_by?: any;
-  ou_business_unit?: any;
-  ou_department: string;
-  ou_department_id: string;
-  ou_employee_id?: any;
+  _search_document?: string;
+  approved_by?: string[];
+  ou_business_unit?: string;
+  ou_department?: string;
+  ou_department_id?: string;
+  ou_employee_id?: string;
   ou_id: string;
   ou_level: string;
   ou_level_id: string;
@@ -24,6 +25,11 @@ export interface ExtendedReport {
   rp_exported: boolean;
   rp_from_dt?: any;
   rp_id: string;
+  rp_location1?: string;
+  rp_location2?: string;
+  rp_location3?: string;
+  rp_location4?: string;
+  rp_location5?: string;
   rp_locations: any[];
   rp_manual_flag: boolean;
   rp_num_transactions: number;
