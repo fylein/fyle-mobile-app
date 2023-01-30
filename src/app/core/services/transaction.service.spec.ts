@@ -584,13 +584,13 @@ describe('TransactionService', () => {
   describe('generateDateParams():', () => {
     const queryParams = { or: [] };
     it('should generate date params with date filter of this month', () => {
-      const customDateParams = {
-        or: [],
-        and: '(tx_txn_dt.gte.2022-12-31T18:30:00.000Z,tx_txn_dt.lt.2023-01-31T18:29:00.000Z)',
-      };
       const thisMonth = {
         from: new Date('2022-12-31T18:30:00.000Z'),
         to: new Date('2023-01-31T18:29:00.000Z'),
+      };
+      const customDateParams = {
+        or: [],
+        and: `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`,
       };
       const filters = { date: 'thisMonth' };
       const dateParams = {
@@ -615,14 +615,15 @@ describe('TransactionService', () => {
     });
 
     it('should generate date params with date filter of this week', () => {
-      const customDateParams = {
-        or: [],
-        and: '(tx_txn_dt.gte.2023-01-28T18:30:00.000Z,tx_txn_dt.lt.2023-02-04T18:30:00.000Z)',
-      };
       const thisWeek = {
         from: dayjs().startOf('week'),
         to: dayjs().startOf('week').add(7, 'days'),
       };
+      const customDateParams = {
+        or: [],
+        and: `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`,
+      };
+
       const filters = { date: 'thisWeek' };
       const dateParams = {
         or: [],
@@ -657,7 +658,7 @@ describe('TransactionService', () => {
       };
       const customDateParams = {
         or: [],
-        and: '(tx_txn_dt.gte.2022-11-30T18:30:00.000Z,tx_txn_dt.lt.2022-12-31T18:29:00.000Z)',
+        and: `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`,
       };
 
       spyOn(lodash, 'cloneDeep').and.returnValue(queryParams);
