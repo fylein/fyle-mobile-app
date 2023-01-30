@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { etxncData, expenseData2, expenseData1, expenseDataWithDateString } from '../mock-data/expense.data';
+import { etxncData, expenseData2, expenseData1, expenseDataWithDateString, etxnData } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
 import { ApiV2Service } from './api-v2.service';
@@ -22,6 +22,8 @@ import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
 import { transactionsCacheBuster$ } from './transaction.service';
 import * as dayjs from 'dayjs';
+import { eouRes2 } from '../mock-data/extended-org-user.data';
+import { txnStats } from '../mock-data/stats-response.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -514,14 +516,15 @@ describe('TransactionService', () => {
   describe('generateDateParams():', () => {
     const queryParams = { or: [] };
     it('should generate date params with date filter of this month', () => {
-      dateService.getThisMonthRange.and.returnValue({
+      const thisMonth = {
         from: new Date('2022-12-31T18:30:00.000Z'),
         to: new Date('2023-01-31T18:29:00.000Z'),
-      });
+      };
+      dateService.getThisMonthRange.and.returnValue(thisMonth);
       const filters = { date: 'thisMonth' };
       const dateParams = {
         or: [],
-        and: '(tx_txn_dt.gte.2022-12-31T18:30:00.000Z,tx_txn_dt.lt.2023-01-31T18:29:00.000Z)',
+        and: `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`,
       };
 
       // @ts-ignore
@@ -529,14 +532,15 @@ describe('TransactionService', () => {
     });
 
     it('should generate date params with date filter of this week', () => {
-      dateService.getThisWeekRange.and.returnValue({
+      const thisWeek = {
         from: dayjs().startOf('week'),
         to: dayjs().startOf('week').add(7, 'days'),
-      });
+      };
+      dateService.getThisWeekRange.and.returnValue(thisWeek);
       const filters = { date: 'thisWeek' };
       const dateParams = {
         or: [],
-        and: '(tx_txn_dt.gte.2023-01-21T18:30:00.000Z,tx_txn_dt.lt.2023-01-28T18:30:00.000Z)',
+        and: `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`,
       };
 
       // @ts-ignore
@@ -544,14 +548,15 @@ describe('TransactionService', () => {
     });
 
     it('should generate date params with date filter of last month', () => {
-      dateService.getLastMonthRange.and.returnValue({
+      const lastMonth = {
         from: new Date('2022-11-30T18:30:00.000Z'),
         to: new Date('2022-12-31T18:29:00.000Z'),
-      });
+      };
+      dateService.getLastMonthRange.and.returnValue(lastMonth);
       const filters = { date: 'lastMonth' };
       const dateParams = {
         or: [],
-        and: '(tx_txn_dt.gte.2022-11-30T18:30:00.000Z,tx_txn_dt.lt.2022-12-31T18:29:00.000Z)',
+        and: `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`,
       };
 
       // @ts-ignore
@@ -570,6 +575,55 @@ describe('TransactionService', () => {
       };
       // @ts-ignore
       expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
+    });
+  });
+
+  describe('getEtxn():', () => {
+    it('it should get etxn from transaction ID without sub category', (done) => {
+      apiService.get.and.returnValue(of(expenseData1));
+      dateService.fixDates.and.returnValue(expenseData1);
+
+      const transactionID = 'tx5fBcPBAxLv';
+      transactionService.getEtxn(transactionID).subscribe((res) => {
+        expect(res).toEqual(expenseData1);
+        done();
+      });
+    });
+
+    it('it should get etxn from transaction ID with sub category', (done) => {
+      apiService.get.and.returnValue(of(etxnData));
+      dateService.fixDates.and.returnValue(etxnData);
+
+      const transactionID = 'txCBp2jIK6G3';
+
+      transactionService.getEtxn(transactionID).subscribe((res) => {
+        expect(res).toEqual(etxnData);
+        done();
+      });
+    });
+  });
+
+  it('getTransactionStats(): should return transaction stats', (done) => {
+    authService.getEou.and.returnValue(Promise.resolve(eouRes2));
+    apiV2Service.get.and.returnValue(of(txnStats));
+
+    const aggregates = 'count(tx_id),sum(tx_amount)';
+    const queryParams = {
+      scalar: true,
+      tx_state: 'in.(DRAFT)',
+      tx_report_id: 'is.null',
+    };
+
+    transactionService.getTransactionStats(aggregates, queryParams).subscribe((res) => {
+      expect(res).toEqual(txnStats.data);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses/stats', {
+        params: {
+          aggregates,
+          tx_org_user_id: 'eq.' + eouRes2.ou.id,
+          ...queryParams,
+        },
+      });
+      done();
     });
   });
 });

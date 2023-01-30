@@ -206,7 +206,7 @@ export class TransactionService {
     cacheBusterObserver: transactionsCacheBuster$,
   })
   // TODO: Remove `any` type once the stats response implementation is fixed
-  getTransactionStats(aggregates: string, queryParams: EtxnParams = {}): Observable<any> {
+  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<any> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiV2Service.get('/expenses/stats', {
