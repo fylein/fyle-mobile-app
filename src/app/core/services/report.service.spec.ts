@@ -36,7 +36,7 @@ import { apiApproverRes } from '../mock-data/approver.data';
 import { orgSettingsParams } from '../mock-data/org-settings.data';
 import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
-import { apiCreateDraftRes, apiCreateReportRes } from '../mock-data/report-unflatttened.data';
+import { reportUnflattenedData, reportUnflattenedData2 } from '../mock-data/report-unflatttened-data.data';
 import { apiErptcReportsRes } from '../mock-data/report.data';
 
 describe('ReportService', () => {
@@ -169,7 +169,7 @@ describe('ReportService', () => {
   });
 
   it('createDraft(): should create a draft report and return the report', (done) => {
-    apiService.post.and.returnValue(of(apiCreateDraftRes));
+    apiService.post.and.returnValue(of(reportUnflattenedData));
     transactionService.clearCache.and.returnValue(of(null));
 
     const reportParam = {
@@ -178,7 +178,7 @@ describe('ReportService', () => {
     };
 
     reportService.createDraft(reportParam).subscribe((res) => {
-      expect(res).toEqual(apiCreateDraftRes);
+      expect(res).toEqual(reportUnflattenedData);
       expect(apiService.post).toHaveBeenCalledWith('/reports', reportParam);
       expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
@@ -192,14 +192,14 @@ describe('ReportService', () => {
     const reportID = 'rpvcIMRMyM3A';
     const txnID = 'txTQVBx7W8EO';
 
-    const aspy = {
+    const params = {
       status: {
         comment: null,
       },
     };
 
     reportService.removeTransaction(reportID, txnID, null).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns/${txnID}/remove`, aspy);
+      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
       expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
@@ -266,7 +266,7 @@ describe('ReportService', () => {
     };
 
     reportService.getReport(reportID).subscribe((res) => {
-      expect(res).toEqual(dateService.fixDates(expectedReportSingleResponse));
+      expect(res).toEqual(expectedReportSingleResponse);
       expect(reportService.getMyReports).toHaveBeenCalledWith(params);
       done();
     });
@@ -350,7 +350,7 @@ describe('ReportService', () => {
   });
 
   it('create(): should create a new report', (done) => {
-    apiService.post.and.returnValue(of(apiCreateReportRes));
+    apiService.post.and.returnValue(of(reportUnflattenedData2));
     transactionService.clearCache.and.returnValue(of(null));
 
     const reportPurpose = {
@@ -364,7 +364,7 @@ describe('ReportService', () => {
     };
 
     reportService.create(reportPurpose, txnIds).subscribe((res) => {
-      expect(res).toEqual(apiCreateReportRes);
+      expect(res).toEqual(reportUnflattenedData2);
       expect(apiService.post).toHaveBeenCalledWith('/reports', reportPurpose);
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, txnParam);
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/submit`);
@@ -391,14 +391,6 @@ describe('ReportService', () => {
     reportService.approve(reportID).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/approve`);
       expect(apiService.post).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
-  xit('getReportPermissions(): should get report permissions', (done) => {
-    authService.getRoles.and.returnValue(of(reportAllowedActionsResponse));
-
-    reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
       done();
     });
   });
@@ -434,30 +426,6 @@ describe('ReportService', () => {
       expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
-  });
-
-  xit('getFilteredPendingReports(): should get all pending reports', (done) => {
-    const apiErptcParam = {
-      params: {
-        offset: 0,
-        limit: 4,
-        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-      },
-    };
-
-    const apiErptcCountParam = { params: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
-
-    const apiApproverParam = ['rpfClhA1lglE', 'rpG0qW1oL4DX', 'rpqzKD4bPXpW'];
-    networkService.isOnline.and.returnValue(of(true));
-    apiService.get.withArgs('/erpts/count', apiErptcCountParam).and.returnValue(of({ count: 4 }));
-    apiService.get.withArgs('/erpts').and.returnValue(of(apiErptcReportsRes));
-    apiService.get.withArgs('/reports/approvers').and.returnValue(of(apiApproverRes));
-
-    reportService
-      .getFilteredPendingReports({ state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] })
-      .subscribe((res) => {
-        done();
-      });
   });
 
   it('getReportPurpose(): should get the purpose of the report', (done) => {

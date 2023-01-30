@@ -17,8 +17,8 @@ export interface ExtendedReport {
   ou_title: string;
   report_approvals?: any;
   rp_amount: number;
-  rp_approval_state?: any;
-  rp_approved_at?: any;
+  rp_approval_state?: string;
+  rp_approved_at?: Date;
   rp_approvals?: any;
   rp_claim_number: string;
   rp_created_at: Date;

@@ -1,6 +1,6 @@
-import { UnflattenedReport } from '../models/report-unflattened.model';
+import { ReportUnflattenedData } from '../models/report-unflattended-data.model';
 
-export const apiCreateDraftRes: Partial<UnflattenedReport['rp']> = {
+export const reportUnflattenedData: ReportUnflattenedData = {
   created_at: new Date('2023-01-19T16:25:46.804Z'),
   updated_at: new Date('2023-01-19T16:25:46.804Z'),
   last_updated_by: {
@@ -9,7 +9,7 @@ export const apiCreateDraftRes: Partial<UnflattenedReport['rp']> = {
     org_id: 'orrjqbDbeP9p',
     roles: ['APPROVER', 'ADMIN', 'FYLER', 'HOP', 'FINANCE', 'PAYMENT_PROCESSOR', 'VERIFIER', 'AUDITOR', 'OWNER'],
     scopes: [],
-    allowed_CIDRs: [],
+    allowed_cidrs: [],
     cluster_domain: '"https://staging.fyle.tech"',
     proxy_org_user_id: null,
     tpa_id: null,
@@ -19,7 +19,7 @@ export const apiCreateDraftRes: Partial<UnflattenedReport['rp']> = {
   id: 'rp6LK3ghVatB',
   org_user_id: 'ouCI4UQ2G0K1',
   purpose: '#6:  Jan 2023',
-  currency: 'INR',
+  currency: 'USD',
   creator_id: 'ouCI4UQ2G0K1',
   amount: 0,
   tax: null,
@@ -51,7 +51,7 @@ export const apiCreateDraftRes: Partial<UnflattenedReport['rp']> = {
   type: 'EXPENSE',
 };
 
-export const apiCreateReportRes: Partial<UnflattenedReport['rp']> = {
+export const reportUnflattenedData2: ReportUnflattenedData = {
   created_at: new Date('2023-01-21T07:45:18.869Z'),
   updated_at: new Date('2023-01-21T07:45:18.869Z'),
   last_updated_by: {
@@ -60,7 +60,7 @@ export const apiCreateReportRes: Partial<UnflattenedReport['rp']> = {
     org_id: 'orrjqbDbeP9p',
     roles: ['APPROVER', 'ADMIN', 'FYLER', 'HOP', 'FINANCE', 'PAYMENT_PROCESSOR', 'VERIFIER', 'AUDITOR', 'OWNER'],
     scopes: [],
-    allowed_CIDRs: [],
+    allowed_cidrs: [],
     cluster_domain: '"https://staging.fyle.tech"',
     proxy_org_user_id: null,
     tpa_id: null,
@@ -70,7 +70,7 @@ export const apiCreateReportRes: Partial<UnflattenedReport['rp']> = {
   id: 'rp5eUkeNm9wB',
   org_user_id: 'ouCI4UQ2G0K1',
   purpose: '#7:  Jan 2023',
-  currency: 'INR',
+  currency: 'USD',
   creator_id: 'ouCI4UQ2G0K1',
   amount: 0,
   tax: null,

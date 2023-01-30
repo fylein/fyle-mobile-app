@@ -27,8 +27,8 @@ export interface UnflattenedReport {
     physical_bill_at: Date;
     last_updated_by?: any;
     creator_id?: string;
-    status_id?: any;
-    tally_export_id?: any;
+    status_id?: string;
+    tally_export_id?: string;
     reimbursement_id?: any;
     policy_flag: boolean;
     purpose: string;

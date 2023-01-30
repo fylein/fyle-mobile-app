@@ -475,7 +475,7 @@ export const etxncData: ApiV2Response<Expense> = {
       tx_extracted_data: {
         amount: 111,
         category: 'Others',
-        currency: 'INR',
+        currency: 'USD',
         date: null,
         invoice_dt: null,
         vendor: 'ANA',
