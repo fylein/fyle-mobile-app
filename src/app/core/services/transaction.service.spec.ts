@@ -368,11 +368,13 @@ describe('TransactionService', () => {
   it('generateStateFilters(): should generate state filters', () => {
     const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'CANNOT_REPORT', 'DRAFT'] };
     const params = { or: [] };
+    const stateOrFilterRes = [
+      '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))',
+    ];
+
     spyOn(lodash, 'cloneDeep').and.returnValue(params);
     // @ts-ignore
-    spyOn(transactionService, 'generateStateOrFilter').and.returnValue([
-      '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))',
-    ]);
+    spyOn(transactionService, 'generateStateOrFilter').and.returnValue(stateOrFilterRes);
 
     expect(transactionService.generateStateFilters(params, filters)).toEqual({
       or: [
@@ -496,13 +498,14 @@ describe('TransactionService', () => {
   it('generateTypeFilters(): should generate type filters', () => {
     const filters = { type: ['Mileage', 'PerDiem', 'RegularExpenses'] };
     const newQueryParams = { or: [] };
-    spyOn(lodash, 'cloneDeep').and.returnValue(newQueryParams);
-    // @ts-ignore
-    spyOn(transactionService, 'generateTypeOrFilter').and.returnValue([
+    const typeOrFilterRes = [
       'tx_fyle_category.eq.Mileage',
       'tx_fyle_category.eq.Per Diem',
       'and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)',
-    ]);
+    ];
+    spyOn(lodash, 'cloneDeep').and.returnValue(newQueryParams);
+    // @ts-ignore
+    spyOn(transactionService, 'generateTypeOrFilter').and.returnValue(typeOrFilterRes);
 
     expect(transactionService.generateTypeFilters(newQueryParams, filters)).toEqual({
       or: [
