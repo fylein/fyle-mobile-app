@@ -32,6 +32,7 @@ import * as dayjs from 'dayjs';
 import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
 import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
+import * as lodash from 'lodash';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -342,29 +343,48 @@ describe('TransactionService', () => {
   });
 
   describe('generateReceiptAttachedParams():', () => {
+    const params = { or: [] };
+    beforeEach(() => {
+      spyOn(lodash, 'cloneDeep').and.returnValue(params);
+    });
     it('should return receipt attached params if receipt attached is YES', () => {
       const filters = { receiptsAttached: 'YES' };
-      const params = { or: [] };
       const receiptsAttachedParams = { or: [], tx_num_files: 'gt.0' };
       expect(transactionService.generateReceiptAttachedParams(params, filters)).toEqual(receiptsAttachedParams);
     });
 
     it('should return receipt attached params if receipt attached is NO', () => {
       const filters = { receiptsAttached: 'NO' };
-      const params = { or: [] };
       const receiptsAttachedParams = { or: [], tx_num_files: 'eq.0' };
       expect(transactionService.generateReceiptAttachedParams(params, filters)).toEqual(receiptsAttachedParams);
+    });
+
+    afterEach(() => {
+      expect(lodash.cloneDeep).toHaveBeenCalledWith(params);
+      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
     });
   });
 
   it('generateStateFilters(): should generate state filters', () => {
     const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'CANNOT_REPORT', 'DRAFT'] };
     const params = { or: [] };
-    const result = transactionService.generateStateFilters(params, filters);
-
-    expect(result.or).toEqual([
+    spyOn(lodash, 'cloneDeep').and.returnValue(params);
+    // @ts-ignore
+    spyOn(transactionService, 'generateStateOrFilter').and.returnValue([
       '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))',
     ]);
+
+    expect(transactionService.generateStateFilters(params, filters)).toEqual({
+      or: [
+        '((and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT)))',
+      ],
+    });
+    expect(lodash.cloneDeep).toHaveBeenCalledWith(params);
+    expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+    // @ts-ignore
+    expect(transactionService.generateStateOrFilter).toHaveBeenCalledWith(filters, params);
+    // @ts-ignore
+    expect(transactionService.generateStateOrFilter).toHaveBeenCalledTimes(1);
   });
 
   it('generateStateOrFilter(): should generate state Or filters', () => {
@@ -421,6 +441,8 @@ describe('TransactionService', () => {
   });
 
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
+    // @ts-ignore
+    spyOn(transactionService, 'isEtxnInPaymentMode').and.returnValue(true);
     const paymentModeList = [
       {
         name: 'Reimbursable',
@@ -442,6 +464,10 @@ describe('TransactionService', () => {
     const etxnPaymentMode = { name: 'Reimbursable', key: 'reimbursable' };
     // @ts-ignore
     expect(transactionService.getPaymentModeForEtxn(expenseData1, paymentModeList)).toEqual(etxnPaymentMode);
+    // @ts-ignore
+    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledWith(expenseData1, etxnPaymentMode.key);
+    // @ts-ignore
+    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledTimes(1);
   });
 
   describe('setSortParams():', () => {
@@ -449,6 +475,9 @@ describe('TransactionService', () => {
     const filters = { sortParam: 'tx_txn_dt', sortDir: 'desc' };
     const emptyFilters = { sortParam: null, sortDir: 'desc' };
     const sortParams = { pageNumber: 1, sortParam: 'tx_txn_dt', sortDir: 'desc' };
+    beforeEach(() => {
+      spyOn(lodash, 'cloneDeep').and.returnValue(currentParams);
+    });
 
     it('should set sort params with sortParam and sortDir', () => {
       expect(transactionService.setSortParams(currentParams, filters)).toEqual(sortParams);
@@ -457,19 +486,42 @@ describe('TransactionService', () => {
     it('should set sort params without filters sortParam and sortDir', () => {
       expect(transactionService.setSortParams(currentParams, emptyFilters)).toEqual(sortParams);
     });
+
+    afterEach(() => {
+      expect(lodash.cloneDeep).toHaveBeenCalledWith(currentParams);
+      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('generateTypeFilters(): should generate type filters', () => {
     const filters = { type: ['Mileage', 'PerDiem', 'RegularExpenses'] };
     const newQueryParams = { or: [] };
-    const result = transactionService.generateTypeFilters(newQueryParams, filters);
-
-    expect(result.or).toEqual([
-      '(tx_fyle_category.eq.Mileage, tx_fyle_category.eq.Per Diem, and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem))',
+    spyOn(lodash, 'cloneDeep').and.returnValue(newQueryParams);
+    // @ts-ignore
+    spyOn(transactionService, 'generateTypeOrFilter').and.returnValue([
+      'tx_fyle_category.eq.Mileage',
+      'tx_fyle_category.eq.Per Diem',
+      'and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)',
     ]);
+
+    expect(transactionService.generateTypeFilters(newQueryParams, filters)).toEqual({
+      or: [
+        '(tx_fyle_category.eq.Mileage, tx_fyle_category.eq.Per Diem, and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem))',
+      ],
+    });
+    expect(lodash.cloneDeep).toHaveBeenCalledWith(newQueryParams);
+    expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+    // @ts-ignore
+    expect(transactionService.generateTypeOrFilter).toHaveBeenCalledWith(filters);
+    // @ts-ignore
+    expect(transactionService.generateTypeOrFilter).toHaveBeenCalledTimes(1);
   });
 
   describe('generateCustomDateParams():', () => {
+    const newQueryParams = { or: [] };
+    beforeEach(() => {
+      spyOn(lodash, 'cloneDeep').and.returnValue(newQueryParams);
+    });
     const filters = {
       date: 'custom',
       customDateStart: new Date('2023-01-17T18:30:00.000Z'),
@@ -486,7 +538,6 @@ describe('TransactionService', () => {
       customDateEnd: new Date('2023-01-23T18:30:00.000Z'),
     };
 
-    const newQueryParams = { or: [] };
     const customDateParams = {
       or: [],
       and: '(tx_txn_dt.gte.2023-01-17T18:30:00.000Z,tx_txn_dt.lt.2023-01-23T18:30:00.000Z)',
@@ -520,42 +571,75 @@ describe('TransactionService', () => {
         customDateParamsWithEndDateOnly
       );
     });
+
+    afterEach(() => {
+      expect(lodash.cloneDeep).toHaveBeenCalledWith(newQueryParams);
+      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('generateDateParams():', () => {
     const queryParams = { or: [] };
     it('should generate date params with date filter of this month', () => {
+      const customDateParams = {
+        or: [],
+        and: '(tx_txn_dt.gte.2022-12-31T18:30:00.000Z,tx_txn_dt.lt.2023-01-31T18:29:00.000Z)',
+      };
       const thisMonth = {
         from: new Date('2022-12-31T18:30:00.000Z'),
         to: new Date('2023-01-31T18:29:00.000Z'),
       };
-      dateService.getThisMonthRange.and.returnValue(thisMonth);
       const filters = { date: 'thisMonth' };
       const dateParams = {
         or: [],
         and: `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`,
       };
 
+      spyOn(lodash, 'cloneDeep').and.returnValue(queryParams);
+      // @ts-ignore
+      spyOn(transactionService, 'generateCustomDateParams').and.returnValue(customDateParams);
+      dateService.getThisMonthRange.and.returnValue(thisMonth);
+
       // @ts-ignore
       expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
       expect(dateService.getThisMonthRange).toHaveBeenCalledTimes(1);
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledWith(customDateParams, filters);
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledTimes(1);
+      expect(lodash.cloneDeep).toHaveBeenCalledWith(queryParams);
+      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
     });
 
     it('should generate date params with date filter of this week', () => {
+      const customDateParams = {
+        or: [],
+        and: '(tx_txn_dt.gte.2023-01-28T18:30:00.000Z,tx_txn_dt.lt.2023-02-04T18:30:00.000Z)',
+      };
       const thisWeek = {
         from: dayjs().startOf('week'),
         to: dayjs().startOf('week').add(7, 'days'),
       };
-      dateService.getThisWeekRange.and.returnValue(thisWeek);
       const filters = { date: 'thisWeek' };
       const dateParams = {
         or: [],
         and: `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`,
       };
 
+      spyOn(lodash, 'cloneDeep').and.returnValue(queryParams);
+      // @ts-ignore
+      spyOn(transactionService, 'generateCustomDateParams').and.returnValue(customDateParams);
+      dateService.getThisWeekRange.and.returnValue(thisWeek);
+
       // @ts-ignore
       expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
       expect(dateService.getThisWeekRange).toHaveBeenCalledTimes(1);
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledWith(customDateParams, filters);
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledTimes(1);
+      expect(lodash.cloneDeep).toHaveBeenCalledWith(queryParams);
+      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
     });
 
     it('should generate date params with date filter of last month', () => {
@@ -563,16 +647,30 @@ describe('TransactionService', () => {
         from: new Date('2022-11-30T18:30:00.000Z'),
         to: new Date('2022-12-31T18:29:00.000Z'),
       };
-      dateService.getLastMonthRange.and.returnValue(lastMonth);
       const filters = { date: 'lastMonth' };
       const dateParams = {
         or: [],
         and: `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`,
       };
+      const customDateParams = {
+        or: [],
+        and: '(tx_txn_dt.gte.2022-11-30T18:30:00.000Z,tx_txn_dt.lt.2022-12-31T18:29:00.000Z)',
+      };
+
+      spyOn(lodash, 'cloneDeep').and.returnValue(queryParams);
+      // @ts-ignore
+      spyOn(transactionService, 'generateCustomDateParams').and.returnValue(customDateParams);
+      dateService.getLastMonthRange.and.returnValue(lastMonth);
 
       // @ts-ignore
       expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
       expect(dateService.getLastMonthRange).toHaveBeenCalledTimes(1);
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledWith(customDateParams, filters);
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledTimes(1);
+      expect(lodash.cloneDeep).toHaveBeenCalledWith(queryParams);
+      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
     });
 
     it('should generate date params with custom date filter', () => {
@@ -585,8 +683,19 @@ describe('TransactionService', () => {
         or: [],
         and: '(tx_txn_dt.gte.2023-01-17T18:30:00.000Z,tx_txn_dt.lt.2023-01-23T18:30:00.000Z)',
       };
+
+      spyOn(lodash, 'cloneDeep').and.returnValue(queryParams);
+      // @ts-ignore
+      spyOn(transactionService, 'generateCustomDateParams').and.returnValue(dateParams);
+
       // @ts-ignore
       expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledWith(queryParams, filters);
+      // @ts-ignore
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledTimes(1);
+      expect(lodash.cloneDeep).toHaveBeenCalledWith(queryParams);
+      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -600,6 +709,8 @@ describe('TransactionService', () => {
         expect(res).toEqual(expenseData1);
         expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
         expect(apiService.get).toHaveBeenCalledTimes(1);
+        expect(dateService.fixDates).toHaveBeenCalledWith(res);
+        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
         done();
       });
     });
@@ -614,6 +725,8 @@ describe('TransactionService', () => {
         expect(res).toEqual(etxnData);
         expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
         expect(apiService.get).toHaveBeenCalledTimes(1);
+        expect(dateService.fixDates).toHaveBeenCalledWith(res);
+        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
         done();
       });
     });
@@ -640,6 +753,7 @@ describe('TransactionService', () => {
         },
       });
       expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -671,8 +785,9 @@ describe('TransactionService', () => {
           ...params.queryParams,
         },
       });
-
       expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(dateService.fixDatesV2).toHaveBeenCalledWith(res.data[0]);
       expect(dateService.fixDatesV2).toHaveBeenCalledTimes(1);
       done();
     });
@@ -695,7 +810,6 @@ describe('TransactionService', () => {
 
     transactionService.getMyExpenses(params2).subscribe((res) => {
       expect(res).toEqual(expenseV2Data);
-
       expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
         params: {
           offset: params2.offset,
@@ -707,6 +821,8 @@ describe('TransactionService', () => {
         },
       });
       expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(dateService.fixDatesV2).toHaveBeenCalledWith(res.data[0]);
       expect(dateService.fixDatesV2).toHaveBeenCalledTimes(1);
       done();
     });
@@ -722,6 +838,11 @@ describe('TransactionService', () => {
 
     transactionService.getMyExpensesCount(params).subscribe((res) => {
       expect(res).toEqual(expenseV2Data.count);
+      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 1,
+        queryParams: params,
+      });
       expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(1);
       done();
     });
@@ -742,6 +863,13 @@ describe('TransactionService', () => {
 
     transactionService.getAllExpenses(params).subscribe((res) => {
       expect(res).toEqual(expenseV2DataMultiple.data);
+      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith(params.queryParams);
+      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 2,
+        queryParams: params.queryParams,
+        order: undefined,
+      });
       expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(1);
       expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(1);
       done();
@@ -754,6 +882,7 @@ describe('TransactionService', () => {
 
     transactionService.getSplitExpenses(txnSplitGroupId).subscribe((res) => {
       expect(res).toEqual(expenseList);
+      expect(transactionService.getAllETxnc).toHaveBeenCalledWith({ tx_split_group_id: 'eq.' + txnSplitGroupId });
       expect(transactionService.getAllETxnc).toHaveBeenCalledTimes(1);
       done();
     });
