@@ -66,7 +66,7 @@ export const apiEouRes: ExtendedOrgUser = {
   },
   org: {
     domain: 'fyle.in',
-    currency: 'INR',
+    currency: 'USD',
   },
   us: {
     id: 'usvKA4X8Ugcr',
@@ -148,7 +148,7 @@ export const eouRes2: ExtendedOrgUser = {
   },
   org: {
     domain: 'fyle.in',
-    currency: 'INR',
+    currency: 'USD',
   },
   us: {
     id: 'usvKA4X8Ugcr',
