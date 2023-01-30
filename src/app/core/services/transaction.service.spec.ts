@@ -1,7 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { etxncData, expenseData2, expenseData1, expenseDataWithDateString, etxnData } from '../mock-data/expense.data';
+import {
+  etxncData,
+  expenseData2,
+  expenseData1,
+  expenseDataWithDateString,
+  etxnData,
+  expenseList,
+} from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
 import { ApiV2Service } from './api-v2.service';
@@ -24,6 +31,7 @@ import { transactionsCacheBuster$ } from './transaction.service';
 import * as dayjs from 'dayjs';
 import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
+import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -622,6 +630,131 @@ describe('TransactionService', () => {
           tx_org_user_id: 'eq.' + eouRes2.ou.id,
           ...queryParams,
         },
+      });
+      done();
+    });
+  });
+
+  it('getMyExpenses(): should return my expenses with order', (done) => {
+    authService.getEou.and.returnValue(Promise.resolve(eouRes2));
+    apiV2Service.get.and.returnValue(of(expenseV2Data));
+    dateService.fixDatesV2.and.returnValue(expenseV2Data.data[0]);
+
+    const params = {
+      offset: 0,
+      limit: 1,
+      queryParams: {
+        or: [],
+        tx_report_id: 'is.null',
+        tx_state: 'in.(COMPLETE,DRAFT)',
+      },
+      order: 'tx_txn_dt.desc',
+    };
+
+    transactionService.getMyExpenses(params).subscribe((res) => {
+      expect(res).toEqual(expenseV2Data);
+      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
+        params: {
+          offset: params.offset,
+          limit: params.limit,
+          order: `${params.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
+          tx_org_user_id: 'eq.' + eouRes2.ou.id,
+          ...params.queryParams,
+        },
+      });
+
+      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getMyExpenses(): should return my expenses without order using default date order', (done) => {
+    authService.getEou.and.returnValue(Promise.resolve(eouRes2));
+    apiV2Service.get.and.returnValue(of(expenseV2Data));
+    dateService.fixDatesV2.and.returnValue(expenseV2Data.data[0]);
+
+    const params2 = {
+      offset: 0,
+      limit: 1,
+      queryParams: {
+        or: [],
+        tx_report_id: 'is.null',
+        tx_state: 'in.(COMPLETE,DRAFT)',
+      },
+    };
+
+    transactionService.getMyExpenses(params2).subscribe((res) => {
+      expect(res).toEqual(expenseV2Data);
+
+      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
+        params: {
+          offset: params2.offset,
+          limit: params2.limit,
+          // eslint-disable-next-line @typescript-eslint/dot-notation
+          order: `${params2['order'] || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
+          tx_org_user_id: 'eq.' + eouRes2.ou.id,
+          ...params2.queryParams,
+        },
+      });
+      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getMyExpensesCount(): should return my expenses count', (done) => {
+    spyOn(transactionService, 'getMyExpenses').and.returnValue(of(expenseV2Data));
+
+    const params = {
+      tx_report_id: 'is.null',
+      tx_state: 'in.(COMPLETE,DRAFT)',
+    };
+
+    transactionService.getMyExpensesCount(params).subscribe((res) => {
+      expect(res).toEqual(expenseV2Data.count);
+      done();
+    });
+  });
+
+  it('getAllExpenses(): should return all expenses', (done) => {
+    spyOn(transactionService, 'getMyExpensesCount').and.returnValue(of(2));
+    spyOn(transactionService, 'getMyExpenses').and.returnValue(of(expenseV2DataMultiple));
+
+    const params = {
+      queryParams: {
+        tx_report_id: 'is.null',
+        tx_state: 'in.(COMPLETE)',
+        order: 'tx_txn_dt.desc',
+        or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
+      },
+    };
+
+    transactionService.getAllExpenses(params).subscribe((res) => {
+      expect(res).toEqual(expenseV2DataMultiple.data);
+      done();
+    });
+  });
+
+  it('getSplitExpenses(): should return split expenses', (done) => {
+    spyOn(transactionService, 'getAllETxnc').and.returnValue(of(expenseList));
+    const txnSplitGroupId = 'txBphgnCHHeO';
+
+    transactionService.getSplitExpenses(txnSplitGroupId).subscribe((res) => {
+      expect(res).toEqual(expenseList);
+      done();
+    });
+  });
+
+  it('unmatchCCCExpense(): should unmatch ccc expense', (done) => {
+    apiService.post.and.returnValue(of({}));
+
+    const transactionId = 'txBldpJrBafX';
+    const corporateCreditCardExpenseId = 'ccce4xphr6tZQm';
+
+    transactionService.unmatchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
+      expect(res).toEqual({});
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/unmatch', {
+        transaction_id: transactionId,
+        corporate_credit_card_expense_id: corporateCreditCardExpenseId,
       });
       done();
     });

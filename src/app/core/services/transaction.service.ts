@@ -381,7 +381,7 @@ export class TransactionService {
       .pipe(map((etxns) => etxns.data));
   }
 
-  getMyExpensesCount(queryParams: EtxnParams = {}): Observable<number> {
+  getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
     return this.getMyExpenses({
       offset: 0,
       limit: 1,
@@ -493,7 +493,7 @@ export class TransactionService {
     return this.getAllETxnc(data);
   }
 
-  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<UnflattenedTransaction> {
+  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<Object> {
     const data = {
       transaction_id: txnId,
       corporate_credit_card_expense_id: corporateCreditCardExpenseId,
