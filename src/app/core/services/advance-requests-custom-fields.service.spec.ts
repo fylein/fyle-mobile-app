@@ -1,4 +1,4 @@
-import { advanceRequestCustomField } from '../mock-data/advance-requests-custom-fields.data';
+import { advanceRequestCustomFields } from '../mock-data/advance-requests-custom-fields.data';
 import { AdvanceRequestsCustomFieldsService } from './advance-requests-custom-fields.service';
 import { of } from 'rxjs';
 import { ApiService } from './api.service';
@@ -16,12 +16,13 @@ describe('AdvanceRequestsCustomFieldsService', () => {
     expect(advanceRequestsCustomFieldsService).toBeTruthy();
   });
 
-  it('should return all advance requests custom fields', () => {
-    apiServiceSpy.get.and.returnValue(of(advanceRequestCustomField));
+  it('getAll():should return all advance requests custom fields', (done) => {
+    apiServiceSpy.get.and.returnValue(of(advanceRequestCustomFields));
 
     advanceRequestsCustomFieldsService.getAll().subscribe((res) => {
-      expect(res).toEqual(advanceRequestCustomField);
+      expect(res).toEqual(advanceRequestCustomFields);
+      expect(apiServiceSpy.get).toHaveBeenCalledWith('/advance_request_custom_fields');
+      done();
     });
-    expect(apiServiceSpy.get).toHaveBeenCalledWith('/advance_request_custom_fields');
   });
 });
