@@ -493,7 +493,7 @@ export class TransactionService {
     return this.getAllETxnc(data);
   }
 
-  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<Object> {
+  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<void> {
     const data = {
       transaction_id: txnId,
       corporate_credit_card_expense_id: corporateCreditCardExpenseId,

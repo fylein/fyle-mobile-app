@@ -745,13 +745,13 @@ describe('TransactionService', () => {
   });
 
   it('unmatchCCCExpense(): should unmatch ccc expense', (done) => {
-    apiService.post.and.returnValue(of({}));
+    apiService.post.and.returnValue(of(null));
 
     const transactionId = 'txBldpJrBafX';
     const corporateCreditCardExpenseId = 'ccce4xphr6tZQm';
 
     transactionService.unmatchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
-      expect(res).toEqual({});
+      expect(res).toEqual(null);
       expect(apiService.post).toHaveBeenCalledWith('/transactions/unmatch', {
         transaction_id: transactionId,
         corporate_credit_card_expense_id: corporateCreditCardExpenseId,
