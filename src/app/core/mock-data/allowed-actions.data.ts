@@ -1,6 +1,6 @@
-import { AllowedActions } from '../models/allowed-actions.model';
+import { ReportAllowedActions } from '../models/allowed-actions.model';
 
-export const apiAllowedActionRes: AllowedActions = {
+export const reportAllowedActionsResponse: ReportAllowedActions = {
   allowedRouteAccess: true,
   approve: true,
   create: true,

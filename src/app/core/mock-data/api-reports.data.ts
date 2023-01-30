@@ -240,7 +240,7 @@ export const apiReportRes: ApiV2Response<ExtendedReport> = {
   url: '/v2/reports',
 };
 
-export const apiReportSingleRes = {
+export const apiReportSingleRes: ApiV2Response<ExtendedReport> = {
   count: 1,
   data: [
     {
@@ -271,7 +271,7 @@ export const apiReportSingleRes = {
       rp_approval_state: null,
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/31',
-      rp_created_at: '2023-01-19T07:27:33.235573',
+      rp_created_at: new Date('2023-01-19T07:27:33.235573'),
       rp_currency: 'INR',
       rp_exported: false,
       rp_from_dt: null,
@@ -823,65 +823,6 @@ export const expectedReports: ApiV2Response<ExtendedReport> = {
   limit: 4,
   offset: 0,
   url: '/v2/reports',
-};
-
-export const expectedReportsSingle = {
-  _search_document:
-    "'145':5 'a':8 'abhishek':10 'ajain@fyle.in':12 'bangalore':9 'c/2023/01/r/31':6 'columns':3 'inr':4 'jain':11 'lion':7 'manage':2 'test':1",
-  approved_by: ['out3t2X258rd'],
-  ou_business_unit: null,
-  ou_department: 'Primary Sales',
-  ou_department_id: 'deptSdAUA5Urej',
-  ou_employee_id: 'A',
-  ou_id: 'ouCI4UQ2G0K1',
-  ou_level: '123wqe',
-  ou_level_id: 'lvlEtPwKjAF6U',
-  ou_location: 'bangalore',
-  ou_mobile: null,
-  ou_org_id: 'orrjqbDbeP9p',
-  ou_org_name: 'Fyle Staging',
-  ou_status: '"ACTIVE"',
-  ou_sub_department: 'Primary Sales',
-  ou_title: 'lion',
-  report_approvals: {
-    out3t2X258rd: {
-      rank: 0,
-      state: 'APPROVAL_PENDING',
-    },
-  },
-  rp_amount: 145,
-  rp_approval_state: null,
-  rp_approved_at: null,
-  rp_claim_number: 'C/2023/01/R/31',
-  rp_created_at: '2023-01-19T07:27:33.235573',
-  rp_currency: 'INR',
-  rp_exported: false,
-  rp_from_dt: null,
-  rp_id: 'rpfClhA1lglE',
-  rp_locations: [],
-  rp_manual_flag: false,
-  rp_num_transactions: 3,
-  rp_org_user_id: 'ouCI4UQ2G0K1',
-  rp_physical_bill: false,
-  rp_physical_bill_at: null,
-  rp_policy_flag: false,
-  rp_purpose: 'test_manage_columns',
-  rp_reimbursed_at: null,
-  rp_risk_state: null,
-  rp_risk_state_expense_count: null,
-  rp_settlement_id: null,
-  rp_source: 'WEBAPP',
-  rp_state: 'APPROVER_PENDING',
-  rp_submitted_at: '2023-01-19T07:27:36.879',
-  rp_tax: 15.54,
-  rp_to_dt: null,
-  rp_trip_request_id: null,
-  rp_type: 'EXPENSE',
-  rp_verification_state: null,
-  rp_verified: false,
-  sequential_approval_turn: false,
-  us_email: 'ajain@fyle.in',
-  us_full_name: 'Abhishek Jain',
 };
 
 export const apiTeamRptCountRes: ApiV2Response<ExtendedReport> = {

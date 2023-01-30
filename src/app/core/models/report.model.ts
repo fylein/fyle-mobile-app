@@ -7,7 +7,7 @@ export interface ExtendedReport {
   ou_employee_id?: string;
   ou_id: string;
   ou_level: string;
-  ou_level_id: string;
+  ou_level_id?: string;
   ou_location: string;
   ou_mobile: string;
   ou_org_id: string;
@@ -19,6 +19,7 @@ export interface ExtendedReport {
   rp_amount: number;
   rp_approval_state?: any;
   rp_approved_at?: any;
+  rp_approvals?: any;
   rp_claim_number: string;
   rp_created_at: Date;
   rp_currency: string;
@@ -50,8 +51,8 @@ export interface ExtendedReport {
   rp_trip_request_id?: any;
   rp_type: string;
   rp_verification_state?: any;
-  rp_verified: boolean;
-  sequential_approval_turn: boolean;
+  rp_verified?: boolean;
+  sequential_approval_turn?: boolean;
   us_email: string;
   us_full_name: string;
 }

@@ -9,6 +9,7 @@ export interface UnflattenedReport {
     approved_at: Date;
     claim_number: string;
     created_at: Date;
+    updated_at?: Date;
     currency: string;
     exported: any;
     from_dt: Date;
@@ -24,6 +25,11 @@ export interface UnflattenedReport {
     org_user_id: string;
     physical_bill: boolean;
     physical_bill_at: Date;
+    last_updated_by?: any;
+    creator_id?: string;
+    status_id?: any;
+    tally_export_id?: any;
+    reimbursement_id?: any;
     policy_flag: boolean;
     purpose: string;
     reimbursed_at: Date;
