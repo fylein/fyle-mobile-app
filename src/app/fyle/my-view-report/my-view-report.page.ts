@@ -10,8 +10,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ShareReportComponent } from './share-report/share-report.component';
-import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
-import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
@@ -361,31 +359,30 @@ export class MyViewReportPage {
     }
   }
 
-  showReportSummaryPopover(mode: 'SUBMIT' | 'RESUBMIT') {
-    forkJoin({
-      erpt: this.erpt$.pipe(take(1)),
-      etxns: this.etxns$.pipe(take(1)),
-    })
-      .pipe(
-        switchMap(({ erpt, etxns }) => {
-          const resubmitReportPopover = this.popoverController.create({
-            componentProps: {
-              erpt,
-              etxns,
-            },
-            component: mode === 'SUBMIT' ? SubmitReportPopoverComponent : ResubmitReportPopoverComponent,
-            cssClass: 'dialog-popover',
-          });
-          return resubmitReportPopover;
-        }),
-        tap((resubmitReportPopover) => resubmitReportPopover.present()),
-        switchMap((resubmitReportPopover) => resubmitReportPopover.onWillDismiss())
-      )
-      .subscribe((resubmitReportPopoverDetails) => {
-        if (resubmitReportPopoverDetails?.data?.goBack) {
-          this.router.navigate(['/', 'enterprise', 'my_reports']);
-        }
+  resubmitReport() {
+    this.reportService.resubmit(this.reportId).subscribe(() => {
+      this.refinerService.startSurvey({ actionName: 'Resubmit Report ' });
+      this.router.navigate(['/', 'enterprise', 'my_reports']);
+      const message = `Report resubmitted successfully.`;
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+        panelClass: ['msb-success-with-camera-icon'],
       });
+      this.trackingService.showToastMessage({ ToastContent: message });
+    });
+  }
+
+  submitReport() {
+    this.reportService.submit(this.reportId).subscribe(() => {
+      this.refinerService.startSurvey({ actionName: 'Submit Report' });
+      this.router.navigate(['/', 'enterprise', 'my_reports']);
+      const message = `Report submitted successfully.`;
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      this.trackingService.showToastMessage({ ToastContent: message });
+    });
   }
 
   goToTransaction({ etxn, etxnIndex }) {

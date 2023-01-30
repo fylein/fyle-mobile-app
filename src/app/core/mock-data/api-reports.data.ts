@@ -1,6 +1,6 @@
-import { ApiReports } from '../models/api-reports.model';
-
-export const apiReportRes: ApiReports = {
+import { ExtendedReport } from '../models/report.model';
+import { ApiV2Response } from '../models/api-v2.model';
+export const apiReportRes: ApiV2Response<ExtendedReport> = {
   count: 4,
   data: [
     {
@@ -28,7 +28,7 @@ export const apiReportRes: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/11',
       rp_created_at: new Date('2023-01-17T06:35:06.814556'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpFE5X1Pqi9P',
@@ -87,7 +87,7 @@ export const apiReportRes: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/10',
       rp_created_at: new Date('2023-01-17T06:34:58.398683'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpSGcIEwzxDd',
@@ -146,7 +146,7 @@ export const apiReportRes: ApiReports = {
       rp_approved_at: '2023-01-17T06:33:29.049',
       rp_claim_number: 'C/2023/01/R/9',
       rp_created_at: new Date('2023-01-13T07:29:00.963045'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpGpzBpAxtSn',
@@ -205,7 +205,7 @@ export const apiReportRes: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2022/12/R/34',
       rp_created_at: new Date('2022-12-26T07:29:00.734031'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpFkJ6jUJOyg',
@@ -307,7 +307,7 @@ export const apiReportSingleRes = {
   url: '/v2/reports',
 };
 
-export const apiReportRes1: ApiReports = {
+export const apiReportRes1: ApiV2Response<ExtendedReport> = {
   count: 4,
   data: [
     {
@@ -335,7 +335,7 @@ export const apiReportRes1: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/15',
       rp_created_at: new Date('2023-01-18T07:29:00.749098'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpLMyvYSXgJy',
@@ -389,7 +389,7 @@ export const apiReportRes1: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/12',
       rp_created_at: new Date('2023-01-17T07:29:00.800733'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpxtbiLXQZUm',
@@ -424,7 +424,7 @@ export const apiReportRes1: ApiReports = {
   url: '/v2/reports',
 };
 
-export const apiReportRes2: ApiReports = {
+export const apiReportRes2: ApiV2Response<ExtendedReport> = {
   count: 4,
   data: [
     {
@@ -452,7 +452,7 @@ export const apiReportRes2: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/11',
       rp_created_at: new Date('2023-01-17T06:35:06.814556'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpFE5X1Pqi9P',
@@ -511,7 +511,7 @@ export const apiReportRes2: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/10',
       rp_created_at: new Date('2023-01-17T06:34:58.398683'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpSGcIEwzxDd',
@@ -585,7 +585,7 @@ export const apiEmptyReportRes = {
   type: null,
 };
 
-export const expectedReports: ApiReports = {
+export const expectedReports: ApiV2Response<ExtendedReport> = {
   count: 4,
   data: [
     {
@@ -613,7 +613,7 @@ export const expectedReports: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/11',
       rp_created_at: new Date('2023-01-17T06:35:06.814556'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpFE5X1Pqi9P',
@@ -672,7 +672,7 @@ export const expectedReports: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2023/01/R/10',
       rp_created_at: new Date('2023-01-17T06:34:58.398683'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpSGcIEwzxDd',
@@ -731,7 +731,7 @@ export const expectedReports: ApiReports = {
       rp_approved_at: '2023-01-17T06:33:29.049',
       rp_claim_number: 'C/2023/01/R/9',
       rp_created_at: new Date('2023-01-13T07:29:00.963045'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpGpzBpAxtSn',
@@ -790,7 +790,7 @@ export const expectedReports: ApiReports = {
       rp_approved_at: null,
       rp_claim_number: 'C/2022/12/R/34',
       rp_created_at: new Date('2022-12-26T07:29:00.734031'),
-      rp_currency: 'INR',
+      rp_currency: 'USD',
       rp_exported: false,
       rp_from_dt: null,
       rp_id: 'rpFkJ6jUJOyg',
@@ -884,7 +884,7 @@ export const expectedReportsSingle = {
   us_full_name: 'Abhishek Jain',
 };
 
-export const apiTeamRptCountRes: ApiReports = {
+export const apiTeamRptCountRes: ApiV2Response<ExtendedReport> = {
   count: 25,
   data: [
     {
@@ -955,7 +955,7 @@ export const apiTeamRptCountRes: ApiReports = {
   url: '/v2/reports',
 };
 
-export const apiTeamRptSingleRes: ApiReports = {
+export const apiTeamRptSingleRes: ApiV2Response<ExtendedReport> = {
   count: 1,
   data: [
     {

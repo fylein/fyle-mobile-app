@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { inject, TestBed } from '@angular/core/testing';
 
 import { ReportService } from './report.service';
 import { NetworkService } from './network.service';
@@ -143,22 +143,15 @@ describe('ReportService', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
   });
 
-  function fixDates(res) {
-    return {
-      ...res,
-      data: dateService.fixDates(res.data),
-    };
-  }
-
-  function getExtendedOrgUser() {
+  function mockExtendedOrgUser() {
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
   }
 
-  function getReports() {
+  function mockReports() {
     apiv2Service.get.and.returnValue(of(apiReportRes));
   }
 
-  function getPaginatedReports() {
+  function mockPagintedReports() {
     apiv2Service.get.and.returnValue(of(apiReportRes1));
     apiv2Service.get.and.returnValue(of(apiReportRes2));
   }
@@ -212,8 +205,8 @@ describe('ReportService', () => {
   });
 
   it('getMyReports(): should get reports from API as specified by params', (done) => {
-    getExtendedOrgUser();
-    getReports();
+    mockExtendedOrgUser();
+    mockReports();
 
     const params = {
       offset: 0,
@@ -224,16 +217,26 @@ describe('ReportService', () => {
       order: 'rp_created_at.desc',
     };
 
+    const apiParams = {
+      offset: 0,
+      limit: 10,
+      order: 'rp_created_at.desc,rp_id.desc',
+      rp_org_user_id: 'eq.ouX8dwsbLCLv',
+      or: [],
+    };
+
     reportService.getMyReports(params).subscribe((res) => {
-      expect(res).toEqual(fixDates(res));
+      expect(res).toEqual(res);
+      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', { params: apiParams });
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(apiv2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('getMyReportsCount(): should get reports count', (done) => {
-    getExtendedOrgUser();
-    getReports();
+    mockExtendedOrgUser();
+    mockReports();
 
     reportService.getMyReportsCount({}).subscribe((res) => {
       expect(res).toEqual(4);
@@ -243,7 +246,7 @@ describe('ReportService', () => {
   });
 
   it('getReport(): should get the report from API as per report ID given', (done) => {
-    getExtendedOrgUser();
+    mockExtendedOrgUser();
     apiv2Service.get.and.returnValue(of(apiReportSingleRes));
 
     const reportID = 'rpfClhA1lglE';
@@ -256,7 +259,7 @@ describe('ReportService', () => {
   });
 
   it('getTeamReportsCount(): should get a count of team reports', (done) => {
-    getExtendedOrgUser();
+    mockExtendedOrgUser();
     apiv2Service.get.and.returnValue(of(apiTeamRptCountRes));
 
     const apiParam = {
@@ -273,7 +276,7 @@ describe('ReportService', () => {
   });
 
   it('getTeamReport(): should get a team report', (done) => {
-    getExtendedOrgUser();
+    mockExtendedOrgUser();
     apiv2Service.get.and.returnValue(of(apiTeamRptSingleRes));
 
     const reportID = 'rphNNUiCISkD';
@@ -504,7 +507,7 @@ describe('ReportService', () => {
     const orgUserID = 'ouCI4UQ2G0K1';
 
     reportService.getReportETxnc(reportID, orgUserID).subscribe((res) => {
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(res).toEqual(apiExpenseRes);
       expect(apiService.get).toHaveBeenCalledWith(`/erpts/${reportID}/etxns`, {
         params: {
           approver_id: orgUserID,
@@ -515,7 +518,7 @@ describe('ReportService', () => {
   });
 
   it('getReportStatsData(): should get report stats data', (done) => {
-    getExtendedOrgUser();
+    mockExtendedOrgUser();
     apiv2Service.get.and.returnValue(of(apiReportStatsRawRes));
 
     const params = {
@@ -538,7 +541,7 @@ describe('ReportService', () => {
   });
 
   it('getReportStats(): should get report stats to display on dashboard', (done) => {
-    getExtendedOrgUser();
+    mockExtendedOrgUser();
     apiv2Service.get.and.returnValue(of(new StatsResponse(apiReportStatsRes)));
 
     reportService.getReportStats(apiReportStatParams).subscribe((res) => {

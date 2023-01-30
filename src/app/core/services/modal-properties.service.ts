@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { ModalController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ModalPropertiesService {
-  constructor(private modalController: ModalController) {}
+  constructor() {}
 
   getModalDefaultProperties(cssClass = 'fy-modal') {
     const properties = {

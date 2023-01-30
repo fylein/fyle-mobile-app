@@ -26,6 +26,7 @@ import { Expense } from '../models/expense.model';
 import { Approver } from '../models/v1/approver.model';
 import { ReportActions } from '../models/report-actions.model';
 import { ReportPurpose } from '../models/report-purpose.model';
+import { ApiV2Response } from '../models/api-v2.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -320,7 +321,7 @@ export class ReportService {
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<ExtendedReport>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/reports', {
