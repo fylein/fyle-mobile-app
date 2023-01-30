@@ -21,7 +21,6 @@ export interface Expense {
   ou_mobile: string;
   ou_org_id: string;
   ou_org_name: string;
-  ou_rank?: any;
   ou_sub_department: string;
   ou_title: string;
   ou_user_id: string;
@@ -31,9 +30,9 @@ export interface Expense {
   rp_reimbursed_at?: any;
   source_account_id: string;
   source_account_type: string;
-  transaction_approvals?: any;
-  tx_admin_amount?: any;
-  tx_amount?: any;
+  transaction_approvals?: string[];
+  tx_admin_amount?: number;
+  tx_amount?: number;
   tx_billable: boolean;
   tx_boolean_column1?: any;
   tx_boolean_column10?: any;
@@ -66,12 +65,8 @@ export interface Expense {
   tx_decimal_column7?: any;
   tx_decimal_column8?: any;
   tx_decimal_column9?: any;
-  tx_tax_amount?: any;
-  tg_name?: string;
-  tg_percentage?: any;
   tx_distance?: any;
   tx_distance_unit?: any;
-  tx_duplicates?: any;
   tx_expense_number: string;
   tx_external_id?: any;
   tx_extracted_data?: any;
@@ -127,9 +122,6 @@ export interface Expense {
   tx_reported_at?: any;
   tx_risk_state?: any;
   tx_skip_reimbursement: boolean;
-  tx_platform_vendor?: any;
-  tx_platform_vendor_id?: any;
-  is_test_call?: any;
   tx_source: string;
   tx_source_account_id: string;
   tx_split_group_id: string;
@@ -177,9 +169,6 @@ export interface Expense {
   tx_train_travel_class?: any;
   tx_transcribed_data?: any;
   tx_transcription_state?: any;
-  tx_taxi_travel_class?: any;
-  tx_activity_policy_pending?: any;
-  tx_activity_details?: any;
   tx_txn_dt?: Date;
   tx_updated_at?: Date;
   tx_user_amount?: any;
@@ -195,5 +184,22 @@ export interface Expense {
   tx_dataUrls?: { thumbnail: string }[];
   vendor?: string;
   violation?: boolean;
-  tx_is_implicit_merge_blocked?: any;
+  tx_duplicates?: string[];
+  tx_tax_amount?: number;
+  tg_name?: string;
+  tg_percentage?: number;
+  ou_rank?: number;
+  tx_platform_vendor?: string;
+  tx_platform_vendor_id?: string;
+  is_test_call?: boolean;
+  tx_taxi_travel_class?: string;
+  tx_activity_policy_pending?: boolean;
+  tx_activity_details?: string;
+  tx_is_implicit_merge_blocked?: boolean;
+  _search_document?: string;
+  corporate_credit_card_account_number?: string;
+  credit?: boolean;
+  debit?: boolean;
+  duplicates?: string[];
+  tx_is_split_expense?: boolean;
 }
