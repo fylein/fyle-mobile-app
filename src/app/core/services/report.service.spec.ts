@@ -170,7 +170,7 @@ describe('ReportService', () => {
 
   it('createDraft(): should create a draft report and return the report', (done) => {
     apiService.post.and.returnValue(of(reportUnflattenedData));
-    transactionService.clearCache.and.returnValue(of(null));
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportParam = {
       purpose: 'A draft Report',
@@ -181,14 +181,14 @@ describe('ReportService', () => {
       expect(res).toEqual(reportUnflattenedData);
       expect(apiService.post).toHaveBeenCalledWith('/reports', reportParam);
       expect(apiService.post).toHaveBeenCalledTimes(1);
-      expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('removeTransaction(): should remove a transaction from report', (done) => {
     apiService.post.and.returnValue(of(null));
-    transactionService.clearCache.and.returnValue(of(null));
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportID = 'rpvcIMRMyM3A';
     const txnID = 'txTQVBx7W8EO';
@@ -202,7 +202,7 @@ describe('ReportService', () => {
     reportService.removeTransaction(reportID, txnID, null).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
       expect(apiService.post).toHaveBeenCalledTimes(1);
-      expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -315,7 +315,7 @@ describe('ReportService', () => {
 
   it('addTransactions(): should add a transaction to a report', (done) => {
     apiService.post.and.returnValue(of(null));
-    transactionService.clearCache.and.returnValue(of(null));
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportID = 'rpvcIMRMyM3A';
     const tnxs = ['txTQVBx7W8EO'];
@@ -323,7 +323,7 @@ describe('ReportService', () => {
     reportService.addTransactions(reportID, tnxs).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, { ids: tnxs });
       expect(apiService.post).toHaveBeenCalledTimes(1);
-      expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -355,7 +355,7 @@ describe('ReportService', () => {
 
   it('create(): should create a new report', (done) => {
     apiService.post.and.returnValue(of(reportUnflattenedData2));
-    transactionService.clearCache.and.returnValue(of(null));
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportPurpose = {
       purpose: 'A new report',
@@ -373,7 +373,7 @@ describe('ReportService', () => {
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, txnParam);
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/submit`);
       expect(apiService.post).toHaveBeenCalledTimes(3);
-      expect(transactionService.clearCache).toHaveBeenCalledTimes(2);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(2);
       done();
     });
   });
