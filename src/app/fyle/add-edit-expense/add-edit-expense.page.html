@@ -39,16 +39,13 @@
       >
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
-      <ng-container
-        *ngIf="(reviewList?.length || mode === 'edit') && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && etxn$|async as etxn"
-      >
+      <ng-container *ngIf="(reviewList?.length || mode === 'edit') && !isCccExpense && etxn$|async as etxn">
         <ng-container *ngIf="canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)">
           <ion-button class="add-edit-expense--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
             <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
           </ion-button>
         </ng-container>
       </ng-container>
-
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="isConnected$|async as isConnected">
           <ng-container *ngIf="!(etxn?.tx?.report_id) && !(reviewList?.length > 1)">
@@ -114,14 +111,14 @@
           </ng-container>
         </ng-container>
 
-        <ng-container *ngIf="isUnifyCcceExpensesSettingsEnabled && isCccExpense">
+        <ng-container *ngIf="isCccExpense">
           <ng-container *ngIf="etxn$|async as etxn">
-            <div class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border">
+            <div
+              class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border"
+              *ngIf="(!(etxn?.tx?.report_id) && !(reviewList?.length > 1)) && (isCorporateCreditCardEnabled && canRemoveCardExpense)"
+            >
               <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
-              <div
-                class="add-edit-expense--split-info-message"
-                *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canRemoveCardExpense)"
-              >
+              <div class="add-edit-expense--split-info-message">
                 If the expense is merged with incorrect card details, click on Options (<span
                   ><ion-icon
                     class="add-edit-expense--icon-dots"
@@ -346,71 +343,10 @@
 
         <ng-container *ngIf="isCCCPaymentModeSelected$|async">
           <app-fy-alert-info
-            *ngIf="isUnifyCcceExpensesSettingsEnabled && !isCccExpense"
+            *ngIf="!isCccExpense"
             [type]="'information'"
             [message]="'Fyle will automatically merge this expense with the corresponding corporate card transaction when it flows into fyle.'"
           ></app-fy-alert-info>
-        </ng-container>
-
-        <ng-container *ngIf="isCCCPaymentModeSelected$|async">
-          <div *ngIf="showCardTransaction && (isCCCAccountSelected$|async) && !isUnifyCcceExpensesSettingsEnabled">
-            <div class="add-edit-expense--card-header">Card Transaction</div>
-            <div
-              *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC && !((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && selectedCCCTransaction)"
-              class="add-edit-expense--card-txn-container"
-            >
-              <mat-icon svgIcon="fy-corporate-card" class="add-edit-expense--icon-corporate-card"></mat-icon>
-              <div *ngIf="(!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount)">
-                Enter date and amount to search for the matching card transaction
-              </div>
-              <div
-                *ngIf="this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && !selectedCCCTransaction && !isLoadingSuggestions"
-              >
-                <div *ngIf="matchingCCCTransactions.length === 0">No matching transactions available</div>
-                <div
-                  (click)="openMatchingTransactions()"
-                  *ngIf="(matchingCCCTransactions.length > 0 || selectedCCCTransaction) && canChangeMatchingCCCTransaction && !isCreatedFromCCC"
-                >
-                  No transaction selected. Change option.
-                </div>
-              </div>
-            </div>
-
-            <div
-              *ngIf="(this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount) || isLoadingSuggestions || selectedCCCTransaction"
-              class="add-edit-expense--matching-card"
-              [ngClass]="{'add-edit-expense--no-matching-card': !selectedCCCTransaction}"
-            >
-              <div *ngIf="isLoadingSuggestions" class="add-edit-expense--loading-suggestions">
-                <ion-skeleton-text class="add-edit-expense--icon-loading"></ion-skeleton-text>
-                <ion-skeleton-text class="add-edit-expense--text-loading"></ion-skeleton-text>
-              </div>
-              <mat-icon
-                *ngIf="selectedCCCTransaction && !isLoadingSuggestions"
-                svgIcon="fy-corporate-card"
-                class="add-edit-expense--icon-corporate-card"
-              ></mat-icon>
-              <div
-                *ngIf="selectedCCCTransaction && !isLoadingSuggestions"
-                (click)="openMatchingTransactions()"
-                class="add-edit-expense--matching-content"
-                [ngClass]="{'add-edit-expense--ccc-expense': isCreatedFromCCC}"
-              >
-                <span class="text-capitalize"
-                  >{{ (selectedCCCTransaction.vendor || selectedCCCTransaction.description) | ellipsis:20}},
-                </span>
-                <span>{{ selectedCCCTransaction.txn_dt | date: 'MMM dd, YYYY'}} - </span>
-                <span
-                  >{{ selectedCCCTransaction.amount | currency: selectedCCCTransaction.currency: 'symbol-narrow'}}</span
-                >
-              </div>
-              <mat-icon
-                *ngIf="selectedCCCTransaction && !isLoadingSuggestions"
-                class="add-edit-expense--card-arrow"
-                svgIcon="fy-arrow-down"
-              ></mat-icon>
-            </div>
-          </div>
         </ng-container>
 
         <div class="add-edit-expense--primary-block">
@@ -595,7 +531,6 @@
                         </div>
                         <input
                           appFormatDate
-                          [disabled]="!txnFields.from_dt?.canEdit"
                           class="add-edit-expense--date-input date-input__format smartlook-show"
                           formControlName="from_dt"
                           [name]="txnFields.from_dt?.field_name"
@@ -620,7 +555,6 @@
                         </div>
                         <input
                           appFormatDate
-                          [disabled]="!txnFields.to_dt?.canEdit"
                           class="add-edit-expense--date-input date-input__format smartlook-show"
                           formControlName="to_dt"
                           [name]="txnFields.to_dt?.field_name"
@@ -643,7 +577,6 @@
                       >
                         <app-fy-select
                           *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-                          [disabled]="!txnFields.flight_journey_travel_class?.canEdit"
                           [label]="txnFields.flight_journey_travel_class?.field_name"
                           [mandatory]="txnFields.flight_journey_travel_class?.is_mandatory"
                           [options]="txnFields.flight_journey_travel_class?.options"
@@ -663,7 +596,6 @@
                       >
                         <app-fy-select
                           *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
-                          [disabled]="!txnFields.flight_return_travel_class?.canEdit"
                           [label]="txnFields.flight_return_travel_class?.field_name"
                           [mandatory]="txnFields.flight_return_travel_class?.is_mandatory"
                           [options]="txnFields.flight_journey_travel_class?.options"
@@ -694,7 +626,6 @@
                     <input
                       (blur)="focusState = false"
                       (focus)="focusState = true"
-                      [disabled]="!txnFields.train_travel_class?.canEdit"
                       [placeholder]="txnFields.train_travel_class.placeholder || 'Enter ' + txnFields.train_travel_class.field_name"
                       class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
                       formControlName="train_travel_class"
@@ -704,7 +635,6 @@
 
                   <app-fy-select
                     *ngIf="txnFields.train_travel_class?.type === 'SELECT'"
-                    [disabled]="!txnFields.train_travel_class?.canEdit"
                     [label]="txnFields.train_travel_class?.field_name"
                     [mandatory]="txnFields.train_travel_class?.is_mandatory"
                     [options]="txnFields.train_travel_class?.options"
@@ -732,14 +662,12 @@
                     (focus)="focusState = true"
                     [placeholder]="txnFields.bus_travel_class?.placeholder || 'Enter ' + txnFields.bus_travel_class?.field_name"
                     *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
-                    [disabled]="!txnFields.bus_travel_class?.canEdit"
                     class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
                     formControlName="bus_travel_class"
                     type="text"
                   />
                   <app-fy-select
                     *ngIf="txnFields.bus_travel_class?.type === 'SELECT'"
-                    [disabled]="!txnFields.bus_travel_class?.canEdit"
                     [label]="txnFields.bus_travel_class?.field_name"
                     [mandatory]="txnFields.bus_travel_class?.is_mandatory"
                     [options]="txnFields.bus_travel_class?.options"
@@ -804,7 +732,6 @@
             >
               <app-fy-select-vendor
                 *ngIf="!txnFields.vendor_id?.options?.length"
-                [disabled]="!txnFields?.vendor_id?.canEdit"
                 [label]="txnFields.vendor_id?.field_name"
                 [mandatory]="txnFields?.vendor_id?.is_mandatory"
                 formControlName="vendor_id"
@@ -813,7 +740,6 @@
               </app-fy-select-vendor>
               <app-virtual-select
                 *ngIf="txnFields.vendor_id?.options?.length"
-                [disabled]="!txnFields.vendor_id?.canEdit"
                 [label]="txnFields.vendor_id?.field_name"
                 [mandatory]="txnFields.vendor_id?.is_mandatory"
                 [options]="txnFields.vendor_id?.options"
@@ -871,7 +797,6 @@
                     <span class="add-edit-expense--mandatory" *ngIf="txnFields.purpose?.is_mandatory"> * </span>
                   </div>
                   <input
-                    [disabled]="!txnFields.purpose?.canEdit"
                     [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | slice: 0:30"
                     [required]="txnFields.purpose?.is_mandatory"
                     [title]="'Enter'+txnFields.purpose?.field_name"
@@ -886,7 +811,6 @@
                 >
                   <app-fy-select
                     [cacheName]="'recentPurposeList'"
-                    [disabled]="!txnFields.purpose?.canEdit"
                     [label]="txnFields.purpose?.field_name"
                     [mandatory]="txnFields.purpose?.is_mandatory"
                     [nullOption]="txnFields.purpose?.is_mandatory ? false : true"
@@ -1054,47 +978,12 @@
         </ng-template>
       </div>
 
-      <div *ngIf="etxn$|async as etxn">
-        <div
-          class="add-edit-expense--split-expense-block"
-          *ngIf="(isConnected$|async) && !(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && (isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)"
-        >
-          <button class="add-edit-expense--split-expense-container" (click)="showMoreActions()">
-            <div class="add-edit-expense--split-expense-title">Split Expense</div>
-          </button>
-          <div class="add-edit-expense--split-info-container">
-            <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
-            <div class="add-edit-expense--split-info-message">
-              Fill all the required fields before splitting an expense.
-            </div>
-          </div>
-        </div>
-      </div>
-
       <app-fy-alert-info
         *ngIf="isNotReimbursable$|async"
         [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
         [type]="'information'"
       >
       </app-fy-alert-info>
-
-      <ng-container *ngIf="etxn$|async as etxn">
-        <ng-container
-          *ngIf="(etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction) && !isUnifyCcceExpensesSettingsEnabled"
-        >
-          <app-fy-alert [message]="'Automatically created from your company\'s card feed'" [type]="'card'">
-          </app-fy-alert>
-        </ng-container>
-      </ng-container>
-
-      <ng-container *ngIf="etxn$|async as etxn">
-        <ng-container
-          *ngIf="etxn.tx && etxn.tx.amount < 0 && !!etxn.tx.corporate_credit_card_expense_group_id && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense)"
-        >
-          <app-fy-alert [message]="'Expense created due to reversal of card transaction.'" [type]="'card'">
-          </app-fy-alert>
-        </ng-container>
-      </ng-container>
 
       <ng-container *ngIf="isConnected$">
         <ng-container *ngIf="txnFields$|async as txnFields">

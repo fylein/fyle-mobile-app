@@ -182,12 +182,7 @@ export class SidemenuComponent implements OnInit {
     const cardOptions = [
       {
         title: 'Corporate Cards',
-        isVisible:
-          this.orgSettings.corporate_credit_card_settings?.enabled &&
-          !(
-            this.orgSettings.unify_ccce_expenses_settings.allowed &&
-            this.orgSettings.unify_ccce_expenses_settings.enabled
-          ),
+        isVisible: false,
         route: ['/', 'enterprise', 'corporate_card_expenses'],
       },
       {

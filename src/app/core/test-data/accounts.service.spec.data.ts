@@ -2015,10 +2015,6 @@ export const orgSettingsData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
-  suggested_expense_merge_settings: {
-    allowed: true,
-    enabled: true,
-  },
   org_expense_form_autofills: {
     allowed: true,
     enabled: true,
@@ -2032,10 +2028,6 @@ export const orgSettingsData: OrgSettings = {
     enabled: true,
   },
   company_expenses_beta_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  unify_ccce_expenses_settings: {
     allowed: true,
     enabled: true,
   },
@@ -2415,10 +2407,6 @@ export const orgSettingsAdvDisabledData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
-  suggested_expense_merge_settings: {
-    allowed: true,
-    enabled: true,
-  },
   org_expense_form_autofills: {
     allowed: true,
     enabled: true,
@@ -2432,10 +2420,6 @@ export const orgSettingsAdvDisabledData: OrgSettings = {
     enabled: true,
   },
   company_expenses_beta_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  unify_ccce_expenses_settings: {
     allowed: true,
     enabled: true,
   },

@@ -14,6 +14,7 @@ import {
   BehaviorSubject,
   throwError,
   Subscription,
+  noop,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
@@ -318,8 +319,6 @@ export class AddEditExpensePage implements OnInit {
 
   canRemoveFromReport = false;
 
-  isUnifyCcceExpensesSettingsEnabled: boolean;
-
   isCccExpense: boolean;
 
   cardNumber: string;
@@ -424,10 +423,6 @@ export class AddEditExpensePage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        const reportId = this.fg.value.report?.rp?.id;
-        if (reportId) {
-          this.showAddToReportSuccessToast(reportId);
-        }
       }
     }
   }
@@ -943,7 +938,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense) {
+        if (this.isCccExpense) {
           if (this.isExpenseMatchedForDebitCCCE) {
             actionSheetOptions.push({
               text: 'Mark as Personal',
@@ -2558,11 +2553,6 @@ export class AddEditExpensePage implements OnInit {
     );
 
     orgSettings$.subscribe((orgSettings) => {
-      this.isUnifyCcceExpensesSettingsEnabled =
-        orgSettings.unify_ccce_expenses_settings &&
-        orgSettings.unify_ccce_expenses_settings.allowed &&
-        orgSettings.unify_ccce_expenses_settings.enabled;
-
       this.isCorporateCreditCardEnabled =
         orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
@@ -3086,7 +3076,13 @@ export class AddEditExpensePage implements OnInit {
               that
                 .addExpense('SAVE_EXPENSE')
                 .pipe(
-                  switchMap((txnData: Promise<any>) => from(txnData)),
+                  switchMap((txnData: Promise<any>) => {
+                    if (txnData) {
+                      return from(txnData);
+                    } else {
+                      return of(null);
+                    }
+                  }),
                   finalize(() => {
                     this.saveExpenseLoader = false;
                   })
@@ -3705,16 +3701,24 @@ export class AddEditExpensePage implements OnInit {
                     etxn.tx.source += '_OFFLINE';
                   }
 
-                  return of(
-                    this.transactionOutboxService.addEntryAndSync(
-                      etxn.tx,
-                      etxn.dataUrls,
-                      comments,
-                      reportId,
-                      null,
-                      receiptsData
-                    )
-                  );
+                  if (this.activatedRoute.snapshot.params.rp_id) {
+                    return of(
+                      this.transactionOutboxService.addEntryAndSync(
+                        etxn.tx,
+                        etxn.dataUrls,
+                        comments,
+                        reportId,
+                        null,
+                        receiptsData
+                      )
+                    );
+                  } else {
+                    this.transactionOutboxService
+                      .addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
+                      .then(noop);
+
+                    return of(null);
+                  }
                 })
               );
             }

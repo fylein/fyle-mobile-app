@@ -379,10 +379,6 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
-  unify_ccce_expenses_settings: {
-    allowed: true,
-    enabled: true,
-  },
   ccc_draft_expense_settings: {
     allowed: true,
     enabled: true,
@@ -405,10 +401,6 @@ export const orgSettingsGetData: OrgSettings = {
     enabled: true,
   },
   mastercard_enrollment_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  suggested_expense_merge_settings: {
     allowed: true,
     enabled: true,
   },
@@ -810,15 +802,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: true,
     enabled: true,
   },
-  unify_ccce_expenses_settings: {
-    allowed: true,
-    enabled: true,
-  },
   expense_widget_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  suggested_expense_merge_settings: {
     allowed: true,
     enabled: true,
   },

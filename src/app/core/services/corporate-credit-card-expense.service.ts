@@ -132,7 +132,10 @@ export class CorporateCreditCardExpenseService {
     return queryString;
   }
 
-  getExpenseDetailsInCards(uniqueCards: { cardNumber: string; cardName: string }, statsResponse: CardAggregateStat[]) {
+  getExpenseDetailsInCards(
+    uniqueCards: { cardNumber: string; cardName: string }[],
+    statsResponse: CardAggregateStat[]
+  ) {
     const cardsCopy = JSON.parse(JSON.stringify(uniqueCards));
     const uniqueCardsCopy = [];
     cardsCopy?.forEach((card) => {
@@ -187,19 +190,6 @@ export class CorporateCreditCardExpenseService {
         });
         return stats;
       })
-    );
-  }
-
-  getNonUnifyCCCAssignedCards() {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.get('/bank_accounts_assigned', {
-          params: {
-            assigned_to_ou_id: 'eq.' + eou.ou.id,
-          },
-        })
-      ),
-      map((res) => res.data as BankAccountsAssigned[])
     );
   }
 }
