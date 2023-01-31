@@ -206,7 +206,7 @@ export class TransactionService {
     cacheBusterObserver: transactionsCacheBuster$,
   })
   // TODO: Remove `any` type once the stats response implementation is fixed
-  getTransactionStats(aggregates: string, queryParams: EtxnParams = {}): Observable<any> {
+  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<any> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiV2Service.get('/expenses/stats', {
@@ -381,7 +381,7 @@ export class TransactionService {
       .pipe(map((etxns) => etxns.data));
   }
 
-  getMyExpensesCount(queryParams: EtxnParams = {}): Observable<number> {
+  getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
     return this.getMyExpenses({
       offset: 0,
       limit: 1,
@@ -493,7 +493,7 @@ export class TransactionService {
     return this.getAllETxnc(data);
   }
 
-  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<UnflattenedTransaction> {
+  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
     const data = {
       transaction_id: txnId,
       corporate_credit_card_expense_id: corporateCreditCardExpenseId,
@@ -750,7 +750,7 @@ export class TransactionService {
         newQueryParamsCopy.and = `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
       }
 
-      newQueryParamsCopy = this.generateCustomDateParams(newQueryParams, filters);
+      newQueryParamsCopy = this.generateCustomDateParams(newQueryParamsCopy, filters);
     }
 
     return newQueryParamsCopy;
@@ -891,8 +891,8 @@ export class TransactionService {
   private generateCustomDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {
-      const startDate = filters?.customDateStart?.toISOString();
-      const endDate = filters?.customDateEnd?.toISOString();
+      const startDate = filters.customDateStart?.toISOString();
+      const endDate = filters.customDateEnd?.toISOString();
       if (filters.customDateStart && filters.customDateEnd) {
         newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
       } else if (filters.customDateStart) {

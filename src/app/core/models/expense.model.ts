@@ -184,7 +184,12 @@ export interface Expense {
   tx_dataUrls?: { thumbnail: string }[];
   vendor?: string;
   violation?: boolean;
-  tx_duplicates?: string[];
+  tx_duplicates?: {
+    transaction_id: string;
+    reason: string;
+    percent: number;
+    fields: string[];
+  }[];
   tx_tax_amount?: number;
   tg_name?: string;
   tg_percentage?: number;
