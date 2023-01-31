@@ -1,6 +1,6 @@
-import { ReportUnflattenedData } from '../models/report-unflattended-data.model';
+import { ReportV1 } from '../models/report-v1.model';
 
-export const reportUnflattenedData: ReportUnflattenedData = {
+export const reportUnflattenedData: ReportV1 = {
   created_at: new Date('2023-01-19T16:25:46.804Z'),
   updated_at: new Date('2023-01-19T16:25:46.804Z'),
   last_updated_by: {
@@ -51,7 +51,7 @@ export const reportUnflattenedData: ReportUnflattenedData = {
   type: 'EXPENSE',
 };
 
-export const reportUnflattenedData2: ReportUnflattenedData = {
+export const reportUnflattenedData2: ReportV1 = {
   created_at: new Date('2023-01-21T07:45:18.869Z'),
   updated_at: new Date('2023-01-21T07:45:18.869Z'),
   last_updated_by: {

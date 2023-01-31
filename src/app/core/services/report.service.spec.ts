@@ -36,7 +36,7 @@ import { apiApproverRes } from '../mock-data/approver.data';
 import { orgSettingsParams } from '../mock-data/org-settings.data';
 import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
-import { reportUnflattenedData, reportUnflattenedData2 } from '../mock-data/report-unflatttened-data.data';
+import { reportUnflattenedData, reportUnflattenedData2 } from '../mock-data/report-v1.data';
 import { apiErptcReportsRes } from '../mock-data/report.data';
 
 describe('ReportService', () => {
@@ -181,6 +181,7 @@ describe('ReportService', () => {
       expect(res).toEqual(reportUnflattenedData);
       expect(apiService.post).toHaveBeenCalledWith('/reports', reportParam);
       expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -201,6 +202,7 @@ describe('ReportService', () => {
     reportService.removeTransaction(reportID, txnID, null).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
       expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -268,6 +270,7 @@ describe('ReportService', () => {
     reportService.getReport(reportID).subscribe((res) => {
       expect(res).toEqual(expectedReportSingleResponse);
       expect(reportService.getMyReports).toHaveBeenCalledWith(params);
+      expect(reportService.getMyReports).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -320,6 +323,7 @@ describe('ReportService', () => {
     reportService.addTransactions(reportID, tnxs).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, { ids: tnxs });
       expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -369,6 +373,7 @@ describe('ReportService', () => {
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, txnParam);
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/submit`);
       expect(apiService.post).toHaveBeenCalledTimes(3);
+      expect(transactionService.clearCache).toHaveBeenCalledTimes(2);
       done();
     });
   });

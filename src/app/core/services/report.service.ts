@@ -299,7 +299,7 @@ export class ReportService {
     return stateMap[state];
   }
 
-  getPaginatedERptcCount(params): Observable<{ count: number }> {
+  getPaginatedERptcCount(params: { state?: string }): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
@@ -553,7 +553,7 @@ export class ReportService {
     );
   }
 
-  getFilteredPendingReports(searchParams) {
+  getFilteredPendingReports(searchParams: { state: string }) {
     const params = this.searchParamsGenerator(searchParams);
 
     return this.getPaginatedERptcCount(params).pipe(

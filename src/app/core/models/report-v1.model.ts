@@ -1,6 +1,6 @@
-import { UserDetails } from '../models/v1/user-details.model';
+import { UserDetails } from './v1/user-details.model';
 
-export interface ReportUnflattenedData {
+export interface ReportV1 {
   created_at: Date;
   updated_at: Date;
   last_updated_by?: UserDetails;
@@ -10,7 +10,7 @@ export interface ReportUnflattenedData {
   currency: string;
   creator_id: string;
   amount: number;
-  tax?: any;
+  tax?: number;
   status_id?: string;
   num_transactions: number;
   tally_export_id?: string;
@@ -24,7 +24,7 @@ export interface ReportUnflattenedData {
   verification_state?: string;
   trip_request_id?: string;
   physical_bill: boolean;
-  exported: any;
+  exported: boolean;
   manual_flag: boolean;
   policy_flag: boolean;
   claim_number: string;
