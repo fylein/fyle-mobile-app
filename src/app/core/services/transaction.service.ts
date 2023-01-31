@@ -137,7 +137,7 @@ export class TransactionService {
         return range(0, count);
       }),
       concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
-      reduce((acc, curr) => acc.concat(curr))
+      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
     );
   }
 
@@ -231,7 +231,7 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  deleteBulk(txnIds: string[]): Observable<Expense[]> {
+  deleteBulk(txnIds: string[]): Observable<Transaction[]> {
     const chunkSize = 10;
     const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
     return range(0, count).pipe(
@@ -241,7 +241,7 @@ export class TransactionService {
           txn_ids: filteredtxnIds,
         });
       }),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
+      reduce((acc, curr) => acc.concat(curr), [] as Transaction[])
     );
   }
 
@@ -611,12 +611,12 @@ export class TransactionService {
 
   getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
     return `You are about to permanently delete ${
-      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
+      expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
     }`;
   }
 
   getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number): string {
-    return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
+    return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
       expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
@@ -631,19 +631,19 @@ export class TransactionService {
   ): string {
     let dialogBody: string;
 
-    if (expensesToBeDeleted?.length > 0 && cccExpenses > 0) {
+    if (expensesToBeDeleted.length > 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
         <li>Once deleted, the action can't be reversed.</li>
         </ul>
         <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted?.length > 0 && cccExpenses === 0) {
+    } else if (expensesToBeDeleted.length > 0 && cccExpenses === 0) {
       dialogBody = `<ul class="text-left">
       <li>${expenseDeletionMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
       <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted?.length === 0 && cccExpenses > 0) {
+    } else if (expensesToBeDeleted.length === 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
       </ul>`;
@@ -706,7 +706,7 @@ export class TransactionService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
-      filters.cardNumbers?.forEach((cardNumber) => {
+      filters.cardNumbers.forEach((cardNumber) => {
         cardNumberString += cardNumber + ',';
       });
       cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
