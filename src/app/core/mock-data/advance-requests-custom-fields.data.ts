@@ -1,11 +1,10 @@
 import { AdvanceRequestsCustomFields } from '../models/advance-requests-custom-fields.model';
-
-export const advanceRequestCustomFields: AdvanceRequestsCustomFields[] = [
+export const advanceRequestCustomFieldData: AdvanceRequestsCustomFields[] = [
   {
     id: 150,
     org_id: 'orNVthTo2Zyo',
-    created_at: '2022-10-30T23:07:03.385Z',
-    updated_at: '2022-10-30T23:07:03.385Z',
+    created_at: new Date('2022-10-30T23:07:03.385Z'),
+    updated_at: new Date('2022-10-30T23:07:03.385Z'),
     type: 'BOOLEAN',
     name: 'checking',
     options: null,
@@ -18,8 +17,8 @@ export const advanceRequestCustomFields: AdvanceRequestsCustomFields[] = [
   {
     id: 152,
     org_id: 'orNVthTo2Zyo',
-    created_at: '2022-11-04T02:14:37.292Z',
-    updated_at: '2022-11-04T02:14:37.292Z',
+    created_at: new Date('2022-11-04T02:14:37.292Z'),
+    updated_at: new Date('2022-11-04T02:14:37.292Z'),
     type: 'BOOLEAN',
     name: 'Okay?',
     options: null,
@@ -32,8 +31,8 @@ export const advanceRequestCustomFields: AdvanceRequestsCustomFields[] = [
   {
     id: 151,
     org_id: 'orNVthTo2Zyo',
-    created_at: '2022-10-30T23:14:06.451Z',
-    updated_at: '2022-10-30T23:14:06.451Z',
+    created_at: new Date('2022-10-30T23:14:06.451Z'),
+    updated_at: new Date('2022-10-30T23:14:06.451Z'),
     type: 'TEXT',
     name: '123',
     options: null,

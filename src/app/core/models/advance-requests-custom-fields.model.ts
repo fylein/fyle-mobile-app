@@ -1,14 +1,14 @@
 export interface AdvanceRequestsCustomFields {
   id: number;
   org_id: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: Date;
+  updated_at?: Date;
   type?: string;
   name: string;
-  options: any;
+  options?: string[];
   mandatory?: boolean;
   active: boolean;
   added_by: string;
-  last_updated_by: string;
-  placeholder?: any;
+  last_updated_by?: string;
+  placeholder?: string;
 }
