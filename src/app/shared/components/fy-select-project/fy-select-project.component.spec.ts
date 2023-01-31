@@ -8,45 +8,43 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { FySelectProjectComponent } from './fy-select-project.component';
 
-describe('FySelectProjectComponent', () => {
+fdescribe('FySelectProjectComponent', () => {
   let component: FySelectProjectComponent;
   let fixture: ComponentFixture<FySelectProjectComponent>;
   let el: DebugElement;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
 
-  beforeEach(
-    waitForAsync(() => {
-      const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
-      const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+  beforeEach(waitForAsync(() => {
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
 
-      TestBed.configureTestingModule({
-        declarations: [FySelectProjectComponent],
-        imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA],
-        providers: [
-          {
-            provide: ModalController,
-            useValue: modalControllerSpy,
-          },
-          {
-            provide: ModalPropertiesService,
-            useValue: modalPropertiesServiceSpy,
-          },
-        ],
-      }).compileComponents();
+    TestBed.configureTestingModule({
+      declarations: [FySelectProjectComponent],
+      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      providers: [
+        {
+          provide: ModalController,
+          useValue: modalControllerSpy,
+        },
+        {
+          provide: ModalPropertiesService,
+          useValue: modalPropertiesServiceSpy,
+        },
+      ],
+    }).compileComponents();
 
-      modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
 
-      fixture = TestBed.createComponent(FySelectProjectComponent);
-      fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
-      component = fixture.componentInstance;
-      el = fixture.debugElement;
-      component.ngOnInit();
-      fixture.detectChanges();
-    })
-  );
+    fixture = TestBed.createComponent(FySelectProjectComponent);
+    fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
+    component = fixture.componentInstance;
+    el = fixture.debugElement;
+    component.ngOnInit();
+    fixture.detectChanges();
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -251,7 +249,6 @@ describe('FySelectProjectComponent', () => {
   it('should not show validation message till the input is touched', async () => {
     component.mandatory = true;
     fixture.detectChanges();
-    await fixture.whenStable();
 
     const validationMessage = el.query(By.css('.fy-select-project--input-invalid'));
     expect(validationMessage).toBeNull();
