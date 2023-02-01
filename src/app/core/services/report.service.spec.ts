@@ -425,10 +425,10 @@ describe('ReportService', () => {
     reportService.create(reportPurpose, txnIds).subscribe((res) => {
       expect(res).toEqual(reportUnflattenedData2);
       expect(reportService.createDraft).toHaveBeenCalledWith(reportPurpose);
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, txnParam);
-      expect(reportService.submit).toHaveBeenCalledWith(reportID);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
       expect(reportService.createDraft).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, txnParam);
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(reportService.submit).toHaveBeenCalledWith(reportID);
       expect(reportService.submit).toHaveBeenCalledTimes(1);
       done();
     });
