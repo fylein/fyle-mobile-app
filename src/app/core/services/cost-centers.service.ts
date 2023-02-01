@@ -54,16 +54,15 @@ export class CostCentersService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformApiService.get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data).pipe(
-      map((res) => this.transformFrom(res.data)),
-      map((res) =>
-        res.map((data) => ({
-          ...data,
-          created_at: new Date(data.created_at),
-          updated_at: new Date(data.updated_at),
-        }))
-      )
-    );
+    console.log(data);
+    this.spenderPlatformApiService
+      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
+      .subscribe((res) => {
+        console.log(res);
+      });
+    return this.spenderPlatformApiService
+      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
+      .pipe(map((res) => this.transformFrom(res.data)));
   }
 
   transformFrom(platformCostCenter: PlatformCostCenter[]): CostCenter[] {

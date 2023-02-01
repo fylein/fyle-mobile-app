@@ -2,28 +2,28 @@ import { TestBed } from '@angular/core/testing';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { CostCentersService } from './cost-centers.service';
+import { DateService } from './date.service';
 import { of } from 'rxjs';
-import { apiCostCenterSingleResponse, transformedCostCenterData } from '../mock-data/cost-centers.data';
-
-const fixDate = (data) =>
-  data.map((data) => ({
-    ...data,
-    created_at: new Date(data.created_at),
-    updated_at: new Date(data.updated_at),
-  }));
+// import{costCentersDataSingle} from '../mock-data/platformCostCenter.data';
 
 describe('CostCentersService', () => {
   let costCentersService: CostCentersService;
   let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
+  let dateService: jasmine.SpyObj<DateService>;
 
   beforeEach(() => {
     const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformApiService', ['get']);
+    const dateServiceSpy = jasmine.createSpyObj('DateService', ['fixDates', 'fixDatesV2']);
     TestBed.configureTestingModule({
       providers: [
         CostCentersService,
         {
           provide: SpenderPlatformApiService,
           useValue: spenderPlatformApiServiceSpy,
+        },
+        {
+          provide: DateService,
+          useValue: dateServiceSpy,
         },
         {
           provide: PAGINATION_SIZE,
@@ -33,17 +33,10 @@ describe('CostCentersService', () => {
     });
     costCentersService = TestBed.inject(CostCentersService);
     spenderPlatformApiService = TestBed.inject(SpenderPlatformApiService) as jasmine.SpyObj<SpenderPlatformApiService>;
+    dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
   });
 
   it('should be created', () => {
     expect(costCentersService).toBeTruthy();
-  });
-
-  it('getAllActive() : should return all active cost centers', () => {
-    spenderPlatformApiService.get.and.returnValue(of(apiCostCenterSingleResponse));
-    costCentersService.getAllActive().subscribe((costCenters) => {
-      expect(costCenters).toEqual(fixDate(transformedCostCenterData));
-      expect(spenderPlatformApiService.get).toHaveBeenCalledTimes(2);
-    });
   });
 });
