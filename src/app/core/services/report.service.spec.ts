@@ -675,7 +675,7 @@ describe('ReportService', () => {
     };
 
     reportService.getAllExtendedReports(params).subscribe((res) => {
-      expect(res).toEqual(expectedAllReports);
+      expect(res).toEqual(dateService.fixDates(expectedAllReports));
       expect(authService.getEou).toHaveBeenCalledTimes(3);
       expect(apiv2Service.get).toHaveBeenCalledTimes(3);
       done();
