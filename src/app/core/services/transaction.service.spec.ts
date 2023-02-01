@@ -15,6 +15,7 @@ import {
   perDiemExpenseMultipleNumDays,
   apiExpenseRes,
   expenseList2,
+  expenseData3,
 } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
@@ -41,6 +42,7 @@ import { txnStats } from '../mock-data/stats-response.data';
 import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 import * as lodash from 'lodash';
 import { txnList } from '../mock-data/transaction.data';
+import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -1111,6 +1113,45 @@ describe('TransactionService', () => {
         expect(networkService.isOnline).toHaveBeenCalled();
         expect(storageService.get).toHaveBeenCalledWith('etxncCount');
         expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  describe('getETxn():', () => {
+    it('it should get etxn from transaction ID without sub category', (done) => {
+      apiService.get.and.returnValue(of(expenseData3));
+      dataTransformService.unflatten.and.returnValue(unflattenedTxnData);
+      dateService.fixDates.and.returnValue(unflattenedTxnData);
+
+      const transactionID = 'tx3qHxFNgRcZ';
+      transactionService.getETxn(transactionID).subscribe((res) => {
+        expect(res).toEqual(unflattenedTxnData);
+        expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
+        expect(apiService.get).toHaveBeenCalledTimes(1);
+        expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedTxnData.tx);
+        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
+        expect(dataTransformService.unflatten).toHaveBeenCalledWith(expenseData3);
+        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('it should get etxn from transaction ID with sub category', (done) => {
+      apiService.get.and.returnValue(of(expenseData3));
+      dataTransformService.unflatten.and.returnValue(unflattenedTxnDataWithSubCategory);
+      dateService.fixDates.and.returnValue(unflattenedTxnDataWithSubCategory);
+
+      const transactionID = 'tx3qHxFNgRcZ';
+
+      transactionService.getETxn(transactionID).subscribe((res) => {
+        expect(res).toEqual(unflattenedTxnDataWithSubCategory);
+        expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
+        expect(apiService.get).toHaveBeenCalledTimes(1);
+        expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedTxnDataWithSubCategory.tx);
+        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
+        expect(dataTransformService.unflatten).toHaveBeenCalledWith(expenseData3);
+        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
         done();
       });
     });
