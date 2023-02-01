@@ -119,7 +119,7 @@ export interface BankDataAggregationSettings {
   allowed?: boolean;
   aggregator?: string;
   auto_assign?: boolean;
-  date_to_sync_from?: string | null;
+  date_to_sync_from?: string;
 }
 
 export interface BankFeedRequestSettings extends CommonOrgSettings {

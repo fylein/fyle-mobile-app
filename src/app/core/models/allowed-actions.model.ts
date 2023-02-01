@@ -1,4 +1,4 @@
-export interface AllowedActions {
+export interface ReportAllowedActions {
   allowedRouteAccess: boolean;
   approve: boolean;
   create: boolean;

@@ -295,7 +295,7 @@ export const expectedSingleErpt = {
 };
 
 export const apiReportUpdatedDetails = {
-  created_at: new Date('2022-10-31T13:54:46.317Z'),
+  created_at: '2022-10-31T13:54:46.317Z',
   updated_at: '2023-01-23T10:53:52.220Z',
   last_updated_by: {
     user_id: 'usvKA4X8Ugcr',
@@ -391,14 +391,11 @@ export const apiErptReporDataParam = {
     physical_bill_at: null,
     policy_flag: false,
     purpose: 'My Testing Report',
+    state: 'APPROVAL_PENDING',
     reimbursed_at: null,
     risk_state: null,
     risk_state_expense_count: null,
     settlement_id: null,
-    source: 'MOBILE',
-    state: 'DRAFT',
-    submitted_at: null,
-    tax: 101.29,
     to_dt: null,
     trip_request_id: null,
     type: 'EXPENSE',

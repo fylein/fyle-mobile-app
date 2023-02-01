@@ -11,6 +11,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.model';
 
 type AmountDetails = {
   'Total Amount': number;
@@ -93,7 +94,7 @@ export class FyViewReportInfoComponent implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get();
     combineLatest([this.etxns$, this.erpt$, orgSettings$]).subscribe(([etxns, erpt, orgSettings]) => {
-      const paymentModeWiseData: PaymentMode = this.transactionService.getPaymentModeWiseSummary(etxns);
+      const paymentModeWiseData: PaymentModeSummary = this.transactionService.getPaymentModeWiseSummary(etxns);
       this.amountComponentWiseDetails = {
         'Total Amount': erpt.rp_amount,
         Reimbursable: paymentModeWiseData.reimbursable?.amount || 0,

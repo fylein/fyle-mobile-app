@@ -279,3 +279,23 @@ export const apiReportStatsRawRes: StatsResponse = {
   ],
   url: '/v2/reports/stats',
 };
+
+export const txnStats: StatsResponse = {
+  data: [
+    {
+      aggregates: [
+        {
+          function_name: 'count(tx_id)',
+          function_value: 8,
+        },
+        {
+          function_name: 'sum(tx_amount)',
+          function_value: 10583.73,
+        },
+      ],
+      dimensions: [],
+      name: 'scalar_stat',
+    },
+  ],
+  url: '/v2/expenses/stats',
+};
