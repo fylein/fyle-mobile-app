@@ -56,6 +56,7 @@ export class CustomFieldsService {
       type: customInput[prefix + 'type'],
       mandatory: customInputMandatory,
       options: customInput[prefix + 'options'],
+      parent_field_id: customInput.parent_field_id,
     };
 
     property = this.setDefaultValue(property, customInput[prefix + 'type']);

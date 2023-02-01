@@ -24,7 +24,9 @@ export class CustomInputsService {
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$,
   })
-  getAll(active: boolean): Observable<ExpenseField[]> {
+  //TODO: Remove this mapping once APIs are available
+  //These are for 'Yash's Test Organization' on staging
+  getAll(active: boolean): Observable<any[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiService.get('/expense_fields', {
@@ -34,6 +36,13 @@ export class CustomInputsService {
             is_custom: true,
           },
         })
+      ),
+      map((customInputs) =>
+        customInputs.map((customInput) => ({
+          ...customInput,
+          parent_field_id: customInput.id === 218227 ? 214662 : customInput.id - 1,
+          type: 'DEPENDENT_SELECT',
+        }))
       )
     );
   }

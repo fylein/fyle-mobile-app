@@ -358,6 +358,8 @@ export class AddEditExpensePage implements OnInit {
 
   dependentFields = [];
 
+  isDependentFieldLoading = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2862,39 +2864,48 @@ export class AddEditExpensePage implements OnInit {
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
 
-    this.fg.controls.project.valueChanges.subscribe((val) => {
-      this.dependentFieldControls.clear();
-      this.dependentFields = [];
-
-      if (val?.dependent_field_id) {
-        this.addDependentField(val?.dependent_field_id);
-      }
-    });
+    this.fg.controls.project.valueChanges
+      .pipe(
+        filter((val) => !!val),
+        tap(() => {
+          this.isDependentFieldLoading = true;
+          this.dependentFieldControls.clear();
+          this.dependentFields = [];
+        }),
+        switchMap((val) =>
+          this.txnFields$.pipe(
+            take(1),
+            switchMap((txnFields) => this.getDependentField(txnFields.project_id.id, val.project_name)),
+            finalize(() => (this.isDependentFieldLoading = false))
+          )
+        )
+      )
+      .subscribe((dependentField) => {
+        if (dependentField) {
+          this.addDependentField(dependentField);
+        }
+      });
   }
 
-  addDependentField(dependentFieldId: number) {
-    this.dependentFieldsService.getDependentFields().subscribe((dependentFields) => {
-      const dependentField = dependentFields.find((field) => field.id === dependentFieldId);
-
-      const newField = this.formBuilder.group({
-        label: dependentField.name,
-        dependent_field_id: dependentField.dependent_field_id,
-        value: [null, dependentField.is_mandatory && Validators.required],
-      });
-
-      newField.valueChanges.subscribe((value) => {
-        this.onDependentFieldChanged(value);
-      });
-
-      this.dependentFields.push({
-        field: dependentField.name,
-        // options: this.data.getFieldValuesById(dependentFieldId).data,
-        mandatory: dependentField.is_mandatory,
-        control: newField,
-      });
-
-      this.dependentFieldControls.push(newField, { emitEvent: false });
+  addDependentField(dependentField) {
+    const newField = this.formBuilder.group({
+      id: dependentField.id,
+      label: dependentField.name,
+      parent_field_id: dependentField.parent_field_id,
+      value: [null, dependentField.mandatory && Validators.required],
     });
+
+    newField.valueChanges.subscribe((value) => {
+      this.onDependentFieldChanged(value);
+    });
+
+    this.dependentFields.push({
+      field: dependentField.name,
+      mandatory: dependentField.mandatory,
+      control: newField,
+    });
+
+    this.dependentFieldControls.push(newField, { emitEvent: false });
   }
 
   onDependentFieldChanged(data) {
@@ -2912,9 +2923,36 @@ export class AddEditExpensePage implements OnInit {
     }
 
     //Create new depenendt field based on this field
-    if (data.dependent_field_id) {
-      this.addDependentField(data.dependent_field_id);
-    }
+    //TODO: need to change this as we no longer have `dependent_field_id`
+    this.isDependentFieldLoading = true;
+    this.getDependentField(data.id, data.value.expense_field_value)
+      .pipe(finalize(() => (this.isDependentFieldLoading = false)))
+      .subscribe((dependentField) => {
+        if (dependentField) {
+          this.addDependentField(dependentField);
+        }
+      });
+  }
+
+  getDependentField(parentFieldId, parentFieldValue) {
+    return this.customInputs$.pipe(
+      take(1),
+      switchMap((customInputs) => {
+        const dependentField = customInputs.find(
+          (customInput) => customInput.type === 'DEPENDENT_SELECT' && customInput.parent_field_id === parentFieldId
+        );
+        if (dependentField) {
+          return this.dependentFieldsService
+            .getOptionsForDependentFieldUtil({
+              fieldId: dependentField.id,
+              parentFieldId,
+              parentFieldValue,
+            })
+            .pipe(map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null)));
+        }
+        return of(null);
+      })
+    );
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
@@ -3097,6 +3135,7 @@ export class AddEditExpensePage implements OnInit {
           prefix: customInput.prefix,
           type: customInput.type,
           value: this.fg.value.custom_inputs[i].value,
+          parent_field_id: customInput.parent_field_id,
         }))
       )
     );

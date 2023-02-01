@@ -66,7 +66,7 @@ export class DependentFieldsService {
     fieldId: number;
     parentFieldId: number;
     parentFieldValue: string;
-    searchQuery: string;
+    searchQuery?: string;
   }) {
     const { fieldId, parentFieldId, parentFieldValue, searchQuery } = config;
     const data = {
@@ -92,7 +92,7 @@ export class DependentFieldsService {
     fieldId: number;
     parentFieldId: number;
     parentFieldValue: string;
-    searchQuery: string;
+    searchQuery?: string;
   }): Observable<PlatformDependentFieldValue[]> {
     return this.categoryService
       .getCategories({
