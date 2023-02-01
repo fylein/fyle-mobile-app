@@ -448,7 +448,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/match', data);
   }
 
-  review(txnId: string): Observable<UnflattenedTransaction> {
+  review(txnId: string): Observable<null> {
     return this.apiService.post('/transactions/' + txnId + '/review');
   }
 
@@ -456,7 +456,7 @@ export class TransactionService {
     return from(this.storageService.get('vehicle_preference'));
   }
 
-  uploadBase64File(txnId: string, name: string, base64Content: string): Observable<UnflattenedTransaction> {
+  uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
     const data = {
       content: base64Content,
       name,
@@ -803,26 +803,33 @@ export class TransactionService {
   }
 
   private getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]): PaymentMode {
-    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
+    const txnSkipReimbursement = etxn.tx_skip_reimbursement;
+    const txnSourceAccountType = etxn.source_account_type;
+    return paymentModes.find((paymentMode) =>
+      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key)
+    );
   }
 
-  private isEtxnInPaymentMode(etxn: Expense, paymentMode: string): boolean {
+  private isEtxnInPaymentMode(
+    txnSkipReimbursement: boolean,
+    txnSourceAccountType: string,
+    paymentMode: string
+  ): boolean {
     let etxnInPaymentMode = false;
-    const isAdvanceOrCCCEtxn =
-      etxn.source_account_type === AccountType.ADVANCE || etxn.source_account_type === AccountType.CCC;
+    const isAdvanceOrCCCEtxn = txnSourceAccountType === AccountType.ADVANCE || txnSourceAccountType === AccountType.CCC;
 
     if (paymentMode === 'reimbursable') {
       //Paid by Employee: reimbursable
-      etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
+      etxnInPaymentMode = !txnSkipReimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'nonReimbursable') {
       //Paid by Company: not reimbursable
-      etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
+      etxnInPaymentMode = txnSkipReimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'advance') {
       //Paid from Advance account: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === AccountType.ADVANCE;
+      etxnInPaymentMode = txnSourceAccountType === AccountType.ADVANCE;
     } else if (paymentMode === 'ccc') {
       //Paid from CCC: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === AccountType.CCC;
+      etxnInPaymentMode = txnSourceAccountType === AccountType.CCC;
     }
     return etxnInPaymentMode;
   }

@@ -70,7 +70,7 @@ export const unflattenedTxnData: UnflattenedTransaction = {
       invoice_dt: null,
     },
     transcribed_data: null,
-    user_review_needed: null,
+    user_review_needed: true,
     mandatory_fields_present: true,
     distance: null,
     distance_unit: null,

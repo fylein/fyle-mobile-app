@@ -43,6 +43,8 @@ import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.da
 import * as lodash from 'lodash';
 import { txnList } from '../mock-data/transaction.data';
 import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
+import { fileObjectData } from '../mock-data/file-object.data';
+import { AccountType } from '../enums/account-type.enum';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -477,7 +479,11 @@ describe('TransactionService', () => {
     // @ts-ignore
     expect(transactionService.getPaymentModeForEtxn(expenseData1, paymentModeList)).toEqual(etxnPaymentMode);
     // @ts-ignore
-    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledWith(expenseData1, etxnPaymentMode.key);
+    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledWith(
+      expenseData1.tx_skip_reimbursement,
+      expenseData1.source_account_type,
+      etxnPaymentMode.key
+    );
     // @ts-ignore
     expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledTimes(1);
   });
@@ -1153,6 +1159,169 @@ describe('TransactionService', () => {
         expect(dataTransformService.unflatten).toHaveBeenCalledWith(expenseData3);
         expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
         done();
+      });
+    });
+  });
+
+  it('review(): should return transaction response on review', (done) => {
+    apiService.post.and.returnValue(of(null));
+    const transactionId = 'tx3qHxFNgRcZ';
+
+    transactionService.review(transactionId).subscribe((res) => {
+      expect(res).toEqual(null);
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionId + '/review');
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('uploadBase64(): should uploadBase64 and return file object response', (done) => {
+    const transactionID = 'txdzGV1TZEg3';
+    const fileName = '000.jpeg';
+    const base64Content = 'dummyBase64Value';
+    apiService.post.and.returnValue(of(fileObjectData));
+
+    transactionService.uploadBase64File(transactionID, fileName, base64Content).subscribe((res) => {
+      expect(res).toEqual(fileObjectData);
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionID + '/upload_b64', {
+        content: base64Content,
+        name: fileName,
+      });
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('isEtxnInPaymentMode():', () => {
+    it('should return isEtxnInPaymentMode with reimbursable payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'reimbursable';
+      const txnSourceAccountType = AccountType.PERSONAL;
+      // @ts-ignore
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with non-reimbursable payment mode', () => {
+      const txnSkipReimbursement = true;
+      const txnPaymentMode = 'nonReimbursable';
+      const txnSourceAccountType = AccountType.PERSONAL;
+      // @ts-ignore
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with advance payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'advance';
+      const txnSourceAccountType = AccountType.ADVANCE;
+      // @ts-ignore
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with advance payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'ccc';
+      const txnSourceAccountType = AccountType.CCC;
+      // @ts-ignore
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+  });
+
+  describe('addEtxnToCurrencyMap():', () => {
+    it('should add a new currency to the map when the currencyMap does not exist', () => {
+      const currencyMap = {};
+      const txCurrency = 'USD';
+      const txAmount = 10;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      });
+    });
+
+    it('should add a new currency to the map with the orig currency', () => {
+      const currencyMap = {};
+      const txCurrency = 'USD';
+      const txAmount = 10;
+      const txOrigAmount = 200;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 200,
+          count: 1,
+        },
+      });
+    });
+
+    it('should add the transaction amount to an existing currency in the map', () => {
+      const currencyMap = {
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      };
+      const txCurrency = 'USD';
+      const txAmount = 20;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 30,
+          origAmount: 30,
+          count: 2,
+        },
+      });
+    });
+
+    it('should add the transaction amount and original amount to an existing currency in the map', () => {
+      const currencyMap = {
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      };
+      const txCurrency = 'USD';
+      const txAmount = 20;
+      const txOrigAmount = 30;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 30,
+          origAmount: 40,
+          count: 2,
+        },
       });
     });
   });
