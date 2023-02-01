@@ -49,8 +49,6 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
         fieldId: 1,
         parentFieldId: 3,
         parentFieldValue: '3',
-        offset: 0,
-        limit: 20,
         searchQuery,
       })
       .pipe(

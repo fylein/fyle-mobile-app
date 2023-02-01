@@ -54,7 +54,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
       this.innerValue = v;
       const selectedOption = this.innerValue;
       if (selectedOption) {
-        this.displayValue = selectedOption.name;
+        this.displayValue = selectedOption.expense_field_value;
       } else {
         this.displayValue = '';
       }
@@ -98,7 +98,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
       this.innerValue = value;
       const selectedOption = this.innerValue;
       if (selectedOption) {
-        this.displayValue = selectedOption.name;
+        this.displayValue = selectedOption.expense_field_value;
       } else {
         this.displayValue = '';
       }

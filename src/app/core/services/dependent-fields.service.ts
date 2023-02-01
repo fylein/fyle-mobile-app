@@ -1,16 +1,19 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { DependentFieldOption } from '../models/dependent-field-option.model';
+import { map, Observable, of } from 'rxjs';
 import { DependentField } from '../models/dependent-field.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
+import { CategoriesService } from './categories.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DependentFieldsService {
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
+  constructor(
+    private spenderPlatformApiService: SpenderPlatformApiService,
+    private categoryService: CategoriesService
+  ) {}
 
   //This is a dummy method and won't be needed as these fields will be provided in expense_fields api
   getDependentFields(): Observable<DependentField[]> {
@@ -64,15 +67,13 @@ export class DependentFieldsService {
     parentFieldId: number;
     parentFieldValue: string;
     searchQuery: string;
-    offset: number;
-    limit: number;
   }) {
-    const { offset, limit, fieldId, parentFieldId, parentFieldValue, searchQuery } = config;
+    const { fieldId, parentFieldId, parentFieldValue, searchQuery } = config;
     const data = {
       params: {
         is_enabled: 'eq.' + true,
-        offset,
-        limit,
+        offset: 0,
+        limit: 20,
         expense_field_id: fieldId,
         parent_expense_field_id: parentFieldId,
         parent_expense_field_value: parentFieldValue,
@@ -91,14 +92,25 @@ export class DependentFieldsService {
     parentFieldId: number;
     parentFieldValue: string;
     searchQuery: string;
-    offset: number;
-    limit: number;
-  }): Observable<DependentFieldOption[]> {
-    const options = this.generateOptions(config.fieldId, config.parentFieldId, config.parentFieldValue);
-
-    return of(options);
-    //Show two options for every selected field
-    // return of([options[config.parentValueId], options[(config.parentValueId * 2) % 10]]);
+  }): Observable<PlatformDependentFieldValue[]> {
+    return this.categoryService
+      .getCategories({
+        offset: 0,
+        limit: 20,
+      })
+      .pipe(
+        map((categories) =>
+          categories.map((category) => ({
+            id: category.id,
+            created_at: category.created_at,
+            updated_at: category.updated_at,
+            org_id: category.org_id,
+            is_enabled: true,
+            parent_expense_field_value: config.parentFieldValue,
+            expense_field_value: category.displayName,
+          }))
+        )
+      );
   }
 
   private generateOptions(fieldId: number, parentFieldId: number, parentFieldValue: string) {
