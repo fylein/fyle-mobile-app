@@ -45,10 +45,10 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
 
     return this.dependentFieldsService
-      .getOptionsForDependentField({
+      .getOptionsForDependentFieldUtil({
         fieldId: 1,
         parentFieldId: 3,
-        parentValueId: 3,
+        parentFieldValue: '3',
         offset: 0,
         limit: 20,
         searchQuery,
