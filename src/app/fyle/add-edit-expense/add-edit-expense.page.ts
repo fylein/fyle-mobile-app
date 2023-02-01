@@ -22,6 +22,7 @@ import {
   catchError,
   concatMap,
   debounceTime,
+  delay,
   distinctUntilChanged,
   filter,
   finalize,
@@ -2948,7 +2949,10 @@ export class AddEditExpensePage implements OnInit {
               parentFieldId,
               parentFieldValue,
             })
-            .pipe(map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null)));
+            .pipe(
+              delay(1000),
+              map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null))
+            );
         }
         return of(null);
       })

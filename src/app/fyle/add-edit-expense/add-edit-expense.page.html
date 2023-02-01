@@ -400,7 +400,7 @@
             </div>
           </ng-container>
 
-          <div *ngIf="dependentFields?.length" class="add-edit-expense--primary-block">
+          <div *ngIf="dependentFields?.length">
             <ng-container formArrayName="dependent_fields">
               <div *ngFor="let dependentField of dependentFields; index as i" class="add-edit-expense--internal-block">
                 <div [formGroup]="dependentField.control">
@@ -414,6 +414,11 @@
                 </div>
               </div>
             </ng-container>
+          </div>
+
+          <div class="add-edit-expense--primary-block" *ngIf="isDependentFieldLoading">
+            <ion-skeleton-text class="add-edit-expense__skeleton-loader--title" [animated]="true"></ion-skeleton-text>
+            <ion-skeleton-text class="add-edit-expense__skeleton-loader" [animated]="true"></ion-skeleton-text>
           </div>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
