@@ -71,13 +71,13 @@ export class DependentFieldsService {
     const { fieldId, parentFieldId, parentFieldValue, searchQuery } = config;
     const data = {
       params: {
-        is_enabled: 'eq.' + true,
+        is_enabled: `eq.${true}`,
         offset: 0,
         limit: 20,
         expense_field_id: fieldId,
         parent_expense_field_id: parentFieldId,
         parent_expense_field_value: parentFieldValue,
-        expense_field_value: searchQuery,
+        expense_field_value: `=ilike.%${searchQuery}%`,
       },
     };
 
@@ -87,6 +87,7 @@ export class DependentFieldsService {
     );
   }
 
+  //Dummy method for testing, will be removed once APIs are available.
   getOptionsForDependentFieldUtil(config: {
     fieldId: number;
     parentFieldId: number;
