@@ -285,12 +285,12 @@ export const txnStats: StatsResponse = {
     {
       aggregates: [
         {
-          function_name: 'count(rp_id)',
-          function_value: 3,
+          function_name: 'count(tx_id)',
+          function_value: 8,
         },
         {
-          function_name: 'sum(rp_amount)',
-          function_value: 2804.2892810000003,
+          function_name: 'sum(tx_amount)',
+          function_value: 10583.73,
         },
       ],
       dimensions: [],

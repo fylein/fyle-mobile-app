@@ -26,6 +26,7 @@ import {
   apiEmptyReportRes,
   apiTeamRptCountRes,
   apiTeamRptSingleRes,
+  apiTeamReportPaginated1,
 } from '../mock-data/api-reports.data';
 import { expectedReportSingleResponse } from '../mock-data/report.data';
 import { apiReportActions } from '../mock-data/report-actions.data';
@@ -168,6 +169,15 @@ describe('ReportService', () => {
     });
   });
 
+  it('clearTransactionCache(): should clear transaction cache', (done) => {
+    transactionService.clearCache.and.returnValue(of(null));
+
+    reportService.clearTransactionCache().subscribe(() => {
+      expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
   it('createDraft(): should create a draft report and return the report', (done) => {
     apiService.post.and.returnValue(of(reportUnflattenedData));
     spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
@@ -180,6 +190,20 @@ describe('ReportService', () => {
     reportService.createDraft(reportParam).subscribe((res) => {
       expect(res).toEqual(reportUnflattenedData);
       expect(apiService.post).toHaveBeenCalledWith('/reports', reportParam);
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('submit(): should submit a report', (done) => {
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
+    apiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+
+    reportService.submit(reportID).subscribe(() => {
+      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/submit`);
       expect(apiService.post).toHaveBeenCalledTimes(1);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
@@ -284,10 +308,40 @@ describe('ReportService', () => {
       queryParams: {},
     };
 
-    reportService.getTeamReportsCount({}).subscribe((res) => {
+    reportService.getTeamReportsCount().subscribe((res) => {
       expect(res).toEqual(25);
       expect(reportService.getTeamReports).toHaveBeenCalledWith(params);
       expect(reportService.getTeamReports).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getTeamReports(): should get all team reports', (done) => {
+    mockExtendedOrgUser();
+    apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
+
+    const params = {
+      offset: 0,
+      limit: 10,
+      queryParams: {
+        or: [],
+      },
+      order: 'rp_submitted_at.desc',
+    };
+
+    reportService.getTeamReports(params).subscribe((res) => {
+      expect(res).toEqual(apiTeamReportPaginated1);
+      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', {
+        params: {
+          offset: 0,
+          limit: 10,
+          approved_by: 'cs.{ouX8dwsbLCLv}',
+          order: 'rp_submitted_at.desc,rp_id.desc',
+          or: [],
+        },
+      });
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -354,8 +408,9 @@ describe('ReportService', () => {
   });
 
   it('create(): should create a new report', (done) => {
-    apiService.post.and.returnValue(of(reportUnflattenedData2));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
+    spyOn(reportService, 'createDraft').and.returnValue(of(reportUnflattenedData2));
+    apiService.post.and.returnValue(of(null));
+    spyOn(reportService, 'submit').and.returnValue(of(null));
 
     const reportPurpose = {
       purpose: 'A new report',
@@ -369,11 +424,12 @@ describe('ReportService', () => {
 
     reportService.create(reportPurpose, txnIds).subscribe((res) => {
       expect(res).toEqual(reportUnflattenedData2);
-      expect(apiService.post).toHaveBeenCalledWith('/reports', reportPurpose);
+      expect(reportService.createDraft).toHaveBeenCalledWith(reportPurpose);
       expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, txnParam);
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/submit`);
-      expect(apiService.post).toHaveBeenCalledTimes(3);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(2);
+      expect(reportService.submit).toHaveBeenCalledWith(reportID);
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(reportService.createDraft).toHaveBeenCalledTimes(1);
+      expect(reportService.submit).toHaveBeenCalledTimes(1);
       done();
     });
   });
