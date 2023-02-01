@@ -45,6 +45,9 @@ import { txnList } from '../mock-data/transaction.data';
 import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
 import { fileObjectData } from '../mock-data/file-object.data';
 import { AccountType } from '../enums/account-type.enum';
+import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
+import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
+import { accountsData } from '../test-data/accounts.service.spec.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -1323,6 +1326,36 @@ describe('TransactionService', () => {
           count: 2,
         },
       });
+    });
+  });
+
+  it('getTxnAccount(): should get the default txn account', (done) => {
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
+
+    const expectedResult = {
+      source_account_id: 'acc5APeygFjRd',
+      skip_reimbursement: true,
+    };
+
+    // @ts-ignore
+    transactionService.getTxnAccount().subscribe((res) => {
+      expect(res).toEqual(expectedResult);
+      expect(orgSettingsService.get).toHaveBeenCalled();
+      expect(accountsService.getEMyAccounts).toHaveBeenCalled();
+      expect(orgUserSettingsService.get).toHaveBeenCalled();
+      expect(paymentModesService.getDefaultAccount).toHaveBeenCalledWith(
+        orgSettingsData,
+        accountsData,
+        orgUserSettingsData
+      );
+      expect(paymentModesService.getDefaultAccount).toHaveBeenCalledTimes(1);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      done();
     });
   });
 });

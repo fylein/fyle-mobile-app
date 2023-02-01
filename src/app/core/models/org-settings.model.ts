@@ -537,7 +537,7 @@ export interface OrgSettings {
   bank_payment_file_settings?: CommonOrgSettings;
   exchange_rate_settings?: CommonOrgSettings;
   currencylayer_provider_settings?: CurrencylayerProviderSettings;
-  bank_data_aggregation_settings?: CommonOrgSettings;
+  bank_data_aggregation_settings?: OrgBankDataAggregationSettings;
   trip_request_fields_settings?: CommonOrgSettings;
   data_extraction_settings?: DataExtractionSettings;
   transaction_field_configurations?: [];
