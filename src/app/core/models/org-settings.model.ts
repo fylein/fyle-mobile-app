@@ -116,8 +116,10 @@ export interface BankStatementUploadSettings {
 
 export interface BankDataAggregationSettings {
   enabled?: boolean;
+  allowed?: boolean;
   aggregator?: string;
   auto_assign?: boolean;
+  date_to_sync_from?: string;
 }
 
 export interface BankFeedRequestSettings extends CommonOrgSettings {
@@ -537,7 +539,7 @@ export interface OrgSettings {
   bank_payment_file_settings?: CommonOrgSettings;
   exchange_rate_settings?: CommonOrgSettings;
   currencylayer_provider_settings?: CurrencylayerProviderSettings;
-  bank_data_aggregation_settings?: CommonOrgSettings;
+  bank_data_aggregation_settings?: BankDataAggregationSettings;
   trip_request_fields_settings?: CommonOrgSettings;
   data_extraction_settings?: DataExtractionSettings;
   transaction_field_configurations?: [];

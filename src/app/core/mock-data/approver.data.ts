@@ -1,0 +1,36 @@
+import { Approver } from '../models/v1/approver.model';
+
+export const apiApproverRes: Approver[] = [
+  {
+    id: 43776,
+    created_at: null,
+    updated_at: new Date('2022-12-14T11:08:19.410Z'),
+    report_id: 'rphNNUiCISkD',
+    approver_id: 'ouCI4UQ2G0K1',
+    request_id: null,
+    state: 'APPROVAL_DONE',
+    added_by: null,
+    disabled_by: null,
+    last_updated_by: null,
+    rank: 0,
+    approver_name: 'Abhishek Jain',
+    approver_email: 'ajain@fyle.in',
+    comment: null,
+  },
+  {
+    id: 43775,
+    created_at: null,
+    updated_at: new Date('2022-12-14T11:07:56.080Z'),
+    report_id: 'rphNNUiCISkD',
+    approver_id: 'ouyy40tyFnrP',
+    request_id: null,
+    state: 'APPROVAL_DISABLED',
+    added_by: null,
+    disabled_by: null,
+    last_updated_by: null,
+    rank: 0,
+    approver_name: 'chethan0',
+    approver_email: 'chethan.m+0@fyle.in',
+    comment: null,
+  },
+];

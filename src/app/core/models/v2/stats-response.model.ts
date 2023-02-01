@@ -30,6 +30,14 @@ export class StatsResponse {
 
   aggregates?: string;
 
+  approved_by?: string;
+
+  rp_approval_state: string[];
+
+  rp_state?: string[];
+
+  sequential_approval_turn?: string[];
+
   constructor({ data, url }) {
     this.data = data;
     this.url = url;
