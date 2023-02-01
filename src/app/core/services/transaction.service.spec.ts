@@ -1082,4 +1082,37 @@ describe('TransactionService', () => {
       expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('getPaginatedETxncCount():', () => {
+    it('should return paginated etxn count when online', (done) => {
+      const response = { count: 1891 };
+      networkService.isOnline.and.returnValue(of(true));
+      storageService.set.and.returnValue(Promise.resolve(null));
+      apiService.get.and.returnValue(of(response));
+
+      transactionService.getPaginatedETxncCount().subscribe((res) => {
+        expect(res).toEqual(response);
+        expect(networkService.isOnline).toHaveBeenCalled();
+        expect(storageService.set).toHaveBeenCalledWith('etxncCount', response);
+        expect(apiService.get).toHaveBeenCalledWith('/etxns/count');
+        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+        expect(apiService.get).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should return paginated etxn count when offline', (done) => {
+      const response = { count: 1891 };
+      networkService.isOnline.and.returnValue(of(false));
+      storageService.get.and.returnValue(Promise.resolve(response));
+
+      transactionService.getPaginatedETxncCount().subscribe((res) => {
+        expect(res).toEqual(response);
+        expect(networkService.isOnline).toHaveBeenCalled();
+        expect(storageService.get).toHaveBeenCalledWith('etxncCount');
+        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
 });

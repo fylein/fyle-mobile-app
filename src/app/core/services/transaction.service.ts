@@ -336,38 +336,17 @@ export class TransactionService {
     );
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
-  })
-  removeTxnsFromRptInBulk(txnIds: string[], comment?: string): Observable<Expense[]> {
-    const count = txnIds.length > this.paginationSize ? txnIds.length / this.paginationSize : 1;
-    return range(0, count).pipe(
-      concatMap((page) => {
-        const data: { ids: string[]; comment?: string } = {
-          ids: txnIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize),
-        };
-
-        if (comment) {
-          data.comment = comment;
-        }
-
-        return this.apiService.post('/transactions/remove_report/bulk', data);
-      }),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
-    );
-  }
-
-  getPaginatedETxncCount(params?: EtxnParams): Observable<ApiV2Response<Expense>> {
+  getPaginatedETxncCount(): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
-          return this.apiService.get('/etxns/count', { params }).pipe(
+          return this.apiService.get('/etxns/count').pipe(
             tap((res) => {
-              this.storageService.set('etxncCount' + JSON.stringify(params), res);
+              this.storageService.set('etxncCount', res);
             })
           );
         } else {
-          return from(this.storageService.get('etxncCount' + JSON.stringify(params)));
+          return from(this.storageService.get('etxncCount'));
         }
       })
     );
