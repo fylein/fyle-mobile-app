@@ -664,7 +664,7 @@ describe('ReportService', () => {
     });
   });
 
-  it('getAllExtendedReports(): should all reports', (done) => {
+  it('getAllExtendedReports(): should get all reports', (done) => {
     mockExtendedOrgUser();
     getPaginatedReports();
 
