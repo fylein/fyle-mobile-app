@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class SpenderPlatformApiService {
+export class SpenderPlatformV1BetaApiService {
   ROOT_ENDPOINT: string;
 
   constructor(private httpClient: HttpClient) {

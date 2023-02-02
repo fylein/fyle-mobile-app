@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { DatePipe } from '@angular/common';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
@@ -47,7 +48,6 @@ import { LaunchDarklyService } from './launch-darkly.service';
 import { NetworkService } from './network.service';
 import { PermissionsService } from './permissions.service';
 import { ReportService } from './report.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
@@ -61,7 +61,7 @@ describe('ReportService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
-  let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -92,8 +92,8 @@ describe('ReportService', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache', 'onLogout']);
-    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
-    const permissionsServiceSpy = jasmine.createSpyObj('PermissionService', ['allowedActions', 'allowAccess']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
+    const permissionsServiceSpy = jasmine.createSpyObj('PermissionService', ['allowedActions']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -130,8 +130,8 @@ describe('ReportService', () => {
           useValue: userEventServiceSpy,
         },
         {
-          provide: SpenderPlatformApiService,
-          useValue: spenderPlatformApiServiceSpy,
+          provide: SpenderPlatformV1BetaApiService,
+          useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
           provide: PermissionsService,
@@ -154,7 +154,9 @@ describe('ReportService', () => {
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
-    spenderPlatformApiService = TestBed.inject(SpenderPlatformApiService) as jasmine.SpyObj<SpenderPlatformApiService>;
+    spenderPlatformV1BetaApiService = TestBed.inject(
+      SpenderPlatformV1BetaApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
   });
@@ -525,7 +527,7 @@ describe('ReportService', () => {
   });
 
   it('getReportAutoSubmissionDetails(): should get submission details', (done) => {
-    spenderPlatformApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
+    spenderPlatformV1BetaApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
 
     reportService.getReportAutoSubmissionDetails().subscribe((res) => {
       expect(res).toEqual({
@@ -533,16 +535,16 @@ describe('ReportService', () => {
           next_at: new Date('2023-01-31T18:30:00.000Z'),
         },
       });
-      expect(spenderPlatformApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
+      expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
         data: null,
       });
-      expect(spenderPlatformApiService.post).toHaveBeenCalledTimes(1);
+      expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('getReportAutoSubmissionDetails(): should get submission details when no data is passed', (done) => {
-    spenderPlatformApiService.post.and.returnValue(
+    spenderPlatformV1BetaApiService.post.and.returnValue(
       of({
         data: {},
       })
@@ -552,10 +554,10 @@ describe('ReportService', () => {
       expect(res).toEqual({
         data: {},
       });
-      expect(spenderPlatformApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
+      expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
         data: null,
       });
-      expect(spenderPlatformApiService.post).toHaveBeenCalledTimes(1);
+      expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });

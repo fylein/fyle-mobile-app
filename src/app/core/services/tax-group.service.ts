@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { TaxGroup } from '../models/tax-group.model';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { PlatformTaxGroup } from '../models/platform/platform-tax-group.model';
 import { Observable, range } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
@@ -14,7 +14,7 @@ import { Cacheable } from 'ts-cacheable';
 export class TaxGroupService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformApiService: SpenderPlatformApiService
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
   ) {}
 
   @Cacheable()
@@ -37,7 +37,7 @@ export class TaxGroupService {
         limit: 1,
       },
     };
-    return this.spenderPlatformApiService
+    return this.spenderPlatformV1BetaApiService
       .get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data)
       .pipe(map((res) => res.count));
   }
@@ -50,7 +50,7 @@ export class TaxGroupService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformApiService.get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data).pipe(
+    return this.spenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) =>
         res.map((data) => ({
