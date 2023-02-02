@@ -2,35 +2,64 @@ import { Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
 import { map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseFieldsObj } from '../models/v1/expense-fields-obj.model';
 import { OrgCategory } from '../models/v1/org-category.model';
-import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DateService } from './date.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseFieldsService {
-  constructor(private apiService: ApiService, private authService: AuthService, private dateService: DateService) {}
+  constructor(
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private authService: AuthService,
+    private dateService: DateService
+  ) {}
 
   @Cacheable()
   getAllEnabled(): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiService.get('/expense_fields', {
+        this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField>>('/expense_fields', {
           params: {
-            org_id: eou.ou.org_id,
-            is_enabled: true,
-            is_custom: false,
+            org_id: `eq.${eou.ou.org_id}`,
+            is_enabled: 'eq.true',
+            is_custom: 'eq.false',
           },
         })
       ),
+      map((res) => this.transformFrom(res.data)),
       map((res) => this.dateService.fixDates(res))
     );
+  }
+
+  transformFrom(data: PlatformExpenseField[]): ExpenseField[] {
+    return data.map((datum) => ({
+      id: datum.id,
+      code: datum.code,
+      column_name: datum.column_name,
+      created_at: datum.created_at,
+      default_value: datum.default_value,
+      field_name: datum.field_name,
+      is_custom: datum.is_custom,
+      is_enabled: datum.is_enabled,
+      is_mandatory: datum.is_mandatory,
+      options: datum.options,
+      org_category_ids: datum.category_ids,
+      org_id: datum.org_id,
+      placeholder: datum.placeholder,
+      seq: datum.seq,
+      type: datum.type,
+      updated_at: datum.updated_at,
+      field: datum.column_name,
+    }));
   }
 
   /* getAllMap() method returns a mapping of column_names and their respective mapped fields
