@@ -8,14 +8,14 @@ import { PlatformPolicyExpense } from '../models/platform/platform-policy-expens
 import { PolicyViolation } from '../models/policy-violation.model';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PolicyService {
   constructor(
-    private spenderPlatformApiService: SpenderPlatformApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 
@@ -121,7 +121,7 @@ export class PolicyService {
     const params = {
       expense_id: `eq.${expenseId}`,
     };
-    return this.spenderPlatformApiService
+    return this.spenderPlatformV1BetaApiService
       .get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
         params,
       })
