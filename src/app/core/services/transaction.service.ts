@@ -654,7 +654,7 @@ export class TransactionService {
   }
 
   isMergeAllowed(expenses: Expense[]): boolean {
-    if (expenses?.length === 2) {
+    if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
       );
@@ -761,6 +761,26 @@ export class TransactionService {
     return currentParamsCopy;
   }
 
+  isEtxnInPaymentMode(txnSkipReimbursement: boolean, txnSourceAccountType: string, paymentMode: string): boolean {
+    let etxnInPaymentMode = false;
+    const isAdvanceOrCCCEtxn = txnSourceAccountType === AccountType.ADVANCE || txnSourceAccountType === AccountType.CCC;
+
+    if (paymentMode === 'reimbursable') {
+      //Paid by Employee: reimbursable
+      etxnInPaymentMode = !txnSkipReimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'nonReimbursable') {
+      //Paid by Company: not reimbursable
+      etxnInPaymentMode = txnSkipReimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'advance') {
+      //Paid from Advance account: not reimbursable
+      etxnInPaymentMode = txnSourceAccountType === AccountType.ADVANCE;
+    } else if (paymentMode === 'ccc') {
+      //Paid from CCC: not reimbursable
+      etxnInPaymentMode = txnSourceAccountType === AccountType.CCC;
+    }
+    return etxnInPaymentMode;
+  }
+
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
@@ -808,30 +828,6 @@ export class TransactionService {
     return paymentModes.find((paymentMode) =>
       this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key)
     );
-  }
-
-  private isEtxnInPaymentMode(
-    txnSkipReimbursement: boolean,
-    txnSourceAccountType: string,
-    paymentMode: string
-  ): boolean {
-    let etxnInPaymentMode = false;
-    const isAdvanceOrCCCEtxn = txnSourceAccountType === AccountType.ADVANCE || txnSourceAccountType === AccountType.CCC;
-
-    if (paymentMode === 'reimbursable') {
-      //Paid by Employee: reimbursable
-      etxnInPaymentMode = !txnSkipReimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'nonReimbursable') {
-      //Paid by Company: not reimbursable
-      etxnInPaymentMode = txnSkipReimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'advance') {
-      //Paid from Advance account: not reimbursable
-      etxnInPaymentMode = txnSourceAccountType === AccountType.ADVANCE;
-    } else if (paymentMode === 'ccc') {
-      //Paid from CCC: not reimbursable
-      etxnInPaymentMode = txnSourceAccountType === AccountType.CCC;
-    }
-    return etxnInPaymentMode;
   }
 
   private addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {

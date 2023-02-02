@@ -16,6 +16,8 @@ import {
   apiExpenseRes,
   expenseList2,
   expenseData3,
+  expenseList3,
+  expenseList4,
 } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
@@ -458,7 +460,6 @@ describe('TransactionService', () => {
   });
 
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
-    // @ts-ignore
     spyOn(transactionService, 'isEtxnInPaymentMode').and.returnValue(true);
     const paymentModeList = [
       {
@@ -481,13 +482,11 @@ describe('TransactionService', () => {
     const etxnPaymentMode = { name: 'Reimbursable', key: 'reimbursable' };
     // @ts-ignore
     expect(transactionService.getPaymentModeForEtxn(expenseData1, paymentModeList)).toEqual(etxnPaymentMode);
-    // @ts-ignore
     expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledWith(
       expenseData1.tx_skip_reimbursement,
       expenseData1.source_account_type,
       etxnPaymentMode.key
     );
-    // @ts-ignore
     expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledTimes(1);
   });
 
@@ -1200,7 +1199,6 @@ describe('TransactionService', () => {
       const txnSkipReimbursement = false;
       const txnPaymentMode = 'reimbursable';
       const txnSourceAccountType = AccountType.PERSONAL;
-      // @ts-ignore
       expect(
         transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
       ).toBeTrue();
@@ -1210,7 +1208,6 @@ describe('TransactionService', () => {
       const txnSkipReimbursement = true;
       const txnPaymentMode = 'nonReimbursable';
       const txnSourceAccountType = AccountType.PERSONAL;
-      // @ts-ignore
       expect(
         transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
       ).toBeTrue();
@@ -1220,7 +1217,6 @@ describe('TransactionService', () => {
       const txnSkipReimbursement = false;
       const txnPaymentMode = 'advance';
       const txnSourceAccountType = AccountType.ADVANCE;
-      // @ts-ignore
       expect(
         transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
       ).toBeTrue();
@@ -1230,7 +1226,6 @@ describe('TransactionService', () => {
       const txnSkipReimbursement = false;
       const txnPaymentMode = 'ccc';
       const txnSourceAccountType = AccountType.CCC;
-      // @ts-ignore
       expect(
         transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
       ).toBeTrue();
@@ -1357,5 +1352,79 @@ describe('TransactionService', () => {
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
+  });
+
+  describe('isMergeAllowed():', () => {
+    it('should return false if the expenses list length is not equal to 2', () => {
+      expect(transactionService.isMergeAllowed(apiExpenseRes)).toBeFalse();
+    });
+
+    it('should return false if all the expenses are submitted', () => {
+      expect(transactionService.isMergeAllowed(expenseList2)).toBeFalse();
+    });
+
+    it('should return true if expenses are not submitted and not mileage or per diem and either one of them is a corporate card expenses', () => {
+      expect(transactionService.isMergeAllowed(expenseList3)).toBeTrue();
+    });
+  });
+
+  it('excludeCCCExpenses(): should exclude CCC expenses', () => {
+    expect(transactionService.excludeCCCExpenses(expenseList3)).toEqual([expenseList3[1]]);
+  });
+
+  it('getReportableExpenses(): should return reportable expenses', () => {
+    spyOn(transactionService, 'getIsCriticalPolicyViolated').and.returnValue(false);
+    spyOn(transactionService, 'getIsDraft').and.returnValue(false);
+
+    expect(transactionService.getReportableExpenses(apiExpenseRes)).toEqual([apiExpenseRes[0]]);
+    expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenseRes[0]);
+    expect(transactionService.getIsDraft).toHaveBeenCalledWith(apiExpenseRes[0]);
+    expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(1);
+    expect(transactionService.getIsDraft).toHaveBeenCalledTimes(1);
+  });
+
+  it('getCurrenyWiseSummary(): should return the currency wise summary', () => {
+    // @ts-ignore
+    spyOn(transactionService, 'addEtxnToCurrencyMap').and.callThrough();
+
+    const expectedResult = [
+      {
+        name: 'CLF',
+        currency: 'CLF',
+        amount: 33611,
+        origAmount: 12,
+        count: 1,
+      },
+      {
+        name: 'EUR',
+        currency: 'EUR',
+        amount: 15775.76,
+        origAmount: 178,
+        count: 1,
+      },
+      {
+        name: 'INR',
+        currency: 'INR',
+        amount: 89,
+        origAmount: 89,
+        count: 1,
+      },
+    ];
+
+    const currencyMap = {
+      INR: { name: 'INR', currency: 'INR', amount: 89, origAmount: 89, count: 1 },
+      CLF: { name: 'CLF', currency: 'CLF', amount: 33611, origAmount: 12, count: 1 },
+      EUR: { name: 'EUR', currency: 'EUR', amount: 15775.76, origAmount: 178, count: 1 },
+    };
+
+    expect(transactionService.getCurrenyWiseSummary(expenseList4)).toEqual(expectedResult);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'INR', 89);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'CLF', 33611, 12);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'EUR', 15775.76, 178);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledTimes(3);
   });
 });
