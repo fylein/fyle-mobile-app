@@ -91,17 +91,17 @@ const fixDate = (data) =>
 
 describe('TaxGroupService', () => {
   let taxGroupService: TaxGroupService;
-  let SpenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
 
   beforeEach(() => {
-    const SpenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
         TaxGroupService,
         {
           provide: SpenderPlatformV1BetaApiService,
-          useValue: SpenderPlatformV1BetaApiServiceSpy,
+          useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
           provide: PAGINATION_SIZE,
@@ -110,7 +110,7 @@ describe('TaxGroupService', () => {
       ],
     });
     taxGroupService = TestBed.inject(TaxGroupService);
-    SpenderPlatformV1BetaApiService = TestBed.inject(
+    spenderPlatformV1BetaApiService = TestBed.inject(
       SpenderPlatformV1BetaApiService
     ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
     globalCacheBusterNotifier.next();
@@ -121,7 +121,7 @@ describe('TaxGroupService', () => {
   });
 
   it('should be able to return single tax group', (done) => {
-    SpenderPlatformV1BetaApiService.get.and.returnValue(of(taxGroupPlatformResponseSingle));
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(taxGroupPlatformResponseSingle));
 
     taxGroupService.get().subscribe((taxGroups) => {
       expect(taxGroups).toEqual(fixDate(transformedTaxGroupDataSingle));
@@ -130,7 +130,7 @@ describe('TaxGroupService', () => {
   });
 
   it('should return proper response from api and transform it into proper model', (done) => {
-    SpenderPlatformV1BetaApiService.get.and.returnValue(of(taxGroupPlatformResponse));
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(taxGroupPlatformResponse));
 
     taxGroupService.get().subscribe((taxGroups) => {
       expect(taxGroups).toEqual(fixDate(transformedTaxGroupData));

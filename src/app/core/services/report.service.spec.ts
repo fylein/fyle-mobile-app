@@ -49,7 +49,7 @@ describe('ReportService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
-  let SpenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -78,7 +78,7 @@ describe('ReportService', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache', 'onLogout']);
-    const SpenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
     const permissionsServiceSpy = jasmine.createSpyObj('PermissionService', ['allowedActions']);
 
     TestBed.configureTestingModule({
@@ -117,7 +117,7 @@ describe('ReportService', () => {
         },
         {
           provide: SpenderPlatformV1BetaApiService,
-          useValue: SpenderPlatformV1BetaApiServiceSpy,
+          useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
           provide: PermissionsService,
@@ -140,7 +140,7 @@ describe('ReportService', () => {
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
-    SpenderPlatformV1BetaApiService = TestBed.inject(
+    spenderPlatformV1BetaApiService = TestBed.inject(
       SpenderPlatformV1BetaApiService
     ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;

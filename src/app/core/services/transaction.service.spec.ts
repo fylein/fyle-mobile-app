@@ -46,7 +46,7 @@ describe('TransactionService', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
-  let SpenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
   let fileService: jasmine.SpyObj<FileService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let paymentModesService: jasmine.SpyObj<PaymentModesService>;
@@ -73,7 +73,7 @@ describe('TransactionService', () => {
       'convertToUtc',
     ]);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['discardRedundantCharacters']);
-    const SpenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['post']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['post']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
@@ -125,7 +125,7 @@ describe('TransactionService', () => {
         },
         {
           provide: SpenderPlatformV1BetaApiService,
-          useValue: SpenderPlatformV1BetaApiServiceSpy,
+          useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
           provide: StorageService,
@@ -165,7 +165,7 @@ describe('TransactionService', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
-    SpenderPlatformV1BetaApiService = TestBed.inject(
+    spenderPlatformV1BetaApiService = TestBed.inject(
       SpenderPlatformV1BetaApiService
     ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
