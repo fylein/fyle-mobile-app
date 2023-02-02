@@ -17,7 +17,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PinchZoomModule } from 'ngx13-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
-import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
@@ -43,11 +42,6 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
     MatButtonModule,
     MatSnackBarModule,
   ],
-  declarations: [
-    AddEditExpensePage,
-    CameraOptionsPopupComponent,
-    MatchTransactionComponent,
-    SuggestedDuplicatesComponent,
-  ],
+  declarations: [AddEditExpensePage, CameraOptionsPopupComponent, SuggestedDuplicatesComponent],
 })
 export class AddEditExpensePageModule {}

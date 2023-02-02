@@ -23,15 +23,4 @@ export class DataTransformService {
     });
     return res;
   }
-
-  etxnRaw(data) {
-    const res = {};
-    Object.keys(data).forEach((key) => {
-      Object.keys(data[key]).forEach((key1) => {
-        const newKey = key + '_' + key1;
-        res[newKey] = data[key][key1];
-      });
-    });
-    return res;
-  }
 }
