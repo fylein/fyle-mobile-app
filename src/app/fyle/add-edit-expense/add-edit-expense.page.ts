@@ -419,11 +419,7 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
-      if (bankTxn) {
-        this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
   }
 
