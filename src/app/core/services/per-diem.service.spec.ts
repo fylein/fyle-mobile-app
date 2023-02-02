@@ -26,11 +26,11 @@ const fixDate = (data) =>
 
 describe('PerDiemService', () => {
   let perDiemService: PerDiemService;
-  let SpenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
 
   beforeEach(() => {
-    const SpenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
 
     TestBed.configureTestingModule({
@@ -38,7 +38,7 @@ describe('PerDiemService', () => {
         PerDiemService,
         {
           provide: SpenderPlatformV1BetaApiService,
-          useValue: SpenderPlatformV1BetaApiServiceSpy,
+          useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
           provide: OrgUserSettingsService,
@@ -51,7 +51,7 @@ describe('PerDiemService', () => {
       ],
     });
     perDiemService = TestBed.inject(PerDiemService);
-    SpenderPlatformV1BetaApiService = TestBed.inject(
+    spenderPlatformV1BetaApiService = TestBed.inject(
       SpenderPlatformV1BetaApiService
     ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -62,7 +62,7 @@ describe('PerDiemService', () => {
   });
 
   it('should get per-diem rate by ID', (done) => {
-    SpenderPlatformV1BetaApiService.get.and.returnValue(of(apiPerDiemByID));
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(apiPerDiemByID));
     const actualId = 538;
     perDiemService.getRate(actualId).subscribe((res) => {
       expect(res).toEqual(expectPerDiemByID);
@@ -94,23 +94,23 @@ describe('PerDiemService', () => {
       },
     };
 
-    SpenderPlatformV1BetaApiService.get
+    spenderPlatformV1BetaApiService.get
       .withArgs('/per_diem_rates', testParams1)
       .and.returnValue(of(apiPerDiemSingleResponse));
-    SpenderPlatformV1BetaApiService.get.withArgs('/per_diem_rates', testParams2).and.returnValue(of(apiPerDiemFirst));
-    SpenderPlatformV1BetaApiService.get.withArgs('/per_diem_rates', testParams3).and.returnValue(of(apiPerDiemSecond));
+    spenderPlatformV1BetaApiService.get.withArgs('/per_diem_rates', testParams2).and.returnValue(of(apiPerDiemFirst));
+    spenderPlatformV1BetaApiService.get.withArgs('/per_diem_rates', testParams3).and.returnValue(of(apiPerDiemSecond));
 
     perDiemService.getRates().subscribe((res) => {
       expect(res).toEqual(expectedPerDiems);
-      expect(SpenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams1);
-      expect(SpenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams2);
-      expect(SpenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams3);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams1);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams2);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', testParams3);
       done();
     });
   });
 
   it('should get active per-diem count', (done) => {
-    SpenderPlatformV1BetaApiService.get.and.returnValue(of(apiPerDiemSingleResponse));
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(apiPerDiemSingleResponse));
 
     const params = {
       params: {
@@ -122,13 +122,13 @@ describe('PerDiemService', () => {
 
     perDiemService.getActivePerDiemRatesCount().subscribe((res) => {
       expect(res).toEqual(4);
-      expect(SpenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', params);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', params);
       done();
     });
   });
 
   it('should get per diem rates as per config', (done) => {
-    SpenderPlatformV1BetaApiService.get.and.returnValue(of(apiPerDiem));
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(apiPerDiem));
 
     const data = {
       params: {
@@ -140,7 +140,7 @@ describe('PerDiemService', () => {
 
     perDiemService.getPerDiemRates({ offset: 0, limit: 4 }).subscribe((res) => {
       expect(res).toEqual(expectedPerDiems);
-      expect(SpenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', data);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/per_diem_rates', data);
       done();
     });
   });
