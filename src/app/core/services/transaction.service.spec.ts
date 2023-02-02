@@ -1427,4 +1427,50 @@ describe('TransactionService', () => {
     // @ts-ignore
     expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledTimes(3);
   });
+
+  it('getPaymentModeWiseSummary(): should return the payment mode wise summary', () => {
+    // @ts-ignore
+    spyOn(transactionService, 'getPaymentModeForEtxn').and.returnValue({
+      name: 'Reimbursable',
+      key: 'reimbursable',
+    });
+
+    const paymentModes = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+
+    const summary = {
+      reimbursable: {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+        amount: 49475.76,
+        count: 3,
+      },
+    };
+
+    expect(transactionService.getPaymentModeWiseSummary(expenseList4)).toEqual(summary);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[0], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[1], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[2], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledTimes(3);
+  });
 });
