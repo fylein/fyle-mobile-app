@@ -15,6 +15,7 @@ import { PushNotificationService } from './push-notification.service';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { CommonPlatformApiService } from './common-platform-api.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +34,8 @@ export class RouterAuthService {
     private pushNotificationService: PushNotificationService,
     private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
-    private commonPlatfromApiService: CommonPlatformApiService
+    private commonPlatfromApiService: CommonPlatformApiService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
   checkEmailExists(email) {
@@ -63,6 +65,7 @@ export class RouterAuthService {
     this.spenderPlatformV1BetaApiService.setRoot(domain);
     this.approverPlatformApiService.setRoot(domain);
     this.commonPlatfromApiService.setRoot(domain);
+    this.spenderPlatformV1ApiService.setRoot(domain);
 
     await this.tokenService.setClusterDomain(domain);
   }
