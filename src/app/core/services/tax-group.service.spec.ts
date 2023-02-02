@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { TaxGroupService } from './tax-group.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
@@ -91,17 +91,17 @@ const fixDate = (data) =>
 
 describe('TaxGroupService', () => {
   let taxGroupService: TaxGroupService;
-  let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
+  let SpenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
 
   beforeEach(() => {
-    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformApiService', ['get']);
+    const SpenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
         TaxGroupService,
         {
-          provide: SpenderPlatformApiService,
-          useValue: spenderPlatformApiServiceSpy,
+          provide: SpenderPlatformV1BetaApiService,
+          useValue: SpenderPlatformV1BetaApiServiceSpy,
         },
         {
           provide: PAGINATION_SIZE,
@@ -110,7 +110,9 @@ describe('TaxGroupService', () => {
       ],
     });
     taxGroupService = TestBed.inject(TaxGroupService);
-    spenderPlatformApiService = TestBed.inject(SpenderPlatformApiService) as jasmine.SpyObj<SpenderPlatformApiService>;
+    SpenderPlatformV1BetaApiService = TestBed.inject(
+      SpenderPlatformV1BetaApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
     globalCacheBusterNotifier.next();
   });
 
@@ -119,7 +121,7 @@ describe('TaxGroupService', () => {
   });
 
   it('should be able to return single tax group', (done) => {
-    spenderPlatformApiService.get.and.returnValue(of(taxGroupPlatformResponseSingle));
+    SpenderPlatformV1BetaApiService.get.and.returnValue(of(taxGroupPlatformResponseSingle));
 
     taxGroupService.get().subscribe((taxGroups) => {
       expect(taxGroups).toEqual(fixDate(transformedTaxGroupDataSingle));
@@ -128,7 +130,7 @@ describe('TaxGroupService', () => {
   });
 
   it('should return proper response from api and transform it into proper model', (done) => {
-    spenderPlatformApiService.get.and.returnValue(of(taxGroupPlatformResponse));
+    SpenderPlatformV1BetaApiService.get.and.returnValue(of(taxGroupPlatformResponse));
 
     taxGroupService.get().subscribe((taxGroups) => {
       expect(taxGroups).toEqual(fixDate(transformedTaxGroupData));

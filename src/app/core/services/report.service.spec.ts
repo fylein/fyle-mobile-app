@@ -9,7 +9,7 @@ import { DateService } from './date.service';
 import { DataTransformService } from './data-transform.service';
 import { TransactionService } from './transaction.service';
 import { StorageService } from './storage.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { DatePipe } from '@angular/common';
 import { UserEventService } from './user-event.service';
 import { PermissionsService } from './permissions.service';
@@ -49,7 +49,7 @@ describe('ReportService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
-  let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
+  let SpenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -78,7 +78,7 @@ describe('ReportService', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache', 'onLogout']);
-    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
+    const SpenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
     const permissionsServiceSpy = jasmine.createSpyObj('PermissionService', ['allowedActions']);
 
     TestBed.configureTestingModule({
@@ -116,8 +116,8 @@ describe('ReportService', () => {
           useValue: userEventServiceSpy,
         },
         {
-          provide: SpenderPlatformApiService,
-          useValue: spenderPlatformApiServiceSpy,
+          provide: SpenderPlatformV1BetaApiService,
+          useValue: SpenderPlatformV1BetaApiServiceSpy,
         },
         {
           provide: PermissionsService,
@@ -140,7 +140,9 @@ describe('ReportService', () => {
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
-    spenderPlatformApiService = TestBed.inject(SpenderPlatformApiService) as jasmine.SpyObj<SpenderPlatformApiService>;
+    SpenderPlatformV1BetaApiService = TestBed.inject(
+      SpenderPlatformV1BetaApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
   });

@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { PlatformCategory } from '../models/platform/platform-category.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
@@ -18,7 +18,7 @@ export class CategoriesService {
 
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformApiService: SpenderPlatformApiService
+    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
   ) {}
 
   @Cacheable({
@@ -43,9 +43,9 @@ export class CategoriesService {
         limit: 1,
       },
     };
-    return this.spenderPlatformApiService
-      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
-      .pipe(map((res) => res.count));
+    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
+      map((res) => res.count)
+    );
   }
 
   getCategories(config: { offset: number; limit: number }): Observable<OrgCategory[]> {
@@ -56,7 +56,7 @@ export class CategoriesService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
+    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.sortCategories(res)),
       map((res) => this.addDisplayName(res))

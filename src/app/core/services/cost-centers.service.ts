@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { CostCenter } from '../models/v1/cost-center.model';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
@@ -16,7 +16,7 @@ const costCentersCacheBuster$ = new Subject<void>();
 export class CostCentersService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformApiService: SpenderPlatformApiService
+    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
   ) {}
 
   @Cacheable({
@@ -41,9 +41,10 @@ export class CostCentersService {
         limit: 1,
       },
     };
-    return this.spenderPlatformApiService
-      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
-      .pipe(map((res) => res.count));
+    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCostCenter>>(
+      '/cost_centers',
+      data
+    ).pipe(map((res) => res.count));
   }
 
   getCostCenters(config: { offset: number; limit: number }): Observable<CostCenter[]> {
@@ -54,9 +55,10 @@ export class CostCentersService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformApiService
-      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
-      .pipe(map((res) => this.transformFrom(res.data)));
+    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCostCenter>>(
+      '/cost_centers',
+      data
+    ).pipe(map((res) => this.transformFrom(res.data)));
   }
 
   transformFrom(platformCostCenter: PlatformCostCenter[]): CostCenter[] {

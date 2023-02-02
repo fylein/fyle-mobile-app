@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { CurrencyPipe } from '@angular/common';
 import { switchMap, concatMap, tap, map, reduce } from 'rxjs/operators';
@@ -13,7 +13,10 @@ const mileageRateCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class MileageRatesService {
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService, private currencyPipe: CurrencyPipe) {}
+  constructor(
+    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private currencyPipe: CurrencyPipe
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: mileageRateCacheBuster$,
@@ -36,9 +39,10 @@ export class MileageRatesService {
         limit: 1,
       },
     };
-    return this.spenderPlatformApiService
-      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
-      .pipe(map((res) => res.count));
+    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformMileageRates>>(
+      '/mileage_rates',
+      data
+    ).pipe(map((res) => res.count));
   }
 
   getMileageRates(config: { offset: number; limit: number }): Observable<PlatformMileageRates[]> {
@@ -48,9 +52,10 @@ export class MileageRatesService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformApiService
-      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
-      .pipe(map((res) => this.excludeNullRates(res.data)));
+    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformMileageRates>>(
+      '/mileage_rates',
+      data
+    ).pipe(map((res) => this.excludeNullRates(res.data)));
   }
 
   excludeNullRates(platformMileageRates: PlatformMileageRates[]): PlatformMileageRates[] {

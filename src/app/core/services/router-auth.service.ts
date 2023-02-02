@@ -12,7 +12,7 @@ import { LocationService } from './location.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { PushNotificationService } from './push-notification.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { CommonPlatformApiService } from './common-platform-api.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 
@@ -31,7 +31,7 @@ export class RouterAuthService {
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
     private pushNotificationService: PushNotificationService,
-    private spenderPlatformApiService: SpenderPlatformApiService,
+    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private commonPlatfromApiService: CommonPlatformApiService
   ) {}
@@ -60,7 +60,7 @@ export class RouterAuthService {
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
     this.pushNotificationService.setRoot(domain);
-    this.spenderPlatformApiService.setRoot(domain);
+    this.SpenderPlatformV1BetaApiService.setRoot(domain);
     this.approverPlatformApiService.setRoot(domain);
     this.commonPlatfromApiService.setRoot(domain);
 
