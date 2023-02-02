@@ -41,10 +41,15 @@ export class ExpenseFieldsService {
   }
 
   transformFrom(data: PlatformExpenseField[]): ExpenseField[] {
+    const columnNameMappings = {
+      spent_at: 'txn_dt',
+      merchant: 'vendor_id',
+      category_id: 'org_category_id',
+    };
     return data.map((datum) => ({
       id: datum.id,
       code: datum.code,
-      column_name: datum.column_name,
+      column_name: columnNameMappings[datum.column_name] || datum.column_name,
       created_at: datum.created_at,
       default_value: datum.default_value,
       field_name: datum.field_name,
@@ -58,7 +63,6 @@ export class ExpenseFieldsService {
       seq: datum.seq,
       type: datum.type,
       updated_at: datum.updated_at,
-      field: datum.column_name,
     }));
   }
 

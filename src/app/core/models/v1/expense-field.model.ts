@@ -19,6 +19,6 @@ export interface ExpenseField {
   seq: number;
   type: string;
   updated_at: Date;
-  updated_by: UserDetails;
+  updated_by?: UserDetails;
   field?: string;
 }
