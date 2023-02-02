@@ -2909,6 +2909,9 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.dependentFields.push({
+      id: dependentField.id,
+      parentFieldId: dependentField.parent_field_id,
+      parentFieldValue: dependentField.parent_field_value,
       field: dependentField.name,
       mandatory: dependentField.mandatory,
       control: dependentFieldControl,
@@ -2963,7 +2966,9 @@ export class AddEditExpensePage implements OnInit {
             })
             .pipe(
               delay(1000),
-              map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null))
+              map((dependentFieldOptions) =>
+                dependentFieldOptions?.length > 0 ? { ...dependentField, parent_field_value: parentFieldValue } : null
+              )
             );
         }
         return of(null);

@@ -408,6 +408,9 @@
                     [label]="dependentField.field"
                     [mandatory]="dependentField.mandatory"
                     [valid]="!(dependentField?.control?.touched && !dependentField?.control?.valid)"
+                    [fieldId]="dependentField.id"
+                    [parentFieldId]="dependentField.parentFieldId"
+                    [parentFieldValue]="dependentField.parentFieldValue"
                     formControlName="value"
                   >
                   </app-dependent-field>

@@ -25,6 +25,12 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   @Input() label: string;
 
+  @Input() fieldId: number;
+
+  @Input() parentFieldId: number;
+
+  @Input() parentFieldValue: string;
+
   filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
 
   value;
@@ -44,12 +50,11 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
     this.cdr.detectChanges();
 
-    //TODO: fieldId, parentFieldId, parentFieldValue need to be passed from parent.
     return this.dependentFieldsService
       .getOptionsForDependentFieldUtil({
-        fieldId: 1,
-        parentFieldId: 3,
-        parentFieldValue: '3',
+        fieldId: this.fieldId,
+        parentFieldId: this.parentFieldId,
+        parentFieldValue: this.parentFieldValue,
         searchQuery,
       })
       .pipe(

@@ -35,6 +35,12 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   @Input() selectModalHeader = '';
 
+  @Input() fieldId: number;
+
+  @Input() parentFieldId: number;
+
+  @Input() parentFieldValue: string;
+
   displayValue: string;
 
   private innerValue;
@@ -75,6 +81,9 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
         selectModalHeader: this.selectModalHeader || 'Select Item',
         placeholder: this.placeholder,
         label: this.label,
+        fieldId: this.fieldId,
+        parentFieldId: this.parentFieldId,
+        parentFieldValue: this.parentFieldValue,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
