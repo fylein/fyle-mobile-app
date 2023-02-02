@@ -18,7 +18,7 @@ export class CategoriesService {
 
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
   ) {}
 
   @Cacheable({
@@ -43,9 +43,9 @@ export class CategoriesService {
         limit: 1,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
-      map((res) => res.count)
-    );
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
+      .pipe(map((res) => res.count));
   }
 
   getCategories(config: { offset: number; limit: number }): Observable<OrgCategory[]> {
@@ -56,7 +56,7 @@ export class CategoriesService {
         limit: config.limit,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
+    return this.spenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.sortCategories(res)),
       map((res) => this.addDisplayName(res))

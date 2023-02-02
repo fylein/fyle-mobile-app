@@ -14,7 +14,7 @@ import { Cacheable } from 'ts-cacheable';
 export class TaxGroupService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
   ) {}
 
   @Cacheable()
@@ -37,9 +37,9 @@ export class TaxGroupService {
         limit: 1,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data).pipe(
-      map((res) => res.count)
-    );
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data)
+      .pipe(map((res) => res.count));
   }
 
   private getTaxGroups(config: { offset: number; limit: number }): Observable<TaxGroup[]> {
@@ -50,7 +50,7 @@ export class TaxGroupService {
         limit: config.limit,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data).pipe(
+    return this.spenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) =>
         res.map((data) => ({

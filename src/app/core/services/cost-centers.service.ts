@@ -16,7 +16,7 @@ const costCentersCacheBuster$ = new Subject<void>();
 export class CostCentersService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
   ) {}
 
   @Cacheable({
@@ -41,10 +41,9 @@ export class CostCentersService {
         limit: 1,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCostCenter>>(
-      '/cost_centers',
-      data
-    ).pipe(map((res) => res.count));
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
+      .pipe(map((res) => res.count));
   }
 
   getCostCenters(config: { offset: number; limit: number }): Observable<CostCenter[]> {
@@ -55,10 +54,9 @@ export class CostCentersService {
         limit: config.limit,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCostCenter>>(
-      '/cost_centers',
-      data
-    ).pipe(map((res) => this.transformFrom(res.data)));
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
+      .pipe(map((res) => this.transformFrom(res.data)));
   }
 
   transformFrom(platformCostCenter: PlatformCostCenter[]): CostCenter[] {

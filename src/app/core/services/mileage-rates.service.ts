@@ -14,7 +14,7 @@ const mileageRateCacheBuster$ = new Subject<void>();
 })
 export class MileageRatesService {
   constructor(
-    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private currencyPipe: CurrencyPipe
   ) {}
 
@@ -39,10 +39,9 @@ export class MileageRatesService {
         limit: 1,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformMileageRates>>(
-      '/mileage_rates',
-      data
-    ).pipe(map((res) => res.count));
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
+      .pipe(map((res) => res.count));
   }
 
   getMileageRates(config: { offset: number; limit: number }): Observable<PlatformMileageRates[]> {
@@ -52,10 +51,9 @@ export class MileageRatesService {
         limit: config.limit,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformMileageRates>>(
-      '/mileage_rates',
-      data
-    ).pipe(map((res) => this.excludeNullRates(res.data)));
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
+      .pipe(map((res) => this.excludeNullRates(res.data)));
   }
 
   excludeNullRates(platformMileageRates: PlatformMileageRates[]): PlatformMileageRates[] {

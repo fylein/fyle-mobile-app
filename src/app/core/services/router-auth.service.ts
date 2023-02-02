@@ -31,7 +31,7 @@ export class RouterAuthService {
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
     private pushNotificationService: PushNotificationService,
-    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private commonPlatfromApiService: CommonPlatformApiService
   ) {}
@@ -60,7 +60,7 @@ export class RouterAuthService {
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
     this.pushNotificationService.setRoot(domain);
-    this.SpenderPlatformV1BetaApiService.setRoot(domain);
+    this.spenderPlatformV1BetaApiService.setRoot(domain);
     this.approverPlatformApiService.setRoot(domain);
     this.commonPlatfromApiService.setRoot(domain);
 

@@ -45,7 +45,7 @@ export class ReportService {
     private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
     private userEventService: UserEventService,
-    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private datePipe: DatePipe,
     private launchDarklyService: LaunchDarklyService,
     private permissionsService: PermissionsService
@@ -222,21 +222,20 @@ export class ReportService {
     cacheBusterObserver: reportsCacheBuster$,
   })
   getReportAutoSubmissionDetails(): Observable<ReportAutoSubmissionDetails> {
-    return this.SpenderPlatformV1BetaApiService.post<ReportAutoSubmissionDetails>(
-      '/automations/report_submissions/next_at',
-      {
+    return this.spenderPlatformV1BetaApiService
+      .post<ReportAutoSubmissionDetails>('/automations/report_submissions/next_at', {
         data: null,
-      }
-    ).pipe(
-      map((res) => {
-        if (res.data.next_at) {
-          const dateObj = new Date(res.data.next_at);
-          res.data.next_at = dateObj;
-          return res;
-        }
-        return res;
       })
-    );
+      .pipe(
+        map((res) => {
+          if (res.data.next_at) {
+            const dateObj = new Date(res.data.next_at);
+            res.data.next_at = dateObj;
+            return res;
+          }
+          return res;
+        })
+      );
   }
 
   @Cacheable()

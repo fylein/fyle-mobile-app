@@ -15,7 +15,7 @@ import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.
 })
 export class PolicyService {
   constructor(
-    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 
@@ -121,12 +121,11 @@ export class PolicyService {
     const params = {
       expense_id: `eq.${expenseId}`,
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<ExpensePolicyStates>>(
-      '/expense_policy_states',
-      {
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
         params,
-      }
-    ).pipe(map((policyStates) => (policyStates.count > 0 ? policyStates.data[0].individual_desired_states : [])));
+      })
+      .pipe(map((policyStates) => (policyStates.count > 0 ? policyStates.data[0].individual_desired_states : [])));
   }
 
   checkIfViolationsExist(violations: { [id: string]: PolicyViolation }): boolean {

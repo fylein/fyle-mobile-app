@@ -17,7 +17,7 @@ const perDiemsCacheBuster$ = new Subject<void>();
 export class PerDiemService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private SpenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
@@ -63,13 +63,12 @@ export class PerDiemService {
         id: 'eq.' + id,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformPerDiemRates>>(
-      '/per_diem_rates',
-      data
-    ).pipe(
-      map((res) => this.transformFrom(res.data)),
-      map((res) => res[0])
-    );
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
+      .pipe(
+        map((res) => this.transformFrom(res.data)),
+        map((res) => res[0])
+      );
   }
 
   getPerDiemRates(config: { offset: number; limit: number }): Observable<PerDiemRates[]> {
@@ -80,10 +79,9 @@ export class PerDiemService {
         limit: config.limit,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformPerDiemRates>>(
-      '/per_diem_rates',
-      data
-    ).pipe(map((res) => this.transformFrom(res.data)));
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
+      .pipe(map((res) => this.transformFrom(res.data)));
   }
 
   getActivePerDiemRatesCount(): Observable<number> {
@@ -94,10 +92,9 @@ export class PerDiemService {
         limit: 1,
       },
     };
-    return this.SpenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformPerDiemRates>>(
-      '/per_diem_rates',
-      data
-    ).pipe(map((res) => res.count));
+    return this.spenderPlatformV1BetaApiService
+      .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
+      .pipe(map((res) => res.count));
   }
 
   transformFrom(platformPerDiemRates: PlatformPerDiemRates[]): PerDiemRates[] {
