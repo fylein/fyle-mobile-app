@@ -41,15 +41,10 @@ export class ExpenseFieldsService {
   }
 
   transformFrom(data: PlatformExpenseField[]): ExpenseField[] {
-    const columnNameMappings = {
-      spent_at: 'txn_dt',
-      merchant: 'vendor_id',
-      category_id: 'org_category_id',
-    };
     return data.map((datum) => ({
       id: datum.id,
       code: datum.code,
-      column_name: columnNameMappings[datum.column_name] || datum.column_name,
+      column_name: this.getColumnName(datum.column_name, datum.seq),
       created_at: datum.created_at,
       default_value: datum.default_value,
       field_name: datum.field_name,
@@ -180,5 +175,40 @@ export class ExpenseFieldsService {
       }
       return field;
     });
+  }
+
+  private getColumnName(columnName: string, seq: number) {
+    //Mapping of platform to legacy column name
+    const columnNameMapping = {
+      spent_at: 'txn_dt',
+      category_id: 'org_category_id',
+      merchant: 'vendor_id',
+      is_billable: 'billable',
+      started_at: 'from_dt',
+      ended_at: 'to_dt',
+      'locations[0]': 'location1',
+      'locations[1]': 'location2',
+    };
+
+    //For travel class, column name depends on seq which is the key of nested object
+    const travelClassMapping = {
+      'travel_classes[0]': {
+        1: 'flight_journey_travel_class',
+        2: 'bus_travel_class',
+        3: 'train_travel_class',
+      },
+      'travel_classes[1]': {
+        1: 'flight_return_travel_class',
+      },
+    };
+
+    //Return the column name
+    if (columnNameMapping[columnName]) {
+      return columnNameMapping[columnName];
+    } else if (travelClassMapping[columnName] && seq !== undefined) {
+      return travelClassMapping[columnName][seq];
+    } else {
+      return columnName;
+    }
   }
 }
