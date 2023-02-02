@@ -33,7 +33,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
 
-  value;
+  value: string;
 
   isLoading = false;
 
@@ -48,8 +48,6 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
   getDependentFieldOptions(searchQuery: string) {
     this.isLoading = true;
 
-    this.cdr.detectChanges();
-
     return this.dependentFieldsService
       .getOptionsForDependentFieldUtil({
         fieldId: this.fieldId,
@@ -59,7 +57,6 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
       })
       .pipe(
         finalize(() => {
-          this.cdr.detectChanges();
           this.isLoading = false;
         })
       );
@@ -80,7 +77,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
       switchMap((searchString) => this.getDependentFieldOptions(searchString)),
       map((dependentFieldOptions: any[]) =>
         dependentFieldOptions.map((option) => {
-          if (isEqual(option.id, this.currentSelection)) {
+          if (isEqual(option, this.currentSelection)) {
             option.selected = true;
           }
           return option;
