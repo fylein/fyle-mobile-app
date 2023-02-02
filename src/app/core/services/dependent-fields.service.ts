@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
-import { DependentField } from '../models/dependent-field.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
 import { CategoriesService } from './categories.service';
@@ -14,52 +13,6 @@ export class DependentFieldsService {
     private spenderPlatformApiService: SpenderPlatformApiService,
     private categoryService: CategoriesService
   ) {}
-
-  //This is a dummy method and won't be needed as these fields will be provided in expense_fields api
-  getDependentFields(): Observable<DependentField[]> {
-    return of([
-      {
-        id: 1,
-        name: 'Dependent Field 1',
-        is_enabled: true,
-        is_mandatory: true,
-        placeholder: 'Select Field',
-        dependent_field_id: 2,
-      },
-      {
-        id: 2,
-        name: 'Dependent Field 2',
-        is_enabled: true,
-        is_mandatory: false,
-        placeholder: 'Select Field',
-        dependent_field_id: 3,
-      },
-      {
-        id: 3,
-        name: 'Dependent Field 3',
-        is_enabled: true,
-        is_mandatory: true,
-        placeholder: 'Select Field',
-        dependent_field_id: 4,
-      },
-      {
-        id: 4,
-        name: 'Dependent Field 4',
-        is_enabled: false,
-        is_mandatory: false,
-        placeholder: 'Select Field',
-        dependent_field_id: 5,
-      },
-      {
-        id: 5,
-        name: 'Dependent Field 5',
-        is_enabled: false,
-        is_mandatory: true,
-        placeholder: 'Select Field',
-        dependent_field_id: null,
-      },
-    ]);
-  }
 
   //Actual call to platform API
   getOptionsForDependentField(config: {
