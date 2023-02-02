@@ -83,7 +83,6 @@ describe('ReportService', () => {
   };
 
   const apiApproversParam = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
-  // 'rpvwqzb9Jqq0', 'rpvcIMRMyM3A',
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
@@ -760,6 +759,16 @@ describe('ReportService', () => {
     const params = { state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
 
     const result = reportService.addOrderByParams(params);
+    expect(result).toEqual(params);
+  });
+
+  it('addOrderByParams(): return the params when order is specified', () => {
+    const params = {
+      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+      order_by: 'rp_created_at.desc,rp_id.desc',
+    };
+
+    const result = reportService.addOrderByParams(params, 'rp_created_at.desc,rp_id.desc');
     expect(result).toEqual(params);
   });
 
