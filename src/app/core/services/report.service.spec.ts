@@ -500,20 +500,17 @@ describe('ReportService', () => {
   });
 
   it('getAutoSubmissionReportName(): should get auto submitted report name', (done) => {
-    spenderPlatformApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
+    spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(of(apiReportAutoSubmissionDetails));
 
     reportService.getAutoSubmissionReportName().subscribe((res) => {
       expect(res).toEqual('(Automatic Submission On Feb 1)');
-      expect(spenderPlatformApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
-        data: null,
-      });
-      expect(spenderPlatformApiService.post).toHaveBeenCalledTimes(1);
+      expect(reportService.getReportAutoSubmissionDetails).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
-  xit('getAutoSubmissionReportName(): should report null', (done) => {
-    spenderPlatformApiService.post.and.returnValue(
+  it('getAutoSubmissionReportName(): should report null', (done) => {
+    spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(
       of({
         data: {
           next_at: null,
@@ -523,6 +520,39 @@ describe('ReportService', () => {
 
     reportService.getAutoSubmissionReportName().subscribe((res) => {
       expect(res).toEqual(null);
+      expect(reportService.getReportAutoSubmissionDetails).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getReportAutoSubmissionDetails(): should get submission details', (done) => {
+    spenderPlatformApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
+
+    reportService.getReportAutoSubmissionDetails().subscribe((res) => {
+      expect(res).toEqual({
+        data: {
+          next_at: new Date('2023-01-31T18:30:00.000Z'),
+        },
+      });
+      expect(spenderPlatformApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
+        data: null,
+      });
+      expect(spenderPlatformApiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getReportAutoSubmissionDetails(): should get submission details when no data is passed', (done) => {
+    spenderPlatformApiService.post.and.returnValue(
+      of({
+        data: {},
+      })
+    );
+
+    reportService.getReportAutoSubmissionDetails().subscribe((res) => {
+      expect(res).toEqual({
+        data: {},
+      });
       expect(spenderPlatformApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
         data: null,
       });
