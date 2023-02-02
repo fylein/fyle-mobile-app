@@ -4,6 +4,7 @@ import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
 
 @Component({
   selector: 'app-dependent-field-modal',
@@ -13,7 +14,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 export class DependentFieldModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() currentSelection: any;
+  @Input() currentSelection: PlatformDependentFieldValue;
 
   @Input() showNullOption = true;
 
@@ -31,7 +32,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   @Input() parentFieldValue: string;
 
-  filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+  filteredOptions$: Observable<(PlatformDependentFieldValue & { selected?: boolean })[]>;
 
   value: string;
 
@@ -75,7 +76,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchString) => this.getDependentFieldOptions(searchString)),
-      map((dependentFieldOptions: any[]) =>
+      map((dependentFieldOptions: (PlatformDependentFieldValue & { selected?: boolean })[]) =>
         dependentFieldOptions.map((option) => {
           if (isEqual(option, this.currentSelection)) {
             option.selected = true;

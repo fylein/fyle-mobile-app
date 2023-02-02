@@ -2,9 +2,9 @@ import { Component, OnInit, forwardRef, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
+import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
 
 @Component({
   selector: 'app-dependent-field',
@@ -51,11 +51,11 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
-  get value(): any {
+  get value(): PlatformDependentFieldValue {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: PlatformDependentFieldValue) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       const selectedOption = this.innerValue;
@@ -102,7 +102,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
+  writeValue(value: PlatformDependentFieldValue): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       const selectedOption = this.innerValue;
