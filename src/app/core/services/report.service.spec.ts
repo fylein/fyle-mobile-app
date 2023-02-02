@@ -532,7 +532,7 @@ describe('ReportService', () => {
     reportService.getReportAutoSubmissionDetails().subscribe((res) => {
       expect(res).toEqual({
         data: {
-          next_at: new Date('2023-01-31T18:30:00.000Z'),
+          next_at: new Date('2023-02-01T00:00:00.000000'),
         },
       });
       expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
