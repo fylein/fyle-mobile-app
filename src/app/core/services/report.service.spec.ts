@@ -1,19 +1,16 @@
 import { TestBed } from '@angular/core/testing';
-
 import { DatePipe } from '@angular/common';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { apiReportStatsRawRes, apiReportStatsRes } from '../../core/mock-data/stats-response.data';
 import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
 import {
-  apiEmptyReportRes,
   apiReportRes,
-  apiReportRes1,
-  apiReportRes2,
   apiReportSingleRes,
   apiTeamRptCountRes,
   apiTeamRptSingleRes,
   apiTeamReportPaginated1,
+  apiAllReportsRes,
 } from '../mock-data/api-reports.data';
 import { apiAllApproverRes2, apiApproverRes, expectedApprovers } from '../mock-data/approver.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
@@ -23,12 +20,16 @@ import { apiReportActions } from '../mock-data/report-actions.data';
 import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
 import {
   apiErptReporDataParam,
-  apiReportUpdatedDetails,
   expectedErpt,
   expectedPendingReports,
   expectedSingleErpt,
 } from '../mock-data/report-unflattened.data';
-import { reportUnflattenedData, reportUnflattenedData2 } from '../mock-data/report-v1.data';
+import {
+  reportUnflattenedData,
+  reportUnflattenedData2,
+  apiEmptyReportRes,
+  apiReportUpdatedDetails,
+} from '../mock-data/report-v1.data';
 import {
   apiExtendedReportRes,
   expectedAllReports,
@@ -166,41 +167,6 @@ describe('ReportService', () => {
   function mockReports() {
     apiv2Service.get.and.returnValue(of(apiReportRes));
   }
-  function getPaginatedReports() {
-    const apiCountParam = {
-      params: {
-        offset: 0,
-        limit: 1,
-        order: 'rp_created_at.desc,rp_id.desc',
-        rp_org_user_id: 'eq.ouX8dwsbLCLv',
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      },
-    };
-
-    const apiPage1Param = {
-      params: {
-        offset: 0,
-        limit: 2,
-        order: 'rp_created_at.desc,rp_id.desc',
-        rp_org_user_id: 'eq.ouX8dwsbLCLv',
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      },
-    };
-
-    const apiPage2Param = {
-      params: {
-        offset: 2,
-        limit: 2,
-        order: 'rp_created_at.desc,rp_id.desc',
-        rp_org_user_id: 'eq.ouX8dwsbLCLv',
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      },
-    };
-
-    apiv2Service.get.withArgs('/reports', apiCountParam).and.returnValue(of(apiReportRes));
-    apiv2Service.get.withArgs('/reports', apiPage1Param).and.returnValue(of(apiReportRes1));
-    apiv2Service.get.withArgs('/reports', apiPage2Param).and.returnValue(of(apiReportRes2));
-  }
 
   it('should be created', () => {
     expect(reportService).toBeTruthy();
@@ -332,8 +298,6 @@ describe('ReportService', () => {
   });
 
   it('getMyReportsCount(): should get reports count', (done) => {
-    mockExtendedOrgUser();
-    mockReports();
     spyOn(reportService, 'getMyReports').and.returnValue(of(apiReportRes));
 
     const param = {
@@ -342,7 +306,7 @@ describe('ReportService', () => {
       queryParams: {},
     };
 
-    reportService.getMyReportsCount({}).subscribe((res) => {
+    reportService.getMyReportsCount().subscribe((res) => {
       expect(res).toEqual(4);
       expect(reportService.getMyReports).toHaveBeenCalledWith(param);
       expect(reportService.getMyReports).toHaveBeenCalledTimes(1);
@@ -373,7 +337,6 @@ describe('ReportService', () => {
   });
 
   it('getTeamReportsCount(): should get a count of team reports', (done) => {
-    mockExtendedOrgUser();
     spyOn(reportService, 'getTeamReports').and.returnValue(of(apiTeamRptCountRes));
 
     const params = {
@@ -421,7 +384,6 @@ describe('ReportService', () => {
   });
 
   it('getTeamReport(): should get a team report', (done) => {
-    mockExtendedOrgUser();
     spyOn(reportService, 'getTeamReports').and.returnValue(of(apiTeamRptSingleRes));
 
     const reportID = 'rphNNUiCISkD';
@@ -599,24 +561,26 @@ describe('ReportService', () => {
 
   it('delete(): should delete a report', (done) => {
     apiService.delete.and.returnValue(of(null));
-    transactionService.clearCache.and.returnValue(of(null));
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportID = 'rpShFuVCUIXk';
     reportService.delete(reportID).subscribe(() => {
       expect(apiService.delete).toHaveBeenCalledWith(`/reports/${reportID}`);
       expect(apiService.delete).toHaveBeenCalledTimes(1);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('updateReportDetails(): should update a report name', (done) => {
     apiService.post.and.returnValue(of(apiReportUpdatedDetails));
-    transactionService.clearCache.and.returnValue(of(null));
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
 
     reportService.updateReportDetails(reportParam).subscribe((res) => {
       expect(res).toEqual(apiReportUpdatedDetails);
       expect(apiService.post).toHaveBeenCalledWith('/reports', apiErptReporDataParam.rp);
       expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -665,8 +629,8 @@ describe('ReportService', () => {
   });
 
   it('getAllExtendedReports(): should get all reports', (done) => {
-    mockExtendedOrgUser();
-    getPaginatedReports();
+    spyOn(reportService, 'getMyReportsCount').and.returnValue(of(2));
+    spyOn(reportService, 'getMyReports').and.returnValue(of(apiAllReportsRes));
 
     const params = {
       queryParams: {
@@ -674,10 +638,20 @@ describe('ReportService', () => {
       },
     };
 
+    const getMyReportsParam = {
+      offset: 0,
+      limit: 2,
+      queryParams: {
+        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      },
+      order: undefined,
+    };
+
     reportService.getAllExtendedReports(params).subscribe((res) => {
-      expect(res).toEqual(dateService.fixDates(expectedAllReports));
-      expect(authService.getEou).toHaveBeenCalledTimes(3);
-      expect(apiv2Service.get).toHaveBeenCalledTimes(3);
+      expect(res).toEqual(expectedAllReports);
+      expect(reportService.getMyReports).toHaveBeenCalledWith(getMyReportsParam);
+      expect(reportService.getMyReports).toHaveBeenCalledTimes(1);
+      expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(1);
       done();
     });
   });

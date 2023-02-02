@@ -1,11 +1,11 @@
 import { UnflattenedReport } from '../models/report-unflattened.model';
 
-export const expectedErpt = [
+export const expectedErpt: UnflattenedReport[] = [
   {
     rp: {
       id: 'rprAfNrce73O',
       org_user_id: 'ouX8dwsbLCLv',
-      created_at: '2023-01-21T07:29:01.958Z',
+      created_at: new Date('2023-01-21T07:29:01.958Z'),
       purpose: '#8:  Jan 2023',
       currency: 'INR',
       amount: 116.9,
@@ -17,7 +17,7 @@ export const expectedErpt = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:29:03.656Z',
+      submitted_at: new Date('2023-01-21T07:29:03.656Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -63,7 +63,7 @@ export const expectedErpt = [
     rp: {
       id: 'rpLMyvYSXgJy',
       org_user_id: 'ouX8dwsbLCLv',
-      created_at: '2023-01-18T07:29:00.749Z',
+      created_at: new Date('2023-01-18T07:29:00.749Z'),
       purpose: '#7:  Jan 2023',
       currency: 'INR',
       amount: 4652,
@@ -75,7 +75,7 @@ export const expectedErpt = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-18T07:29:04.487Z',
+      submitted_at: new Date('2023-01-18T07:29:04.487Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -121,7 +121,7 @@ export const expectedErpt = [
     rp: {
       id: 'rpxtbiLXQZUm',
       org_user_id: 'ouX8dwsbLCLv',
-      created_at: '2023-01-17T07:29:00.800Z',
+      created_at: new Date('2023-01-17T07:29:00.800Z'),
       purpose: '#6:  Jan 2023',
       currency: 'INR',
       amount: 347.45800399999996,
@@ -133,7 +133,7 @@ export const expectedErpt = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-17T07:29:01.751Z',
+      submitted_at: new Date('2023-01-17T07:29:01.751Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -179,7 +179,7 @@ export const expectedErpt = [
     rp: {
       id: 'rpSGcIEwzxDd',
       org_user_id: 'ouX8dwsbLCLv',
-      created_at: '2023-01-17T06:34:58.398Z',
+      created_at: new Date('2023-01-17T06:34:58.398Z'),
       purpose: '#4:  Jan 2023',
       currency: 'INR',
       amount: 9400,
@@ -191,7 +191,7 @@ export const expectedErpt = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-17T06:34:59.523Z',
+      submitted_at: new Date('2023-01-17T06:34:59.523Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -235,7 +235,7 @@ export const expectedErpt = [
   },
 ];
 
-export const expectedSingleErpt = {
+export const expectedSingleErpt: UnflattenedReport = {
   rp: {
     id: 'rprAfNrce73O',
     org_user_id: 'ouX8dwsbLCLv',
@@ -251,7 +251,7 @@ export const expectedSingleErpt = {
     settlement_id: null,
     approved_at: null,
     reimbursed_at: null,
-    submitted_at: '2023-01-21T07:29:03.656Z',
+    submitted_at: new Date('2023-01-21T07:29:03.656Z'),
     verification_state: null,
     trip_request_id: null,
     physical_bill: false,
@@ -292,57 +292,6 @@ export const expectedSingleErpt = {
     full_name: 'Abhishek Jain',
     email: 'ajain@fyle.in',
   },
-};
-
-export const apiReportUpdatedDetails = {
-  created_at: '2022-10-31T13:54:46.317Z',
-  updated_at: '2023-01-23T10:53:52.220Z',
-  last_updated_by: {
-    user_id: 'usvKA4X8Ugcr',
-    org_user_id: 'ouX8dwsbLCLv',
-    org_id: 'orNVthTo2Zyo',
-    roles: ['ADMIN', 'APPROVER', 'FYLER', 'HOP', 'HOD', 'OWNER'],
-    scopes: [],
-    allowed_CIDRs: [],
-    cluster_domain: '"https://staging.fyle.tech"',
-    proxy_org_user_id: null,
-    tpa_id: null,
-    tpa_name: null,
-    name: 'ouX8dwsbLCLv',
-  },
-  id: 'rptkwzhsieIY',
-  org_user_id: 'ouX8dwsbLCLv',
-  purpose: 'My Testing Report',
-  currency: 'INR',
-  creator_id: 'ouX8dwsbLCLv',
-  amount: 46040,
-  tax: 101.29,
-  status_id: null,
-  num_transactions: 4,
-  tally_export_id: null,
-  state: 'DRAFT',
-  source: 'MOBILE',
-  reimbursement_id: null,
-  approved_at: null,
-  reimbursed_at: null,
-  submitted_at: null,
-  settlement_id: null,
-  verification_state: null,
-  trip_request_id: null,
-  physical_bill: false,
-  exported: false,
-  manual_flag: false,
-  policy_flag: false,
-  claim_number: 'C/2022/10/R/37',
-  physical_bill_at: null,
-  from_dt: null,
-  to_dt: null,
-  location1: null,
-  location2: null,
-  location3: null,
-  location4: null,
-  location5: null,
-  type: 'EXPENSE',
 };
 
 export const apiErptReporDataParam = {
@@ -411,12 +360,12 @@ export const apiErptReporDataParam = {
   },
 };
 
-export const extendedReportParam = [
+export const extendedReportParam: UnflattenedReport[] = [
   {
     rp: {
       id: 'rp5eUkeNm9wB',
       org_user_id: 'ouCI4UQ2G0K1',
-      created_at: '2023-01-21T07:45:18.869Z',
+      created_at: new Date('2023-01-21T07:45:18.869Z'),
       purpose: '#7:  Jan 2023',
       currency: 'INR',
       amount: 1348.09332,
@@ -427,7 +376,7 @@ export const extendedReportParam = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:45:23.282Z',
+      submitted_at: new Date('2023-01-21T07:45:23.282Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -472,7 +421,7 @@ export const extendedReportParam = [
     rp: {
       id: 'rp72SaHM7Fbz',
       org_user_id: 'ouCI4UQ2G0K1',
-      created_at: '2023-01-21T07:45:18.858Z',
+      created_at: new Date('2023-01-21T07:45:18.858Z'),
       purpose: '#7:  Jan 2023',
       currency: 'INR',
       amount: 0,
@@ -483,11 +432,11 @@ export const extendedReportParam = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:45:21.515Z',
+      submitted_at: new Date('2023-01-21T07:45:21.515Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: true,
-      physical_bill_at: '2023-01-21T07:45:21.173Z',
+      physical_bill_at: new Date('2023-01-21T07:45:21.173Z'),
       exported: null,
       manual_flag: false,
       policy_flag: false,
@@ -528,7 +477,7 @@ export const extendedReportParam = [
     rp: {
       id: 'rpvcIMRMyM3A',
       org_user_id: 'ouCI4UQ2G0K1',
-      created_at: '2023-01-21T07:42:58.367Z',
+      created_at: new Date('2023-01-21T07:42:58.367Z'),
       purpose: '#5:  Jan 2023',
       currency: 'INR',
       amount: 250,
@@ -539,7 +488,7 @@ export const extendedReportParam = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:43:01.261Z',
+      submitted_at: new Date('2023-01-21T07:43:01.261Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -584,7 +533,7 @@ export const extendedReportParam = [
     rp: {
       id: 'rpvwqzb9Jqq0',
       org_user_id: 'ouCI4UQ2G0K1',
-      created_at: '2023-01-21T07:34:02.610Z',
+      created_at: new Date('2023-01-21T07:34:02.610Z'),
       purpose: 'A new report',
       currency: 'INR',
       amount: 150,
@@ -595,7 +544,7 @@ export const extendedReportParam = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:34:04.686Z',
+      submitted_at: new Date('2023-01-21T07:34:04.686Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -638,12 +587,12 @@ export const extendedReportParam = [
   },
 ];
 
-export const expectedUnflattenedReports = [
+export const expectedUnflattenedReports: UnflattenedReport[] = [
   {
     rp: {
       id: 'rp5eUkeNm9wB',
       org_user_id: 'ouCI4UQ2G0K1',
-      created_at: '2023-01-21T07:45:18.869Z',
+      created_at: new Date('2023-01-21T07:45:18.869Z'),
       purpose: '#7:  Jan 2023',
       currency: 'INR',
       amount: 1348.09332,
@@ -654,7 +603,7 @@ export const expectedUnflattenedReports = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:45:23.282Z',
+      submitted_at: new Date('2023-01-21T07:45:23.282Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -699,7 +648,7 @@ export const expectedUnflattenedReports = [
     rp: {
       id: 'rp72SaHM7Fbz',
       org_user_id: 'ouCI4UQ2G0K1',
-      created_at: '2023-01-21T07:45:18.858Z',
+      created_at: new Date('2023-01-21T07:45:18.858Z'),
       purpose: '#7:  Jan 2023',
       currency: 'INR',
       amount: 0,
@@ -710,11 +659,11 @@ export const expectedUnflattenedReports = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:45:21.515Z',
+      submitted_at: new Date('2023-01-21T07:45:21.515Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: true,
-      physical_bill_at: '2023-01-21T07:45:21.173Z',
+      physical_bill_at: new Date('2023-01-21T07:45:21.173Z'),
       exported: null,
       manual_flag: false,
       policy_flag: false,
@@ -755,7 +704,7 @@ export const expectedUnflattenedReports = [
     rp: {
       id: 'rpvcIMRMyM3A',
       org_user_id: 'ouCI4UQ2G0K1',
-      created_at: '2023-01-21T07:42:58.367Z',
+      created_at: new Date('2023-01-21T07:42:58.367Z'),
       purpose: '#5:  Jan 2023',
       currency: 'INR',
       amount: 250,
@@ -766,7 +715,7 @@ export const expectedUnflattenedReports = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:43:01.261Z',
+      submitted_at: new Date('2023-01-21T07:43:01.261Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -811,7 +760,7 @@ export const expectedUnflattenedReports = [
     rp: {
       id: 'rpvwqzb9Jqq0',
       org_user_id: 'ouCI4UQ2G0K1',
-      created_at: '2023-01-21T07:34:02.610Z',
+      created_at: new Date('2023-01-21T07:34:02.610Z'),
       purpose: 'A new report',
       currency: 'INR',
       amount: 150,
@@ -822,7 +771,7 @@ export const expectedUnflattenedReports = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:34:04.686Z',
+      submitted_at: new Date('2023-01-21T07:34:04.686Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -865,12 +814,12 @@ export const expectedUnflattenedReports = [
   },
 ];
 
-export const expectedPendingReports = [
+export const expectedPendingReports: UnflattenedReport[] = [
   {
     rp: {
       id: 'rprAfNrce73O',
       org_user_id: 'ouX8dwsbLCLv',
-      created_at: '2023-01-21T07:29:01.958Z',
+      created_at: new Date('2023-01-21T07:29:01.958Z'),
       purpose: '#8:  Jan 2023',
       currency: 'INR',
       amount: 116.9,
@@ -881,7 +830,7 @@ export const expectedPendingReports = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-21T07:29:03.656Z',
+      submitted_at: new Date('2023-01-21T07:29:03.656Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -927,7 +876,7 @@ export const expectedPendingReports = [
     rp: {
       id: 'rpLMyvYSXgJy',
       org_user_id: 'ouX8dwsbLCLv',
-      created_at: '2023-01-18T07:29:00.749Z',
+      created_at: new Date('2023-01-18T07:29:00.749Z'),
       purpose: '#7:  Jan 2023',
       currency: 'INR',
       amount: 4652,
@@ -938,7 +887,7 @@ export const expectedPendingReports = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-18T07:29:04.487Z',
+      submitted_at: new Date('2023-01-18T07:29:04.487Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -984,7 +933,7 @@ export const expectedPendingReports = [
     rp: {
       id: 'rpxtbiLXQZUm',
       org_user_id: 'ouX8dwsbLCLv',
-      created_at: '2023-01-17T07:29:00.800Z',
+      created_at: new Date('2023-01-17T07:29:00.800Z'),
       purpose: '#6:  Jan 2023',
       currency: 'INR',
       amount: 347.45800399999996,
@@ -995,7 +944,7 @@ export const expectedPendingReports = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-17T07:29:01.751Z',
+      submitted_at: new Date('2023-01-17T07:29:01.751Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,
@@ -1041,7 +990,7 @@ export const expectedPendingReports = [
     rp: {
       id: 'rpSGcIEwzxDd',
       org_user_id: 'ouX8dwsbLCLv',
-      created_at: '2023-01-17T06:34:58.398Z',
+      created_at: new Date('2023-01-17T06:34:58.398Z'),
       purpose: '#4:  Jan 2023',
       currency: 'INR',
       amount: 9400,
@@ -1052,7 +1001,7 @@ export const expectedPendingReports = [
       settlement_id: null,
       approved_at: null,
       reimbursed_at: null,
-      submitted_at: '2023-01-17T06:34:59.523Z',
+      submitted_at: new Date('2023-01-17T06:34:59.523Z'),
       verification_state: null,
       trip_request_id: null,
       physical_bill: false,

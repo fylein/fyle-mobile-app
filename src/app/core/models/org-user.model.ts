@@ -2,9 +2,9 @@ import { CustomField } from './custom_field.model';
 
 export interface OrgUser {
   id: string;
-  created_at: Date;
+  created_at?: Date;
   org_id: string;
-  user_id: string;
+  user_id?: string;
   employee_id?: any;
   location: string;
   level?: any;
@@ -14,8 +14,8 @@ export interface OrgUser {
   department_id?: any;
   department?: any;
   sub_department?: any;
-  roles: string[];
-  approver1_id: string;
+  roles?: string[];
+  approver1_id?: string;
   approver2_id?: any;
   approver3_id?: any;
   delegatee_id?: any;
@@ -26,18 +26,18 @@ export interface OrgUser {
   branch_ifsc?: any;
   branch_account?: any;
   mobile: string;
-  mobile_verified: boolean;
-  mobile_verified_at: Date;
-  is_primary: boolean;
+  mobile_verified?: boolean;
+  mobile_verified_at?: Date;
+  is_primary?: boolean;
   owner?: any;
   joining_dt?: any;
-  special_email: string;
-  custom_field_values: CustomField[];
+  special_email?: string;
+  custom_field_values?: CustomField[];
   org_name: string;
-  settings_id: string;
-  default_cost_center_id: number;
-  default_cost_center_name: string;
-  default_cost_center_code: string;
+  settings_id?: string;
+  default_cost_center_id?: number;
+  default_cost_center_name?: string;
+  default_cost_center_code?: string;
   rank?: number;
-  cost_center_ids: number[];
+  cost_center_ids?: number[];
 }
