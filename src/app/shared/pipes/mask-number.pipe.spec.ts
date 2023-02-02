@@ -1,8 +1,23 @@
 import { MaskNumber } from './mask-number.pipe';
 
-xdescribe('MaskNumber', () => {
+describe('MaskNumber', () => {
+  const maskNumber = new MaskNumber();
+
+  const number1 = '123456789';
+  const number2 = '1234';
+
   it('create an instance', () => {
-    const pipe = new MaskNumber();
-    expect(pipe).toBeTruthy();
+    expect(maskNumber).toBeTruthy();
+  });
+
+  it('should mask the numbers and only display the last 4 digits', () => {
+    expect(maskNumber.transform(number1)).toBe('****6789');
+    expect(maskNumber.transform(number2)).toBe('****1234');
+    expect(maskNumber.transform('1')).toBe('****1');
+    expect(maskNumber.transform('12')).toBe('****12');
+  });
+
+  it('should return the original value if it is falsy', () => {
+    expect(maskNumber.transform('')).toEqual('');
   });
 });

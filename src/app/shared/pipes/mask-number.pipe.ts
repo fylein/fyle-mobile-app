@@ -4,9 +4,11 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'maskNumber',
 })
 export class MaskNumber implements PipeTransform {
-  transform(input) {
-    if (input) {
-      return !!input ? '****' + input.slice(-4) : input;
+  transform(input: any): string {
+    if (!input) {
+      return input;
     }
+
+    return '****' + input.toString().slice(-4);
   }
 }
