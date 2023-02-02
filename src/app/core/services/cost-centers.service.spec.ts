@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { CostCentersService } from './cost-centers.service';
 import { DateService } from './date.service';
 import { of } from 'rxjs';
@@ -9,17 +9,17 @@ import { transformedCostCenterData } from '../mock-data/cost-centers.data';
 
 describe('CostCentersService', () => {
   let costCentersService: CostCentersService;
-  let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
   let dateService: jasmine.SpyObj<DateService>;
 
   beforeEach(() => {
-    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformApiService', ['get']);
+    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['fixDates', 'fixDatesV2']);
     TestBed.configureTestingModule({
       providers: [
         CostCentersService,
         {
-          provide: SpenderPlatformApiService,
+          provide: SpenderPlatformV1BetaApiService,
           useValue: spenderPlatformApiServiceSpy,
         },
         {
@@ -33,7 +33,9 @@ describe('CostCentersService', () => {
       ],
     });
     costCentersService = TestBed.inject(CostCentersService);
-    spenderPlatformApiService = TestBed.inject(SpenderPlatformApiService) as jasmine.SpyObj<SpenderPlatformApiService>;
+    spenderPlatformV1BetaApiService = TestBed.inject(
+      SpenderPlatformV1BetaApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
   });
 
@@ -42,7 +44,7 @@ describe('CostCentersService', () => {
   });
 
   it('getActiveCostCentersCount() : should get active cost center count', (done) => {
-    spenderPlatformApiService.get.and.returnValue(of(apiCostCenterSingleResponse));
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(apiCostCenterSingleResponse));
 
     const params = {
       params: {
@@ -54,13 +56,13 @@ describe('CostCentersService', () => {
 
     costCentersService.getActiveCostCentersCount().subscribe((res) => {
       expect(res).toEqual(1);
-      expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/cost_centers', params);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/cost_centers', params);
       done();
     });
   });
 
   it('getCostCenters() : should get cost centers as per config', (done) => {
-    spenderPlatformApiService.get.and.returnValue(of(apiCostCenterMultipleResponse));
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(apiCostCenterMultipleResponse));
 
     const data = {
       params: {
@@ -72,7 +74,7 @@ describe('CostCentersService', () => {
 
     costCentersService.getCostCenters({ offset: 0, limit: 200 }).subscribe((res) => {
       expect(res).toEqual(transformedCostCenterData);
-      expect(spenderPlatformApiService.get).toHaveBeenCalledWith('/cost_centers', data);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/cost_centers', data);
       done();
     });
   });
@@ -83,7 +85,7 @@ describe('CostCentersService', () => {
       of(transformedCostCenterData)
     );
     costCentersService.getAllActive().subscribe((res) => {
-      //  expect(res).toEqual(transformedCostCenterData);
+      //expect(res).toEqual(transformedCostCenterData);
       expect(spyGetCostCenters).toHaveBeenCalledTimes(2);
       expect(spyGetActiveCostCentersCount).toHaveBeenCalledTimes(1);
     });
