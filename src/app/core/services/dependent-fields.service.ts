@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable, of } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
 import { CategoriesService } from './categories.service';
@@ -14,7 +14,6 @@ export class DependentFieldsService {
     private categoryService: CategoriesService
   ) {}
 
-  //Actual call to platform API
   getOptionsForDependentField(config: {
     fieldId: number;
     parentFieldId: number;
@@ -34,13 +33,14 @@ export class DependentFieldsService {
       },
     };
 
+    //TODO: Use v1 Platform APIs instead of v1-beta. Will be done once expense_fields is migrated
     return this.spenderPlatformApiService.get<PlatformApiResponse<PlatformDependentFieldValue>>(
       '/dependent_expense_field_values',
       data
     );
   }
 
-  //Dummy method for testing, will be removed once APIs are available.
+  //TODO: Remove this dummy method once APIs are available
   getOptionsForDependentFieldUtil(config: {
     fieldId: number;
     parentFieldId: number;
@@ -65,18 +65,5 @@ export class DependentFieldsService {
           }))
         )
       );
-  }
-
-  private generateOptions(fieldId: number, parentFieldId: number, parentFieldValue: string) {
-    const val = [];
-    for (let i = 0; i <= 100; i++) {
-      val.push({
-        id: fieldId * i,
-        name: `Parent field ${parentFieldId}, Value ${parentFieldValue}, Option ${i}`,
-        is_enabled: true,
-        field_id: fieldId,
-      });
-    }
-    return val;
   }
 }

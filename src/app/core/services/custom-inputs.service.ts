@@ -24,7 +24,7 @@ export class CustomInputsService {
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$,
   })
-  //TODO: Remove this mapping once APIs are available
+  //TODO: Remove this mapping and fix type once APIs are available
   //These are for 'Yash's Test Organization' on staging
   getAll(active: boolean): Observable<any[]> {
     return from(this.authService.getEou()).pipe(

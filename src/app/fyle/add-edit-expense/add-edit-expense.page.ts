@@ -15,6 +15,7 @@ import {
   throwError,
   Subscription,
   noop,
+  Subject,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
@@ -32,6 +33,7 @@ import {
   startWith,
   switchMap,
   take,
+  takeUntil,
   tap,
   timeout,
   withLatestFrom,
@@ -113,6 +115,8 @@ import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-f
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { PlatformExpenseField } from 'src/app/core/models/platform/platform-expense-field.model';
+import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -360,6 +364,8 @@ export class AddEditExpensePage implements OnInit {
   dependentFields = [];
 
   isDependentFieldLoading = false;
+
+  onPageExit$ = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2867,6 +2873,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.fg.controls.project.valueChanges
       .pipe(
+        takeUntil(this.onPageExit$),
         filter((val) => !!val),
         tap(() => {
           this.isDependentFieldLoading = true;
@@ -2888,28 +2895,34 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  addDependentField(dependentField) {
-    const newField = this.formBuilder.group({
+  //TODO: Add type of dependentField. It's a mix of legacy and platform as expense_fields is still using legacy APIs.
+  addDependentField(dependentField): void {
+    const dependentFieldControl = this.formBuilder.group({
       id: dependentField.id,
       label: dependentField.name,
       parent_field_id: dependentField.parent_field_id,
       value: [null, dependentField.mandatory && Validators.required],
     });
 
-    newField.valueChanges.subscribe((value) => {
+    dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
       this.onDependentFieldChanged(value);
     });
 
     this.dependentFields.push({
       field: dependentField.name,
       mandatory: dependentField.mandatory,
-      control: newField,
+      control: dependentFieldControl,
     });
 
-    this.dependentFieldControls.push(newField, { emitEvent: false });
+    this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
   }
 
-  onDependentFieldChanged(data) {
+  onDependentFieldChanged(data: {
+    id: number;
+    label: string;
+    parent_field_id: number;
+    value: PlatformDependentFieldValue;
+  }): void {
     const updatedFieldIndex = this.dependentFieldControls.value.findIndex((depField) => depField.label === data.label);
 
     //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
@@ -2923,8 +2936,7 @@ export class AddEditExpensePage implements OnInit {
       this.dependentFields = this.dependentFields.slice(0, updatedFieldIndex + 1);
     }
 
-    //Create new depenendt field based on this field
-    //TODO: need to change this as we no longer have `dependent_field_id`
+    //Create new dependent field based on this field
     this.isDependentFieldLoading = true;
     this.getDependentField(data.id, data.value.expense_field_value)
       .pipe(finalize(() => (this.isDependentFieldLoading = false)))
@@ -2935,7 +2947,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  getDependentField(parentFieldId, parentFieldValue) {
+  getDependentField(parentFieldId: number, parentFieldValue: string): Observable<PlatformExpenseField> {
     return this.customInputs$.pipe(
       take(1),
       switchMap((customInputs) => {
@@ -4515,5 +4527,6 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
+    this.onPageExit$.next(null);
   }
 }
