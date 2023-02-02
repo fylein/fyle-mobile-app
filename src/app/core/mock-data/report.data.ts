@@ -288,7 +288,7 @@ export const expectedAllReports: ExtendedReport[] = [
     rp_approval_state: null,
     rp_approved_at: null,
     rp_claim_number: 'C/2023/02/R/4',
-    rp_created_at: new Date('2023-02-01T00:23:42.495Z'),
+    rp_created_at: new Date('2023-02-01T05:53:42.495754'),
     rp_currency: 'INR',
     rp_exported: false,
     rp_from_dt: null,
