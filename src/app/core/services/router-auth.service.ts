@@ -112,12 +112,6 @@ export class RouterAuthService {
       .pipe(switchMap((res) => from(this.handleSignInResponse(res)).pipe(map(() => res))));
   }
 
-  checkIfFreeDomain(email: string) {
-    const domainList = ['hotmail.com', 'rediffmail.com', 'yahoo.com', 'outlook.com'];
-    const domain = email.split('@')[1];
-    return domainList.indexOf(domain.toLowerCase()) > -1;
-  }
-
   emailVerify(verificationCode: string) {
     return this.routerApiService
       .post('/auth/email_verify', {
@@ -140,9 +134,5 @@ export class RouterAuthService {
       email: email?.trim().toLowerCase(),
       org_id: orgId,
     });
-  }
-
-  getRegions() {
-    return this.routerApiService.get('/regions').pipe(map((data) => data.regions));
   }
 }
