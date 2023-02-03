@@ -3,8 +3,6 @@ import { map, switchMap, tap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 
 import { ApiService } from './api.service';
-import { NetworkService } from './network.service';
-import { StorageService } from './storage.service';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
@@ -51,8 +49,6 @@ type advanceRequestStat = {
 })
 export class AdvanceRequestService {
   constructor(
-    private networkService: NetworkService,
-    private storageService: StorageService,
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
     private authService: AuthService,
