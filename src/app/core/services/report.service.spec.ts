@@ -757,6 +757,18 @@ describe('ReportService', () => {
     });
   });
 
+  it('getPaginatedERptcCount(): should return count when device is offline and use storage to give count', (done) => {
+    networkService.isOnline.and.returnValue(of(false));
+    storageService.get.and.returnValue(Promise.resolve({ count: 4 }));
+
+    reportService.getPaginatedERptcCount({}).subscribe((res) => {
+      expect(res).toEqual({ count: 4 });
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(storageService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
   it('addOrderByParams(): return the params since no order is specified', () => {
     const params = { state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
 
