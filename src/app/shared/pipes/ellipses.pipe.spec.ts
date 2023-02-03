@@ -8,8 +8,8 @@ describe('EllipsisPipe', () => {
   });
 
   it('ellipsisPipe transform() : should return original input value if args is undefined', () => {
-    const input = 'We are testing';
-    const expectedOutput = 'We are testing';
+    const input = 'Jan - 1 Report for reimbursement';
+    const expectedOutput = 'Jan - 1 Report for reimbursement';
     expect(ellipsisPipe.transform(input, undefined)).toBe(expectedOutput);
   });
 
@@ -26,20 +26,20 @@ describe('EllipsisPipe', () => {
   });
 
   it('ellipsisPipe transform() : should return a truncated string if val is longer than args', () => {
-    const input = 'Hello World';
-    const expectedOutput = 'Hello...';
-    expect(ellipsisPipe.transform(input, 5)).toEqual(expectedOutput);
+    const input = 'Requesting advances for the month of March 2023';
+    const expectedOutput = 'Requesting...';
+    expect(ellipsisPipe.transform(input, 10)).toEqual(expectedOutput);
   });
 
   it('ellipsisPipe transform() : should return the original string if val is shorter than or equal to args', () => {
-    const input = 'Hello';
-    const expectedOutput = 'Hello';
+    const input = 'Report for reimbursement';
+    const expectedOutput = 'Report for reimbursement';
 
-    expect(ellipsisPipe.transform(input, 5)).toEqual(expectedOutput);
+    expect(ellipsisPipe.transform(input, 24)).toEqual(expectedOutput);
 
-    const input2 = 'Hello';
-    const expectedOutput2 = 'Hello';
+    const input2 = 'Expense Report 1 Jan-2023';
+    const expectedOutput2 = 'Expense Report 1 Jan-2023';
 
-    expect(ellipsisPipe.transform(input2, 10)).toEqual(expectedOutput2);
+    expect(ellipsisPipe.transform(input2, 30)).toEqual(expectedOutput2);
   });
 });
