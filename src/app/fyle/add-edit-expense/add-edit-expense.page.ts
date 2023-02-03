@@ -115,8 +115,8 @@ import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-f
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { PlatformExpenseField } from 'src/app/core/models/platform/platform-expense-field.model';
 import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -366,6 +366,8 @@ export class AddEditExpensePage implements OnInit {
   isDependentFieldLoading = false;
 
   onPageExit$: Subject<void>;
+
+  dependentFields$: Observable<ExpenseField[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1983,6 +1985,9 @@ export class AddEditExpensePage implements OnInit {
 
   setupCustomFields() {
     this.initialFetch = true;
+
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
+
     this.customInputs$ = this.fg.controls.category.valueChanges.pipe(
       startWith({}),
       switchMap((category) =>
@@ -1990,16 +1995,15 @@ export class AddEditExpensePage implements OnInit {
       ),
       switchMap((category) => {
         const formValue = this.fg.value;
-        return this.customInputsService
-          .getAll(true)
-          .pipe(
-            map((customFields) =>
-              this.customFieldsService.standardizeCustomFields(
-                formValue.custom_inputs || [],
-                this.customInputsService.filterByCategory(customFields, category && category.id)
-              )
+        return customExpenseFields$.pipe(
+          map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
+          map((customFields) =>
+            this.customFieldsService.standardizeCustomFields(
+              formValue.custom_inputs || [],
+              this.customInputsService.filterByCategory(customFields, category && category.id)
             )
-          );
+          )
+        );
       }),
       map((customFields) =>
         customFields.map((customField) => {
@@ -2036,6 +2040,10 @@ export class AddEditExpensePage implements OnInit {
         )
       ),
       shareReplay(1)
+    );
+
+    this.dependentFields$ = customExpenseFields$.pipe(
+      map((dependentFields) => dependentFields.filter((dependentField) => dependentField.type === 'DEPENDENT_SELECT'))
     );
   }
 
@@ -2930,7 +2938,7 @@ export class AddEditExpensePage implements OnInit {
   addDependentField(dependentField): void {
     const dependentFieldControl = this.formBuilder.group({
       id: dependentField.id,
-      label: dependentField.name,
+      label: dependentField.field_name,
       parent_field_id: dependentField.parent_field_id,
       value: [null, (dependentField.mandatory || null) && Validators.required],
     });
@@ -2943,20 +2951,21 @@ export class AddEditExpensePage implements OnInit {
       id: dependentField.id,
       parentFieldId: dependentField.parent_field_id,
       parentFieldValue: dependentField.parent_field_value,
-      field: dependentField.name,
+      field: dependentField.field_name,
       mandatory: dependentField.mandatory,
       control: dependentFieldControl,
+      placeholder: dependentField.placeholder,
     });
 
     this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
   }
 
-  getDependentField(parentFieldId: number, parentFieldValue: string): Observable<PlatformExpenseField> {
-    return this.customInputs$.pipe(
+  getDependentField(parentFieldId: number, parentFieldValue: string): Observable<ExpenseField> {
+    return this.dependentFields$.pipe(
       take(1),
-      switchMap((customInputs) => {
-        const dependentField = customInputs.find(
-          (customInput) => customInput.type === 'DEPENDENT_SELECT' && customInput.parent_field_id === parentFieldId
+      switchMap((dependentCustomFields) => {
+        const dependentField = dependentCustomFields.find(
+          (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId
         );
         if (dependentField) {
           return this.dependentFieldsService
