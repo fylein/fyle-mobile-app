@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { filter, map, switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { throwError, of, iif } from 'rxjs';
 
 @Injectable({
@@ -1634,32 +1634,5 @@ export class PermissionsService {
     }
 
     return allowed;
-  }
-
-  isTravelAdmin() {
-    const roles$ = this.authService.getRoles();
-    return roles$.pipe(
-      map(
-        (roles) =>
-          roles.indexOf('TRAVEL_ADMIN') > -1 && roles.indexOf('ADMIN') === -1 && roles.indexOf('FINANCE') === -1
-      )
-    );
-  }
-
-  isTravelAgent() {
-    const roles$ = this.authService.getRoles();
-    return roles$.pipe(
-      map(
-        (roles) =>
-          roles.indexOf('TRAVEL_AGENT') > -1 && roles.indexOf('ADMIN') === -1 && roles.indexOf('FINANCE') === -1
-      )
-    );
-  }
-
-  isAuditor() {
-    const roles$ = this.authService.getRoles();
-    return roles$.pipe(
-      map((roles) => roles.indexOf('AUDITOR') > -1 && roles.indexOf('ADMIN') === -1 && roles.indexOf('FINANCE') === -1)
-    );
   }
 }

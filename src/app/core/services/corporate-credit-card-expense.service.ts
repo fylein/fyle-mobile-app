@@ -6,7 +6,6 @@ import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
-import { BankAccountsAssigned } from '../models/v2/bank-accounts-assigned.model';
 import { CardAggregateStat } from '../models/card-aggregate-stat.model';
 
 @Injectable({
@@ -19,10 +18,6 @@ export class CorporateCreditCardExpenseService {
     private dataTransformService: DataTransformService,
     private authService: AuthService
   ) {}
-
-  getPaginatedECorporateCreditCardExpenseStats(params) {
-    return this.apiService.get('/extended_corporate_credit_card_expenses/stats', { params });
-  }
 
   getv2CardTransactions(config: { offset: number; queryParams: any; limit: number; order?: string }): Observable<{
     count: number;
@@ -54,59 +49,12 @@ export class CorporateCreditCardExpenseService {
       );
   }
 
-  getv2CardTransaction(id: string): Observable<CorporateCardExpense> {
-    return this.apiV2Service
-      .get('/corporate_card_transactions', {
-        params: {
-          id: `eq.${id}`,
-        },
-      })
-      .pipe(map((res) => res && res.data && res.data[0]));
-  }
-
-  getv2CardTransactionsCount(queryParams = {}): Observable<number> {
-    return this.getv2CardTransactions({
-      offset: 0,
-      limit: 1,
-      queryParams,
-    }).pipe(map((res) => res.count));
-  }
-
-  getAllv2CardTransactions(config: Partial<{ order: string; queryParams: any }>): Observable<CorporateCardExpense[]> {
-    return this.getv2CardTransactionsCount(config.queryParams).pipe(
-      switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
-        return range(0, count);
-      }),
-      concatMap((page) =>
-        this.getv2CardTransactions({
-          offset: 50 * page,
-          limit: 50,
-          queryParams: config.queryParams,
-          order: config.order,
-        })
-      ),
-      map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr))
-    );
-  }
-
   markPersonal(corporateCreditCardExpenseGroupId: string) {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/personal');
   }
 
   dismissCreditTransaction(corporateCreditCardExpenseId: string) {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/ignore');
-  }
-
-  unmarkPersonal(corporateCreditCardExpenseGroupId: string) {
-    return this.apiService.post(
-      '/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/unmark_personal'
-    );
-  }
-
-  undoDismissedCreditTransaction(corporateCreditCardExpenseId: string) {
-    return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/undo_ignore');
   }
 
   getEccceByGroupId(groupId: string) {
