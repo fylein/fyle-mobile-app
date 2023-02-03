@@ -1,16 +1,95 @@
+import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
-xdescribe('SpenderPlatformV1ApiService', () => {
-  let service: SpenderPlatformV1ApiService;
+const requestObj = {
+  someKey: 'someValue',
+};
+
+const apiResponse = {
+  message: 'SUCCESS',
+};
+describe('SpenderPlatformV1ApiService', () => {
+  const rootUrl = 'https://staging.fyle.tech';
+  let spenderPlatformV1ApiService: SpenderPlatformV1ApiService;
+  let httpClient: jasmine.SpyObj<HttpClient>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(SpenderPlatformV1ApiService);
+    const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
+
+    TestBed.configureTestingModule({
+      providers: [
+        SpenderPlatformV1ApiService,
+        {
+          provide: HttpClient,
+          useValue: httpClientSpy,
+        },
+      ],
+    });
+
+    spenderPlatformV1ApiService = TestBed.inject(SpenderPlatformV1ApiService);
+    httpClient = TestBed.inject(HttpClient) as jasmine.SpyObj<HttpClient>;
+
+    spenderPlatformV1ApiService.setRoot(rootUrl);
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(spenderPlatformV1ApiService).toBeTruthy();
+  });
+
+  it('should set root url', () => {
+    expect(spenderPlatformV1ApiService.ROOT_ENDPOINT).toBe(rootUrl);
+  });
+
+  it('should make GET request without params', (done) => {
+    httpClient.get.and.returnValue(of(apiResponse));
+
+    spenderPlatformV1ApiService.get('/some_url').subscribe((res) => {
+      expect(res).toEqual(apiResponse);
+    });
+
+    expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/some_url', {});
+    done();
+  });
+
+  it('should make GET request with params', (done) => {
+    httpClient.get.and.returnValue(of(apiResponse));
+
+    spenderPlatformV1ApiService
+      .get('/some_url', {
+        params: requestObj,
+      })
+      .subscribe((res) => {
+        expect(res).toEqual(apiResponse);
+      });
+
+    expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/some_url', {
+      params: requestObj,
+    });
+    done();
+  });
+
+  it('should make POST request without body', (done) => {
+    httpClient.post.and.returnValue(of(apiResponse));
+
+    spenderPlatformV1ApiService.post('/some_url').subscribe((res) => {
+      expect(res).toEqual(apiResponse);
+    });
+
+    expect(httpClient.post).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/some_url', {});
+    done();
+  });
+
+  it('should make POST request with body', (done) => {
+    httpClient.post.and.returnValue(of(apiResponse));
+
+    spenderPlatformV1ApiService.post('/some_url', requestObj).subscribe((res) => {
+      expect(res).toEqual(apiResponse);
+    });
+
+    expect(httpClient.post).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/some_url', requestObj);
+    done();
   });
 });
