@@ -365,7 +365,7 @@ export class AddEditExpensePage implements OnInit {
 
   isDependentFieldLoading = false;
 
-  onPageExit$ = new Subject();
+  onPageExit$: Subject<void>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2471,6 +2471,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.onPageExit$ = new Subject();
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -2895,31 +2896,6 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  //TODO: Add type of dependentField. It's a mix of legacy and platform as expense_fields is still using legacy APIs.
-  addDependentField(dependentField): void {
-    const dependentFieldControl = this.formBuilder.group({
-      id: dependentField.id,
-      label: dependentField.name,
-      parent_field_id: dependentField.parent_field_id,
-      value: [null, dependentField.mandatory && Validators.required],
-    });
-
-    dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
-      this.onDependentFieldChanged(value);
-    });
-
-    this.dependentFields.push({
-      id: dependentField.id,
-      parentFieldId: dependentField.parent_field_id,
-      parentFieldValue: dependentField.parent_field_value,
-      field: dependentField.name,
-      mandatory: dependentField.mandatory,
-      control: dependentFieldControl,
-    });
-
-    this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
-  }
-
   onDependentFieldChanged(data: {
     id: number;
     label: string;
@@ -2950,6 +2926,31 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
+  //TODO: Add type of dependentField. It's a mix of legacy and platform as expense_fields is still using legacy APIs.
+  addDependentField(dependentField): void {
+    const dependentFieldControl = this.formBuilder.group({
+      id: dependentField.id,
+      label: dependentField.name,
+      parent_field_id: dependentField.parent_field_id,
+      value: [null, (dependentField.mandatory || null) && Validators.required],
+    });
+
+    dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
+      this.onDependentFieldChanged(value);
+    });
+
+    this.dependentFields.push({
+      id: dependentField.id,
+      parentFieldId: dependentField.parent_field_id,
+      parentFieldValue: dependentField.parent_field_value,
+      field: dependentField.name,
+      mandatory: dependentField.mandatory,
+      control: dependentFieldControl,
+    });
+
+    this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
+  }
+
   getDependentField(parentFieldId: number, parentFieldValue: string): Observable<PlatformExpenseField> {
     return this.customInputs$.pipe(
       take(1),
@@ -2965,6 +2966,7 @@ export class AddEditExpensePage implements OnInit {
               parentFieldValue,
             })
             .pipe(
+              //TODO: Remove the delay once APIs are available
               delay(1000),
               map((dependentFieldOptions) =>
                 dependentFieldOptions?.length > 0 ? { ...dependentField, parent_field_value: parentFieldValue } : null
@@ -4533,5 +4535,6 @@ export class AddEditExpensePage implements OnInit {
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
     this.onPageExit$.next(null);
+    this.onPageExit$.complete();
   }
 }

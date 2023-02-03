@@ -23,13 +23,13 @@ export class DependentFieldsService {
     const { fieldId, parentFieldId, parentFieldValue, searchQuery } = config;
     const data = {
       params: {
-        is_enabled: `eq.${true}`,
-        offset: 0,
-        limit: 20,
-        expense_field_id: fieldId,
-        parent_expense_field_id: parentFieldId,
-        parent_expense_field_value: parentFieldValue,
-        expense_field_value: `=ilike.%${searchQuery}%`,
+        is_enabled: 'eq.true',
+        offset: 'eq.0',
+        limit: 'eq.20',
+        expense_field_id: `eq.${fieldId}`,
+        parent_expense_field_id: `eq.${parentFieldId}`,
+        parent_expense_field_value: `eq.${parentFieldValue}`,
+        expense_field_value: `ilike.%${searchQuery}%`,
       },
     };
 
