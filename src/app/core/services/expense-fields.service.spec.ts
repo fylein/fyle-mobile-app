@@ -10,26 +10,26 @@ import {
 } from '../mock-data/expense-fields-map.data';
 import { orgCategoryData } from '../mock-data/org-category.data';
 import { extendedOrgUserResponse } from '../test-data/tasks.service.spec.data';
-import { ApiService } from './api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { AuthService } from './auth.service';
 
 import { ExpenseFieldsService } from './expense-fields.service';
 
 describe('ExpenseFieldsService', () => {
   let expenseFieldsService: ExpenseFieldsService;
-  let apiService: jasmine.SpyObj<ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(() => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
       providers: [
         ExpenseFieldsService,
         {
-          provide: ApiService,
-          useValue: apiServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: AuthService,
@@ -39,7 +39,9 @@ describe('ExpenseFieldsService', () => {
     });
 
     expenseFieldsService = TestBed.inject(ExpenseFieldsService);
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
   });
 
@@ -49,7 +51,7 @@ describe('ExpenseFieldsService', () => {
 
   it('getAllEnabled(): should get all enabled expense fields', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
-    apiService.get.and.returnValue(of(expenseFieldResponse));
+    spenderPlatformV1ApiService.get.and.returnValue(of(expenseFieldResponse));
 
     expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       expect(expenseFields).toEqual(expenseFieldResponse);
