@@ -6,7 +6,7 @@ import { User } from '../models/user.model';
 import { UserProperty } from '../models/v1/user-property.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
-
+import { UserPasswordStatus } from '../models/user-password-status.model';
 import { UserService } from './user.service';
 
 const currentUserResponse = {
@@ -181,6 +181,16 @@ const userPropertiesNew: UserProperty = {
   expense_form_beta: null,
 };
 
+const userPasswordStatus: UserPasswordStatus = {
+  is_password_required: true,
+  is_password_set: true,
+};
+
+const userPasswordStatusResponse = {
+  is_password_required: true,
+  is_password_set: true,
+};
+
 describe('UserService', () => {
   let userService: UserService;
   let authService: jasmine.SpyObj<AuthService>;
@@ -259,6 +269,16 @@ describe('UserService', () => {
         '/users/' + currentUserResponse.id + '/properties',
         userPropertiesNew
       );
+      done();
+    });
+  });
+
+  it('getUserPasswordStatus() : should get the user password status', (done) => {
+    apiService.get.and.returnValue(of(userPasswordStatusResponse));
+    userService.getUserPasswordStatus().subscribe((res) => {
+      expect(userPasswordStatus).toEqual(res);
+      expect(apiService.get).toHaveBeenCalledWith('/users/password_required');
+      expect(apiService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
