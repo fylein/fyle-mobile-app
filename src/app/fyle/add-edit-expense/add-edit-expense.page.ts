@@ -2884,6 +2884,7 @@ export class AddEditExpensePage implements OnInit {
       .pipe(
         takeUntil(this.onPageExit$),
         filter((val) => !!val),
+        distinctUntilChanged(),
         tap(() => {
           this.isDependentFieldLoading = true;
           this.dependentFieldControls.clear();
@@ -2914,13 +2915,7 @@ export class AddEditExpensePage implements OnInit {
 
     //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
     if (updatedFieldIndex !== this.dependentFieldControls.length - 1) {
-      //Remove all dependent field controls after the changed one
-      for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
-        this.dependentFieldControls.removeAt(i);
-      }
-
-      //Removing fields from UI
-      this.dependentFields = this.dependentFields.slice(0, updatedFieldIndex + 1);
+      this.removeAllDependentFields(updatedFieldIndex);
     }
 
     //Create new dependent field based on this field
@@ -4545,5 +4540,15 @@ export class AddEditExpensePage implements OnInit {
     this.hardwareBackButtonAction.unsubscribe();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
+  }
+
+  private removeAllDependentFields(updatedFieldIndex: number) {
+    //Remove all dependent field controls after the changed one
+    for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
+      this.dependentFieldControls.removeAt(i);
+    }
+
+    //Removing fields from UI
+    this.dependentFields = this.dependentFields.slice(0, updatedFieldIndex + 1);
   }
 }
