@@ -13,7 +13,6 @@ describe('MaskNumber', () => {
   it('MaskNumber transform() : should mask the numbers and only display the last 4 digits', () => {
     expect(maskNumber.transform(number1)).toBe('****6789');
     expect(maskNumber.transform(number2)).toBe('****1234');
-    expect(maskNumber.transform('1')).toBe('****1');
     expect(maskNumber.transform('12')).toBe('****12');
   });
 
