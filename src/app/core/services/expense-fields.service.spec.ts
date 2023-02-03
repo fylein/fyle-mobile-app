@@ -2,7 +2,12 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { defaultTxnFieldValuesData } from '../mock-data/default-txn-field-values.data';
 import { expenseFieldObjData } from '../mock-data/expense-field-obj.data';
-import { expenseFieldResponse, expenseFieldWithBillable, expenseFieldWithSeq } from '../mock-data/expense-field.data';
+import {
+  expenseFieldWithBillable,
+  expenseFieldWithSeq,
+  platformExpenseFieldResponse,
+  transformedResponse,
+} from '../mock-data/expense-field.data';
 import {
   expenseFieldsMapResponse,
   expenseFieldsMapResponse2,
@@ -51,10 +56,10 @@ describe('ExpenseFieldsService', () => {
 
   it('getAllEnabled(): should get all enabled expense fields', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
-    spenderPlatformV1ApiService.get.and.returnValue(of(expenseFieldResponse));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformExpenseFieldResponse));
 
     expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
-      expect(expenseFields).toEqual(expenseFieldResponse);
+      expect(expenseFields).toEqual(transformedResponse);
       done();
     });
   });
