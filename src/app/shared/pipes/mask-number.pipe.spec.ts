@@ -16,7 +16,7 @@ describe('MaskNumber', () => {
     expect(maskNumber.transform('12')).toBe('****12');
   });
 
-  it('MaskNumber transform() :return the original value if it is falsy', () => {
+  it('MaskNumber transform() : return the original value if it is falsy', () => {
     expect(maskNumber.transform('')).toEqual('');
   });
 });
