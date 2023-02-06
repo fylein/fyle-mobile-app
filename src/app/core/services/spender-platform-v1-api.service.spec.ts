@@ -46,50 +46,49 @@ describe('SpenderPlatformV1ApiService', () => {
   it('should make GET request without params', (done) => {
     httpClient.get.and.returnValue(of(apiResponse));
 
-    spenderPlatformV1ApiService.get('/some_url').subscribe((res) => {
+    spenderPlatformV1ApiService.get('/expense_fields').subscribe((res) => {
       expect(res).toEqual(apiResponse);
+      expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/expense_fields', {});
+      done();
     });
-
-    expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/some_url', {});
-    done();
   });
 
   it('should make GET request with params', (done) => {
     httpClient.get.and.returnValue(of(apiResponse));
 
     spenderPlatformV1ApiService
-      .get('/some_url', {
+      .get('/expense_fields', {
         params: requestObj,
       })
       .subscribe((res) => {
         expect(res).toEqual(apiResponse);
+        expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/expense_fields', {
+          params: requestObj,
+        });
+        done();
       });
-
-    expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/some_url', {
-      params: requestObj,
-    });
-    done();
   });
 
   it('should make POST request without body', (done) => {
     httpClient.post.and.returnValue(of(apiResponse));
 
-    spenderPlatformV1ApiService.post('/some_url').subscribe((res) => {
+    spenderPlatformV1ApiService.post('/expense_fields').subscribe((res) => {
       expect(res).toEqual(apiResponse);
+      expect(httpClient.post).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/expense_fields', {});
+      done();
     });
-
-    expect(httpClient.post).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/some_url', {});
-    done();
   });
 
   it('should make POST request with body', (done) => {
     httpClient.post.and.returnValue(of(apiResponse));
 
-    spenderPlatformV1ApiService.post('/some_url', requestObj).subscribe((res) => {
+    spenderPlatformV1ApiService.post('/expense_fields', requestObj).subscribe((res) => {
       expect(res).toEqual(apiResponse);
+      expect(httpClient.post).toHaveBeenCalledWith(
+        'https://staging.fyle.tech/platform/v1/spender/expense_fields',
+        requestObj
+      );
+      done();
     });
-
-    expect(httpClient.post).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/spender/some_url', requestObj);
-    done();
   });
 });

@@ -97,6 +97,8 @@ describe('ExpenseFieldsService', () => {
     expect(expenseFieldsService.getColumnName('locations[0]')).toBe('location1');
     expect(expenseFieldsService.getColumnName('travel_classes[0]', 2)).toBe('bus_travel_class');
     expect(expenseFieldsService.getColumnName('travel_classes[1]', 1)).toBe('flight_return_travel_class');
-    expect(expenseFieldsService.getColumnName('random_string')).toBe('random_string');
+
+    //For other fields, the column_name should remain the same
+    expect(expenseFieldsService.getColumnName('project_id')).toBe('project_id');
   });
 });
