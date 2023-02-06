@@ -594,7 +594,7 @@ export class AddEditMileagePage implements OnInit {
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
     this.dependentFields$ = customExpenseFields$.pipe(
-      map((dependentFields) => dependentFields.filter((dependentField) => dependentField.type === 'DEPENDENT_SELECT'))
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
     );
 
     return this.fg.controls.sub_category.valueChanges.pipe(

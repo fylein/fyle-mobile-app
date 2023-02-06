@@ -2043,7 +2043,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.dependentFields$ = customExpenseFields$.pipe(
-      map((dependentFields) => dependentFields.filter((dependentField) => dependentField.type === 'DEPENDENT_SELECT'))
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
     );
   }
 
