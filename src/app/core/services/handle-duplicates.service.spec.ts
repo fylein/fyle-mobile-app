@@ -36,7 +36,7 @@ describe('HandleDuplicatesService', () => {
     });
   });
 
-  it('getDuplicatesByExpense() : should get the duplicates by expense', (done) => {
+  it('getDuplicatesByExpense() : should call the API  with the correct parameters and return the expected data from the API', (done) => {
     const txnId = 'txaiCW1efU0n';
     apiService.get.and.returnValue(of(handleDuplicatesDataResponse));
     handleDuplicatesService.getDuplicatesByExpense(txnId).subscribe((res) => {
