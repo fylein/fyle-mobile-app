@@ -526,7 +526,7 @@ describe('ReportService', () => {
   });
 
   describe('getAutoSubmissionReportName()', () => {
-    it('getAutoSubmissionReportName(): should get auto submitted report name', (done) => {
+    it('should get auto submitted report name', (done) => {
       spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(of(apiReportAutoSubmissionDetails));
 
       reportService.getAutoSubmissionReportName().subscribe((res) => {
@@ -537,7 +537,7 @@ describe('ReportService', () => {
       });
     });
 
-    it('getAutoSubmissionReportName(): should return null if auto submission is not scheduled', (done) => {
+    it('should return null if auto submission is not scheduled', (done) => {
       spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(
         of({
           data: {
@@ -556,7 +556,7 @@ describe('ReportService', () => {
   });
 
   describe('getReportAutoSubmissionDetails():', () => {
-    it('getReportAutoSubmissionDetails(): should get submission details', (done) => {
+    it('should get submission details', (done) => {
       spenderPlatformV1BetaApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
 
       reportService.getReportAutoSubmissionDetails().subscribe((res) => {
@@ -769,10 +769,10 @@ describe('ReportService', () => {
   });
 
   describe('getPaginatedERptcCount()', () => {
-    it('getPaginatedERptcCount(): should get extended reports count', (done) => {
+    it('should get extended reports count', (done) => {
       networkService.isOnline.and.returnValue(of(true));
       apiService.get.and.returnValue(of({ count: 4 }));
-      storageService.get.and.returnValue(Promise.resolve({ count: 4 }));
+      storageService.set.and.returnValue(Promise.resolve(null));
 
       const apiParam = ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'];
 
@@ -780,11 +780,15 @@ describe('ReportService', () => {
         expect(res).toEqual({ count: 4 });
         expect(apiService.get).toHaveBeenCalledWith('/erpts/count', { params: { state: apiParam } });
         expect(apiService.get).toHaveBeenCalledTimes(1);
+        expect(storageService.set).toHaveBeenCalledWith('erpts-count' + JSON.stringify({ state: apiParam }), {
+          count: 4,
+        });
+        expect(storageService.set).toHaveBeenCalledTimes(1);
         done();
       });
     });
 
-    it('getPaginatedERptcCount(): should return count when device is offline and use storage to give count', (done) => {
+    it('should return count when device is offline and use storage to give count', (done) => {
       networkService.isOnline.and.returnValue(of(false));
       storageService.get.and.returnValue(Promise.resolve({ count: 4 }));
 
@@ -798,14 +802,14 @@ describe('ReportService', () => {
   });
 
   describe('addOrderByParams()', () => {
-    it('addOrderByParams(): return the params when no order is specified', () => {
+    it('return the params when no order is specified', () => {
       const params = { state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
 
       const result = reportService.addOrderByParams(params);
       expect(result).toEqual(params);
     });
 
-    it('addOrderByParams(): return the params when order is specified', () => {
+    it('return the params when order is specified', () => {
       const params = {
         state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
         order_by: 'rp_created_at.desc,rp_id.desc',
@@ -817,7 +821,7 @@ describe('ReportService', () => {
   });
 
   describe('getUserReportParams():', () => {
-    it('getUserReportParams(): generate parameters as per state | edit', () => {
+    it('generate parameters as per state | edit', () => {
       const params = 'edit';
 
       const expectedRes = {
@@ -829,7 +833,7 @@ describe('ReportService', () => {
       expect(expectedRes.state.length).toEqual(3);
     });
 
-    it('getUserReportParams(): generate parameters as per state | draft', () => {
+    it('generate parameters as per state | draft', () => {
       const params = 'draft';
 
       const expectedRes = {
@@ -841,7 +845,7 @@ describe('ReportService', () => {
       expect(expectedRes.state.length).toEqual(2);
     });
 
-    it('getUserReportParams(): generate parameters as per state | pending', () => {
+    it('generate parameters as per state | pending', () => {
       const params = 'pending';
 
       const expectedRes = {
@@ -853,7 +857,7 @@ describe('ReportService', () => {
       expect(expectedRes.state.length).toEqual(1);
     });
 
-    it('getUserReportParams(): generate parameters as per state | inquiry', () => {
+    it('generate parameters as per state | inquiry', () => {
       const params = 'inquiry';
 
       const expectedRes = {
@@ -865,7 +869,7 @@ describe('ReportService', () => {
       expect(expectedRes.state.length).toEqual(1);
     });
 
-    it('getUserReportParams(): generate parameters as per state | approved', () => {
+    it('generate parameters as per state | approved', () => {
       const params = 'approved';
 
       const expectedRes = {
@@ -877,7 +881,7 @@ describe('ReportService', () => {
       expect(expectedRes.state.length).toEqual(1);
     });
 
-    it('getUserReportParams(): generate parameters as per state | payment_queue', () => {
+    it('generate parameters as per state | payment_queue', () => {
       const params = 'payment_queue';
 
       const expectedRes = {
@@ -889,7 +893,7 @@ describe('ReportService', () => {
       expect(expectedRes.state.length).toEqual(1);
     });
 
-    it('getUserReportParams(): generate parameters as per state | paid', () => {
+    it('generate parameters as per state | paid', () => {
       const params = 'paid';
 
       const expectedRes = {
@@ -901,7 +905,7 @@ describe('ReportService', () => {
       expect(expectedRes.state.length).toEqual(1);
     });
 
-    it('getUserReportParams(): generate parameters as per state | all', () => {
+    it('generate parameters as per state | all', () => {
       const params = 'all';
 
       const expectedRes = {

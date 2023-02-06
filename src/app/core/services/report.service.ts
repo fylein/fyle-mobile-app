@@ -29,6 +29,7 @@ import { ReportPurpose } from '../models/report-purpose.model';
 import { ApiV2Response } from '../models/api-v2.model';
 import { ReportParams } from '../models/report-params.model';
 import { UnflattenedReport } from '../models/report-unflattened.model';
+import { ReportV1 } from '../models/report-v1.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -85,7 +86,11 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getPaginatedERptc(offset: number, limit: number, params: { state?: string[]; order?: string }) {
+  getPaginatedERptc(
+    offset: number,
+    limit: number,
+    params: { state?: string[]; order?: string }
+  ): Observable<UnflattenedReport[]> {
     const data = {
       params: {
         offset,
@@ -221,7 +226,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  updateReportDetails(erpt: ExtendedReport) {
+  updateReportDetails(erpt: ExtendedReport): Observable<ReportV1> {
     const reportData = this.dataTransformService.unflatten(erpt);
     return this.apiService
       .post('/reports', reportData.rp)
@@ -361,7 +366,7 @@ export class ReportService {
     );
   }
 
-  getTeamReportsCount(queryParams = {}) {
+  getTeamReportsCount(queryParams = {}): Observable<number> {
     return this.getTeamReports({
       offset: 0,
       limit: 1,
@@ -375,7 +380,7 @@ export class ReportService {
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<ExtendedReport>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/reports', {
@@ -482,7 +487,7 @@ export class ReportService {
     }
   }
 
-  searchParamsGenerator(search, sortOrder?) {
+  searchParamsGenerator(search: { state: string; dateRange?: { from: string; to: string } }, sortOrder?: string) {
     let params = {};
 
     params = this.userReportsSearchParamsGenerator(params, search);
@@ -492,7 +497,7 @@ export class ReportService {
   }
 
   userReportsSearchParamsGenerator(
-    params: {},
+    params: ReportParams,
     search: {
       state: string;
       dateRange?: {
@@ -532,7 +537,7 @@ export class ReportService {
     return Object.assign({}, params, searchParams, dateParams);
   }
 
-  getReportPurpose(reportPurpose: { ids: string[] }) {
+  getReportPurpose(reportPurpose: { ids: string[] }): Observable<string> {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
 
