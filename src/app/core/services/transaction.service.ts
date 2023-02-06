@@ -30,7 +30,7 @@ import { ExpensePolicy } from '../models/platform/platform-expense-policy.model'
 import { EtxnParams } from '../models/etxn-params.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 import { Transaction } from '../models/v1/transaction.model';
-import { FileObject } from '../models/file_obj.model';
+import { FileObject } from '../models/file-obj.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
@@ -422,7 +422,7 @@ export class TransactionService {
     );
   }
 
-  getETxn(txnId: string): Observable<UnflattenedTransaction> {
+  getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
         const etxn = this.dataTransformService.unflatten(data);

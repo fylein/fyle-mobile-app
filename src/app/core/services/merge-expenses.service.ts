@@ -10,7 +10,7 @@ import * as dayjs from 'dayjs';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';
-import { FileObject } from '../models/file_obj.model';
+import { FileObject } from '../models/file-obj.model';
 import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { FormControl } from '@angular/forms';

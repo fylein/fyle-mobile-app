@@ -50,6 +50,7 @@ import { AccountType } from '../enums/account-type.enum';
 import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
 import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { accountsData } from '../test-data/accounts.service.spec.data';
+import { currencySummaryData } from '../mock-data/currency-summary.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -917,7 +918,7 @@ describe('TransactionService', () => {
     const corporateCreditCardExpenseId = 'ccce4xphr6tZQm';
 
     transactionService.unmatchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
-      expect(res).toEqual(null);
+      expect(res).toBeNull();
       expect(apiService.post).toHaveBeenCalledWith('/transactions/unmatch', {
         transaction_id: transactionId,
         corporate_credit_card_expense_id: corporateCreditCardExpenseId,
@@ -1126,14 +1127,14 @@ describe('TransactionService', () => {
     });
   });
 
-  describe('getETxn():', () => {
+  describe('getETxnUnflattened():', () => {
     it('it should get etxn from transaction ID without sub category', (done) => {
       apiService.get.and.returnValue(of(expenseData3));
       dataTransformService.unflatten.and.returnValue(unflattenedTxnData);
       dateService.fixDates.and.returnValue(unflattenedTxnData);
 
       const transactionID = 'tx3qHxFNgRcZ';
-      transactionService.getETxn(transactionID).subscribe((res) => {
+      transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
         expect(res).toEqual(unflattenedTxnData);
         expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
         expect(apiService.get).toHaveBeenCalledTimes(1);
@@ -1152,7 +1153,7 @@ describe('TransactionService', () => {
 
       const transactionID = 'tx3qHxFNgRcZ';
 
-      transactionService.getETxn(transactionID).subscribe((res) => {
+      transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
         expect(res).toEqual(unflattenedTxnDataWithSubCategory);
         expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
         expect(apiService.get).toHaveBeenCalledTimes(1);
@@ -1170,7 +1171,7 @@ describe('TransactionService', () => {
     const transactionId = 'tx3qHxFNgRcZ';
 
     transactionService.review(transactionId).subscribe((res) => {
-      expect(res).toEqual(null);
+      expect(res).toBeNull();
       expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionId + '/review');
       expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
@@ -1387,37 +1388,13 @@ describe('TransactionService', () => {
     // @ts-ignore
     spyOn(transactionService, 'addEtxnToCurrencyMap').and.callThrough();
 
-    const expectedResult = [
-      {
-        name: 'CLF',
-        currency: 'CLF',
-        amount: 33611,
-        origAmount: 12,
-        count: 1,
-      },
-      {
-        name: 'EUR',
-        currency: 'EUR',
-        amount: 15775.76,
-        origAmount: 178,
-        count: 1,
-      },
-      {
-        name: 'INR',
-        currency: 'INR',
-        amount: 89,
-        origAmount: 89,
-        count: 1,
-      },
-    ];
-
     const currencyMap = {
       INR: { name: 'INR', currency: 'INR', amount: 89, origAmount: 89, count: 1 },
       CLF: { name: 'CLF', currency: 'CLF', amount: 33611, origAmount: 12, count: 1 },
       EUR: { name: 'EUR', currency: 'EUR', amount: 15775.76, origAmount: 178, count: 1 },
     };
 
-    expect(transactionService.getCurrenyWiseSummary(expenseList4)).toEqual(expectedResult);
+    expect(transactionService.getCurrenyWiseSummary(expenseList4)).toEqual(currencySummaryData);
     // @ts-ignore
     expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'INR', 89);
     // @ts-ignore

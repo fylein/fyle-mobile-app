@@ -1,4 +1,4 @@
-import { FileObject } from '../models/file_obj.model';
+import { FileObject } from '../models/file-obj.model';
 
 export const fileObjectData: FileObject = {
   id: 'fiHPZUiichAS',

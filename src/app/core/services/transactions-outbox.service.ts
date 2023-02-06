@@ -393,7 +393,7 @@ export class TransactionsOutboxService {
           }
           if (entry.dataUrls && entry.dataUrls.length > 0) {
             that.transactionService
-              .getETxn(resp.id)
+              .getETxnUnflattened(resp.id)
               .toPromise()
               .then((etxn) => {
                 entry.dataUrls.forEach((dataUrl) => {
