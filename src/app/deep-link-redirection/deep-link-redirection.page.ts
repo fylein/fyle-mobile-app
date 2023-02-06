@@ -60,7 +60,7 @@ export class DeepLinkRedirectionPage implements OnInit {
 
   async redirectToExpenseModule() {
     await this.loaderService.showLoader('Loading....');
-    this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).subscribe(
+    this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id).subscribe(
       (res) => {
         const category = res.tx.org_category && res.tx.org_category.toLowerCase();
 
