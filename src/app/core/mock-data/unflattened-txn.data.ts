@@ -112,7 +112,7 @@ export const unflattenedTxnData: UnflattenedTransaction = {
     user_id: 'usvKA4X8Ugcr',
     employee_id: '',
     location: 'Mumbai',
-    level: '123',
+    level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
     rank: 1121212121,
     business_unit:
@@ -122,7 +122,7 @@ export const unflattenedTxnData: UnflattenedTransaction = {
     title: 'director',
     mobile: '123456',
     sub_department: null,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
   },
   tg: {
     name: 'cgst',
@@ -262,7 +262,7 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = {
     user_id: 'usvKA4X8Ugcr',
     employee_id: '',
     location: 'Mumbai',
-    level: '123',
+    level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
     rank: 1121212121,
     business_unit:
@@ -272,7 +272,7 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = {
     title: 'director',
     mobile: '123456',
     sub_department: null,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
   },
   tg: {
     name: 'cgst',
