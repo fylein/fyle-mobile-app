@@ -1,10 +1,10 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { ApiService } from './api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { AuthService } from './auth.service';
 import {
-  apiResponse,
+  platformApiResponse,
   authRespone,
   responseAfterAppliedFilter,
   filledCustomProperties,
@@ -15,21 +15,21 @@ import { CustomInputsService } from './custom-inputs.service';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
-  let apiService: jasmine.SpyObj<ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
 
   const orgCatId = 110351;
 
   beforeEach(() => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
       providers: [
         CustomInputsService,
         {
-          provide: ApiService,
-          useValue: apiServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         DecimalPipe,
         {
@@ -41,7 +41,9 @@ describe('CustomInputsService', () => {
     });
 
     customInputsService = TestBed.inject(CustomInputsService);
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
   });
 
@@ -266,7 +268,7 @@ describe('CustomInputsService', () => {
 
   it('should fill custom properties', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(authRespone));
-    apiService.get.and.returnValue(of(apiResponse));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
     const result = customInputsService.fillCustomProperties(orgCatId, customProperties, false);
     result.subscribe((res) => {
       expect(res).toEqual(filledCustomProperties);
