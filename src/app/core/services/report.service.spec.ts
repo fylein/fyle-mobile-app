@@ -24,6 +24,7 @@ import {
   expectedErpt,
   expectedPendingReports,
   expectedSingleErpt,
+  addedApproversReports,
 } from '../mock-data/report-unflattened.data';
 import {
   reportUnflattenedData,
@@ -546,13 +547,17 @@ describe('ReportService', () => {
   it('getReportAutoSubmissionDetails(): should get submission details when no data is passed', (done) => {
     spenderPlatformV1BetaApiService.post.and.returnValue(
       of({
-        data: {},
+        data: {
+          next_at: null,
+        },
       })
     );
 
     reportService.getReportAutoSubmissionDetails().subscribe((res) => {
       expect(res).toEqual({
-        data: {},
+        data: {
+          next_at: null,
+        },
       });
       expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
         data: null,
@@ -573,7 +578,7 @@ describe('ReportService', () => {
     });
   });
 
-  it('addApprovers(): should add approver to a report', (done) => {
+  it('addApprover(): should add approver to a report', (done) => {
     apiService.post.and.returnValue(of(null));
 
     const reportID = 'rprj1zHHpW2W';
@@ -684,6 +689,40 @@ describe('ReportService', () => {
       expect(reportService.getMyReports).toHaveBeenCalledTimes(1);
       expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(1);
       done();
+    });
+  });
+
+  xit('addApprovers(): should add approvers to multiple reports', () => {
+    const result = reportService.addApprovers(expectedErpt, apiApproverRes);
+
+    expect(result).toEqual(addedApproversReports);
+  });
+
+  it('userReportsSearchParamsGenerator(): should generate user search parameter', () => {
+    const result = reportService.userReportsSearchParamsGenerator(
+      {
+        dateRange: {
+          from: '2022-10-31T13:54:46.317Z',
+          to: '2023-01-23T10:53:52.220Z',
+        },
+      },
+      { state: 'edit' }
+    );
+
+    expect(result).toEqual({
+      dateRange: {
+        from: '2022-10-31T13:54:46.317Z',
+        to: '2023-01-23T10:53:52.220Z',
+      },
+      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+    });
+  });
+
+  it('searchParamsGenerator(): should generate search parameters', () => {
+    const result = reportService.searchParamsGenerator({ state: 'edit' });
+
+    expect(result).toEqual({
+      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
     });
   });
 
