@@ -60,10 +60,6 @@ export class LaunchDarklyService {
     }
   }
 
-  getLDClient() {
-    return this.ldClient;
-  }
-
   checkIfKeyboardPluginIsEnabled() {
     return this.getVariation('keyboard_plugin_enabled', true);
   }

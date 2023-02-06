@@ -20,10 +20,6 @@ export class ApiService {
     return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data);
   }
 
-  postWithConfig(url: string, data = {}, config?: Object) {
-    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data, config);
-  }
-
   delete(url: string, data = {}) {
     return this.httpClient.delete<any>(this.ROOT_ENDPOINT + '/api' + url, data);
   }

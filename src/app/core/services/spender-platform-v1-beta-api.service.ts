@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class CommonPlatformApiService {
+export class SpenderPlatformV1BetaApiService {
   ROOT_ENDPOINT: string;
 
   constructor(private httpClient: HttpClient) {
@@ -18,6 +18,10 @@ export class CommonPlatformApiService {
   }
 
   get<T>(url: string, config = {}): Observable<T> {
-    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/platform/v1beta/common' + url, config);
+    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/platform/v1beta/spender' + url, config);
+  }
+
+  post<T>(url: string, config = {}): Observable<T> {
+    return this.httpClient.post<T>(this.ROOT_ENDPOINT + '/platform/v1beta/spender' + url, config);
   }
 }

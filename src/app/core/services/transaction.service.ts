@@ -24,7 +24,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
 import { AccountsService } from './accounts.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { EtxnParams } from '../models/etxn-params.model';
@@ -68,7 +68,7 @@ export class TransactionService {
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService,
-    private spenderPlatformApiService: SpenderPlatformApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
@@ -438,7 +438,7 @@ export class TransactionService {
         const payload = {
           data: platformPolicyExpense,
         };
-        return this.spenderPlatformApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
+        return this.spenderPlatformV1BetaApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
       })
     );
   }
