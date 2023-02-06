@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ApiService } from './api.service';
 import { HandleDuplicatesService } from './handle-duplicates.service';
 import { of } from 'rxjs';
-import { handleDuplicatesData, handleDuplicatesDataResponse } from '../mock-data/handle-duplicates.service.data';
+import { handleDuplicatesData } from '../mock-data/handle-duplicates.service.data';
 
 describe('HandleDuplicatesService', () => {
   let handleDuplicatesService: HandleDuplicatesService;
@@ -28,7 +28,7 @@ describe('HandleDuplicatesService', () => {
   });
 
   it('getDuplicateSets() : should get all the duplicate sets', (done) => {
-    apiService.get.and.returnValue(of(handleDuplicatesDataResponse));
+    apiService.get.and.returnValue(of(handleDuplicatesData));
     handleDuplicatesService.getDuplicateSets().subscribe((res) => {
       expect(handleDuplicatesData).toEqual(res);
       expect(apiService.get).toHaveBeenCalledWith('/transactions/duplicates/sets');
@@ -47,7 +47,7 @@ describe('HandleDuplicatesService', () => {
     });
     expect(apiService.get).toHaveBeenCalledTimes(1);
 
-    apiService.get.and.returnValue(of(handleDuplicatesDataResponse));
+    apiService.get.and.returnValue(of(handleDuplicatesData));
     handleDuplicatesService.getDuplicatesByExpense(txnId).subscribe((res) => {
       expect(res).toEqual(handleDuplicatesData);
     });
