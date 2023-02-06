@@ -71,7 +71,6 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { CorporateCreditCardExpenseSuggestionsService } from '../../core/services/corporate-credit-card-expense-suggestions.service';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
-import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -419,11 +418,7 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
-      if (bankTxn) {
-        this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      }
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
   }
 
@@ -566,62 +561,6 @@ export class AddEditExpensePage implements OnInit {
 
       this.selectedCCCTransaction = null;
     }
-  }
-
-  async openMatchingTransactions() {
-    this.isChangeCCCSuggestionClicked = true;
-    this.isCCCTransactionAutoSelected = false;
-    this.etxn$.subscribe(async (etxn) => {
-      const matchExpensesModal = await this.modalController.create({
-        component: MatchTransactionComponent,
-        componentProps: {
-          matchingCCCTransactions: this.matchingCCCTransactions,
-          mode: this.mode,
-          selectedCCCTransaction: this.selectedCCCTransaction,
-        },
-        mode: 'ios',
-        ...this.modalProperties.getModalDefaultProperties('auto-height'),
-      });
-
-      await matchExpensesModal.present();
-
-      const { data } = await matchExpensesModal.onWillDismiss();
-
-      if (data) {
-        if (data.unMatchedExpense) {
-          await this.unmatchExpense(etxn);
-        } else {
-          this.isDraftExpense = false;
-          this.selectedCCCTransaction = data.selectedCCCExpense;
-          // corporate_credit_card_account_number will not be available in the new suggestions endpoint as it is not required
-          if (this.selectedCCCTransaction && this.selectedCCCTransaction.corporate_credit_card_account_number) {
-            this.cardEndingDigits = (
-              this.selectedCCCTransaction.corporate_credit_card_account_number
-                ? this.selectedCCCTransaction.corporate_credit_card_account_number
-                : this.selectedCCCTransaction.card_or_account_number
-            ).slice(-4);
-          }
-
-          this.canChangeMatchingCCCTransaction = true;
-
-          if (
-            !etxn.tx.corporate_credit_card_expense_group_id ||
-            this.selectedCCCTransaction.id !== etxn.tx.corporate_credit_card_expense_group_id
-          ) {
-            this.showSelectedTransaction = true;
-          } else if (this.selectedCCCTransaction.id === etxn.tx.corporate_credit_card_expense_group_id) {
-            this.showSelectedTransaction = false;
-            await this.popupService.showPopup({
-              header: 'Already matched!',
-              message: 'The expense is already matched to this card transaction',
-              primaryCta: {
-                text: 'Close',
-              },
-            });
-          }
-        }
-      }
-    });
   }
 
   setupExpenseSuggestions() {

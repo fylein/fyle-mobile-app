@@ -31,7 +31,7 @@ import { NetworkService } from './network.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { PaymentModesService } from './payment-modes.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { StorageService } from './storage.service';
 import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
@@ -64,7 +64,7 @@ describe('TransactionService', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
-  let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
   let fileService: jasmine.SpyObj<FileService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let paymentModesService: jasmine.SpyObj<PaymentModesService>;
@@ -91,7 +91,7 @@ describe('TransactionService', () => {
       'convertToUtc',
     ]);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['discardRedundantCharacters']);
-    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformApiService', ['post']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['post']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
@@ -142,8 +142,8 @@ describe('TransactionService', () => {
           useValue: paymentModesServiceSpy,
         },
         {
-          provide: SpenderPlatformApiService,
-          useValue: spenderPlatformApiServiceSpy,
+          provide: SpenderPlatformV1BetaApiService,
+          useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
           provide: StorageService,
@@ -183,7 +183,9 @@ describe('TransactionService', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
-    spenderPlatformApiService = TestBed.inject(SpenderPlatformApiService) as jasmine.SpyObj<SpenderPlatformApiService>;
+    spenderPlatformV1BetaApiService = TestBed.inject(
+      SpenderPlatformV1BetaApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;

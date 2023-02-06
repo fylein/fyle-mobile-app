@@ -16,13 +16,16 @@ import { TransactionService } from './transaction.service';
 import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { UserEventService } from './user-event.service';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PermissionsService } from './permissions.service';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { Expense } from '../models/expense.model';
+import { Approver } from '../models/v1/approver.model';
+import { ReportActions } from '../models/report-actions.model';
+import { ReportPurpose } from '../models/report-purpose.model';
 import { ApiV2Response } from '../models/api-v2.model';
 
 const reportsCacheBuster$ = new Subject<void>();
@@ -42,7 +45,7 @@ export class ReportService {
     private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
     private userEventService: UserEventService,
-    private spenderPlatformApiService: SpenderPlatformApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private datePipe: DatePipe,
     private launchDarklyService: LaunchDarklyService,
     private permissionsService: PermissionsService
@@ -131,7 +134,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  createDraft(report) {
+  createDraft(report: ReportPurpose) {
     return this.apiService
       .post('/reports', report)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
@@ -140,7 +143,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  create(report, txnIds: string[]) {
+  create(report: ReportPurpose, txnIds: string[]) {
     return this.createDraft(report).pipe(
       switchMap((newReport) =>
         this.apiService
@@ -219,7 +222,7 @@ export class ReportService {
     cacheBusterObserver: reportsCacheBuster$,
   })
   getReportAutoSubmissionDetails(): Observable<ReportAutoSubmissionDetails> {
-    return this.spenderPlatformApiService
+    return this.spenderPlatformV1BetaApiService
       .post<ReportAutoSubmissionDetails>('/automations/report_submissions/next_at', {
         data: null,
       })
@@ -296,7 +299,7 @@ export class ReportService {
     return stateMap[state];
   }
 
-  getPaginatedERptcCount(params) {
+  getPaginatedERptcCount(params: { state?: string }): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
@@ -412,7 +415,7 @@ export class ReportService {
     }).pipe(map((res) => res.data[0]));
   }
 
-  actions(rptId: string) {
+  actions(rptId: string): Observable<ReportActions> {
     return this.apiService.get('/reports/' + rptId + '/actions');
   }
 
@@ -420,7 +423,7 @@ export class ReportService {
     return this.apiService.get('/reports/' + rptId + '/exports');
   }
 
-  getApproversByReportId(rptId: string) {
+  getApproversByReportId(rptId: string): Observable<Approver[]> {
     return this.apiService.get('/reports/' + rptId + '/approvers');
   }
 
@@ -502,7 +505,7 @@ export class ReportService {
     return Object.assign({}, params, searchParams, dateParams);
   }
 
-  getReportPurpose(reportPurpose) {
+  getReportPurpose(reportPurpose: { ids: string[] }) {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
 
@@ -550,7 +553,7 @@ export class ReportService {
     );
   }
 
-  getFilteredPendingReports(searchParams) {
+  getFilteredPendingReports(searchParams: { state: string }) {
     const params = this.searchParamsGenerator(searchParams);
 
     return this.getPaginatedERptcCount(params).pipe(
