@@ -31,7 +31,7 @@ export const dataErtpTransformed = {
     approval_state: null,
     approved_at: null,
     claim_number: 'C/2022/10/R/37',
-    created_at: new Date('2022-10-31T08:24:46.317Z'),
+    created_at: new Date('2022-10-31T13:54:46.317Z'),
     currency: 'USD',
     exported: false,
     from_dt: null,
