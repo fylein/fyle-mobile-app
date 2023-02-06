@@ -132,7 +132,7 @@ export interface BankFeedRequestSettings extends CommonOrgSettings {
 }
 
 export interface OrgBankDataAggregationSettings extends CommonOrgSettings {
-  date_to_sync_from?: string | null;
+  date_to_sync_from?: string;
 }
 
 export interface OrgUserFieldsSettings extends CommonOrgSettings {

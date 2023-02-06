@@ -27,6 +27,7 @@ import { Approver } from '../models/v1/approver.model';
 import { ReportActions } from '../models/report-actions.model';
 import { ReportPurpose } from '../models/report-purpose.model';
 import { ApiV2Response } from '../models/api-v2.model';
+import { ReportParams } from '../models/report-params.model';
 import { UnflattenedReport } from '../models/report-unflattened.model';
 
 const reportsCacheBuster$ = new Subject<void>();
@@ -84,7 +85,7 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getPaginatedERptc(offset: number, limit: number, params: any) {
+  getPaginatedERptc(offset: number, limit: number, params: { state?: string[]; order?: string }) {
     const data = {
       params: {
         offset,
@@ -308,7 +309,7 @@ export class ReportService {
     return stateMap[state];
   }
 
-  getPaginatedERptcCount(params: { state?: string[] }): Observable<{ count: number }> {
+  getPaginatedERptcCount(params: ReportParams): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
@@ -466,10 +467,12 @@ export class ReportService {
   }
 
   addOrderByParams(
-    params: any,
+    params: {
+      state?: string[];
+    },
     sortOrder?: string
   ): {
-    state: string[];
+    state?: string[];
     order_by?: string;
   } {
     if (sortOrder) {

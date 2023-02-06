@@ -160,7 +160,7 @@ export const apiReportUpdatedDetails: ReportV1 = {
   id: 'rptkwzhsieIY',
   org_user_id: 'ouX8dwsbLCLv',
   purpose: 'My Testing Report',
-  currency: 'INR',
+  currency: 'USD',
   creator_id: 'ouX8dwsbLCLv',
   amount: 46040,
   tax: 101.29,

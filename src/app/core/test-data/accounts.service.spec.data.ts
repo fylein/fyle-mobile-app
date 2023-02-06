@@ -311,7 +311,7 @@ export const unflattenedTransactionPersonal: UnflattenedTransaction = {
       'A very long title indeed A very long title indeed A very long title indeed A very long title indeed A very long title indeed',
     mobile: '+918080913866',
     sub_department: null,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
   },
   tg: {
     name: null,
@@ -560,7 +560,7 @@ export const unflattenedTransactionCCC: UnflattenedTransaction = {
       'A very long title indeed A very long title indeed A very long title indeed A very long title indeed A very long title indeed',
     mobile: '+918080913866',
     sub_department: null,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
   },
   tg: {
     name: null,
@@ -899,7 +899,7 @@ export const unflattenedTxnWithoutSourceAccountIdData = {
       'A very long title indeed A very long title indeed A very long title indeed A very long title indeed A very long title indeed',
     mobile: '+918080913866',
     sub_department: null,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
   },
   tg: {
     name: null,

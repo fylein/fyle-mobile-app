@@ -8,7 +8,7 @@ export const apiEouRes: ExtendedOrgUser = {
     user_id: 'usvKA4X8Ugcr',
     employee_id: '',
     location: 'Mumbai',
-    level: '123',
+    level: 123,
     level_id: 'lvlPtroPaClQy',
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
     rank: 1121212121,
@@ -110,7 +110,7 @@ export const eouRes2: ExtendedOrgUser = {
     user_id: 'usvKA4X8Ugcr',
     employee_id: '',
     location: 'Mumbai',
-    level: '123',
+    level: 123,
     level_id: 'lvlPtroPaClQy',
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
     rank: 1121212121,
@@ -135,7 +135,7 @@ export const eouRes2: ExtendedOrgUser = {
     mobile_verified_at: null,
     is_primary: true,
     owner: false,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
     special_email: 'receipts+ajain_6@fyle.ai',
     custom_field_values: [
       {

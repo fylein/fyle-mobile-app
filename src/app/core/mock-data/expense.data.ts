@@ -754,7 +754,7 @@ export const etxnData: Expense = {
   tx_tax_group_id: 'tg3iWuqWhfzB',
   tg_name: 'cgst',
   tg_percentage: 0.18,
-  tx_currency: 'INR',
+  tx_currency: 'USD',
   tx_report_id: 'rpGpzBpAxtSn',
   tx_reported_at: '2023-01-13T07:29:01.010Z',
   tx_state: 'APPROVED',
@@ -927,7 +927,7 @@ export const expenseList: Expense[] = [
     tx_cost_center_name: '01test2',
     tx_created_at: new Date('2022-02-17T14:13:13.947712'),
     tx_creator_id: 'SYSTEM_CORPORATE_CARD',
-    tx_currency: 'INR',
+    tx_currency: 'USD',
     tx_custom_properties: [
       {
         name: 'userlist',

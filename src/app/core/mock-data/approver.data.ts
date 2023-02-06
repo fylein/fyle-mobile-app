@@ -70,7 +70,7 @@ export const apiAllApproverRes1: Approver[] = [
   },
 ];
 
-export const apiAllApproverRes2 = [
+export const apiAllApproverRes2: Approver[] = [
   {
     id: 44024,
     created_at: null,
@@ -105,7 +105,7 @@ export const apiAllApproverRes2 = [
   },
 ];
 
-export const expectedApprovers = [
+export const expectedApprovers: Approver[] = [
   {
     id: 44024,
     created_at: null,
