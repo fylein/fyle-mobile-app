@@ -3,7 +3,7 @@ import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { File } from '../models/file.model';
 import { ApiService } from './api.service';
-import { FileObject } from '../models/file_obj.model';
+import { FileObject } from '../models/file-obj.model';
 import { ReceiptInfo } from '../models/receipt-info.model';
 import heic2any from 'heic2any';
 

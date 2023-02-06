@@ -22,7 +22,7 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
