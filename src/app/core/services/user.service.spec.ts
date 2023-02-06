@@ -6,7 +6,7 @@ import { User } from '../models/user.model';
 import { UserProperty } from '../models/v1/user-property.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
-import { userPasswordStatus } from '../mock-data/user.data';
+import { userPasswordStatus } from '../mock-data/user-password-status.data';
 import { UserService } from './user.service';
 
 const currentUserResponse = {
@@ -267,8 +267,7 @@ describe('UserService', () => {
     apiService.get.and.returnValue(of(userPasswordStatus));
     userService.getUserPasswordStatus().subscribe((res) => {
       expect(userPasswordStatus).toEqual(res);
-      expect(apiService.get).toHaveBeenCalledWith('/users/password_required');
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith('/users/password_required');
       done();
     });
   });
