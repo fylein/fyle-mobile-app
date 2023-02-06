@@ -212,8 +212,7 @@ describe('ReportService', () => {
 
     reportService.createDraft(reportParam).subscribe((res) => {
       expect(res).toEqual(reportUnflattenedData);
-      expect(apiService.post).toHaveBeenCalledWith('/reports', reportParam);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       expect(reportService.clearTransactionCache).toHaveBeenCalled();
       done();
@@ -227,8 +226,7 @@ describe('ReportService', () => {
     const reportID = 'rpvcIMRMyM3A';
 
     reportService.submit(reportID).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/submit`);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/submit`);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       expect(reportService.clearTransactionCache).toHaveBeenCalled();
       done();
@@ -249,8 +247,7 @@ describe('ReportService', () => {
     };
 
     reportService.removeTransaction(reportID, txnID, null).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       expect(reportService.clearTransactionCache).toHaveBeenCalled();
       done();
@@ -260,6 +257,12 @@ describe('ReportService', () => {
   it('getMyReports(): should get reports from API as specified by params', (done) => {
     mockExtendedOrgUser();
     mockReports();
+    spyOn(dateService, 'fixDates').and.returnValues(
+      apiReportRes.data[0],
+      apiReportRes.data[1],
+      apiReportRes.data[2],
+      apiReportRes.data[3]
+    );
 
     const params = {
       offset: 0,
@@ -299,8 +302,7 @@ describe('ReportService', () => {
 
     reportService.getPaginatedERptc(0, apiExtendedReportRes.length, params).subscribe((res) => {
       expect(res).toEqual(expectedErpt);
-      expect(apiService.get).toHaveBeenCalledWith('/erpts', apiParams);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith('/erpts', apiParams);
       expect(dataTransformService.unflatten).toHaveBeenCalled();
       expect(dataTransformService.unflatten).toHaveBeenCalledTimes(4);
       done();
@@ -317,8 +319,7 @@ describe('ReportService', () => {
 
     reportService.getERpt(reportID).subscribe((res) => {
       expect(res).toEqual(expectedSingleErpt);
-      expect(apiService.get).toHaveBeenCalledWith(`/erpts/${reportID}`);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/erpts/${reportID}`);
       expect(dataTransformService.unflatten).toHaveBeenCalledWith(apiExtendedReportRes[0]);
       expect(dataTransformService.unflatten).toHaveBeenCalled();
       expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
@@ -341,8 +342,7 @@ describe('ReportService', () => {
 
     reportService.getMyReportsCount().subscribe((res) => {
       expect(res).toEqual(4);
-      expect(reportService.getMyReports).toHaveBeenCalledWith(param);
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(1);
+      expect(reportService.getMyReports).toHaveBeenCalledOnceWith(param);
       done();
     });
   });
@@ -363,8 +363,7 @@ describe('ReportService', () => {
 
     reportService.getReport(reportID).subscribe((res) => {
       expect(res).toEqual(expectedReportSingleResponse);
-      expect(reportService.getMyReports).toHaveBeenCalledWith(params);
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(1);
+      expect(reportService.getMyReports).toHaveBeenCalledOnceWith(params);
       done();
     });
   });
@@ -380,8 +379,7 @@ describe('ReportService', () => {
 
     reportService.getTeamReportsCount().subscribe((res) => {
       expect(res).toEqual(25);
-      expect(reportService.getTeamReports).toHaveBeenCalledWith(params);
-      expect(reportService.getTeamReports).toHaveBeenCalledTimes(1);
+      expect(reportService.getTeamReports).toHaveBeenCalledOnceWith(params);
       done();
     });
   });
@@ -389,6 +387,7 @@ describe('ReportService', () => {
   it('getTeamReports(): should get all team reports', (done) => {
     mockExtendedOrgUser();
     apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
+    spyOn(dateService, 'fixDates').and.returnValues(apiTeamReportPaginated1.data[0], apiTeamReportPaginated1.data[1]);
 
     const params = {
       offset: 0,
@@ -401,7 +400,7 @@ describe('ReportService', () => {
 
     reportService.getTeamReports(params).subscribe((res) => {
       expect(res).toEqual(apiTeamReportPaginated1);
-      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', {
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', {
         params: {
           offset: 0,
           limit: 10,
@@ -411,7 +410,6 @@ describe('ReportService', () => {
         },
       });
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -431,8 +429,7 @@ describe('ReportService', () => {
 
     reportService.getTeamReport(reportID).subscribe((res) => {
       expect(res).toEqual(apiTeamRptSingleRes.data[0]);
-      expect(reportService.getTeamReports).toHaveBeenCalledWith(params);
-      expect(reportService.getTeamReports).toHaveBeenCalledTimes(1);
+      expect(reportService.getTeamReports).toHaveBeenCalledOnceWith(params);
       done();
     });
   });
@@ -445,8 +442,7 @@ describe('ReportService', () => {
     const tnxs = ['txTQVBx7W8EO'];
 
     reportService.addTransactions(reportID, tnxs).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, { ids: tnxs });
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, { ids: tnxs });
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       expect(reportService.clearTransactionCache).toHaveBeenCalled();
       done();
@@ -460,8 +456,7 @@ describe('ReportService', () => {
 
     reportService.actions(reportID).subscribe((res) => {
       expect(res).toEqual(apiReportActions);
-      expect(apiService.get).toHaveBeenCalledWith(`/reports/${reportID}/actions`);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/actions`);
       done();
     });
   });
@@ -472,8 +467,7 @@ describe('ReportService', () => {
     const reportID = 'rphLXGFVbDaJ';
 
     reportService.getExports(reportID).subscribe(() => {
-      expect(apiService.get).toHaveBeenCalledWith(`/reports/${reportID}/exports`);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/exports`);
       done();
     });
   });
@@ -495,12 +489,9 @@ describe('ReportService', () => {
 
     reportService.create(reportPurpose, txnIds).subscribe((res) => {
       expect(res).toEqual(reportUnflattenedData2);
-      expect(reportService.createDraft).toHaveBeenCalledWith(reportPurpose);
-      expect(reportService.createDraft).toHaveBeenCalledTimes(1);
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, txnParam);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
-      expect(reportService.submit).toHaveBeenCalledWith(reportID);
-      expect(reportService.submit).toHaveBeenCalledTimes(1);
+      expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportPurpose);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, txnParam);
+      expect(reportService.submit).toHaveBeenCalledOnceWith(reportID);
       done();
     });
   });
@@ -510,8 +501,7 @@ describe('ReportService', () => {
 
     const reportID = 'rpShFuVCUIXk';
     reportService.resubmit(reportID).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/resubmit`);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/resubmit`);
       done();
     });
   });
@@ -527,8 +517,7 @@ describe('ReportService', () => {
     };
 
     reportService.inquire(reportID, statusPayloadParam).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/inquire`, statusPayloadParam);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/inquire`, statusPayloadParam);
       done();
     });
   });
@@ -573,10 +562,12 @@ describe('ReportService', () => {
             next_at: new Date('2023-02-01T00:00:00.000000'),
           },
         });
-        expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledWith('/automations/report_submissions/next_at', {
-          data: null,
-        });
-        expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledTimes(1);
+        expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledOnceWith(
+          '/automations/report_submissions/next_at',
+          {
+            data: null,
+          }
+        );
         done();
       });
     });
@@ -587,8 +578,7 @@ describe('ReportService', () => {
 
     const reportID = 'rpShFuVCUIXk';
     reportService.approve(reportID).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/approve`);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/approve`);
       done();
     });
   });
@@ -601,11 +591,10 @@ describe('ReportService', () => {
     const comment = 'comment';
 
     reportService.addApprover(reportID, approverEmail, comment).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/approvals`, {
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/approvals`, {
         approver_email: approverEmail,
         comment,
       });
-      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -616,8 +605,7 @@ describe('ReportService', () => {
 
     const reportID = 'rpShFuVCUIXk';
     reportService.delete(reportID).subscribe(() => {
-      expect(apiService.delete).toHaveBeenCalledWith(`/reports/${reportID}`);
-      expect(apiService.delete).toHaveBeenCalledTimes(1);
+      expect(apiService.delete).toHaveBeenCalledOnceWith(`/reports/${reportID}`);
       expect(reportService.clearTransactionCache).toHaveBeenCalled();
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
@@ -631,8 +619,7 @@ describe('ReportService', () => {
 
     reportService.updateReportDetails(reportParam).subscribe((res) => {
       expect(res).toEqual(apiReportUpdatedDetails);
-      expect(apiService.post).toHaveBeenCalledWith('/reports', apiErptReporDataParam.rp);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/reports', apiErptReporDataParam.rp);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       expect(reportService.clearTransactionCache).toHaveBeenCalled();
       expect(dataTransformService.unflatten).toHaveBeenCalled();
@@ -658,8 +645,7 @@ describe('ReportService', () => {
 
     reportService.getApproversByReportId(reportID).subscribe((res) => {
       expect(res).toEqual(apiApproverRes);
-      expect(apiService.get).toHaveBeenCalledWith(`/reports/${reportID}/approvers`);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/approvers`);
       done();
     });
   });
@@ -679,8 +665,7 @@ describe('ReportService', () => {
 
     reportService.downloadSummaryPdfUrl(data).subscribe((res) => {
       expect(res).toEqual(reportURL);
-      expect(apiService.post).toHaveBeenCalledWith('/reports/summary/download', data);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/reports/summary/download', data);
       done();
     });
   });
@@ -706,10 +691,8 @@ describe('ReportService', () => {
 
     reportService.getAllExtendedReports(params).subscribe((res) => {
       expect(res).toEqual(expectedAllReports);
-      expect(reportService.getMyReports).toHaveBeenCalledWith(getMyReportsParam);
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(1);
-      expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(1);
-      expect(reportService.getMyReportsCount).toHaveBeenCalledWith(params.queryParams);
+      expect(reportService.getMyReports).toHaveBeenCalledOnceWith(getMyReportsParam);
+      expect(reportService.getMyReportsCount).toHaveBeenCalledOnceWith(params.queryParams);
       done();
     });
   });
@@ -748,8 +731,7 @@ describe('ReportService', () => {
 
     reportService.getReportPurpose({ ids: [] }).subscribe((res) => {
       expect(res).toEqual(reportName);
-      expect(apiService.post).toHaveBeenCalledWith('/reports/purpose', { ids: [] });
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/reports/purpose', { ids: [] });
       done();
     });
   });
@@ -759,8 +741,7 @@ describe('ReportService', () => {
 
     reportService.getApproversInBulk(apiApproversParam).subscribe((res) => {
       expect(res).toEqual(expectedApprovers);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
-      expect(apiService.get).toHaveBeenCalledWith('/reports/approvers', {
+      expect(apiService.get).toHaveBeenCalledOnceWith('/reports/approvers', {
         params: { report_ids: apiApproversParam },
       });
       done();
@@ -786,12 +767,10 @@ describe('ReportService', () => {
 
       reportService.getPaginatedERptcCount({ state: apiParam }).subscribe((res) => {
         expect(res).toEqual({ count: 4 });
-        expect(apiService.get).toHaveBeenCalledWith('/erpts/count', { params: { state: apiParam } });
-        expect(apiService.get).toHaveBeenCalledTimes(1);
-        expect(storageService.set).toHaveBeenCalledWith('erpts-count' + JSON.stringify({ state: apiParam }), {
+        expect(apiService.get).toHaveBeenCalledOnceWith('/erpts/count', { params: { state: apiParam } });
+        expect(storageService.set).toHaveBeenCalledOnceWith('erpts-count' + JSON.stringify({ state: apiParam }), {
           count: 4,
         });
-        expect(storageService.set).toHaveBeenCalledTimes(1);
         done();
       });
     });
@@ -944,7 +923,7 @@ describe('ReportService', () => {
 
     reportService.getReportETxnc(reportID, orgUserID).subscribe((res) => {
       expect(res).toEqual(apiExpenseRes);
-      expect(apiService.get).toHaveBeenCalledWith(`/erpts/${reportID}/etxns`, {
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/erpts/${reportID}/etxns`, {
         params: {
           approver_id: orgUserID,
         },
@@ -969,8 +948,7 @@ describe('ReportService', () => {
 
     reportService.getReportStatsData(apiReportStatsRawParam, true).subscribe((res) => {
       expect(res).toEqual(expectedReportRawStats);
-      expect(apiv2Service.get).toHaveBeenCalledWith('/reports/stats', { params });
-      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports/stats', { params });
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       done();
     });
@@ -982,10 +960,9 @@ describe('ReportService', () => {
 
     reportService.getReportStats(apiReportStatParams).subscribe((res) => {
       expect(res).toEqual(new StatsResponse(apiReportStatsRes));
-      expect(apiv2Service.get).toHaveBeenCalledWith('/reports/stats', {
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports/stats', {
         params: { rp_org_user_id: `eq.ouX8dwsbLCLv`, ...apiReportStatParams },
       });
-      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       done();
     });
