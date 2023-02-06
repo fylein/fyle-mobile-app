@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/internal/Observable';
 import { environment } from 'src/environments/environment';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CommonPlatformApiService {
+export class SpenderPlatformV1ApiService {
   ROOT_ENDPOINT: string;
 
   constructor(private httpClient: HttpClient) {
@@ -18,6 +18,10 @@ export class CommonPlatformApiService {
   }
 
   get<T>(url: string, config = {}): Observable<T> {
-    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/platform/v1beta/common' + url, config);
+    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/platform/v1/spender' + url, config);
+  }
+
+  post<T>(url: string, config = {}): Observable<T> {
+    return this.httpClient.post<T>(this.ROOT_ENDPOINT + '/platform/v1/spender' + url, config);
   }
 }

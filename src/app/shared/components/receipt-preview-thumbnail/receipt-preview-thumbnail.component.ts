@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck } from '@angular/core';
 import { timer } from 'rxjs';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
 @Component({

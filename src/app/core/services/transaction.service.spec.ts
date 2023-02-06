@@ -8,6 +8,16 @@ import {
   expenseDataWithDateString,
   etxnData,
   expenseList,
+  etxncListData,
+  mileageExpenseWithDistance,
+  mileageExpenseWithoutDistance,
+  perDiemExpenseSingleNumDays,
+  perDiemExpenseMultipleNumDays,
+  apiExpenseRes,
+  expenseList2,
+  expenseData3,
+  expenseList3,
+  expenseList4,
 } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
@@ -33,6 +43,14 @@ import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
 import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 import * as lodash from 'lodash';
+import { txnList } from '../mock-data/transaction.data';
+import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
+import { fileObjectData } from '../mock-data/file-object.data';
+import { AccountType } from '../enums/account-type.enum';
+import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
+import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
+import { accountsData } from '../test-data/accounts.service.spec.data';
+import { currencySummaryData } from '../mock-data/currency-summary.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -445,7 +463,6 @@ describe('TransactionService', () => {
   });
 
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
-    // @ts-ignore
     spyOn(transactionService, 'isEtxnInPaymentMode').and.returnValue(true);
     const paymentModeList = [
       {
@@ -468,9 +485,11 @@ describe('TransactionService', () => {
     const etxnPaymentMode = { name: 'Reimbursable', key: 'reimbursable' };
     // @ts-ignore
     expect(transactionService.getPaymentModeForEtxn(expenseData1, paymentModeList)).toEqual(etxnPaymentMode);
-    // @ts-ignore
-    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledWith(expenseData1, etxnPaymentMode.key);
-    // @ts-ignore
+    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledWith(
+      expenseData1.tx_skip_reimbursement,
+      expenseData1.source_account_type,
+      etxnPaymentMode.key
+    );
     expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledTimes(1);
   });
 
@@ -901,7 +920,7 @@ describe('TransactionService', () => {
     const corporateCreditCardExpenseId = 'ccce4xphr6tZQm';
 
     transactionService.unmatchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
-      expect(res).toEqual(null);
+      expect(res).toBeNull();
       expect(apiService.post).toHaveBeenCalledWith('/transactions/unmatch', {
         transaction_id: transactionId,
         corporate_credit_card_expense_id: corporateCreditCardExpenseId,
@@ -909,5 +928,528 @@ describe('TransactionService', () => {
       expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
+  });
+
+  it('getAllETxnc(): should return all etxnc', (done) => {
+    // @ts-ignore
+    spyOn(transactionService, 'getETxnCount').and.returnValue(of(1));
+    spyOn(transactionService, 'getETxnc').and.returnValue(of(etxncListData.data));
+
+    const params = {
+      tx_org_user_id: 'eq.ouX8dwsbLCLv',
+      tx_report_id: 'eq.rpeqN0o4X4O4',
+      order: 'tx_txn_dt.desc,tx_id.desc',
+    };
+
+    transactionService.getAllETxnc(params).subscribe((res) => {
+      expect(res).toEqual(etxncListData.data);
+      // @ts-ignore
+      expect(transactionService.getETxnCount).toHaveBeenCalledWith(params);
+      expect(transactionService.getETxnc).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 2,
+        params: {
+          tx_org_user_id: 'eq.ouX8dwsbLCLv',
+          tx_report_id: 'eq.rpeqN0o4X4O4',
+          order: 'tx_txn_dt.desc,tx_id.desc',
+        },
+      });
+      // @ts-ignore
+      expect(transactionService.getETxnCount).toHaveBeenCalledTimes(1);
+      expect(transactionService.getETxnc).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('deleteBulk(): should delete bulk transactions', (done) => {
+    apiService.post.and.returnValue(of(txnList));
+    const transactionIds = ['txzLsDY1IAAw', 'txAzvMhbD71q'];
+
+    transactionService.deleteBulk(transactionIds).subscribe((res) => {
+      expect(res).toEqual(txnList);
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/delete/bulk', {
+        txn_ids: transactionIds,
+      });
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('getVendorDetails():', () => {
+    it('should return vendor details for normal expense', () => {
+      expect(transactionService.getVendorDetails(expenseData1)).toEqual('asd');
+    });
+
+    it('should return vendor details for mileage expense with distance', () => {
+      expect(transactionService.getVendorDetails(mileageExpenseWithDistance)).toEqual('25 KM');
+    });
+
+    it('should return vendor details for mileage expense without distance', () => {
+      expect(transactionService.getVendorDetails(mileageExpenseWithoutDistance)).toEqual('0 KM');
+    });
+
+    it('should retuen vendor details for per diem expense with 1 day', () => {
+      expect(transactionService.getVendorDetails(perDiemExpenseSingleNumDays)).toEqual('1 Day');
+    });
+
+    it('should retuen vendor details for per diem expense with multiple days', () => {
+      expect(transactionService.getVendorDetails(perDiemExpenseMultipleNumDays)).toEqual('3 Days');
+    });
+  });
+
+  it('getDeletableTxns(): should return deletable transactions', () => {
+    expect(transactionService.getDeletableTxns(apiExpenseRes)).toEqual(apiExpenseRes);
+  });
+
+  describe('getExpenseDeletionMessage():', () => {
+    it('should return expense deletion message for single', () => {
+      expect(transactionService.getExpenseDeletionMessage(apiExpenseRes)).toEqual(
+        'You are about to permanently delete 1 selected expense.'
+      );
+    });
+
+    it('getExpenseDeletionMessage(): should return expense deletion message for multiple expenses', () => {
+      expect(transactionService.getExpenseDeletionMessage(expenseList2)).toEqual(
+        'You are about to permanently delete 2 selected expenses.'
+      );
+    });
+  });
+
+  describe('getCCCExpenseMessage():', () => {
+    it('should return ccc expense message for single ccc expense', () => {
+      expect(transactionService.getCCCExpenseMessage(apiExpenseRes, 1)).toEqual(
+        "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection."
+      );
+    });
+
+    it('should return ccc expense message for multiple ccc expenses', () => {
+      expect(transactionService.getCCCExpenseMessage(expenseList2, 2)).toEqual(
+        "There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection."
+      );
+    });
+
+    it('should return ccc expense message for with only ccc expenses selected', () => {
+      expect(transactionService.getCCCExpenseMessage(null, 3)).toEqual(
+        "There are 3 corporate card expenses from the selection which can't be deleted. "
+      );
+    });
+  });
+
+  describe('getDeleteDialogBody():', () => {
+    it('should return delete dialog body with deletable expenses and ccc expenses', () => {
+      const cccExpensesMessage =
+        "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.";
+      const deletableExpensesMessage = 'You are about to permanently delete 1 selected expense.';
+      expect(
+        transactionService.getDeleteDialogBody(apiExpenseRes, 1, deletableExpensesMessage, cccExpensesMessage)
+      ).toEqual(
+        `<ul class="text-left">
+        <li>${cccExpensesMessage}</li>
+        <li>Once deleted, the action can't be reversed.</li>
+        </ul>
+        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`
+      );
+    });
+
+    it('should return delete dialog body with only deletable expenses', () => {
+      const deletableExpensesMessage = 'You are about to permanently delete 1 selected expense.';
+      expect(transactionService.getDeleteDialogBody(apiExpenseRes, 0, deletableExpensesMessage, null)).toEqual(
+        `<ul class="text-left">
+      <li>${deletableExpensesMessage}</li>
+      <li>Once deleted, the action can't be reversed.</li>
+      </ul>
+      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`
+      );
+    });
+
+    it('should return delete dialog body with only ccc expenses', () => {
+      const cccExpensesMessage =
+        "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.";
+      expect(transactionService.getDeleteDialogBody([], 1, null, cccExpensesMessage)).toEqual(
+        `<ul class="text-left">
+      <li>${cccExpensesMessage}</li>
+      </ul>`
+      );
+    });
+  });
+
+  describe('generateCardNumberParams():', () => {
+    const params = { or: [] };
+    it('should generate card number params without card number filters', () => {
+      spyOn(lodash, 'cloneDeep').and.returnValue({ or: [] });
+      expect(transactionService.generateCardNumberParams(params, {})).toEqual(params);
+      expect(lodash.cloneDeep).toHaveBeenCalledWith(params);
+      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+    });
+
+    it('should generate card number params with card number filters', () => {
+      spyOn(lodash, 'cloneDeep').and.returnValue({ or: [] });
+      const filters = { cardNumbers: ['8698'] };
+      const cardNumberParams = {
+        or: [],
+        corporate_credit_card_account_number: 'in.(8698)',
+      };
+
+      expect(transactionService.generateCardNumberParams(params, filters)).toEqual(cardNumberParams);
+      expect(lodash.cloneDeep).toHaveBeenCalledWith(params);
+      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getPaginatedETxncCount():', () => {
+    it('should return paginated etxn count when online', (done) => {
+      const response = { count: 1891 };
+      networkService.isOnline.and.returnValue(of(true));
+      storageService.set.and.returnValue(Promise.resolve(null));
+      apiService.get.and.returnValue(of(response));
+
+      transactionService.getPaginatedETxncCount().subscribe((res) => {
+        expect(res).toEqual(response);
+        expect(networkService.isOnline).toHaveBeenCalled();
+        expect(storageService.set).toHaveBeenCalledWith('etxncCount', response);
+        expect(apiService.get).toHaveBeenCalledWith('/etxns/count');
+        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+        expect(apiService.get).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should return paginated etxn count when offline', (done) => {
+      const response = { count: 1891 };
+      networkService.isOnline.and.returnValue(of(false));
+      storageService.get.and.returnValue(Promise.resolve(response));
+
+      transactionService.getPaginatedETxncCount().subscribe((res) => {
+        expect(res).toEqual(response);
+        expect(networkService.isOnline).toHaveBeenCalled();
+        expect(storageService.get).toHaveBeenCalledWith('etxncCount');
+        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  describe('getETxnUnflattened():', () => {
+    it('it should get etxn from transaction ID without sub category', (done) => {
+      apiService.get.and.returnValue(of(expenseData3));
+      dataTransformService.unflatten.and.returnValue(unflattenedTxnData);
+      dateService.fixDates.and.returnValue(unflattenedTxnData);
+
+      const transactionID = 'tx3qHxFNgRcZ';
+      transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
+        expect(res).toEqual(unflattenedTxnData);
+        expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
+        expect(apiService.get).toHaveBeenCalledTimes(1);
+        expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedTxnData.tx);
+        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
+        expect(dataTransformService.unflatten).toHaveBeenCalledWith(expenseData3);
+        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('it should get etxn from transaction ID with sub category', (done) => {
+      apiService.get.and.returnValue(of(expenseData3));
+      dataTransformService.unflatten.and.returnValue(unflattenedTxnDataWithSubCategory);
+      dateService.fixDates.and.returnValue(unflattenedTxnDataWithSubCategory);
+
+      const transactionID = 'tx3qHxFNgRcZ';
+
+      transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
+        expect(res).toEqual(unflattenedTxnDataWithSubCategory);
+        expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
+        expect(apiService.get).toHaveBeenCalledTimes(1);
+        expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedTxnDataWithSubCategory.tx);
+        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
+        expect(dataTransformService.unflatten).toHaveBeenCalledWith(expenseData3);
+        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  it('review(): should return transaction response on review', (done) => {
+    apiService.post.and.returnValue(of(null));
+    const transactionId = 'tx3qHxFNgRcZ';
+
+    transactionService.review(transactionId).subscribe((res) => {
+      expect(res).toBeNull();
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionId + '/review');
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('uploadBase64(): should uploadBase64 and return file object response', (done) => {
+    const transactionID = 'txdzGV1TZEg3';
+    const fileName = '000.jpeg';
+    const base64Content = 'dummyBase64Value';
+    apiService.post.and.returnValue(of(fileObjectData));
+
+    transactionService.uploadBase64File(transactionID, fileName, base64Content).subscribe((res) => {
+      expect(res).toEqual(fileObjectData);
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionID + '/upload_b64', {
+        content: base64Content,
+        name: fileName,
+      });
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('isEtxnInPaymentMode():', () => {
+    it('should return isEtxnInPaymentMode with reimbursable payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'reimbursable';
+      const txnSourceAccountType = AccountType.PERSONAL;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with non-reimbursable payment mode', () => {
+      const txnSkipReimbursement = true;
+      const txnPaymentMode = 'nonReimbursable';
+      const txnSourceAccountType = AccountType.PERSONAL;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with advance payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'advance';
+      const txnSourceAccountType = AccountType.ADVANCE;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with advance payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'ccc';
+      const txnSourceAccountType = AccountType.CCC;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+  });
+
+  describe('addEtxnToCurrencyMap():', () => {
+    it('should add a new currency to the map when the currencyMap does not exist', () => {
+      const currencyMap = {};
+      const txCurrency = 'USD';
+      const txAmount = 10;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      });
+    });
+
+    it('should add a new currency to the map with the orig currency', () => {
+      const currencyMap = {};
+      const txCurrency = 'USD';
+      const txAmount = 10;
+      const txOrigAmount = 200;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 200,
+          count: 1,
+        },
+      });
+    });
+
+    it('should add the transaction amount to an existing currency in the map', () => {
+      const currencyMap = {
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      };
+      const txCurrency = 'USD';
+      const txAmount = 20;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 30,
+          origAmount: 30,
+          count: 2,
+        },
+      });
+    });
+
+    it('should add the transaction amount and original amount to an existing currency in the map', () => {
+      const currencyMap = {
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      };
+      const txCurrency = 'USD';
+      const txAmount = 20;
+      const txOrigAmount = 30;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 30,
+          origAmount: 40,
+          count: 2,
+        },
+      });
+    });
+  });
+
+  it('getTxnAccount(): should get the default txn account', (done) => {
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
+
+    const expectedResult = {
+      source_account_id: 'acc5APeygFjRd',
+      skip_reimbursement: true,
+    };
+
+    // @ts-ignore
+    transactionService.getTxnAccount().subscribe((res) => {
+      expect(res).toEqual(expectedResult);
+      expect(orgSettingsService.get).toHaveBeenCalled();
+      expect(accountsService.getEMyAccounts).toHaveBeenCalled();
+      expect(orgUserSettingsService.get).toHaveBeenCalled();
+      expect(paymentModesService.getDefaultAccount).toHaveBeenCalledWith(
+        orgSettingsData,
+        accountsData,
+        orgUserSettingsData
+      );
+      expect(paymentModesService.getDefaultAccount).toHaveBeenCalledTimes(1);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('isMergeAllowed():', () => {
+    it('should return false if the expenses list length is not equal to 2', () => {
+      expect(transactionService.isMergeAllowed(apiExpenseRes)).toBeFalse();
+    });
+
+    it('should return false if all the expenses are submitted', () => {
+      expect(transactionService.isMergeAllowed(expenseList2)).toBeFalse();
+    });
+
+    it('should return true if expenses are not submitted and not mileage or per diem and either one of them is a corporate card expenses', () => {
+      expect(transactionService.isMergeAllowed(expenseList3)).toBeTrue();
+    });
+  });
+
+  it('excludeCCCExpenses(): should exclude CCC expenses', () => {
+    expect(transactionService.excludeCCCExpenses(expenseList3)).toEqual([expenseList3[1]]);
+  });
+
+  it('getReportableExpenses(): should return reportable expenses', () => {
+    spyOn(transactionService, 'getIsCriticalPolicyViolated').and.returnValue(false);
+    spyOn(transactionService, 'getIsDraft').and.returnValue(false);
+
+    expect(transactionService.getReportableExpenses(apiExpenseRes)).toEqual([apiExpenseRes[0]]);
+    expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenseRes[0]);
+    expect(transactionService.getIsDraft).toHaveBeenCalledWith(apiExpenseRes[0]);
+    expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(1);
+    expect(transactionService.getIsDraft).toHaveBeenCalledTimes(1);
+  });
+
+  it('getCurrenyWiseSummary(): should return the currency wise summary', () => {
+    // @ts-ignore
+    spyOn(transactionService, 'addEtxnToCurrencyMap').and.callThrough();
+
+    const currencyMap = {
+      INR: { name: 'INR', currency: 'INR', amount: 89, origAmount: 89, count: 1 },
+      CLF: { name: 'CLF', currency: 'CLF', amount: 33611, origAmount: 12, count: 1 },
+      EUR: { name: 'EUR', currency: 'EUR', amount: 15775.76, origAmount: 178, count: 1 },
+    };
+
+    expect(transactionService.getCurrenyWiseSummary(expenseList4)).toEqual(currencySummaryData);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'INR', 89);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'CLF', 33611, 12);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'EUR', 15775.76, 178);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledTimes(3);
+  });
+
+  it('getPaymentModeWiseSummary(): should return the payment mode wise summary', () => {
+    // @ts-ignore
+    spyOn(transactionService, 'getPaymentModeForEtxn').and.returnValue({
+      name: 'Reimbursable',
+      key: 'reimbursable',
+    });
+
+    const paymentModes = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+
+    const summary = {
+      reimbursable: {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+        amount: 49475.76,
+        count: 3,
+      },
+    };
+
+    expect(transactionService.getPaymentModeWiseSummary(expenseList4)).toEqual(summary);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[0], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[1], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[2], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledTimes(3);
   });
 });
