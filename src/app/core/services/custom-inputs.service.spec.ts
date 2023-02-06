@@ -4,7 +4,7 @@ import { of } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { AuthService } from './auth.service';
 import {
-  apiResponse,
+  platformApiResponse,
   authRespone,
   responseAfterAppliedFilter,
   filledCustomProperties,
@@ -268,7 +268,7 @@ describe('CustomInputsService', () => {
 
   it('should fill custom properties', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(authRespone));
-    spenderPlatformV1ApiService.get.and.returnValue(of(apiResponse));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
     const result = customInputsService.fillCustomProperties(orgCatId, customProperties, false);
     result.subscribe((res) => {
       expect(res).toEqual(filledCustomProperties);
