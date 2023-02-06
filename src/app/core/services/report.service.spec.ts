@@ -29,6 +29,8 @@ import {
   unflattenedErptcArrayItem2,
   unflattenedErptcArrayItem3,
   unflattenedErptcArrayItem4,
+  singleERptcFixDatesMock,
+  singleERptcLocalFixedMock,
 } from '../mock-data/report-unflattened.data';
 import {
   reportUnflattenedData,
@@ -56,7 +58,7 @@ import { ReportService } from './report.service';
 import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
-import { apiErptReporDataParam, dataErtpTransformed } from '../mock-data/data-transform.data';
+import { dataErtpTransformed, apiErptReporDataParam } from '../mock-data/data-transform.data';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -308,6 +310,8 @@ describe('ReportService', () => {
   it('getERpt(): should get an extended report', (done) => {
     apiService.get.and.returnValue(of(apiExtendedReportRes[0]));
     dataTransformService.unflatten.and.returnValue(unflattenedErptc);
+    spyOn(dateService, 'fixDates').and.returnValue(singleERptcFixDatesMock);
+    spyOn(dateService, 'getLocalDate').and.returnValue(new Date('2023-01-21T07:29:01.958Z'));
 
     const reportID = 'rprAfNrce73O';
 
@@ -318,6 +322,10 @@ describe('ReportService', () => {
       expect(dataTransformService.unflatten).toHaveBeenCalledWith(apiExtendedReportRes[0]);
       expect(dataTransformService.unflatten).toHaveBeenCalled();
       expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
+      expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedErptc.rp);
+      expect(dateService.fixDates).toHaveBeenCalledTimes(1);
+      expect(dateService.getLocalDate).toHaveBeenCalledWith(unflattenedErptc.rp.created_at);
+      expect(dateService.getLocalDate).toHaveBeenCalledTimes(1);
       done();
     });
   });
