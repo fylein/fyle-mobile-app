@@ -36,7 +36,7 @@ describe('HandleDuplicatesService', () => {
     });
   });
 
-  it('getDuplicatesByExpense() : should call the API  with the correct parameters and return the expected data from the API', () => {
+  it('getDuplicatesByExpense() : should call the API  with the correct parameters and return the expected data from the API', (done) => {
     const txnId = 'txaiCW1efU0n';
     handleDuplicatesService.getDuplicatesByExpense(txnId);
 
@@ -52,6 +52,7 @@ describe('HandleDuplicatesService', () => {
       expect(res).toEqual(handleDuplicatesData);
     });
     expect(apiService.get).toHaveBeenCalledTimes(2);
+    done();
   });
 
   it('dismissAll() : should call the API service with correct params and dismiss all the duplicates', (done) => {
