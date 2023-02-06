@@ -2935,7 +2935,7 @@ export class AddEditExpensePage implements OnInit {
       id: dependentField.id,
       label: dependentField.field_name,
       parent_field_id: dependentField.parent_field_id,
-      value: [null, (dependentField.mandatory || null) && Validators.required],
+      value: [null, (dependentField.is_mandatory || null) && Validators.required],
     });
 
     dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
@@ -2947,7 +2947,7 @@ export class AddEditExpensePage implements OnInit {
       parentFieldId: dependentField.parent_field_id,
       parentFieldValue: dependentField.parent_field_value,
       field: dependentField.field_name,
-      mandatory: dependentField.mandatory,
+      mandatory: dependentField.is_mandatory,
       control: dependentFieldControl,
       placeholder: dependentField.placeholder,
     });

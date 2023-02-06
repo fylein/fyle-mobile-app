@@ -4,7 +4,7 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { combineLatest, concat, forkJoin, from, iif, Observable, of, Subscription, throwError } from 'rxjs';
+import { combineLatest, concat, forkJoin, from, iif, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -15,7 +15,10 @@ import {
   startWith,
   switchMap,
   take,
+  takeUntil,
   tap,
+  filter,
+  delay,
 } from 'rxjs/operators';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
@@ -70,6 +73,9 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -217,6 +223,14 @@ export class AddEditMileagePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  dependentFields = [];
+
+  isDependentFieldLoading = false;
+
+  onPageExit$: Subject<void>;
+
+  dependentFields$: Observable<ExpenseField[]>;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -256,8 +270,13 @@ export class AddEditMileagePage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private categoriesService: CategoriesService,
     private orgSettingsService: OrgSettingsService,
-    private platform: Platform
+    private platform: Platform,
+    private dependentFieldsService: DependentFieldsService
   ) {}
+
+  get dependentFieldControls() {
+    return this.fg?.controls.dependent_fields as FormArray;
+  }
 
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
@@ -571,6 +590,13 @@ export class AddEditMileagePage implements OnInit {
 
   getCustomInputs() {
     this.initialFetch = true;
+
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
+
+    this.dependentFields$ = customExpenseFields$.pipe(
+      map((dependentFields) => dependentFields.filter((dependentField) => dependentField.type === 'DEPENDENT_SELECT'))
+    );
+
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
       switchMap((category) => {
@@ -601,16 +627,15 @@ export class AddEditMileagePage implements OnInit {
       }),
       switchMap((category) => {
         const formValue = this.fg.value;
-        return this.customInputsService
-          .getAll(true)
-          .pipe(
-            map((customFields) =>
-              this.customFieldsService.standardizeCustomFields(
-                formValue.custom_inputs || [],
-                this.customInputsService.filterByCategory(customFields, category && category.id)
-              )
+        return customExpenseFields$.pipe(
+          map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
+          map((customFields) =>
+            this.customFieldsService.standardizeCustomFields(
+              formValue.custom_inputs || [],
+              this.customInputsService.filterByCategory(customFields, category && category.id)
             )
-          );
+          )
+        );
       }),
       map((customFields) =>
         customFields.map((customField) => {
@@ -873,6 +898,8 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.onPageExit$ = new Subject();
+
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -899,6 +926,7 @@ export class AddEditMileagePage implements OnInit {
       costCenter: [],
       report: [],
       duplicate_detection_reason: [],
+      dependent_fields: this.fb.array([]),
     });
 
     const today = new Date();
@@ -1516,6 +1544,30 @@ export class AddEditMileagePage implements OnInit {
           }, 1000);
         }
       );
+
+    this.fg.controls.project.valueChanges
+      .pipe(
+        takeUntil(this.onPageExit$),
+        filter((val) => !!val),
+        distinctUntilChanged(),
+        tap(() => {
+          this.isDependentFieldLoading = true;
+          this.dependentFieldControls.clear();
+          this.dependentFields = [];
+        }),
+        switchMap((val) =>
+          this.txnFields$.pipe(
+            take(1),
+            switchMap((txnFields) => this.getDependentField(txnFields.project_id.id, val.project_name)),
+            finalize(() => (this.isDependentFieldLoading = false))
+          )
+        )
+      )
+      .subscribe((dependentField) => {
+        if (dependentField) {
+          this.addDependentField(dependentField);
+        }
+      });
   }
 
   async showClosePopup() {
@@ -1778,6 +1830,7 @@ export class AddEditMileagePage implements OnInit {
           prefix: customInput.prefix,
           type: customInput.type,
           value: this.fg.value.custom_inputs[i].value,
+          parent_field_id: customInput.parent_field_id,
         }))
       )
     );
@@ -2431,5 +2484,94 @@ export class AddEditMileagePage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
+    this.onPageExit$.next(null);
+    this.onPageExit$.complete();
+  }
+
+  private getDependentField(parentFieldId: number, parentFieldValue: string): Observable<ExpenseField> {
+    return this.dependentFields$.pipe(
+      take(1),
+      switchMap((dependentCustomFields) => {
+        const dependentField = dependentCustomFields.find(
+          (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId
+        );
+        if (dependentField) {
+          return this.dependentFieldsService
+            .getOptionsForDependentFieldUtil({
+              fieldId: dependentField.id,
+              parentFieldId,
+              parentFieldValue,
+            })
+            .pipe(
+              //TODO: Remove the delay once APIs are available
+              delay(1000),
+              map((dependentFieldOptions) =>
+                dependentFieldOptions?.length > 0 ? { ...dependentField, parent_field_value: parentFieldValue } : null
+              )
+            );
+        }
+        return of(null);
+      })
+    );
+  }
+
+  //TODO: Add type of dependentField. It's a mix of legacy and platform as expense_fields is still using legacy APIs.
+  private addDependentField(dependentField): void {
+    const dependentFieldControl = this.fb.group({
+      id: dependentField.id,
+      label: dependentField.field_name,
+      parent_field_id: dependentField.parent_field_id,
+      value: [null, (dependentField.is_mandatory || null) && Validators.required],
+    });
+
+    dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
+      this.onDependentFieldChanged(value);
+    });
+
+    this.dependentFields.push({
+      id: dependentField.id,
+      parentFieldId: dependentField.parent_field_id,
+      parentFieldValue: dependentField.parent_field_value,
+      field: dependentField.field_name,
+      mandatory: dependentField.is_mandatory,
+      control: dependentFieldControl,
+      placeholder: dependentField.placeholder,
+    });
+
+    this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
+  }
+
+  private removeAllDependentFields(updatedFieldIndex: number) {
+    //Remove all dependent field controls after the changed one
+    for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
+      this.dependentFieldControls.removeAt(i);
+    }
+
+    //Removing fields from UI
+    this.dependentFields = this.dependentFields.slice(0, updatedFieldIndex + 1);
+  }
+
+  private onDependentFieldChanged(data: {
+    id: number;
+    label: string;
+    parent_field_id: number;
+    value: PlatformDependentFieldValue;
+  }): void {
+    const updatedFieldIndex = this.dependentFieldControls.value.findIndex((depField) => depField.label === data.label);
+
+    //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
+    if (updatedFieldIndex !== this.dependentFieldControls.length - 1) {
+      this.removeAllDependentFields(updatedFieldIndex);
+    }
+
+    //Create new dependent field based on this field
+    this.isDependentFieldLoading = true;
+    this.getDependentField(data.id, data.value.expense_field_value)
+      .pipe(finalize(() => (this.isDependentFieldLoading = false)))
+      .subscribe((dependentField) => {
+        if (dependentField) {
+          this.addDependentField(dependentField);
+        }
+      });
   }
 }
