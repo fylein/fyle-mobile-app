@@ -30,7 +30,7 @@ import { ExpensePolicy } from '../models/platform/platform-expense-policy.model'
 import { EtxnParams } from '../models/etxn-params.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 import { Transaction } from '../models/v1/transaction.model';
-import { FileObject } from '../models/file_obj.model';
+import { FileObject } from '../models/file-obj.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
@@ -137,7 +137,7 @@ export class TransactionService {
         return range(0, count);
       }),
       concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
-      reduce((acc, curr) => acc.concat(curr))
+      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
     );
   }
 
@@ -231,7 +231,7 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  deleteBulk(txnIds: string[]): Observable<Expense[]> {
+  deleteBulk(txnIds: string[]): Observable<Transaction[]> {
     const chunkSize = 10;
     const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
     return range(0, count).pipe(
@@ -241,7 +241,7 @@ export class TransactionService {
           txn_ids: filteredtxnIds,
         });
       }),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
+      reduce((acc, curr) => acc.concat(curr), [] as Transaction[])
     );
   }
 
@@ -336,38 +336,17 @@ export class TransactionService {
     );
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
-  })
-  removeTxnsFromRptInBulk(txnIds: string[], comment?: string): Observable<Expense[]> {
-    const count = txnIds.length > this.paginationSize ? txnIds.length / this.paginationSize : 1;
-    return range(0, count).pipe(
-      concatMap((page) => {
-        const data: { ids: string[]; comment?: string } = {
-          ids: txnIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize),
-        };
-
-        if (comment) {
-          data.comment = comment;
-        }
-
-        return this.apiService.post('/transactions/remove_report/bulk', data);
-      }),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
-    );
-  }
-
-  getPaginatedETxncCount(params?: EtxnParams): Observable<ApiV2Response<Expense>> {
+  getPaginatedETxncCount(): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
-          return this.apiService.get('/etxns/count', { params }).pipe(
+          return this.apiService.get('/etxns/count').pipe(
             tap((res) => {
-              this.storageService.set('etxncCount' + JSON.stringify(params), res);
+              this.storageService.set('etxncCount', res);
             })
           );
         } else {
-          return from(this.storageService.get('etxncCount' + JSON.stringify(params)));
+          return from(this.storageService.get('etxncCount'));
         }
       })
     );
@@ -443,7 +422,7 @@ export class TransactionService {
     );
   }
 
-  getETxn(txnId: string): Observable<UnflattenedTransaction> {
+  getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
         const etxn = this.dataTransformService.unflatten(data);
@@ -469,7 +448,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/match', data);
   }
 
-  review(txnId: string): Observable<UnflattenedTransaction> {
+  review(txnId: string): Observable<null> {
     return this.apiService.post('/transactions/' + txnId + '/review');
   }
 
@@ -477,7 +456,7 @@ export class TransactionService {
     return from(this.storageService.get('vehicle_preference'));
   }
 
-  uploadBase64File(txnId: string, name: string, base64Content: string): Observable<UnflattenedTransaction> {
+  uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
     const data = {
       content: base64Content,
       name,
@@ -611,12 +590,12 @@ export class TransactionService {
 
   getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
     return `You are about to permanently delete ${
-      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
+      expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
     }`;
   }
 
   getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number): string {
-    return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
+    return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
       expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
@@ -631,19 +610,19 @@ export class TransactionService {
   ): string {
     let dialogBody: string;
 
-    if (expensesToBeDeleted?.length > 0 && cccExpenses > 0) {
+    if (expensesToBeDeleted.length > 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
         <li>Once deleted, the action can't be reversed.</li>
         </ul>
         <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted?.length > 0 && cccExpenses === 0) {
+    } else if (expensesToBeDeleted.length > 0 && cccExpenses === 0) {
       dialogBody = `<ul class="text-left">
       <li>${expenseDeletionMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
       <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted?.length === 0 && cccExpenses > 0) {
+    } else if (expensesToBeDeleted.length === 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
       </ul>`;
@@ -675,7 +654,7 @@ export class TransactionService {
   }
 
   isMergeAllowed(expenses: Expense[]): boolean {
-    if (expenses?.length === 2) {
+    if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
       );
@@ -706,7 +685,7 @@ export class TransactionService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
-      filters.cardNumbers?.forEach((cardNumber) => {
+      filters.cardNumbers.forEach((cardNumber) => {
         cardNumberString += cardNumber + ',';
       });
       cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
@@ -782,6 +761,26 @@ export class TransactionService {
     return currentParamsCopy;
   }
 
+  isEtxnInPaymentMode(txnSkipReimbursement: boolean, txnSourceAccountType: string, paymentMode: string): boolean {
+    let etxnInPaymentMode = false;
+    const isAdvanceOrCCCEtxn = txnSourceAccountType === AccountType.ADVANCE || txnSourceAccountType === AccountType.CCC;
+
+    if (paymentMode === 'reimbursable') {
+      //Paid by Employee: reimbursable
+      etxnInPaymentMode = !txnSkipReimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'nonReimbursable') {
+      //Paid by Company: not reimbursable
+      etxnInPaymentMode = txnSkipReimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'advance') {
+      //Paid from Advance account: not reimbursable
+      etxnInPaymentMode = txnSourceAccountType === AccountType.ADVANCE;
+    } else if (paymentMode === 'ccc') {
+      //Paid from CCC: not reimbursable
+      etxnInPaymentMode = txnSourceAccountType === AccountType.CCC;
+    }
+    return etxnInPaymentMode;
+  }
+
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
@@ -824,28 +823,11 @@ export class TransactionService {
   }
 
   private getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]): PaymentMode {
-    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
-  }
-
-  private isEtxnInPaymentMode(etxn: Expense, paymentMode: string): boolean {
-    let etxnInPaymentMode = false;
-    const isAdvanceOrCCCEtxn =
-      etxn.source_account_type === AccountType.ADVANCE || etxn.source_account_type === AccountType.CCC;
-
-    if (paymentMode === 'reimbursable') {
-      //Paid by Employee: reimbursable
-      etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'nonReimbursable') {
-      //Paid by Company: not reimbursable
-      etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'advance') {
-      //Paid from Advance account: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === AccountType.ADVANCE;
-    } else if (paymentMode === 'ccc') {
-      //Paid from CCC: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === AccountType.CCC;
-    }
-    return etxnInPaymentMode;
+    const txnSkipReimbursement = etxn.tx_skip_reimbursement;
+    const txnSourceAccountType = etxn.source_account_type;
+    return paymentModes.find((paymentMode) =>
+      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key)
+    );
   }
 
   private addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {

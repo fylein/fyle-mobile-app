@@ -54,7 +54,7 @@ export interface Transaction {
   policy_amount: number;
   policy_flag: boolean;
   policy_state: string;
-  project_id: string;
+  project_id: number | string;
   proposed_exchange_rate: number;
   purpose: string;
   report_id: string;
@@ -66,7 +66,7 @@ export interface Transaction {
   split_group_user_amount: number;
   state: string;
   status_id: string;
-  tax: string;
+  tax: number;
   tax_amount: number;
   tax_group_id: string;
   taxi_travel_class: string;
@@ -100,4 +100,13 @@ export interface Transaction {
   categoryDisplayName?: string;
   matchCCCId?: string;
   custom_attributes?: { name: string; value: string }[];
+  transcribed_data?: {
+    amount?: number;
+    currency?: string;
+    date?: Date;
+    description?: string;
+    vendor?: string;
+    category?: string;
+    invoice_dt?: Date;
+  };
 }

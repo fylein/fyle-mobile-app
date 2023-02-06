@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { noop } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { FileService } from 'src/app/core/services/file.service';
 
 @Component({
