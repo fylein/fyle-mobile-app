@@ -85,7 +85,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
@@ -2262,7 +2262,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getEditExpenseObservable() {
-    return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
+    return this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id).pipe(
       tap((etxn) => (this.isIncompleteExpense = etxn.tx.state === 'DRAFT')),
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
@@ -2316,7 +2316,7 @@ export class AddEditExpensePage implements OnInit {
   goToPrev() {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     if (this.reviewList[+this.activeIndex - 1]) {
-      this.transactionService.getETxn(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
+      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
       });
     }
@@ -2325,7 +2325,7 @@ export class AddEditExpensePage implements OnInit {
   goToNext() {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     if (this.reviewList[+this.activeIndex + 1]) {
-      this.transactionService.getETxn(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
+      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
       });
     }
@@ -3339,7 +3339,7 @@ export class AddEditExpensePage implements OnInit {
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx).pipe(
-              switchMap((txn) => this.transactionService.getETxn(txn.id)),
+              switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
                 const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
@@ -4067,7 +4067,7 @@ export class AddEditExpensePage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+        this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else if (removeExpenseFromReport) {

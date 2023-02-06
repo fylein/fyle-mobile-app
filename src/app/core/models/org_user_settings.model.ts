@@ -1,4 +1,5 @@
 import { AccountType } from '../enums/account-type.enum';
+import { BankDataAggregationSettings, OrgFylerCccFlowSettings } from './org-settings.model';
 
 export interface AutoFyleSettings {
   allowed: boolean;
@@ -135,6 +136,17 @@ export interface PaymentModeSettings {
   allowed_payment_modes: AccountType[];
 }
 
+export interface CommonOrgUserSettings {
+  allowed: boolean;
+  enabled: boolean;
+}
+
+export interface OnboardingSettings {
+  enabled: boolean;
+  skip_add_bank_account: boolean;
+  skip_link_card: boolean;
+}
+
 export interface OrgUserSettings {
   id: string;
   created_at: Date;
@@ -161,4 +173,12 @@ export interface OrgUserSettings {
   expense_form_autofills: ExpenseFormAutofills;
   personal_cards_settings: PersonalCardsSettings;
   payment_mode_settings: PaymentModeSettings;
+  hotjar_settings?: CommonOrgUserSettings;
+  fyler_ccc_flow_settings?: OrgFylerCccFlowSettings;
+  beta_auto_submit_workflow_settings?: CommonOrgUserSettings;
+  beta_report_workflow_settings?: CommonOrgUserSettings;
+  bank_data_aggregation_settings?: BankDataAggregationSettings;
+  card_expense_creation_settings?: CommonOrgUserSettings;
+  data_extractor_settings?: CommonOrgUserSettings;
+  onboarding_settings?: OnboardingSettings;
 }
