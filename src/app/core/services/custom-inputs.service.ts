@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
 import { from, Observable, Subject } from 'rxjs';
@@ -79,7 +79,7 @@ export class CustomInputsService {
         // this should be by rank eventually
         customInputs.sort(this.sortByRank);
 
-        let filledCustomProperties: CustomField[] = [];
+        const filledCustomProperties: CustomField[] = [];
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < customInputs.length; i++) {
           const customInput = customInputs[i];
@@ -111,13 +111,12 @@ export class CustomInputsService {
               }
             }
           }
-          filledCustomProperties.push(property);
+          filledCustomProperties.push({
+            ...property,
+            displayValue: this.getCustomPropertyDisplayValue(property),
+          });
         }
 
-        filledCustomProperties = filledCustomProperties.map((customProperty) => ({
-          ...customProperty,
-          displayValue: this.getCustomPropertyDisplayValue(customProperty),
-        }));
         return filledCustomProperties;
       })
     );
