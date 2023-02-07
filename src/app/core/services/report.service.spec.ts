@@ -320,13 +320,9 @@ describe('ReportService', () => {
     reportService.getERpt(reportID).subscribe((res) => {
       expect(res).toEqual(expectedSingleErpt);
       expect(apiService.get).toHaveBeenCalledOnceWith(`/erpts/${reportID}`);
-      expect(dataTransformService.unflatten).toHaveBeenCalledWith(apiExtendedReportRes[0]);
-      expect(dataTransformService.unflatten).toHaveBeenCalled();
-      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
-      expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedErptc.rp);
-      expect(dateService.fixDates).toHaveBeenCalledTimes(1);
-      expect(dateService.getLocalDate).toHaveBeenCalledWith(unflattenedErptc.rp.created_at);
-      expect(dateService.getLocalDate).toHaveBeenCalledTimes(1);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(apiExtendedReportRes[0]);
+      expect(dateService.fixDates).toHaveBeenCalledOnceWith(unflattenedErptc.rp);
+      expect(dateService.getLocalDate).toHaveBeenCalledOnceWith(unflattenedErptc.rp.created_at);
       done();
     });
   });
@@ -348,7 +344,6 @@ describe('ReportService', () => {
   });
 
   it('getReport(): should get the report from API as per report ID given', (done) => {
-    mockExtendedOrgUser();
     spyOn(reportService, 'getMyReports').and.returnValue(of(apiReportSingleRes));
 
     const reportID = 'rpfClhA1lglE';
@@ -622,9 +617,7 @@ describe('ReportService', () => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/reports', apiErptReporDataParam.rp);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       expect(reportService.clearTransactionCache).toHaveBeenCalled();
-      expect(dataTransformService.unflatten).toHaveBeenCalled();
-      expect(dataTransformService.unflatten).toHaveBeenCalledWith(reportParam);
-      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(reportParam);
       done();
     });
   });
@@ -634,6 +627,7 @@ describe('ReportService', () => {
 
     reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
       expect(res).toEqual(reportAllowedActionsResponse);
+      expect(permissionsService.allowedActions).toHaveBeenCalled();
       expect(permissionsService.allowedActions).toHaveBeenCalledTimes(1);
       done();
     });
