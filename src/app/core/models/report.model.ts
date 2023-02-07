@@ -6,7 +6,7 @@ export interface ExtendedReport {
   ou_department_id?: string;
   ou_employee_id?: string;
   ou_id: string;
-  ou_level: string;
+  ou_level: number;
   ou_level_id?: string;
   ou_location: string;
   ou_mobile: string;
