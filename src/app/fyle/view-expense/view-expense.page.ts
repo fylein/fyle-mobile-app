@@ -233,32 +233,6 @@ export class ViewExpensePage implements OnInit {
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
       switchMap(() => this.transactionService.getEtxn(txId)),
-      map((etxn) => ({
-        ...etxn,
-        tx_custom_properties: [
-          ...etxn.tx_custom_properties,
-          {
-            name: 'CF1',
-            value: 'CF1Value',
-          },
-          {
-            name: 'CF2',
-            value: 'CF2Value',
-          },
-          {
-            name: 'CF3',
-            value: 'CF3Value',
-          },
-          {
-            name: 'CF4',
-            value: 'CF4Value',
-          },
-          {
-            name: 'CF5',
-            value: 'CF5Value',
-          },
-        ],
-      })),
       shareReplay(1)
     );
 

@@ -42,7 +42,7 @@ export class CustomInputsService {
         customInputs.map((customInput) => ({
           ...customInput,
           parent_field_id: customInput.id === 218227 ? 214662 : customInput.id - 1,
-          type: 'DEPENDENT_SELECT',
+          type: customInput.field_name.length === 3 ? 'DEPENDENT_SELECT' : customInput.type,
         }))
       )
     );
@@ -114,9 +114,9 @@ export class CustomInputsService {
           filledCustomProperties.push(property);
         }
 
-        filledCustomProperties = filledCustomProperties.map((customProperties) => ({
-          ...customProperties,
-          displayValue: this.getCustomPropertyDisplayValue(customProperties),
+        filledCustomProperties = filledCustomProperties.map((customProperty) => ({
+          ...customProperty,
+          displayValue: this.getCustomPropertyDisplayValue(customProperty),
         }));
         return filledCustomProperties;
       })
@@ -158,43 +158,43 @@ export class CustomInputsService {
   }
 
   fillDependantFieldProperties(etxn: Expense): Observable<CustomField[]> {
-    console.log(etxn);
     return this.getAll(true).pipe(
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type === 'DEPENDENT_SELECT')),
-      tap(console.log),
       map((allCustomInputs) =>
-        allCustomInputs.map((customInput) => ({
-          id: customInput.id,
-          name: customInput.field_name,
-          value: etxn.tx_custom_properties.find((txCustomProperty) => txCustomProperty.name === customInput.field_name)
-            ?.value,
-          type: customInput.type,
-          displayValue:
-            etxn.tx_custom_properties.find((txCustomProperty) => txCustomProperty.name === customInput.field_name)
-              ?.value || '-',
-          mandatory: customInput.is_mandatory,
-        }))
+        allCustomInputs.map((customInput) => {
+          const customProperty = etxn.tx_custom_properties.find(
+            (txCustomProperty) => txCustomProperty.name === customInput.field_name
+          );
+          return {
+            id: customInput.id,
+            name: customInput.field_name,
+            value: customProperty?.value,
+            type: customInput.type,
+            displayValue: customProperty?.value || '-',
+            mandatory: customInput.is_mandatory,
+          };
+        })
       )
     );
   }
 
-  formatBooleanCustomProperty(customProperty: CustomField): string {
+  private formatBooleanCustomProperty(customProperty: CustomField): string {
     return customProperty.value ? 'Yes' : 'No';
   }
 
-  formatDateCustomProperty(customProperty: CustomField): string {
+  private formatDateCustomProperty(customProperty: CustomField): string {
     return customProperty.value ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
   }
 
-  formatMultiselectCustomProperty(customProperty: CustomField): string {
+  private formatMultiselectCustomProperty(customProperty: CustomField): string {
     return customProperty.value && customProperty.value.length > 0 ? customProperty.value.join(', ') : '-';
   }
 
-  formatNumberCustomProperty(customProperty: CustomField): string {
+  private formatNumberCustomProperty(customProperty: CustomField): string {
     return customProperty.value ? this.decimalPipe.transform(customProperty.value, '1.2-2') : '-';
   }
 
-  getLocationDisplayValue(displayValue: string, customProperty: CustomField): string {
+  private getLocationDisplayValue(displayValue: string, customProperty: CustomField): string {
     displayValue = '-';
     if (customProperty.value) {
       if (customProperty.value.hasOwnProperty('display')) {
