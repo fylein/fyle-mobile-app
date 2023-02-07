@@ -13,7 +13,7 @@ import {
   apiTeamReportPaginated1,
   apiAllReportsRes,
 } from '../mock-data/api-reports.data';
-import { apiAllApproverRes2, apiApproverRes, expectedApprovers } from '../mock-data/approver.data';
+import { addApproversParam, apiAllApproverRes2, apiApproverRes, expectedApprovers } from '../mock-data/approver.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { orgSettingsParams } from '../mock-data/org-settings.data';
@@ -31,6 +31,8 @@ import {
   unflattenedErptcArrayItem4,
   singleERptcFixDatesMock,
   singleERptcLocalFixedMock,
+  addApproverERpts,
+  expectedAddedApproverERpts,
 } from '../mock-data/report-unflattened.data';
 import {
   reportUnflattenedData,
@@ -930,6 +932,14 @@ describe('ReportService', () => {
       });
       done();
     });
+  });
+
+  it('addApprovers(): add approvers to reports', () => {
+    const res = reportService.addApprovers(addApproverERpts, addApproversParam);
+
+    console.log(res);
+
+    expect(res).toEqual(expectedAddedApproverERpts);
   });
 
   it('getReportStatsData(): should get report stats data', (done) => {
