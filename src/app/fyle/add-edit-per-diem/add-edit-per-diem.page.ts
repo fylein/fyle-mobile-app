@@ -2256,7 +2256,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   private getDependentField(parentFieldId: number, parentFieldValue: string): Observable<ExpenseField> {
     return this.dependentFields$.pipe(
-      take(1),
       switchMap((dependentCustomFields) => {
         const dependentField = dependentCustomFields.find(
           (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId

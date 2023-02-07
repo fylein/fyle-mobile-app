@@ -331,10 +331,7 @@
 
             <div *ngIf="dependentFields?.length">
               <ng-container formArrayName="dependent_fields">
-                <div
-                  *ngFor="let dependentField of dependentFields; index as i"
-                  class="add-edit-mileage--internal-block"
-                >
+                <div *ngFor="let dependentField of dependentFields" class="add-edit-mileage--internal-block">
                   <div [formGroup]="dependentField.control">
                     <app-dependent-field
                       [label]="dependentField.field"
