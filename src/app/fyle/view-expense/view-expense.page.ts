@@ -47,6 +47,8 @@ export class ViewExpensePage implements OnInit {
 
   customProperties$: Observable<CustomField[]>;
 
+  projectDependantCustomProperties$: Observable<CustomField[]>;
+
   etxnWithoutCustomProperties$: Observable<Expense>;
 
   canFlagOrUnflag$: Observable<boolean>;
@@ -231,12 +233,43 @@ export class ViewExpensePage implements OnInit {
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
       switchMap(() => this.transactionService.getEtxn(txId)),
+      map((etxn) => ({
+        ...etxn,
+        tx_custom_properties: [
+          ...etxn.tx_custom_properties,
+          {
+            name: 'CF1',
+            value: 'CF1Value',
+          },
+          {
+            name: 'CF2',
+            value: 'CF2Value',
+          },
+          {
+            name: 'CF3',
+            value: 'CF3Value',
+          },
+          {
+            name: 'CF4',
+            value: 'CF4Value',
+          },
+          {
+            name: 'CF5',
+            value: 'CF5Value',
+          },
+        ],
+      })),
       shareReplay(1)
     );
 
     this.etxnWithoutCustomProperties$.subscribe((res) => {
       this.reportId = res.tx_report_id;
     });
+
+    this.projectDependantCustomProperties$ = this.etxnWithoutCustomProperties$.pipe(
+      concatMap((etxn) => this.customInputsService.fillDependantFieldProperties(etxn)),
+      shareReplay(1)
+    );
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap((etxn) =>
@@ -245,11 +278,7 @@ export class ViewExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.etxn$ = combineLatest([this.etxnWithoutCustomProperties$, this.customProperties$]).pipe(
-      map((res) => {
-        res[0].tx_custom_properties = res[1];
-        return res[0];
-      }),
+    this.etxn$ = this.etxnWithoutCustomProperties$.pipe(
       finalize(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
 import { from, Observable, Subject } from 'rxjs';
@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { CustomField } from '../models/custom_field.model';
 import { CustomProperty } from '../models/custom-properties.model';
+import { Expense } from '../models/expense.model';
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
@@ -71,13 +72,14 @@ export class CustomInputsService {
     active: boolean
   ): Observable<CustomField[]> {
     return this.getAll(active).pipe(
+      map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
 
         // this should be by rank eventually
         customInputs.sort(this.sortByRank);
 
-        const filledCustomProperties: CustomField[] = [];
+        let filledCustomProperties: CustomField[] = [];
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < customInputs.length; i++) {
           const customInput = customInputs[i];
@@ -111,6 +113,11 @@ export class CustomInputsService {
           }
           filledCustomProperties.push(property);
         }
+
+        filledCustomProperties = filledCustomProperties.map((customProperties) => ({
+          ...customProperties,
+          displayValue: this.getCustomPropertyDisplayValue(customProperties),
+        }));
         return filledCustomProperties;
       })
     );
@@ -150,23 +157,44 @@ export class CustomInputsService {
     return displayValue;
   }
 
-  private formatBooleanCustomProperty(customProperty: CustomField): string {
+  fillDependantFieldProperties(etxn: Expense): Observable<CustomField[]> {
+    console.log(etxn);
+    return this.getAll(true).pipe(
+      map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type === 'DEPENDENT_SELECT')),
+      tap(console.log),
+      map((allCustomInputs) =>
+        allCustomInputs.map((customInput) => ({
+          id: customInput.id,
+          name: customInput.field_name,
+          value: etxn.tx_custom_properties.find((txCustomProperty) => txCustomProperty.name === customInput.field_name)
+            ?.value,
+          type: customInput.type,
+          displayValue:
+            etxn.tx_custom_properties.find((txCustomProperty) => txCustomProperty.name === customInput.field_name)
+              ?.value || '-',
+          mandatory: customInput.is_mandatory,
+        }))
+      )
+    );
+  }
+
+  formatBooleanCustomProperty(customProperty: CustomField): string {
     return customProperty.value ? 'Yes' : 'No';
   }
 
-  private formatDateCustomProperty(customProperty: CustomField): string {
+  formatDateCustomProperty(customProperty: CustomField): string {
     return customProperty.value ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
   }
 
-  private formatMultiselectCustomProperty(customProperty: CustomField): string {
+  formatMultiselectCustomProperty(customProperty: CustomField): string {
     return customProperty.value && customProperty.value.length > 0 ? customProperty.value.join(', ') : '-';
   }
 
-  private formatNumberCustomProperty(customProperty: CustomField): string {
+  formatNumberCustomProperty(customProperty: CustomField): string {
     return customProperty.value ? this.decimalPipe.transform(customProperty.value, '1.2-2') : '-';
   }
 
-  private getLocationDisplayValue(displayValue: string, customProperty: CustomField): string {
+  getLocationDisplayValue(displayValue: string, customProperty: CustomField): string {
     displayValue = '-';
     if (customProperty.value) {
       if (customProperty.value.hasOwnProperty('display')) {
