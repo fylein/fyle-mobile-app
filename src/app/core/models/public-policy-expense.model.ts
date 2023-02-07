@@ -10,12 +10,16 @@ export interface PublicPolicyExpense {
   created_at: Date;
   creator_id: string;
   currency: string;
-  custom_properties: [
-    {
-      name?: string;
-      value?: string;
-    }
-  ];
+  custom_properties: {
+    id?: number;
+    mandatory?: boolean;
+    name: string;
+    options?: { label: string; value: string }[] | [];
+    placeholder?: string;
+    prefix?: string;
+    type?: string;
+    value: string | [];
+  }[];
   distance: number;
   distance_unit: string;
   exchange_rate: number;

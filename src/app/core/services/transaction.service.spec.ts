@@ -47,10 +47,12 @@ import { txnList } from '../mock-data/transaction.data';
 import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
 import { fileObjectData } from '../mock-data/file-object.data';
 import { AccountType } from '../enums/account-type.enum';
-import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
+import { orgUserSettingsData, orgUserSettingsData2 } from '../mock-data/org-user-settings.data';
 import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { accountsData } from '../test-data/accounts.service.spec.data';
 import { currencySummaryData } from '../mock-data/currency-summary.data';
+import { platformPolicyExpenseData } from '../mock-data/platform-policy-expense.data';
+import { expensePolicyData } from '../mock-data/expense-policy.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -1451,5 +1453,37 @@ describe('TransactionService', () => {
     expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[2], paymentModes);
     // @ts-ignore
     expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledTimes(3);
+  });
+
+  it('matchCCCExpense(): should match ccc expense', (done) => {
+    apiService.post.and.returnValue(of(null));
+
+    const transactionId = 'txBRcjOg1spF';
+    const corporateCreditCardExpenseId = 'cccetzVpWd2Pgz';
+
+    transactionService.matchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
+      expect(res).toBeNull();
+      expect(apiService.post).toHaveBeenCalledWith('/transactions/match', {
+        transaction_id: transactionId,
+        corporate_credit_card_expense_id: corporateCreditCardExpenseId,
+      });
+      expect(apiService.post).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('checkPolicy(): should check policy', (done) => {
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData2));
+    spenderPlatformV1BetaApiService.post.and.returnValue(of(expensePolicyData));
+
+    transactionService.checkPolicy(platformPolicyExpenseData).subscribe((res) => {
+      expect(res).toEqual(expensePolicyData);
+      expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledOnceWith('/expenses/check_policies', {
+        data: platformPolicyExpenseData,
+      });
+      expect(orgUserSettingsService.get).toHaveBeenCalled();
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
   });
 });

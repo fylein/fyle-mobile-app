@@ -439,7 +439,7 @@ export class TransactionService {
     );
   }
 
-  matchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<UnflattenedTransaction> {
+  matchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
     const data = {
       transaction_id: txnId,
       corporate_credit_card_expense_id: corporateCreditCardExpenseId,

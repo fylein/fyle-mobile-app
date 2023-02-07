@@ -1,5 +1,5 @@
 export interface PlatformPolicyExpense {
-  id: string;
+  id?: string;
   spent_at: Date;
   merchant?: string;
   foreign_currency?: string;
@@ -25,12 +25,16 @@ export interface PlatformPolicyExpense {
     latitude?: number;
     longitude?: number;
   }[];
-  custom_fields?: [
-    {
-      name?: string;
-      value?: string;
-    }
-  ];
+  custom_fields?: {
+    id?: number;
+    mandatory?: boolean;
+    name: string;
+    options?: { label: string; value: string }[] | [];
+    placeholder?: string;
+    prefix?: string;
+    type?: string;
+    value: string | [];
+  }[];
   started_at?: Date;
   ended_at?: Date;
   per_diem_rate_id?: number;
