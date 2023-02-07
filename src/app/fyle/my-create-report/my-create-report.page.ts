@@ -358,10 +358,6 @@ export class MyCreateReportPage implements OnInit {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
   }
 
-  addExpense() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
-  }
-
   ngOnInit() {
     this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
