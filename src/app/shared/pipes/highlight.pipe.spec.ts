@@ -26,7 +26,7 @@ describe('HighlightPipe', () => {
     expect(result).toBe(expectedResult);
   });
 
-  it('highlightPipe transform() : should handle a search query with special character', () => {
+  it('highlightPipe transform() : should handle a search query with single special character', () => {
     const text = 'Testing Project FAE 1/Test 1';
     const search = '/';
     const expectedResult = 'Testing Project FAE 1<span class="highlight">/</span>Test 1';
@@ -36,7 +36,7 @@ describe('HighlightPipe', () => {
     expect(result).toBe(expectedResult);
   });
 
-  it('highlightPipe transform() : should handle a search query other with special characters', () => {
+  it('highlightPipe transform() : should handle a search query with multiple special characters', () => {
     const text = 'This is some text with special characters: @#$%^+-[]{}()*';
     const search = '@#$%^+-[]{}()*';
     const expectedResult = 'This is some text with special characters: <span class="highlight">@#$%^+-[]{}()*</span>';
