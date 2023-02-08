@@ -256,29 +256,56 @@ describe('ReportService', () => {
     });
   });
 
-  it('getMyReports(): should get reports from API as specified by params', (done) => {
-    mockExtendedOrgUser();
-    mockReports();
-    spyOn(dateService, 'fixDates').and.returnValues(
-      apiReportRes.data[0],
-      apiReportRes.data[1],
-      apiReportRes.data[2],
-      apiReportRes.data[3]
-    );
+  describe('getMyReports()', () => {
+    it('getMyReports(): should get reports from API as specified by params', (done) => {
+      mockExtendedOrgUser();
+      mockReports();
+      spyOn(dateService, 'fixDates').and.returnValues(
+        apiReportRes.data[0],
+        apiReportRes.data[1],
+        apiReportRes.data[2],
+        apiReportRes.data[3]
+      );
 
-    const params = {
-      offset: 0,
-      limit: 10,
-      queryParams: {
-        or: [],
-      },
-      order: 'rp_created_at.desc',
-    };
+      const params = {
+        offset: 0,
+        limit: 10,
+        queryParams: {
+          or: [],
+        },
+        order: 'rp_created_at.desc',
+      };
 
-    reportService.getMyReports(params).subscribe((res) => {
-      expect(res).toEqual(res);
-      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
-      done();
+      reportService.getMyReports(params).subscribe((res) => {
+        expect(res).toEqual(res);
+        expect(apiv2Service.get).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('getMyReports(): should get reports from API when no order is specified', (done) => {
+      mockExtendedOrgUser();
+      mockReports();
+      spyOn(dateService, 'fixDates').and.returnValues(
+        apiReportRes.data[0],
+        apiReportRes.data[1],
+        apiReportRes.data[2],
+        apiReportRes.data[3]
+      );
+
+      const params = {
+        offset: 0,
+        limit: 10,
+        queryParams: {
+          or: [],
+        },
+      };
+
+      reportService.getMyReports(params).subscribe((res) => {
+        expect(res).toEqual(res);
+        expect(apiv2Service.get).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
   });
 
@@ -386,33 +413,64 @@ describe('ReportService', () => {
     });
   });
 
-  it('getTeamReports(): should get all team reports', (done) => {
-    mockExtendedOrgUser();
-    apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
-    spyOn(dateService, 'fixDates').and.returnValues(apiTeamReportPaginated1.data[0], apiTeamReportPaginated1.data[1]);
+  describe('getTeamReports()', () => {
+    it('should get all team reports', (done) => {
+      mockExtendedOrgUser();
+      apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
+      spyOn(dateService, 'fixDates').and.returnValues(apiTeamReportPaginated1.data[0], apiTeamReportPaginated1.data[1]);
 
-    const params = {
-      offset: 0,
-      limit: 10,
-      queryParams: {
-        or: [],
-      },
-      order: 'rp_submitted_at.desc',
-    };
-
-    reportService.getTeamReports(params).subscribe((res) => {
-      expect(res).toEqual(apiTeamReportPaginated1);
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', {
-        params: {
-          offset: 0,
-          limit: 10,
-          approved_by: 'cs.{ouX8dwsbLCLv}',
-          order: 'rp_submitted_at.desc,rp_id.desc',
+      const params = {
+        offset: 0,
+        limit: 10,
+        queryParams: {
           or: [],
         },
+        order: 'rp_submitted_at.desc',
+      };
+
+      reportService.getTeamReports(params).subscribe((res) => {
+        expect(res).toEqual(apiTeamReportPaginated1);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', {
+          params: {
+            offset: 0,
+            limit: 10,
+            approved_by: 'cs.{ouX8dwsbLCLv}',
+            order: 'rp_submitted_at.desc,rp_id.desc',
+            or: [],
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
       });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      done();
+    });
+
+    it('should get all team reports when order is not specified', (done) => {
+      mockExtendedOrgUser();
+      apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
+      spyOn(dateService, 'fixDates').and.returnValues(apiTeamReportPaginated1.data[0], apiTeamReportPaginated1.data[1]);
+
+      const params = {
+        offset: 0,
+        limit: 10,
+        queryParams: {
+          or: [],
+        },
+      };
+
+      reportService.getTeamReports(params).subscribe((res) => {
+        expect(res).toEqual(apiTeamReportPaginated1);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', {
+          params: {
+            offset: 0,
+            limit: 10,
+            approved_by: 'cs.{ouX8dwsbLCLv}',
+            order: 'rp_created_at.desc,rp_id.desc',
+            or: [],
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
   });
 
@@ -701,21 +759,18 @@ describe('ReportService', () => {
 
   it('userReportsSearchParamsGenerator(): should generate user search parameter', () => {
     const result = reportService.userReportsSearchParamsGenerator(
+      {},
       {
+        state: 'edit',
         dateRange: {
           from: '2022-10-31T13:54:46.317Z',
           to: '2023-01-23T10:53:52.220Z',
         },
-      },
-      { state: 'edit' }
+      }
     );
-
     expect(result).toEqual({
-      dateRange: {
-        from: '2022-10-31T13:54:46.317Z',
-        to: '2023-01-23T10:53:52.220Z',
-      },
       state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+      created_at: ['gte:2022-10-31T13:54:46.317Z', 'lte:2023-01-23T18:29:59.999Z'],
     });
   });
 
@@ -937,30 +992,66 @@ describe('ReportService', () => {
   it('addApprovers(): add approvers to reports', () => {
     const res = reportService.addApprovers(addApproverERpts, addApproversParam);
 
-    console.log(res);
-
     expect(res).toEqual(expectedAddedApproverERpts);
   });
 
-  it('getReportStatsData(): should get report stats data', (done) => {
-    mockExtendedOrgUser();
-    apiv2Service.get.and.returnValue(of(apiReportStatsRawRes));
+  it('getFilteredPendingReports(): should get filtered and pending reports', (done) => {
+    spyOn(reportService, 'searchParamsGenerator').and.returnValue({
+      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+    });
+    spyOn(reportService, 'getPaginatedERptcCount').and.returnValue(of({ count: 2 }));
+    spyOn(reportService, 'getPaginatedERptc').and.returnValue(of(addApproverERpts));
+    spyOn(reportService, 'getApproversInBulk').and.returnValue(of(addApproversParam));
+    spyOn(reportService, 'addApprovers').and.returnValue(expectedAddedApproverERpts);
 
-    const params = {
-      rp_org_user_id: 'eq.ouX8dwsbLCLv',
-      approved_by: 'cs.{ouCI4UQ2G0K1}',
-      rp_approval_state: ['in.(APPROVAL_PENDING)'],
-      rp_state: ['in.(APPROVER_PENDING)'],
-      sequential_approval_turn: ['in.(true)'],
-      aggregates: 'count(rp_id),sum(rp_amount)',
-      scalar: true,
-    };
-
-    reportService.getReportStatsData(apiReportStatsRawParam, true).subscribe((res) => {
-      expect(res).toEqual(expectedReportRawStats);
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports/stats', { params });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
+    reportService.getFilteredPendingReports({ state: 'edit' }).subscribe((res) => {
+      expect(res).toEqual(expectedAddedApproverERpts);
       done();
+    });
+  });
+
+  describe('getReportStatsData()', () => {
+    it('should get report stats data', (done) => {
+      mockExtendedOrgUser();
+      apiv2Service.get.and.returnValue(of(apiReportStatsRawRes));
+
+      const params = {
+        rp_org_user_id: 'eq.ouX8dwsbLCLv',
+        approved_by: 'cs.{ouCI4UQ2G0K1}',
+        rp_approval_state: ['in.(APPROVAL_PENDING)'],
+        rp_state: ['in.(APPROVER_PENDING)'],
+        sequential_approval_turn: ['in.(true)'],
+        aggregates: 'count(rp_id),sum(rp_amount)',
+        scalar: true,
+      };
+
+      reportService.getReportStatsData(apiReportStatsRawParam).subscribe((res) => {
+        expect(res).toEqual(expectedReportRawStats);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports/stats', { params });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get report stats data when default stats has been set to false', (done) => {
+      mockExtendedOrgUser();
+      apiv2Service.get.and.returnValue(of(apiReportStatsRawRes));
+
+      const params = {
+        approved_by: 'cs.{ouCI4UQ2G0K1}',
+        rp_approval_state: ['in.(APPROVAL_PENDING)'],
+        rp_state: ['in.(APPROVER_PENDING)'],
+        sequential_approval_turn: ['in.(true)'],
+        aggregates: 'count(rp_id),sum(rp_amount)',
+        scalar: true,
+      };
+
+      reportService.getReportStatsData(apiReportStatsRawParam, false).subscribe((res) => {
+        expect(res).toEqual(expectedReportRawStats);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports/stats', { params });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
   });
 

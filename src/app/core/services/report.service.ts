@@ -513,7 +513,7 @@ export class ReportService {
     // dateRange.from and dateRange.to needs to a valid date string (if present)
     // Example: dateRange.from = 'Jan 1, 2015', dateRange.to = 'Dec 31, 2017'
 
-    if (search.dateRange && search.dateRange.from && search.dateRange.to) {
+    if (search.dateRange && !isEqual(search.dateRange, {})) {
       // TODO: Fix before 2025
       let fromDate = new Date('Jan 1, 1970');
       let toDate = new Date('Dec 31, 2025');
