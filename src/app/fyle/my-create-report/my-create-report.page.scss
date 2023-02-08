@@ -62,9 +62,10 @@
   &--zero-state {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 80%;
     align-items: center;
     text-align: center;
+    justify-content: center;
 
     &-img {
       margin: 32px;
@@ -92,28 +93,5 @@
     font-size: 14px;
     padding: 16px 16px;
     background-color: $pure-white;
-  }
-
-  &--add-more-container {
-    padding: 16px;
-    display: flex;
-    margin-top: 12px;
-  }
-
-  &--add-more-icon-container {
-    color: $brand-primary !important;
-  }
-
-  &--add-more-icon {
-    font-size: 20px;
-    height: 20px;
-    width: 20px;
-  }
-
-  &--add-more-text {
-    margin-left: 5px;
-    color: $black-light;
-    font-weight: 500;
-    font-size: 14px;
   }
 }
