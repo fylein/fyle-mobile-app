@@ -43,9 +43,9 @@ import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
 import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 import * as lodash from 'lodash';
-import { txnList } from '../mock-data/transaction.data';
+import { txnData, txnData2, txnList } from '../mock-data/transaction.data';
 import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
-import { fileObjectData } from '../mock-data/file-object.data';
+import { fileObjectData, fileObjectData1, fileObjectData2 } from '../mock-data/file-object.data';
 import { AccountType } from '../enums/account-type.enum';
 import { orgUserSettingsData, orgUserSettingsData2 } from '../mock-data/org-user-settings.data';
 import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
@@ -1483,6 +1483,18 @@ describe('TransactionService', () => {
       });
       expect(orgUserSettingsService.get).toHaveBeenCalled();
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('createTxnWithFiles(): should create transaction with files', (done) => {
+    spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
+    fileService.post.and.returnValue(of(fileObjectData2));
+
+    transactionService.createTxnWithFiles(txnData, of(fileObjectData1)).subscribe((res) => {
+      expect(res).toEqual(txnData2);
+      expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData);
+      expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData2);
       done();
     });
   });
