@@ -85,7 +85,7 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -1334,29 +1334,29 @@ export class AddEditPerDiemPage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
-          combineLatest([
-            this.etxn$,
-            selectedPaymentMode$,
-            selectedProject$,
-            selectedSubCategory$,
-            selectedPerDiemOption$,
-            this.txnFields$,
-            selectedReport$,
-            selectedCostCenter$,
-            selectedCustomInputs$,
-            defaultPaymentMode$,
-            orgUserSettings$,
-            orgSettings$,
-            this.recentlyUsedValues$,
-            this.recentlyUsedProjects$,
-            this.recentlyUsedCostCenters$,
-          ])
+          forkJoin({
+            etxn: this.etxn$,
+            paymentMode: selectedPaymentMode$,
+            project: selectedProject$,
+            subCategory: selectedSubCategory$,
+            perDiemRate: selectedPerDiemOption$,
+            txnFields: this.txnFields$.pipe(take(1)),
+            report: selectedReport$,
+            costCenter: selectedCostCenter$,
+            customInputs: selectedCustomInputs$,
+            defaultPaymentMode: defaultPaymentMode$,
+            orgUserSettings: orgUserSettings$,
+            orgSettings: orgSettings$,
+            recentValue: this.recentlyUsedValues$,
+            recentProjects: this.recentlyUsedProjects$,
+            recentCostCenters: this.recentlyUsedCostCenters$,
+          })
         ),
         take(1),
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(
-        ([
+        ({
           etxn,
           paymentMode,
           project,
@@ -1372,23 +1372,37 @@ export class AddEditPerDiemPage implements OnInit {
           recentValue,
           recentProjects,
           recentCostCenters,
-        ]) => {
-          const customInputValues = customInputs.map((customInput) => {
-            const cpor =
-              etxn.tx.custom_properties &&
-              etxn.tx.custom_properties.find((customProp) => customProp.name === customInput.name);
-            if (customInput.type === 'DATE') {
-              return {
-                name: customInput.name,
-                value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
-              };
-            } else {
-              return {
-                name: customInput.name,
-                value: (cpor && cpor.value) || null,
-              };
-            }
-          });
+        }) => {
+          const dependentFields: ExpenseField[] = customInputs
+            .filter((customInput) => customInput.type === 'DEPENDENT_SELECT')
+            .map((dependentField) => ({
+              ...dependentField,
+              is_mandatory: dependentField.mandatory,
+              field_name: dependentField.name,
+            }));
+
+          if (dependentFields?.length && project) {
+            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, txnFields.project_id?.id);
+          }
+
+          const customInputValues = customInputs
+            .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
+            .map((customInput) => {
+              const cpor =
+                etxn.tx.custom_properties &&
+                etxn.tx.custom_properties.find((customProp) => customProp.name === customInput.name);
+              if (customInput.type === 'DATE') {
+                return {
+                  name: customInput.name,
+                  value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
+                };
+              } else {
+                return {
+                  name: customInput.name,
+                  value: (cpor && cpor.value) || null,
+                };
+              }
+            });
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
@@ -1458,7 +1472,6 @@ export class AddEditPerDiemPage implements OnInit {
 
           this.fg.patchValue({
             paymentMode: paymentMode || defaultPaymentMode,
-            project,
             sub_category: subCategory,
             per_diem_rate: perDiemRate,
             purpose: etxn.tx.purpose,
@@ -1470,6 +1483,8 @@ export class AddEditPerDiemPage implements OnInit {
             duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
             costCenter,
           });
+
+          this.fg.patchValue({ project }, { emitEvent: false });
 
           this.initialFetch = false;
 
@@ -2281,12 +2296,12 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   //TODO: Add type of dependentField. It's a mix of legacy and platform as expense_fields is still using legacy APIs.
-  private addDependentField(dependentField): void {
+  private addDependentField(dependentField, value = null): void {
     const dependentFieldControl = this.fb.group({
       id: dependentField.id,
       label: dependentField.field_name,
       parent_field_id: dependentField.parent_field_id,
-      value: [null, (dependentField.is_mandatory || null) && Validators.required],
+      value: [value, (dependentField.is_mandatory || null) && Validators.required],
     });
 
     dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
@@ -2316,12 +2331,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.dependentFields = this.dependentFields.slice(0, updatedFieldIndex + 1);
   }
 
-  private onDependentFieldChanged(data: {
-    id: number;
-    label: string;
-    parent_field_id: number;
-    value: PlatformDependentFieldValue;
-  }): void {
+  private onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
     const updatedFieldIndex = this.dependentFieldControls.value.findIndex((depField) => depField.label === data.label);
 
     //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
@@ -2331,12 +2341,36 @@ export class AddEditPerDiemPage implements OnInit {
 
     //Create new dependent field based on this field
     this.isDependentFieldLoading = true;
-    this.getDependentField(data.id, data.value.expense_field_value)
+    this.getDependentField(data.id, data.value)
       .pipe(finalize(() => (this.isDependentFieldLoading = false)))
       .subscribe((dependentField) => {
         if (dependentField) {
           this.addDependentField(dependentField);
         }
       });
+  }
+
+  //Recursive method to add dependent fields with value
+  private addDependentFieldWithValue(
+    txCustomProperties: CustomProperty<string>[],
+    dependentFields: ExpenseField[],
+    parentFieldId: number
+  ) {
+    //Get dependent field for the field whose id is parentFieldId
+    const dependentField = dependentFields.find((dependentField) => dependentField.parent_field_id === parentFieldId);
+
+    if (dependentField) {
+      //Get selected value for dependent field
+      const dependentFieldValue = txCustomProperties.find(
+        (customProp) => customProp.name === dependentField.field_name
+      );
+      //Add dependent field with selected value
+      this.addDependentField(dependentField, dependentFieldValue?.value);
+
+      //Add field which is dependent on the depenent field (if present)
+      if (dependentFieldValue?.value) {
+        this.addDependentFieldWithValue(txCustomProperties, dependentFields, dependentField.id);
+      }
+    }
   }
 }

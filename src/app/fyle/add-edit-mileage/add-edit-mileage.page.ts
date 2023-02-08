@@ -1422,8 +1422,8 @@ export class AddEditMileagePage implements OnInit {
               field_name: dependentField.name,
             }));
 
-          if (dependentFields?.length && txnFields.project_id?.id) {
-            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, txnFields.project_id.id);
+          if (dependentFields?.length && project) {
+            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, txnFields.project_id?.id);
           }
 
           const customInputValues = customInputs
