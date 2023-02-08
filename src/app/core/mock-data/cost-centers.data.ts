@@ -34,7 +34,50 @@ export const transformedCostCenterData: CostCenter[] = [
   },
 ];
 
-export const transformedCostCenterDataSingle: CostCenter[] = [
+export const expectedData: CostCenter[] = [
+  {
+    active: true,
+    code: null,
+    created_at: new Date('2019-06-24T15:12:04.002242+00:00'),
+    description: null,
+    id: 2411,
+    name: 'SMS1',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2019-06-24T15:12:05.002242+00:00'),
+  },
+  {
+    active: true,
+    code: 'aadsf',
+    created_at: new Date('2019-08-13T14:18:54.500829+00:00'),
+    description: 'adsf',
+    id: 2428,
+    name: 'test cost',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2019-08-13T14:18:55.500829+00:00'),
+  },
+  {
+    active: true,
+    code: null,
+    created_at: new Date('2019-10-30T07:16:37.975193+00:00'),
+    description: null,
+    id: 3247,
+    name: 'asdbusakhdm',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2019-10-30T07:16:38.975193+00:00'),
+  },
+  {
+    active: true,
+    code: 'ad',
+    created_at: new Date('2019-10-30T08:25:54.040980+00:00'),
+    description: 'ad',
+    id: 3260,
+    name: 'ab',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2022-05-19T11:58:29.364759+00:00'),
+  },
+];
+
+export const CostCenterServiceSingleResponse: CostCenter[] = [
   {
     active: true,
     code: 'code',
@@ -45,14 +88,50 @@ export const transformedCostCenterDataSingle: CostCenter[] = [
     org_id: 'orNVthTo2Zyo',
     updated_at: new Date('2019-01-08T10:51:37.721398+00:00'),
   },
+];
+
+export const apiCostServiceFirst: CostCenter[] = [
   {
     active: true,
-    code: 'Administrion',
-    created_at: new Date('2019-02-01T06:42:26.089771+00:00'),
-    description: 'Administar4rtion',
-    id: 85,
-    name: 'Administration',
+    code: null,
+    created_at: new Date('2019-06-24T15:12:04.002242+00:00'),
+    description: null,
+    id: 2411,
+    name: 'SMS1',
     org_id: 'orNVthTo2Zyo',
-    updated_at: new Date('2019-02-01T06:58:37.247798+00:00'),
+    updated_at: new Date('2019-06-24T15:12:05.002242+00:00'),
+  },
+  {
+    active: true,
+    code: 'aadsf',
+    created_at: new Date('2019-08-13T14:18:54.500829+00:00'),
+    description: 'adsf',
+    id: 2428,
+    name: 'test cost',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2019-08-13T14:18:55.500829+00:00'),
+  },
+];
+
+export const apiCostServiceSecond: CostCenter[] = [
+  {
+    active: true,
+    code: null,
+    created_at: new Date('2019-10-30T07:16:37.975193+00:00'),
+    description: null,
+    id: 3247,
+    name: 'asdbusakhdm',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2019-10-30T07:16:38.975193+00:00'),
+  },
+  {
+    active: true,
+    code: 'ad',
+    created_at: new Date('2019-10-30T08:25:54.040980+00:00'),
+    description: 'ad',
+    id: 3260,
+    name: 'ab',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2022-05-19T11:58:29.364759+00:00'),
   },
 ];
