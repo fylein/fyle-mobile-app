@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { DatePipe } from '@angular/common';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { apiReportStatsRawRes, apiReportStatsRes } from '../../core/mock-data/stats-response.data';
 import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
@@ -11,9 +11,17 @@ import {
   apiTeamRptCountRes,
   apiTeamRptSingleRes,
   apiTeamReportPaginated1,
-  apiAllReportsRes,
+  apiAllReportsRes1,
+  apiAllReportsRes2,
 } from '../mock-data/api-reports.data';
-import { addApproversParam, apiAllApproverRes2, apiApproverRes, expectedApprovers } from '../mock-data/approver.data';
+import {
+  addApproversParam,
+  apiAllApproverRes1,
+  apiAllApproverRes2,
+  apiApproverRes,
+  expectedApprovers,
+  expectedAllApprovers,
+} from '../mock-data/approver.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { orgSettingsParams } from '../mock-data/org-settings.data';
@@ -43,6 +51,7 @@ import {
 import {
   apiExtendedReportRes,
   expectedAllReports,
+  expectedPaginatedReports,
   expectedReportSingleResponse,
   reportParam,
 } from '../mock-data/report.data';
@@ -595,13 +604,7 @@ describe('ReportService', () => {
     });
 
     it('should return null if auto submission is not scheduled', (done) => {
-      spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(
-        of({
-          data: {
-            next_at: null,
-          },
-        })
-      );
+      spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(of({ data: null }));
 
       reportService.getAutoSubmissionReportName().subscribe((res) => {
         expect(res).toBeNull();
@@ -689,13 +692,24 @@ describe('ReportService', () => {
     });
   });
 
-  it('getReportPermissions(): should get report permissions', (done) => {
-    permissionsService.allowedActions.and.returnValue(of(reportAllowedActionsResponse));
+  describe('getReportPermissions', () => {
+    it('should get report permissions', (done) => {
+      permissionsService.allowedActions.and.returnValue(of(reportAllowedActionsResponse));
+      reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
+        expect(res).toEqual(reportAllowedActionsResponse);
+        expect(permissionsService.allowedActions).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
 
-    reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
-      expect(res).toEqual(reportAllowedActionsResponse);
-      expect(permissionsService.allowedActions).toHaveBeenCalledTimes(1);
-      done();
+    xit('should throw an error', (done) => {
+      permissionsService.allowedActions.and.returnValue(of(throwError(() => new Error('Some error'))));
+      reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
+        // expect(res).toEqual(reportAllowedActionsResponse);
+        console.log(res);
+        // expect(permissionsService.allowedActions).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
   });
 
@@ -730,30 +744,72 @@ describe('ReportService', () => {
     });
   });
 
-  it('getAllExtendedReports(): should get all reports', (done) => {
-    spyOn(reportService, 'getMyReportsCount').and.returnValue(of(2));
-    spyOn(reportService, 'getMyReports').and.returnValue(of(apiAllReportsRes));
+  describe('getAllExtendedReports():', () => {
+    it('should get all reports, single page data', (done) => {
+      spyOn(reportService, 'getMyReportsCount').and.returnValue(of(2));
+      spyOn(reportService, 'getMyReports').and.returnValue(of(apiAllReportsRes1));
 
-    const params = {
-      queryParams: {
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      },
-    };
+      const params = {
+        queryParams: {
+          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        },
+      };
 
-    const getMyReportsParam = {
-      offset: 0,
-      limit: 2,
-      queryParams: {
-        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-      },
-      order: undefined,
-    };
+      const getMyReportsParam = {
+        offset: 0,
+        limit: 2,
+        queryParams: {
+          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        },
+        order: undefined,
+      };
 
-    reportService.getAllExtendedReports(params).subscribe((res) => {
-      expect(res).toEqual(expectedAllReports);
-      expect(reportService.getMyReports).toHaveBeenCalledOnceWith(getMyReportsParam);
-      expect(reportService.getMyReportsCount).toHaveBeenCalledOnceWith(params.queryParams);
-      done();
+      reportService.getAllExtendedReports(params).subscribe((res) => {
+        expect(res).toEqual(expectedAllReports);
+        expect(reportService.getMyReports).toHaveBeenCalledOnceWith(getMyReportsParam);
+        expect(reportService.getMyReportsCount).toHaveBeenCalledOnceWith(params.queryParams);
+        done();
+      });
+    });
+
+    it('should get all reports, multiple pages data', (done) => {
+      const getMyReportsSpy = spyOn(reportService, 'getMyReports');
+      const params = {
+        queryParams: {
+          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        },
+      };
+
+      const getMyReportsParam1 = {
+        offset: 0,
+        limit: 2,
+        queryParams: {
+          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        },
+        order: undefined,
+      };
+
+      const getMyReportsParam2 = {
+        offset: 2,
+        limit: 2,
+        queryParams: {
+          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        },
+        order: undefined,
+      };
+
+      spyOn(reportService, 'getMyReportsCount').and.returnValue(of(3));
+      getMyReportsSpy.withArgs(getMyReportsParam1).and.returnValue(of(apiAllReportsRes1));
+      getMyReportsSpy.withArgs(getMyReportsParam2).and.returnValue(of(apiAllReportsRes2));
+
+      reportService.getAllExtendedReports(params).subscribe((res) => {
+        expect(res).toEqual(expectedPaginatedReports);
+        expect(reportService.getMyReports).toHaveBeenCalledWith(getMyReportsParam1);
+        expect(reportService.getMyReports).toHaveBeenCalledWith(getMyReportsParam2);
+        expect(reportService.getMyReports).toHaveBeenCalledTimes(2);
+        expect(reportService.getMyReportsCount).toHaveBeenCalledOnceWith(params.queryParams);
+        done();
+      });
     });
   });
 
@@ -793,24 +849,43 @@ describe('ReportService', () => {
     });
   });
 
-  it('getApproversInBulk(): should get approvers in bulk for all report IDs', (done) => {
-    apiService.get.and.returnValue(of(apiAllApproverRes2));
+  describe('getApproversInBulk()', () => {
+    it('should get approvers in bulk for all report IDs | single page', (done) => {
+      apiService.get.and.returnValue(of(apiAllApproverRes2));
 
-    reportService.getApproversInBulk(apiApproversParam).subscribe((res) => {
-      expect(res).toEqual(expectedApprovers);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/reports/approvers', {
-        params: { report_ids: apiApproversParam },
+      reportService.getApproversInBulk(apiApproversParam).subscribe((res) => {
+        expect(res).toEqual(expectedApprovers);
+        expect(apiService.get).toHaveBeenCalledOnceWith('/reports/approvers', {
+          params: { report_ids: apiApproversParam },
+        });
+        done();
       });
-      done();
     });
-  });
 
-  it('getApproversInBulk(): should return an empty list as report IDs are empty', (done) => {
-    apiService.get.and.returnValue(of(apiAllApproverRes2));
+    it('should return an empty list as report IDs are empty', (done) => {
+      apiService.get.and.returnValue(of(apiAllApproverRes2));
 
-    reportService.getApproversInBulk([]).subscribe((res) => {
-      expect(res).toEqual([]);
-      done();
+      reportService.getApproversInBulk([]).subscribe((res) => {
+        expect(res).toEqual([]);
+        done();
+      });
+    });
+
+    it('should get approvers in bulk for all report IDs | multiple page', (done) => {
+      const report_ids = ['rpvwqzb9Jqq0', 'rpvcIMRMyM3A', 'rpDyD26O3qpV', 'rpqzKD4bPXpW'];
+      const param1 = { params: { report_ids: report_ids.slice(0, 2) } };
+      const param2 = { params: { report_ids: report_ids.slice(2, 4) } };
+
+      apiService.get.withArgs('/reports/approvers', param1).and.returnValue(of(apiAllApproverRes1));
+      apiService.get.withArgs('/reports/approvers', param2).and.returnValue(of(apiAllApproverRes2));
+
+      reportService.getApproversInBulk(report_ids).subscribe((res) => {
+        expect(res).toEqual(expectedAllApprovers);
+        expect(apiService.get).toHaveBeenCalledWith('/reports/approvers', param1);
+        expect(apiService.get).toHaveBeenCalledWith('/reports/approvers', param2);
+        expect(apiService.get).toHaveBeenCalledTimes(2);
+        done();
+      });
     });
   });
 
