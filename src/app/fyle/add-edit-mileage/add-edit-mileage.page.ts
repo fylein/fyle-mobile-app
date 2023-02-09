@@ -600,6 +600,25 @@ export class AddEditMileagePage implements OnInit {
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
       switchMap((category) => {
+        let selectedCategory$;
+        if (this.initialFetch) {
+          selectedCategory$ = this.etxn$.pipe(
+            switchMap((etxn) =>
+              iif(
+                () => etxn.tx.org_category_id,
+                this.categoriesService
+                  .getAll()
+                  .pipe(
+                    map((categories) =>
+                      categories.find((innerCategory) => innerCategory.id === etxn.tx.org_category_id)
+                    )
+                  ),
+                of(null)
+              )
+            )
+          );
+        }
+
         if (category && !isEmpty(category)) {
           return of(category);
         } else {
@@ -1108,15 +1127,9 @@ export class AddEditMileagePage implements OnInit {
             billable: this.fg.controls.billable,
           };
 
-          for (const control of Object.keys(keyToControlMap)) {
-            keyToControlMap[control].clearValidators();
-            if (control === 'project_id') {
-              keyToControlMap[control].updateValueAndValidity({
-                emitEvent: false,
-              });
-            } else {
-              keyToControlMap[control].updateValueAndValidity();
-            }
+          for (const control of Object.values(keyToControlMap)) {
+            control.clearValidators();
+            control.updateValueAndValidity();
           }
 
           for (const txnFieldKey of intersection(Object.keys(keyToControlMap), Object.keys(txnFields))) {
@@ -1140,18 +1153,10 @@ export class AddEditMileagePage implements OnInit {
                 control.setValidators(isConnected ? Validators.required : null);
               }
             }
-            if (txnFieldKey === 'project_id') {
-              control.updateValueAndValidity({
-                emitEvent: false,
-              });
-            } else {
-              control.updateValueAndValidity();
-            }
+            control.updateValueAndValidity();
           }
-          console.log('triggered');
-          this.fg.updateValueAndValidity({
-            emitEvent: false,
-          });
+
+          this.fg.updateValueAndValidity();
         }
       );
 
@@ -1559,13 +1564,8 @@ export class AddEditMileagePage implements OnInit {
       .pipe(
         takeUntil(this.onPageExit$),
         filter((val) => !!val),
-        distinctUntilChanged((a, b) => {
-          console.log('a', a);
-          console.log('b', b);
-          return a.project_id === b.project_id;
-        }),
-        tap((e) => {
-          console.log(e);
+        distinctUntilChanged(),
+        tap(() => {
           this.isDependentFieldLoading = true;
           this.dependentFieldControls.clear();
           this.dependentFields = [];
