@@ -263,7 +263,7 @@ describe('ReportService', () => {
   });
 
   describe('getMyReports()', () => {
-    it('getMyReports(): should get reports from API as specified by params', (done) => {
+    it('should get reports from API as specified by params', (done) => {
       mockExtendedOrgUser();
       mockReports();
       spyOn(dateService, 'fixDates').and.returnValues(
@@ -289,7 +289,7 @@ describe('ReportService', () => {
       });
     });
 
-    it('getMyReports(): should get reports from API when no order is specified', (done) => {
+    it('should get reports from API when no order is specified', (done) => {
       mockExtendedOrgUser();
       mockReports();
       spyOn(dateService, 'fixDates').and.returnValues(
@@ -354,12 +354,9 @@ describe('ReportService', () => {
     reportService.getERpt(reportID).subscribe((res) => {
       expect(res).toEqual(expectedSingleErpt);
       expect(apiService.get).toHaveBeenCalledOnceWith(`/erpts/${reportID}`);
-      expect(dataTransformService.unflatten).toHaveBeenCalledWith(apiExtendedReportRes[0]);
-      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
-      expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedErptc.rp);
-      expect(dateService.fixDates).toHaveBeenCalledTimes(1);
-      expect(dateService.getLocalDate).toHaveBeenCalledWith(unflattenedErptc.rp.created_at);
-      expect(dateService.getLocalDate).toHaveBeenCalledTimes(1);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(apiExtendedReportRes[0]);
+      expect(dateService.fixDates).toHaveBeenCalledOnceWith(unflattenedErptc.rp);
+      expect(dateService.getLocalDate).toHaveBeenCalledOnceWith(unflattenedErptc.rp.created_at);
       done();
     });
   });
@@ -681,7 +678,7 @@ describe('ReportService', () => {
     });
   });
 
-  describe('getReportPermissions', () => {
+  describe('getReportPermissions()', () => {
     it('should get report permissions', (done) => {
       permissionsService.allowedActions.and.returnValue(of(reportAllowedActionsResponse));
       reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
