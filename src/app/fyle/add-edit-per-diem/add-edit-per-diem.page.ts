@@ -1438,6 +1438,9 @@ export class AddEditPerDiemPage implements OnInit {
             if (autoFillProject) {
               project = autoFillProject;
               this.presetProjectId = project.project_id;
+
+              //Patch project value to trigger valueChanges which shows dependent field if present
+              this.fg.patchValue({ project });
             }
           }
 
