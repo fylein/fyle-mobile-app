@@ -600,25 +600,6 @@ export class AddEditMileagePage implements OnInit {
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
       switchMap((category) => {
-        let selectedCategory$;
-        if (this.initialFetch) {
-          selectedCategory$ = this.etxn$.pipe(
-            switchMap((etxn) =>
-              iif(
-                () => etxn.tx.org_category_id,
-                this.categoriesService
-                  .getAll()
-                  .pipe(
-                    map((categories) =>
-                      categories.find((innerCategory) => innerCategory.id === etxn.tx.org_category_id)
-                    )
-                  ),
-                of(null)
-              )
-            )
-          );
-        }
-
         if (category && !isEmpty(category)) {
           return of(category);
         } else {
@@ -1127,9 +1108,15 @@ export class AddEditMileagePage implements OnInit {
             billable: this.fg.controls.billable,
           };
 
-          for (const control of Object.values(keyToControlMap)) {
+          for (const [key, control] of Object.entries(keyToControlMap)) {
             control.clearValidators();
-            control.updateValueAndValidity();
+            if (key === 'project_id') {
+              control.updateValueAndValidity({
+                emitEvent: false,
+              });
+            } else {
+              control.updateValueAndValidity();
+            }
           }
 
           for (const txnFieldKey of intersection(Object.keys(keyToControlMap), Object.keys(txnFields))) {
@@ -1153,10 +1140,17 @@ export class AddEditMileagePage implements OnInit {
                 control.setValidators(isConnected ? Validators.required : null);
               }
             }
-            control.updateValueAndValidity();
+            if (txnFieldKey === 'project_id') {
+              control.updateValueAndValidity({
+                emitEvent: false,
+              });
+            } else {
+              control.updateValueAndValidity();
+            }
           }
-
-          this.fg.updateValueAndValidity();
+          this.fg.updateValueAndValidity({
+            emitEvent: false,
+          });
         }
       );
 
