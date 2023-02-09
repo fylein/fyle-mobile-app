@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject, forkJoin, noop, Observable } from 'rxjs';
+import { BehaviorSubject, forkJoin, noop, Observable, of } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
@@ -144,6 +144,8 @@ export class MergeExpensePage implements OnInit {
 
   systemCategories: string[];
 
+  dependentFields$: Observable<CustomInputs[]>;
+
   constructor(
     private router: Router,
     private categoriesService: CategoriesService,
@@ -177,6 +179,7 @@ export class MergeExpensePage implements OnInit {
       genericFields: [],
       categoryDependent: [],
       custom_inputs: [],
+      dependent_fields: [],
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
@@ -564,10 +567,13 @@ export class MergeExpensePage implements OnInit {
   }
 
   setupCustomInputs() {
+    const allCustomFields$ = this.customInputsService.getAll(true);
+
     this.customInputs$ = this.loadCustomFields$.pipe(
       startWith(null),
       switchMap((categoryId: string) =>
-        this.customInputsService.getAll(true).pipe(
+        allCustomFields$.pipe(
+          map((fields) => fields.filter((field) => field.type !== 'DEPENDENT_SELECT')),
           switchMap((fields) => {
             const customFields = this.customFieldsService.standardizeCustomFields(
               this.fg.controls.custom_inputs?.value?.fields || [],
@@ -587,6 +593,24 @@ export class MergeExpensePage implements OnInit {
         }
       })
     );
+
+    this.dependentFields$ = allCustomFields$.pipe(
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
+      switchMap((fields) => {
+        console.log('SWitchmap customFields', fields);
+        const customFields = this.customFieldsService.standardizeCustomFields([], fields);
+        console.log('AFTER SWitchmap customFields', customFields);
+
+        return of(customFields);
+      })
+      // reduce((acc, curr) => {
+      //   // console.log('ACC -> ', acc, 'CURR -> ', curr);
+      //   acc.push(curr);
+      //   return acc;
+      // }, [])
+    );
+
+    this.dependentFields$.subscribe((val) => console.log('Dep fields', val));
   }
 
   patchCustomInputsValues(customInputs) {

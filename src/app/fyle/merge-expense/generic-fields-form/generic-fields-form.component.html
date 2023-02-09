@@ -173,6 +173,15 @@
     </ion-grid>
   </div>
 
+  <ng-container *ngIf="dependentFields?.length && genericFieldsFormGroup.controls.project.value">
+    <app-project-dependent-custom-fields-form
+      formControlName="dependent_fields"
+      [disableFormElements]="disableFormElements"
+      [customInputs]="dependentFields"
+      [combinedCustomProperties]="combinedCustomProperties"
+    ></app-project-dependent-custom-fields-form>
+  </ng-container>
+
   <div
     [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.vendor.value }"
     class="merge-expenses--internal-block"

@@ -1,13 +1,10 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { EventEmitter, Injector, Output, TemplateRef } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import {
-  FormControl,
   FormGroup,
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
   FormBuilder,
-  Validators,
   FormArray,
   AbstractControl,
 } from '@angular/forms';
@@ -24,7 +21,7 @@ type OptionsData = Partial<{
   value: any;
 }>;
 
-type CustomInputs = Partial<{
+type CustomInput = Partial<{
   control: AbstractControl;
   id: string;
   mandatory: boolean;
@@ -34,19 +31,21 @@ type CustomInputs = Partial<{
   prefix: string;
   type: string;
   value: string;
+  parent_field_id: number;
 }>;
+
 interface CombinedOptions {
   [key: string]: OptionsData;
 }
 
 @Component({
-  selector: 'app-custom-inputs-fields-form',
-  templateUrl: './custom-inputs-fields-form.component.html',
-  styleUrls: ['./custom-inputs-fields-form.component.scss'],
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CustomInputsFieldsFormComponent, multi: true }],
+  selector: 'app-project-dependent-custom-fields-form',
+  templateUrl: './project-dependent-custom-fields-form.component.html',
+  styleUrls: ['./project-dependent-custom-fields-form.component.scss'],
+  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: ProjectDependentCustomFieldsFormComponent, multi: true }],
 })
-export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges {
-  @Input() customInputs: CustomInputs[];
+export class ProjectDependentCustomFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges {
+  @Input() customInputs: CustomInput[];
 
   @Input() combinedCustomProperties: CombinedOptions;
 
@@ -56,9 +55,9 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
 
   customFieldsForm: FormGroup;
 
-  customFields: CustomInputs[];
+  customFields: CustomInput[];
 
-  constructor(private formBuilder: FormBuilder, private injector: Injector) {}
+  constructor(private formBuilder: FormBuilder) {}
 
   ngOnInit() {
     this.customFieldsForm = this.formBuilder.group({
@@ -94,8 +93,9 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
     if (this.customFieldsForm?.controls) {
       this.generateCustomForm();
     }
-    // console.log('customInputs', this.customInputs);
-    // console.log('combinedCustomProperties', this.combinedCustomProperties);
+
+    console.log('dependentFieldCustomInputs', this.customInputs);
+    console.log('combinedCustomProperties', this.combinedCustomProperties);
   }
 
   writeValue(value: any) {

@@ -8,6 +8,7 @@ import {
   NG_VALUE_ACCESSOR,
   FormBuilder,
   Validators,
+  AbstractControl,
 } from '@angular/forms';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 
@@ -21,6 +22,19 @@ type OptionsData = Partial<{
   areSameValues: boolean;
   name: string;
   value: any;
+}>;
+
+type CustomInput = Partial<{
+  control: AbstractControl;
+  id: string;
+  mandatory: boolean;
+  name: string;
+  options: Option[];
+  placeholder: string;
+  prefix: string;
+  type: string;
+  value: string;
+  parent_field_id: number;
 }>;
 
 @Component({
@@ -62,6 +76,10 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Input() disableFormElements: boolean;
 
+  @Input() combinedCustomProperties: OptionsData;
+
+  @Input() dependentFields: CustomInput[];
+
   @Output() fieldsTouched = new EventEmitter<string[]>();
 
   @Output() categoryChanged = new EventEmitter<void>();
@@ -90,6 +108,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
       tax_amount: [],
       costCenter: [],
       purpose: [],
+      dependent_fields: [],
     });
 
     this.genericFieldsFormGroup.controls.category.valueChanges.subscribe((categoryId) => {
