@@ -1108,14 +1108,14 @@ export class AddEditMileagePage implements OnInit {
             billable: this.fg.controls.billable,
           };
 
-          for (const control of Object.keys(keyToControlMap)) {
-            keyToControlMap[control].clearValidators();
-            if (control === 'project_id') {
-              keyToControlMap[control].updateValueAndValidity({
+          for (const [key, control] of Object.entries(keyToControlMap)) {
+            control.clearValidators();
+            if (key === 'project_id') {
+              control.updateValueAndValidity({
                 emitEvent: false,
               });
             } else {
-              keyToControlMap[control].updateValueAndValidity();
+              control.updateValueAndValidity();
             }
           }
 
@@ -1148,7 +1148,6 @@ export class AddEditMileagePage implements OnInit {
               control.updateValueAndValidity();
             }
           }
-          console.log('triggered');
           this.fg.updateValueAndValidity({
             emitEvent: false,
           });
@@ -1559,13 +1558,8 @@ export class AddEditMileagePage implements OnInit {
       .pipe(
         takeUntil(this.onPageExit$),
         filter((val) => !!val),
-        distinctUntilChanged((a, b) => {
-          console.log('a', a);
-          console.log('b', b);
-          return a.project_id === b.project_id;
-        }),
-        tap((e) => {
-          console.log(e);
+        distinctUntilChanged(),
+        tap(() => {
           this.isDependentFieldLoading = true;
           this.dependentFieldControls.clear();
           this.dependentFields = [];
