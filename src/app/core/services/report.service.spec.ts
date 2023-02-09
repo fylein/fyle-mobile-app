@@ -225,7 +225,6 @@ describe('ReportService', () => {
       expect(res).toEqual(reportUnflattenedData);
       expect(apiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      expect(reportService.clearTransactionCache).toHaveBeenCalled();
       done();
     });
   });
@@ -239,7 +238,6 @@ describe('ReportService', () => {
     reportService.submit(reportID).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/submit`);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      expect(reportService.clearTransactionCache).toHaveBeenCalled();
       done();
     });
   });
@@ -260,7 +258,6 @@ describe('ReportService', () => {
     reportService.removeTransaction(reportID, txnID, null).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      expect(reportService.clearTransactionCache).toHaveBeenCalled();
       done();
     });
   });
@@ -341,7 +338,6 @@ describe('ReportService', () => {
     reportService.getPaginatedERptc(0, apiExtendedReportRes.length, params).subscribe((res) => {
       expect(res).toEqual(expectedErpt);
       expect(apiService.get).toHaveBeenCalledOnceWith('/erpts', apiParams);
-      expect(dataTransformService.unflatten).toHaveBeenCalled();
       expect(dataTransformService.unflatten).toHaveBeenCalledTimes(4);
       done();
     });
@@ -359,7 +355,6 @@ describe('ReportService', () => {
       expect(res).toEqual(expectedSingleErpt);
       expect(apiService.get).toHaveBeenCalledOnceWith(`/erpts/${reportID}`);
       expect(dataTransformService.unflatten).toHaveBeenCalledWith(apiExtendedReportRes[0]);
-      expect(dataTransformService.unflatten).toHaveBeenCalled();
       expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
       expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedErptc.rp);
       expect(dateService.fixDates).toHaveBeenCalledTimes(1);
@@ -513,7 +508,6 @@ describe('ReportService', () => {
     reportService.addTransactions(reportID, tnxs).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, { ids: tnxs });
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      expect(reportService.clearTransactionCache).toHaveBeenCalled();
       done();
     });
   });
@@ -598,7 +592,6 @@ describe('ReportService', () => {
       reportService.getAutoSubmissionReportName().subscribe((res) => {
         expect(res).toEqual('(Automatic Submission On Feb 1)');
         expect(reportService.getReportAutoSubmissionDetails).toHaveBeenCalledTimes(1);
-        expect(reportService.getReportAutoSubmissionDetails).toHaveBeenCalled();
         done();
       });
     });
@@ -609,7 +602,6 @@ describe('ReportService', () => {
       reportService.getAutoSubmissionReportName().subscribe((res) => {
         expect(res).toBeNull();
         expect(reportService.getReportAutoSubmissionDetails).toHaveBeenCalledTimes(1);
-        expect(reportService.getReportAutoSubmissionDetails).toHaveBeenCalled();
         done();
       });
     });
@@ -669,7 +661,6 @@ describe('ReportService', () => {
     const reportID = 'rpShFuVCUIXk';
     reportService.delete(reportID).subscribe(() => {
       expect(apiService.delete).toHaveBeenCalledOnceWith(`/reports/${reportID}`);
-      expect(reportService.clearTransactionCache).toHaveBeenCalled();
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
@@ -684,8 +675,6 @@ describe('ReportService', () => {
       expect(res).toEqual(apiReportUpdatedDetails);
       expect(apiService.post).toHaveBeenCalledOnceWith('/reports', apiErptReporDataParam.rp);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      expect(reportService.clearTransactionCache).toHaveBeenCalled();
-      expect(dataTransformService.unflatten).toHaveBeenCalled();
       expect(dataTransformService.unflatten).toHaveBeenCalledWith(reportParam);
       expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
       done();
@@ -698,16 +687,6 @@ describe('ReportService', () => {
       reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
         expect(res).toEqual(reportAllowedActionsResponse);
         expect(permissionsService.allowedActions).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-
-    xit('should throw an error', (done) => {
-      permissionsService.allowedActions.and.returnValue(of(throwError(() => new Error('Some error'))));
-      reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
-        // expect(res).toEqual(reportAllowedActionsResponse);
-        console.log(res);
-        // expect(permissionsService.allowedActions).toHaveBeenCalledTimes(1);
         done();
       });
     });
