@@ -6,7 +6,7 @@ export interface UnflattenedReport {
   ou: OrgUser;
   rp: {
     amount: number;
-    approvals: {
+    approvals?: {
       [id: string]: {
         rank: number;
         state: string;
@@ -20,6 +20,8 @@ export interface UnflattenedReport {
     exported: boolean;
     from_dt: Date;
     id: string;
+    approval_state?: string;
+    verified?: boolean;
     location1: string;
     location2: string;
     location3: string;
