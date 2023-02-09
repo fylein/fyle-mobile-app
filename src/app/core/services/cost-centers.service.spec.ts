@@ -5,7 +5,6 @@ import { CostCentersService } from './cost-centers.service';
 import { of } from 'rxjs';
 import { apiCostCenterSingleResponse, apiCostCenterMultipleResponse } from '../mock-data/platformCostCenter.data';
 import {
-  transformedCostCenterData,
   apiCostServiceFirst,
   apiCostServiceSecond,
   CostCenterServiceSingleResponse,
@@ -77,7 +76,7 @@ describe('CostCentersService', () => {
     });
   });
 
-  it('getAllActive() :should return all active cost centers', () => {
+  it('getAllActive() : should return all active cost centers', () => {
     const spyGetCostCenters = spyOn(costCentersService, 'getCostCenters');
     const testParams1 = {
       offset: 0,
