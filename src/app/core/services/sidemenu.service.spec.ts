@@ -45,96 +45,104 @@ describe('SidemenuService', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
   });
 
-  it('should be created', () => {
-    expect(sidemenuService).toBeTruthy();
-  });
+  describe('getAllowedActions() :', () => {
+    it('should be created', () => {
+      expect(sidemenuService).toBeTruthy();
+    });
 
-  it('getAllowedActions() :should call get() and return the expected result', () => {
-    const allowedReportsActions = of(reportAllowedActionsResponse);
-    const allowedAdvancesActions = of(advanceAllowedActionsResponse);
-    orgSettingsService.get.and.returnValue(of(orgSettingsParams));
-    reportService.getReportPermissions.and.returnValue(allowedReportsActions);
-    permissionsService.allowedActions.and.returnValue(allowedAdvancesActions);
+    it('should call get() and return the expected result', () => {
+      const allowedReportsActions = of(reportAllowedActionsResponse);
+      const allowedAdvancesActions = of(advanceAllowedActionsResponse);
+      orgSettingsService.get.and.returnValue(of(orgSettingsParams));
+      reportService.getReportPermissions.and.returnValue(allowedReportsActions);
+      permissionsService.allowedActions.and.returnValue(allowedAdvancesActions);
 
-    sidemenuService.getAllowedActions().subscribe((result) => {
-      expect(orgSettingsService.get).toHaveBeenCalled();
-      expect(reportService.getReportPermissions).toHaveBeenCalledWith(orgSettingsParams);
-      expect(permissionsService.allowedActions).toHaveBeenCalledWith(
-        'advances',
-        ['approve', 'create', 'delete'],
-        orgSettingsParams
-      );
-      expect(result).toEqual({
-        allowedReportsActions: reportAllowedActionsResponse,
-        allowedAdvancesActions: advanceAllowedActionsResponse,
+      sidemenuService.getAllowedActions().subscribe((result) => {
+        expect(orgSettingsService.get).toHaveBeenCalled();
+        expect(reportService.getReportPermissions).toHaveBeenCalledWith(orgSettingsParams);
+        expect(permissionsService.allowedActions).toHaveBeenCalledWith(
+          'advances',
+          ['approve', 'create', 'delete'],
+          orgSettingsParams
+        );
+        expect(result).toEqual({
+          allowedReportsActions: reportAllowedActionsResponse,
+          allowedAdvancesActions: advanceAllowedActionsResponse,
+        });
       });
     });
-  });
 
-  it('getAllActions() : should return the result of forkJoin when get method of OrgSettingsService returns value', () => {
-    orgSettingsService.get.and.returnValue(of(orgSettingsParams));
+    it('should return the result of forkJoin when get method of OrgSettingsService returns value', () => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsParams));
 
-    const allowedReportsActions = of(reportAllowedActionsResponse);
-    const allowedAdvancesActions = of(advanceAllowedActionsResponse);
-    reportService.getReportPermissions.and.returnValue(of(allowedReportsActions));
+      const allowedReportsActions = of(reportAllowedActionsResponse);
+      const allowedAdvancesActions = of(advanceAllowedActionsResponse);
+      reportService.getReportPermissions.and.returnValue(of(allowedReportsActions));
 
-    permissionsService.allowedActions.and.returnValue(of(allowedAdvancesActions));
+      permissionsService.allowedActions.and.returnValue(of(allowedAdvancesActions));
 
-    sidemenuService.getAllowedActions().subscribe((result) => {
-      expect(result).toEqual({ allowedReportsActions, allowedAdvancesActions });
-    });
-  });
-
-  it('getAllActions() : should return the expected result when advances and advance_requests are not enabled', () => {
-    const orgSettings = {
-      advance_requests: { enabled: false, allowed: false },
-      advances: { enabled: false, allowed: false },
-    };
-
-    const allowedReportsActions = of(reportAllowedActionsResponse);
-
-    orgSettingsService.get.and.returnValue(of(orgSettings));
-    reportService.getReportPermissions.and.returnValue(of(allowedReportsActions));
-
-    sidemenuService.getAllowedActions().subscribe((result) => {
-      expect(result).toEqual({
-        allowedReportsActions,
-        allowedAdvancesActions: null,
+      sidemenuService.getAllowedActions().subscribe((result) => {
+        expect(result).toEqual({ allowedReportsActions, allowedAdvancesActions });
       });
     });
-  });
 
-  it('getAllActions() : should call allowedActions from permissionsService if both the params are true, and return null if false', () => {
-    const orgSettings = {
-      advance_requests: { enabled: true, allowed: true },
-      advances: { enabled: false, allowed: false },
-    };
-    const allowedReportsActions = {};
-    const allowedAdvancesActions = {};
+    it('should return the expected result when advances and advance_requests are not enabled', () => {
+      const orgSettings = {
+        advance_requests: { enabled: false, allowed: false },
+        advances: { enabled: false, allowed: false },
+      };
 
-    orgSettingsService.get.and.returnValue(of(orgSettings));
-    reportService.getReportPermissions.and.returnValue(of(allowedReportsActions));
-    permissionsService.allowedActions.and.returnValue(of(allowedAdvancesActions));
+      const allowedReportsActions = of(reportAllowedActionsResponse);
 
-    sidemenuService.getAllowedActions().subscribe((result) => {
-      expect(result).toEqual({ allowedReportsActions, allowedAdvancesActions });
-      expect(permissionsService.allowedActions).toHaveBeenCalledWith(
-        'advances',
-        ['approve', 'create', 'delete'],
-        orgSettings
-      );
+      orgSettingsService.get.and.returnValue(of(orgSettings));
+      reportService.getReportPermissions.and.returnValue(of(allowedReportsActions));
+
+      sidemenuService.getAllowedActions().subscribe((result) => {
+        expect(orgSettingsService.get).toHaveBeenCalled();
+        expect(reportService.getReportPermissions).toHaveBeenCalledWith(orgSettings);
+        expect(result).toEqual({
+          allowedReportsActions,
+          allowedAdvancesActions: null,
+        });
+      });
     });
 
-    const orgSettings2 = {
-      advance_requests: { enabled: false, allowed: false },
-      advances: { enabled: false, allowed: false },
-    };
+    it('should call allowedActions from permissionsService if both the params are true, and return null if false', () => {
+      const orgSettings = {
+        advance_requests: { enabled: true, allowed: true },
+        advances: { enabled: false, allowed: false },
+      };
+      const allowedReportsActions = {};
+      const allowedAdvancesActions = {};
 
-    orgSettingsService.get.and.returnValue(of(orgSettings2));
+      orgSettingsService.get.and.returnValue(of(orgSettings));
+      reportService.getReportPermissions.and.returnValue(of(allowedReportsActions));
+      permissionsService.allowedActions.and.returnValue(of(allowedAdvancesActions));
 
-    sidemenuService.getAllowedActions().subscribe((result) => {
-      expect(result).toEqual({ allowedReportsActions, allowedAdvancesActions: null });
-      expect(permissionsService.allowedActions).toHaveBeenCalled();
+      sidemenuService.getAllowedActions().subscribe((result) => {
+        expect(orgSettingsService.get).toHaveBeenCalled();
+        expect(reportService.getReportPermissions).toHaveBeenCalledWith(orgSettings);
+        expect(result).toEqual({ allowedReportsActions, allowedAdvancesActions });
+        expect(permissionsService.allowedActions).toHaveBeenCalledWith(
+          'advances',
+          ['approve', 'create', 'delete'],
+          orgSettings
+        );
+      });
+
+      const orgSettings2 = {
+        advance_requests: { enabled: false, allowed: false },
+        advances: { enabled: false, allowed: false },
+      };
+
+      orgSettingsService.get.and.returnValue(of(orgSettings2));
+
+      sidemenuService.getAllowedActions().subscribe((result) => {
+        expect(orgSettingsService.get).toHaveBeenCalled();
+        expect(reportService.getReportPermissions).toHaveBeenCalledWith(orgSettings2);
+        expect(result).toEqual({ allowedReportsActions, allowedAdvancesActions: null });
+        expect(permissionsService.allowedActions).toHaveBeenCalled();
+      });
     });
   });
 });
