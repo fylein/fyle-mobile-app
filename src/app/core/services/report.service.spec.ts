@@ -29,16 +29,13 @@ import { apiReportActions } from '../mock-data/report-actions.data';
 import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
 import {
   expectedErpt,
-  expectedPendingReports,
   expectedSingleErpt,
-  addedApproversReports,
   unflattenedErptc,
   unflattenedErptcArrayItem1,
   unflattenedErptcArrayItem2,
   unflattenedErptcArrayItem3,
   unflattenedErptcArrayItem4,
   singleERptcFixDatesMock,
-  singleERptcLocalFixedMock,
   addApproverERpts,
   expectedAddedApproverERpts,
 } from '../mock-data/report-unflattened.data';
