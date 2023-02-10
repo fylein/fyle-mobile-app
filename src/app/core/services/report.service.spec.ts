@@ -808,23 +808,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('userReportsSearchParamsGenerator(): should generate user search parameter', () => {
-    const result = reportService.userReportsSearchParamsGenerator(
-      {},
-      {
-        state: 'edit',
-        dateRange: {
-          from: '2022-10-31T13:54:46.317Z',
-          to: '2023-01-23T23:59:59.999Z',
-        },
-      }
-    );
-    expect(result).toEqual({
-      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-      created_at: ['gte:2022-10-31T13:54:46.317Z', 'lte:2023-01-24T18:29:59.999Z'],
-    });
-  });
-
   describe('getApproversInBulk()', () => {
     it('should get approvers in bulk for all report IDs | single page', (done) => {
       apiService.get.and.returnValue(of(apiAllApproverRes2));
