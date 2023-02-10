@@ -1948,6 +1948,7 @@ export class AddEditExpensePage implements OnInit {
                 })
               );
             }
+            this.fg.controls.custom_inputs = this.formBuilder.array(customFieldsFormArray.controls);
             customFieldsFormArray.updateValueAndValidity();
             return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
           })
