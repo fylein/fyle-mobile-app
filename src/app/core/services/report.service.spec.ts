@@ -274,9 +274,17 @@ describe('ReportService', () => {
         order: 'rp_created_at.desc',
       };
 
+      const apiParams = {
+        offset: 0,
+        limit: 10,
+        order: 'rp_created_at.desc,rp_id.desc',
+        rp_org_user_id: 'eq.ouX8dwsbLCLv',
+        or: [],
+      };
+
       reportService.getMyReports(params).subscribe((res) => {
         expect(res).toEqual(res);
-        expect(apiv2Service.get).toHaveBeenCalledTimes(1);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', { params: apiParams });
         done();
       });
     });
@@ -299,9 +307,17 @@ describe('ReportService', () => {
         },
       };
 
+      const apiParams = {
+        offset: 0,
+        limit: 10,
+        order: 'rp_created_at.desc,rp_id.desc',
+        rp_org_user_id: 'eq.ouX8dwsbLCLv',
+        or: [],
+      };
+
       reportService.getMyReports(params).subscribe((res) => {
         expect(res).toEqual(res);
-        expect(apiv2Service.get).toHaveBeenCalledTimes(1);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', { params: apiParams });
         done();
       });
     });
