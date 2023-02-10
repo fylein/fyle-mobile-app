@@ -808,14 +808,14 @@ describe('ReportService', () => {
     });
   });
 
-  xit('userReportsSearchParamsGenerator(): should generate user search parameter', () => {
+  it('userReportsSearchParamsGenerator(): should generate user search parameter', () => {
     const result = reportService.userReportsSearchParamsGenerator(
       {},
       {
         state: 'edit',
         dateRange: {
           from: '2022-10-31T13:54:46.317Z',
-          to: '2023-01-23T10:53:52.220Z',
+          to: '2023-01-23T18:29:59.999Z',
         },
       }
     );
