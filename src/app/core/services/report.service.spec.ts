@@ -184,14 +184,6 @@ describe('ReportService', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
   });
 
-  function mockExtendedOrgUser() {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-  }
-
-  function mockReports() {
-    apiv2Service.get.and.returnValue(of(apiReportRes));
-  }
-
   it('should be created', () => {
     expect(reportService).toBeTruthy();
   });
@@ -264,8 +256,8 @@ describe('ReportService', () => {
 
   describe('getMyReports()', () => {
     it('should get reports from API as specified by params', (done) => {
-      mockExtendedOrgUser();
-      mockReports();
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      apiv2Service.get.and.returnValue(of(apiReportRes));
       spyOn(dateService, 'fixDates').and.returnValues(
         apiReportRes.data[0],
         apiReportRes.data[1],
@@ -290,8 +282,8 @@ describe('ReportService', () => {
     });
 
     it('should get reports from API when no order is specified', (done) => {
-      mockExtendedOrgUser();
-      mockReports();
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      apiv2Service.get.and.returnValue(of(apiReportRes));
       spyOn(dateService, 'fixDates').and.returnValues(
         apiReportRes.data[0],
         apiReportRes.data[1],
@@ -378,7 +370,7 @@ describe('ReportService', () => {
   });
 
   it('getReport(): should get the report from API as per report ID given', (done) => {
-    mockExtendedOrgUser();
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     spyOn(reportService, 'getMyReports').and.returnValue(of(apiReportSingleRes));
 
     const reportID = 'rpfClhA1lglE';
@@ -416,7 +408,7 @@ describe('ReportService', () => {
 
   describe('getTeamReports()', () => {
     it('should get all team reports', (done) => {
-      mockExtendedOrgUser();
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
       spyOn(dateService, 'fixDates').and.returnValues(apiTeamReportPaginated1.data[0], apiTeamReportPaginated1.data[1]);
 
@@ -446,7 +438,7 @@ describe('ReportService', () => {
     });
 
     it('should get all team reports when order is not specified', (done) => {
-      mockExtendedOrgUser();
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
       spyOn(dateService, 'fixDates').and.returnValues(apiTeamReportPaginated1.data[0], apiTeamReportPaginated1.data[1]);
 
@@ -1006,7 +998,7 @@ describe('ReportService', () => {
 
   describe('getReportStatsData()', () => {
     it('should get report stats data', (done) => {
-      mockExtendedOrgUser();
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       apiv2Service.get.and.returnValue(of(apiReportStatsRawRes));
 
       const params = {
@@ -1028,7 +1020,7 @@ describe('ReportService', () => {
     });
 
     it('should get report stats data when default stats has been set to false', (done) => {
-      mockExtendedOrgUser();
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       apiv2Service.get.and.returnValue(of(apiReportStatsRawRes));
 
       const params = {
@@ -1050,7 +1042,7 @@ describe('ReportService', () => {
   });
 
   it('getReportStats(): should get report stats', (done) => {
-    mockExtendedOrgUser();
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     apiv2Service.get.and.returnValue(of(new StatsResponse(apiReportStatsRes)));
 
     reportService.getReportStats(apiReportStatParams).subscribe((res) => {

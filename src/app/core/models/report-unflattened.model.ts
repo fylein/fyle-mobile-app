@@ -7,14 +7,7 @@ export interface UnflattenedReport {
   ou: OrgUser;
   rp: {
     amount: number;
-    approvals?:
-      | {
-          [id: string]: {
-            rank: number;
-            state: string;
-          };
-        }
-      | Approver[];
+    approvals?: approvalMaps | Approver[];
     approved_at: Date;
     claim_number: string;
     created_at: Date;
@@ -58,3 +51,10 @@ export interface UnflattenedReport {
   };
   us: User;
 }
+
+type approvalMaps = {
+  [id: string]: {
+    rank: number;
+    state: string;
+  };
+};

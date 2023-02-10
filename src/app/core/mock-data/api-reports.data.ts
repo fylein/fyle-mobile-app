@@ -548,7 +548,7 @@ export const expectedReports: ApiV2Response<ExtendedReport> = {
 };
 
 export const apiAllReportsRes1: ApiV2Response<ExtendedReport> = {
-  count: 3,
+  count: 2,
   data: [
     {
       _search_document:
@@ -663,7 +663,7 @@ export const apiAllReportsRes1: ApiV2Response<ExtendedReport> = {
 };
 
 export const apiAllReportsRes2: ApiV2Response<ExtendedReport> = {
-  count: 3,
+  count: 1,
   data: [
     {
       _search_document:
