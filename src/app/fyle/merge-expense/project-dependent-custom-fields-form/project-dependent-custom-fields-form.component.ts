@@ -36,13 +36,10 @@ export class ProjectDependentCustomFieldsFormComponent implements OnChanges {
   constructor() {}
 
   generateCustomForm() {
-    this.customInputs = this.customInputs.map((customInput) => {
-      console.log(customInput.name, this.projectCustomInputsMapping[this.selectedProject][customInput.name]);
-      return {
-        ...customInput,
-        value: this.projectCustomInputsMapping[this.selectedProject][customInput.name],
-      };
-    });
+    this.customInputs = this.customInputs.map((customInput) => ({
+      ...customInput,
+      value: this.projectCustomInputsMapping[this.selectedProject][customInput.name],
+    }));
   }
 
   ngOnChanges() {
