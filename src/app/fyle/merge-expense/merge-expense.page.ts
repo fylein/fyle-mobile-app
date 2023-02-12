@@ -146,6 +146,8 @@ export class MergeExpensePage implements OnInit {
 
   dependentFields$: Observable<CustomInputs[]>;
 
+  projectCustomInputsMapping = {};
+
   constructor(
     private router: Router,
     private categoriesService: CategoriesService,
@@ -273,13 +275,14 @@ export class MergeExpensePage implements OnInit {
     this.loadCustomFields$ = new BehaviorSubject(this.genericFieldsForm.value?.category);
 
     this.setupCustomInputs();
-    this.generateCustomInputOptions();
 
     this.loadGenericFieldsOptions();
     this.loadCategoryDependentFields();
     this.subscribeExpenseChange();
 
     this.combinedCustomProperties = this.generateCustomInputOptions();
+
+    this.projectCustomInputsMapping = this.mergeExpensesService.getProjectCustomInputsMapping(this.expenses);
   }
 
   loadGenericFieldsOptions() {
@@ -597,20 +600,10 @@ export class MergeExpensePage implements OnInit {
     this.dependentFields$ = allCustomFields$.pipe(
       map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
       switchMap((fields) => {
-        console.log('SWitchmap customFields', fields);
         const customFields = this.customFieldsService.standardizeCustomFields([], fields);
-        console.log('AFTER SWitchmap customFields', customFields);
-
         return of(customFields);
       })
-      // reduce((acc, curr) => {
-      //   // console.log('ACC -> ', acc, 'CURR -> ', curr);
-      //   acc.push(curr);
-      //   return acc;
-      // }, [])
     );
-
-    this.dependentFields$.subscribe((val) => console.log('Dep fields', val));
   }
 
   patchCustomInputsValues(customInputs) {

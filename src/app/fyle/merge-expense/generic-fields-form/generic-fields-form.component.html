@@ -175,10 +175,9 @@
 
   <ng-container *ngIf="dependentFields?.length && genericFieldsFormGroup.controls.project.value">
     <app-project-dependent-custom-fields-form
-      formControlName="dependent_fields"
-      [disableFormElements]="disableFormElements"
       [customInputs]="dependentFields"
-      [combinedCustomProperties]="combinedCustomProperties"
+      [projectCustomInputsMapping]="projectCustomInputsMapping"
+      [selectedProject]="genericFieldsFormGroup.controls.project.value"
     ></app-project-dependent-custom-fields-form>
   </ng-container>
 

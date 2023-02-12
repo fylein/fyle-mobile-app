@@ -76,7 +76,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Input() disableFormElements: boolean;
 
-  @Input() combinedCustomProperties: OptionsData;
+  @Input() projectCustomInputsMapping;
 
   @Input() dependentFields: CustomInput[];
 
@@ -108,7 +108,6 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
       tax_amount: [],
       costCenter: [],
       purpose: [],
-      dependent_fields: [],
     });
 
     this.genericFieldsFormGroup.controls.category.valueChanges.subscribe((categoryId) => {

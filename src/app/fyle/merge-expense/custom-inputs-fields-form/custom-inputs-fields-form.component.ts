@@ -94,8 +94,6 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
     if (this.customFieldsForm?.controls) {
       this.generateCustomForm();
     }
-    // console.log('customInputs', this.customInputs);
-    // console.log('combinedCustomProperties', this.combinedCustomProperties);
   }
 
   writeValue(value: any) {

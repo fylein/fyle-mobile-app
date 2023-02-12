@@ -18,6 +18,7 @@ import { DateService } from './date.service';
 import { AccountType } from '../enums/account-type.enum';
 import { TaxGroupService } from './tax-group.service';
 import { CustomInputsService } from './custom-inputs.service';
+import { cloneDeep } from 'lodash';
 
 type Option = Partial<{
   label: string;
@@ -579,13 +580,54 @@ export class MergeExpensesService {
   }
 
   getCustomInputValues(expenses: Expense[]): CustomInputs[] {
-    return expenses
+    //Created a copy else it modifies the expense object
+    const expensesCopy = cloneDeep(expenses);
+    return expensesCopy
       .map((expense) => {
         if (expense.tx_custom_properties !== null && expense.tx_custom_properties.length > 0) {
           return expense.tx_custom_properties;
         }
       })
       .filter((element) => element !== undefined);
+  }
+
+  /*
+    Returns {
+      projectId: {
+        customFieldName: {
+          name: string;
+          value: string;
+        },
+        ...
+      },
+      ...
+    }
+    */
+  getProjectCustomInputsMapping(expenses: Expense[]) {
+    const test = expenses
+      .map((expense) => {
+        const customProperties = expense.tx_custom_properties
+          .map((customProperty) => ({
+            [customProperty.name]: customProperty.value,
+          }))
+          .reduce(
+            (acc, curr) => ({
+              ...acc,
+              ...curr,
+            }),
+            {}
+          );
+        return { [expense.tx_project_id]: customProperties };
+      })
+      .reduce(
+        (acc, curr) => ({
+          ...acc,
+          ...curr,
+        }),
+        {}
+      );
+
+    return test;
   }
 
   formatCustomInputOptions(combinedCustomProperties: OptionsData[]) {

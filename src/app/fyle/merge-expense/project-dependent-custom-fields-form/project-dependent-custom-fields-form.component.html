@@ -1,24 +1,8 @@
-<ng-container *ngIf="combinedCustomProperties">
-  <ng-container *ngFor="let customField of customFields">
-    <p>Custom field</p>
-    <form [formGroup]="customField.control">
-      <div class="merge-expenses--internal-block" *ngIf="combinedCustomProperties[customField.name]?.options">
-        <app-fy-select
-          [enableSearch]="false"
-          [label]="customField.name"
-          [nullOption]="false"
-          [nullOption]="combinedCustomProperties[customField.name]?.options?.length === 1"
-          [disabled]="
-            disableFormElements ||
-            combinedCustomProperties[customField.name]?.areSameValues ||
-            combinedCustomProperties[customField.name]?.options?.length === 0
-          "
-          [options]="combinedCustomProperties[customField.name]?.options"
-          [selectModalHeader]="'Select'"
-          formControlName="value"
-        >
-        </app-fy-select>
-      </div>
-    </form>
+<ng-container *ngIf="projectCustomInputsMapping && selectedProject">
+  <ng-container *ngFor="let customInput of customInputs">
+    <div class="merge-expenses--internal-block">
+      <app-fy-select [enableSearch]="false" [label]="customInput.name" [disabled]="true" [ngModel]="customInput.value">
+      </app-fy-select>
+    </div>
   </ng-container>
 </ng-container>
