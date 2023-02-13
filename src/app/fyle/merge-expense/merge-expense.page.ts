@@ -487,9 +487,11 @@ export class MergeExpensePage implements OnInit {
       });
       sourceTxnIds = sourceTxnIds.filter((id) => id !== selectedExpense);
 
-      this.mergeExpensesService
-        .mergeExpenses(sourceTxnIds, selectedExpense, this.generateFromFg())
+      this.dependentFields$
         .pipe(
+          switchMap((dependentFields) =>
+            this.mergeExpensesService.mergeExpenses(sourceTxnIds, selectedExpense, this.generateFromFg(dependentFields))
+          ),
           finalize(() => {
             this.isMerging = false;
             this.trackingService.expensesMerged();
@@ -522,7 +524,7 @@ export class MergeExpensePage implements OnInit {
       .subscribe(noop);
   }
 
-  generateFromFg() {
+  generateFromFg(dependentFields) {
     const sourceExpense = this.expenses.find(
       (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
     );
@@ -534,6 +536,13 @@ export class MergeExpensePage implements OnInit {
     } else if (this.fg.value.location_1) {
       locations = [this.genericFieldsForm.value.location_1];
     }
+
+    const selectedCustomFields = this.projectCustomInputsMapping[this.genericFieldsForm.value.project];
+    const selectedDependentFields = dependentFields.map((dependentField) => ({
+      name: dependentField.name,
+      value: selectedCustomFields[dependentField.name],
+    }));
+
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
       billable: this.genericFieldsForm.value.billable,
@@ -548,7 +557,7 @@ export class MergeExpensePage implements OnInit {
       purpose: this.genericFieldsForm.value.purpose,
       txn_dt: this.genericFieldsForm.value.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
-      custom_properties: this.fg.controls.custom_inputs.value.fields,
+      custom_properties: [...this.fg.controls.custom_inputs.value.fields, ...selectedDependentFields],
       ccce_group_id: CCCMatchedExpense?.tx_corporate_credit_card_expense_group_id,
       from_dt: this.genericFieldsForm.value.from_dt,
       to_dt: this.genericFieldsForm.value.to_dt,
