@@ -5,11 +5,8 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { DataTransformService } from './data-transform.service';
-import {
-  apiCardV2Transactions,
-  eCCCApiResponse,
-  expectedECccResponse,
-} from '../test-data/corporate-credit-card-expense.spec.data';
+import { apiCardV2Transactions } from '../test-data/corporate-credit-card-expense.spec.data';
+import { expectedECccResponse } from '../mock-data/corporate-card-expense-unflattened.data';
 import { uniqueCardsParam } from '../mock-data/unique-cards.data';
 import { cardAggregateStatParam } from '../mock-data/card-aggregate-stat.data';
 import { DateService } from './date.service';
@@ -17,6 +14,7 @@ import { expectedUniqueCardStats } from '../mock-data/unique-cards-stats.data';
 import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
 import { expectedAssignedCCCStats } from '../mock-data/ccc-expense.details.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
+import { eCCCApiResponse } from '../mock-data/corporate-card-expense-flattened.data';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
@@ -24,7 +22,7 @@ describe('CorporateCreditCardExpenseService', () => {
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let authService: jasmine.SpyObj<AuthService>;
-  let dataTransformService: jasmine.SpyObj<DataTransformService>;
+  let dataTransformService: DataTransformService;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
@@ -55,7 +53,7 @@ describe('CorporateCreditCardExpenseService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
+    dataTransformService = TestBed.inject(DataTransformService);
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
   });
 
@@ -66,8 +64,8 @@ describe('CorporateCreditCardExpenseService', () => {
   it('markPersonal(): should mark an expense as personal', (done) => {
     apiService.post.and.returnValue(of(null));
     const testId = 'ccceJN3PWAR94U';
-    const result = cccExpenseService.markPersonal(testId);
-    result.subscribe(() => {
+
+    cccExpenseService.markPersonal(testId).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/corporate_credit_card_expenses/' + testId + '/personal');
       done();
     });
@@ -76,8 +74,8 @@ describe('CorporateCreditCardExpenseService', () => {
   it('dismissCreditTransaction(): should dismiss a transaction as corporate credit card expense', (done) => {
     apiService.post.and.returnValue(of(null));
     const testId = 'ccceRhYsN8Fj78';
-    const result = cccExpenseService.dismissCreditTransaction(testId);
-    result.subscribe(() => {
+
+    cccExpenseService.dismissCreditTransaction(testId).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/corporate_credit_card_expenses/' + testId + '/ignore');
       done();
     });
@@ -85,12 +83,11 @@ describe('CorporateCreditCardExpenseService', () => {
 
   it('getEccceByGroupId(): should get Corporate Credit Card expenses by group ID', (done) => {
     apiService.get.and.returnValue(of(eCCCApiResponse));
+    spyOn(dataTransformService, 'unflatten').and.returnValue(expectedECccResponse[0]);
 
     const testID = 'ccceYIJhT8Aj6U';
 
-    const result = cccExpenseService.getEccceByGroupId(testID);
-
-    result.subscribe((res) => {
+    cccExpenseService.getEccceByGroupId(testID).subscribe((res) => {
       expect(res).toEqual(expectedECccResponse);
       expect(apiService.get).toHaveBeenCalledOnceWith('/extended_corporate_credit_card_expenses', {
         params: {
@@ -107,8 +104,7 @@ describe('CorporateCreditCardExpenseService', () => {
     apiV2Service.get.and.returnValue(of(apiAssignedCardDetailsRes));
     spyOn(cccExpenseService, 'constructInQueryParamStringForV2').and.returnValue(queryParams);
 
-    const result = cccExpenseService.getAssignedCards();
-    result.subscribe((res) => {
+    cccExpenseService.getAssignedCards().subscribe((res) => {
       expect(res).toEqual(expectedAssignedCCCStats);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(apiV2Service.get).toHaveBeenCalledOnceWith(

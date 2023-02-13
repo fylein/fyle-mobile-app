@@ -1,0 +1,33 @@
+export interface CCCExpFlattened {
+  ccce_id: string;
+  ccce_created_at: Date;
+  ccce_updated_at: Date;
+  ccce_txn_dt: Date;
+  ccce_creator_id: string;
+  ccce_orig_currency: string;
+  ccce_orig_amount: number;
+  ccce_currency: string;
+  ccce_amount: number;
+  ccce_description: string;
+  ccce_vendor: string;
+  ccce_payment_id: string;
+  ccce_settlement_id: string;
+  ccce_state: string;
+  personal: boolean;
+  matched_by: string;
+  matched_at: Date;
+  tx_split_group_id: string;
+  tx_split_group_user_amount: number;
+  ccce_group_id: string;
+  reversed: boolean;
+  bank_txn_id: string;
+  ccce_card_or_account_number: string;
+  ou_id: string;
+  ou_org_id: string;
+  us_full_name: string;
+  us_email: string;
+  ccce_balance_transfer_id: string;
+  balance_transfer_settlement_id: string;
+  ou_department_id: string;
+  tx_project_id: string;
+}
