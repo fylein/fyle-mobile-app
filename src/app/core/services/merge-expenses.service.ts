@@ -581,7 +581,7 @@ export class MergeExpensesService {
   }
 
   getCustomInputValues(expenses: Expense[]): CustomInputs[] {
-    //Create a copy so that we don't modify the expenses
+    //Create a copy so that we don't modify the expense object
     const expensesCopy = cloneDeep(expenses);
     return expensesCopy
       .map((expense) => {
@@ -608,7 +608,7 @@ export class MergeExpensesService {
         )
         .filter((txDependentField) => !!txDependentField);
 
-      projectDependentFieldsMapping[expense.tx_project_id] = txDependentFields;
+      projectDependentFieldsMapping[expense.tx_project_id] = txDependentFields || [];
     });
     return projectDependentFieldsMapping;
   }

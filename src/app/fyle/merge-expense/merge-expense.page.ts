@@ -180,7 +180,6 @@ export class MergeExpensePage implements OnInit {
       genericFields: [],
       categoryDependent: [],
       custom_inputs: [],
-      dependent_fields: [],
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();

@@ -8,7 +8,6 @@ import {
   NG_VALUE_ACCESSOR,
   FormBuilder,
   Validators,
-  AbstractControl,
 } from '@angular/forms';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
@@ -23,19 +22,6 @@ type OptionsData = Partial<{
   areSameValues: boolean;
   name: string;
   value: any;
-}>;
-
-type CustomInput = Partial<{
-  control: AbstractControl;
-  id: string;
-  mandatory: boolean;
-  name: string;
-  options: Option[];
-  placeholder: string;
-  prefix: string;
-  type: string;
-  value: string;
-  parent_field_id: number;
 }>;
 
 @Component({
