@@ -549,4 +549,10 @@ export class TrackingService {
   dashboardLaunchTime(properties = {}) {
     this.eventTrack('dashboard launch time', properties);
   }
+
+  signInError(error) {
+    this.eventTrack('Unknown sign in error', {
+      details: JSON.stringify(error),
+    });
+  }
 }

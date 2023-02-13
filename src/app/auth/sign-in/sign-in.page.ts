@@ -113,7 +113,7 @@ export class SignInPage implements OnInit {
       });
   }
 
-  async checkIfEmailExists() {
+  checkIfEmailExists() {
     if (this.fg.controls.email.valid) {
       this.emailLoading = true;
 
@@ -145,13 +145,18 @@ export class SignInPage implements OnInit {
   async handleError(error) {
     let header = 'Incorrect Email or Password';
 
-    if (error.status === 400) {
-      this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value }]);
-      return;
-    } else if (error.status === 500) {
+    if (error) {
+      if (error.status === 400) {
+        this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value }]);
+        return;
+      } else if (error.status === 500) {
+        header = 'Sorry... Something went wrong!';
+      } else if (error.status === 433) {
+        header = 'Temporary Lockout';
+      }
+    } else {
       header = 'Sorry... Something went wrong!';
-    } else if (error.status === 433) {
-      header = 'Temporary Lockout';
+      this.trackingService.signInError(error);
     }
 
     const errorPopover = await this.popoverController.create({
