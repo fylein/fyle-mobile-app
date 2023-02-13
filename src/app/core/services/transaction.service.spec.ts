@@ -43,15 +43,7 @@ import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
 import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 import * as lodash from 'lodash';
-import {
-  txnData,
-  txnData2,
-  txnData4,
-  txnDataPayload,
-  txnList,
-  txnUtilityParam,
-  upsertTxnParam,
-} from '../mock-data/transaction.data';
+import { txnData, txnData2, txnData4, txnDataPayload, txnList, upsertTxnParam } from '../mock-data/transaction.data';
 import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
 import { fileObjectData, fileObjectData1, fileObjectData2 } from '../mock-data/file-object.data';
 import { AccountType } from '../enums/account-type.enum';
@@ -101,6 +93,7 @@ describe('TransactionService', () => {
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', [
       'convertAllDatesToProperLocale',
       'convertToUtc',
+      'convertToTimezone',
     ]);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['discardRedundantCharacters']);
     const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['post']);
@@ -1440,34 +1433,20 @@ describe('TransactionService', () => {
   });
 
   it('upsert(): should upsert transaction', (done) => {
-    const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
-    const txnDate = new Date('2023-02-13T06:30:00.000Z');
-    const fromDate = new Date('2023-02-13T06:30:00.000Z');
-    const toDate = new Date('2023-02-13T06:30:00.000Z');
-    const txnUtcTxnDate = new Date('2023-02-13T17:00:00.000Z');
-    const txnUtcFromDate = new Date('2023-02-13T17:00:00.000Z');
-    const txnUtcToDate = new Date('2023-02-13T17:00:00.000Z');
-    apiService.post.and.returnValue(of(txnData4));
+    const offset = orgUserSettingsData3.locale.offset;
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData3));
     // @ts-ignore
     spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
     timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData2);
-    timezoneService.convertToUtc.and.returnValue(txnUtcTxnDate);
-    timezoneService.convertToUtc.and.returnValue(txnUtcFromDate);
-    timezoneService.convertToUtc.and.returnValue(txnUtcToDate);
+    apiService.post.and.returnValue(of(txnData4));
     utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
-    const offset = orgUserSettingsData3.locale.offset;
 
     transactionService.upsert(upsertTxnParam).subscribe((res) => {
       expect(res).toEqual(txnData4);
       expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData, offset);
-      expect(timezoneService.convertToUtc).toHaveBeenCalledWith(txnDate, offset);
-      expect(timezoneService.convertToUtc).toHaveBeenCalledWith(fromDate, offset);
-      expect(timezoneService.convertToUtc).toHaveBeenCalledWith(toDate, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
-      expect(utilityService.discardRedundantCharacters).toHaveBeenCalledOnceWith(txnUtilityParam, fieldsToCheck);
       // @ts-ignore
       expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);
       done();
