@@ -243,6 +243,7 @@ export class ReportService {
       })
       .pipe(
         map((res) => {
+          console.log(res);
           if (res.data.next_at) {
             const dateObj = new Date(res.data.next_at);
             res.data.next_at = dateObj;
@@ -507,34 +508,7 @@ export class ReportService {
     }
   ) {
     const searchParams = this.getUserReportParams(search.state);
-
-    let dateParams = null;
-    // Filter expenses by date range
-    // dateRange.from and dateRange.to needs to a valid date string (if present)
-    // Example: dateRange.from = 'Jan 1, 2015', dateRange.to = 'Dec 31, 2017'
-
-    if (search.dateRange && search.dateRange.from && search.dateRange.to) {
-      // TODO: Fix before 2025
-      let fromDate = new Date('Jan 1, 1970');
-      let toDate = new Date('Dec 31, 2025');
-
-      // Set fromDate to Jan 1, 1970 if none specified
-      if (search.dateRange.from) {
-        fromDate = new Date(search.dateRange.from);
-      }
-
-      // Set toDate to Dec 31, 2025 if none specified
-      if (search.dateRange.to) {
-        // Setting time to the end of the day
-        toDate = new Date(new Date(search.dateRange.to).setHours(23, 59, 59, 999));
-      }
-
-      dateParams = {
-        created_at: ['gte:' + new Date(fromDate).toISOString(), 'lte:' + new Date(toDate).toISOString()],
-      };
-    }
-
-    return Object.assign({}, params, searchParams, dateParams);
+    return Object.assign({}, params, searchParams);
   }
 
   getReportPurpose(reportPurpose: { ids: string[] }): Observable<string> {
