@@ -175,8 +175,7 @@
 
   <ng-container *ngIf="genericFieldsFormGroup?.controls.project?.value && projectDependentFieldsMapping">
     <app-project-dependent-custom-fields-form
-      [projectDependentFieldsMapping]="projectDependentFieldsMapping"
-      [selectedProjectId]="genericFieldsFormGroup.controls.project.value"
+      [dependentInputs]="projectDependentFieldsMapping[genericFieldsFormGroup.controls.project.value] || []"
     ></app-project-dependent-custom-fields-form>
   </ng-container>
 
