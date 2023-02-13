@@ -755,6 +755,46 @@ describe('ReportService', () => {
         done();
       });
     });
+
+    it('should get all reports, multiple pages data', (done) => {
+      const getMyReportsSpy = spyOn(reportService, 'getMyReports');
+      const params = {
+        queryParams: {
+          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        },
+      };
+
+      const getMyReportsParam1 = {
+        offset: 0,
+        limit: 2,
+        queryParams: {
+          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        },
+        order: undefined,
+      };
+
+      const getMyReportsParam2 = {
+        offset: 2,
+        limit: 2,
+        queryParams: {
+          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        },
+        order: undefined,
+      };
+
+      spyOn(reportService, 'getMyReportsCount').and.returnValue(of(3));
+      getMyReportsSpy.withArgs(getMyReportsParam1).and.returnValue(of(apiAllReportsRes1));
+      getMyReportsSpy.withArgs(getMyReportsParam2).and.returnValue(of(apiAllReportsRes2));
+
+      reportService.getAllExtendedReports(params).subscribe((res) => {
+        expect(res).toEqual(expectedPaginatedReports);
+        expect(reportService.getMyReports).toHaveBeenCalledWith(getMyReportsParam1);
+        expect(reportService.getMyReports).toHaveBeenCalledWith(getMyReportsParam2);
+        expect(reportService.getMyReports).toHaveBeenCalledTimes(2);
+        expect(reportService.getMyReportsCount).toHaveBeenCalledOnceWith(params.queryParams);
+        done();
+      });
+    });
   });
 
   it('searchParamsGenerator(): should generate search parameters', () => {
