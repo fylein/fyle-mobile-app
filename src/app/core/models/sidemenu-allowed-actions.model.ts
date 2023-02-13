@@ -9,6 +9,6 @@ export interface SidemenuAllowedActions {
     allowedRouteAccess: boolean;
     approve: boolean;
     delete: boolean;
-    creaet?: boolean;
+    create?: boolean;
   };
 }
