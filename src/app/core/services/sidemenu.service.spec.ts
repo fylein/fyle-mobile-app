@@ -37,7 +37,7 @@ describe('SidemenuService', () => {
     expect(sideMenuService).toBeTruthy();
   });
 
-  it('should return allowed actions', (done) => {
+  it('getAllowedActions(): should return allowed actions', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsParams));
     reportService.getReportPermissions.and.returnValue(of(sidemenuAllowedActions.allowedReportsActions));
     permissionsService.allowedActions.and.returnValue(of(sidemenuAllowedActions.allowedAdvancesActions));
@@ -55,7 +55,7 @@ describe('SidemenuService', () => {
     });
   });
 
-  it('should return allowed actions when advance requests are disabled', (done) => {
+  it('getAllowedActions(): should return allowed actions when advance requests are disabled', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsParams2));
     reportService.getReportPermissions.and.returnValue(of(sidemenuAllowedActions.allowedReportsActions));
     permissionsService.allowedActions.and.returnValue(of(sidemenuAllowedActions.allowedAdvancesActions));
