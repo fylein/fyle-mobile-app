@@ -1,3 +1,5 @@
+import { TxnCustomProperties } from '../txn-custom-properties.model';
+
 export interface Transaction {
   admin_amount: number;
   amount?: number;
@@ -8,7 +10,7 @@ export interface Transaction {
   created_at?: Date;
   creator_id?: string;
   currency: string;
-  custom_properties?: { name: string; value: string[] }[];
+  custom_properties?: TxnCustomProperties[];
   distance?: number;
   distance_unit?: string;
   exchange_rate?: number;
@@ -61,7 +63,7 @@ export interface Transaction {
   reported_at?: Date;
   skip_reimbursement: boolean;
   source: string;
-  source_account_id: string;
+  source_account_id?: string;
   split_group_id?: string;
   split_group_user_amount?: number;
   state?: string;

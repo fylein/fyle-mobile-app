@@ -43,16 +43,26 @@ import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
 import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 import * as lodash from 'lodash';
-import { txnData, txnData2, txnList } from '../mock-data/transaction.data';
+import {
+  txnData,
+  txnData2,
+  txnData4,
+  txnDataPayload,
+  txnList,
+  txnUtilityParam,
+  upsertTxnParam,
+} from '../mock-data/transaction.data';
 import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
 import { fileObjectData, fileObjectData1, fileObjectData2 } from '../mock-data/file-object.data';
 import { AccountType } from '../enums/account-type.enum';
-import { orgUserSettingsData, orgUserSettingsData2 } from '../mock-data/org-user-settings.data';
+import { orgUserSettingsData, orgUserSettingsData2, orgUserSettingsData3 } from '../mock-data/org-user-settings.data';
 import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { accountsData } from '../test-data/accounts.service.spec.data';
 import { currencySummaryData } from '../mock-data/currency-summary.data';
 import { platformPolicyExpenseData } from '../mock-data/platform-policy-expense.data';
 import { expensePolicyData } from '../mock-data/expense-policy.data';
+import { txnAccountData } from '../mock-data/txn-account.data';
+import { txnCustomPropertiesData, txnCustomPropertiesData2 } from '../mock-data/txn-custom-properties.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -1495,6 +1505,33 @@ describe('TransactionService', () => {
       expect(res).toEqual(txnData2);
       expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData);
       expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData2);
+      done();
+    });
+  });
+
+  it('upsert(): should upsert transaction', (done) => {
+    const offset = '-05:00:00';
+    const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
+    const txnDate = new Date('2023-02-13T06:30:00.000Z');
+    const txnUtcDate = new Date('2023-02-13T17:00:00.000Z');
+    apiService.post.and.returnValue(of(txnData4));
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData3));
+    // @ts-ignore
+    spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
+    timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData2);
+    timezoneService.convertToUtc.and.returnValue(txnUtcDate);
+    utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
+
+    transactionService.upsert(upsertTxnParam).subscribe((res) => {
+      expect(res).toEqual(txnData4);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
+      expect(orgUserSettingsService.get).toHaveBeenCalled();
+      expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData, offset);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledWith(txnDate, offset);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
+      expect(utilityService.discardRedundantCharacters).toHaveBeenCalledOnceWith(txnUtilityParam, fieldsToCheck);
+      // @ts-ignore
+      expect(transactionService.getTxnAccount).toHaveBeenCalled();
       done();
     });
   });
