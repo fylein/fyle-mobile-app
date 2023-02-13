@@ -18,7 +18,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="my-create-report--container">
+  <div class="my-create-report--container full-height">
     <div class="my-create-report--report-card">
       <div class="my-create-report--report-title">Report Name</div>
       <span class="my-create-report--mandatory"> * </span>
@@ -36,17 +36,13 @@
     <div class="my-create-report--error-message" *ngIf="showReportNameError">Please enter report name.</div>
 
     <div *ngIf="readyToReportEtxns?.length === 0" class="my-create-report--zero-state">
-      <img
-        alt="Create First Expenses"
-        class="my-create-report--zero-state-img"
-        src="../../../assets/images/zero-states/expenses.png"
-      />
-      <div class="my-create-report--zero-state-text">Looks like you don't have reportable expenses.</div>
-      <div class="my-create-report--add-more-container" (click)="addExpense()">
-        <div class="my-create-report--add-more-icon-container">
-          <mat-icon class="my-create-report--add-more-icon" svgIcon="plus"></mat-icon>
-        </div>
-        <div class="my-create-report--add-more-text">Add Expenses</div>
+      <div>
+        <img
+          alt="Create First Expenses"
+          class="my-create-report--zero-state-img"
+          src="../../../assets/images/zero-states/expenses.png"
+        />
+        <div class="my-create-report--zero-state-text">Looks like you don't have reportable expenses.</div>
       </div>
     </div>
 

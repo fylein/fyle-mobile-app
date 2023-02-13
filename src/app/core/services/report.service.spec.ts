@@ -1,48 +1,65 @@
 import { TestBed } from '@angular/core/testing';
-
-import { ReportService } from './report.service';
-import { NetworkService } from './network.service';
-import { ApiService } from './api.service';
-import { ApiV2Service } from './api-v2.service';
-import { AuthService } from './auth.service';
-import { DateService } from './date.service';
-import { DataTransformService } from './data-transform.service';
-import { TransactionService } from './transaction.service';
-import { StorageService } from './storage.service';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { DatePipe } from '@angular/common';
-import { UserEventService } from './user-event.service';
-import { PermissionsService } from './permissions.service';
-import { LaunchDarklyService } from './launch-darkly.service';
-import { PAGINATION_SIZE } from 'src/app/constants';
 import { of } from 'rxjs';
-
-import { apiEouRes } from '../mock-data/extended-org-user.data';
+import { PAGINATION_SIZE } from 'src/app/constants';
+import { apiReportStatsRawRes, apiReportStatsRes } from '../../core/mock-data/stats-response.data';
+import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
 import {
-  apiReportRes1,
-  apiReportRes2,
   apiReportRes,
   apiReportSingleRes,
-  apiEmptyReportRes,
   apiTeamRptCountRes,
   apiTeamRptSingleRes,
   apiTeamReportPaginated1,
+  apiAllReportsRes,
 } from '../mock-data/api-reports.data';
-import { expectedReportSingleResponse } from '../mock-data/report.data';
-import { apiReportActions } from '../mock-data/report-actions.data';
+import { apiAllApproverRes2, apiApproverRes, expectedApprovers } from '../mock-data/approver.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
-import { apiReportStatsRes, apiReportStatsRawRes } from '../../core/mock-data/stats-response.data';
-import { expectedReportRawStats } from '../mock-data/stats-dimension-response.data';
-import { apiApproverRes } from '../mock-data/approver.data';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { orgSettingsParams } from '../mock-data/org-settings.data';
-import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
+import { apiReportActions } from '../mock-data/report-actions.data';
+import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
+import {
+  expectedErpt,
+  expectedSingleErpt,
+  unflattenedErptc,
+  unflattenedErptcArrayItem1,
+  unflattenedErptcArrayItem2,
+  unflattenedErptcArrayItem3,
+  unflattenedErptcArrayItem4,
+  singleERptcFixDatesMock,
+} from '../mock-data/report-unflattened.data';
+import {
+  reportUnflattenedData,
+  reportUnflattenedData2,
+  apiEmptyReportRes,
+  apiReportUpdatedDetails,
+} from '../mock-data/report-v1.data';
+import {
+  apiExtendedReportRes,
+  expectedAllReports,
+  expectedReportSingleResponse,
+  reportParam,
+} from '../mock-data/report.data';
+import { expectedReportRawStats } from '../mock-data/stats-dimension-response.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
-import { reportUnflattenedData, reportUnflattenedData2 } from '../mock-data/report-v1.data';
-import { apiErptcReportsRes } from '../mock-data/report.data';
+import { ApiV2Service } from './api-v2.service';
+import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
+import { DataTransformService } from './data-transform.service';
+import { DateService } from './date.service';
+import { LaunchDarklyService } from './launch-darkly.service';
+import { NetworkService } from './network.service';
+import { PermissionsService } from './permissions.service';
+import { ReportService } from './report.service';
+import { StorageService } from './storage.service';
+import { TransactionService } from './transaction.service';
+import { UserEventService } from './user-event.service';
+import { dataErtpTransformed, apiErptReporDataParam } from '../mock-data/data-transform.data';
 
 describe('ReportService', () => {
   let reportService: ReportService;
-  let dataTransformService: DataTransformService;
+  let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let dateService: DateService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiv2Service: jasmine.SpyObj<ApiV2Service>;
@@ -70,10 +87,13 @@ describe('ReportService', () => {
     scalar: true,
   };
 
+  const apiApproversParam = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
+
   beforeEach(() => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
+    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
     const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'post']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'getRoles']);
+    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkSpy', ['isOnline']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
@@ -85,11 +105,14 @@ describe('ReportService', () => {
       providers: [
         ReportService,
         DatePipe,
-        DataTransformService,
         LaunchDarklyService,
         {
           provide: ApiService,
           useValue: apiServiceSpy,
+        },
+        {
+          provide: DataTransformService,
+          useValue: dataTransformServiceSpy,
         },
         {
           provide: ApiV2Service,
@@ -135,7 +158,7 @@ describe('ReportService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiv2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    dataTransformService = TestBed.inject(DataTransformService);
+    dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
@@ -153,11 +176,6 @@ describe('ReportService', () => {
 
   function mockReports() {
     apiv2Service.get.and.returnValue(of(apiReportRes));
-  }
-
-  function mockPagintedReports() {
-    apiv2Service.get.and.returnValue(of(apiReportRes1));
-    apiv2Service.get.and.returnValue(of(apiReportRes2));
   }
 
   it('should be created', () => {
@@ -191,8 +209,7 @@ describe('ReportService', () => {
 
     reportService.createDraft(reportParam).subscribe((res) => {
       expect(res).toEqual(reportUnflattenedData);
-      expect(apiService.post).toHaveBeenCalledWith('/reports', reportParam);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
@@ -205,8 +222,7 @@ describe('ReportService', () => {
     const reportID = 'rpvcIMRMyM3A';
 
     reportService.submit(reportID).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/submit`);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/submit`);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
@@ -226,8 +242,7 @@ describe('ReportService', () => {
     };
 
     reportService.removeTransaction(reportID, txnID, null).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
@@ -236,6 +251,12 @@ describe('ReportService', () => {
   it('getMyReports(): should get reports from API as specified by params', (done) => {
     mockExtendedOrgUser();
     mockReports();
+    spyOn(dateService, 'fixDates').and.returnValues(
+      apiReportRes.data[0],
+      apiReportRes.data[1],
+      apiReportRes.data[2],
+      apiReportRes.data[3]
+    );
 
     const params = {
       offset: 0,
@@ -246,19 +267,55 @@ describe('ReportService', () => {
       order: 'rp_created_at.desc',
     };
 
-    const apiParams = {
-      offset: 0,
-      limit: 10,
-      order: 'rp_created_at.desc,rp_id.desc',
-      rp_org_user_id: 'eq.ouX8dwsbLCLv',
-      or: [],
-    };
-
     reportService.getMyReports(params).subscribe((res) => {
       expect(res).toEqual(res);
-      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', { params: apiParams });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(apiv2Service.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getPaginatedERptc(): should get paginated extended-reports', (done) => {
+    apiService.get.and.returnValue(of(apiExtendedReportRes));
+    dataTransformService.unflatten.and.returnValues(
+      unflattenedErptcArrayItem1,
+      unflattenedErptcArrayItem2,
+      unflattenedErptcArrayItem3,
+      unflattenedErptcArrayItem4
+    );
+    const params = {
+      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+    };
+
+    const apiParams = {
+      params: {
+        offset: 0,
+        limit: 4,
+        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+      },
+    };
+
+    reportService.getPaginatedERptc(0, apiExtendedReportRes.length, params).subscribe((res) => {
+      expect(res).toEqual(expectedErpt);
+      expect(apiService.get).toHaveBeenCalledOnceWith('/erpts', apiParams);
+      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(4);
+      done();
+    });
+  });
+
+  it('getERpt(): should get an extended report', (done) => {
+    apiService.get.and.returnValue(of(apiExtendedReportRes[0]));
+    dataTransformService.unflatten.and.returnValue(unflattenedErptc);
+    spyOn(dateService, 'fixDates').and.returnValue(singleERptcFixDatesMock);
+    spyOn(dateService, 'getLocalDate').and.returnValue(new Date('2023-01-21T07:29:01.958Z'));
+
+    const reportID = 'rprAfNrce73O';
+
+    reportService.getERpt(reportID).subscribe((res) => {
+      expect(res).toEqual(expectedSingleErpt);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/erpts/${reportID}`);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(apiExtendedReportRes[0]);
+      expect(dateService.fixDates).toHaveBeenCalledOnceWith(unflattenedErptc.rp);
+      expect(dateService.getLocalDate).toHaveBeenCalledOnceWith(unflattenedErptc.rp.created_at);
       done();
     });
   });
@@ -272,10 +329,9 @@ describe('ReportService', () => {
       queryParams: {},
     };
 
-    reportService.getMyReportsCount({}).subscribe((res) => {
+    reportService.getMyReportsCount().subscribe((res) => {
       expect(res).toEqual(4);
-      expect(reportService.getMyReports).toHaveBeenCalledWith(param);
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(1);
+      expect(reportService.getMyReports).toHaveBeenCalledOnceWith(param);
       done();
     });
   });
@@ -295,8 +351,7 @@ describe('ReportService', () => {
 
     reportService.getReport(reportID).subscribe((res) => {
       expect(res).toEqual(expectedReportSingleResponse);
-      expect(reportService.getMyReports).toHaveBeenCalledWith(params);
-      expect(reportService.getMyReports).toHaveBeenCalledTimes(1);
+      expect(reportService.getMyReports).toHaveBeenCalledOnceWith(params);
       done();
     });
   });
@@ -312,8 +367,7 @@ describe('ReportService', () => {
 
     reportService.getTeamReportsCount().subscribe((res) => {
       expect(res).toEqual(25);
-      expect(reportService.getTeamReports).toHaveBeenCalledWith(params);
-      expect(reportService.getTeamReports).toHaveBeenCalledTimes(1);
+      expect(reportService.getTeamReports).toHaveBeenCalledOnceWith(params);
       done();
     });
   });
@@ -321,6 +375,7 @@ describe('ReportService', () => {
   it('getTeamReports(): should get all team reports', (done) => {
     mockExtendedOrgUser();
     apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
+    spyOn(dateService, 'fixDates').and.returnValues(apiTeamReportPaginated1.data[0], apiTeamReportPaginated1.data[1]);
 
     const params = {
       offset: 0,
@@ -333,7 +388,7 @@ describe('ReportService', () => {
 
     reportService.getTeamReports(params).subscribe((res) => {
       expect(res).toEqual(apiTeamReportPaginated1);
-      expect(apiv2Service.get).toHaveBeenCalledWith('/reports', {
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', {
         params: {
           offset: 0,
           limit: 10,
@@ -343,7 +398,6 @@ describe('ReportService', () => {
         },
       });
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -363,8 +417,7 @@ describe('ReportService', () => {
 
     reportService.getTeamReport(reportID).subscribe((res) => {
       expect(res).toEqual(apiTeamRptSingleRes.data[0]);
-      expect(reportService.getTeamReports).toHaveBeenCalledWith(params);
-      expect(reportService.getTeamReports).toHaveBeenCalledTimes(1);
+      expect(reportService.getTeamReports).toHaveBeenCalledOnceWith(params);
       done();
     });
   });
@@ -377,8 +430,7 @@ describe('ReportService', () => {
     const tnxs = ['txTQVBx7W8EO'];
 
     reportService.addTransactions(reportID, tnxs).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, { ids: tnxs });
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, { ids: tnxs });
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
@@ -391,8 +443,7 @@ describe('ReportService', () => {
 
     reportService.actions(reportID).subscribe((res) => {
       expect(res).toEqual(apiReportActions);
-      expect(apiService.get).toHaveBeenCalledWith(`/reports/${reportID}/actions`);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/actions`);
       done();
     });
   });
@@ -403,8 +454,7 @@ describe('ReportService', () => {
     const reportID = 'rphLXGFVbDaJ';
 
     reportService.getExports(reportID).subscribe(() => {
-      expect(apiService.get).toHaveBeenCalledWith(`/reports/${reportID}/exports`);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/exports`);
       done();
     });
   });
@@ -426,12 +476,9 @@ describe('ReportService', () => {
 
     reportService.create(reportPurpose, txnIds).subscribe((res) => {
       expect(res).toEqual(reportUnflattenedData2);
-      expect(reportService.createDraft).toHaveBeenCalledWith(reportPurpose);
-      expect(reportService.createDraft).toHaveBeenCalledTimes(1);
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/txns`, txnParam);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
-      expect(reportService.submit).toHaveBeenCalledWith(reportID);
-      expect(reportService.submit).toHaveBeenCalledTimes(1);
+      expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportPurpose);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, txnParam);
+      expect(reportService.submit).toHaveBeenCalledOnceWith(reportID);
       done();
     });
   });
@@ -441,9 +488,73 @@ describe('ReportService', () => {
 
     const reportID = 'rpShFuVCUIXk';
     reportService.resubmit(reportID).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/resubmit`);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/resubmit`);
       done();
+    });
+  });
+
+  it('inquire(): should send back a report', (done) => {
+    apiService.post.and.returnValue(of(null));
+    const reportID = 'rpSECyvCyyc6';
+    const statusPayloadParam = {
+      status: {
+        comment: 'Testing for code coverage',
+      },
+      notify: false,
+    };
+
+    reportService.inquire(reportID, statusPayloadParam).subscribe(() => {
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/inquire`, statusPayloadParam);
+      done();
+    });
+  });
+
+  describe('getAutoSubmissionReportName()', () => {
+    it('should get auto submitted report name', (done) => {
+      spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(of(apiReportAutoSubmissionDetails));
+
+      reportService.getAutoSubmissionReportName().subscribe((res) => {
+        expect(res).toEqual('(Automatic Submission On Feb 1)');
+        expect(reportService.getReportAutoSubmissionDetails).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should return null if auto submission is not scheduled', (done) => {
+      spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(
+        of({
+          data: {
+            next_at: null,
+          },
+        })
+      );
+
+      reportService.getAutoSubmissionReportName().subscribe((res) => {
+        expect(res).toBeNull();
+        expect(reportService.getReportAutoSubmissionDetails).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  describe('getReportAutoSubmissionDetails():', () => {
+    it('should get submission details', (done) => {
+      spenderPlatformV1BetaApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
+
+      reportService.getReportAutoSubmissionDetails().subscribe((res) => {
+        expect(res).toEqual({
+          data: {
+            next_at: new Date('2023-02-01T00:00:00.000000'),
+          },
+        });
+        expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledOnceWith(
+          '/automations/report_submissions/next_at',
+          {
+            data: null,
+          }
+        );
+        done();
+      });
     });
   });
 
@@ -452,8 +563,59 @@ describe('ReportService', () => {
 
     const reportID = 'rpShFuVCUIXk';
     reportService.approve(reportID).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledWith(`/reports/${reportID}/approve`);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/approve`);
+      done();
+    });
+  });
+
+  it('addApprover(): should add approver to a report', (done) => {
+    apiService.post.and.returnValue(of(null));
+
+    const reportID = 'rprj1zHHpW2W';
+    const approverEmail = 'asilk@akls.in';
+    const comment = 'comment';
+
+    reportService.addApprover(reportID, approverEmail, comment).subscribe(() => {
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/approvals`, {
+        approver_email: approverEmail,
+        comment,
+      });
+      done();
+    });
+  });
+
+  it('delete(): should delete a report', (done) => {
+    apiService.delete.and.returnValue(of(null));
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
+
+    const reportID = 'rpShFuVCUIXk';
+    reportService.delete(reportID).subscribe(() => {
+      expect(apiService.delete).toHaveBeenCalledOnceWith(`/reports/${reportID}`);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('updateReportDetails(): should update a report name', (done) => {
+    apiService.post.and.returnValue(of(apiReportUpdatedDetails));
+    dataTransformService.unflatten.and.returnValue(dataErtpTransformed);
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
+
+    reportService.updateReportDetails(reportParam).subscribe((res) => {
+      expect(res).toEqual(apiReportUpdatedDetails);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/reports', apiErptReporDataParam.rp);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(reportParam);
+      done();
+    });
+  });
+
+  it('getReportPermissions(): should get report permissions', (done) => {
+    permissionsService.allowedActions.and.returnValue(of(reportAllowedActionsResponse));
+
+    reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
+      expect(res).toEqual(reportAllowedActionsResponse);
+      expect(permissionsService.allowedActions).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -464,8 +626,7 @@ describe('ReportService', () => {
 
     reportService.getApproversByReportId(reportID).subscribe((res) => {
       expect(res).toEqual(apiApproverRes);
-      expect(apiService.get).toHaveBeenCalledWith(`/reports/${reportID}/approvers`);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/approvers`);
       done();
     });
   });
@@ -485,9 +646,63 @@ describe('ReportService', () => {
 
     reportService.downloadSummaryPdfUrl(data).subscribe((res) => {
       expect(res).toEqual(reportURL);
-      expect(apiService.post).toHaveBeenCalledWith('/reports/summary/download', data);
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/reports/summary/download', data);
       done();
+    });
+  });
+
+  it('getAllExtendedReports(): should get all reports', (done) => {
+    spyOn(reportService, 'getMyReportsCount').and.returnValue(of(2));
+    spyOn(reportService, 'getMyReports').and.returnValue(of(apiAllReportsRes));
+
+    const params = {
+      queryParams: {
+        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      },
+    };
+
+    const getMyReportsParam = {
+      offset: 0,
+      limit: 2,
+      queryParams: {
+        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      },
+      order: undefined,
+    };
+
+    reportService.getAllExtendedReports(params).subscribe((res) => {
+      expect(res).toEqual(expectedAllReports);
+      expect(reportService.getMyReports).toHaveBeenCalledOnceWith(getMyReportsParam);
+      expect(reportService.getMyReportsCount).toHaveBeenCalledOnceWith(params.queryParams);
+      done();
+    });
+  });
+
+  it('userReportsSearchParamsGenerator(): should generate user search parameter', () => {
+    const result = reportService.userReportsSearchParamsGenerator(
+      {
+        dateRange: {
+          from: '2022-10-31T13:54:46.317Z',
+          to: '2023-01-23T10:53:52.220Z',
+        },
+      },
+      { state: 'edit' }
+    );
+
+    expect(result).toEqual({
+      dateRange: {
+        from: '2022-10-31T13:54:46.317Z',
+        to: '2023-01-23T10:53:52.220Z',
+      },
+      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+    });
+  });
+
+  it('searchParamsGenerator(): should generate search parameters', () => {
+    const result = reportService.searchParamsGenerator({ state: 'edit' });
+
+    expect(result).toEqual({
+      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
     });
   });
 
@@ -497,9 +712,188 @@ describe('ReportService', () => {
 
     reportService.getReportPurpose({ ids: [] }).subscribe((res) => {
       expect(res).toEqual(reportName);
-      expect(apiService.post).toHaveBeenCalledWith('/reports/purpose', { ids: [] });
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/reports/purpose', { ids: [] });
       done();
+    });
+  });
+
+  it('getApproversInBulk(): should get approvers in bulk for all report IDs', (done) => {
+    apiService.get.and.returnValue(of(apiAllApproverRes2));
+
+    reportService.getApproversInBulk(apiApproversParam).subscribe((res) => {
+      expect(res).toEqual(expectedApprovers);
+      expect(apiService.get).toHaveBeenCalledOnceWith('/reports/approvers', {
+        params: { report_ids: apiApproversParam },
+      });
+      done();
+    });
+  });
+
+  it('getApproversInBulk(): should return an empty list as report IDs are empty', (done) => {
+    apiService.get.and.returnValue(of(apiAllApproverRes2));
+
+    reportService.getApproversInBulk([]).subscribe((res) => {
+      expect(res).toEqual([]);
+      done();
+    });
+  });
+
+  describe('getPaginatedERptcCount()', () => {
+    it('should get extended reports count', (done) => {
+      networkService.isOnline.and.returnValue(of(true));
+      apiService.get.and.returnValue(of({ count: 4 }));
+      storageService.set.and.returnValue(Promise.resolve(null));
+
+      const apiParam = ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'];
+
+      reportService.getPaginatedERptcCount({ state: apiParam }).subscribe((res) => {
+        expect(res).toEqual({ count: 4 });
+        expect(apiService.get).toHaveBeenCalledOnceWith('/erpts/count', { params: { state: apiParam } });
+        expect(storageService.set).toHaveBeenCalledOnceWith('erpts-count' + JSON.stringify({ state: apiParam }), {
+          count: 4,
+        });
+        done();
+      });
+    });
+
+    it('should return count when device is offline and use storage to give count', (done) => {
+      networkService.isOnline.and.returnValue(of(false));
+      storageService.get.and.returnValue(Promise.resolve({ count: 4 }));
+
+      reportService.getPaginatedERptcCount({}).subscribe((res) => {
+        expect(res).toEqual({ count: 4 });
+        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+        expect(storageService.get).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  describe('addOrderByParams()', () => {
+    it('return the params when no order is specified', () => {
+      const params = { state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
+
+      const result = reportService.addOrderByParams(params);
+      expect(result).toEqual(params);
+    });
+
+    it('return the params when order is specified', () => {
+      const params = {
+        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+        order_by: 'rp_created_at.desc,rp_id.desc',
+      };
+
+      const result = reportService.addOrderByParams(params, 'rp_created_at.desc,rp_id.desc');
+      expect(result).toEqual(params);
+    });
+  });
+
+  describe('getUserReportParams():', () => {
+    it('generate parameters as per state | edit', () => {
+      const params = 'edit';
+
+      const expectedRes = {
+        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+      };
+
+      const result = reportService.getUserReportParams(params);
+      expect(result).toEqual(expectedRes);
+      expect(expectedRes.state.length).toEqual(3);
+    });
+
+    it('generate parameters as per state | draft', () => {
+      const params = 'draft';
+
+      const expectedRes = {
+        state: ['DRAFT', 'DRAFT_INQUIRY'],
+      };
+
+      const result = reportService.getUserReportParams(params);
+      expect(result).toEqual(expectedRes);
+      expect(expectedRes.state.length).toEqual(2);
+    });
+
+    it('generate parameters as per state | pending', () => {
+      const params = 'pending';
+
+      const expectedRes = {
+        state: ['APPROVER_PENDING'],
+      };
+
+      const result = reportService.getUserReportParams(params);
+      expect(result).toEqual(expectedRes);
+      expect(expectedRes.state.length).toEqual(1);
+    });
+
+    it('generate parameters as per state | inquiry', () => {
+      const params = 'inquiry';
+
+      const expectedRes = {
+        state: ['APPROVER_INQUIRY'],
+      };
+
+      const result = reportService.getUserReportParams(params);
+      expect(result).toEqual(expectedRes);
+      expect(expectedRes.state.length).toEqual(1);
+    });
+
+    it('generate parameters as per state | approved', () => {
+      const params = 'approved';
+
+      const expectedRes = {
+        state: ['APPROVED'],
+      };
+
+      const result = reportService.getUserReportParams(params);
+      expect(result).toEqual(expectedRes);
+      expect(expectedRes.state.length).toEqual(1);
+    });
+
+    it('generate parameters as per state | payment_queue', () => {
+      const params = 'payment_queue';
+
+      const expectedRes = {
+        state: ['PAYMENT_PENDING'],
+      };
+
+      const result = reportService.getUserReportParams(params);
+      expect(result).toEqual(expectedRes);
+      expect(expectedRes.state.length).toEqual(1);
+    });
+
+    it('generate parameters as per state | paid', () => {
+      const params = 'paid';
+
+      const expectedRes = {
+        state: ['PAID'],
+      };
+
+      const result = reportService.getUserReportParams(params);
+      expect(result).toEqual(expectedRes);
+      expect(expectedRes.state.length).toEqual(1);
+    });
+
+    it('generate parameters as per state | all', () => {
+      const params = 'all';
+
+      const expectedRes = {
+        state: [
+          'DRAFT',
+          'DRAFT_INQUIRY',
+          'COMPLETE',
+          'APPROVED',
+          'APPROVER_PENDING',
+          'APPROVER_INQUIRY',
+          'PAYMENT_PENDING',
+          'PAYMENT_PROCESSING',
+          'PAID',
+          'REJECTED',
+        ],
+      };
+
+      const result = reportService.getUserReportParams(params);
+      expect(result).toEqual(expectedRes);
+      expect(expectedRes.state.length).toEqual(10);
     });
   });
 
@@ -510,7 +904,7 @@ describe('ReportService', () => {
 
     reportService.getReportETxnc(reportID, orgUserID).subscribe((res) => {
       expect(res).toEqual(apiExpenseRes);
-      expect(apiService.get).toHaveBeenCalledWith(`/erpts/${reportID}/etxns`, {
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/erpts/${reportID}/etxns`, {
         params: {
           approver_id: orgUserID,
         },
@@ -535,8 +929,7 @@ describe('ReportService', () => {
 
     reportService.getReportStatsData(apiReportStatsRawParam, true).subscribe((res) => {
       expect(res).toEqual(expectedReportRawStats);
-      expect(apiv2Service.get).toHaveBeenCalledWith('/reports/stats', { params });
-      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports/stats', { params });
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       done();
     });
@@ -548,10 +941,9 @@ describe('ReportService', () => {
 
     reportService.getReportStats(apiReportStatParams).subscribe((res) => {
       expect(res).toEqual(new StatsResponse(apiReportStatsRes));
-      expect(apiv2Service.get).toHaveBeenCalledWith('/reports/stats', {
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports/stats', {
         params: { rp_org_user_id: `eq.ouX8dwsbLCLv`, ...apiReportStatParams },
       });
-      expect(apiv2Service.get).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       done();
     });

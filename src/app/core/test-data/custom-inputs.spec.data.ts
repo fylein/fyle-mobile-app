@@ -125,7 +125,7 @@ export const authRespone = {
     employee_id:
       'A very long Employee ID A very long Employee ID A very long Employee ID A very long Employee ID A very long Employee ID',
     location: null,
-    level: '123',
+    level: 123,
     level_id: 'lvlPtroPaClQy',
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
     rank: 1121212121,
@@ -139,7 +139,7 @@ export const authRespone = {
     approver2_id: null,
     approver3_id: null,
     delegatee_id: 'ouM2cCGq7152',
-    delegation_start_at: '2022-03-07T18:30:00.000Z',
+    delegation_start_at: new Date('2022-03-07T18:30:00.000Z'),
     delegation_end_at: null,
     title:
       'A very long title indeed A very long title indeed A very long title indeed A very long title indeed A very long title indeed',
@@ -151,7 +151,7 @@ export const authRespone = {
     mobile_verified_at: null,
     is_primary: true,
     owner: false,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
     special_email: 'receipts+ajain_6@fyle.ai',
     custom_field_values: [
       {
