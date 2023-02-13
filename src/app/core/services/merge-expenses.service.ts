@@ -608,7 +608,13 @@ export class MergeExpensesService {
         )
         .filter((txDependentField) => !!txDependentField);
 
-      projectDependentFieldsMapping[expense.tx_project_id] = txDependentFields || [];
+      const dependentFieldsForProject = projectDependentFieldsMapping[expense.tx_project_id];
+
+      //If both the expenses have same project id but first one does not have any dependent field
+      //then use the dependent fields from the second expense, else use fields from first expense
+      if (!dependentFieldsForProject || dependentFieldsForProject.length === 0) {
+        projectDependentFieldsMapping[expense.tx_project_id] = txDependentFields || [];
+      }
     });
     return projectDependentFieldsMapping;
   }
