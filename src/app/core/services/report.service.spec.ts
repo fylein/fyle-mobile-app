@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { DatePipe } from '@angular/common';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { apiReportStatsRawRes, apiReportStatsRes } from '../../core/mock-data/stats-response.data';
 import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
@@ -12,7 +12,6 @@ import {
   apiTeamRptSingleRes,
   apiTeamReportPaginated1,
   apiAllReportsRes1,
-  apiAllReportsRes2,
 } from '../mock-data/api-reports.data';
 import {
   addApproversParam,
@@ -21,6 +20,7 @@ import {
   apiApproverRes,
   expectedApprovers,
   expectedAllApprovers,
+  addApproversParam2,
 } from '../mock-data/approver.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
@@ -29,16 +29,13 @@ import { apiReportActions } from '../mock-data/report-actions.data';
 import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
 import {
   expectedErpt,
-  expectedPendingReports,
   expectedSingleErpt,
-  addedApproversReports,
   unflattenedErptc,
   unflattenedErptcArrayItem1,
   unflattenedErptcArrayItem2,
   unflattenedErptcArrayItem3,
   unflattenedErptcArrayItem4,
   singleERptcFixDatesMock,
-  singleERptcLocalFixedMock,
   addApproverERpts,
   expectedAddedApproverERpts,
 } from '../mock-data/report-unflattened.data';
@@ -51,7 +48,6 @@ import {
 import {
   apiExtendedReportRes,
   expectedAllReports,
-  expectedPaginatedReports,
   expectedReportSingleResponse,
   reportParam,
 } from '../mock-data/report.data';
@@ -680,8 +676,7 @@ describe('ReportService', () => {
       expect(res).toEqual(apiReportUpdatedDetails);
       expect(apiService.post).toHaveBeenCalledOnceWith('/reports', apiErptReporDataParam.rp);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      expect(dataTransformService.unflatten).toHaveBeenCalledWith(reportParam);
-      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(reportParam);
       done();
     });
   });
@@ -691,7 +686,11 @@ describe('ReportService', () => {
       permissionsService.allowedActions.and.returnValue(of(reportAllowedActionsResponse));
       reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
         expect(res).toEqual(reportAllowedActionsResponse);
-        expect(permissionsService.allowedActions).toHaveBeenCalledTimes(1);
+        expect(permissionsService.allowedActions).toHaveBeenCalledOnceWith(
+          'reports',
+          ['approve', 'create', 'delete'],
+          orgSettingsParams
+        );
         done();
       });
     });
@@ -1008,6 +1007,15 @@ describe('ReportService', () => {
 
     reportService.getFilteredPendingReports({ state: 'edit' }).subscribe((res) => {
       expect(res).toEqual(expectedAddedApproverERpts);
+      expect(reportService.searchParamsGenerator).toHaveBeenCalledOnceWith({ state: 'edit' });
+      expect(reportService.getPaginatedERptcCount).toHaveBeenCalledOnceWith({
+        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+      });
+      expect(reportService.getPaginatedERptc).toHaveBeenCalledOnceWith(0, 2, {
+        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
+      });
+      expect(reportService.getApproversInBulk).toHaveBeenCalledOnceWith(['rp35DK02IvMP', 'rppMWBOkXJeS']);
+      expect(reportService.addApprovers).toHaveBeenCalledOnceWith(addApproverERpts, addApproversParam2);
       done();
     });
   });
