@@ -1,7 +1,12 @@
-<ng-container *ngIf="projectCustomInputsMapping && selectedProject">
-  <ng-container *ngFor="let customInput of customInputs">
-    <div class="merge-expenses--internal-block" *ngIf="customInput.value">
-      <app-fy-select [enableSearch]="false" [label]="customInput.name" [disabled]="true" [ngModel]="customInput.value">
+<ng-container *ngIf="dependentInputs?.length && selectedProjectId">
+  <ng-container *ngFor="let dependentInput of dependentInputs">
+    <div class="merge-expenses--internal-block" *ngIf="dependentInput.value">
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="dependentInput.name"
+        [disabled]="true"
+        [ngModel]="dependentInput.value"
+      >
       </app-fy-select>
     </div>
   </ng-container>

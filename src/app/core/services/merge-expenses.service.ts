@@ -19,6 +19,7 @@ import { AccountType } from '../enums/account-type.enum';
 import { TaxGroupService } from './tax-group.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { cloneDeep } from 'lodash';
+import { CustomProperty } from '../models/custom-properties.model';
 
 type Option = Partial<{
   label: string;
@@ -580,7 +581,7 @@ export class MergeExpensesService {
   }
 
   getCustomInputValues(expenses: Expense[]): CustomInputs[] {
-    //Created a copy else it modifies the expense object
+    //Create a copy so that we don't modify the expenses
     const expensesCopy = cloneDeep(expenses);
     return expensesCopy
       .map((expense) => {
@@ -591,43 +592,25 @@ export class MergeExpensesService {
       .filter((element) => element !== undefined);
   }
 
-  /*
-    Returns {
-      projectId: {
-        customFieldName: {
-          name: string;
-          value: string;
-        },
-        ...
-      },
-      ...
-    }
-    */
-  getProjectCustomInputsMapping(expenses: Expense[]) {
-    const test = expenses
-      .map((expense) => {
-        const customProperties = expense.tx_custom_properties
-          .map((customProperty) => ({
-            [customProperty.name]: customProperty.value,
-          }))
-          .reduce(
-            (acc, curr) => ({
-              ...acc,
-              ...curr,
-            }),
-            {}
-          );
-        return { [expense.tx_project_id]: customProperties };
-      })
-      .reduce(
-        (acc, curr) => ({
-          ...acc,
-          ...curr,
-        }),
-        {}
-      );
+  getProjectDependentFieldsMapping(
+    expenses: Expense[],
+    dependentFields: CustomInputs[]
+  ): {
+    [projectId: number]: CustomProperty<string>[];
+  } {
+    const projectDependentFieldsMapping = {};
+    expenses.forEach((expense) => {
+      const txDependentFields: CustomProperty<string>[] = dependentFields
+        .map((dependentField: CustomInputs) =>
+          expense.tx_custom_properties.find(
+            (txCustomProperty: CustomProperty<string>) => dependentField.name === txCustomProperty.name
+          )
+        )
+        .filter((txDependentField) => !!txDependentField);
 
-    return test;
+      projectDependentFieldsMapping[expense.tx_project_id] = txDependentFields;
+    });
+    return projectDependentFieldsMapping;
   }
 
   formatCustomInputOptions(combinedCustomProperties: OptionsData[]) {

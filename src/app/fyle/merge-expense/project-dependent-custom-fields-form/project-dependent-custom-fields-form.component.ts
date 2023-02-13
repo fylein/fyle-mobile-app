@@ -1,5 +1,6 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 
 type Option = Partial<{
   label: string;
@@ -25,24 +26,17 @@ type CustomInput = Partial<{
   styleUrls: ['./project-dependent-custom-fields-form.component.scss'],
 })
 export class ProjectDependentCustomFieldsFormComponent implements OnChanges {
-  @Input() customInputs: CustomInput[];
+  @Input() projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] };
 
-  @Input() projectCustomInputsMapping;
+  @Input() selectedProjectId: number;
 
-  @Input() selectedProject;
-
-  customFields: CustomInput[];
+  dependentInputs: CustomProperty<string>[];
 
   constructor() {}
 
-  generateCustomForm() {
-    this.customInputs = this.customInputs.map((customInput) => ({
-      ...customInput,
-      value: this.projectCustomInputsMapping[this.selectedProject][customInput.name],
-    }));
-  }
-
-  ngOnChanges() {
-    this.generateCustomForm();
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.selectedProjectId?.currentValue) {
+      this.dependentInputs = this.projectDependentFieldsMapping[changes.selectedProjectId.currentValue];
+    }
   }
 }

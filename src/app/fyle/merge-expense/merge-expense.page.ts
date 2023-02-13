@@ -17,6 +17,7 @@ import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expe
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 
 type Option = Partial<{
   label: string;
@@ -144,9 +145,7 @@ export class MergeExpensePage implements OnInit {
 
   systemCategories: string[];
 
-  dependentFields$: Observable<CustomInputs[]>;
-
-  projectCustomInputsMapping = {};
+  projectDependentFieldsMapping$: Observable<{ [projectId: number]: CustomProperty<string>[] }>;
 
   constructor(
     private router: Router,
@@ -281,8 +280,6 @@ export class MergeExpensePage implements OnInit {
     this.subscribeExpenseChange();
 
     this.combinedCustomProperties = this.generateCustomInputOptions();
-
-    this.projectCustomInputsMapping = this.mergeExpensesService.getProjectCustomInputsMapping(this.expenses);
   }
 
   loadGenericFieldsOptions() {
@@ -487,10 +484,14 @@ export class MergeExpensePage implements OnInit {
       });
       sourceTxnIds = sourceTxnIds.filter((id) => id !== selectedExpense);
 
-      this.dependentFields$
+      this.projectDependentFieldsMapping$
         .pipe(
-          switchMap((dependentFields) =>
-            this.mergeExpensesService.mergeExpenses(sourceTxnIds, selectedExpense, this.generateFromFg(dependentFields))
+          switchMap((projectDependentFieldsMapping) =>
+            this.mergeExpensesService.mergeExpenses(
+              sourceTxnIds,
+              selectedExpense,
+              this.generateFromFg(projectDependentFieldsMapping)
+            )
           ),
           finalize(() => {
             this.isMerging = false;
@@ -524,7 +525,7 @@ export class MergeExpensePage implements OnInit {
       .subscribe(noop);
   }
 
-  generateFromFg(dependentFields) {
+  generateFromFg(projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] }) {
     const sourceExpense = this.expenses.find(
       (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
     );
@@ -536,12 +537,7 @@ export class MergeExpensePage implements OnInit {
     } else if (this.fg.value.location_1) {
       locations = [this.genericFieldsForm.value.location_1];
     }
-
-    const selectedCustomFields = this.projectCustomInputsMapping[this.genericFieldsForm.value.project];
-    const selectedDependentFields = dependentFields.map((dependentField) => ({
-      name: dependentField.name,
-      value: selectedCustomFields[dependentField.name],
-    }));
+    const dependentFieldValues = projectDependentFieldsMapping[this.genericFieldsForm.value.project] || [];
 
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
@@ -557,7 +553,7 @@ export class MergeExpensePage implements OnInit {
       purpose: this.genericFieldsForm.value.purpose,
       txn_dt: this.genericFieldsForm.value.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
-      custom_properties: [...this.fg.controls.custom_inputs.value.fields, ...selectedDependentFields],
+      custom_properties: [...this.fg.controls.custom_inputs.value.fields, ...dependentFieldValues],
       ccce_group_id: CCCMatchedExpense?.tx_corporate_credit_card_expense_group_id,
       from_dt: this.genericFieldsForm.value.from_dt,
       to_dt: this.genericFieldsForm.value.to_dt,
@@ -606,12 +602,18 @@ export class MergeExpensePage implements OnInit {
       })
     );
 
-    this.dependentFields$ = allCustomFields$.pipe(
+    const dependentFields$ = allCustomFields$.pipe(
       map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
       switchMap((fields) => {
         const customFields = this.customFieldsService.standardizeCustomFields([], fields);
         return of(customFields);
       })
+    );
+
+    this.projectDependentFieldsMapping$ = dependentFields$.pipe(
+      map((dependentFields) =>
+        this.mergeExpensesService.getProjectDependentFieldsMapping(this.expenses, dependentFields)
+      )
     );
   }
 

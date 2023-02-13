@@ -33,7 +33,7 @@
       </app-fy-alert-info>
 
       <ng-container *ngIf="genericFieldsOptions$|async as genericFieldsOptions">
-        <ng-container *ngIf="dependentFields$|async as dependentFields">
+        <ng-container *ngIf="projectDependentFieldsMapping$|async as projectDependentFieldsMapping">
           <app-generic-fields-form
             formControlName="genericFields"
             [amountOptionsData]="genericFieldsOptions.amountOptionsData"
@@ -52,8 +52,7 @@
             [purposeOptionsData]="genericFieldsOptions.purposeOptionsData"
             [categoryDependentTemplate]="categoryDependentFields"
             [disableFormElements]="disableFormElements"
-            [projectCustomInputsMapping]="projectCustomInputsMapping"
-            [dependentFields]="dependentFields"
+            [projectDependentFieldsMapping]="projectDependentFieldsMapping"
             (fieldsTouched)="onGenericFieldsTouched($event)"
             (categoryChanged)="onCategoryChanged($event)"
             (receiptChanged)="onReceiptChanged($event)"

@@ -173,11 +173,10 @@
     </ion-grid>
   </div>
 
-  <ng-container *ngIf="dependentFields?.length && genericFieldsFormGroup.controls.project.value">
+  <ng-container *ngIf="genericFieldsFormGroup?.controls.project?.value && projectDependentFieldsMapping">
     <app-project-dependent-custom-fields-form
-      [customInputs]="dependentFields"
-      [projectCustomInputsMapping]="projectCustomInputsMapping"
-      [selectedProject]="genericFieldsFormGroup.controls.project.value"
+      [projectDependentFieldsMapping]="projectDependentFieldsMapping"
+      [selectedProjectId]="genericFieldsFormGroup.controls.project.value"
     ></app-project-dependent-custom-fields-form>
   </ng-container>
 
