@@ -6,7 +6,7 @@ import { CustomProperty } from 'src/app/core/models/custom-properties.model';
   styleUrls: ['./project-dependent-custom-fields-form.component.scss'],
 })
 export class ProjectDependentCustomFieldsFormComponent {
-  @Input() dependentInputs: CustomProperty<string>[] = [];
+  @Input() dependentFields: CustomProperty<string>[] = [];
 
   constructor() {}
 }

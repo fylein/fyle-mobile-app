@@ -1,10 +1,10 @@
-<ng-container *ngFor="let dependentInput of dependentInputs">
-  <div class="merge-expenses--internal-block" *ngIf="dependentInput.value">
+<ng-container *ngFor="let dependentField of dependentFields">
+  <div class="merge-expenses--internal-block" *ngIf="dependentField.value">
     <app-fy-select
       [enableSearch]="false"
-      [label]="dependentInput.name"
+      [label]="dependentField.name"
       [disabled]="true"
-      [ngModel]="dependentInput.value"
+      [ngModel]="dependentField.value"
     >
     </app-fy-select>
   </div>
