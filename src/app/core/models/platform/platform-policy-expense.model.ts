@@ -33,7 +33,7 @@ export interface PlatformPolicyExpense {
     placeholder?: string;
     prefix?: string;
     type?: string;
-    value: string | [];
+    value: any | any[];
   }[];
   started_at?: Date;
   ended_at?: Date;

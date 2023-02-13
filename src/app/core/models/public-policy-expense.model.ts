@@ -18,7 +18,7 @@ export interface PublicPolicyExpense {
     placeholder?: string;
     prefix?: string;
     type?: string;
-    value: string | [];
+    value: any | any[];
   }[];
   distance: number;
   distance_unit: string;
