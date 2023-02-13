@@ -19,7 +19,6 @@ import { CardTransactionPreviewComponent } from './card-transaction-preview/card
 import { GenericFieldsFormComponent } from './generic-fields-form/generic-fields-form.component';
 import { CategoryDependentFieldsFormComponent } from './category-dependent-fields-form/category-dependent-fields-form.component';
 import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form/custom-inputs-fields-form.component';
-import { ProjectDependentCustomFieldsFormComponent } from './project-dependent-custom-fields-form/project-dependent-custom-fields-form.component';
 
 @NgModule({
   imports: [
@@ -47,7 +46,6 @@ import { ProjectDependentCustomFieldsFormComponent } from './project-dependent-c
     GenericFieldsFormComponent,
     CategoryDependentFieldsFormComponent,
     CustomInputsFieldsFormComponent,
-    ProjectDependentCustomFieldsFormComponent,
   ],
 })
 export class MergeExpensePageModule {}
