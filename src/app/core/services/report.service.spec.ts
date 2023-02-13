@@ -111,7 +111,7 @@ describe('ReportService', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache', 'onLogout']);
     const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
-    const permissionsServiceSpy = jasmine.createSpyObj('PermissionService', ['allowedActions']);
+    const permissionsServiceSpy = jasmine.createSpyObj('PermissionsService', ['allowedActions']);
 
     TestBed.configureTestingModule({
       providers: [
