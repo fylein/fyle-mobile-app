@@ -243,7 +243,6 @@ export class ReportService {
       })
       .pipe(
         map((res) => {
-          console.log(res);
           if (res.data.next_at) {
             const dateObj = new Date(res.data.next_at);
             res.data.next_at = dateObj;
