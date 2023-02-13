@@ -1440,7 +1440,6 @@ describe('TransactionService', () => {
   });
 
   it('upsert(): should upsert transaction', (done) => {
-    const offset = '-05:00:00';
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
     const txnDate = new Date('2023-02-13T06:30:00.000Z');
     const fromDate = new Date('2023-02-13T06:30:00.000Z');
@@ -1457,6 +1456,7 @@ describe('TransactionService', () => {
     timezoneService.convertToUtc.and.returnValue(txnUtcFromDate);
     timezoneService.convertToUtc.and.returnValue(txnUtcToDate);
     utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
+    const offset = orgUserSettingsData3.locale.offset;
 
     transactionService.upsert(upsertTxnParam).subscribe((res) => {
       expect(res).toEqual(txnData4);
