@@ -118,10 +118,7 @@
               *ngIf="(!(etxn?.tx?.report_id) && !(reviewList?.length > 1)) && (isCorporateCreditCardEnabled && canRemoveCardExpense)"
             >
               <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
-              <div
-                class="add-edit-expense--split-info-message"
-                *ngIf="(!(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canRemoveCardExpense)"
-              >
+              <div class="add-edit-expense--split-info-message">
                 If the expense is merged with incorrect card details, click on Options (<span
                   ><ion-icon
                     class="add-edit-expense--icon-dots"
