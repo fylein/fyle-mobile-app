@@ -10,6 +10,7 @@ import { CardAggregateStat } from '../models/card-aggregate-stat.model';
 import { UniqueCardStats } from '../models/unique-cards-stats.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
 import { DateService } from './date.service';
+import { ApiV2Response } from '../models/v2/api-v2-response.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -24,16 +25,10 @@ export class CorporateCreditCardExpenseService {
 
   getv2CardTransactions(config: {
     offset: number;
-    queryParams: { state: string } | {};
+    queryParams: { state?: string };
     limit: number;
     order?: string;
-  }): Observable<{
-    count: number;
-    data: CorporateCardExpense[];
-    limit: number;
-    offset: number;
-    url: string;
-  }> {
+  }): Observable<ApiV2Response<CorporateCardExpense>> {
     return this.apiV2Service
       .get('/corporate_card_transactions', {
         params: {

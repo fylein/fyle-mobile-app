@@ -1,18 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { of, from } from 'rxjs';
+import { of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { DataTransformService } from './data-transform.service';
 import {
-  apiTransactionCountResponse,
-  apiSingleTransactionResponse,
+  apiCardV2Transactions,
   eCCCApiResponse,
   expectedECccResponse,
-  expectedSingleTransaction,
-  searchCCCTxnResponse,
-  expectedSearchTxn,
 } from '../test-data/corporate-credit-card-expense.spec.data';
 import { uniqueCardsParam } from '../mock-data/unique-cards.data';
 import { cardAggregateStatParam } from '../mock-data/card-aggregate-stat.data';
@@ -71,9 +67,8 @@ describe('CorporateCreditCardExpenseService', () => {
     apiService.post.and.returnValue(of(null));
     const testId = 'ccceJN3PWAR94U';
     const result = cccExpenseService.markPersonal(testId);
-    result.subscribe((res) => {
-      expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/personal');
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+    result.subscribe(() => {
+      expect(apiService.post).toHaveBeenCalledOnceWith('/corporate_credit_card_expenses/' + testId + '/personal');
       done();
     });
   });
@@ -82,9 +77,8 @@ describe('CorporateCreditCardExpenseService', () => {
     apiService.post.and.returnValue(of(null));
     const testId = 'ccceRhYsN8Fj78';
     const result = cccExpenseService.dismissCreditTransaction(testId);
-    result.subscribe((res) => {
-      expect(apiService.post).toHaveBeenCalledWith('/corporate_credit_card_expenses/' + testId + '/ignore');
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+    result.subscribe(() => {
+      expect(apiService.post).toHaveBeenCalledOnceWith('/corporate_credit_card_expenses/' + testId + '/ignore');
       done();
     });
   });
@@ -98,20 +92,33 @@ describe('CorporateCreditCardExpenseService', () => {
 
     result.subscribe((res) => {
       expect(res).toEqual(expectedECccResponse);
-      expect(apiService.get).toHaveBeenCalledTimes(1);
+      expect(apiService.get).toHaveBeenCalledOnceWith('/extended_corporate_credit_card_expenses', {
+        params: {
+          group_id: testID,
+        },
+      });
       done();
     });
   });
 
   it('getAssignedCards(): should get all assigned cards', (done) => {
+    const queryParams = 'in.(COMPLETE,DRAFT)';
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     apiV2Service.get.and.returnValue(of(apiAssignedCardDetailsRes));
+    spyOn(cccExpenseService, 'constructInQueryParamStringForV2').and.returnValue(queryParams);
 
     const result = cccExpenseService.getAssignedCards();
     result.subscribe((res) => {
       expect(res).toEqual(expectedAssignedCCCStats);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      expect(apiV2Service.get).toHaveBeenCalledOnceWith(
+        '/expenses_and_ccce/stats?aggregates=count(tx_id),sum(tx_amount)&scalar=true&dimension_1_1=corporate_credit_card_bank_name,corporate_credit_card_account_number,tx_state&tx_state=' +
+          queryParams +
+          '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
+          apiEouRes.ou.id,
+        {}
+      );
+      expect(cccExpenseService.constructInQueryParamStringForV2).toHaveBeenCalledOnceWith(['COMPLETE', 'DRAFT']);
       done();
     });
   });
@@ -120,5 +127,27 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.getExpenseDetailsInCards(uniqueCardsParam, cardAggregateStatParam);
 
     expect(result).toEqual(expectedUniqueCardStats);
+  });
+
+  it('getv2CardTransactions(): should get all card transactions', (done) => {
+    apiV2Service.get.and.returnValue(of(apiCardV2Transactions));
+
+    const param = {
+      offset: 0,
+      queryParams: {},
+      limit: 2,
+    };
+
+    cccExpenseService.getv2CardTransactions(param).subscribe((res) => {
+      expect(res).toEqual(apiCardV2Transactions);
+      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/corporate_card_transactions', {
+        params: {
+          offset: 0,
+          limit: 2,
+          order: 'txn_dt.desc,id.desc',
+        },
+      });
+      done();
+    });
   });
 });
