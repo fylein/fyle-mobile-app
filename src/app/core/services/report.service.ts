@@ -16,13 +16,20 @@ import { TransactionService } from './transaction.service';
 import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { UserEventService } from './user-event.service';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PermissionsService } from './permissions.service';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { Expense } from '../models/expense.model';
+import { Approver } from '../models/v1/approver.model';
+import { ReportActions } from '../models/report-actions.model';
+import { ReportPurpose } from '../models/report-purpose.model';
+import { ApiV2Response } from '../models/api-v2.model';
+import { ReportParams } from '../models/report-params.model';
+import { UnflattenedReport } from '../models/report-unflattened.model';
+import { ReportV1 } from '../models/report-v1.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -41,7 +48,7 @@ export class ReportService {
     private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
     private userEventService: UserEventService,
-    private spenderPlatformApiService: SpenderPlatformApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private datePipe: DatePipe,
     private launchDarklyService: LaunchDarklyService,
     private permissionsService: PermissionsService
@@ -79,7 +86,11 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getPaginatedERptc(offset, limit, params) {
+  getPaginatedERptc(
+    offset: number,
+    limit: number,
+    params: { state?: string[]; order?: string }
+  ): Observable<UnflattenedReport[]> {
     const data = {
       params: {
         offset,
@@ -130,7 +141,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  createDraft(report) {
+  createDraft(report: ReportPurpose) {
     return this.apiService
       .post('/reports', report)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
@@ -139,7 +150,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  create(report, txnIds: string[]) {
+  create(report: ReportPurpose, txnIds: string[]) {
     return this.createDraft(report).pipe(
       switchMap((newReport) =>
         this.apiService
@@ -182,7 +193,15 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  inquire(rptId: string, addStatusPayload) {
+  inquire(
+    rptId: string,
+    addStatusPayload: {
+      status: {
+        comment: string;
+      };
+      notify: boolean;
+    }
+  ) {
     return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
   }
 
@@ -196,7 +215,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addApprover(rptId: string, approverEmail: string, comment) {
+  addApprover(rptId: string, approverEmail: string, comment: string) {
     const data = {
       approver_email: approverEmail,
       comment,
@@ -207,7 +226,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  updateReportDetails(erpt: ExtendedReport) {
+  updateReportDetails(erpt: ExtendedReport): Observable<ReportV1> {
     const reportData = this.dataTransformService.unflatten(erpt);
     return this.apiService
       .post('/reports', reportData.rp)
@@ -218,7 +237,7 @@ export class ReportService {
     cacheBusterObserver: reportsCacheBuster$,
   })
   getReportAutoSubmissionDetails(): Observable<ReportAutoSubmissionDetails> {
-    return this.spenderPlatformApiService
+    return this.spenderPlatformV1BetaApiService
       .post<ReportAutoSubmissionDetails>('/automations/report_submissions/next_at', {
         data: null,
       })
@@ -295,7 +314,7 @@ export class ReportService {
     return stateMap[state];
   }
 
-  getPaginatedERptcCount(params) {
+  getPaginatedERptcCount(params: ReportParams): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
@@ -317,7 +336,7 @@ export class ReportService {
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<ExtendedReport>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/reports', {
@@ -347,7 +366,7 @@ export class ReportService {
     );
   }
 
-  getTeamReportsCount(queryParams = {}) {
+  getTeamReportsCount(queryParams = {}): Observable<number> {
     return this.getTeamReports({
       offset: 0,
       limit: 1,
@@ -361,7 +380,7 @@ export class ReportService {
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<ExtendedReport>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/reports', {
@@ -411,7 +430,7 @@ export class ReportService {
     }).pipe(map((res) => res.data[0]));
   }
 
-  actions(rptId: string) {
+  actions(rptId: string): Observable<ReportActions> {
     return this.apiService.get('/reports/' + rptId + '/actions');
   }
 
@@ -419,7 +438,7 @@ export class ReportService {
     return this.apiService.get('/reports/' + rptId + '/exports');
   }
 
-  getApproversByReportId(rptId: string) {
+  getApproversByReportId(rptId: string): Observable<Approver[]> {
     return this.apiService.get('/reports/' + rptId + '/approvers');
   }
 
@@ -452,7 +471,15 @@ export class ReportService {
     );
   }
 
-  addOrderByParams(params, sortOrder?) {
+  addOrderByParams(
+    params: {
+      state?: string[];
+    },
+    sortOrder?: string
+  ): {
+    state?: string[];
+    order_by?: string;
+  } {
     if (sortOrder) {
       return Object.assign(params, { order_by: sortOrder });
     } else {
@@ -460,7 +487,7 @@ export class ReportService {
     }
   }
 
-  searchParamsGenerator(search, sortOrder?) {
+  searchParamsGenerator(search: { state: string; dateRange?: { from: string; to: string } }, sortOrder?: string) {
     let params = {};
 
     params = this.userReportsSearchParamsGenerator(params, search);
@@ -469,7 +496,16 @@ export class ReportService {
     return params;
   }
 
-  userReportsSearchParamsGenerator(params, search) {
+  userReportsSearchParamsGenerator(
+    params: ReportParams,
+    search: {
+      state: string;
+      dateRange?: {
+        from?: string;
+        to?: string;
+      };
+    }
+  ) {
     const searchParams = this.getUserReportParams(search.state);
 
     let dateParams = null;
@@ -477,7 +513,7 @@ export class ReportService {
     // dateRange.from and dateRange.to needs to a valid date string (if present)
     // Example: dateRange.from = 'Jan 1, 2015', dateRange.to = 'Dec 31, 2017'
 
-    if (search.dateRange && !isEqual(search.dateRange, {})) {
+    if (search.dateRange && search.dateRange.from && search.dateRange.to) {
       // TODO: Fix before 2025
       let fromDate = new Date('Jan 1, 1970');
       let toDate = new Date('Dec 31, 2025');
@@ -501,7 +537,7 @@ export class ReportService {
     return Object.assign({}, params, searchParams, dateParams);
   }
 
-  getReportPurpose(reportPurpose) {
+  getReportPurpose(reportPurpose: { ids: string[] }): Observable<string> {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
 
@@ -549,7 +585,7 @@ export class ReportService {
     );
   }
 
-  getFilteredPendingReports(searchParams) {
+  getFilteredPendingReports(searchParams: { state: string }) {
     const params = this.searchParamsGenerator(searchParams);
 
     return this.getPaginatedERptcCount(params).pipe(

@@ -2933,56 +2933,6 @@ export class TimezoneService {
 
   constructor(private currencService: CurrencyService, private utilityService: UtilityService) {}
 
-  getTimezones() {
-    return this.timezones;
-  }
-
-  getDefaultLocale() {
-    return this.currencService.getHomeCurrency().pipe(
-      map((currency) => {
-        const currencyLocaleMap = {
-          INR: {
-            timezone: 'Asia/Kolkata',
-            abbreviation: 'IST',
-            offset: '05:30:00',
-          },
-          USD: {
-            timezone: 'America/Chicago',
-            abbreviation: 'CDT',
-            offset: '-05:00:00',
-          },
-          EUR: {
-            timezone: 'Europe/Stockholm',
-            abbreviation: 'CEST',
-            offset: '02:00:00',
-          },
-          BST: {
-            timezone: 'Europe/Belfast',
-            abbreviation: 'BST',
-            offset: '01:00:00',
-          },
-          CAD: {
-            timezone: 'Canada/Central',
-            abbreviation: 'CDT',
-            offset: '-05:00:00',
-          },
-          SGD: {
-            timezone: 'Asia/Singapore',
-            abbreviation: '+08',
-            offset: '08:00:00',
-          },
-          AUD: {
-            timezone: 'Australia/Melbourne',
-            abbreviation: 'AEST',
-            offset: '10:00:00',
-          },
-        };
-
-        return currencyLocaleMap[currency] || currencyLocaleMap.USD;
-      })
-    );
-  }
-
   convertAllDatesToProperLocale(object, offset) {
     const that = this;
     const copiedObject = cloneDeep(object);
@@ -3032,15 +2982,5 @@ export class TimezoneService {
 
   convertToUtc(date, offset) {
     return this.convertToTimezone(date, offset, true);
-  }
-
-  convertToLocal(date, offset) {
-    return this.convertToTimezone(date, offset, false);
-  }
-
-  getOffsetSign(offset) {
-    const hourOffset = +offset.split(':')[0];
-    const offsetSign = Math.sign(hourOffset);
-    return offsetSign;
   }
 }

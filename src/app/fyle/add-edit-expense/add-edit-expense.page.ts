@@ -71,7 +71,6 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { CorporateCreditCardExpenseSuggestionsService } from '../../core/services/corporate-credit-card-expense-suggestions.service';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
-import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -86,7 +85,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
@@ -419,15 +418,7 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
-      if (bankTxn) {
-        this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        const reportId = this.fg.value.report?.rp?.id;
-        if (reportId) {
-          this.showAddToReportSuccessToast(reportId);
-        }
-      }
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
   }
 
@@ -570,62 +561,6 @@ export class AddEditExpensePage implements OnInit {
 
       this.selectedCCCTransaction = null;
     }
-  }
-
-  async openMatchingTransactions() {
-    this.isChangeCCCSuggestionClicked = true;
-    this.isCCCTransactionAutoSelected = false;
-    this.etxn$.subscribe(async (etxn) => {
-      const matchExpensesModal = await this.modalController.create({
-        component: MatchTransactionComponent,
-        componentProps: {
-          matchingCCCTransactions: this.matchingCCCTransactions,
-          mode: this.mode,
-          selectedCCCTransaction: this.selectedCCCTransaction,
-        },
-        mode: 'ios',
-        ...this.modalProperties.getModalDefaultProperties('auto-height'),
-      });
-
-      await matchExpensesModal.present();
-
-      const { data } = await matchExpensesModal.onWillDismiss();
-
-      if (data) {
-        if (data.unMatchedExpense) {
-          await this.unmatchExpense(etxn);
-        } else {
-          this.isDraftExpense = false;
-          this.selectedCCCTransaction = data.selectedCCCExpense;
-          // corporate_credit_card_account_number will not be available in the new suggestions endpoint as it is not required
-          if (this.selectedCCCTransaction && this.selectedCCCTransaction.corporate_credit_card_account_number) {
-            this.cardEndingDigits = (
-              this.selectedCCCTransaction.corporate_credit_card_account_number
-                ? this.selectedCCCTransaction.corporate_credit_card_account_number
-                : this.selectedCCCTransaction.card_or_account_number
-            ).slice(-4);
-          }
-
-          this.canChangeMatchingCCCTransaction = true;
-
-          if (
-            !etxn.tx.corporate_credit_card_expense_group_id ||
-            this.selectedCCCTransaction.id !== etxn.tx.corporate_credit_card_expense_group_id
-          ) {
-            this.showSelectedTransaction = true;
-          } else if (this.selectedCCCTransaction.id === etxn.tx.corporate_credit_card_expense_group_id) {
-            this.showSelectedTransaction = false;
-            await this.popupService.showPopup({
-              header: 'Already matched!',
-              message: 'The expense is already matched to this card transaction',
-              primaryCta: {
-                text: 'Close',
-              },
-            });
-          }
-        }
-      }
-    });
   }
 
   setupExpenseSuggestions() {
@@ -2327,7 +2262,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getEditExpenseObservable() {
-    return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
+    return this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id).pipe(
       tap((etxn) => (this.isIncompleteExpense = etxn.tx.state === 'DRAFT')),
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
@@ -2381,7 +2316,7 @@ export class AddEditExpensePage implements OnInit {
   goToPrev() {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     if (this.reviewList[+this.activeIndex - 1]) {
-      this.transactionService.getETxn(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
+      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
       });
     }
@@ -2390,7 +2325,7 @@ export class AddEditExpensePage implements OnInit {
   goToNext() {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     if (this.reviewList[+this.activeIndex + 1]) {
-      this.transactionService.getETxn(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
+      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
       });
     }
@@ -3404,7 +3339,7 @@ export class AddEditExpensePage implements OnInit {
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx).pipe(
-              switchMap((txn) => this.transactionService.getETxn(txn.id)),
+              switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
                 const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
@@ -4132,7 +4067,7 @@ export class AddEditExpensePage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+        this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else if (removeExpenseFromReport) {

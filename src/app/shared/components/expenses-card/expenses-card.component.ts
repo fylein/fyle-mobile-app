@@ -9,7 +9,7 @@ import { isNumber, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
 import { PopoverController, ModalController, Platform } from '@ionic/angular';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { File } from 'src/app/core/models/file.model';
 import { map, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
@@ -248,7 +248,7 @@ export class ExpensesCardComponent implements OnInit {
             !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
           if (that.isScanInProgress) {
             that.pollDataExtractionStatus(function () {
-              that.transactionService.getETxn(that.expense.tx_id).subscribe((etxn) => {
+              that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
                 const extractedData = etxn.tx.extracted_data;
                 if (extractedData?.amount && extractedData?.currency) {
                   that.isScanCompleted = true;

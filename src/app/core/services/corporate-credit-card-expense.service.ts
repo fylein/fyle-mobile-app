@@ -57,61 +57,12 @@ export class CorporateCreditCardExpenseService {
       );
   }
 
-  getv2CardTransaction(id: string): Observable<CorporateCardExpense> {
-    return this.apiV2Service
-      .get('/corporate_card_transactions', {
-        params: {
-          id: `eq.${id}`,
-        },
-      })
-      .pipe(map((res) => this.dateService.fixDates(res && res.data && res.data[0])));
-  }
-
-  getv2CardTransactionsCount(queryParams = {}): Observable<number> {
-    return this.getv2CardTransactions({
-      offset: 0,
-      limit: 1,
-      queryParams,
-    }).pipe(map((res) => res.count));
-  }
-
-  getAllv2CardTransactions(
-    config: Partial<{ order: string; queryParams: { state: string } }>
-  ): Observable<CorporateCardExpense[]> {
-    return this.getv2CardTransactionsCount(config.queryParams).pipe(
-      switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
-        return range(0, count);
-      }),
-      concatMap((page) =>
-        this.getv2CardTransactions({
-          offset: 50 * page,
-          limit: 50,
-          queryParams: config.queryParams,
-          order: config.order,
-        })
-      ),
-      map((res) => res.data.map((ele) => this.dateService.fixDates(ele))),
-      reduce((acc, curr) => acc.concat(curr))
-    );
-  }
-
   markPersonal(corporateCreditCardExpenseGroupId: string) {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/personal');
   }
 
   dismissCreditTransaction(corporateCreditCardExpenseId: string) {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/ignore');
-  }
-
-  unmarkPersonal(corporateCreditCardExpenseGroupId: string) {
-    return this.apiService.post(
-      '/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/unmark_personal'
-    );
-  }
-
-  undoDismissedCreditTransaction(corporateCreditCardExpenseId: string) {
-    return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/undo_ignore');
   }
 
   getEccceByGroupId(groupId: string) {

@@ -384,7 +384,7 @@ export class TasksComponent implements OnInit {
           const initial = selectedIds[0];
           const allIds = selectedIds;
 
-          return this.transactionService.getETxn(initial).pipe(
+          return this.transactionService.getETxnUnflattened(initial).pipe(
             map((etxn) => ({
               inital: etxn,
               allIds,

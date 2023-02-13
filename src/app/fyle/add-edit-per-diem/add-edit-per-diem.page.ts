@@ -308,10 +308,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
-      const reportId = this.fg.value.report?.rp?.id;
-      if (reportId) {
-        this.showAddToReportSuccessToast(reportId);
-      }
     }
   }
 
@@ -319,7 +315,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
 
     if (this.reviewList[+this.activeIndex - 1]) {
-      this.transactionService.getETxn(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
+      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
       });
     }
@@ -329,7 +325,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
 
     if (this.reviewList[+this.activeIndex + 1]) {
-      this.transactionService.getETxn(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
+      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
       });
     }
@@ -602,7 +598,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getEditExpense() {
-    return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
+    return this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
   }
 
   setupFilteredCategories(activeCategories$: Observable<any>) {
@@ -1836,7 +1832,7 @@ export class AddEditPerDiemPage implements OnInit {
             }
 
             return this.transactionService.upsert(etxn.tx).pipe(
-              switchMap((txn) => this.transactionService.getETxn(txn.id)),
+              switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
                 const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
@@ -2108,7 +2104,7 @@ export class AddEditPerDiemPage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+        this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else if (removePerDiemFromReport) {

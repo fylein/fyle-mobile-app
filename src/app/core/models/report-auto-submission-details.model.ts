@@ -1,5 +1,5 @@
 export interface ReportAutoSubmissionDetails {
   data: {
-    next_at: Date;
+    next_at?: Date;
   };
 }

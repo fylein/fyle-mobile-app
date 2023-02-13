@@ -218,13 +218,6 @@ export class StatsComponent implements OnInit {
     }
   }
 
-  goToCCCPage(state: string) {
-    this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', { pageState: state }]);
-    this.trackingService.dashboardOnCorporateCardClick({
-      pageState: state,
-    });
-  }
-
   private trackDashboardLaunchTime() {
     try {
       if (performance.getEntriesByName(PerfTrackers.dashboardLaunchTime).length === 0) {
