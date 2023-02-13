@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { DatePipe } from '@angular/common';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { apiReportStatsRawRes, apiReportStatsRes } from '../../core/mock-data/stats-response.data';
 import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
@@ -12,6 +12,7 @@ import {
   apiTeamRptSingleRes,
   apiTeamReportPaginated1,
   apiAllReportsRes1,
+  apiAllReportsRes2,
 } from '../mock-data/api-reports.data';
 import {
   addApproversParam,
