@@ -298,9 +298,7 @@ export class MyReportsPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     setTimeout(() => {
-      if (event?.target?.complete) {
-        event.target.complete();
-      }
+      event?.target?.complete?.();
     }, 1000);
   }
 
@@ -310,11 +308,7 @@ export class MyReportsPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.reportService.clearTransactionCache().subscribe(() => {
       this.loadData$.next(params);
-      if (event) {
-        if (event?.target?.complete) {
-          event.target.complete();
-        }
-      }
+      event?.target?.complete?.();
     });
   }
 

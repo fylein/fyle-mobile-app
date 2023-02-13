@@ -154,11 +154,7 @@ export class TeamAdvancePage implements AfterViewChecked {
         sortDir: this.filters.sortDir,
       });
     });
-    if (event) {
-      if (event?.target?.complete) {
-        event.target.complete();
-      }
-    }
+    event?.target?.complete?.();
   }
 
   getAndUpdateProjectName() {

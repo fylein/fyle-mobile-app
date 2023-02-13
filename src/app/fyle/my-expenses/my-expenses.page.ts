@@ -688,9 +688,7 @@ export class MyExpensesPage implements OnInit {
     this.loadData$.next(params);
 
     setTimeout(() => {
-      if (event?.target?.complete) {
-        event.target.complete();
-      }
+      event?.target?.complete?.();
     }, 1000);
   }
 
@@ -725,9 +723,7 @@ export class MyExpensesPage implements OnInit {
       this.loadData$.next(params);
       if (event) {
         setTimeout(() => {
-          if (event?.target?.complete) {
-            event.target.complete();
-          }
+          event?.target?.complete?.();
         }, 1000);
       }
     });

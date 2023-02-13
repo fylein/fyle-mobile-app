@@ -257,9 +257,7 @@ export class TeamReportsPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     setTimeout(() => {
-      if (event?.target?.complete) {
-        event.target.complete();
-      }
+      event?.target?.complete?.();
     }, 1000);
   }
 
@@ -268,11 +266,7 @@ export class TeamReportsPage implements OnInit {
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
-    if (event) {
-      if (event?.target?.complete) {
-        event.target.complete();
-      }
-    }
+    event?.target?.complete?.();
   }
 
   generateCustomDateParams(newQueryParams: any) {

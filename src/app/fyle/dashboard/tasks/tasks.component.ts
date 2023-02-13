@@ -197,9 +197,7 @@ export class TasksComponent implements OnInit {
       this.loadData$.next(this.loadData$.getValue());
       if (event) {
         setTimeout(() => {
-          if (event?.target?.complete) {
-            event.target.complete();
-          }
+          event?.target?.complete?.();
         }, 1500);
       }
     });
