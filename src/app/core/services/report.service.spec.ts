@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { DatePipe } from '@angular/common';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { apiReportStatsRawRes, apiReportStatsRes } from '../../core/mock-data/stats-response.data';
 import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
@@ -15,13 +15,13 @@ import {
   apiAllReportsRes2,
 } from '../mock-data/api-reports.data';
 import {
-  addApproversParam,
+  approversData1,
   apiAllApproverRes1,
   apiAllApproverRes2,
   apiApproverRes,
   expectedApprovers,
-  expectedAllApprovers,
-  addApproversParam2,
+  approversData2,
+  approversData3,
 } from '../mock-data/approver.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
@@ -53,6 +53,7 @@ import {
   reportParam,
   expectedPaginatedReports,
 } from '../mock-data/report.data';
+import { getMyReportsParam1, getMyReportsParam2 } from '../mock-data/api-params.data';
 import { expectedReportRawStats } from '../mock-data/stats-dimension-response.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { ApiV2Service } from './api-v2.service';
@@ -281,7 +282,7 @@ describe('ReportService', () => {
       };
 
       reportService.getMyReports(params).subscribe((res) => {
-        expect(res).toEqual(res);
+        expect(res).toEqual(apiReportRes);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', { params: apiParams });
         done();
       });
@@ -314,7 +315,7 @@ describe('ReportService', () => {
       };
 
       reportService.getMyReports(params).subscribe((res) => {
-        expect(res).toEqual(res);
+        expect(res).toEqual(apiReportRes);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', { params: apiParams });
         done();
       });
@@ -765,24 +766,6 @@ describe('ReportService', () => {
         },
       };
 
-      const getMyReportsParam1 = {
-        offset: 0,
-        limit: 2,
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-        order: undefined,
-      };
-
-      const getMyReportsParam2 = {
-        offset: 2,
-        limit: 2,
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-        order: undefined,
-      };
-
       spyOn(reportService, 'getMyReportsCount').and.returnValue(of(3));
       getMyReportsSpy.withArgs(getMyReportsParam1).and.returnValue(of(apiAllReportsRes1));
       getMyReportsSpy.withArgs(getMyReportsParam2).and.returnValue(of(apiAllReportsRes2));
@@ -848,7 +831,7 @@ describe('ReportService', () => {
       apiService.get.withArgs('/reports/approvers', param2).and.returnValue(of(apiAllApproverRes2));
 
       reportService.getApproversInBulk(report_ids).subscribe((res) => {
-        expect(res).toEqual(expectedAllApprovers);
+        expect(res).toEqual(approversData2);
         expect(apiService.get).toHaveBeenCalledWith('/reports/approvers', param1);
         expect(apiService.get).toHaveBeenCalledWith('/reports/approvers', param2);
         expect(apiService.get).toHaveBeenCalledTimes(2);
@@ -1033,7 +1016,7 @@ describe('ReportService', () => {
   });
 
   it('addApprovers(): add approvers to reports', () => {
-    const res = reportService.addApprovers(addApproverERpts, addApproversParam);
+    const res = reportService.addApprovers(addApproverERpts, approversData1);
 
     expect(res).toEqual(expectedAddedApproverERpts);
   });
@@ -1044,7 +1027,7 @@ describe('ReportService', () => {
     });
     spyOn(reportService, 'getPaginatedERptcCount').and.returnValue(of({ count: 2 }));
     spyOn(reportService, 'getPaginatedERptc').and.returnValue(of(addApproverERpts));
-    spyOn(reportService, 'getApproversInBulk').and.returnValue(of(addApproversParam));
+    spyOn(reportService, 'getApproversInBulk').and.returnValue(of(approversData1));
     spyOn(reportService, 'addApprovers').and.returnValue(expectedAddedApproverERpts);
 
     reportService.getFilteredPendingReports({ state: 'edit' }).subscribe((res) => {
@@ -1057,7 +1040,7 @@ describe('ReportService', () => {
         state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
       });
       expect(reportService.getApproversInBulk).toHaveBeenCalledOnceWith(['rp35DK02IvMP', 'rppMWBOkXJeS']);
-      expect(reportService.addApprovers).toHaveBeenCalledOnceWith(addApproverERpts, addApproversParam2);
+      expect(reportService.addApprovers).toHaveBeenCalledOnceWith(addApproverERpts, approversData3);
       done();
     });
   });

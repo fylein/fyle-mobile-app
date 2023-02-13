@@ -140,7 +140,7 @@ export const expectedApprovers: Approver[] = [
   },
 ];
 
-export const addApproversParam: Approver[] = [
+export const approversData1: Approver[] = [
   {
     id: 43239,
     created_at: null,
@@ -191,7 +191,7 @@ export const addApproversParam: Approver[] = [
   },
 ];
 
-export const expectedAllApprovers: Approver[] = [
+export const approversData2: Approver[] = [
   {
     id: 45435,
     created_at: null,
@@ -258,7 +258,7 @@ export const expectedAllApprovers: Approver[] = [
   },
 ];
 
-export const addApproversParam2: Approver[] = [
+export const approversData3: Approver[] = [
   {
     id: 43239,
     created_at: null,

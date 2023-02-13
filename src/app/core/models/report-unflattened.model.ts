@@ -3,6 +3,12 @@ import { OrgUser } from './org-user.model';
 import { User } from './user.model';
 import { UserDetails } from './v1/user-details.model';
 
+type approvalMaps = {
+  [id: string]: {
+    rank: number;
+    state: string;
+  };
+};
 export interface UnflattenedReport {
   ou: OrgUser;
   rp: {
@@ -51,10 +57,3 @@ export interface UnflattenedReport {
   };
   us: User;
 }
-
-type approvalMaps = {
-  [id: string]: {
-    rank: number;
-    state: string;
-  };
-};
