@@ -1902,7 +1902,9 @@ export class AddEditExpensePage implements OnInit {
   setupCustomFields() {
     this.initialFetch = true;
     this.customInputs$ = this.fg.controls.category.valueChanges.pipe(
+      filter((category) => !!category),
       startWith({}),
+      distinctUntilChanged(),
       switchMap((category) =>
         iif(() => this.mode === 'add', this.getCategoryOnAdd(category), this.getCategoryOnEdit(category))
       ),
@@ -1927,7 +1929,6 @@ export class AddEditExpensePage implements OnInit {
           return customField;
         })
       ),
-
       switchMap((customFields: any[]) =>
         this.isConnected$.pipe(
           take(1),
@@ -1948,7 +1949,6 @@ export class AddEditExpensePage implements OnInit {
                 })
               );
             }
-            this.fg.controls.custom_inputs = this.formBuilder.array(customFieldsFormArray.controls);
             customFieldsFormArray.updateValueAndValidity();
             return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
           })
