@@ -1,7 +1,6 @@
-//will have transformed cost center data , getallActive cost center
 import { CostCenter } from '../models/v1/cost-center.model';
 
-export const expectedData: CostCenter[] = [
+export const costCentersData: CostCenter[] = [
   {
     active: true,
     code: null,
@@ -44,7 +43,7 @@ export const expectedData: CostCenter[] = [
   },
 ];
 
-export const CostCenterServiceSingleResponse: CostCenter[] = [
+export const costCenterSingleResponse: CostCenter[] = [
   {
     active: true,
     code: 'code',
@@ -57,7 +56,7 @@ export const CostCenterServiceSingleResponse: CostCenter[] = [
   },
 ];
 
-export const apiCostServiceFirst: CostCenter[] = [
+export const costCenterApiRes1: CostCenter[] = [
   {
     active: true,
     code: null,
@@ -80,7 +79,7 @@ export const apiCostServiceFirst: CostCenter[] = [
   },
 ];
 
-export const apiCostServiceSecond: CostCenter[] = [
+export const costCenterApiRes2: CostCenter[] = [
   {
     active: true,
     code: null,

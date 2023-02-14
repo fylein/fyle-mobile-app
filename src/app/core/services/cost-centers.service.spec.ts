@@ -3,12 +3,16 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { CostCentersService } from './cost-centers.service';
 import { of } from 'rxjs';
-import { apiCostCenterSingleResponse, apiCostCenterMultipleResponse } from '../mock-data/platformCostCenter.data';
 import {
-  apiCostServiceFirst,
-  apiCostServiceSecond,
-  CostCenterServiceSingleResponse,
-  expectedData,
+  apiCostCenterSingleResponse,
+  apiCostCenterMultipleResponse,
+  expectedTransformData,
+} from '../mock-data/platformCostCenter.data';
+import {
+  costCenterApiRes1,
+  costCenterApiRes2,
+  costCenterSingleResponse,
+  costCentersData,
 } from '../mock-data/cost-centers.data';
 
 describe('CostCentersService', () => {
@@ -52,15 +56,14 @@ describe('CostCentersService', () => {
     };
 
     costCentersService.getActiveCostCentersCount().subscribe((res) => {
-      expect(res).toEqual(4);
+      expect(res).toEqual(apiCostCenterSingleResponse.count);
       expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/cost_centers', params);
       done();
     });
   });
 
-  it('getCostCenters() :should get cost centers as per config', (done) => {
+  it('getCostCenters(): should get cost centers as per config', (done) => {
     spenderPlatformV1BetaApiService.get.and.returnValue(of(apiCostCenterMultipleResponse));
-
     const data = {
       params: {
         is_enabled: 'eq.' + true,
@@ -69,9 +72,11 @@ describe('CostCentersService', () => {
       },
     };
 
+    spyOn(costCentersService, 'transformFrom').and.returnValue(costCentersData);
     costCentersService.getCostCenters({ offset: 0, limit: 4 }).subscribe((res) => {
-      expect(res).toEqual(expectedData);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/cost_centers', data);
+      expect(res).toEqual(costCentersData);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/cost_centers', data);
+      expect(costCentersService.transformFrom).toHaveBeenCalledOnceWith(apiCostCenterMultipleResponse.data);
       done();
     });
   });
@@ -93,13 +98,13 @@ describe('CostCentersService', () => {
     };
 
     spyOn(costCentersService, 'getActiveCostCentersCount').and.returnValue(of(3));
-    spyGetCostCenters.withArgs(testParams1).and.returnValue(of(CostCenterServiceSingleResponse));
-    spyGetCostCenters.withArgs(testParams2).and.returnValue(of(apiCostServiceFirst));
-    spyGetCostCenters.withArgs(testParams3).and.returnValue(of(apiCostServiceSecond));
+    spyGetCostCenters.withArgs(testParams1).and.returnValue(of(costCenterSingleResponse));
+    spyGetCostCenters.withArgs(testParams2).and.returnValue(of(costCenterApiRes1));
+    spyGetCostCenters.withArgs(testParams3).and.returnValue(of(costCenterApiRes2));
 
     costCentersService.getAllActive().subscribe((res) => {
-      expect(res).toEqual(expectedData);
-      expect(costCentersService.getActiveCostCentersCount).toHaveBeenCalled();
+      expect(res).toEqual(costCentersData);
+      expect(costCentersService.getActiveCostCentersCount).toHaveBeenCalledTimes(1);
       expect(costCentersService.getActiveCostCentersCount).toHaveBeenCalledTimes(1);
       expect(costCentersService.getCostCenters).toHaveBeenCalledTimes(2);
     });
