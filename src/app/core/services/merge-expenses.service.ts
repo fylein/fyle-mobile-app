@@ -35,10 +35,10 @@ type OptionsData = Partial<{
 
 type CustomInputs = Partial<{
   control: FormControl;
-  id: string;
+  id: number;
   mandatory: boolean;
   name: string;
-  options: Option[];
+  options: string[];
   placeholder: string;
   prefix: string;
   type: string;
@@ -601,7 +601,7 @@ export class MergeExpensesService {
     const projectDependentFieldsMapping = {};
     expenses.forEach((expense) => {
       const txDependentFields: CustomProperty<string>[] = dependentFields
-        .map((dependentField: CustomInputs) =>
+        ?.map((dependentField: CustomInputs) =>
           expense.tx_custom_properties.find(
             (txCustomProperty: CustomProperty<string>) => dependentField.name === txCustomProperty.name
           )
