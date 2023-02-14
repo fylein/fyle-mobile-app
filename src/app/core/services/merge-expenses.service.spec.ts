@@ -1,8 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import {
-  expenses,
   dependentFields,
   projectDependentFieldsMapping,
+  expensesWithSameProject,
+  expensesWithDependentFields,
+  projectDependentFieldsMappingForSameProject,
+  projectDependentFieldsMappingForNoDependentFields,
 } from '../../core/test-data/merge-expense.service.spec.data';
 import { MergeExpensesService } from './merge-expenses.service';
 import { ApiService } from './api.service';
@@ -75,7 +78,16 @@ describe('MergeExpensesService', () => {
   });
 
   it('getProjectDependentFieldsMapping(): should return the correct project mapping', () => {
-    const result = mergeExpensesService.getProjectDependentFieldsMapping(expenses, dependentFields);
-    expect(result).toEqual(projectDependentFieldsMapping);
+    expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithDependentFields, dependentFields)).toEqual(
+      projectDependentFieldsMapping
+    );
+
+    expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithSameProject, dependentFields)).toEqual(
+      projectDependentFieldsMappingForSameProject
+    );
+
+    expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithSameProject, null)).toEqual(
+      projectDependentFieldsMappingForNoDependentFields
+    );
   });
 });

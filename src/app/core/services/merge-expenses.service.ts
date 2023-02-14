@@ -601,7 +601,7 @@ export class MergeExpensesService {
     const projectDependentFieldsMapping = {};
     expenses.forEach((expense) => {
       const txDependentFields: CustomProperty<string>[] = dependentFields
-        .map((dependentField: CustomInputs) =>
+        ?.map((dependentField: CustomInputs) =>
           expense.tx_custom_properties.find(
             (txCustomProperty: CustomProperty<string>) => dependentField.name === txCustomProperty.name
           )
