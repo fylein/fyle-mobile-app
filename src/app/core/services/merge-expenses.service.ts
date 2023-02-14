@@ -35,10 +35,10 @@ type OptionsData = Partial<{
 
 type CustomInputs = Partial<{
   control: FormControl;
-  id: string;
+  id: number;
   mandatory: boolean;
   name: string;
-  options: Option[];
+  options: string[];
   placeholder: string;
   prefix: string;
   type: string;

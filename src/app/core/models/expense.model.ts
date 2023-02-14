@@ -19,6 +19,7 @@ export interface Expense {
   ou_level: string;
   ou_location: string;
   ou_mobile: string;
+  ou_rank?: string;
   ou_org_id: string;
   ou_org_name: string;
   ou_sub_department: string;
@@ -30,7 +31,11 @@ export interface Expense {
   rp_reimbursed_at?: any;
   source_account_id: string;
   source_account_type: string;
+  tg_name?: string;
+  tg_percentage?: number;
   transaction_approvals: any;
+  tx_activity_details?: any;
+  tx_activity_policy_pending?: any;
   tx_admin_amount?: any;
   tx_amount?: any;
   tx_billable: boolean;
@@ -180,6 +185,6 @@ export interface Expense {
   tx_verification_state?: any;
   us_email: string;
   us_full_name: string;
-  tx_categoryDisplayName: string; // custom property added in the service
+  tx_categoryDisplayName?: string; // custom property added in the service
   tx_dataUrls?: { thumbnail: string }[];
 }
