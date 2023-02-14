@@ -247,7 +247,6 @@ export class ReportService {
           if (res.data.next_at) {
             const dateObj = new Date(res.data.next_at);
             res.data.next_at = dateObj;
-            return res;
           }
           return res;
         })
