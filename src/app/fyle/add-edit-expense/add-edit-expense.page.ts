@@ -1902,7 +1902,9 @@ export class AddEditExpensePage implements OnInit {
   setupCustomFields() {
     this.initialFetch = true;
     this.customInputs$ = this.fg.controls.category.valueChanges.pipe(
+      filter((category) => !!category),
       startWith({}),
+      distinctUntilChanged(),
       switchMap((category) =>
         iif(() => this.mode === 'add', this.getCategoryOnAdd(category), this.getCategoryOnEdit(category))
       ),
@@ -1927,7 +1929,6 @@ export class AddEditExpensePage implements OnInit {
           return customField;
         })
       ),
-
       switchMap((customFields: any[]) =>
         this.isConnected$.pipe(
           take(1),
