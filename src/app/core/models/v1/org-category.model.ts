@@ -5,7 +5,7 @@ export interface OrgCategory {
   org_id: string;
   name: string;
   code: string;
-  fyle_category?: string;
+  fyle_category: string;
   sub_category: string;
   enabled: boolean;
   creator_id?: string;

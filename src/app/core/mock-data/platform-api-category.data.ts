@@ -1,27 +1,27 @@
 import { ApiV2Response } from '../models/api-v2.model';
 import { PlatformCategory } from '../models/platform/platform-category.model';
 
-export const apiCategoryCountRes: ApiV2Response<PlatformCategory> = {
+export const platformApiCategoryRes: ApiV2Response<PlatformCategory> = {
   count: 318,
   data: [
     {
       created_at: new Date('2017-05-09T06:09:47.765967+00:00'),
-      display_name: 'Activity',
+      display_name: 'Food',
       id: 130,
       code: '42',
       is_enabled: true,
-      name: 'Activity',
+      name: 'Food',
       org_id: 'orrjqbDbeP9p',
       restricted_project_ids: [519, 589, 3837, 243580, 243581],
       sub_category: null,
-      system_category: 'Activity',
+      system_category: 'Food',
       updated_at: new Date('2022-05-05T17:45:33.737507+00:00'),
     },
   ],
   offset: 0,
 };
 
-export const apiAllCategoryRes: ApiV2Response<PlatformCategory> = {
+export const platformApiAllCategories: ApiV2Response<PlatformCategory> = {
   count: 4,
   data: [
     {
