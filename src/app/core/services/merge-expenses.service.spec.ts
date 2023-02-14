@@ -1,12 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  dependentFields,
-  projectDependentFieldsMapping,
-  expensesWithSameProject,
-  expensesWithDependentFields,
-  projectDependentFieldsMappingForSameProject,
-  projectDependentFieldsMappingForNoDependentFields,
-} from '../../core/test-data/merge-expense.service.spec.data';
 import { MergeExpensesService } from './merge-expenses.service';
 import { ApiService } from './api.service';
 import { FileService } from './file.service';
@@ -19,6 +11,13 @@ import { CorporateCreditCardExpenseService } from './corporate-credit-card-expen
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { CurrencyPipe } from '@angular/common';
+import { expensesWithDependentFields, expensesWithSameProject } from '../mock-data/expenses.data';
+import { dependentFields } from '../mock-data/dependent-field.data';
+import {
+  projectDependentFieldsMapping,
+  projectDependentFieldsMappingForNoDependentFields,
+  projectDependentFieldsMappingForSameProject,
+} from '../mock-data/project-dependent-field-mapping.data';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -77,17 +76,23 @@ describe('MergeExpensesService', () => {
     expect(mergeExpensesService).toBeTruthy();
   });
 
-  it('getProjectDependentFieldsMapping(): should return the correct project mapping', () => {
-    expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithDependentFields, dependentFields)).toEqual(
-      projectDependentFieldsMapping
-    );
+  describe('getProjectDependentFieldsMapping(): ', () => {
+    it('should return the correct project dependent fields mapping when projects are different', () => {
+      expect(
+        mergeExpensesService.getProjectDependentFieldsMapping(expensesWithDependentFields, dependentFields)
+      ).toEqual(projectDependentFieldsMapping);
+    });
 
-    expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithSameProject, dependentFields)).toEqual(
-      projectDependentFieldsMappingForSameProject
-    );
+    it('should return the correct project dependent fields mapping when projects are same', () => {
+      expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithSameProject, dependentFields)).toEqual(
+        projectDependentFieldsMappingForSameProject
+      );
+    });
 
-    expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithSameProject, null)).toEqual(
-      projectDependentFieldsMappingForNoDependentFields
-    );
+    it('should return empty array when there are no dependent fields', () => {
+      expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithSameProject, null)).toEqual(
+        projectDependentFieldsMappingForNoDependentFields
+      );
+    });
   });
 });

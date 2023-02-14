@@ -1,4 +1,6 @@
-export const expensesWithDependentFields = [
+import { Expense } from '../models/expense.model';
+
+export const expensesWithDependentFields: Expense[] = [
   {
     corporate_credit_card_account_number: null,
     credit: false,
@@ -64,10 +66,6 @@ export const expensesWithDependentFields = [
     tx_currency: 'INR',
     tx_custom_properties: [
       {
-        name: 'USer List CF',
-        value: ['dimple.kh@fyle.in', 'yash.s@fyle.in'],
-      },
-      {
         name: 'CF1',
         value: 'CF1.1',
       },
@@ -78,42 +76,6 @@ export const expensesWithDependentFields = [
       {
         name: 'CF3',
         value: 'CF3.1',
-      },
-      {
-        name: 'CF4',
-        value: 'CF4.1',
-      },
-      {
-        name: 'CF5',
-        value: 'CF5.1',
-      },
-      {
-        name: 'Select CF',
-        value: 'Cv2',
-      },
-      {
-        name: 'Multi select CF',
-        value: ['MF1', 'MF2'],
-      },
-      {
-        name: 'Location CF',
-        value: {
-          city: 'Teterboro',
-          country: 'United States',
-          display: 'EWR8 - Amazon Warehouse, Henry Street, Teterboro, NJ, USA',
-          formatted_address: '32 Henry St, Teterboro, NJ 07608, USA',
-          latitude: 40.8660875,
-          longitude: -74.05936919999999,
-          state: 'New Jersey',
-        },
-      },
-      {
-        name: 'Date CF',
-        value: '2023-02-07T06:30:00.000Z',
-      },
-      {
-        name: 'Boolean value',
-        value: false,
       },
     ],
     tx_decimal_column1: null,
@@ -323,10 +285,6 @@ export const expensesWithDependentFields = [
     tx_currency: 'INR',
     tx_custom_properties: [
       {
-        name: 'USer List CF',
-        value: ['dimple.kh@fyle.in'],
-      },
-      {
         name: 'CF1',
         value: 'CF1.3',
       },
@@ -337,42 +295,6 @@ export const expensesWithDependentFields = [
       {
         name: 'CF3',
         value: 'CF3.3',
-      },
-      {
-        name: 'CF4',
-        value: 'CF4.3',
-      },
-      {
-        name: 'CF5',
-        value: 'CF5.3',
-      },
-      {
-        name: 'Select CF',
-        value: 'Cv2',
-      },
-      {
-        name: 'Multi select CF',
-        value: ['MF2', 'MF3'],
-      },
-      {
-        name: 'Location CF',
-        value: {
-          city: 'Rome',
-          country: 'Italy',
-          display: 'Testaccio, Rome, Metropolitan City of Rome Capital, Italy',
-          formatted_address: 'Monte Testaccio, 00153 Rome, Metropolitan City of Rome Capital, Italy',
-          latitude: 41.87595200000001,
-          longitude: 12.475694,
-          state: 'Lazio',
-        },
-      },
-      {
-        name: 'Date CF',
-        value: '2023-02-08T06:30:00.000Z',
-      },
-      {
-        name: 'Boolean value',
-        value: false,
       },
     ],
     tx_decimal_column1: null,
@@ -519,7 +441,7 @@ export const expensesWithDependentFields = [
   },
 ];
 
-export const expensesWithSameProject = [
+export const expensesWithSameProject: Expense[] = [
   {
     corporate_credit_card_account_number: null,
     credit: false,
@@ -791,10 +713,6 @@ export const expensesWithSameProject = [
     tx_currency: 'INR',
     tx_custom_properties: [
       {
-        name: 'USer List CF',
-        value: ['dimple.kh@fyle.in'],
-      },
-      {
         name: 'CF1',
         value: 'CF1.3',
       },
@@ -805,42 +723,6 @@ export const expensesWithSameProject = [
       {
         name: 'CF3',
         value: 'CF3.3',
-      },
-      {
-        name: 'CF4',
-        value: 'CF4.3',
-      },
-      {
-        name: 'CF5',
-        value: 'CF5.3',
-      },
-      {
-        name: 'Select CF',
-        value: 'Cv2',
-      },
-      {
-        name: 'Multi select CF',
-        value: ['MF2', 'MF3'],
-      },
-      {
-        name: 'Location CF',
-        value: {
-          city: 'Rome',
-          country: 'Italy',
-          display: 'Testaccio, Rome, Metropolitan City of Rome Capital, Italy',
-          formatted_address: 'Monte Testaccio, 00153 Rome, Metropolitan City of Rome Capital, Italy',
-          latitude: 41.87595200000001,
-          longitude: 12.475694,
-          state: 'Lazio',
-        },
-      },
-      {
-        name: 'Date CF',
-        value: '2023-02-08T06:30:00.000Z',
-      },
-      {
-        name: 'Boolean value',
-        value: false,
       },
     ],
     tx_decimal_column1: null,
@@ -986,137 +868,3 @@ export const expensesWithSameProject = [
     vendorDetails: '213',
   },
 ];
-
-export const dependentFields = [
-  {
-    id: 218227,
-    prefix: '',
-    name: 'CF1',
-    value: null,
-    placeholder: 'CF1',
-    type: 'DEPENDENT_SELECT',
-    mandatory: true,
-    options: ['CF1.1', 'CF1.2', 'CF1.3', 'CF1.4', 'CF1.5'],
-    parent_field_id: 214662,
-  },
-  {
-    id: 218228,
-    prefix: '',
-    name: 'CF2',
-    value: null,
-    placeholder: 'CF2',
-    type: 'DEPENDENT_SELECT',
-    mandatory: true,
-    options: ['CF2.1', 'CF2.2', 'CF2.3', 'CF2.4', 'CF2.5'],
-    parent_field_id: 218227,
-  },
-  {
-    id: 218229,
-    prefix: '',
-    name: 'CF3',
-    value: null,
-    placeholder: 'CF3',
-    type: 'DEPENDENT_SELECT',
-    mandatory: true,
-    options: ['CF3.1', 'CF3.2', 'CF3.3', 'CF3.4', 'CF3.5'],
-    parent_field_id: 218228,
-  },
-  {
-    id: 218230,
-    prefix: '',
-    name: 'CF4',
-    value: null,
-    placeholder: 'CF4',
-    type: 'DEPENDENT_SELECT',
-    mandatory: false,
-    options: ['CF4.1', 'CF4.2', 'CF4.3', 'CF4.4', 'CF4.5'],
-    parent_field_id: 218229,
-  },
-  {
-    id: 218231,
-    prefix: '',
-    name: 'CF5',
-    value: null,
-    placeholder: 'CF5',
-    type: 'DEPENDENT_SELECT',
-    mandatory: false,
-    options: ['CF5.1', 'CF5.2', 'CF5.3', 'CF5.4', 'CF5.5'],
-    parent_field_id: 218230,
-  },
-];
-
-export const projectDependentFieldsMapping = {
-  316908: [
-    {
-      name: 'CF1',
-      value: 'CF1.3',
-    },
-    {
-      name: 'CF2',
-      value: 'CF2.3',
-    },
-    {
-      name: 'CF3',
-      value: 'CF3.3',
-    },
-    {
-      name: 'CF4',
-      value: 'CF4.3',
-    },
-    {
-      name: 'CF5',
-      value: 'CF5.3',
-    },
-  ],
-  316992: [
-    {
-      name: 'CF1',
-      value: 'CF1.1',
-    },
-    {
-      name: 'CF2',
-      value: 'CF2.1',
-    },
-    {
-      name: 'CF3',
-      value: 'CF3.1',
-    },
-    {
-      name: 'CF4',
-      value: 'CF4.1',
-    },
-    {
-      name: 'CF5',
-      value: 'CF5.1',
-    },
-  ],
-};
-
-export const projectDependentFieldsMappingForSameProject = {
-  316992: [
-    {
-      name: 'CF1',
-      value: 'CF1.3',
-    },
-    {
-      name: 'CF2',
-      value: 'CF2.3',
-    },
-    {
-      name: 'CF3',
-      value: 'CF3.3',
-    },
-    {
-      name: 'CF4',
-      value: 'CF4.3',
-    },
-    {
-      name: 'CF5',
-      value: 'CF5.3',
-    },
-  ],
-};
-
-export const projectDependentFieldsMappingForNoDependentFields = {
-  316992: [],
-};
