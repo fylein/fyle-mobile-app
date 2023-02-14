@@ -15,3 +15,37 @@ export const fileObjectData: FileObject = {
   email_meta_data: null,
   fyle_sub_url: '/api/files/fiHPZUiichAS/download',
 };
+
+export const fileObjectData1: FileObject[] = [
+  {
+    id: 'fi6PQ6z4w6ET',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-02-08T06:47:44.340Z'),
+    name: '000.jpeg',
+    s3url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg',
+    transaction_id: 'txNVtsqF8Siq',
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/fi6PQ6z4w6ET/download',
+  },
+];
+
+export const fileObjectData2: FileObject = {
+  id: 'fi6PQ6z4w6ET',
+  org_user_id: 'ouX8dwsbLCLv',
+  created_at: new Date('2023-02-08T06:47:44.340Z'),
+  name: '000.jpeg',
+  s3url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg',
+  transaction_id: 'txNVtsqF8Siq',
+  invoice_id: null,
+  advance_request_id: null,
+  purpose: 'ORIGINAL',
+  password: null,
+  receipt_coordinates: null,
+  email_meta_data: null,
+  fyle_sub_url: '/api/files/fi6PQ6z4w6ET/download',
+};
