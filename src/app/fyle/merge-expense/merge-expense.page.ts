@@ -612,8 +612,7 @@ export class MergeExpensePage implements OnInit {
     this.projectDependentFieldsMapping$ = dependentFields$.pipe(
       map((dependentFields) =>
         this.mergeExpensesService.getProjectDependentFieldsMapping(this.expenses, dependentFields)
-      ),
-      shareReplay(1)
+      )
     );
   }
 
