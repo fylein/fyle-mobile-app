@@ -1,4 +1,4 @@
-export interface ApiParams {
+export interface ReportApiParams {
   offset?: number;
   limit?: number;
   queryParams: {

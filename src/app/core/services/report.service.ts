@@ -30,7 +30,7 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { ReportParams } from '../models/report-params.model';
 import { UnflattenedReport } from '../models/report-unflattened.model';
 import { ReportV1 } from '../models/report-v1.model';
-import { ApiParams } from '../models/api-params.model';
+import { ReportApiParams } from '../models/report-api-params.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -335,7 +335,7 @@ export class ReportService {
       offset: number;
       limit: number;
       order: string;
-      queryParams: ApiParams['queryParams'];
+      queryParams: ReportApiParams['queryParams'];
     }> = {
       offset: 0,
       limit: 10,
@@ -458,7 +458,7 @@ export class ReportService {
   }
 
   getAllExtendedReports(
-    config: Partial<{ order: string; queryParams: ApiParams['queryParams'] }>
+    config: Partial<{ order: string; queryParams: ReportApiParams['queryParams'] }>
   ): Observable<ExtendedReport[]> {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap((count) => {

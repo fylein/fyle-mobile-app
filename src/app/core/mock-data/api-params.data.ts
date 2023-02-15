@@ -1,6 +1,6 @@
-import { ApiParams } from '../models/api-params.model';
+import { ReportApiParams } from '../models/report-api-params.model';
 
-export const getMyReportsParam1: ApiParams = {
+export const getMyReportsParam1: ReportApiParams = {
   offset: 0,
   limit: 2,
   queryParams: {
@@ -9,7 +9,7 @@ export const getMyReportsParam1: ApiParams = {
   order: undefined,
 };
 
-export const getMyReportsParam2: ApiParams = {
+export const getMyReportsParam2: ReportApiParams = {
   offset: 2,
   limit: 2,
   queryParams: {
