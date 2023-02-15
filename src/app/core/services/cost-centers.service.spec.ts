@@ -4,12 +4,7 @@ import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.
 import { CostCentersService } from './cost-centers.service';
 import { of } from 'rxjs';
 import { apiCostCenterSingleResponse, apiCostCenterMultipleResponse } from '../mock-data/platformCostCenter.data';
-import {
-  costCenterApiRes1,
-  costCenterApiRes2,
-  costCenterSingleResponse,
-  costCentersData,
-} from '../mock-data/cost-centers.data';
+import { costCenterApiRes1, costCenterApiRes2, costCentersData } from '../mock-data/cost-centers.data';
 
 describe('CostCentersService', () => {
   let costCentersService: CostCentersService;
@@ -40,7 +35,7 @@ describe('CostCentersService', () => {
     expect(costCentersService).toBeTruthy();
   });
 
-  it('getActiveCostCentersCount() : should get active cost center count', (done) => {
+  it('getActiveCostCentersCount(): should get active cost center count', (done) => {
     spenderPlatformV1BetaApiService.get.and.returnValue(of(apiCostCenterSingleResponse));
 
     const params = {
@@ -77,12 +72,9 @@ describe('CostCentersService', () => {
     });
   });
 
-  it('getAllActive() : should return all active cost centers', () => {
+  it('getAllActive(): should return all active cost centers', () => {
     const spyGetCostCenters = spyOn(costCentersService, 'getCostCenters');
-    const testParams1 = {
-      offset: 0,
-      limit: 1,
-    };
+
     const testParams2 = {
       offset: 0,
       limit: 2,
@@ -94,13 +86,13 @@ describe('CostCentersService', () => {
     };
 
     spyOn(costCentersService, 'getActiveCostCentersCount').and.returnValue(of(3));
-    spyGetCostCenters.withArgs(testParams1).and.returnValue(of(costCenterSingleResponse));
     spyGetCostCenters.withArgs(testParams2).and.returnValue(of(costCenterApiRes1));
     spyGetCostCenters.withArgs(testParams3).and.returnValue(of(costCenterApiRes2));
 
     costCentersService.getAllActive().subscribe((res) => {
       expect(res).toEqual(costCentersData);
-      expect(costCentersService.getActiveCostCentersCount).toHaveBeenCalledTimes(1);
+      expect(costCentersService.getCostCenters).toHaveBeenCalledWith(testParams2);
+      expect(costCentersService.getCostCenters).toHaveBeenCalledWith(testParams3);
       expect(costCentersService.getActiveCostCentersCount).toHaveBeenCalledTimes(1);
       expect(costCentersService.getCostCenters).toHaveBeenCalledTimes(2);
     });

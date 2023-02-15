@@ -43,19 +43,6 @@ export const costCentersData: CostCenter[] = [
   },
 ];
 
-export const costCenterSingleResponse: CostCenter[] = [
-  {
-    active: true,
-    code: 'code',
-    created_at: new Date('2018-02-01T07:23:14.321866+00:00'),
-    description: null,
-    id: 37,
-    name: 'Marketing',
-    org_id: 'orNVthTo2Zyo',
-    updated_at: new Date('2019-01-08T10:51:37.721398+00:00'),
-  },
-];
-
 export const costCenterApiRes1: CostCenter[] = [
   {
     active: true,
