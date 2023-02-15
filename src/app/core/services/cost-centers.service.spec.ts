@@ -3,11 +3,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { CostCentersService } from './cost-centers.service';
 import { of } from 'rxjs';
-import {
-  apiCostCenterSingleResponse,
-  apiCostCenterMultipleResponse,
-  expectedTransformData,
-} from '../mock-data/platformCostCenter.data';
+import { apiCostCenterSingleResponse, apiCostCenterMultipleResponse } from '../mock-data/platformCostCenter.data';
 import {
   costCenterApiRes1,
   costCenterApiRes2,
@@ -44,7 +40,7 @@ describe('CostCentersService', () => {
     expect(costCentersService).toBeTruthy();
   });
 
-  it('getActiveCostCentersCount(): should get active cost center count', (done) => {
+  it('getActiveCostCentersCount() : should get active cost center count', (done) => {
     spenderPlatformV1BetaApiService.get.and.returnValue(of(apiCostCenterSingleResponse));
 
     const params = {
@@ -108,5 +104,10 @@ describe('CostCentersService', () => {
       expect(costCentersService.getActiveCostCentersCount).toHaveBeenCalledTimes(1);
       expect(costCentersService.getCostCenters).toHaveBeenCalledTimes(2);
     });
+  });
+
+  it('transformFrom(): should transform all the data', () => {
+    const transformResult = costCentersService.transformFrom(apiCostCenterMultipleResponse.data);
+    expect(transformResult).toEqual(costCentersData);
   });
 });
