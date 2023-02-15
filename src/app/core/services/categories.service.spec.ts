@@ -17,6 +17,8 @@ import {
   orgCategoryPaginated2,
   expectedOrgCategoriesPaginated,
   expectedTransformedCategories,
+  unsortedCategories1,
+  sortedCategories1,
 } from '../mock-data/org-category.data';
 
 describe('CategoriesService', () => {
@@ -114,8 +116,14 @@ describe('CategoriesService', () => {
     expect(categoriesService.filterRequired(filterOrgCategoryParam)).toEqual(expectedFilterOrgCategory);
   });
 
-  it('sortCategories(): should sort categories', () => {
-    expect(categoriesService.sortCategories(transformedOrgCategories)).toEqual(sortedCategory);
+  describe('sortCategories():', () => {
+    it('should sort categories', () => {
+      expect(categoriesService.sortCategories(transformedOrgCategories)).toEqual(sortedCategory);
+    });
+
+    it('should sort categories when categories and sub-categories are same', () => {
+      expect(categoriesService.sortCategories(unsortedCategories1)).toEqual(sortedCategories1);
+    });
   });
 
   it('getSystemCategories(): should get system categories', () => {
