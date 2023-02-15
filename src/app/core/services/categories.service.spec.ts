@@ -57,6 +57,10 @@ describe('CategoriesService', () => {
 
     categoriesService.getAll().subscribe((res) => {
       expect(res).toEqual(expectedOrgCategoriesPaginated);
+      expect(categoriesService.getActiveCategoriesCount).toHaveBeenCalledTimes(1);
+      expect(getCategories).toHaveBeenCalledWith({ offset: 0, limit: 2 });
+      expect(getCategories).toHaveBeenCalledWith({ offset: 2, limit: 2 });
+      expect(getCategories).toHaveBeenCalledTimes(2);
       done();
     });
   });
@@ -87,6 +91,9 @@ describe('CategoriesService', () => {
 
     categoriesService.getCategories({ offset: 0, limit: 4 }).subscribe((res) => {
       expect(res).toEqual(expectedAllOrgCategories);
+      expect(categoriesService.transformFrom).toHaveBeenCalledOnceWith(platformApiAllCategories.data);
+      expect(categoriesService.sortCategories).toHaveBeenCalledOnceWith(transformedOrgCategories);
+      expect(categoriesService.addDisplayName).toHaveBeenCalledOnceWith(sortedOrgCategories);
       done();
     });
   });
