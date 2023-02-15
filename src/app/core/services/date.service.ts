@@ -95,6 +95,18 @@ export class DateService {
       data.approved_at = new Date(data.approved_at);
     }
 
+    if (data.ba_created_at) {
+      data.ba_created_at = new Date(data.ba_created_at);
+    }
+
+    if (data.ba_updated_at) {
+      data.ba_updated_at = new Date(data.ba_updated_at);
+    }
+
+    if (data.ba_last_synced_at && data.ba_last_synced_at !== null) {
+      data.ba_last_synced_at = new Date(data.ba_last_synced_at);
+    }
+
     if (data.paid_at) {
       data.paid_at = new Date(data.paid_at);
     }
