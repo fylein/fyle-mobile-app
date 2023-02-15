@@ -1,9 +1,8 @@
-//api single and multiple response
 import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
-export const apiCostCenterSingleResponse: PlatformApiResponse<PlatformCostCenter> = {
-  count: 4,
+export const platformCostCenterSingleRes: PlatformApiResponse<PlatformCostCenter> = {
+  count: 1,
   data: [
     {
       code: 'code',
@@ -19,7 +18,7 @@ export const apiCostCenterSingleResponse: PlatformApiResponse<PlatformCostCenter
   offset: 0,
 };
 
-export const apiCostCenterMultipleResponse: PlatformApiResponse<PlatformCostCenter> = {
+export const platformCostCenterMultipleRes: PlatformApiResponse<PlatformCostCenter> = {
   count: 4,
   data: [
     {

@@ -3,7 +3,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { CostCentersService } from './cost-centers.service';
 import { of } from 'rxjs';
-import { apiCostCenterSingleResponse, apiCostCenterMultipleResponse } from '../mock-data/platformCostCenter.data';
+import { platformCostCenterSingleRes, platformCostCenterMultipleRes } from '../mock-data/platformCostCenter.data';
 import { costCenterApiRes1, costCenterApiRes2, costCentersData } from '../mock-data/cost-centers.data';
 
 describe('CostCentersService', () => {
@@ -36,7 +36,7 @@ describe('CostCentersService', () => {
   });
 
   it('getActiveCostCentersCount(): should get active cost center count', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(apiCostCenterSingleResponse));
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformCostCenterSingleRes));
 
     const params = {
       params: {
@@ -47,14 +47,14 @@ describe('CostCentersService', () => {
     };
 
     costCentersService.getActiveCostCentersCount().subscribe((res) => {
-      expect(res).toEqual(apiCostCenterSingleResponse.count);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledWith('/cost_centers', params);
+      expect(res).toEqual(platformCostCenterSingleRes.count);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/cost_centers', params);
       done();
     });
   });
 
   it('getCostCenters(): should get cost centers as per config', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(apiCostCenterMultipleResponse));
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformCostCenterMultipleRes));
     const data = {
       params: {
         is_enabled: 'eq.' + true,
@@ -67,7 +67,7 @@ describe('CostCentersService', () => {
     costCentersService.getCostCenters({ offset: 0, limit: 4 }).subscribe((res) => {
       expect(res).toEqual(costCentersData);
       expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/cost_centers', data);
-      expect(costCentersService.transformFrom).toHaveBeenCalledOnceWith(apiCostCenterMultipleResponse.data);
+      expect(costCentersService.transformFrom).toHaveBeenCalledOnceWith(platformCostCenterMultipleRes.data);
       done();
     });
   });
@@ -99,7 +99,7 @@ describe('CostCentersService', () => {
   });
 
   it('transformFrom(): should transform all the data', () => {
-    const transformResult = costCentersService.transformFrom(apiCostCenterMultipleResponse.data);
+    const transformResult = costCentersService.transformFrom(platformCostCenterMultipleRes.data);
     expect(transformResult).toEqual(costCentersData);
   });
 });
