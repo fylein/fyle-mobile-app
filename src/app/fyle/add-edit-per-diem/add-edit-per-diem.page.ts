@@ -1689,7 +1689,7 @@ export class AddEditPerDiemPage implements OnInit {
               reportId = this.fg.value.report.rp.id;
             }
             return of(
-              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
+              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null)
             ).pipe(switchMap((txnData: Promise<any>) => from(txnData)));
           })
         )
