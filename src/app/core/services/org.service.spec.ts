@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { orgData1 } from '../mock-data/org.data';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
@@ -83,6 +84,20 @@ describe('OrgService', () => {
       expect(res).toEqual(orgData1[0]);
       expect(globalCacheBusterNotifier.next).toHaveBeenCalledBefore(apiService.post);
       expect(apiService.post).toHaveBeenCalledOnceWith('/orgs', orgData1[0]);
+      done();
+    });
+  });
+
+  it('switchOrg(): should switch org', (done) => {
+    const orgId = 'orNVthTo2Zyo';
+    apiService.post.and.returnValue(of(apiEouRes));
+    spyOn(globalCacheBusterNotifier, 'next');
+    authService.newRefreshToken.and.returnValue(of(apiEouRes));
+
+    orgService.switchOrg(orgId).subscribe((res) => {
+      expect(res).toEqual(apiEouRes);
+      expect(globalCacheBusterNotifier.next).toHaveBeenCalledBefore(apiService.post);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/orgs/${orgId}/refresh_token`);
       done();
     });
   });
