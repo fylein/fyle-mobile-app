@@ -25,7 +25,7 @@ describe('HumanizeCurrencyPipe', () => {
     it('should humanize negtive amount', () => {
       const expectedAmount = '-$122.57';
       fyCurrencyPipeSpy.transform.and.returnValue('$122.57');
-      expect(humanizeCurrencyPipe.transform(-122.57, 'USD', false)).toEqual(expectedAmount);
+      expect(humanizeCurrencyPipe.transform(-122.57, 'USD')).toEqual(expectedAmount);
     });
 
     it('should return amount when fraction specified', () => {
@@ -33,5 +33,10 @@ describe('HumanizeCurrencyPipe', () => {
       fyCurrencyPipeSpy.transform.and.returnValue('$651.547');
       expect(humanizeCurrencyPipe.transform(651547.297922, 'USD', false, 3)).toEqual(expectedAmount);
     });
+  });
+
+  it('should return amount when fraction specified', () => {
+    fyCurrencyPipeSpy.transform.and.returnValue('$0');
+    expect(humanizeCurrencyPipe.transform(0, 'USD')).toEqual('$0');
   });
 });
