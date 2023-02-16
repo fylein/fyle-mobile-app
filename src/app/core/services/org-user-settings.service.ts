@@ -7,6 +7,7 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgUserService } from './org-user.service';
 import { AccountType } from '../enums/account-type.enum';
+import { EmailEventsObject } from '../models/email-events.model';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -79,7 +80,7 @@ export class OrgUserSettingsService {
     );
   }
 
-  getEmailEvents() {
+  getEmailEvents(): EmailEventsObject {
     const featuresList = {
       features: {
         expensesAndReports: {

@@ -5,6 +5,8 @@ import { CostCentersService } from './cost-centers.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { OrgUserService } from './org-user.service';
 import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
+import { emailEvents } from '../mock-data/email-events.data';
+import { notificationEventsData } from '../mock-data/notification-events.data';
 
 describe('OrgUserSettingsService', () => {
   let orgUserSettingsService: OrgUserSettingsService;
@@ -61,6 +63,24 @@ describe('OrgUserSettingsService', () => {
     orgUserSettingsService.getAllowedPaymentModes().subscribe((res) => {
       expect(res).toEqual(orgUserSettingsData.payment_mode_settings.allowed_payment_modes);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('clearOrgUserSettings(): should clear org user settings', (done) => {
+    orgUserSettingsService.clearOrgUserSettings().subscribe((res) => {
+      expect(res).toEqual(null);
+      done();
+    });
+  });
+
+  it('getEmailEvents(): should get email events', () => {
+    expect(orgUserSettingsService.getEmailEvents()).toEqual(emailEvents);
+  });
+
+  it('getNotificationEvents(): should get notification events', (done) => {
+    orgUserSettingsService.getNotificationEvents().subscribe((res) => {
+      expect(res).toEqual(notificationEventsData);
       done();
     });
   });
