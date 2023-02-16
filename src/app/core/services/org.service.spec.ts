@@ -125,7 +125,7 @@ describe('OrgService', () => {
     });
   });
 
-  it('setCurrencyBasedOnIp(): should set currecny based on ip', (done) => {
+  it('setCurrencyBasedOnIp(): should set currency based on ip', (done) => {
     spyOn(orgService, 'suggestOrgCurrency').and.returnValue(of(currencyIpData.currency));
     spyOn(orgService, 'getCurrentOrg').and.returnValue(of(orgData1[0]));
     spyOn(orgService, 'updateOrg').and.returnValue(of(orgData1[0]));
