@@ -7,7 +7,7 @@ import { FyCurrencyPipe } from './fy-currency.pipe';
 export class HumanizeCurrencyPipe implements PipeTransform {
   constructor(private fyCurrencyPipe: FyCurrencyPipe) {}
 
-  transform(value: number, currencyCode: string, skipSymbol = false, fraction?: number): any {
+  transform(value: number, currencyCode: string, skipSymbol = false, fraction?: number): string {
     const sign = value < 0 ? '-' : '';
     const amount = Math.abs(value) || 0;
     const si = ['', 'K', 'M', 'B', 't', 'q', 'Q', 's', 'S', 'o', 'n'];
