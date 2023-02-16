@@ -51,7 +51,7 @@ describe('CategoriesService', () => {
     expect(categoriesService).toBeTruthy();
   });
 
-  it('should get all org categories multiple pages', (done) => {
+  it('getAll(): should get all org categories multiple pages', (done) => {
     const getCategories = spyOn(categoriesService, 'getCategories');
     spyOn(categoriesService, 'getActiveCategoriesCount').and.returnValue(of(4));
     getCategories.withArgs({ offset: 0, limit: 2 }).and.returnValue(of(orgCategoryPaginated1));
