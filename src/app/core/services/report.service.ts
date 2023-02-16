@@ -30,6 +30,7 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { ReportParams } from '../models/report-params.model';
 import { UnflattenedReport } from '../models/report-unflattened.model';
 import { ReportV1 } from '../models/report-v1.model';
+import { ReportQueryParams } from '../models/report-api-params.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -246,7 +247,6 @@ export class ReportService {
           if (res.data.next_at) {
             const dateObj = new Date(res.data.next_at);
             res.data.next_at = dateObj;
-            return res;
           }
           return res;
         })
@@ -263,7 +263,7 @@ export class ReportService {
   getAutoSubmissionReportName() {
     return this.getReportAutoSubmissionDetails().pipe(
       map((reportAutoSubmissionDetails) => {
-        const nextReportAutoSubmissionDate = reportAutoSubmissionDetails?.data?.next_at;
+        const nextReportAutoSubmissionDate = reportAutoSubmissionDetails.data?.next_at;
         if (nextReportAutoSubmissionDate) {
           return '(Automatic Submission On ' + this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d') + ')';
         }
@@ -331,7 +331,12 @@ export class ReportService {
   }
 
   getMyReports(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+    config: Partial<{
+      offset: number;
+      limit: number;
+      order: string;
+      queryParams: ReportQueryParams;
+    }> = {
       offset: 0,
       limit: 10,
       queryParams: {},
@@ -452,7 +457,9 @@ export class ReportService {
     return this.apiService.post('/reports/summary/download', data);
   }
 
-  getAllExtendedReports(config: Partial<{ order: string; queryParams: any }>): Observable<ExtendedReport[]> {
+  getAllExtendedReports(
+    config: Partial<{ order: string; queryParams: ReportQueryParams }>
+  ): Observable<ExtendedReport[]> {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
@@ -507,34 +514,7 @@ export class ReportService {
     }
   ) {
     const searchParams = this.getUserReportParams(search.state);
-
-    let dateParams = null;
-    // Filter expenses by date range
-    // dateRange.from and dateRange.to needs to a valid date string (if present)
-    // Example: dateRange.from = 'Jan 1, 2015', dateRange.to = 'Dec 31, 2017'
-
-    if (search.dateRange && search.dateRange.from && search.dateRange.to) {
-      // TODO: Fix before 2025
-      let fromDate = new Date('Jan 1, 1970');
-      let toDate = new Date('Dec 31, 2025');
-
-      // Set fromDate to Jan 1, 1970 if none specified
-      if (search.dateRange.from) {
-        fromDate = new Date(search.dateRange.from);
-      }
-
-      // Set toDate to Dec 31, 2025 if none specified
-      if (search.dateRange.to) {
-        // Setting time to the end of the day
-        toDate = new Date(new Date(search.dateRange.to).setHours(23, 59, 59, 999));
-      }
-
-      dateParams = {
-        created_at: ['gte:' + new Date(fromDate).toISOString(), 'lte:' + new Date(toDate).toISOString()],
-      };
-    }
-
-    return Object.assign({}, params, searchParams, dateParams);
+    return Object.assign({}, params, searchParams);
   }
 
   getReportPurpose(reportPurpose: { ids: string[] }): Observable<string> {

@@ -108,7 +108,7 @@ describe('CategoriesService', () => {
     expect(categoriesService.addDisplayName(orgCategoryWoDisplayName)).toEqual(orgCategoryWithDisplayName);
   });
 
-  it('filterByOrgCategoryId(): should get a org-category from a list', () => {
+  it('filterByOrgCategoryId(): should filter a category by ID', () => {
     expect(categoriesService.filterByOrgCategoryId(sortedCategory[0].id, sortedCategory)).toEqual(sortedCategory[0]);
   });
 
