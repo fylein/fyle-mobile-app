@@ -49,7 +49,7 @@ describe('CategoriesService', () => {
     expect(categoriesService).toBeTruthy();
   });
 
-  it('should get all org categories multiple pages', (done) => {
+  it('getAll(): should get all org categories multiple pages', (done) => {
     const getCategories = spyOn(categoriesService, 'getCategories');
     spyOn(categoriesService, 'getActiveCategoriesCount').and.returnValue(of(4));
     getCategories.withArgs({ offset: 0, limit: 2 }).and.returnValue(of(orgCategoryPaginated1));
@@ -106,7 +106,7 @@ describe('CategoriesService', () => {
     expect(categoriesService.addDisplayName(orgCategoryWoDisplayName)).toEqual(orgCategoryWithDisplayName);
   });
 
-  it('filterByOrgCategoryId(): should get a org-category from a list', () => {
+  it('filterByOrgCategoryId(): should filter a category by ID', () => {
     expect(categoriesService.filterByOrgCategoryId(sortedCategory[0].id, sortedCategory)).toEqual(sortedCategory[0]);
   });
 
