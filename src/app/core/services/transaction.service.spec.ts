@@ -43,14 +43,18 @@ import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
 import { expenseV2Data, expenseV2DataMultiple } from '../mock-data/expense-v2.data';
 import * as lodash from 'lodash';
-import { txnList } from '../mock-data/transaction.data';
+import { txnData, txnData2, txnData4, txnDataPayload, txnList, upsertTxnParam } from '../mock-data/transaction.data';
 import { unflattenedTxnData, unflattenedTxnDataWithSubCategory } from '../mock-data/unflattened-txn.data';
-import { fileObjectData } from '../mock-data/file-object.data';
+import { fileObjectData, fileObjectData1, fileObjectData2 } from '../mock-data/file-object.data';
 import { AccountType } from '../enums/account-type.enum';
-import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
+import { orgUserSettingsData, orgUserSettingsData2, orgUserSettingsData3 } from '../mock-data/org-user-settings.data';
 import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { accountsData } from '../test-data/accounts.service.spec.data';
 import { currencySummaryData } from '../mock-data/currency-summary.data';
+import { platformPolicyExpenseData } from '../mock-data/platform-policy-expense.data';
+import { expensePolicyData } from '../mock-data/expense-policy.data';
+import { txnAccountData } from '../mock-data/txn-account.data';
+import { txnCustomPropertiesData, txnCustomPropertiesData2 } from '../mock-data/txn-custom-properties.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -89,6 +93,7 @@ describe('TransactionService', () => {
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', [
       'convertAllDatesToProperLocale',
       'convertToUtc',
+      'convertToTimezone',
     ]);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['discardRedundantCharacters']);
     const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['post']);
@@ -212,8 +217,7 @@ describe('TransactionService', () => {
 
     transactionService.manualFlag(transactionID).subscribe((res) => {
       expect(res).toEqual(expenseData2);
-      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionID + '/manual_flag');
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/manual_flag');
       done();
     });
   });
@@ -224,8 +228,7 @@ describe('TransactionService', () => {
 
     transactionService.manualUnflag(transactionID).subscribe((res) => {
       expect(res).toEqual(expenseData1);
-      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionID + '/manual_unflag');
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/manual_unflag');
       done();
     });
   });
@@ -236,8 +239,7 @@ describe('TransactionService', () => {
 
     transactionService.delete(transactionID).subscribe((res) => {
       expect(res).toEqual(expenseData1);
-      expect(apiService.delete).toHaveBeenCalledWith('/transactions/' + transactionID);
-      expect(apiService.delete).toHaveBeenCalledTimes(1);
+      expect(apiService.delete).toHaveBeenCalledOnceWith('/transactions/' + transactionID);
       done();
     });
   });
@@ -257,8 +259,7 @@ describe('TransactionService', () => {
 
     transactionService.getETxnc(params).subscribe((res) => {
       expect(res).toEqual(etxncData.data);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', params);
-      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', params);
       done();
     });
   });
@@ -270,12 +271,11 @@ describe('TransactionService', () => {
 
     transactionService.getExpenseV2(transactionID).subscribe((res) => {
       expect(res).toEqual(etxncData.data[0]);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
+      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
         params: {
           tx_id: `eq.${transactionID}`,
         },
       });
-      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -296,12 +296,11 @@ describe('TransactionService', () => {
 
     transactionService.getTransactionByExpenseNumber(expenseNumber).subscribe((res) => {
       expect(res).toEqual(expenseData1);
-      expect(apiService.get).toHaveBeenCalledWith('/transactions', {
+      expect(apiService.get).toHaveBeenCalledOnceWith('/transactions', {
         params: {
           expense_number: expenseNumber,
         },
       });
-      expect(apiService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -354,10 +353,9 @@ describe('TransactionService', () => {
 
     transactionService.removeCorporateCardExpense(transactionID).subscribe((res) => {
       expect(res).toEqual(UndoMergeData);
-      expect(apiService.post).toHaveBeenCalledWith('/transactions/unlink_card_expense', {
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/unlink_card_expense', {
         txn_id: transactionID,
       });
-      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -380,8 +378,7 @@ describe('TransactionService', () => {
     });
 
     afterEach(() => {
-      expect(lodash.cloneDeep).toHaveBeenCalledWith(params);
-      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(params);
     });
   });
 
@@ -401,12 +398,9 @@ describe('TransactionService', () => {
         '((and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT)))',
       ],
     });
-    expect(lodash.cloneDeep).toHaveBeenCalledWith(params);
-    expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+    expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(params);
     // @ts-ignore
-    expect(transactionService.generateStateOrFilter).toHaveBeenCalledWith(filters, params);
-    // @ts-ignore
-    expect(transactionService.generateStateOrFilter).toHaveBeenCalledTimes(1);
+    expect(transactionService.generateStateOrFilter).toHaveBeenCalledOnceWith(filters, params);
   });
 
   it('generateStateOrFilter(): should generate state Or filters', () => {
@@ -456,8 +450,7 @@ describe('TransactionService', () => {
     // @ts-ignore
     transactionService.getETxnCount(params).subscribe((res) => {
       expect(res.count).toEqual(1);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', { params });
-      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
+      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', { params });
       done();
     });
   });
@@ -485,12 +478,11 @@ describe('TransactionService', () => {
     const etxnPaymentMode = { name: 'Reimbursable', key: 'reimbursable' };
     // @ts-ignore
     expect(transactionService.getPaymentModeForEtxn(expenseData1, paymentModeList)).toEqual(etxnPaymentMode);
-    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledWith(
+    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledOnceWith(
       expenseData1.tx_skip_reimbursement,
       expenseData1.source_account_type,
       etxnPaymentMode.key
     );
-    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledTimes(1);
   });
 
   describe('setSortParams():', () => {
@@ -511,8 +503,7 @@ describe('TransactionService', () => {
     });
 
     afterEach(() => {
-      expect(lodash.cloneDeep).toHaveBeenCalledWith(currentParams);
-      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(currentParams);
     });
   });
 
@@ -533,12 +524,9 @@ describe('TransactionService', () => {
         '(tx_fyle_category.eq.Mileage, tx_fyle_category.eq.Per Diem, and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem))',
       ],
     });
-    expect(lodash.cloneDeep).toHaveBeenCalledWith(newQueryParams);
-    expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+    expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(newQueryParams);
     // @ts-ignore
-    expect(transactionService.generateTypeOrFilter).toHaveBeenCalledWith(filters);
-    // @ts-ignore
-    expect(transactionService.generateTypeOrFilter).toHaveBeenCalledTimes(1);
+    expect(transactionService.generateTypeOrFilter).toHaveBeenCalledOnceWith(filters);
   });
 
   describe('generateCustomDateParams():', () => {
@@ -597,8 +585,7 @@ describe('TransactionService', () => {
     });
 
     afterEach(() => {
-      expect(lodash.cloneDeep).toHaveBeenCalledWith(newQueryParams);
-      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(newQueryParams);
     });
   });
 
@@ -628,11 +615,8 @@ describe('TransactionService', () => {
       expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
       expect(dateService.getThisMonthRange).toHaveBeenCalledTimes(1);
       // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledWith(customDateParams, filters);
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledTimes(1);
-      expect(lodash.cloneDeep).toHaveBeenCalledWith(queryParams);
-      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledOnceWith(customDateParams, filters);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(queryParams);
     });
 
     it('should generate date params with date filter of this week', () => {
@@ -660,11 +644,8 @@ describe('TransactionService', () => {
       expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
       expect(dateService.getThisWeekRange).toHaveBeenCalledTimes(1);
       // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledWith(customDateParams, filters);
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledTimes(1);
-      expect(lodash.cloneDeep).toHaveBeenCalledWith(queryParams);
-      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledOnceWith(customDateParams, filters);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(queryParams);
     });
 
     it('should generate date params with date filter of last month', () => {
@@ -691,11 +672,8 @@ describe('TransactionService', () => {
       expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
       expect(dateService.getLastMonthRange).toHaveBeenCalledTimes(1);
       // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledWith(customDateParams, filters);
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledTimes(1);
-      expect(lodash.cloneDeep).toHaveBeenCalledWith(queryParams);
-      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledOnceWith(customDateParams, filters);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(queryParams);
     });
 
     it('should generate date params with custom date filter', () => {
@@ -716,11 +694,8 @@ describe('TransactionService', () => {
       // @ts-ignore
       expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
       // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledWith(queryParams, filters);
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledTimes(1);
-      expect(lodash.cloneDeep).toHaveBeenCalledWith(queryParams);
-      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+      expect(transactionService.generateCustomDateParams).toHaveBeenCalledOnceWith(queryParams, filters);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(queryParams);
     });
   });
 
@@ -732,10 +707,8 @@ describe('TransactionService', () => {
       const transactionID = 'tx5fBcPBAxLv';
       transactionService.getEtxn(transactionID).subscribe((res) => {
         expect(res).toEqual(expenseData1);
-        expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
-        expect(apiService.get).toHaveBeenCalledTimes(1);
-        expect(dateService.fixDates).toHaveBeenCalledWith(res);
-        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
+        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
+        expect(dateService.fixDates).toHaveBeenCalledOnceWith(res);
         done();
       });
     });
@@ -748,10 +721,8 @@ describe('TransactionService', () => {
 
       transactionService.getEtxn(transactionID).subscribe((res) => {
         expect(res).toEqual(etxnData);
-        expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
-        expect(apiService.get).toHaveBeenCalledTimes(1);
-        expect(dateService.fixDates).toHaveBeenCalledWith(res);
-        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
+        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
+        expect(dateService.fixDates).toHaveBeenCalledOnceWith(res);
         done();
       });
     });
@@ -770,14 +741,13 @@ describe('TransactionService', () => {
 
     transactionService.getTransactionStats(aggregates, queryParams).subscribe((res) => {
       expect(res).toEqual(txnStats.data);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses/stats', {
+      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses/stats', {
         params: {
           aggregates,
           tx_org_user_id: 'eq.' + eouRes2.ou.id,
           ...queryParams,
         },
       });
-      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       done();
     });
@@ -801,7 +771,7 @@ describe('TransactionService', () => {
 
     transactionService.getMyExpenses(params).subscribe((res) => {
       expect(res).toEqual(expenseV2Data);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
+      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
         params: {
           offset: params.offset,
           limit: params.limit,
@@ -810,10 +780,8 @@ describe('TransactionService', () => {
           ...params.queryParams,
         },
       });
-      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(dateService.fixDatesV2).toHaveBeenCalledWith(res.data[0]);
-      expect(dateService.fixDatesV2).toHaveBeenCalledTimes(1);
+      expect(dateService.fixDatesV2).toHaveBeenCalledOnceWith(res.data[0]);
       done();
     });
   });
@@ -835,7 +803,7 @@ describe('TransactionService', () => {
 
     transactionService.getMyExpenses(params2).subscribe((res) => {
       expect(res).toEqual(expenseV2Data);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/expenses', {
+      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
         params: {
           offset: params2.offset,
           limit: params2.limit,
@@ -845,10 +813,8 @@ describe('TransactionService', () => {
           ...params2.queryParams,
         },
       });
-      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(dateService.fixDatesV2).toHaveBeenCalledWith(res.data[0]);
-      expect(dateService.fixDatesV2).toHaveBeenCalledTimes(1);
+      expect(dateService.fixDatesV2).toHaveBeenCalledOnceWith(res.data[0]);
       done();
     });
   });
@@ -863,12 +829,11 @@ describe('TransactionService', () => {
 
     transactionService.getMyExpensesCount(params).subscribe((res) => {
       expect(res).toEqual(expenseV2Data.count);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
+      expect(transactionService.getMyExpenses).toHaveBeenCalledOnceWith({
         offset: 0,
         limit: 1,
         queryParams: params,
       });
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -888,15 +853,13 @@ describe('TransactionService', () => {
 
     transactionService.getAllExpenses(params).subscribe((res) => {
       expect(res).toEqual(expenseV2DataMultiple.data);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith(params.queryParams);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
+      expect(transactionService.getMyExpensesCount).toHaveBeenCalledOnceWith(params.queryParams);
+      expect(transactionService.getMyExpenses).toHaveBeenCalledOnceWith({
         offset: 0,
         limit: 2,
         queryParams: params.queryParams,
         order: undefined,
       });
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(1);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -907,8 +870,7 @@ describe('TransactionService', () => {
 
     transactionService.getSplitExpenses(txnSplitGroupId).subscribe((res) => {
       expect(res).toEqual(expenseList);
-      expect(transactionService.getAllETxnc).toHaveBeenCalledWith({ tx_split_group_id: 'eq.' + txnSplitGroupId });
-      expect(transactionService.getAllETxnc).toHaveBeenCalledTimes(1);
+      expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith({ tx_split_group_id: 'eq.' + txnSplitGroupId });
       done();
     });
   });
@@ -921,11 +883,10 @@ describe('TransactionService', () => {
 
     transactionService.unmatchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
       expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledWith('/transactions/unmatch', {
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/unmatch', {
         transaction_id: transactionId,
         corporate_credit_card_expense_id: corporateCreditCardExpenseId,
       });
-      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -944,8 +905,8 @@ describe('TransactionService', () => {
     transactionService.getAllETxnc(params).subscribe((res) => {
       expect(res).toEqual(etxncListData.data);
       // @ts-ignore
-      expect(transactionService.getETxnCount).toHaveBeenCalledWith(params);
-      expect(transactionService.getETxnc).toHaveBeenCalledWith({
+      expect(transactionService.getETxnCount).toHaveBeenCalledOnceWith(params);
+      expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
         offset: 0,
         limit: 2,
         params: {
@@ -954,9 +915,6 @@ describe('TransactionService', () => {
           order: 'tx_txn_dt.desc,tx_id.desc',
         },
       });
-      // @ts-ignore
-      expect(transactionService.getETxnCount).toHaveBeenCalledTimes(1);
-      expect(transactionService.getETxnc).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -967,10 +925,9 @@ describe('TransactionService', () => {
 
     transactionService.deleteBulk(transactionIds).subscribe((res) => {
       expect(res).toEqual(txnList);
-      expect(apiService.post).toHaveBeenCalledWith('/transactions/delete/bulk', {
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/delete/bulk', {
         txn_ids: transactionIds,
       });
-      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -1078,8 +1035,7 @@ describe('TransactionService', () => {
     it('should generate card number params without card number filters', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue({ or: [] });
       expect(transactionService.generateCardNumberParams(params, {})).toEqual(params);
-      expect(lodash.cloneDeep).toHaveBeenCalledWith(params);
-      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(params);
     });
 
     it('should generate card number params with card number filters', () => {
@@ -1091,8 +1047,7 @@ describe('TransactionService', () => {
       };
 
       expect(transactionService.generateCardNumberParams(params, filters)).toEqual(cardNumberParams);
-      expect(lodash.cloneDeep).toHaveBeenCalledWith(params);
-      expect(lodash.cloneDeep).toHaveBeenCalledTimes(1);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(params);
     });
   });
 
@@ -1105,11 +1060,8 @@ describe('TransactionService', () => {
 
       transactionService.getPaginatedETxncCount().subscribe((res) => {
         expect(res).toEqual(response);
-        expect(networkService.isOnline).toHaveBeenCalled();
-        expect(storageService.set).toHaveBeenCalledWith('etxncCount', response);
-        expect(apiService.get).toHaveBeenCalledWith('/etxns/count');
-        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-        expect(apiService.get).toHaveBeenCalledTimes(1);
+        expect(storageService.set).toHaveBeenCalledOnceWith('etxncCount', response);
+        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/count');
         done();
       });
     });
@@ -1121,8 +1073,7 @@ describe('TransactionService', () => {
 
       transactionService.getPaginatedETxncCount().subscribe((res) => {
         expect(res).toEqual(response);
-        expect(networkService.isOnline).toHaveBeenCalled();
-        expect(storageService.get).toHaveBeenCalledWith('etxncCount');
+        expect(storageService.get).toHaveBeenCalledOnceWith('etxncCount');
         expect(networkService.isOnline).toHaveBeenCalledTimes(1);
         done();
       });
@@ -1138,12 +1089,9 @@ describe('TransactionService', () => {
       const transactionID = 'tx3qHxFNgRcZ';
       transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
         expect(res).toEqual(unflattenedTxnData);
-        expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
-        expect(apiService.get).toHaveBeenCalledTimes(1);
-        expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedTxnData.tx);
-        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
-        expect(dataTransformService.unflatten).toHaveBeenCalledWith(expenseData3);
-        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
+        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
+        expect(dateService.fixDates).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+        expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(expenseData3);
         done();
       });
     });
@@ -1157,12 +1105,9 @@ describe('TransactionService', () => {
 
       transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
         expect(res).toEqual(unflattenedTxnDataWithSubCategory);
-        expect(apiService.get).toHaveBeenCalledWith('/etxns/' + transactionID);
-        expect(apiService.get).toHaveBeenCalledTimes(1);
-        expect(dateService.fixDates).toHaveBeenCalledWith(unflattenedTxnDataWithSubCategory.tx);
-        expect(dateService.fixDates).toHaveBeenCalledTimes(1);
-        expect(dataTransformService.unflatten).toHaveBeenCalledWith(expenseData3);
-        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
+        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
+        expect(dateService.fixDates).toHaveBeenCalledOnceWith(unflattenedTxnDataWithSubCategory.tx);
+        expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(expenseData3);
         done();
       });
     });
@@ -1174,8 +1119,7 @@ describe('TransactionService', () => {
 
     transactionService.review(transactionId).subscribe((res) => {
       expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionId + '/review');
-      expect(apiService.post).toHaveBeenCalledTimes(1);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionId + '/review');
       done();
     });
   });
@@ -1188,11 +1132,10 @@ describe('TransactionService', () => {
 
     transactionService.uploadBase64File(transactionID, fileName, base64Content).subscribe((res) => {
       expect(res).toEqual(fileObjectData);
-      expect(apiService.post).toHaveBeenCalledWith('/transactions/' + transactionID + '/upload_b64', {
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/' + transactionID + '/upload_b64', {
         content: base64Content,
         name: fileName,
       });
-      expect(apiService.post).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -1341,15 +1284,11 @@ describe('TransactionService', () => {
     // @ts-ignore
     transactionService.getTxnAccount().subscribe((res) => {
       expect(res).toEqual(expectedResult);
-      expect(orgSettingsService.get).toHaveBeenCalled();
-      expect(accountsService.getEMyAccounts).toHaveBeenCalled();
-      expect(orgUserSettingsService.get).toHaveBeenCalled();
-      expect(paymentModesService.getDefaultAccount).toHaveBeenCalledWith(
+      expect(paymentModesService.getDefaultAccount).toHaveBeenCalledOnceWith(
         orgSettingsData,
         accountsData,
         orgUserSettingsData
       );
-      expect(paymentModesService.getDefaultAccount).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
@@ -1380,10 +1319,8 @@ describe('TransactionService', () => {
     spyOn(transactionService, 'getIsDraft').and.returnValue(false);
 
     expect(transactionService.getReportableExpenses(apiExpenseRes)).toEqual([apiExpenseRes[0]]);
-    expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenseRes[0]);
-    expect(transactionService.getIsDraft).toHaveBeenCalledWith(apiExpenseRes[0]);
-    expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(1);
-    expect(transactionService.getIsDraft).toHaveBeenCalledTimes(1);
+    expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
+    expect(transactionService.getIsDraft).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
   });
 
   it('getCurrenyWiseSummary(): should return the currency wise summary', () => {
@@ -1451,5 +1388,68 @@ describe('TransactionService', () => {
     expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[2], paymentModes);
     // @ts-ignore
     expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledTimes(3);
+  });
+
+  it('matchCCCExpense(): should match ccc expense', (done) => {
+    apiService.post.and.returnValue(of(null));
+
+    const transactionId = 'txBRcjOg1spF';
+    const corporateCreditCardExpenseId = 'cccetzVpWd2Pgz';
+
+    transactionService.matchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
+      expect(res).toBeNull();
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/match', {
+        transaction_id: transactionId,
+        corporate_credit_card_expense_id: corporateCreditCardExpenseId,
+      });
+      done();
+    });
+  });
+
+  it('checkPolicy(): should check policy', (done) => {
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData2));
+    spenderPlatformV1BetaApiService.post.and.returnValue(of(expensePolicyData));
+
+    transactionService.checkPolicy(platformPolicyExpenseData).subscribe((res) => {
+      expect(res).toEqual(expensePolicyData);
+      expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledOnceWith('/expenses/check_policies', {
+        data: platformPolicyExpenseData,
+      });
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('createTxnWithFiles(): should create transaction with files', (done) => {
+    spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
+    fileService.post.and.returnValue(of(fileObjectData2));
+
+    transactionService.createTxnWithFiles(txnData, of(fileObjectData1)).subscribe((res) => {
+      expect(res).toEqual(txnData2);
+      expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData);
+      expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData2);
+      done();
+    });
+  });
+
+  it('upsert(): should upsert transaction', (done) => {
+    const offset = orgUserSettingsData3.locale.offset;
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData3));
+    // @ts-ignore
+    spyOn(transactionService, 'getTxnAccount').and.returnValue(of(txnAccountData));
+    timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData2);
+    apiService.post.and.returnValue(of(txnData4));
+    utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
+
+    transactionService.upsert(upsertTxnParam).subscribe((res) => {
+      expect(res).toEqual(txnData4);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData, offset);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
+      // @ts-ignore
+      expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);
+      done();
+    });
   });
 });
