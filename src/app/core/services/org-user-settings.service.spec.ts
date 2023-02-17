@@ -63,7 +63,7 @@ describe('OrgUserSettingsService', () => {
     });
   });
 
-  it("post(): should send new user's settings", (done) => {
+  it('post(): should send new org user settings', (done) => {
     apiService.post.and.returnValue(of(null));
 
     orgUserSettingsService.post(orgUserSettingsData).subscribe(() => {
@@ -84,7 +84,7 @@ describe('OrgUserSettingsService', () => {
 
   it('clearOrgUserSettings(): should clear org user settings', (done) => {
     orgUserSettingsService.clearOrgUserSettings().subscribe((res) => {
-      expect(res).toEqual(null);
+      expect(res).toBeNull();
       done();
     });
   });
