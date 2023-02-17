@@ -2,9 +2,8 @@ import { Component, OnInit, forwardRef, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
-import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
 
 @Component({
   selector: 'app-dependent-field',
@@ -21,8 +20,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 export class DependentFieldComponent implements OnInit, ControlValueAccessor {
   @Input() label = '';
 
-  @Input() options: { label: string; value: any }[] = [];
-
   @Input() placeholder: string;
 
   @Input() mandatory = false;
@@ -37,9 +34,13 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   @Input() selectModalHeader = '';
 
-  displayValue: string;
+  @Input() fieldId: number;
 
-  private innerValue: string;
+  @Input() parentFieldId: number;
+
+  @Input() parentFieldValue: string;
+
+  displayValue: string;
 
   private onTouchedCallback: () => void = noop;
 
@@ -47,41 +48,21 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
-  get value(): any {
-    return this.innerValue;
-  }
-
-  set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-        if (selectedOption && selectedOption.label) {
-          this.displayValue = selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else {
-          this.displayValue = '';
-        }
-      }
-
-      this.onChangeCallback(v);
-    }
-  }
-
   ngOnInit() {}
 
   async openModal() {
     const selectionModal = await this.modalController.create({
-      component: FySelectModalComponent,
+      component: DependentFieldModalComponent,
       componentProps: {
-        options: this.options,
-        currentSelection: this.value,
+        currentSelection: this.displayValue,
         showNullOption: this.showNullOption,
         enableSearch: this.enableSearch,
         selectModalHeader: this.selectModalHeader || 'Select Item',
         placeholder: this.placeholder,
         label: this.label,
+        fieldId: this.fieldId,
+        parentFieldId: this.parentFieldId,
+        parentFieldValue: this.parentFieldValue,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -92,7 +73,8 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.value = data.value;
+      this.displayValue = data;
+      this.onChangeCallback(this.displayValue);
     }
   }
 
@@ -100,21 +82,8 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
-    if (value !== this.innerValue) {
-      this.innerValue = value;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-
-        if (selectedOption && selectedOption.label) {
-          this.displayValue = selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else {
-          this.displayValue = '';
-        }
-      }
-    }
+  writeValue(val: string): void {
+    this.displayValue = val;
   }
 
   registerOnChange(fn: any) {

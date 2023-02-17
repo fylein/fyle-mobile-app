@@ -38,6 +38,8 @@ export class ViewMileagePage implements OnInit {
 
   mileageCustomFields$: Observable<CustomField[]>;
 
+  projectDependantCustomProperties$: Observable<CustomField[]>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
 
   isAmountCapped$: Observable<boolean>;
@@ -269,8 +271,8 @@ export class ViewMileagePage implements OnInit {
       }
 
       if (
-        extendedMileage.tx_mileage_vehicle_type.indexOf('four') > -1 ||
-        extendedMileage.tx_mileage_vehicle_type.indexOf('car') > -1
+        extendedMileage.tx_mileage_vehicle_type?.indexOf('four') > -1 ||
+        extendedMileage.tx_mileage_vehicle_type?.indexOf('car') > -1
       ) {
         this.vehicleType = 'car';
       } else {
@@ -308,6 +310,11 @@ export class ViewMileagePage implements OnInit {
           return customProperties;
         })
       )
+    );
+
+    this.projectDependantCustomProperties$ = this.extendedMileage$.pipe(
+      concatMap((extendedMileage) => this.customInputsService.fillDependantFieldProperties(extendedMileage)),
+      shareReplay(1)
     );
 
     this.view = this.activatedRoute.snapshot.params.view;

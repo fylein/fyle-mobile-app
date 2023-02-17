@@ -20,4 +20,5 @@ export interface ExpenseField {
   type: string;
   updated_at: Date;
   updated_by: UserDetails;
+  parent_field_id?: number;
 }

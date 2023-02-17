@@ -1,83 +1,69 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { DependentFieldOption } from '../models/dependent-field-option.model';
-import { DependentField } from '../models/dependent-field.model';
+import { map, Observable } from 'rxjs';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
+import { CategoriesService } from './categories.service';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DependentFieldsService {
-  constructor() {}
-
-  getDependentFields(): Observable<DependentField[]> {
-    return of([
-      {
-        id: 1,
-        name: 'Dependent Field 1',
-        is_enabled: true,
-        is_mandatory: true,
-        placeholder: 'Select Field',
-        dependent_field_id: 2,
-      },
-      {
-        id: 2,
-        name: 'Dependent Field 2',
-        is_enabled: true,
-        is_mandatory: true,
-        placeholder: 'Select Field',
-        dependent_field_id: 3,
-      },
-      {
-        id: 3,
-        name: 'Dependent Field 3',
-        is_enabled: true,
-        is_mandatory: true,
-        placeholder: 'Select Field',
-        dependent_field_id: 4,
-      },
-      {
-        id: 4,
-        name: 'Dependent Field 4',
-        is_enabled: true,
-        is_mandatory: true,
-        placeholder: 'Select Field',
-        dependent_field_id: 5,
-      },
-      {
-        id: 5,
-        name: 'Dependent Field 5',
-        is_enabled: true,
-        is_mandatory: true,
-        placeholder: 'Select Field',
-        dependent_field_id: null,
-      },
-    ]);
-  }
-
-  generateOptions(fieldId: number, parentFieldId: number) {
-    const val = [];
-    for (let i = 0; i <= 10; i++) {
-      val.push({
-        id: fieldId * i,
-        name: `Parent field ${fieldId}, Option ${i}`,
-        is_enabled: true,
-        field_id: parentFieldId,
-      });
-    }
-    return val;
-  }
+  constructor(
+    private spenderPlatformApiService: SpenderPlatformApiService,
+    private categoryService: CategoriesService
+  ) {}
 
   getOptionsForDependentField(config: {
     fieldId: number;
     parentFieldId: number;
-    parentValueId: number;
-    searchQuery: string;
-    offset: number;
-    limit: number;
-  }): Observable<DependentFieldOption[]> {
-    const options = this.generateOptions(config.fieldId, config.parentFieldId);
+    parentFieldValue: string;
+    searchQuery?: string;
+  }) {
+    const { fieldId, parentFieldId, parentFieldValue, searchQuery } = config;
+    const data = {
+      params: {
+        is_enabled: 'eq.true',
+        offset: 'eq.0',
+        limit: 'eq.20',
+        expense_field_id: `eq.${fieldId}`,
+        parent_expense_field_id: `eq.${parentFieldId}`,
+        parent_expense_field_value: `eq.${parentFieldValue}`,
+        expense_field_value: `ilike.%${searchQuery}%`,
+      },
+    };
 
-    //Show two options for every selected field
-    return of([options[config.parentValueId], options[(config.parentValueId * 2) % 10]]);
+    //TODO: Use v1 Platform APIs instead of v1-beta. Will be done once expense_fields is migrated
+    return this.spenderPlatformApiService.get<PlatformApiResponse<PlatformDependentFieldValue>>(
+      '/dependent_expense_field_values',
+      data
+    );
+  }
+
+  //TODO: Remove this dummy method once APIs are available
+  getOptionsForDependentFieldUtil(config: {
+    fieldId: number;
+    parentFieldId: number;
+    parentFieldValue: string;
+    searchQuery?: string;
+  }): Observable<PlatformDependentFieldValue[]> {
+    return this.categoryService
+      .getCategories({
+        offset: 0,
+        limit: 20,
+      })
+      .pipe(
+        map((categories) =>
+          categories.map((category) => ({
+            id: category.id,
+            created_at: category.created_at,
+            updated_at: category.updated_at,
+            org_id: category.org_id,
+            is_enabled: true,
+            parent_expense_field_value: config.parentFieldValue,
+            expense_field_value: category.displayName,
+          }))
+        )
+      );
   }
 }
