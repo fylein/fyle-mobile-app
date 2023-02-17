@@ -5,7 +5,7 @@ import { concatMap, map, reduce } from 'rxjs/operators';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { Cacheable } from 'ts-cacheable';
 import { MileageSettings, OrgUserSettings } from '../models/org_user_settings.model';
-import { Location } from '../models/Location.model';
+import { Location } from '../models/location.model';
 @Injectable({
   providedIn: 'root',
 })
