@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { CustomField } from '../models/custom_field.model';
 import { CustomProperty } from '../models/custom-properties.model';
+import { Expense } from '../models/expense.model';
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
@@ -41,7 +42,7 @@ export class CustomInputsService {
         customInputs.map((customInput) => ({
           ...customInput,
           parent_field_id: customInput.id === 218227 ? 214662 : customInput.id - 1,
-          type: 'DEPENDENT_SELECT',
+          type: customInput.field_name.length === 3 ? 'DEPENDENT_SELECT' : customInput.type,
         }))
       )
     );
@@ -71,6 +72,7 @@ export class CustomInputsService {
     active: boolean
   ): Observable<CustomField[]> {
     return this.getAll(active).pipe(
+      map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
 
@@ -109,8 +111,12 @@ export class CustomInputsService {
               }
             }
           }
-          filledCustomProperties.push(property);
+          filledCustomProperties.push({
+            ...property,
+            displayValue: this.getCustomPropertyDisplayValue(property),
+          });
         }
+
         return filledCustomProperties;
       })
     );
@@ -148,6 +154,27 @@ export class CustomInputsService {
     }
 
     return displayValue;
+  }
+
+  fillDependantFieldProperties(etxn: Expense): Observable<CustomField[]> {
+    return this.getAll(true).pipe(
+      map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type === 'DEPENDENT_SELECT')),
+      map((allCustomInputs) =>
+        allCustomInputs.map((customInput) => {
+          const customProperty = etxn.tx_custom_properties.find(
+            (txCustomProperty) => txCustomProperty.name === customInput.field_name
+          );
+          return {
+            id: customInput.id,
+            name: customInput.field_name,
+            value: customProperty?.value,
+            type: customInput.type,
+            displayValue: customProperty?.value || '-',
+            mandatory: customInput.is_mandatory,
+          };
+        })
+      )
+    );
   }
 
   private formatBooleanCustomProperty(customProperty: CustomField): string {
