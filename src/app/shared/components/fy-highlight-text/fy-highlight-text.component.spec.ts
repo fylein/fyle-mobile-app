@@ -26,14 +26,14 @@ describe('FyHighlightTextComponent', () => {
     fyHighlightTextComponent.queryText = 'project';
     fixture.detectChanges();
     const divElement = fixture.nativeElement.querySelector('div');
-    expect(divElement.classList.contains('inverse-highlight')).toBe(true);
+    expect(divElement.classList.contains('inverse-highlight')).toBeTrue();
   });
 
   it('should not apply inverse-highlight class when queryText is not present', () => {
     fyHighlightTextComponent.queryText = '';
     fixture.detectChanges();
     const divElement = fixture.nativeElement.querySelector('div');
-    expect(divElement.classList.contains('inverse-highlight')).toBe(false);
+    expect(divElement.classList.contains('inverse-highlight')).toBeFalse();
   });
 
   it('should highlight the text when queryText is present', () => {
