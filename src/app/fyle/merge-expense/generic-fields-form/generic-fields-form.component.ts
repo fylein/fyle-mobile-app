@@ -10,7 +10,7 @@ import {
   FormBuilder,
   Validators,
 } from '@angular/forms';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 
 type Option = Partial<{

@@ -17,6 +17,13 @@ export const apiTxnUnreportedStatsRes: StatsDimensionResponse[] = [
   },
 ];
 
+export const apiTxnUnreportedStatsEmptyRes: StatsDimensionResponse[] = [
+  {
+    dimensions: [],
+    name: 'scalar_stat',
+  },
+];
+
 export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = [
   {
     aggregates: [
@@ -34,6 +41,13 @@ export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = [
   },
 ];
 
+export const apiTxnIncompleteStatsEmptyRes: StatsDimensionResponse[] = [
+  {
+    dimensions: [],
+    name: 'scalar_stat',
+  },
+];
+
 export const apiUnreportedParams: Partial<StatsDimensionResponse> = {
   scalar: true,
   tx_state: 'in.(COMPLETE)',
@@ -46,3 +60,20 @@ export const apiIncompleteParams: Partial<StatsDimensionResponse> = {
   tx_state: 'in.(DRAFT)',
   tx_report_id: 'is.null',
 };
+
+export const expectedReportRawStats: StatsDimensionResponse[] = [
+  {
+    aggregates: [
+      {
+        function_name: 'count(rp_id)',
+        function_value: 3,
+      },
+      {
+        function_name: 'sum(rp_amount)',
+        function_value: 2804.2892810000003,
+      },
+    ],
+    dimensions: [],
+    name: 'scalar_stat',
+  },
+];

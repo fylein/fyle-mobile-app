@@ -8,7 +8,7 @@ import * as dayjs from 'dayjs';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';

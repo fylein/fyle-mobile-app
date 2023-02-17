@@ -7,7 +7,6 @@ import { DataTransformService } from './data-transform.service';
 import { forkJoin, Observable, from, iif } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { JwtHelperService } from './jwt-helper.service';
-import { Cacheable } from 'ts-cacheable';
 import { ResendEmailVerification } from '../models/resend-email-verification.model';
 
 @Injectable({

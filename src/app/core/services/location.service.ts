@@ -78,16 +78,6 @@ export class LocationService {
     return this.get('/distance', data).pipe(map((res) => res as number));
   }
 
-  getPlace(placeId) {
-    const data = {
-      params: {
-        place_id: placeId,
-      },
-    };
-
-    return this.get('/place_details', data);
-  }
-
   /**
    * This method gets details from /location/geocode and
    * adds the param displayName to details.display

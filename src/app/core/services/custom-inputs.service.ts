@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
 import { map, switchMap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
@@ -9,6 +8,10 @@ import { ExpenseField } from '../models/v1/expense-field.model';
 import { CustomField } from '../models/custom_field.model';
 import { CustomProperty } from '../models/custom-properties.model';
 import { Expense } from '../models/expense.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
+import { ExpenseFieldsService } from './expense-fields.service';
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
@@ -16,10 +19,11 @@ const customInputssCacheBuster$ = new Subject<void>();
 })
 export class CustomInputsService {
   constructor(
-    private apiService: ApiService,
     private decimalPipe: DecimalPipe,
     private datePipe: DatePipe,
-    private authService: AuthService
+    private authService: AuthService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   @Cacheable({
@@ -30,11 +34,11 @@ export class CustomInputsService {
   getAll(active: boolean): Observable<any[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiService.get('/expense_fields', {
+        this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField>>('/expense_fields', {
           params: {
-            org_id: eou.ou.org_id,
-            is_enabled: active,
-            is_custom: true,
+            org_id: `eq.${eou.ou.org_id}`,
+            is_enabled: `eq.${active}`,
+            is_custom: 'eq.true',
           },
         })
       ),
@@ -44,7 +48,8 @@ export class CustomInputsService {
           parent_field_id: customInput.id === 218227 ? 214662 : customInput.id - 1,
           type: customInput.field_name.length === 3 ? 'DEPENDENT_SELECT' : customInput.type,
         }))
-      )
+      ),
+      map((res) => this.expenseFieldsService.transformFrom(res.data))
     );
   }
 

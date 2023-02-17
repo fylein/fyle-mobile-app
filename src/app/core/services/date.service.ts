@@ -42,99 +42,8 @@ export class DateService {
 
   constructor() {}
 
-  getDayShortCodeMap() {
-    return {
-      sun: 'Sunday',
-      mon: 'Monday',
-      tue: 'Tuesday',
-      wed: 'Wednesday',
-      thu: 'Thursday',
-      fri: 'Friday',
-      sat: 'Saturday',
-    };
-  }
-
-  getDayIsoNumberMap() {
-    return {
-      mon: 1,
-      tue: 2,
-      wed: 3,
-      thu: 4,
-      fri: 5,
-      sat: 6,
-      sun: 7,
-    };
-  }
-
-  getIsoNumberDayMap() {
-    return {
-      1: 'mon',
-      2: 'tue',
-      3: 'wed',
-      4: 'thu',
-      5: 'fri',
-      6: 'sat',
-      7: 'sun',
-    };
-  }
-
-  getDayNumberMap() {
-    return {
-      sun: 0,
-      mon: 1,
-      tue: 2,
-      wed: 3,
-      thu: 4,
-      fri: 5,
-      sat: 6,
-    };
-  }
-
-  getNumberDayMap() {
-    return {
-      0: 'sun',
-      1: 'mon',
-      2: 'tue',
-      3: 'wed',
-      4: 'thu',
-      5: 'fri',
-      6: 'sat',
-    };
-  }
-
-  getNumberMonthMap() {
-    return {
-      0: 'January',
-      1: 'February',
-      2: 'March',
-      3: 'April',
-      4: 'May',
-      5: 'June',
-      6: 'July',
-      7: 'August',
-      8: 'September',
-      9: 'October',
-      10: 'November',
-      11: 'December',
-    };
-  }
-
-  getTimeIntervals() {
-    return this.timeIntervals;
-  }
-
-  getMeridians() {
-    return this.meridians;
-  }
-
   firstOfThisMonth() {
     return new Date(this.year, this.month, 1);
-  }
-
-  getTomorrow() {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow;
   }
 
   lastOfThisMonth() {
@@ -184,6 +93,18 @@ export class DateService {
 
     if (data.approved_at) {
       data.approved_at = new Date(data.approved_at);
+    }
+
+    if (data.ba_created_at) {
+      data.ba_created_at = new Date(data.ba_created_at);
+    }
+
+    if (data.ba_updated_at) {
+      data.ba_updated_at = new Date(data.ba_updated_at);
+    }
+
+    if (data.ba_last_synced_at && data.ba_last_synced_at !== null) {
+      data.ba_last_synced_at = new Date(data.ba_last_synced_at);
     }
 
     if (data.paid_at) {
@@ -241,19 +162,6 @@ export class DateService {
     }
 
     return data;
-  }
-
-  parseISOLocal(s) {
-    const b = s.split(/\D/);
-    return new Date(b[0], b[1] - 1, b[2]);
-  }
-
-  getDifferenceBetweenDates(toDate, fromDate) {
-    return Math.ceil(Math.abs(toDate.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
-  }
-
-  getAbsoluteDifferenceBetweenDates(toDate, fromDate) {
-    return Math.ceil((fromDate.getTime() - toDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
   }
 
   addDaysToDate(fromDate, numOfDays) {

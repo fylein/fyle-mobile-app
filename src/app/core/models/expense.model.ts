@@ -8,9 +8,9 @@ export interface Expense {
     transaction_id: string;
     reason: string;
   }[];
-  isCriticalPolicyViolated: boolean;
-  isPolicyViolated: boolean;
-  isDraft: boolean;
+  isCriticalPolicyViolated?: boolean;
+  isPolicyViolated?: boolean;
+  isDraft?: boolean;
   isSelected?: boolean;
   isHidden?: boolean;
   showDt?: boolean;
@@ -42,11 +42,11 @@ export interface Expense {
   source_account_type: string;
   tg_name?: string;
   tg_percentage?: number;
-  transaction_approvals: any;
+  transaction_approvals?: string[];
   tx_activity_details?: string;
   tx_activity_policy_pending?: boolean;
-  tx_admin_amount?: any;
-  tx_amount?: any;
+  tx_admin_amount?: number;
+  tx_amount?: number;
   tx_billable: boolean;
   tx_boolean_column1?: any;
   tx_boolean_column10?: any;
@@ -187,7 +187,7 @@ export interface Expense {
   tx_transcribed_data?: any;
   tx_transcription_state?: any;
   tx_txn_dt?: Date;
-  tx_updated_at: Date;
+  tx_updated_at?: Date;
   tx_user_amount?: any;
   tx_user_can_delete: boolean;
   tx_user_reason_for_duplicate_expenses?: any;
@@ -199,4 +199,29 @@ export interface Expense {
   us_full_name: string;
   tx_categoryDisplayName?: string; // custom property added in the service
   tx_dataUrls?: { thumbnail: string }[];
+  vendor?: string;
+  violation?: boolean;
+  tx_duplicates?: {
+    transaction_id: string;
+    reason: string;
+    percent: number;
+    fields: string[];
+  }[];
+  tx_tax_amount?: number;
+  tg_name?: string;
+  tg_percentage?: number;
+  ou_rank?: number;
+  tx_platform_vendor?: string;
+  tx_platform_vendor_id?: string;
+  is_test_call?: boolean;
+  tx_taxi_travel_class?: string;
+  tx_activity_policy_pending?: boolean;
+  tx_activity_details?: string;
+  tx_is_implicit_merge_blocked?: boolean;
+  _search_document?: string;
+  corporate_credit_card_account_number?: string;
+  credit?: boolean;
+  debit?: boolean;
+  duplicates?: string[];
+  tx_is_split_expense?: boolean;
 }

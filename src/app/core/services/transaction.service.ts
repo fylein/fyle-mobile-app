@@ -24,9 +24,18 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
 import { AccountsService } from './accounts.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
+import { EtxnParams } from '../models/etxn-params.model';
+import { ApiV2Response } from '../models/v2/api-v2-response.model';
+import { Transaction } from '../models/v1/transaction.model';
+import { FileObject } from '../models/file-obj.model';
+import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
+import { CurrencySummary } from '../models/currency-summary.model';
+import { FilterQueryParams } from '../models/filter-query-params.model';
+import { SortFiltersParams } from '../models/sort-filters-params.model';
+import { PaymentModeSummary } from '../models/payment-mode-summary.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -35,7 +44,7 @@ enum FilterState {
   DRAFT = 'DRAFT',
 }
 
-const transactionsCacheBuster$ = new Subject<void>();
+export const transactionsCacheBuster$ = new Subject<void>();
 
 type PaymentMode = {
   name: string;
@@ -59,7 +68,7 @@ export class TransactionService {
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService,
-    private spenderPlatformApiService: SpenderPlatformApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
@@ -86,7 +95,7 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getEtxn(txnId) {
+  getEtxn(txnId: string): Observable<Expense> {
     // TODO api v2
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((transaction) => {
@@ -107,28 +116,28 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  manualFlag(txnId) {
+  manualFlag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_flag');
   }
 
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  manualUnflag(txnId) {
+  manualUnflag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
   }
 
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getAllETxnc(params) {
+  getAllETxnc(params: EtxnParams): Observable<Expense[]> {
     return this.getETxnCount(params).pipe(
       switchMap((res) => {
         const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
-      reduce((acc, curr) => acc.concat(curr))
+      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
     );
   }
 
@@ -136,12 +145,12 @@ export class TransactionService {
     cacheBusterObserver: transactionsCacheBuster$,
   })
   getMyExpenses(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+    config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
       offset: 0,
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<Expense>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiV2Service.get('/expenses', {
@@ -158,7 +167,7 @@ export class TransactionService {
         (res) =>
           res as {
             count: number;
-            data: any[];
+            data: Expense[];
             limit: number;
             offset: number;
             url: string;
@@ -174,7 +183,7 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getAllExpenses(config: Partial<{ order: string; queryParams: any }>) {
+  getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
@@ -189,14 +198,15 @@ export class TransactionService {
         })
       ),
       map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr), [] as any[])
+      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
     );
   }
 
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getTransactionStats(aggregates: string, queryParams = {}) {
+  // TODO: Remove `any` type once the stats response implementation is fixed
+  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<any> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiV2Service.get('/expenses/stats', {
@@ -214,14 +224,14 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  delete(txnId: string) {
+  delete(txnId: string): Observable<Expense> {
     return this.apiService.delete('/transactions/' + txnId);
   }
 
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  deleteBulk(txnIds: string[]) {
+  deleteBulk(txnIds: string[]): Observable<Transaction[]> {
     const chunkSize = 10;
     const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
     return range(0, count).pipe(
@@ -231,14 +241,14 @@ export class TransactionService {
           txn_ids: filteredtxnIds,
         });
       }),
-      reduce((acc, curr) => acc.concat(curr), [] as any[])
+      reduce((acc, curr) => acc.concat(curr), [] as Transaction[])
     );
   }
 
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  upsert(transaction) {
+  upsert(transaction: Transaction): Observable<Transaction> {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
 
@@ -305,9 +315,9 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  createTxnWithFiles(txn, fileUploads$: Observable<any>) {
+  createTxnWithFiles(txn: Transaction, fileUploads$: Observable<FileObject[]>) {
     return fileUploads$.pipe(
-      switchMap((fileObjs: any[]) =>
+      switchMap((fileObjs: FileObject[]) =>
         this.upsert(txn).pipe(
           switchMap((transaction) =>
             from(
@@ -326,44 +336,23 @@ export class TransactionService {
     );
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
-  })
-  removeTxnsFromRptInBulk(txnIds, comment?) {
-    const count = txnIds.length > this.paginationSize ? txnIds.length / this.paginationSize : 1;
-    return range(0, count).pipe(
-      concatMap((page) => {
-        const data: any = {
-          ids: txnIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize),
-        };
-
-        if (comment) {
-          data.comment = comment;
-        }
-
-        return this.apiService.post('/transactions/remove_report/bulk', data);
-      }),
-      reduce((acc, curr) => acc.concat(curr), [] as any[])
-    );
-  }
-
-  getPaginatedETxncCount(params?) {
+  getPaginatedETxncCount(): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
-          return this.apiService.get('/etxns/count', { params }).pipe(
+          return this.apiService.get('/etxns/count').pipe(
             tap((res) => {
-              this.storageService.set('etxncCount' + JSON.stringify(params), res);
+              this.storageService.set('etxncCount', res);
             })
           );
         } else {
-          return from(this.storageService.get('etxncCount' + JSON.stringify(params)));
+          return from(this.storageService.get('etxncCount'));
         }
       })
     );
   }
 
-  getETxnc(params: { offset: number; limit: number; params: any }) {
+  getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
     return this.apiV2Service
       .get('/expenses', {
         ...params,
@@ -371,7 +360,7 @@ export class TransactionService {
       .pipe(map((etxns) => etxns.data));
   }
 
-  getMyExpensesCount(queryParams = {}) {
+  getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
     return this.getMyExpenses({
       offset: 0,
       limit: 1,
@@ -379,7 +368,7 @@ export class TransactionService {
     }).pipe(map((res) => res.count));
   }
 
-  getExpenseV2(id: string): Observable<any> {
+  getExpenseV2(id: string): Observable<Expense> {
     return this.apiV2Service
       .get('/expenses', {
         params: {
@@ -428,12 +417,12 @@ export class TransactionService {
         const payload = {
           data: platformPolicyExpense,
         };
-        return this.spenderPlatformApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
+        return this.spenderPlatformV1BetaApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
       })
     );
   }
 
-  getETxn(txnId) {
+  getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
         const etxn = this.dataTransformService.unflatten(data);
@@ -450,7 +439,7 @@ export class TransactionService {
     );
   }
 
-  matchCCCExpense(txnId, corporateCreditCardExpenseId) {
+  matchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
     const data = {
       transaction_id: txnId,
       corporate_credit_card_expense_id: corporateCreditCardExpenseId,
@@ -459,15 +448,15 @@ export class TransactionService {
     return this.apiService.post('/transactions/match', data);
   }
 
-  review(txnId: string) {
+  review(txnId: string): Observable<null> {
     return this.apiService.post('/transactions/' + txnId + '/review');
   }
 
-  getDefaultVehicleType() {
+  getDefaultVehicleType(): Observable<string> {
     return from(this.storageService.get('vehicle_preference'));
   }
 
-  uploadBase64File(txnId, name, base64Content) {
+  uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
     const data = {
       content: base64Content,
       name,
@@ -475,7 +464,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
-  getSplitExpenses(txnSplitGroupId: string) {
+  getSplitExpenses(txnSplitGroupId: string): Observable<Expense[]> {
     const data = {
       tx_split_group_id: 'eq.' + txnSplitGroupId,
     };
@@ -483,7 +472,7 @@ export class TransactionService {
     return this.getAllETxnc(data);
   }
 
-  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string) {
+  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
     const data = {
       transaction_id: txnId,
       corporate_credit_card_expense_id: corporateCreditCardExpenseId,
@@ -492,7 +481,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/unmatch', data);
   }
 
-  getTransactionByExpenseNumber(expenseNumber: string) {
+  getTransactionByExpenseNumber(expenseNumber: string): Observable<Expense> {
     return this.apiService.get('/transactions', {
       params: {
         expense_number: expenseNumber,
@@ -533,7 +522,7 @@ export class TransactionService {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
-  getPaymentModeWiseSummary(etxns: Expense[]) {
+  getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
     const paymentModes = [
       {
         name: 'Reimbursable',
@@ -576,7 +565,7 @@ export class TransactionService {
       }, {});
   }
 
-  getCurrenyWiseSummary(etxns: Expense[]) {
+  getCurrenyWiseSummary(etxns: Expense[]): CurrencySummary[] {
     const currencyMap = {};
     etxns.forEach((etxn) => {
       if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
@@ -591,22 +580,22 @@ export class TransactionService {
       .sort((a, b) => (a.amount < b.amount ? 1 : -1));
   }
 
-  excludeCCCExpenses(expenses: Expense[]) {
+  excludeCCCExpenses(expenses: Expense[]): Expense[] {
     return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
   }
 
-  getDeletableTxns(expenses: Expense[]) {
+  getDeletableTxns(expenses: Expense[]): Expense[] {
     return expenses.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
-  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]) {
+  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
     return `You are about to permanently delete ${
-      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
+      expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
     }`;
   }
 
-  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number) {
-    return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
+  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number): string {
+    return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
       expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
@@ -618,22 +607,22 @@ export class TransactionService {
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
-  ) {
+  ): string {
     let dialogBody: string;
 
-    if (expensesToBeDeleted?.length > 0 && cccExpenses > 0) {
+    if (expensesToBeDeleted.length > 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
         <li>Once deleted, the action can't be reversed.</li>
         </ul>
         <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted?.length > 0 && cccExpenses === 0) {
+    } else if (expensesToBeDeleted.length > 0 && cccExpenses === 0) {
       dialogBody = `<ul class="text-left">
       <li>${expenseDeletionMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
       <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted?.length === 0 && cccExpenses > 0) {
+    } else if (expensesToBeDeleted.length === 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
       </ul>`;
@@ -665,7 +654,7 @@ export class TransactionService {
   }
 
   isMergeAllowed(expenses: Expense[]): boolean {
-    if (expenses?.length === 2) {
+    if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
       );
@@ -679,7 +668,7 @@ export class TransactionService {
     }
   }
 
-  generateStateFilters(newQueryParams, filters: Filters) {
+  generateStateFilters(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
 
@@ -692,11 +681,11 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateCardNumberParams(newQueryParams, filters: Filters) {
+  generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
-      filters.cardNumbers?.forEach((cardNumber) => {
+      filters.cardNumbers.forEach((cardNumber) => {
         cardNumberString += cardNumber + ',';
       });
       cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
@@ -706,7 +695,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateReceiptAttachedParams(newQueryParams, filters) {
+  generateReceiptAttachedParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.receiptsAttached) {
       if (filters.receiptsAttached === 'YES') {
@@ -720,7 +709,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateDateParams(newQueryParams, filters) {
+  generateDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
     let newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date) {
       filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
@@ -740,13 +729,13 @@ export class TransactionService {
         newQueryParamsCopy.and = `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
       }
 
-      newQueryParamsCopy = this.generateCustomDateParams(newQueryParams, filters);
+      newQueryParamsCopy = this.generateCustomDateParams(newQueryParamsCopy, filters);
     }
 
     return newQueryParamsCopy;
   }
 
-  generateTypeFilters(newQueryParams, filters: Filters) {
+  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const typeOrFilter = this.generateTypeOrFilter(filters);
 
@@ -759,16 +748,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  setSortParams(
-    currentParams: Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>,
-    filters
-  ) {
+  setSortParams(currentParams: Partial<SortFiltersParams>, filters: Filters): Partial<SortFiltersParams> {
     const currentParamsCopy = cloneDeep(currentParams);
     if (filters.sortParam && filters.sortDir) {
       currentParamsCopy.sortParam = filters.sortParam;
@@ -781,7 +761,27 @@ export class TransactionService {
     return currentParamsCopy;
   }
 
-  private getTxnAccount() {
+  isEtxnInPaymentMode(txnSkipReimbursement: boolean, txnSourceAccountType: string, paymentMode: string): boolean {
+    let etxnInPaymentMode = false;
+    const isAdvanceOrCCCEtxn = txnSourceAccountType === AccountType.ADVANCE || txnSourceAccountType === AccountType.CCC;
+
+    if (paymentMode === 'reimbursable') {
+      //Paid by Employee: reimbursable
+      etxnInPaymentMode = !txnSkipReimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'nonReimbursable') {
+      //Paid by Company: not reimbursable
+      etxnInPaymentMode = txnSkipReimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'advance') {
+      //Paid from Advance account: not reimbursable
+      etxnInPaymentMode = txnSourceAccountType === AccountType.ADVANCE;
+    } else if (paymentMode === 'ccc') {
+      //Paid from CCC: not reimbursable
+      etxnInPaymentMode = txnSourceAccountType === AccountType.CCC;
+    }
+    return etxnInPaymentMode;
+  }
+
+  private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       accounts: this.accountsService.getEMyAccounts(),
@@ -800,11 +800,11 @@ export class TransactionService {
     );
   }
 
-  private getETxnCount(params: any) {
+  private getETxnCount(params: EtxnParams): Observable<{ count: number }> {
     return this.apiV2Service.get('/expenses', { params }).pipe(map((res) => res as { count: number }));
   }
 
-  private fixDates(data: Expense) {
+  private fixDates(data: Expense): Expense {
     data.tx_created_at = new Date(data.tx_created_at);
     if (data.tx_txn_dt) {
       data.tx_txn_dt = new Date(data.tx_txn_dt);
@@ -822,29 +822,12 @@ export class TransactionService {
     return data;
   }
 
-  private getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]) {
-    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
-  }
-
-  private isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
-    let etxnInPaymentMode = false;
-    const isAdvanceOrCCCEtxn =
-      etxn.source_account_type === AccountType.ADVANCE || etxn.source_account_type === AccountType.CCC;
-
-    if (paymentMode === 'reimbursable') {
-      //Paid by Employee: reimbursable
-      etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'nonReimbursable') {
-      //Paid by Company: not reimbursable
-      etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'advance') {
-      //Paid from Advance account: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === AccountType.ADVANCE;
-    } else if (paymentMode === 'ccc') {
-      //Paid from CCC: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === AccountType.CCC;
-    }
-    return etxnInPaymentMode;
+  private getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]): PaymentMode {
+    const txnSkipReimbursement = etxn.tx_skip_reimbursement;
+    const txnSourceAccountType = etxn.source_account_type;
+    return paymentModes.find((paymentMode) =>
+      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key)
+    );
   }
 
   private addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {
@@ -863,7 +846,7 @@ export class TransactionService {
     }
   }
 
-  private generateStateOrFilter(filters: Filters, newQueryParamsCopy): string[] {
+  private generateStateOrFilter(filters: Filters, newQueryParamsCopy: FilterQueryParams): string[] {
     const stateOrFilter: string[] = [];
     if (filters.state) {
       newQueryParamsCopy.tx_report_id = 'is.null';
@@ -887,11 +870,11 @@ export class TransactionService {
     return stateOrFilter;
   }
 
-  private generateCustomDateParams(newQueryParams, filters: Filters) {
+  private generateCustomDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {
-      const startDate = filters?.customDateStart?.toISOString();
-      const endDate = filters?.customDateEnd?.toISOString();
+      const startDate = filters.customDateStart?.toISOString();
+      const endDate = filters.customDateEnd?.toISOString();
       if (filters.customDateStart && filters.customDateEnd) {
         newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
       } else if (filters.customDateStart) {

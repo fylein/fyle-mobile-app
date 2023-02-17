@@ -311,7 +311,7 @@ export const unflattenedTransactionPersonal: UnflattenedTransaction = {
       'A very long title indeed A very long title indeed A very long title indeed A very long title indeed A very long title indeed',
     mobile: '+918080913866',
     sub_department: null,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
   },
   tg: {
     name: null,
@@ -560,7 +560,7 @@ export const unflattenedTransactionCCC: UnflattenedTransaction = {
       'A very long title indeed A very long title indeed A very long title indeed A very long title indeed A very long title indeed',
     mobile: '+918080913866',
     sub_department: null,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
   },
   tg: {
     name: null,
@@ -899,7 +899,7 @@ export const unflattenedTxnWithoutSourceAccountIdData = {
       'A very long title indeed A very long title indeed A very long title indeed A very long title indeed A very long title indeed',
     mobile: '+918080913866',
     sub_department: null,
-    joining_dt: '2017-07-25T00:00:00.000+0000',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
   },
   tg: {
     name: null,
@@ -2707,5 +2707,119 @@ export const paymentModesAccountsData = [
     },
     currency: 'USD',
     amount: 23213,
+  },
+];
+
+export const accountsData: ExtendedAccount[] = [
+  {
+    acc: {
+      id: 'acc5APeygFjRd',
+      created_at: new Date('2018-02-01T02:32:25.248Z'),
+      updated_at: new Date('2023-02-01T12:27:31.475Z'),
+      name: 'Personal Account',
+      type: AccountType.PERSONAL,
+      currency: 'INR',
+      target_balance_amount: 0,
+      current_balance_amount: 0,
+      tentative_balance_amount: -28739316400117.543,
+      category: null,
+    },
+    ou: {
+      id: 'ouX8dwsbLCLv',
+      org_id: 'orNVthTo2Zyo',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'accZ1IWjhjLv4',
+      created_at: new Date('2019-01-11T16:41:56.485Z'),
+      updated_at: new Date('2023-01-30T11:24:15.585Z'),
+      name: 'Corporate Credit Card Account',
+      type: AccountType.CCC,
+      currency: 'INR',
+      target_balance_amount: 0,
+      current_balance_amount: 158914.16,
+      tentative_balance_amount: -24134830648.688267,
+      category: null,
+    },
+    ou: {
+      id: 'ouX8dwsbLCLv',
+      org_id: 'orNVthTo2Zyo',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: null,
+      number: null,
+      id: null,
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: null,
+    amount: null,
+  },
+  {
+    acc: {
+      id: 'accmnYUHUiJw2',
+      created_at: new Date('2022-04-25T06:42:22.414Z'),
+      updated_at: new Date('2022-06-03T07:55:14.171Z'),
+      name: 'Advance Account',
+      type: AccountType.ADVANCE,
+      currency: 'INR',
+      target_balance_amount: 0,
+      current_balance_amount: 499,
+      tentative_balance_amount: 499,
+      category: null,
+    },
+    ou: {
+      id: 'ouX8dwsbLCLv',
+      org_id: 'orNVthTo2Zyo',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: 'test',
+      number: 'A/2022/04/T/1',
+      id: 'adv7pbzHwP5ci',
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: 'INR',
+    amount: 499,
   },
 ];

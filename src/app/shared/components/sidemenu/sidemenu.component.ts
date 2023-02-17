@@ -181,11 +181,6 @@ export class SidemenuComponent implements OnInit {
   getCardOptions() {
     const cardOptions = [
       {
-        title: 'Corporate Cards',
-        isVisible: false,
-        route: ['/', 'enterprise', 'corporate_card_expenses'],
-      },
-      {
         title: 'Personal Cards',
         isVisible:
           this.orgSettings.org_personal_cards_settings.allowed &&

@@ -77,7 +77,7 @@ export class AdvanceService {
     }).pipe(map((advances) => advances.count));
   }
 
-  fixDates(data: ExtendedAdvance) {
+  private fixDates(data: ExtendedAdvance) {
     if (data && data.adv_created_at) {
       data.adv_created_at = new Date(data.adv_created_at);
     }
