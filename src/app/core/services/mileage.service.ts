@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { LocationService } from './location.service';
-import { from, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce } from 'rxjs/operators';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { Cacheable } from 'ts-cacheable';
-
+import { MileageSettings, OrgUserSettings } from '../models/org_user_settings.model';
+import { Location } from '../models/Location.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -12,15 +13,15 @@ export class MileageService {
   constructor(private locationService: LocationService, private orgUserSettingsService: OrgUserSettingsService) {}
 
   @Cacheable()
-  getOrgUserMileageSettings() {
-    return this.orgUserSettingsService.get().pipe(map((res: any) => res.mileage_settings));
+  getOrgUserMileageSettings(): Observable<MileageSettings> {
+    return this.orgUserSettingsService.get().pipe(map((res: OrgUserSettings) => res.mileage_settings));
   }
 
-  getDistanceInternal(fromLocation, toLocation) {
+  getDistanceInternal(fromLocation: Location, toLocation: Location): Observable<number> {
     return this.locationService.getDistance(fromLocation, toLocation);
   }
 
-  getDistance(locations: any[] = []) {
+  getDistance(locations: Location[] = []): Observable<number> {
     const chunks = [];
 
     this.getChunks(locations, chunks);
@@ -35,7 +36,7 @@ export class MileageService {
     }
   }
 
-  private getChunks(locations: any[], chunks: any[]) {
+  private getChunks(locations: Location[], chunks: Array<Location[]>) {
     for (let index = 0, len = locations.length - 1; index < len; index++) {
       const from = locations[index];
       const to = locations[index + 1];
