@@ -33,29 +33,32 @@
       </app-fy-alert-info>
 
       <ng-container *ngIf="genericFieldsOptions$|async as genericFieldsOptions">
-        <app-generic-fields-form
-          formControlName="genericFields"
-          [amountOptionsData]="genericFieldsOptions.amountOptionsData"
-          [receiptOptions]="receiptOptions"
-          [attachments]="attachments"
-          [dateOfSpendOptionsData]="genericFieldsOptions.dateOfSpendOptionsData"
-          [paymentModeOptionsData]="genericFieldsOptions.paymentModeOptionsData"
-          [CCCTxns]="CCCTxns"
-          [projectOptionsData]="genericFieldsOptions.projectOptionsData"
-          [billableOptionsData]="genericFieldsOptions.billableOptionsData"
-          [vendorOptionsData]="genericFieldsOptions.vendorOptionsData"
-          [categoryOptionsData]="genericFieldsOptions.categoryOptionsData"
-          [taxGroupOptionsData]="genericFieldsOptions.taxGroupOptionsData"
-          [taxAmountOptionsData]="genericFieldsOptions.taxAmountOptionsData"
-          [constCenterOptionsData]="genericFieldsOptions.constCenterOptionsData"
-          [purposeOptionsData]="genericFieldsOptions.purposeOptionsData"
-          [categoryDependentTemplate]="categoryDependentFields"
-          [disableFormElements]="disableFormElements"
-          (fieldsTouched)="onGenericFieldsTouched($event)"
-          (categoryChanged)="onCategoryChanged($event)"
-          (receiptChanged)="onReceiptChanged($event)"
-          (paymentModeChanged)="onPaymentModeChanged()"
-        ></app-generic-fields-form>
+        <ng-container *ngIf="projectDependentFieldsMapping$|async as projectDependentFieldsMapping">
+          <app-generic-fields-form
+            formControlName="genericFields"
+            [amountOptionsData]="genericFieldsOptions.amountOptionsData"
+            [receiptOptions]="receiptOptions"
+            [attachments]="attachments"
+            [dateOfSpendOptionsData]="genericFieldsOptions.dateOfSpendOptionsData"
+            [paymentModeOptionsData]="genericFieldsOptions.paymentModeOptionsData"
+            [CCCTxns]="CCCTxns"
+            [projectOptionsData]="genericFieldsOptions.projectOptionsData"
+            [billableOptionsData]="genericFieldsOptions.billableOptionsData"
+            [vendorOptionsData]="genericFieldsOptions.vendorOptionsData"
+            [categoryOptionsData]="genericFieldsOptions.categoryOptionsData"
+            [taxGroupOptionsData]="genericFieldsOptions.taxGroupOptionsData"
+            [taxAmountOptionsData]="genericFieldsOptions.taxAmountOptionsData"
+            [constCenterOptionsData]="genericFieldsOptions.constCenterOptionsData"
+            [purposeOptionsData]="genericFieldsOptions.purposeOptionsData"
+            [categoryDependentTemplate]="categoryDependentFields"
+            [disableFormElements]="disableFormElements"
+            [projectDependentFieldsMapping]="projectDependentFieldsMapping"
+            (fieldsTouched)="onGenericFieldsTouched($event)"
+            (categoryChanged)="onCategoryChanged($event)"
+            (receiptChanged)="onReceiptChanged($event)"
+            (paymentModeChanged)="onPaymentModeChanged()"
+          ></app-generic-fields-form>
+        </ng-container>
       </ng-container>
 
       <ng-template #categoryDependentFields>

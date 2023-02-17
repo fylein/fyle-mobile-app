@@ -4,7 +4,6 @@ import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
-import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
 
 @Component({
   selector: 'app-dependent-field',
@@ -43,31 +42,11 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   displayValue: string;
 
-  private innerValue;
-
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
-
-  get value(): PlatformDependentFieldValue {
-    return this.innerValue;
-  }
-
-  set value(v: PlatformDependentFieldValue) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      const selectedOption = this.innerValue;
-      if (selectedOption) {
-        this.displayValue = selectedOption.expense_field_value;
-      } else {
-        this.displayValue = '';
-      }
-
-      this.onChangeCallback(v);
-    }
-  }
 
   ngOnInit() {}
 
@@ -75,7 +54,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     const selectionModal = await this.modalController.create({
       component: DependentFieldModalComponent,
       componentProps: {
-        currentSelection: this.value,
+        currentSelection: this.displayValue,
         showNullOption: this.showNullOption,
         enableSearch: this.enableSearch,
         selectModalHeader: this.selectModalHeader || 'Select Item',
@@ -94,7 +73,8 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.value = data;
+      this.displayValue = data;
+      this.onChangeCallback(this.displayValue);
     }
   }
 
@@ -102,16 +82,8 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     this.onTouchedCallback();
   }
 
-  writeValue(value: PlatformDependentFieldValue): void {
-    if (value !== this.innerValue) {
-      this.innerValue = value;
-      const selectedOption = this.innerValue;
-      if (selectedOption) {
-        this.displayValue = selectedOption.expense_field_value;
-      } else {
-        this.displayValue = '';
-      }
-    }
+  writeValue(val: string): void {
+    this.displayValue = val;
   }
 
   registerOnChange(fn: any) {
