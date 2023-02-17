@@ -9,6 +9,7 @@ import { OrgUserService } from './org-user.service';
 import { AccountType } from '../enums/account-type.enum';
 import { EmailEventsObject } from '../models/email-events.model';
 import { CostCenter } from '../models/v1/cost-center.model';
+import { NotificationEvents } from '../models/notification-events.model';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -45,7 +46,7 @@ export class OrgUserSettingsService {
 
   @Cacheable()
   getAllowedPaymentModes(): Observable<AccountType[]> {
-    return this.get().pipe(map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes));
+    return this.get().pipe(map((orgUserSettings) => orgUserSettings.payment_mode_settings.allowed_payment_modes));
   }
 
   @CacheBuster({
@@ -254,7 +255,7 @@ export class OrgUserSettingsService {
     return featuresList;
   }
 
-  getNotificationEvents() {
+  getNotificationEvents(): Observable<NotificationEvents> {
     // TODO: convert this is rxjs
     const emailEvents = this.getEmailEvents();
     const notificationEvents = {

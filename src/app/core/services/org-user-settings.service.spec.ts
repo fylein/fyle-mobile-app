@@ -4,11 +4,15 @@ import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { OrgUserService } from './org-user.service';
-import { orgUserSettingsData, orgUserSettingsData2 } from '../mock-data/org-user-settings.data';
+import {
+  orgUserSettingsData,
+  orgUserSettingsData2,
+  orgUserSettingsDataWoCCIDs,
+} from '../mock-data/org-user-settings.data';
 import { currentEouUnflatted } from '../test-data/org-user.service.spec.data';
 import { emailEvents } from '../mock-data/email-events.data';
 import { notificationEventsData } from '../mock-data/notification-events.data';
-import { costCentersData2 } from '../mock-data/cost-centers.data';
+import { costCentersData2, costCentersData3 } from '../mock-data/cost-centers.data';
 
 describe('OrgUserSettingsService', () => {
   let orgUserSettingsService: OrgUserSettingsService;
@@ -121,12 +125,39 @@ describe('OrgUserSettingsService', () => {
     });
   });
 
-  it('getAllowedCostCenters(): should get the allowed cost-centers for a user', (done) => {
-    costCentersService.getAllActive.and.returnValue(of(costCentersData2));
+  describe('getAllowedCostCenters()', () => {
+    it('should get the allowed cost-centers specific for a user', (done) => {
+      costCentersService.getAllActive.and.returnValue(of(costCentersData2));
 
-    orgUserSettingsService.getAllowedCostCenters(orgUserSettingsData).subscribe((res) => {
+      orgUserSettingsService.getAllowedCostCenters(orgUserSettingsData).subscribe((res) => {
+        expect(res).toEqual(costCentersData2);
+        expect(costCentersService.getAllActive).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get the allowed cost-centers', (done) => {
+      costCentersService.getAllActive.and.returnValue(of(costCentersData3));
+
+      orgUserSettingsService.getAllowedCostCenters(orgUserSettingsDataWoCCIDs).subscribe((res) => {
+        expect(res).toEqual(costCentersData3);
+        expect(costCentersService.getAllActive).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
+  it('getAllowedCostCentersByOuId(): should get allowed cost centers by org-user ID', (done) => {
+    const userId = 'ousS9MgDNQ6NB';
+    spyOn(orgUserSettingsService, 'getOrgUserSettingsById').and.returnValue(of(orgUserSettingsData));
+    spyOn(orgUserSettingsService, 'getAllowedCostCenters').and.returnValue(of(costCentersData2));
+
+    orgUserSettingsService.getAllowedCostCentersByOuId(userId).subscribe((res) => {
       expect(res).toEqual(costCentersData2);
-      expect(costCentersService.getAllActive).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.getOrgUserSettingsById).toHaveBeenCalledOnceWith(userId);
+      expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData, {
+        isUserSpecific: true,
+      });
       done();
     });
   });
