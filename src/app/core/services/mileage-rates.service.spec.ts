@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { CurrencyPipe } from '@angular/common';
 import { MileageRatesService } from './mileage-rates.service';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
-import { PAGINATION_SIZE } from 'src/app/constants';
 import { filterEnabledMileageRatesData, mileageRatesData } from '../mock-data/mileage-rate.data';
 
 describe('MileageRatesService', () => {
@@ -18,10 +17,6 @@ describe('MileageRatesService', () => {
         {
           provide: SpenderPlatformV1BetaApiService,
           useValue: spenderPlatformV1BetaApiServiceSpy,
-        },
-        {
-          provide: PAGINATION_SIZE,
-          useValue: 2,
         },
         {
           provide: CurrencyPipe,
