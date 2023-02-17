@@ -2983,6 +2983,7 @@ export class AddEditExpensePage implements OnInit {
           amount = etxn.tx.user_amount;
         }
 
+        //TODO: Add depenedent fields to custom_properties array once APIs are available
         return {
           tx: {
             ...etxn.tx,
