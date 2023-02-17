@@ -31,7 +31,7 @@ export class OrgUserSettingsService {
   @CacheBuster({
     cacheBusterNotifier: orgUserSettingsCacheBuster$,
   })
-  post(data) {
+  post(data: OrgUserSettings) {
     return this.apiService.post('/org_user_settings', data);
   }
 
@@ -54,7 +54,7 @@ export class OrgUserSettingsService {
     return of(null);
   }
 
-  getAllowedCostCenters(orgUserSettings, filters = { isUserSpecific: false }) {
+  getAllowedCostCenters(orgUserSettings: OrgUserSettings, filters = { isUserSpecific: false }) {
     return this.costCentersService.getAllActive().pipe(
       map((costCenters) => {
         let allowedCostCenters = [];
