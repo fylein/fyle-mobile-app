@@ -1,4 +1,4 @@
-import { Location } from '../models/Location.model';
+import { Location } from '../models/location.model';
 
 export const locationData1: Location = {
   city: 'Kolkata',
