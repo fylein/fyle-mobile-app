@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, TemplateRef } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import {
   FormControl,
@@ -10,6 +11,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { FileObject } from 'src/app/core/models/file_obj.model';
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 
 type Option = Partial<{
   label: string;
@@ -62,6 +64,8 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Input() disableFormElements: boolean;
 
+  @Input() projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] };
+
   @Output() fieldsTouched = new EventEmitter<string[]>();
 
   @Output() categoryChanged = new EventEmitter<void>();
@@ -73,6 +77,8 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
   genericFieldsFormGroup: FormGroup;
 
   onChangeSub: Subscription;
+
+  dependentFields: CustomProperty<string>[] = [];
 
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 
@@ -95,6 +101,12 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
     this.genericFieldsFormGroup.controls.category.valueChanges.subscribe((categoryId) => {
       this.categoryChanged.emit(categoryId);
     });
+
+    this.genericFieldsFormGroup.controls.project.valueChanges
+      .pipe(filter((projectId) => !!projectId))
+      .subscribe((projectId) => {
+        this.dependentFields = this.projectDependentFieldsMapping[projectId];
+      });
 
     this.genericFieldsFormGroup.controls.paymentMode.valueChanges.subscribe((paymentMode) => {
       this.paymentModeChanged.emit(paymentMode);
