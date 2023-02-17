@@ -42,14 +42,14 @@ export class CustomInputsService {
           },
         })
       ),
+      map((res) => this.expenseFieldsService.transformFrom(res.data)),
       map((customInputs) =>
         customInputs.map((customInput) => ({
           ...customInput,
           parent_field_id: customInput.id === 218227 ? 214662 : customInput.id - 1,
           type: customInput.field_name.length === 3 ? 'DEPENDENT_SELECT' : customInput.type,
         }))
-      ),
-      map((res) => this.expenseFieldsService.transformFrom(res.data))
+      )
     );
   }
 

@@ -3,14 +3,14 @@ import { map, Observable } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
 import { CategoriesService } from './categories.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DependentFieldsService {
   constructor(
-    private spenderPlatformApiService: SpenderPlatformApiService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private categoryService: CategoriesService
   ) {}
 
@@ -34,7 +34,7 @@ export class DependentFieldsService {
     };
 
     //TODO: Use v1 Platform APIs instead of v1-beta. Will be done once expense_fields is migrated
-    return this.spenderPlatformApiService.get<PlatformApiResponse<PlatformDependentFieldValue>>(
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformDependentFieldValue>>(
       '/dependent_expense_field_values',
       data
     );

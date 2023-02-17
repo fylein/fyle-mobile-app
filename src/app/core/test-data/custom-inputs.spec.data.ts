@@ -1818,6 +1818,7 @@ export const filledCustomProperties = [
     type: 'USER_LIST',
     mandatory: true,
     options: [],
+    displayValue: '-',
   },
   {
     name: 'Select CF',
@@ -1825,6 +1826,7 @@ export const filledCustomProperties = [
     type: 'SELECT',
     mandatory: true,
     options: ['Cv1', 'Cv2', 'Cv3'],
+    displayValue: 'Cv3',
   },
   {
     name: 'Multi select CF',
@@ -1832,6 +1834,7 @@ export const filledCustomProperties = [
     type: 'MULTI_SELECT',
     mandatory: true,
     options: ['MF1', 'MF2', 'MF3'],
+    displayValue: 'MF2',
   },
   {
     name: 'Location CF',
@@ -1839,6 +1842,7 @@ export const filledCustomProperties = [
     type: 'LOCATION',
     mandatory: true,
     options: [],
+    displayValue: '-',
   },
   {
     name: 'Date CF',
@@ -1846,6 +1850,7 @@ export const filledCustomProperties = [
     type: 'DATE',
     mandatory: true,
     options: [],
+    displayValue: 'Feb 08, 2023',
   },
   {
     name: 'Boolean value',
@@ -1853,5 +1858,6 @@ export const filledCustomProperties = [
     type: 'BOOLEAN',
     mandatory: false,
     options: [],
+    displayValue: 'No',
   },
 ];

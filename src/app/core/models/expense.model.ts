@@ -1,13 +1,4 @@
 export interface Expense {
-  corporate_credit_card_account_number?: string;
-  credit?: boolean;
-  debit?: boolean;
-  duplicates?: {
-    fields: string[];
-    percent: number;
-    transaction_id: string;
-    reason: string;
-  }[];
   isCriticalPolicyViolated?: boolean;
   isPolicyViolated?: boolean;
   isDraft?: boolean;
@@ -28,7 +19,6 @@ export interface Expense {
   ou_level: string;
   ou_location: string;
   ou_mobile: string;
-  ou_rank?: string;
   ou_org_id: string;
   ou_org_name: string;
   ou_sub_department: string;
@@ -40,11 +30,7 @@ export interface Expense {
   rp_reimbursed_at?: any;
   source_account_id: string;
   source_account_type: string;
-  tg_name?: string;
-  tg_percentage?: number;
   transaction_approvals?: string[];
-  tx_activity_details?: string;
-  tx_activity_policy_pending?: boolean;
   tx_admin_amount?: number;
   tx_amount?: number;
   tx_billable: boolean;
@@ -91,8 +77,6 @@ export interface Expense {
   tx_fyle_category: string;
   tx_hotel_is_breakfast_provided?: any;
   tx_id: string;
-  tx_is_implicit_merge_blocked: boolean;
-  tx_is_split_expense: boolean;
   tx_invoice_number?: any;
   tx_is_duplicate_expense?: any;
   tx_is_holiday_expense?: any;
@@ -145,7 +129,6 @@ export interface Expense {
   tx_state: string;
   tx_sub_category: string;
   tx_tax?: any;
-  tx_tax_amount: number;
   tx_tax_group_id?: string;
   tx_text_array_column1?: any;
   tx_text_array_column10?: any;
@@ -222,6 +205,6 @@ export interface Expense {
   corporate_credit_card_account_number?: string;
   credit?: boolean;
   debit?: boolean;
-  duplicates?: string[];
+  duplicates?: { fields: string[]; percent: number; reason: string; transaction_id: string }[];
   tx_is_split_expense?: boolean;
 }
