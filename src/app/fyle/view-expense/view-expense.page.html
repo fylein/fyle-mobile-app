@@ -610,21 +610,62 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="etxn.tx_custom_properties && etxn.tx_custom_properties.length">
-        <div class="view-expense--divider"></div>
-        <ion-grid *ngFor="let customProperty of etxn.tx_custom_properties" class="view-expense--grid">
-          <ion-row>
-            <ion-col class="view-expense--icon-container">
-              <div class="view-expense--icon-container__background">
-                <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-              </div>
-            </ion-col>
-            <ion-col class="view-expense--content-container">
-              <div class="view-expense--label">{{customProperty.name}}</div>
-              <div class="view-expense--value">{{ getDisplayValue(customProperty) }}</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+      <ng-container *ngIf="projectDependantCustomProperties$|async as projectDependantCustomProperties">
+        <ng-container *ngIf="projectDependantCustomProperties?.length > 0">
+          <div class="view-expense--divider"></div>
+          <ion-grid *ngIf="isProjectShown" class="view-expense--grid">
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Project</div>
+                <div class="view-expense--value">
+                  {{ projectFieldName | titlecase }}: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+          <ng-container *ngFor="let customProperty of projectDependantCustomProperties">
+            <ion-grid class="view-expense--grid">
+              <ion-row>
+                <ion-col class="view-expense--icon-container">
+                  <div class="view-expense--icon-container__background">
+                    <ion-icon
+                      class="view-expense--icon-container__icon-lg"
+                      src="../../../assets/svg/list.svg"
+                    ></ion-icon>
+                  </div>
+                </ion-col>
+                <ion-col class="view-expense--content-container">
+                  <div class="view-expense--label">{{ customProperty.name }}</div>
+                  <div class="view-expense--value">{{ customProperty.displayValue }}</div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="customProperties$|async as customProperties">
+        <ng-container *ngIf="customProperties?.length > 0">
+          <div class="view-expense--divider"></div>
+          <ion-grid *ngFor="let customProperty of customProperties" class="view-expense--grid">
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">{{customProperty.name}}</div>
+                <div class="view-expense--value">{{customProperty.displayValue}}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ng-container>
       </ng-container>
     </div>
   </ng-container>

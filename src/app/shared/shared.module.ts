@@ -133,6 +133,9 @@ import { VirtualSelectComponent } from './components/virtual-select/virtual-sele
 import { VirtualSelectModalComponent } from './components/virtual-select/virtual-select-modal/virtual-select-modal.component';
 import { AutoSubmissionInfoCardComponent } from '../fyle/dashboard/tasks/auto-submission-info-card/auto-submission-info-card.component';
 import { CameraPreviewComponent } from './components/capture-receipt/camera-preview/camera-preview.component';
+import { DependentFieldComponent } from './components/dependent-field/dependent-field.component';
+import { DependentFieldModalComponent } from './components/dependent-field/dependent-field-modal/dependent-field-modal.component';
+import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-select-disabled.component';
 
 @NgModule({
   declarations: [
@@ -244,6 +247,9 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     VirtualSelectModalComponent,
     AutoSubmissionInfoCardComponent,
     CameraPreviewComponent,
+    DependentFieldComponent,
+    DependentFieldModalComponent,
+    FySelectDisabledComponent,
   ],
   imports: [
     CommonModule,
@@ -361,6 +367,9 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     VirtualSelectComponent,
     AutoSubmissionInfoCardComponent,
     CameraPreviewComponent,
+    DependentFieldComponent,
+    DependentFieldModalComponent,
+    FySelectDisabledComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
 })
