@@ -1,8 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef } from '@angular/core';
-import { fromEvent, Observable, of } from 'rxjs';
+import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { isEqual } from 'lodash';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
 
@@ -14,7 +13,7 @@ import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platfo
 export class DependentFieldModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() currentSelection: PlatformDependentFieldValue;
+  @Input() currentSelection: string;
 
   @Input() showNullOption = true;
 
@@ -78,7 +77,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
       switchMap((searchString) => this.getDependentFieldOptions(searchString)),
       map((dependentFieldOptions: (PlatformDependentFieldValue & { selected?: boolean })[]) =>
         dependentFieldOptions.map((option) => {
-          if (isEqual(option, this.currentSelection)) {
+          if (option.expense_field_value === this.currentSelection) {
             option.selected = true;
           }
           return option;
@@ -93,7 +92,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option) {
-    this.modalController.dismiss(option);
+  onElementSelect(option: PlatformDependentFieldValue & { selected?: boolean }) {
+    this.modalController.dismiss(option.expense_field_value);
   }
 }
