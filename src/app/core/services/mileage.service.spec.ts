@@ -60,35 +60,37 @@ describe('MileageService', () => {
     });
   });
 
-  it('getDistance(): should get the distance between two locations', (done) => {
-    spyOn(mileageService, 'getDistanceInternal').and.returnValue(of(distance));
-    mileageService.getDistance([locationData1, locationData2]).subscribe((res) => {
-      expect(res).toEqual(distance);
-      expect(mileageService.getDistanceInternal).toHaveBeenCalledOnceWith(locationData1, locationData2);
-      done();
+  describe('getDistance():', () => {
+    it('should get the distance between two locations', (done) => {
+      spyOn(mileageService, 'getDistanceInternal').and.returnValue(of(distance));
+      mileageService.getDistance([locationData1, locationData2]).subscribe((res) => {
+        expect(res).toEqual(distance);
+        expect(mileageService.getDistanceInternal).toHaveBeenCalledOnceWith(locationData1, locationData2);
+        done();
+      });
     });
-  });
 
-  it('getDistance(): should return null when no locations are specified', (done) => {
-    mileageService.getDistance().subscribe((res) => {
-      expect(res).toEqual(null);
-      done();
+    it('should return null when no locations are specified', (done) => {
+      mileageService.getDistance().subscribe((res) => {
+        expect(res).toEqual(null);
+        done();
+      });
     });
-  });
 
-  it('getDistance(): should distance when more than 2 locations are specified', (done) => {
-    const dist2 = 7798;
-    const dist1 = 6404;
-    const getDistanceInternal = spyOn(mileageService, 'getDistanceInternal');
-    getDistanceInternal.withArgs(locationData1, locationData3).and.returnValue(of(dist1));
-    getDistanceInternal.withArgs(locationData3, locationData2).and.returnValue(of(dist2));
+    it('should distance when more than 2 locations are specified', (done) => {
+      const dist2 = 7798;
+      const dist1 = 6404;
+      const getDistanceInternal = spyOn(mileageService, 'getDistanceInternal');
+      getDistanceInternal.withArgs(locationData1, locationData3).and.returnValue(of(dist1));
+      getDistanceInternal.withArgs(locationData3, locationData2).and.returnValue(of(dist2));
 
-    mileageService.getDistance([locationData1, locationData3, locationData2]).subscribe((res) => {
-      expect(res).toEqual(dist1 + dist2);
-      expect(getDistanceInternal).toHaveBeenCalledWith(locationData1, locationData3);
-      expect(getDistanceInternal).toHaveBeenCalledWith(locationData3, locationData2);
-      expect(getDistanceInternal).toHaveBeenCalledTimes(2);
-      done();
+      mileageService.getDistance([locationData1, locationData3, locationData2]).subscribe((res) => {
+        expect(res).toEqual(dist1 + dist2);
+        expect(getDistanceInternal).toHaveBeenCalledWith(locationData1, locationData3);
+        expect(getDistanceInternal).toHaveBeenCalledWith(locationData3, locationData2);
+        expect(getDistanceInternal).toHaveBeenCalledTimes(2);
+        done();
+      });
     });
   });
 
