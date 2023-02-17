@@ -43,6 +43,49 @@ export const costCentersData: CostCenter[] = [
   },
 ];
 
+export const costCentersData2: CostCenter[] = [
+  {
+    active: true,
+    code: 'code3',
+    created_at: new Date('2022-09-08T15:26:02.756540+00:00'),
+    description: 'desc3',
+    id: 13792,
+    name: 'Test3',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2022-09-09T11:36:23.707192+00:00'),
+  },
+  {
+    active: true,
+    code: 'code1',
+    created_at: new Date('2022-09-09T10:18:18.270421+00:00'),
+    description: null,
+    id: 13793,
+    name: 'Test1 h',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2022-09-09T11:36:23.707192+00:00'),
+  },
+  {
+    active: true,
+    code: 'code2',
+    created_at: new Date('2022-09-09T10:18:18.270421+00:00'),
+    description: 'desc2',
+    id: 13794,
+    name: 'Test2 ads khgjksdf',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2022-09-09T11:36:23.707192+00:00'),
+  },
+  {
+    active: true,
+    code: 'Put Code here',
+    created_at: new Date('2022-09-09T10:29:05.646835+00:00'),
+    description: 'Describe the cost center',
+    id: 14018,
+    name: 'Put Name here',
+    org_id: 'orNVthTo2Zyo',
+    updated_at: new Date('2022-09-09T10:30:25.552998+00:00'),
+  },
+];
+
 export const costCenterApiRes1: CostCenter[] = [
   {
     active: true,

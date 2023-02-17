@@ -7,6 +7,8 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgUserService } from './org-user.service';
 import { AccountType } from '../enums/account-type.enum';
+import { EmailEventsObject } from '../models/email-events.model';
+import { CostCenter } from '../models/v1/cost-center.model';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -23,21 +25,21 @@ export class OrgUserSettingsService {
   @Cacheable({
     cacheBusterObserver: orgUserSettingsCacheBuster$,
   })
-  get() {
+  get(): Observable<OrgUserSettings> {
     return this.apiService.get('/org_user_settings').pipe(map((res) => res as OrgUserSettings));
   }
 
   @CacheBuster({
     cacheBusterNotifier: orgUserSettingsCacheBuster$,
   })
-  post(data) {
+  post(data: OrgUserSettings) {
     return this.apiService.post('/org_user_settings', data);
   }
 
   @Cacheable({
     cacheBusterObserver: orgUserSettingsCacheBuster$,
   })
-  getUserSettings(userSettingsId: string) {
+  getUserSettings(userSettingsId: string): Observable<OrgUserSettings> {
     return this.apiService.get('/org_user_settings/' + userSettingsId).pipe(map((res) => res as OrgUserSettings));
   }
 
@@ -53,7 +55,10 @@ export class OrgUserSettingsService {
     return of(null);
   }
 
-  getAllowedCostCenters(orgUserSettings, filters = { isUserSpecific: false }) {
+  getAllowedCostCenters(
+    orgUserSettings: OrgUserSettings,
+    filters = { isUserSpecific: false }
+  ): Observable<CostCenter[]> {
     return this.costCentersService.getAllActive().pipe(
       map((costCenters) => {
         let allowedCostCenters = [];
@@ -69,17 +74,17 @@ export class OrgUserSettingsService {
     );
   }
 
-  getOrgUserSettingsById(ouId: string) {
+  getOrgUserSettingsById(ouId: string): Observable<OrgUserSettings> {
     return this.orgUserService.getUserById(ouId).pipe(switchMap((user) => this.getUserSettings(user.ou_settings_id)));
   }
 
-  getAllowedCostCentersByOuId(ouId: string) {
+  getAllowedCostCentersByOuId(ouId: string): Observable<CostCenter[]> {
     return this.getOrgUserSettingsById(ouId).pipe(
       switchMap((orgUserSettings) => this.getAllowedCostCenters(orgUserSettings, { isUserSpecific: true }))
     );
   }
 
-  getEmailEvents() {
+  getEmailEvents(): EmailEventsObject {
     const featuresList = {
       features: {
         expensesAndReports: {
