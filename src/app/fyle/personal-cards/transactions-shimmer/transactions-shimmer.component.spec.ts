@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TransactionsShimmerComponent } from './transactions-shimmer.component';
 
-xdescribe('TransactionsShimmerComponent', () => {
-  let component: TransactionsShimmerComponent;
+describe('TransactionsShimmerComponent', () => {
+  let transactionsShimmerComponent: TransactionsShimmerComponent;
   let fixture: ComponentFixture<TransactionsShimmerComponent>;
 
   beforeEach(async () => {
@@ -14,11 +14,11 @@ xdescribe('TransactionsShimmerComponent', () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(TransactionsShimmerComponent);
-    component = fixture.componentInstance;
+    transactionsShimmerComponent = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(transactionsShimmerComponent).toBeTruthy();
   });
 });

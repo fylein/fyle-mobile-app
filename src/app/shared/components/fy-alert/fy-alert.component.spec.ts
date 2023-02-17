@@ -3,24 +3,22 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyAlertComponent } from './fy-alert.component';
 
-xdescribe('FyAlertComponent', () => {
-  let component: FyAlertComponent;
+describe('FyAlertComponent', () => {
+  let fyAlertComponent: FyAlertComponent;
   let fixture: ComponentFixture<FyAlertComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [FyAlertComponent],
-        imports: [IonicModule.forRoot()],
-      }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [FyAlertComponent],
+      imports: [IonicModule.forRoot()],
+    }).compileComponents();
 
-      fixture = TestBed.createComponent(FyAlertComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-    })
-  );
+    fixture = TestBed.createComponent(FyAlertComponent);
+    fyAlertComponent = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(fyAlertComponent).toBeTruthy();
   });
 });
