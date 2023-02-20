@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatIconModule } from '@angular/material/icon';
 import { IonicModule } from '@ionic/angular';
 
 import { FyAlertComponent } from './fy-alert.component';
@@ -10,7 +11,7 @@ describe('FyAlertComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [FyAlertComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), MatIconModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyAlertComponent);
