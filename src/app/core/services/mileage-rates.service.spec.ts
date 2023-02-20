@@ -2,7 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { CurrencyPipe } from '@angular/common';
 import { MileageRatesService } from './mileage-rates.service';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
-import { filterEnabledMileageRatesData, mileageRatesData } from '../mock-data/mileage-rate.data';
+import {
+  filterEnabledMileageRatesData,
+  mileageRatesData,
+  nullRateExcludedData,
+  nullRateIncludedData,
+} from '../mock-data/mileage-rate.data';
+import { of } from 'rxjs';
 
 describe('MileageRatesService', () => {
   let mileageRatesService: MileageRatesService;
@@ -11,6 +17,8 @@ describe('MileageRatesService', () => {
 
   beforeEach(() => {
     const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
+
     TestBed.configureTestingModule({
       providers: [
         MileageRatesService,
@@ -20,7 +28,7 @@ describe('MileageRatesService', () => {
         },
         {
           provide: CurrencyPipe,
-          useValue: currencyPipe,
+          useValue: currencyPipeSpy,
         },
       ],
     });
@@ -28,6 +36,7 @@ describe('MileageRatesService', () => {
     spenderPlatformV1BetaApiService = TestBed.inject(
       SpenderPlatformV1BetaApiService
     ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+
     currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
   });
 
@@ -35,9 +44,60 @@ describe('MileageRatesService', () => {
     expect(mileageRatesService).toBeTruthy();
   });
 
+  describe('formatMileageRateName()', () => {
+    it('should give the formated mileage rate name', () => {
+      const input = 'four_wheeler';
+      const output = mileageRatesService.formatMileageRateName(input);
+      expect(output).toEqual('Four Wheeler - Type 1');
+    });
+
+    it('should return the input string if it is not a valid rate name', () => {
+      const input = 'invalid_rate_name';
+      const output = mileageRatesService.formatMileageRateName(input);
+      expect(output).toEqual(input);
+    });
+
+    it('should return an empty string if the input string is falsy', () => {
+      const input = '';
+      const output = mileageRatesService.formatMileageRateName(input);
+      expect(output).toEqual('');
+    });
+  });
+
+  describe('getReadableRate():', () => {
+    it('should format a rate with currency and unit as km', () => {
+      const rate = 1234.56;
+      const currency = 'USD';
+      const unit = 'km';
+      const expectedOutput = '$1,234.56/km';
+
+      currencyPipe.transform.and.returnValue('$1,234.56');
+      const output = mileageRatesService.getReadableRate(rate, currency, unit);
+      expect(currencyPipe.transform).toHaveBeenCalledOnceWith(rate, currency, 'symbol', '1.2-2');
+      expect(output).toEqual(expectedOutput);
+    });
+
+    it('should format a rate with currency and unit as miles', () => {
+      const rate = 10.5;
+      const currency = 'USD';
+      const unit = 'miles';
+      const expectedResult = '$10.50/mile';
+      currencyPipe.transform.and.returnValue('$10.50');
+      const result = mileageRatesService.getReadableRate(rate, currency, unit);
+      expect(currencyPipe.transform).toHaveBeenCalledOnceWith(rate, currency, 'symbol', '1.2-2');
+      expect(result).toEqual(expectedResult);
+    });
+  });
+
   it('filterEnabledMileageRates(): should retutn enabled mileage rates', () => {
     const result = mileageRatesService.filterEnabledMileageRates(mileageRatesData);
     expect(result.length).toEqual(filterEnabledMileageRatesData.length);
     expect(result).toEqual(filterEnabledMileageRatesData);
+  });
+
+  it('excludeNullRates(): should exclude mileage rates with null rates', () => {
+    const result = mileageRatesService.excludeNullRates(nullRateIncludedData);
+    expect(result.length).toEqual(nullRateExcludedData.length);
+    expect(result).toEqual(nullRateExcludedData);
   });
 });
