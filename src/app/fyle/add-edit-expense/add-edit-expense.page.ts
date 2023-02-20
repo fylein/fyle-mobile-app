@@ -1402,7 +1402,7 @@ export class AddEditExpensePage implements OnInit {
       currencies: this.currencyService.getAll(),
     }).pipe(
       switchMap(({ recentValues, currencies }) =>
-        this.recentlyUsedItemsService.getRecentCurrencies(Object.values(currencies), recentValues)
+        this.recentlyUsedItemsService.getRecentCurrencies(currencies, recentValues)
       )
     );
 
