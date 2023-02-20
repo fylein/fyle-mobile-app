@@ -2287,9 +2287,7 @@ export class AddEditMileagePage implements OnInit {
             ) {
               reportId = this.fg.value.report.rp.id;
             }
-            return of(
-              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null)
-            ).pipe(
+            return of(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId)).pipe(
               switchMap((txnData: Promise<any>) => from(txnData)),
               map(() => etxn)
             );
