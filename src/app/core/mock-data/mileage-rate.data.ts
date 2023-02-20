@@ -1,6 +1,6 @@
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
 
-export const mileageRatesData: PlatformMileageRates[] = [
+export const unfilterdMileageRatesData: PlatformMileageRates[] = [
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -174,7 +174,7 @@ export const nullRateIncludedData: PlatformMileageRates[] = [
   },
 ];
 
-export const nullRateExcludedData: PlatformMileageRates[] = [
+export const nullRateExcludedData1: PlatformMileageRates[] = [
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
