@@ -8,6 +8,7 @@ import {
   nullRateExcludedData,
   nullRateIncludedData,
 } from '../mock-data/mileage-rate.data';
+import { platformMileageRates, platformMileageRatesSingleData } from '../mock-data/platform-mileage-rate.data';
 import { of } from 'rxjs';
 
 describe('MileageRatesService', () => {
@@ -99,5 +100,37 @@ describe('MileageRatesService', () => {
     const result = mileageRatesService.excludeNullRates(nullRateIncludedData);
     expect(result.length).toEqual(nullRateExcludedData.length);
     expect(result).toEqual(nullRateExcludedData);
+  });
+
+  it('should get mileage rates', (done) => {
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformMileageRates));
+    const data = {
+      params: {
+        offset: 0,
+        limit: 4,
+      },
+    };
+    spyOn(mileageRatesService, 'excludeNullRates').and.returnValue(nullRateExcludedData);
+    mileageRatesService.getMileageRates({ offset: 0, limit: 4 }).subscribe((res) => {
+      expect(res).toEqual(nullRateExcludedData);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', data);
+      expect(mileageRatesService.excludeNullRates).toHaveBeenCalledOnceWith(platformMileageRates.data);
+      done();
+    });
+  });
+
+  it('getAllMileageRatesCount() : should get all mileage rates count', (done) => {
+    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformMileageRatesSingleData));
+    const data = {
+      params: {
+        offset: 0,
+        limit: 1,
+      },
+    };
+    mileageRatesService.getAllMileageRatesCount().subscribe((res) => {
+      expect(res).toEqual(platformMileageRatesSingleData.data.length);
+      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', data);
+      done();
+    });
   });
 });
