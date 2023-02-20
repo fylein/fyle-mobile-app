@@ -39,7 +39,7 @@ export class CurrencyService {
   }
 
   @Cacheable()
-  getAll() {
+  getAll(): Observable<CurrencyName> {
     return from(this.authService.getEou()).pipe(
       switchMap((currentEou) =>
         this.apiService.get('/currency/all', {
