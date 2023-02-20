@@ -2,7 +2,7 @@ import { TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatRippleModule } from '@angular/material/core';
 import { IonicModule } from '@ionic/angular';
-import { getElementBySelector, getTextContentBySelector } from 'src/app/core/dom-helpers';
+import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { InitialsPipe } from 'src/app/shared/pipes/initials.pipe';
@@ -47,8 +47,8 @@ describe('SidemenuHeaderComponent', () => {
     const activeOrgEl = getElementBySelector(fixture, '.sidemenu-header__content-container__sub-title');
 
     expect(userNameInitialEl).toBeTruthy();
-    expect(getTextContentBySelector(userNameInitialEl)).toContain('AJ');
+    expect(getTextContent(userNameInitialEl)).toContain('AJ');
     expect(activeOrgEl).toBeTruthy();
-    expect(getTextContentBySelector(activeOrgEl)).toContain('Staging Loaded');
+    expect(getTextContent(activeOrgEl)).toContain('Staging Loaded');
   });
 });

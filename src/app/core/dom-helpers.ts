@@ -8,7 +8,7 @@ import { ComponentFixture } from '@angular/core/testing';
  * @returns The text content of the element object.
  *
  */
-export const getTextContentBySelector = <T>(element: Element): string => (element ? element.textContent.trim() : '');
+export const getTextContent = <T>(element: Element): string => (element ? element.textContent.trim() : '');
 
 /**
  * Finds an element in a component fixture using its query selector.
