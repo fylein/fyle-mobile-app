@@ -3,10 +3,11 @@ import { OrgService } from './org.service';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
-import { from, of, Subject } from 'rxjs';
+import { from, Observable, of, Subject } from 'rxjs';
 import * as dayjs from 'dayjs';
 import { Cacheable } from 'ts-cacheable';
 import { getNumberOfCurrencyDigits } from '@angular/common';
+import { CurrencyName } from '../models/currency.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,7 @@ export class CurrencyService {
   constructor(private orgService: OrgService, private authService: AuthService, private apiService: ApiService) {}
 
   @Cacheable()
-  getExchangeRate(fromCurrency, toCurrency, dt = new Date(), txnId?) {
+  getExchangeRate(fromCurrency, toCurrency, dt = new Date(), txnId?): Observable<number> {
     const txnDt = dayjs(dt).format('YYYY-MM-D');
     const queryParams = {
       from: fromCurrency,
@@ -51,7 +52,7 @@ export class CurrencyService {
   }
 
   @Cacheable()
-  getHomeCurrency() {
+  getHomeCurrency(): Observable<string> {
     return this.orgService.getCurrentOrg().pipe(map((org) => org.currency));
   }
 
