@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 @Injectable({
   providedIn: 'root',
@@ -6,7 +7,7 @@ import { Injectable } from '@angular/core';
 export class CustomFieldsService {
   constructor() {}
 
-  sortcustomFieldsByType(customField1, customField2) {
+  sortcustomFieldsByType(customField1: TxnCustomProperties, customField2: TxnCustomProperties): 1 | -1 | 0 {
     if (customField1.type > customField2.type) {
       return -1;
     }
@@ -17,7 +18,7 @@ export class CustomFieldsService {
     return 0;
   }
 
-  setDefaultValue(property, inputValue) {
+  setDefaultValue(property: TxnCustomProperties, inputValue: string): TxnCustomProperties {
     if (inputValue === 'BOOLEAN') {
       property.value = false;
     } else if (inputValue === 'SELECT' || inputValue === 'MULTI_SELECT') {
@@ -30,6 +31,9 @@ export class CustomFieldsService {
   }
 
   setProperty(prefix, customInput, customProperties) {
+    console.log('customInput', customInput);
+    console.log('customProperties', customProperties);
+    console.log('prefix', prefix);
     /* Setting the name and mandatory based on the custom input key
      * Reason: Same method is used for expense custom fields and transport/advance request custom fields
      */
@@ -47,7 +51,7 @@ export class CustomFieldsService {
       customInputMandatory = customInput.mandatory;
     }
 
-    let property = {
+    let property: TxnCustomProperties = {
       id: customInput.id,
       prefix,
       name: customInputName,
@@ -72,6 +76,7 @@ export class CustomFieldsService {
         }
       }
     }
+    console.log('returned property', property);
     return property;
   }
 

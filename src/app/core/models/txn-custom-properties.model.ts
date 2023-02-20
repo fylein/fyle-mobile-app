@@ -6,5 +6,5 @@ export interface TxnCustomProperties {
   placeholder?: string;
   prefix?: string;
   type?: string;
-  value: string | string[] | Date;
+  value: any;
 }
