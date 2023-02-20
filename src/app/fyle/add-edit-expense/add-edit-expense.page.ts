@@ -191,8 +191,6 @@ export class AddEditExpensePage implements OnInit {
 
   costCenters$: Observable<any[]>;
 
-  receiptsData: any;
-
   isAmountCapped$: Observable<boolean>;
 
   isAmountDisabled$: Observable<boolean>;
@@ -992,35 +990,23 @@ export class AddEditExpensePage implements OnInit {
       etxn: this.etxn$,
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      map(
-        ({
-          accounts,
-          orgSettings,
-          etxn,
-          allowedPaymentModes,
-          isPaymentModeConfigurationsEnabled,
-          isPaidByCompanyHidden,
-        }) => {
-          const isCCCEnabled =
-            orgSettings?.corporate_credit_card_settings?.allowed &&
-            orgSettings?.corporate_credit_card_settings?.enabled;
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+        const isCCCEnabled =
+          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
-          if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
-            this.showCardTransaction = false;
-          }
-          const config = {
-            etxn,
-            orgSettings,
-            expenseType: ExpenseType.EXPENSE,
-            isPaymentModeConfigurationsEnabled,
-            isPaidByCompanyHidden,
-          };
-
-          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
+          this.showCardTransaction = false;
         }
-      ),
+        const config = {
+          etxn,
+          orgSettings,
+          expenseType: ExpenseType.EXPENSE,
+          isPaymentModeConfigurationsEnabled,
+        };
+
+        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+      }),
       shareReplay(1)
     );
   }
@@ -1170,19 +1156,6 @@ export class AddEditExpensePage implements OnInit {
             this.presetCurrency = recentValue.recent_currencies[0];
           } else {
             etxn.tx.currency = (recentCurrency && recentCurrency[0] && recentCurrency[0].shortCode) || etxn.tx.currency;
-          }
-
-          const receiptsData = this.activatedRoute.snapshot.params.receiptsData;
-
-          if (receiptsData) {
-            if (receiptsData.amount) {
-              etxn.tx.amount = receiptsData.amount;
-              etxn.tx.orig_amount = receiptsData.amount;
-            }
-            if (receiptsData.dataUrls) {
-              etxn.dataUrls = receiptsData.dataUrls;
-              etxn.tx.num_files = etxn.dataUrls ? 1 : 0;
-            }
           }
 
           if (projectEnabled && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
@@ -1902,7 +1875,9 @@ export class AddEditExpensePage implements OnInit {
   setupCustomFields() {
     this.initialFetch = true;
     this.customInputs$ = this.fg.controls.category.valueChanges.pipe(
+      filter((category) => !!category),
       startWith({}),
+      distinctUntilChanged(),
       switchMap((category) =>
         iif(() => this.mode === 'add', this.getCategoryOnAdd(category), this.getCategoryOnEdit(category))
       ),
@@ -1927,7 +1902,6 @@ export class AddEditExpensePage implements OnInit {
           return customField;
         })
       ),
-
       switchMap((customFields: any[]) =>
         this.isConnected$.pipe(
           take(1),
@@ -2514,8 +2488,6 @@ export class AddEditExpensePage implements OnInit {
       }),
       shareReplay(1)
     );
-
-    this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
 
     this.individualProjectIds$ = this.orgUserSettings$.pipe(
       map((orgUserSettings: any) => orgUserSettings.project_ids || []),
@@ -3625,14 +3597,6 @@ export class AddEditExpensePage implements OnInit {
             if (this.activatedRoute.snapshot.params.bankTxn) {
               return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
             } else {
-              let receiptsData = null;
-              if (this.receiptsData) {
-                receiptsData = {
-                  linked_by: eou.ou.id,
-                  receipt_id: this.receiptsData.receiptId,
-                  fileId: this.receiptsData.fileId,
-                };
-              }
               return this.isConnected$.pipe(
                 take(1),
                 switchMap((isConnected) => {
@@ -3642,19 +3606,10 @@ export class AddEditExpensePage implements OnInit {
 
                   if (this.activatedRoute.snapshot.params.rp_id) {
                     return of(
-                      this.transactionOutboxService.addEntryAndSync(
-                        etxn.tx,
-                        etxn.dataUrls,
-                        comments,
-                        reportId,
-                        null,
-                        receiptsData
-                      )
+                      this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null)
                     );
                   } else {
-                    this.transactionOutboxService
-                      .addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
-                      .then(noop);
+                    this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null).then(noop);
 
                     return of(null);
                   }

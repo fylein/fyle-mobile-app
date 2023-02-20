@@ -80,7 +80,7 @@ export class CategoriesService {
     return oldCategory;
   }
 
-  sortCategories(categories) {
+  sortCategories(categories: OrgCategory[]): OrgCategory[] {
     return categories.sort((a, b) => {
       const category1 = a.name.toUpperCase();
       const category2 = b.name.toUpperCase();
@@ -117,7 +117,7 @@ export class CategoriesService {
     });
   }
 
-  addDisplayName(categories: any[]) {
+  addDisplayName(categories: OrgCategory[]): OrgCategory[] {
     return categories.map((category) => {
       let displayName = category.name;
 

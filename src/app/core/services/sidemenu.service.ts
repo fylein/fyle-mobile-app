@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, iif, of } from 'rxjs';
+import { forkJoin, iif, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { SidemenuAllowedActions } from '../models/sidemenu-allowed-actions.model';
 import { OrgSettingsService } from './org-settings.service';
 import { PermissionsService } from './permissions.service';
 import { ReportService } from './report.service';
@@ -15,7 +16,7 @@ export class SidemenuService {
     private orgSettingsService: OrgSettingsService
   ) {}
 
-  getAllowedActions() {
+  getAllowedActions(): Observable<SidemenuAllowedActions> {
     return this.orgSettingsService.get().pipe(
       switchMap((orgSettings) => {
         const allowedReportsActions$ = this.reportService.getReportPermissions(orgSettings);

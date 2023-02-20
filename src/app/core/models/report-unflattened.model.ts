@@ -1,17 +1,19 @@
+import { Approver } from './v1/approver.model';
 import { OrgUser } from './org-user.model';
 import { User } from './user.model';
 import { UserDetails } from './v1/user-details.model';
 
+type approvalMaps = {
+  [id: string]: {
+    rank: number;
+    state: string;
+  };
+};
 export interface UnflattenedReport {
   ou: OrgUser;
   rp: {
     amount: number;
-    approvals: {
-      [id: string]: {
-        rank: number;
-        state: string;
-      };
-    };
+    approvals?: approvalMaps | Approver[];
     approved_at: Date;
     claim_number: string;
     created_at: Date;
@@ -20,6 +22,8 @@ export interface UnflattenedReport {
     exported: boolean;
     from_dt: Date;
     id: string;
+    approval_state?: string;
+    verified?: boolean;
     location1: string;
     location2: string;
     location3: string;

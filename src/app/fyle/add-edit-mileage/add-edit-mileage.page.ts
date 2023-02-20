@@ -530,27 +530,16 @@ export class AddEditMileagePage implements OnInit {
       etxn: this.etxn$,
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      map(
-        ({
-          accounts,
-          orgSettings,
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+        const config = {
           etxn,
-          allowedPaymentModes,
+          orgSettings,
+          expenseType: ExpenseType.MILEAGE,
           isPaymentModeConfigurationsEnabled,
-          isPaidByCompanyHidden,
-        }) => {
-          const config = {
-            etxn,
-            orgSettings,
-            expenseType: ExpenseType.MILEAGE,
-            isPaymentModeConfigurationsEnabled,
-            isPaidByCompanyHidden,
-          };
-          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
-        }
-      ),
+        };
+        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+      }),
       shareReplay(1)
     );
   }
@@ -986,11 +975,9 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {
         let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
-        orgUserMileageSettings = orgUserMileageSettings?.mileage_rate_labels || [];
-        if (orgUserMileageSettings.length > 0) {
-          enabledMileageRates = enabledMileageRates.filter((rate) =>
-            orgUserMileageSettings.includes(rate.vehicle_type)
-          );
+        const mileageRateSettings = orgUserMileageSettings?.mileage_rate_labels || [];
+        if (mileageRateSettings.length > 0) {
+          enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
         }
         return enabledMileageRates;
       })
@@ -2290,7 +2277,7 @@ export class AddEditMileagePage implements OnInit {
               reportId = this.fg.value.report.rp.id;
             }
             return of(
-              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
+              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null)
             ).pipe(
               switchMap((txnData: Promise<any>) => from(txnData)),
               map(() => etxn)

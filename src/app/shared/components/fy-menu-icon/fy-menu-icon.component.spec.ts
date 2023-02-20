@@ -3,24 +3,22 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyMenuIconComponent } from './fy-menu-icon.component';
 
-xdescribe('FyMenuIconComponent', () => {
-  let component: FyMenuIconComponent;
+describe('FyMenuIconComponent', () => {
+  let fyMenuIconComponent: FyMenuIconComponent;
   let fixture: ComponentFixture<FyMenuIconComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [FyMenuIconComponent],
-        imports: [IonicModule.forRoot()],
-      }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [FyMenuIconComponent],
+      imports: [IonicModule.forRoot()],
+    }).compileComponents();
 
-      fixture = TestBed.createComponent(FyMenuIconComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-    })
-  );
+    fixture = TestBed.createComponent(FyMenuIconComponent);
+    fyMenuIconComponent = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(fyMenuIconComponent).toBeTruthy();
   });
 });

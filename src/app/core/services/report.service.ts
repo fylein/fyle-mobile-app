@@ -27,6 +27,10 @@ import { Approver } from '../models/v1/approver.model';
 import { ReportActions } from '../models/report-actions.model';
 import { ReportPurpose } from '../models/report-purpose.model';
 import { ApiV2Response } from '../models/api-v2.model';
+import { ReportParams } from '../models/report-params.model';
+import { UnflattenedReport } from '../models/report-unflattened.model';
+import { ReportV1 } from '../models/report-v1.model';
+import { ReportQueryParams } from '../models/report-api-params.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -83,7 +87,11 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getPaginatedERptc(offset, limit, params) {
+  getPaginatedERptc(
+    offset: number,
+    limit: number,
+    params: { state?: string[]; order?: string }
+  ): Observable<UnflattenedReport[]> {
     const data = {
       params: {
         offset,
@@ -186,7 +194,15 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  inquire(rptId: string, addStatusPayload) {
+  inquire(
+    rptId: string,
+    addStatusPayload: {
+      status: {
+        comment: string;
+      };
+      notify: boolean;
+    }
+  ) {
     return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
   }
 
@@ -200,7 +216,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addApprover(rptId: string, approverEmail: string, comment) {
+  addApprover(rptId: string, approverEmail: string, comment: string) {
     const data = {
       approver_email: approverEmail,
       comment,
@@ -211,7 +227,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  updateReportDetails(erpt: ExtendedReport) {
+  updateReportDetails(erpt: ExtendedReport): Observable<ReportV1> {
     const reportData = this.dataTransformService.unflatten(erpt);
     return this.apiService
       .post('/reports', reportData.rp)
@@ -231,7 +247,6 @@ export class ReportService {
           if (res.data.next_at) {
             const dateObj = new Date(res.data.next_at);
             res.data.next_at = dateObj;
-            return res;
           }
           return res;
         })
@@ -248,7 +263,7 @@ export class ReportService {
   getAutoSubmissionReportName() {
     return this.getReportAutoSubmissionDetails().pipe(
       map((reportAutoSubmissionDetails) => {
-        const nextReportAutoSubmissionDate = reportAutoSubmissionDetails?.data?.next_at;
+        const nextReportAutoSubmissionDate = reportAutoSubmissionDetails.data?.next_at;
         if (nextReportAutoSubmissionDate) {
           return '(Automatic Submission On ' + this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d') + ')';
         }
@@ -299,7 +314,7 @@ export class ReportService {
     return stateMap[state];
   }
 
-  getPaginatedERptcCount(params: { state?: string }): Observable<{ count: number }> {
+  getPaginatedERptcCount(params: ReportParams): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
@@ -316,7 +331,12 @@ export class ReportService {
   }
 
   getMyReports(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+    config: Partial<{
+      offset: number;
+      limit: number;
+      order: string;
+      queryParams: ReportQueryParams;
+    }> = {
       offset: 0,
       limit: 10,
       queryParams: {},
@@ -351,7 +371,7 @@ export class ReportService {
     );
   }
 
-  getTeamReportsCount(queryParams = {}) {
+  getTeamReportsCount(queryParams = {}): Observable<number> {
     return this.getTeamReports({
       offset: 0,
       limit: 1,
@@ -365,7 +385,7 @@ export class ReportService {
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<ExtendedReport>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/reports', {
@@ -437,7 +457,9 @@ export class ReportService {
     return this.apiService.post('/reports/summary/download', data);
   }
 
-  getAllExtendedReports(config: Partial<{ order: string; queryParams: any }>): Observable<ExtendedReport[]> {
+  getAllExtendedReports(
+    config: Partial<{ order: string; queryParams: ReportQueryParams }>
+  ): Observable<ExtendedReport[]> {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
@@ -456,7 +478,15 @@ export class ReportService {
     );
   }
 
-  addOrderByParams(params, sortOrder?) {
+  addOrderByParams(
+    params: {
+      state?: string[];
+    },
+    sortOrder?: string
+  ): {
+    state?: string[];
+    order_by?: string;
+  } {
     if (sortOrder) {
       return Object.assign(params, { order_by: sortOrder });
     } else {
@@ -464,7 +494,7 @@ export class ReportService {
     }
   }
 
-  searchParamsGenerator(search, sortOrder?) {
+  searchParamsGenerator(search: { state: string; dateRange?: { from: string; to: string } }, sortOrder?: string) {
     let params = {};
 
     params = this.userReportsSearchParamsGenerator(params, search);
@@ -473,39 +503,21 @@ export class ReportService {
     return params;
   }
 
-  userReportsSearchParamsGenerator(params, search) {
-    const searchParams = this.getUserReportParams(search.state);
-
-    let dateParams = null;
-    // Filter expenses by date range
-    // dateRange.from and dateRange.to needs to a valid date string (if present)
-    // Example: dateRange.from = 'Jan 1, 2015', dateRange.to = 'Dec 31, 2017'
-
-    if (search.dateRange && !isEqual(search.dateRange, {})) {
-      // TODO: Fix before 2025
-      let fromDate = new Date('Jan 1, 1970');
-      let toDate = new Date('Dec 31, 2025');
-
-      // Set fromDate to Jan 1, 1970 if none specified
-      if (search.dateRange.from) {
-        fromDate = new Date(search.dateRange.from);
-      }
-
-      // Set toDate to Dec 31, 2025 if none specified
-      if (search.dateRange.to) {
-        // Setting time to the end of the day
-        toDate = new Date(new Date(search.dateRange.to).setHours(23, 59, 59, 999));
-      }
-
-      dateParams = {
-        created_at: ['gte:' + new Date(fromDate).toISOString(), 'lte:' + new Date(toDate).toISOString()],
+  userReportsSearchParamsGenerator(
+    params: ReportParams,
+    search: {
+      state: string;
+      dateRange?: {
+        from?: string;
+        to?: string;
       };
     }
-
-    return Object.assign({}, params, searchParams, dateParams);
+  ) {
+    const searchParams = this.getUserReportParams(search.state);
+    return Object.assign({}, params, searchParams);
   }
 
-  getReportPurpose(reportPurpose: { ids: string[] }) {
+  getReportPurpose(reportPurpose: { ids: string[] }): Observable<string> {
     return this.apiService.post('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
 

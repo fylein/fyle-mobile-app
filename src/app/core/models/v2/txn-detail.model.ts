@@ -1,14 +1,16 @@
 export interface TxnDetail {
   amount: number;
-  category?: any;
+  category?: string;
   currency: string;
   expense_number: string;
+  category_display_name?: string;
+  sub_category?: string;
   id: string;
   num_files: number;
-  purpose?: any;
+  purpose?: string;
   state: string;
   txn_dt: Date;
-  user_can_delete?: any;
-  vendor_id?: any;
-  vendor_name?: any;
+  user_can_delete?: boolean;
+  vendor_id?: number;
+  vendor_name?: string;
 }

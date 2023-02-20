@@ -7,7 +7,10 @@ import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { CardAggregateStat } from '../models/card-aggregate-stat.model';
-
+import { UniqueCardStats } from '../models/unique-cards-stats.model';
+import { CCCDetails } from '../models/ccc-expense-details.model';
+import { DateService } from './date.service';
+import { ApiV2Response } from '../models/v2/api-v2-response.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -16,16 +19,16 @@ export class CorporateCreditCardExpenseService {
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
-    private authService: AuthService
+    private authService: AuthService,
+    private dateService: DateService
   ) {}
 
-  getv2CardTransactions(config: { offset: number; queryParams: any; limit: number; order?: string }): Observable<{
-    count: number;
-    data: CorporateCardExpense[];
-    limit: number;
+  getv2CardTransactions(config: {
     offset: number;
-    url: string;
-  }> {
+    queryParams: { state?: string };
+    limit: number;
+    order?: string;
+  }): Observable<ApiV2Response<CorporateCardExpense>> {
     return this.apiV2Service
       .get('/corporate_card_transactions', {
         params: {
@@ -69,7 +72,7 @@ export class CorporateCreditCardExpenseService {
       .pipe(map((res) => (res && res.length && res.map((elem) => this.dataTransformService.unflatten(elem))) || []));
   }
 
-  constructInQueryParamStringForV2(params: string[]) {
+  constructInQueryParamStringForV2(params: string[]): string {
     // in.(IN_PROGRESS,SETTLED)
     let queryString = 'in.(';
     params.forEach(function (param) {
@@ -83,7 +86,7 @@ export class CorporateCreditCardExpenseService {
   getExpenseDetailsInCards(
     uniqueCards: { cardNumber: string; cardName: string }[],
     statsResponse: CardAggregateStat[]
-  ) {
+  ): UniqueCardStats[] {
     const cardsCopy = JSON.parse(JSON.stringify(uniqueCards));
     const uniqueCardsCopy = [];
     cardsCopy?.forEach((card) => {
@@ -111,7 +114,7 @@ export class CorporateCreditCardExpenseService {
     return uniqueCardsCopy;
   }
 
-  getAssignedCards() {
+  getAssignedCards(): Observable<CCCDetails> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiV2Service.get(
