@@ -986,11 +986,9 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {
         let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
-        orgUserMileageSettings = orgUserMileageSettings?.mileage_rate_labels || [];
-        if (orgUserMileageSettings.length > 0) {
-          enabledMileageRates = enabledMileageRates.filter((rate) =>
-            orgUserMileageSettings.includes(rate.vehicle_type)
-          );
+        const mileageRateSettings = orgUserMileageSettings?.mileage_rate_labels || [];
+        if (mileageRateSettings.length > 0) {
+          enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
         }
         return enabledMileageRates;
       })
