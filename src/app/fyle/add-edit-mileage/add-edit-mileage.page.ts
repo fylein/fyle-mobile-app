@@ -2512,9 +2512,7 @@ export class AddEditMileagePage implements OnInit {
             .pipe(
               //TODO: Remove the delay once APIs are available
               delay(1000),
-              map((dependentFieldOptions) =>
-                dependentFieldOptions?.length > 0 ? { ...dependentField, parent_field_value: parentFieldValue } : null
-              )
+              map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null))
             );
         }
         return of(null);
@@ -2538,7 +2536,6 @@ export class AddEditMileagePage implements OnInit {
     this.dependentFields.push({
       id: dependentField.id,
       parentFieldId: dependentField.parent_field_id,
-      parentFieldValue: dependentField.parent_field_value,
       field: dependentField.field_name,
       mandatory: dependentField.is_mandatory,
       control: dependentFieldControl,

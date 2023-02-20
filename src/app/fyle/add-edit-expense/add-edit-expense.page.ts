@@ -114,8 +114,8 @@ import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-f
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
+import { PlatformExpenseField } from 'src/app/core/models/platform/platform-expense-field.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -364,7 +364,7 @@ export class AddEditExpensePage implements OnInit {
 
   onPageExit$: Subject<void>;
 
-  dependentFields$: Observable<ExpenseField[]>;
+  dependentFields$: Observable<PlatformExpenseField[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1526,7 +1526,7 @@ export class AddEditExpensePage implements OnInit {
           taxGroups,
           txnFields,
         }) => {
-          const dependentFields: ExpenseField[] = customInputs
+          const dependentFields: PlatformExpenseField[] = customInputs
             .filter((customInput) => customInput.type === 'DEPENDENT_SELECT')
             .map((dependentField) => ({
               ...dependentField,
@@ -2859,8 +2859,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  //TODO: Add type of dependentField. It's a mix of legacy and platform as expense_fields is still using legacy APIs.
-  addDependentField(dependentField, value = null): void {
+  addDependentField(dependentField: PlatformExpenseField, value = null): void {
     const dependentFieldControl = this.formBuilder.group({
       id: dependentField.id,
       label: dependentField.field_name,
@@ -2875,7 +2874,6 @@ export class AddEditExpensePage implements OnInit {
     this.dependentFields.push({
       id: dependentField.id,
       parentFieldId: dependentField.parent_field_id,
-      parentFieldValue: dependentField.parent_field_value,
       field: dependentField.field_name,
       mandatory: dependentField.is_mandatory,
       control: dependentFieldControl,
@@ -2885,7 +2883,7 @@ export class AddEditExpensePage implements OnInit {
     this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
   }
 
-  getDependentField(parentFieldId: number, parentFieldValue: string): Observable<ExpenseField> {
+  getDependentField(parentFieldId: number, parentFieldValue: string): Observable<PlatformExpenseField> {
     return this.dependentFields$.pipe(
       switchMap((dependentCustomFields) => {
         const dependentField = dependentCustomFields.find(
@@ -2901,9 +2899,7 @@ export class AddEditExpensePage implements OnInit {
             .pipe(
               //TODO: Remove the delay once APIs are available
               delay(1000),
-              map((dependentFieldOptions) =>
-                dependentFieldOptions?.length > 0 ? { ...dependentField, parent_field_value: parentFieldValue } : null
-              )
+              map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null))
             );
         }
         return of(null);
@@ -4468,7 +4464,7 @@ export class AddEditExpensePage implements OnInit {
   //Recursive method to add dependent fields with value
   private addDependentFieldWithValue(
     txCustomProperties: CustomProperty<string>[],
-    dependentFields: ExpenseField[],
+    dependentFields: PlatformExpenseField[],
     parentFieldId: number
   ) {
     //Get dependent field for the field whose id is parentFieldId
