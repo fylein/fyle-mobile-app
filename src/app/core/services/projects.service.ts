@@ -100,7 +100,7 @@ export class ProjectsService {
 
   addOrgCategoryIdsFilter(orgCategoryIds: number[], params: ProjectParams) {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
-      params.project_org_category_ids = 'cs.{' + orgCategoryIds.join(',') + '}';
+      params.project_org_category_ids = 'ov.{' + orgCategoryIds.join(',') + '}';
     }
   }
 
