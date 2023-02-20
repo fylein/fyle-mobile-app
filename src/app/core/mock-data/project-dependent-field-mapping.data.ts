@@ -30,7 +30,7 @@ export const projectDependentFieldsMapping: ProjectDependentFieldMapping = {
     },
     {
       name: 'CF3',
-      value: 'CF3.1',
+      value: null,
     },
   ],
 };
