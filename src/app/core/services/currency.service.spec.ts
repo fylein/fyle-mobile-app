@@ -6,6 +6,7 @@ import { OrgService } from './org.service';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { apiAllCurrencies } from '../mock-data/currency.data';
 import { of } from 'rxjs';
+import { getNumberOfCurrencyDigits } from '@angular/common';
 import { orgData1 } from '../mock-data/org.data';
 
 describe('CurrencyService', () => {
@@ -72,6 +73,7 @@ describe('CurrencyService', () => {
   });
 
   it('getAmountWithCurrencyFraction(): should return amount with currency', () => {
+    jasmine.createSpy('getNumberOfCurrencyDigits').and.returnValue(2);
     expect(currencyService.getAmountWithCurrencyFraction(145.5, 'USD')).toEqual(145.5);
   });
 
