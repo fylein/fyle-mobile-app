@@ -33,3 +33,15 @@ export const getElementBySelector = <T>(fixture: ComponentFixture<T>, selector: 
  */
 export const getAllElementsBySelector = <T>(fixture: ComponentFixture<T>, selector: string): Element[] =>
   fixture.nativeElement.querySelectorAll(selector);
+
+/**
+ * Gets an attribute value in a component fixture using DebugElement object.
+ *
+ * @template T
+ * @param element - The Element in the fixture component.
+ * @param attributeName - The tag name of the element to find. for e.g. <p>, <h1>
+ * @returns The attribute value of the Element object.
+ *
+ */
+export const getElementAttributeValue = (element: Element, attributeName: string): string =>
+  element.getAttribute(attributeName);
