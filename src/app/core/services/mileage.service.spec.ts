@@ -72,12 +72,12 @@ describe('MileageService', () => {
 
     it('should return null when no locations are specified', (done) => {
       mileageService.getDistance().subscribe((res) => {
-        expect(res).toEqual(null);
+        expect(res).toBeNull();
         done();
       });
     });
 
-    it('should distance when more than 2 locations are specified', (done) => {
+    it('should return the distance when more than 2 locations are specified', (done) => {
       const dist2 = 7798;
       const dist1 = 6404;
       const getDistanceInternal = spyOn(mileageService, 'getDistanceInternal');
