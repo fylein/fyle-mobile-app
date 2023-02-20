@@ -21,3 +21,15 @@ export const getTextContent = <T>(element: Element): string => element.textConte
  */
 export const getElementBySelector = <T>(fixture: ComponentFixture<T>, selector: string): Element =>
   fixture.nativeElement.querySelector(selector);
+
+/**
+ * Finds all elements in a component fixture using their query selector.
+ *
+ * @template T
+ * @param fixture - The component fixture to search in.
+ * @param selector - The query selector of the elements to find.
+ * @returns The found elements represented as an array of Element objects.
+ *
+ */
+export const getAllElementsBySelector = <T>(fixture: ComponentFixture<T>, selector: string): Element[] =>
+  fixture.nativeElement.querySelectorAll(selector);
