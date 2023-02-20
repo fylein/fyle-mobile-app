@@ -2,6 +2,7 @@ import { TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatRippleModule } from '@angular/material/core';
 import { IonicModule } from '@ionic/angular';
+import { getElementBySelector, getTextContentBySelector } from 'src/app/core/dom-helpers';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { InitialsPipe } from 'src/app/shared/pipes/initials.pipe';
@@ -42,12 +43,12 @@ describe('SidemenuHeaderComponent', () => {
     component.activeOrg = orgData1[0];
     fixture.detectChanges();
 
-    const userNameInitialEl = fixture.nativeElement.querySelector('.sidemenu-header__icon-container__text');
-    const activeOrgEl = fixture.nativeElement.querySelector('.sidemenu-header__content-container__sub-title');
+    const userNameInitialEl = getElementBySelector(fixture, '.sidemenu-header__icon-container__text');
+    const activeOrgEl = getElementBySelector(fixture, '.sidemenu-header__content-container__sub-title');
 
     expect(userNameInitialEl).toBeTruthy();
-    expect(userNameInitialEl.textContent).toContain('AJ');
+    expect(getTextContentBySelector(userNameInitialEl)).toContain('AJ');
     expect(activeOrgEl).toBeTruthy();
-    expect(activeOrgEl.textContent).toContain('Staging Loaded');
+    expect(getTextContentBySelector(activeOrgEl)).toContain('Staging Loaded');
   });
 });
