@@ -7,6 +7,9 @@ import {
   mileageRatesData,
   nullRateExcludedData,
   nullRateIncludedData,
+  mileageRateApiRes1,
+  mileageRateApiRes2,
+  nullRateExcludedData2,
 } from '../mock-data/mileage-rate.data';
 import { platformMileageRates, platformMileageRatesSingleData } from '../mock-data/platform-mileage-rate.data';
 import { of } from 'rxjs';
@@ -119,7 +122,7 @@ describe('MileageRatesService', () => {
     });
   });
 
-  it('getAllMileageRatesCount() : should get all mileage rates count', (done) => {
+  it('getAllMileageRatesCount(): should get all mileage rates count', (done) => {
     spenderPlatformV1BetaApiService.get.and.returnValue(of(platformMileageRatesSingleData));
     const data = {
       params: {
@@ -130,6 +133,27 @@ describe('MileageRatesService', () => {
     mileageRatesService.getAllMileageRatesCount().subscribe((res) => {
       expect(res).toEqual(platformMileageRatesSingleData.data.length);
       expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', data);
+      done();
+    });
+  });
+
+  it('getAllMileageRates(): should get all mileage rates', (done) => {
+    const spyGetMileageRates = spyOn(mileageRatesService, 'getMileageRates');
+    spyOn(mileageRatesService, 'getAllMileageRatesCount').and.returnValue(of(100));
+
+    // simulate first page of 50 mileage rates
+    const testParams1 = { offset: 0, limit: 50 };
+    spyGetMileageRates.withArgs(testParams1).and.returnValue(of(mileageRateApiRes1));
+
+    // simulate second page of 50 mileage rates
+    const testParams2 = { offset: 50, limit: 50 };
+    spyGetMileageRates.withArgs(testParams2).and.returnValue(of(mileageRateApiRes2));
+
+    mileageRatesService.getAllMileageRates().subscribe((res) => {
+      expect(res).toEqual([...nullRateExcludedData, ...nullRateExcludedData2]);
+      expect(spyGetMileageRates).toHaveBeenCalledTimes(2);
+      expect(spyGetMileageRates).toHaveBeenCalledWith(testParams1);
+      expect(spyGetMileageRates).toHaveBeenCalledWith(testParams2);
       done();
     });
   });
