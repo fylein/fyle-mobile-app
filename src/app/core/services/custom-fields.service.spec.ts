@@ -1,6 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { customPropertiesData } from '../mock-data/custom-property.data';
-import { txnCustomPropertiesData, txnCustomPropertiesData3 } from '../mock-data/txn-custom-properties.data';
+import { customExpensefields } from '../mock-data/expense-field.data';
+import {
+  txnCustomPropertiesData,
+  txnCustomPropertiesData3,
+  txnCustomPropertiesData4,
+} from '../mock-data/txn-custom-properties.data';
 import { customInputData, platformApiResponse } from '../test-data/custom-inputs.spec.data';
 
 import { CustomFieldsService } from './custom-fields.service';
@@ -58,7 +63,7 @@ describe('CustomFieldsService', () => {
 
   describe('setProperty():', () => {
     it('should set property for expense custom fields', () => {
-      const result = customFieldsService.setProperty(null, platformApiResponse.data[0], []);
+      const result = customFieldsService.setProperty(null, customInputData[3], []);
       expect(result).toEqual(txnCustomPropertiesData3[2]);
     });
 
@@ -68,7 +73,7 @@ describe('CustomFieldsService', () => {
     });
 
     it('should set property for custom fields with custom properties', () => {
-      const result = customFieldsService.setProperty(null, platformApiResponse.data[0], customPropertiesData);
+      const result = customFieldsService.setProperty(null, customInputData[3], customPropertiesData);
       expect(result).toEqual(txnCustomPropertiesData3[2]);
     });
 
@@ -76,5 +81,10 @@ describe('CustomFieldsService', () => {
       const result = customFieldsService.setProperty(null, customInputData[2], customPropertiesData);
       expect(result).toEqual(txnCustomPropertiesData3[5]);
     });
+  });
+
+  it('standardizeCustomFields(): should standardize custom fields', () => {
+    const result = customFieldsService.standardizeCustomFields([], customExpensefields);
+    expect(result).toEqual(txnCustomPropertiesData4);
   });
 });

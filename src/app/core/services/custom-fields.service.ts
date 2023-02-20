@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { CustomProperty } from '../models/custom-properties.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { ExpenseField } from '../models/v1/expense-field.model';
 
 @Injectable({
   providedIn: 'root',
@@ -30,10 +32,7 @@ export class CustomFieldsService {
     return property;
   }
 
-  setProperty(prefix, customInput, customProperties) {
-    console.log('customInput', customInput);
-    console.log('customProperties', customProperties);
-    console.log('prefix', prefix);
+  setProperty(prefix: string, customInput: ExpenseField, customProperties: CustomProperty<any>[]): TxnCustomProperties {
     /* Setting the name and mandatory based on the custom input key
      * Reason: Same method is used for expense custom fields and transport/advance request custom fields
      */
@@ -48,7 +47,8 @@ export class CustomFieldsService {
     if (customInput.hasOwnProperty('is_mandatory')) {
       customInputMandatory = customInput.is_mandatory;
     } else {
-      customInputMandatory = customInput.mandatory;
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      customInputMandatory = customInput['mandatory'];
     }
 
     let property: TxnCustomProperties = {
@@ -68,6 +68,7 @@ export class CustomFieldsService {
       for (const customProperty of customProperties) {
         if (customProperty.name === customInputName) {
           if (property.type === 'DATE' && customProperty.value) {
+            // TODO: Check if this is required since the value is null by default
             property.value = new Date(customProperty.value);
           } else {
             property.value = customProperty.value;
@@ -76,17 +77,21 @@ export class CustomFieldsService {
         }
       }
     }
-    console.log('returned property', property);
+
     return property;
   }
 
-  standardizeCustomFields(customProperties, customInputs) {
+  standardizeCustomFields(
+    customProperties: CustomProperty<any>[],
+    customInputs: ExpenseField[]
+  ): TxnCustomProperties[] {
     let prefix = '';
 
     const filledCustomPropertiesWithType = customInputs
       .filter((customInput) => !customInput.input_type)
       .map((customInput) => this.setProperty(prefix, customInput, customProperties));
 
+    // TODO: Check if this is required since we use the same method for expense custom fields and advance request custom fields
     const filledCustomPropertiesWithInputType = customInputs
       .filter((customInput) => !customInput.type && customInput.input_type)
       .map((customInput) => {
