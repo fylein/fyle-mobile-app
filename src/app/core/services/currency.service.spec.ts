@@ -6,14 +6,15 @@ import { OrgService } from './org.service';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { apiAllCurrencies } from '../mock-data/currency.data';
 import { of } from 'rxjs';
-import { getNumberOfCurrencyDigits } from '@angular/common';
 import { orgData1 } from '../mock-data/org.data';
+import * as dayjs from 'dayjs';
 
 describe('CurrencyService', () => {
   let currencyService: CurrencyService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgService: jasmine.SpyObj<OrgService>;
+  const dt = new Date();
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
@@ -93,7 +94,7 @@ describe('CurrencyService', () => {
           params: {
             from: 'USD',
             to: 'INR',
-            dt: '2023-02-20',
+            dt: dayjs(dt).format('YYYY-MM-D'),
             tx6Oe6FaYDZl: 'tx6Oe6FaYDZl',
           },
         });
@@ -114,7 +115,7 @@ describe('CurrencyService', () => {
           params: {
             from: 'USD',
             to: 'INR',
-            dt: '2023-02-20',
+            dt: dayjs(dt).format('YYYY-MM-D'),
           },
         });
         done();
