@@ -1,4 +1,4 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { DeepLinkService } from './deep-link.service';
 import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -11,8 +11,10 @@ describe('DeepLinkService', () => {
   let router: jasmine.SpyObj<Router>;
   let location: jasmine.SpyObj<Location>;
 
-  const URL =
-    'https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p';
+  const baseURL = 'http://localhost:8100/enterprise/my_dashboard';
+
+  const mockURL =
+    'http://localhost:8100/enterprise/my_dashboard/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p';
 
   const routes: Routes = {
     ...appRoutes,
@@ -52,7 +54,7 @@ describe('DeepLinkService', () => {
       org_id: 'orrjqbDbeP9p',
     };
 
-    const result = deepLinkService.getJsonFromUrl(URL);
+    const result = deepLinkService.getJsonFromUrl(mockURL);
     expect(result).toEqual(expectedJson);
   });
 
@@ -64,7 +66,7 @@ describe('DeepLinkService', () => {
   describe('redirect():', () => {
     it('should navigate to the expense page when the redirect URI contains "/view_expense/" with txn ID', () => {
       deepLinkService.redirect({
-        redirect_uri: 'https://staging.fyle.tech/app/main/#/enterprise/view_expense/tx1oTNwgRdRq',
+        redirect_uri: `${baseURL}/view_expense/tx1oTNwgRdRq`,
       });
       expect(router.navigate).toHaveBeenCalledWith([
         '/',
@@ -75,7 +77,7 @@ describe('DeepLinkService', () => {
 
     it('should navigate to the verify page when the redirect URI contains "/verify"', () => {
       deepLinkService.redirect({
-        redirect_uri: 'https://staging.fyle.tech/app/main/#/verify/',
+        redirect_uri: `${baseURL}/verify/`,
         verification_code: '12345',
         org_id: 'orYtMVz2qisQ',
       });
@@ -93,7 +95,7 @@ describe('DeepLinkService', () => {
 
     it('should navigate to the new password page when the redirect URI contains "/new_password"', () => {
       deepLinkService.redirect({
-        redirect_uri: 'https://staging.fyle.tech/app/main/#/new_password/',
+        redirect_uri: `${baseURL}/new_password/`,
         refresh_token: 'token',
       });
 
@@ -110,7 +112,7 @@ describe('DeepLinkService', () => {
     it('should navigate to the report when the redirect URI contains "/reports" along with report ID', () => {
       const reportID = 'rpFE5X1Pqi9P';
       deepLinkService.redirect({
-        redirect_uri: `https://staging.fyle.tech/app/main/#/enterprise/reports/${reportID}`,
+        redirect_uri: `${baseURL}/reports/${reportID}`,
       });
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -132,7 +134,7 @@ describe('DeepLinkService', () => {
       const advReqID = 'areqVDe9nW1X4v';
 
       deepLinkService.redirect({
-        redirect_uri: `https://staging.fyle.tech/app/main/#/enterprise/advance_request/${advReqID}`,
+        redirect_uri: `${baseURL}/advance_request/${advReqID}`,
       });
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -147,7 +149,7 @@ describe('DeepLinkService', () => {
 
     it('should navigate to switch organisation page when there are incorrect details in redirection URL', () => {
       deepLinkService.redirect({
-        redirect_uri: `https://staging.fyle.tech/app/main/#/enterprise/advanceRequest/`,
+        redirect_uri: `${baseURL}/enterprise/advanceRequest/`,
       });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
     });
