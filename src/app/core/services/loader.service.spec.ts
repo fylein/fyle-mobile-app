@@ -3,7 +3,7 @@ import { LoadingController } from '@ionic/angular';
 import { LoaderService } from './loader.service';
 
 describe('LoaderService', () => {
-  let service: LoaderService;
+  let loaderService: LoaderService;
   let loadingController: jasmine.SpyObj<LoadingController>;
 
   beforeEach(() => {
@@ -16,12 +16,12 @@ describe('LoaderService', () => {
         },
       ],
     });
-    service = TestBed.inject(LoaderService);
+    loaderService = TestBed.inject(LoaderService);
     loadingController = TestBed.inject(LoadingController) as jasmine.SpyObj<LoadingController>;
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(loaderService).toBeTruthy();
   });
 
   describe('showLoader()', () => {
@@ -31,23 +31,23 @@ describe('LoaderService', () => {
       const loadingElementSpy = jasmine.createSpyObj('HTMLIonLoadingElement', ['present']);
       loadingController.create.and.returnValue(Promise.resolve(loadingElementSpy));
 
-      service.showLoader(message, duration);
+      loaderService.showLoader(message, duration);
       tick();
-      expect(loadingController.create).toHaveBeenCalledWith({
+      expect(loadingController.create).toHaveBeenCalledOnceWith({
         message,
         duration,
       });
-      expect(loadingElementSpy.present).toHaveBeenCalled();
+      expect(loadingElementSpy.present).toHaveBeenCalledTimes(1);
     }));
 
     it('showLoader(): should show loader without args', fakeAsync(() => {
       const loadingElementSpy = jasmine.createSpyObj('HTMLIonLoadingElement', ['present']);
       loadingController.create.and.returnValue(Promise.resolve(loadingElementSpy));
 
-      service.showLoader();
+      loaderService.showLoader();
       tick();
-      expect(loadingController.create).toHaveBeenCalled();
-      expect(loadingElementSpy.present).toHaveBeenCalled();
+      expect(loadingController.create).toHaveBeenCalledTimes(1);
+      expect(loadingElementSpy.present).toHaveBeenCalledTimes(1);
     }));
   });
 
@@ -56,8 +56,17 @@ describe('LoaderService', () => {
     loadingController.dismiss.and.returnValue(Promise.resolve(true));
     loadingController.create.and.returnValue(Promise.resolve(loadingElementSpy));
 
-    service.hideLoader();
+    loaderService.hideLoader();
     tick();
-    expect(loadingController.dismiss).toHaveBeenCalled();
+    expect(loadingController.dismiss).toHaveBeenCalledTimes(1);
   }));
+
+  it('hideLoader(): should catch errors in hide loader', async () => {
+    const error = 'Something went wrong';
+    loadingController.dismiss.and.returnValue(Promise.reject(error));
+
+    await loaderService.hideLoader().catch((err) => {
+      expect(err).toBe(error);
+    });
+  });
 });
