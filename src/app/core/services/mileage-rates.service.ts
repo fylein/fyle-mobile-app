@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
@@ -6,6 +6,7 @@ import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { CurrencyPipe } from '@angular/common';
 import { switchMap, concatMap, tap, map, reduce } from 'rxjs/operators';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 const mileageRateCacheBuster$ = new Subject<void>();
 
@@ -14,6 +15,7 @@ const mileageRateCacheBuster$ = new Subject<void>();
 })
 export class MileageRatesService {
   constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private currencyPipe: CurrencyPipe
   ) {}
@@ -22,12 +24,15 @@ export class MileageRatesService {
     cacheBusterObserver: mileageRateCacheBuster$,
   })
   getAllMileageRates(): Observable<PlatformMileageRates[]> {
+    this.getAllMileageRatesCount().subscribe((res) => {
+      console.log(res);
+    });
     return this.getAllMileageRatesCount().pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getMileageRates({ offset: 50 * page, limit: 50 })),
+      concatMap((page) => this.getMileageRates({ offset: this.paginationSize * page, limit: this.paginationSize })),
       reduce((acc, curr) => acc.concat(curr), [] as PlatformMileageRates[])
     );
   }
@@ -61,7 +66,7 @@ export class MileageRatesService {
     return validMileageRates;
   }
 
-  formatMileageRateName(rateName: string) {
+  formatMileageRateName(rateName: string): string {
     const names = {
       two_wheeler: 'Two Wheeler',
       four_wheeler: 'Four Wheeler - Type 1',
