@@ -4,11 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -565,8 +565,8 @@ export class MergeExpensePage implements OnInit {
 
   setupCustomInputs() {
     this.customInputs$ = this.loadCustomFields$.pipe(
-      startWith({}),
-      switchMap((categoryId) =>
+      startWith(null),
+      switchMap((categoryId: string) =>
         this.customInputsService.getAll(true).pipe(
           switchMap((fields) => {
             const customFields = this.customFieldsService.standardizeCustomFields(

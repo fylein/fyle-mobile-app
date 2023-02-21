@@ -17,7 +17,6 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -30,7 +29,9 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-
+import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV1 } from 'src/app/core/models/v1/extended-project.model';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 @Component({
   selector: 'app-add-edit-advance-request',
   templateUrl: './add-edit-advance-request.page.html',
@@ -51,7 +52,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   homeCurrency$: Observable<any>;
 
-  projects$: Observable<[]>;
+  projects$: Observable<ProjectV1[]>;
 
   customFields$: Observable<any>;
 
@@ -237,15 +238,28 @@ export class AddEditAdvanceRequestPage implements OnInit {
   async showAdvanceSummaryPopover() {
     if (this.fg.valid) {
       const advanceSummaryPopover = await this.popoverController.create({
-        component: DraftAdvanceSummaryComponent,
-        cssClass: 'dialog-popover',
+        component: PopupAlertComponentComponent,
+        componentProps: {
+          title: 'Review',
+          message:
+            'This action will save a draft advance request and will not be submitted to your approvers directly. You need to explicitly submit a draft advance request.',
+          primaryCta: {
+            text: 'Finish',
+            action: 'continue',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
+        },
+        cssClass: 'pop-up-in-center',
       });
 
       await advanceSummaryPopover.present();
 
       const { data } = await advanceSummaryPopover.onWillDismiss();
 
-      if (data && data.saveAdvanceRequest) {
+      if (data && data.action === 'continue') {
         this.save('Draft');
       }
     } else {

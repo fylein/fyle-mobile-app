@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { PlatformCategory } from '../models/platform/platform-category.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
@@ -18,7 +18,7 @@ export class CategoriesService {
 
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformApiService: SpenderPlatformApiService
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
   ) {}
 
   @Cacheable({
@@ -43,7 +43,7 @@ export class CategoriesService {
         limit: 1,
       },
     };
-    return this.spenderPlatformApiService
+    return this.spenderPlatformV1BetaApiService
       .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
       .pipe(map((res) => res.count));
   }
@@ -56,7 +56,7 @@ export class CategoriesService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
+    return this.spenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.sortCategories(res)),
       map((res) => this.addDisplayName(res))
@@ -80,7 +80,7 @@ export class CategoriesService {
     return oldCategory;
   }
 
-  sortCategories(categories) {
+  sortCategories(categories: OrgCategory[]): OrgCategory[] {
     return categories.sort((a, b) => {
       const category1 = a.name.toUpperCase();
       const category2 = b.name.toUpperCase();
@@ -117,7 +117,7 @@ export class CategoriesService {
     });
   }
 
-  addDisplayName(categories: any[]) {
+  addDisplayName(categories: OrgCategory[]): OrgCategory[] {
     return categories.map((category) => {
       let displayName = category.name;
 
@@ -144,27 +144,27 @@ export class CategoriesService {
   }
 
   getSystemCategories(): string[] {
-    const systemCategories = ['Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'];
+    const systemCategories = ['Bus', 'Airlines', 'Lodging', 'Train'];
     return systemCategories;
   }
 
   getSystemCategoriesWithTaxi(): string[] {
-    const systemCategoriesWithTaxi = ['Taxi', 'Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'];
+    const systemCategoriesWithTaxi = ['Taxi', 'Bus', 'Airlines', 'Lodging', 'Train'];
     return systemCategoriesWithTaxi;
   }
 
   getBreakfastSystemCategories(): string[] {
-    const breakfastSystemCategories = ['Hotel', 'Lodging'];
+    const breakfastSystemCategories = ['Lodging'];
     return breakfastSystemCategories;
   }
 
   getTravelSystemCategories(): string[] {
-    const travelSystemCategories = ['Bus', 'Flight', 'Airlines', 'Train'];
+    const travelSystemCategories = ['Bus', 'Airlines', 'Train'];
     return travelSystemCategories;
   }
 
   getFlightSystemCategories(): string[] {
-    const flightSystemCategories = ['Flight', 'Airlines'];
+    const flightSystemCategories = ['Airlines'];
     return flightSystemCategories;
   }
 }

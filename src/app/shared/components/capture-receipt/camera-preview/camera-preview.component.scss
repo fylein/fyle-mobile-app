@@ -46,6 +46,21 @@
     justify-content: space-between;
     width: 100%;
 
+    &__info-box {
+      font-size: 14px;
+      background: $black-shadow;
+      border-radius: 8px;
+      color: $pure-white;
+      padding: 4px 16px;
+      font-weight: 600;
+      width: 160px;
+
+      &__icon {
+        position: relative;
+        top: 2px;
+      }
+    }
+
     &__icon {
       height: 42px;
       width: 42px;

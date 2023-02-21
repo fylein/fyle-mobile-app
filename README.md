@@ -29,6 +29,14 @@ Please install node v14.17.2 or above via nvm.
 
   - Ping mobile app team for write access to the repository
 
+## Running unit tests
+
+  - Run `ng test`
+
+## Viewing coverage report
+
+  - Open generated `index.html` file present in the `app/coverage/index.html`.
+
 ## For running app directly in android device for staging
 
   - ionic capacitor run android -l --external --configuration=staging

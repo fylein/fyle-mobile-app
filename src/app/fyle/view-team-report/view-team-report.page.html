@@ -68,7 +68,7 @@
                   <div>
                     <span class="view-reports--submitted-date__text">Submitted on: </span>
                     <span class="view-reports--submitted-date__date"
-                      >{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span
+                      >{{erpt.rp_created_at | date: 'MMM dd, YYYY'}}</span
                     >
                   </div>
                 </div>
@@ -111,7 +111,7 @@
               <div>{{ ap.approver_name }}</div>
               <div class="view-reports--approver-state-section">
                 <span *ngIf="ap.state === 'APPROVAL_DONE'" class="view-reports--approved-date">
-                  {{ ap.updated_at | date: 'MMM dd, yyyy'}}
+                  {{ ap.updated_at | date: 'MMM dd, YYYY'}}
                 </span>
                 <div
                   class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
@@ -180,7 +180,7 @@
         <div *ngIf="isCommentsView && userComments && userComments.length > 0" class="view-comment--container">
           <div *ngFor="let estatus of userComments">
             <div *ngIf="estatus.show_dt">
-              <div class="view-comment--date text-center">{{ estatus.st_created_at | date: 'MMM d, yyyy' }}</div>
+              <div class="view-comment--date text-center">{{ estatus.st_created_at | dateFormat }}</div>
             </div>
             <div
               class="view-comment--block"

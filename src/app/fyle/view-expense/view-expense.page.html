@@ -66,9 +66,7 @@
           <div *ngIf="isProjectShown" class="view-expense--card-container__project">
             {{ projectFieldName | titlecase }}: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
           </div>
-          <div *ngIf="isUnifyCcceExpensesSettingsEnabled && isCCCTransaction && cardNumber">
-            Card Number: {{ cardNumber | maskNumber }}
-          </div>
+          <div *ngIf="isCCCTransaction && cardNumber">Card Number: {{ cardNumber | maskNumber }}</div>
         </div>
         <div class="ion-text-right view-expense--card-container__block">
           <div class="view-expense--card-container__amount-section">
@@ -76,7 +74,7 @@
             <span class="view-expense--card-container__amount">
               {{ etxn.tx_amount | humanizeCurrency: etxn.tx_currency:true }}
             </span>
-            <div *ngIf="isUnifyCcceExpensesSettingsEnabled && isCCCTransaction">
+            <div *ngIf="isCCCTransaction">
               <div
                 class="view-expense--card-container__txn-type"
                 [ngClass]="{'view-expense--card-container__credit': etxn.tx_amount < 0}"
@@ -193,7 +191,7 @@
                 </ion-col>
                 <ion-col class="view-expense--content-container">
                   <div class="view-expense--label">Created Date</div>
-                  <div class="view-expense--value">{{ etxn.tx_created_at | date: 'MMM dd, yyyy' }}</div>
+                  <div class="view-expense--value">{{ etxn.tx_created_at | date: 'MMM dd, YYYY' }}</div>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -211,7 +209,7 @@
                 </ion-col>
                 <ion-col class="view-expense--content-container">
                   <div class="view-expense--label">Spend Date</div>
-                  <div class="view-expense--value">{{ etxn.tx_txn_dt | date: 'MMM dd, yyyy' }}</div>
+                  <div class="view-expense--value">{{ etxn.tx_txn_dt | date: 'MMM dd, YYYY' }}</div>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -444,7 +442,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Onward Date</div>
-                      <div class="view-expense--value">{{ etxn.tx_from_dt | date: 'MMM dd, yyyy' }}</div>
+                      <div class="view-expense--value">{{ etxn.tx_from_dt | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -462,7 +460,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Return Date</div>
-                      <div class="view-expense--value">{{ etxn.tx_to_dt | date: 'MMM dd, yyyy' }}</div>
+                      <div class="view-expense--value">{{ etxn.tx_to_dt | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -570,7 +568,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Check In</div>
-                      <div class="view-expense--value">{{ etxn.tx_from_dt | date: 'MMM dd, yyyy' }}</div>
+                      <div class="view-expense--value">{{ etxn.tx_from_dt | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -588,7 +586,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Check Out</div>
-                      <div class="view-expense--value">{{ etxn.tx_to_dt | date: 'MMM dd, yyyy' }}</div>
+                      <div class="view-expense--value">{{ etxn.tx_to_dt | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>

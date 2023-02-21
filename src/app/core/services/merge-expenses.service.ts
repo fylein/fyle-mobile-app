@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, of, Subject } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { concatMap, filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { Expense } from '../models/expense.model';
 import { ExpensesInfo } from './expenses-info.model';
 import { FileService } from './file.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';
-import { FileObject } from '../models/file_obj.model';
+import { FileObject } from '../models/file-obj.model';
 import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { FormControl } from '@angular/forms';
@@ -180,7 +180,7 @@ export class MergeExpensesService {
 
         let date = '';
         if (expense.tx_txn_dt) {
-          date = moment(expense.tx_txn_dt).format('MMM DD');
+          date = dayjs(expense.tx_txn_dt).format('MMM DD');
         }
         let amount = this.humanizeCurrency.transform(expense.tx_amount, expense.tx_currency);
         if (!date) {
@@ -256,7 +256,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_txn_dt !== null),
       map((expense) => ({
-        label: moment(expense.tx_txn_dt).format('MMM DD, YYYY'),
+        label: dayjs(expense.tx_txn_dt).format('MMM DD, YYYY'),
         value: expense.tx_txn_dt,
       })),
       reduce((acc, curr) => {
@@ -264,7 +264,7 @@ export class MergeExpensesService {
         return acc;
       }, []),
       map((options: Option[]) => {
-        const optionValues = options.map((option) => moment(option.value).format('YYYY-MM-DD'));
+        const optionValues = options.map((option) => dayjs(option.value).format('YYYY-MM-DD'));
         return {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
@@ -426,7 +426,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_from_dt !== null),
       map((expense) => ({
-        label: moment(expense.tx_from_dt).format('MMM DD, YYYY'),
+        label: dayjs(expense.tx_from_dt).format('MMM DD, YYYY'),
         value: expense.tx_from_dt,
       })),
       reduce((acc, curr) => {
@@ -434,7 +434,7 @@ export class MergeExpensesService {
         return acc;
       }, []),
       map((options: Option[]) => {
-        const optionValues = options.map((option) => moment(option.value).format('YYYY-MM-DD'));
+        const optionValues = options.map((option) => dayjs(option.value).format('YYYY-MM-DD'));
         return {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
@@ -447,7 +447,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_to_dt !== null),
       map((expense) => ({
-        label: moment(expense.tx_to_dt).format('MMM DD, YYYY'),
+        label: dayjs(expense.tx_to_dt).format('MMM DD, YYYY'),
         value: expense.tx_to_dt,
       })),
       reduce((acc, curr) => {
@@ -455,7 +455,7 @@ export class MergeExpensesService {
         return acc;
       }, []),
       map((options: Option[]) => {
-        const optionValues = options.map((option) => moment(option.value).format('YYYY-MM-DD'));
+        const optionValues = options.map((option) => dayjs(option.value).format('YYYY-MM-DD'));
         return {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
@@ -636,7 +636,7 @@ export class MergeExpensesService {
       if (field.value) {
         let formatedlabel;
         if (this.dateService.isValidDate(field.value)) {
-          formatedlabel = moment(field.value).format('MMM DD, YYYY');
+          formatedlabel = dayjs(field.value).format('MMM DD, YYYY');
         } else {
           formatedlabel = field.value.toString();
         }

@@ -67,7 +67,7 @@ export class PushNotificationService {
       map((res) => {
         const deviceInfo = res.deviceInfo$;
         let userProperties = res.userProperties$;
-        if (userProperties === null || userProperties === '') {
+        if (userProperties === null) {
           userProperties = {
             devices: [],
           };

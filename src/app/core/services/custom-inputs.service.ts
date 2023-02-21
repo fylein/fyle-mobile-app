@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
 import { map, switchMap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
 import { from, Observable, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
-
+import { CustomField } from '../models/custom_field.model';
+import { CustomProperty } from '../models/custom-properties.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
+import { ExpenseFieldsService } from './expense-fields.service';
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
@@ -14,30 +18,32 @@ const customInputssCacheBuster$ = new Subject<void>();
 })
 export class CustomInputsService {
   constructor(
-    private apiService: ApiService,
     private decimalPipe: DecimalPipe,
     private datePipe: DatePipe,
-    private authService: AuthService
+    private authService: AuthService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$,
   })
-  getAll(active: boolean = false): Observable<ExpenseField[]> {
+  getAll(active: boolean): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiService.get('/expense_fields', {
+        this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField>>('/expense_fields', {
           params: {
-            org_id: eou.ou.org_id,
-            is_enabled: active,
-            is_custom: true,
+            org_id: `eq.${eou.ou.org_id}`,
+            is_enabled: `eq.${active}`,
+            is_custom: 'eq.true',
           },
         })
-      )
+      ),
+      map((res) => this.expenseFieldsService.transformFrom(res.data))
     );
   }
 
-  filterByCategory(customInputs, orgCategoryId) {
+  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string | {}): ExpenseField[] {
     return customInputs
       .filter((customInput) =>
         customInput.org_category_ids
@@ -48,17 +54,18 @@ export class CustomInputsService {
   }
 
   // TODO: eventually this should be replaced by rank (old app TODO)
-  sortByRank(a, b) {
+  sortByRank(a: ExpenseField, b: ExpenseField): number {
     if (a.type > b.type) {
       return -1;
-    }
-    if (a.input_type < b.input_type) {
-      return 1;
     }
     return 0;
   }
 
-  fillCustomProperties(orgCategoryId, customProperties, active) {
+  fillCustomProperties(
+    orgCategoryId: number,
+    customProperties: CustomProperty<any>[],
+    active: boolean
+  ): Observable<CustomField[]> {
     return this.getAll(active).pipe(
       map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
@@ -66,7 +73,7 @@ export class CustomInputsService {
         // this should be by rank eventually
         customInputs.sort(this.sortByRank);
 
-        const filledCustomProperties = [];
+        const filledCustomProperties: CustomField[] = [];
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < customInputs.length; i++) {
           const customInput = customInputs[i];
@@ -105,17 +112,7 @@ export class CustomInputsService {
     );
   }
 
-  setCustomPropertyValue(
-    property: {
-      name: any;
-      value: any;
-      type: any;
-      mandatory: any;
-      options: any;
-    },
-    customProperties: any,
-    index: number
-  ) {
+  setCustomPropertyValue(property: CustomField, customProperties: CustomField[], index: number) {
     if (property.type === 'DATE' && customProperties[index].value) {
       property.value = new Date(customProperties[index].value);
     } else {
@@ -123,16 +120,13 @@ export class CustomInputsService {
     }
   }
 
-  setSelectMultiselectValue(
-    customInput: any,
-    property: { name: any; value: any; type: any; mandatory: any; options: any }
-  ) {
+  setSelectMultiselectValue(customInput: ExpenseField, property: CustomField) {
     if (customInput.type === 'SELECT' || customInput.type === 'MULTI_SELECT') {
       property.value = '';
     }
   }
 
-  getCustomPropertyDisplayValue(customProperty) {
+  getCustomPropertyDisplayValue(customProperty: CustomField): string {
     let displayValue = '-';
 
     if (customProperty.type === 'TEXT' || customProperty.type === 'SELECT') {
@@ -152,29 +146,29 @@ export class CustomInputsService {
     return displayValue;
   }
 
-  private formatBooleanCustomProperty(customProperty: any): string {
+  private formatBooleanCustomProperty(customProperty: CustomField): string {
     return customProperty.value ? 'Yes' : 'No';
   }
 
-  private formatDateCustomProperty(customProperty: any): string {
-    return customProperty ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
+  private formatDateCustomProperty(customProperty: CustomField): string {
+    return customProperty.value ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
   }
 
-  private formatMultiselectCustomProperty(customProperty: any): string {
+  private formatMultiselectCustomProperty(customProperty: CustomField): string {
     return customProperty.value && customProperty.value.length > 0 ? customProperty.value.join(', ') : '-';
   }
 
-  private formatNumberCustomProperty(customProperty: any): string {
+  private formatNumberCustomProperty(customProperty: CustomField): string {
     return customProperty.value ? this.decimalPipe.transform(customProperty.value, '1.2-2') : '-';
   }
 
-  private getLocationDisplayValue(displayValue: string, customProperty: any) {
+  private getLocationDisplayValue(displayValue: string, customProperty: CustomField): string {
     displayValue = '-';
     if (customProperty.value) {
       if (customProperty.value.hasOwnProperty('display')) {
-        displayValue = customProperty.value.display ? customProperty.value.display || '-' : '-';
+        displayValue = customProperty.value.display || '-';
       } else {
-        displayValue = customProperty.value ? customProperty.value || '-' : '-';
+        displayValue = customProperty.value;
       }
     }
     return displayValue;

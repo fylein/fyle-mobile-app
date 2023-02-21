@@ -53,8 +53,6 @@ export class StatsComponent implements OnInit {
 
   cardTransactionsAndDetails: CardDetail[];
 
-  isUnifyCCCExpensesSettings: boolean;
-
   constructor(
     private dashboardService: DashboardService,
     private currencyService: CurrencyService,
@@ -149,10 +147,6 @@ export class StatsComponent implements OnInit {
     that.initializeExpensesStats();
     that.orgSettingsService.get().subscribe((orgSettings) => {
       if (orgSettings?.corporate_credit_card_settings?.enabled) {
-        this.isUnifyCCCExpensesSettings =
-          orgSettings.unify_ccce_expenses_settings &&
-          orgSettings.unify_ccce_expenses_settings.allowed &&
-          orgSettings.unify_ccce_expenses_settings.enabled;
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
       } else {
@@ -222,13 +216,6 @@ export class StatsComponent implements OnInit {
 
       this.trackingService.dashboardOnIncompleteExpensesClick();
     }
-  }
-
-  goToCCCPage(state: string) {
-    this.router.navigate(['/', 'enterprise', 'corporate_card_expenses', { pageState: state }]);
-    this.trackingService.dashboardOnCorporateCardClick({
-      pageState: state,
-    });
   }
 
   private trackDashboardLaunchTime() {

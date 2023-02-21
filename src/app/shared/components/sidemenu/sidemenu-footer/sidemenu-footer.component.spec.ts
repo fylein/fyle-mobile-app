@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SidemenuFooterComponent } from './sidemenu-footer.component';
 
-xdescribe('SidemenuFooterComponent', () => {
-  let component: SidemenuFooterComponent;
+describe('SidemenuFooterComponent', () => {
+  let sidemenuFooterComponent: SidemenuFooterComponent;
   let fixture: ComponentFixture<SidemenuFooterComponent>;
 
   beforeEach(async () => {
@@ -14,11 +14,11 @@ xdescribe('SidemenuFooterComponent', () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SidemenuFooterComponent);
-    component = fixture.componentInstance;
+    sidemenuFooterComponent = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(sidemenuFooterComponent).toBeTruthy();
   });
 });

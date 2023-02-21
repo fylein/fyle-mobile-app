@@ -2,7 +2,6 @@ import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChange
 import { CameraPreview, CameraPreviewOptions } from '@capacitor-community/camera-preview';
 import { Camera } from '@capacitor/camera';
 import { from } from 'rxjs';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 
 enum CameraState {
@@ -52,16 +51,16 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   showModeChangedMessage = false;
 
-  constructor(
-    private loaderService: LoaderService,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
-  ) {}
+  isIos = true;
+
+  constructor(@Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web') {}
 
   get CameraState() {
     return CameraState;
   }
 
   setUpAndStartCamera() {
+    this.isIos = this.devicePlatform === 'ios';
     if (this.devicePlatform === 'web') {
       this.startCameraPreview();
     } else {
@@ -82,7 +81,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   startCameraPreview() {
-    if (this.cameraState !== CameraState.STARTING) {
+    if (![CameraState.STARTING, CameraState.RUNNING].includes(this.cameraState)) {
       this.cameraState = CameraState.STARTING;
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -93,17 +92,16 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         disableAudio: true,
       };
 
-      this.loaderService.showLoader();
       from(CameraPreview.start(cameraPreviewOptions)).subscribe((_) => {
         this.cameraState = CameraState.RUNNING;
         this.getFlashModes();
-        this.loaderService.hideLoader();
       });
     }
   }
 
   stopCamera() {
-    if (this.cameraState !== CameraState.STOPPING) {
+    //Stop camera only if it is in RUNNING state
+    if (this.cameraState === CameraState.RUNNING) {
       this.cameraState = CameraState.STOPPING;
       from(CameraPreview.stop()).subscribe((_) => (this.cameraState = CameraState.STOPPED));
     }
@@ -154,10 +152,15 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   onCaptureReceipt() {
-    this.captureReceipt.emit();
+    if (this.cameraState === CameraState.RUNNING) {
+      this.captureReceipt.emit();
+    }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    //Component is initialized with camera in STOPPED state
+    this.cameraState = CameraState.STOPPED;
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.isBulkMode?.previousValue !== undefined) {

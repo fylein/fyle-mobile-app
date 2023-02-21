@@ -9,7 +9,6 @@ import { TransactionService } from './transaction.service';
 import { FileService } from './file.service';
 import { StatusService } from './status.service';
 import { cloneDeep, indexOf } from 'lodash';
-import { ReceiptService } from './receipt.service';
 import { ReportService } from './report.service';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import { TrackingService } from './tracking.service';
@@ -42,7 +41,6 @@ export class TransactionsOutboxService {
     private fileService: FileService,
     private statusService: StatusService,
     private httpClient: HttpClient,
-    private receiptService: ReceiptService,
     private reportService: ReportService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService
@@ -185,56 +183,6 @@ export class TransactionsOutboxService {
     }
   }
 
-  // TODO: add this to allow amout addtion to extracted expense
-  // getExtractedCurrencyData(extractedData, entry) {
-  //   const that = this;
-  //   return that.offlineService
-  //     .getHomeCurrency()
-  //     .toPromise()
-  //     .then((homeCurrency) => {
-  //       if (extractedData.currency && homeCurrency !== extractedData.currency) {
-  //         return that.currencyService
-  //           .getExchangeRate(
-  //             extractedData.currency,
-  //             homeCurrency,
-  //             extractedData.date ? new Date(extractedData.date) : new Date()
-  //           )
-  //           .toPromise()
-  //           .then((exchangeRate) => ({
-  //             homeCurrency,
-  //             exchangeRate,
-  //           }));
-  //       } else {
-  //         return new Promise((resolve) => resolve({ homeCurrency }));
-  //       }
-  //     })
-  //     .then((res: { homeCurrency: string; exchangeRate: number }) => {
-  //       const { homeCurrency, exchangeRate } = res;
-  //       const currencyObj = {
-  //         amount: null,
-  //         currency: homeCurrency,
-  //         orig_amount: null,
-  //         orig_currency: null,
-  //       };
-
-  //       if (homeCurrency !== extractedData.currency && exchangeRate) {
-  //         currencyObj.orig_amount = extractedData.amount;
-  //         currencyObj.orig_currency = extractedData.currency;
-  //         currencyObj.amount = exchangeRate * extractedData.amount;
-  //         currencyObj.currency = homeCurrency;
-  //       } else {
-  //         currencyObj.amount = extractedData.amount;
-  //       }
-
-  //       entry.transaction = {
-  //         ...entry.transaction,
-  //         ...currencyObj,
-  //       };
-
-  //       return entry.transaction;
-  //     });
-  // }
-
   uploadData(uploadUrl, blob, contentType) {
     return this.httpClient.put<any>(uploadUrl, blob, {
       headers: new HttpHeaders({ 'Content-Type': contentType }),
@@ -291,14 +239,13 @@ export class TransactionsOutboxService {
 
   // TODO: High impact area. Fix later
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  addEntry(transaction, dataUrls, comments?, reportId?, applyMagic?, receiptsData?) {
+  addEntry(transaction, dataUrls, comments?, reportId?, applyMagic?) {
     this.queue.push({
       transaction,
       dataUrls,
       comments,
       reportId,
       applyMagic: !!applyMagic,
-      receiptsData,
     });
 
     return this.saveQueue();
@@ -306,17 +253,13 @@ export class TransactionsOutboxService {
 
   // TODO: High impact area. Fix later
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?, receiptsData?) {
-    this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData);
+  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?) {
+    this.addEntry(transaction, dataUrls, comments, reportId, applyMagic);
     return this.syncEntry(this.queue.pop());
   }
 
   getPendingTransactions() {
     return this.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls }));
-  }
-
-  getPendingDataExtractions() {
-    return this.dataExtractionQueue;
   }
 
   deleteOfflineExpense(index: number) {
@@ -354,7 +297,7 @@ export class TransactionsOutboxService {
     const fileObjPromiseArray = [];
     const reportId = entry.reportId;
 
-    if (!entry.receiptsData && !entry.fileUploadCompleted) {
+    if (!entry.fileUploadCompleted) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
           const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates);
@@ -384,16 +327,9 @@ export class TransactionsOutboxService {
               that.statusService.post('transactions', resp.id, { comment }, true).subscribe(noop);
             });
           }
-          if (entry.receiptsData) {
-            const linkReceiptPayload = {
-              transaction_id: entry.transaction.id,
-              linked_by: entry.receiptsData.linked_by,
-            };
-            that.receiptService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
-          }
           if (entry.dataUrls && entry.dataUrls.length > 0) {
             that.transactionService
-              .getETxn(resp.id)
+              .getETxnUnflattened(resp.id)
               .toPromise()
               .then((etxn) => {
                 entry.dataUrls.forEach((dataUrl) => {
@@ -423,6 +359,7 @@ export class TransactionsOutboxService {
           that
             .matchIfRequired(resp.id, entry.transaction.matchCCCId)
             .then(() => {
+              that.removeEntry(entry);
               if (reportId) {
                 const txnIds = [resp.id];
                 that.reportService
@@ -430,7 +367,6 @@ export class TransactionsOutboxService {
                   .toPromise()
                   .then(() => {
                     this.trackingService.addToExistingReportAddEditExpense();
-                    that.removeEntry(entry);
                     resolve(entry);
                   })
                   .catch((err) => {
@@ -438,7 +374,6 @@ export class TransactionsOutboxService {
                     reject(err);
                   });
               } else {
-                that.removeEntry(entry);
                 resolve(entry);
               }
             })
@@ -487,12 +422,6 @@ export class TransactionsOutboxService {
     });
 
     return this.syncDeferred.then(() => {});
-  }
-
-  createTxnAndUploadBase64File(transaction, base64Content) {
-    return this.transactionService
-      .upsert(transaction)
-      .pipe(switchMap((res) => this.fileService.base64Upload('expense.jpg', base64Content, res.id, null, null)));
   }
 
   isSyncInProgress() {

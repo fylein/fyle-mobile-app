@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { ApiV2Service } from './api-v2.service';
 import { map } from 'rxjs/operators';
-import { DataTransformService } from './data-transform.service';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
+import { ProjectV1 } from '../models/v1/extended-project.model';
+import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
 
 @Injectable({
@@ -85,41 +86,28 @@ export class ProjectsService {
     );
   }
 
-  addNameSearchFilter(searchNameText: any, params: any) {
+  addNameSearchFilter(searchNameText: string, params: ProjectParams) {
     if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
       params.project_name = 'ilike.%' + searchNameText + '%';
     }
   }
 
-  addProjectIdsFilter(projectIds: any, params: any) {
+  addProjectIdsFilter(projectIds: number[], params: ProjectParams) {
     if (typeof projectIds !== 'undefined' && projectIds !== null) {
       params.project_id = 'in.(' + projectIds.join(',') + ')';
     }
   }
 
-  addOrgCategoryIdsFilter(orgCategoryIds: any, params: any) {
+  addOrgCategoryIdsFilter(orgCategoryIds: number[], params: ProjectParams) {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
-      params.project_org_category_ids = 'cs.{' + orgCategoryIds.join(',') + '}';
+      params.project_org_category_ids = 'ov.{' + orgCategoryIds.join(',') + '}';
     }
   }
 
-  addActiveFilter(active: any, params: any) {
+  addActiveFilter(active: boolean, params: ProjectParams) {
     if (typeof active !== 'undefined' && active !== null) {
       params.project_active = 'eq.' + active;
     }
-  }
-
-  filterById(projectId, projects) {
-    let matchingProject;
-
-    projects.some((project) => {
-      if (project.id === projectId) {
-        matchingProject = project;
-        return true;
-      }
-    });
-
-    return matchingProject;
   }
 
   getAllowedOrgCategoryIds(project, activeCategoryList) {
@@ -136,14 +124,22 @@ export class ProjectsService {
   }
 
   // TODO: We should remove this from being used and replace with transform
-  getAllActive() {
+  getAllActive(): Observable<ProjectV1[]> {
     const data = {
       params: {
         active_only: true,
       },
     };
 
-    return this.apiService.get('/projects', data);
+    return this.apiService.get('/projects', data).pipe(
+      map((res) =>
+        res.map((datum) => ({
+          ...datum,
+          created_at: new Date(datum.created_at),
+          updated_at: new Date(datum.updated_at),
+        }))
+      )
+    );
   }
 
   getbyId(projectId: number): Observable<ExtendedProject> {

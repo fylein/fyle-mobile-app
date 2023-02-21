@@ -9,13 +9,12 @@ import { Observable, from } from 'rxjs';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { ApiV2Service } from './api-v2.service';
 import { LocationService } from './location.service';
-import { PolicyApiService } from './policy-api.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { PushNotificationService } from './push-notification.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
-import { CommonPlatformApiService } from './common-platform-api.service';
+import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -29,13 +28,12 @@ export class RouterAuthService {
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
     private locationService: LocationService,
-    private policyApiService: PolicyApiService,
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
     private pushNotificationService: PushNotificationService,
-    private spenderPlatformApiService: SpenderPlatformApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
-    private commonPlatfromApiService: CommonPlatformApiService
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
   checkEmailExists(email) {
@@ -59,13 +57,12 @@ export class RouterAuthService {
     this.advanceRequestPolicyService.setRoot(domain);
     this.apiv2Service.setRoot(domain);
     this.locationService.setRoot(domain);
-    this.policyApiService.setRoot(domain);
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
     this.pushNotificationService.setRoot(domain);
-    this.spenderPlatformApiService.setRoot(domain);
+    this.spenderPlatformV1BetaApiService.setRoot(domain);
     this.approverPlatformApiService.setRoot(domain);
-    this.commonPlatfromApiService.setRoot(domain);
+    this.spenderPlatformV1ApiService.setRoot(domain);
 
     await this.tokenService.setClusterDomain(domain);
   }
@@ -118,12 +115,6 @@ export class RouterAuthService {
       .pipe(switchMap((res) => from(this.handleSignInResponse(res)).pipe(map(() => res))));
   }
 
-  checkIfFreeDomain(email: string) {
-    const domainList = ['hotmail.com', 'rediffmail.com', 'yahoo.com', 'outlook.com'];
-    const domain = email.split('@')[1];
-    return domainList.indexOf(domain.toLowerCase()) > -1;
-  }
-
   emailVerify(verificationCode: string) {
     return this.routerApiService
       .post('/auth/email_verify', {
@@ -146,9 +137,5 @@ export class RouterAuthService {
       email: email?.trim().toLowerCase(),
       org_id: orgId,
     });
-  }
-
-  getRegions() {
-    return this.routerApiService.get('/regions').pipe(map((data) => data.regions));
   }
 }

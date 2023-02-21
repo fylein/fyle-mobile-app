@@ -1,6 +1,7 @@
 import { TxnDetail } from './txn-detail.model';
 
 export interface CorporateCardExpense {
+  _search_document?: string;
   amount: number;
   balance_transfer_id: string;
   balance_transfer_settlement_id: string;
@@ -11,6 +12,7 @@ export interface CorporateCardExpense {
   currency: string;
   description: string;
   group_id: string;
+  group_amount?: number;
   id: string;
   ignored: boolean;
   matched_at: Date;
@@ -28,6 +30,7 @@ export interface CorporateCardExpense {
   tx_split_group_id: string;
   txn_details: TxnDetail[];
   txn_dt: Date;
+  transaction_type?: string;
   updated_at: Date;
   us_email: string;
   us_full_name: string;

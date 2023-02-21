@@ -60,24 +60,8 @@ export class LaunchDarklyService {
     }
   }
 
-  getLDClient() {
-    return this.ldClient;
-  }
-
   checkIfKeyboardPluginIsEnabled() {
     return this.getVariation('keyboard_plugin_enabled', true);
-  }
-
-  checkIfPaymentModeConfigurationsIsEnabled(): Observable<boolean> {
-    return this.getVariation('payment_mode_configurations', false);
-  }
-
-  checkIfPaidByCompanyIsHidden(): Observable<boolean> {
-    return this.getVariation('hide_paid_by_company', false);
-  }
-
-  checkIfAutomateReportSubmissionIsEnabled() {
-    return this.getVariation('automate_report_submission_enabled', false);
   }
 
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)

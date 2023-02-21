@@ -1,4 +1,7 @@
 import { Injectable } from '@angular/core';
+import { CustomProperty } from '../models/custom-properties.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { ExpenseField } from '../models/v1/expense-field.model';
 
 @Injectable({
   providedIn: 'root',
@@ -6,7 +9,7 @@ import { Injectable } from '@angular/core';
 export class CustomFieldsService {
   constructor() {}
 
-  sortcustomFieldsByType(customField1, customField2) {
+  sortcustomFieldsByType(customField1: TxnCustomProperties, customField2: TxnCustomProperties): 1 | -1 | 0 {
     if (customField1.type > customField2.type) {
       return -1;
     }
@@ -17,7 +20,7 @@ export class CustomFieldsService {
     return 0;
   }
 
-  setDefaultValue(property, inputValue) {
+  setDefaultValue(property: TxnCustomProperties, inputValue: string): TxnCustomProperties {
     if (inputValue === 'BOOLEAN') {
       property.value = false;
     } else if (inputValue === 'SELECT' || inputValue === 'MULTI_SELECT') {
@@ -29,7 +32,7 @@ export class CustomFieldsService {
     return property;
   }
 
-  setProperty(prefix, customInput, customProperties) {
+  setProperty(prefix: string, customInput: ExpenseField, customProperties: CustomProperty<any>[]): TxnCustomProperties {
     /* Setting the name and mandatory based on the custom input key
      * Reason: Same method is used for expense custom fields and transport/advance request custom fields
      */
@@ -44,10 +47,11 @@ export class CustomFieldsService {
     if (customInput.hasOwnProperty('is_mandatory')) {
       customInputMandatory = customInput.is_mandatory;
     } else {
-      customInputMandatory = customInput.mandatory;
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      customInputMandatory = customInput['mandatory'];
     }
 
-    let property = {
+    let property: TxnCustomProperties = {
       id: customInput.id,
       prefix,
       name: customInputName,
@@ -64,6 +68,7 @@ export class CustomFieldsService {
       for (const customProperty of customProperties) {
         if (customProperty.name === customInputName) {
           if (property.type === 'DATE' && customProperty.value) {
+            // TODO: Check if this is required since the value is null by default
             property.value = new Date(customProperty.value);
           } else {
             property.value = customProperty.value;
@@ -72,16 +77,21 @@ export class CustomFieldsService {
         }
       }
     }
+
     return property;
   }
 
-  standardizeCustomFields(customProperties, customInputs) {
+  standardizeCustomFields(
+    customProperties: CustomProperty<any>[],
+    customInputs: ExpenseField[]
+  ): TxnCustomProperties[] {
     let prefix = '';
 
     const filledCustomPropertiesWithType = customInputs
       .filter((customInput) => !customInput.input_type)
       .map((customInput) => this.setProperty(prefix, customInput, customProperties));
 
+    // TODO: Check if this is required since we use the same method for expense custom fields and advance request custom fields
     const filledCustomPropertiesWithInputType = customInputs
       .filter((customInput) => !customInput.type && customInput.input_type)
       .map((customInput) => {
@@ -90,16 +100,5 @@ export class CustomFieldsService {
       });
 
     return filledCustomPropertiesWithType.concat(filledCustomPropertiesWithInputType).sort(this.sortcustomFieldsByType);
-  }
-
-  standardizeProperties(customProperties) {
-    const changedCustomProperties = customProperties.map((customProperty) => ({
-      id: customProperty.id,
-      name: customProperty.name,
-      value: customProperty.value,
-      type: customProperty.type,
-    }));
-
-    return changedCustomProperties;
   }
 }

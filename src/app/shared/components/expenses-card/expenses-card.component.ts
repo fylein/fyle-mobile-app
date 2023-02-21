@@ -9,13 +9,13 @@ import { isNumber, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
 import { PopoverController, ModalController, Platform } from '@ionic/angular';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
-import { FileObject } from 'src/app/core/models/file_obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { File } from 'src/app/core/models/file.model';
 import { map, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import * as moment from 'moment';
+import * as dayjs from 'dayjs';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
@@ -116,8 +116,6 @@ export class ExpensesCardComponent implements OnInit {
 
   isPerDiem: boolean;
 
-  isUnifyCcceExpensesSettings: boolean;
-
   showPaymentModeIcon: boolean;
 
   isIos = false;
@@ -209,8 +207,7 @@ export class ExpensesCardComponent implements OnInit {
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
     // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
-    const hasScanExpired =
-      this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') < 0;
+    const hasScanExpired = this.expense.tx_created_at && dayjs(this.expense.tx_created_at).diff(Date.now(), 'day') < 0;
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
   }
 
@@ -251,7 +248,7 @@ export class ExpensesCardComponent implements OnInit {
             !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
           if (that.isScanInProgress) {
             that.pollDataExtractionStatus(function () {
-              that.transactionService.getETxn(that.expense.tx_id).subscribe((etxn) => {
+              that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
                 const extractedData = etxn.tx.extracted_data;
                 if (extractedData?.amount && extractedData?.currency) {
                   that.isScanCompleted = true;
@@ -310,14 +307,6 @@ export class ExpensesCardComponent implements OnInit {
     this.isProjectEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
       shareReplay(1)
-    );
-
-    orgSettings$.subscribe(
-      (orgSettings) =>
-        (this.isUnifyCcceExpensesSettings =
-          orgSettings.unify_ccce_expenses_settings &&
-          orgSettings.unify_ccce_expenses_settings.allowed &&
-          orgSettings.unify_ccce_expenses_settings.enabled)
     );
 
     if (!this.expense.tx_id) {
@@ -404,6 +393,7 @@ export class ExpensesCardComponent implements OnInit {
           const file = nativeElement.files[0];
           if (file) {
             const dataUrl = await this.fileService.readFile(file);
+            this.trackingService.addAttachment({ type: file.type });
             receiptDetails = {
               type: file.type,
               dataUrl,

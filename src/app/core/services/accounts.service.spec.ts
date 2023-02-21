@@ -2,116 +2,43 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountType } from '../enums/account-type.enum';
+import { ExpenseType } from '../enums/expense-type.enum';
+import {
+  account1Data,
+  account2Data,
+  etxnObjData,
+  etxnObjWithSourceData,
+  multiplePaymentModesData,
+  multiplePaymentModesIncPersonalAccData,
+  multiplePaymentModesWithCompanyAccData,
+  multiplePaymentModesWithoutAdvData,
+  multiplePaymentModesWithoutCCCAccData,
+  multiplePaymentModesWithoutPersonalAccData,
+  orgSettingsAdvDisabledData,
+  orgSettingsData,
+  paymentModeDataAdvance,
+  paymentModeDataCCC,
+  paymentModeDataCCCWithoutAccountProperty,
+  paymentModeDataMultipleAdvance,
+  paymentModeDataMultipleAdvWithoutOrigAmt,
+  paymentModeDataPersonal,
+  paymentModeDataPersonal2,
+  paymentModesAccountsData,
+  paymentModesData,
+  paymentModesResData,
+  unflattenedAccount1Data,
+  unflattenedAccount2Data,
+  unflattenedAccount3Data,
+  unflattenedAccount4Data,
+  unflattenedTransactionCCC,
+  unflattenedTransactionPersonal,
+  unflattenedTxnWithoutSourceAccountIdData,
+} from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 
-const account1 = {
-  acc_id: 'accfziaxbGFVW',
-  acc_created_at: '2018-10-08T07:04:42.753Z',
-  acc_updated_at: '2022-04-27T08:57:52.221Z',
-  acc_name: 'Personal Account',
-  acc_type: 'PERSONAL_ACCOUNT',
-  acc_currency: 'INR',
-  acc_target_balance_amount: 0,
-  acc_current_balance_amount: 0e-13,
-  acc_tentative_balance_amount: -5620222.5860540000395,
-  acc_category: null,
-  ou_id: 'ouCI4UQ2G0K1',
-  ou_org_id: 'orrjqbDbeP9p',
-  us_email: 'ajain@fyle.in',
-  us_full_name: 'abhishek',
-  org_id: null,
-  org_domain: null,
-  advance_purpose: null,
-  advance_number: null,
-  orig_currency: null,
-  currency: null,
-  orig_amount: null,
-  amount: null,
-  advance_id: null,
-};
-
-const unflattenedAccount1 = {
-  acc: {
-    id: 'accfziaxbGFVW',
-    created_at: new Date('2018-10-08T07:04:42.753Z'),
-    updated_at: new Date('2022-04-27T08:57:52.221Z'),
-    name: 'Personal Account',
-    type: AccountType.PERSONAL,
-    currency: 'INR',
-    target_balance_amount: 0,
-    current_balance_amount: 0,
-    tentative_balance_amount: -5620222.586054,
-    category: null,
-  },
-  ou: {
-    id: 'ouCI4UQ2G0K1',
-    org_id: 'orrjqbDbeP9p',
-  },
-  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
-  org: { id: null, domain: null },
-  advance: {
-    purpose: null,
-    // eslint-disable-next-line id-blacklist
-    number: null,
-    id: null,
-  },
-  orig: { currency: null, amount: null },
-  currency: null,
-  amount: null,
-};
-
-const account2 = {
-  acc_id: 'acct0IxPgGvLa',
-  acc_created_at: '2018-11-05T18:35:59.912Z',
-  acc_updated_at: '2021-09-29T19:35:23.965Z',
-  acc_name: 'Advance Account',
-  acc_type: 'PERSONAL_ADVANCE_ACCOUNT',
-  acc_currency: 'INR',
-  acc_target_balance_amount: 0,
-  acc_current_balance_amount: 0.0,
-  acc_tentative_balance_amount: 0.0,
-  acc_category: null,
-  ou_id: 'ouCI4UQ2G0K1',
-  ou_org_id: 'orrjqbDbeP9p',
-  us_email: 'ajain@fyle.in',
-  us_full_name: 'abhishek',
-  org_id: null,
-  org_domain: null,
-  advance_purpose: 'ddsfd',
-  advance_number: 'A/2020/03/T/2',
-  orig_currency: null,
-  currency: 'INR',
-  orig_amount: null,
-  amount: 800000,
-  advance_id: 'advT96eCXZtCo',
-};
-
-const unflattenedAccount2 = {
-  acc: {
-    id: 'acct0IxPgGvLa',
-    created_at: new Date('2018-11-05T18:35:59.912Z'),
-    updated_at: new Date('2021-09-29T19:35:23.965Z'),
-    name: 'Advance Account',
-    type: AccountType.ADVANCE,
-    currency: 'INR',
-    target_balance_amount: 0,
-    current_balance_amount: 0,
-    tentative_balance_amount: 0,
-    category: null,
-  },
-  ou: { id: 'ouCI4UQ2G0K1', org_id: 'orrjqbDbeP9p' },
-  us: { email: 'ajain@fyle.in', full_name: 'abhishek' },
-  org: { id: null, domain: null },
-  // eslint-disable-next-line id-blacklist
-  advance: { purpose: 'ddsfd', number: 'A/2020/03/T/2', id: 'advT96eCXZtCo' },
-  orig: { currency: null, amount: null },
-  currency: 'INR',
-  amount: 800000,
-};
-
-const accountsCallResponse1 = [account1, account2];
+const accountsCallResponse1 = [account1Data, account2Data];
 
 describe('AccountsService', () => {
   let accountsService: AccountsService;
@@ -154,14 +81,192 @@ describe('AccountsService', () => {
 
   it('should be able to fetch data from api in proper format', (done) => {
     apiService.get.and.returnValue(of(accountsCallResponse1));
-    dataTransformService.unflatten.withArgs(account1).and.returnValue(unflattenedAccount1);
-    dataTransformService.unflatten.withArgs(account2).and.returnValue(unflattenedAccount2);
+    dataTransformService.unflatten.withArgs(account1Data).and.returnValue(unflattenedAccount1Data);
+    dataTransformService.unflatten.withArgs(account2Data).and.returnValue(unflattenedAccount2Data);
 
     accountsService.getEMyAccounts().subscribe((res) => {
-      expect(res[0]).toEqual(unflattenedAccount1);
-      expect(res[1]).toEqual(unflattenedAccount2);
+      expect(res[0]).toEqual(unflattenedAccount1Data);
+      expect(res[1]).toEqual(unflattenedAccount2Data);
       expect(res.length === 2);
       done();
     });
+  });
+
+  it('should be able to check if etxn has same payment mode', () => {
+    expect(accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionCCC, paymentModeDataCCC)).toEqual(true);
+  });
+
+  it('should be able to check if etxn has same personal account payment mode', () => {
+    expect(
+      accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal)
+    ).toEqual(false);
+
+    expect(
+      accountsService.checkIfEtxnHasSamePaymentMode(unflattenedTransactionPersonal, paymentModeDataPersonal2)
+    ).toEqual(true);
+  });
+
+  it('should be able to get etxn selected payment mode with source account id', () => {
+    expect(accountsService.getEtxnSelectedPaymentMode(unflattenedTransactionCCC, paymentModesData)).toEqual(
+      paymentModeDataCCC
+    );
+  });
+
+  it('should be able to get selected payment mode as null when extn is without source account id', () => {
+    expect(
+      accountsService.getEtxnSelectedPaymentMode(unflattenedTxnWithoutSourceAccountIdData, paymentModesData)
+    ).toEqual(null);
+  });
+
+  it('should be able to get account type from payment mode', () => {
+    expect(accountsService.getAccountTypeFromPaymentMode(paymentModeDataCCC)).toEqual(AccountType.CCC);
+  });
+
+  it('should be able to get company account type from payment mode', () => {
+    expect(accountsService.getAccountTypeFromPaymentMode(paymentModeDataPersonal)).toEqual(AccountType.COMPANY);
+  });
+
+  it('should be able to set account properties', () => {
+    expect(
+      accountsService.setAccountProperties(paymentModeDataCCCWithoutAccountProperty, AccountType.CCC, false)
+    ).toEqual(paymentModeDataCCC);
+  });
+
+  it('should be able to set account properties for advance account', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    expect(accountsService.setAccountProperties(unflattenedAccount2Data, AccountType.ADVANCE, false)).toEqual(
+      paymentModeDataAdvance
+    );
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
+  });
+
+  it('should be able to set account properties for multiple advance account', () => {
+    expect(accountsService.setAccountProperties(unflattenedAccount3Data, AccountType.ADVANCE, true)).toEqual(
+      paymentModeDataMultipleAdvance
+    );
+  });
+
+  it('should be able to set account properties for multiple advance account as default without account', () => {
+    expect(accountsService.setAccountProperties(null, AccountType.ADVANCE, true)).toEqual(null);
+  });
+
+  it('should be able to set account properties for multiple advance account as default without orig amount', () => {
+    expect(accountsService.setAccountProperties(unflattenedAccount4Data, AccountType.ADVANCE, true)).toEqual(
+      paymentModeDataMultipleAdvWithoutOrigAmt
+    );
+  });
+
+  it('should be able to filter the accounts with sufficient balance', () => {
+    expect(accountsService.filterAccountsWithSufficientBalance(multiplePaymentModesData, true)).toEqual(
+      multiplePaymentModesData
+    );
+  });
+
+  it('should be able to get allowed accounts', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(
+        multiplePaymentModesWithoutAdvData,
+        allowedPaymentModes,
+        false,
+        etxnObjData,
+        false
+      )
+    ).toEqual(multiplePaymentModesWithCompanyAccData);
+  });
+
+  it('should be able to get allowed accounts with source in etxn obj', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(
+        multiplePaymentModesWithoutAdvData,
+        allowedPaymentModes,
+        false,
+        etxnObjWithSourceData,
+        false
+      )
+    ).toEqual(multiplePaymentModesWithCompanyAccData);
+  });
+
+  it('should be able to get allowed accounts without passing isMileageOrPerDiem param', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdvData, allowedPaymentModes, false, etxnObjData)
+    ).toEqual(multiplePaymentModesWithCompanyAccData);
+  });
+
+  it('should be able to get allowed accounts without passing etxn param', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', 'PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT'];
+    expect(accountsService.getAllowedAccounts(multiplePaymentModesWithoutAdvData, allowedPaymentModes, false)).toEqual(
+      multiplePaymentModesWithCompanyAccData
+    );
+  });
+
+  it('should be able to get allowed accounts for mileage and per diem', () => {
+    const allowedPaymentModes = ['COMPANY_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(
+        multiplePaymentModesWithoutAdvData,
+        allowedPaymentModes,
+        false,
+        etxnObjData,
+        true
+      )
+    ).toEqual(multiplePaymentModesWithoutCCCAccData);
+  });
+
+  it('should be able to get allowed accounts when current expense payment mode is not allowed', () => {
+    const allowedPaymentModes = ['PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(
+        multiplePaymentModesWithoutPersonalAccData,
+        allowedPaymentModes,
+        false,
+        etxnObjWithSourceData,
+        false
+      )
+    ).toEqual(multiplePaymentModesIncPersonalAccData);
+  });
+
+  it('should be able to get payment modes', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    const config = {
+      etxn: etxnObjData,
+      expenseType: ExpenseType.EXPENSE,
+      isPaidByCompanyHidden: true,
+      isPaymentModeConfigurationsEnabled: true,
+      orgSettings: orgSettingsData,
+    };
+    const allowedPaymentModes = [
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      'PERSONAL_ACCOUNT',
+      'COMPANY_ACCOUNT',
+      'PERSONAL_ADVANCE_ACCOUNT',
+    ];
+    expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
+      paymentModesResData
+    );
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
+  });
+
+  it('should be able to get payment modes when advances is disabled and advance requests is enabled', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    const config = {
+      etxn: etxnObjData,
+      expenseType: ExpenseType.EXPENSE,
+      isPaidByCompanyHidden: true,
+      isPaymentModeConfigurationsEnabled: true,
+      orgSettings: orgSettingsAdvDisabledData,
+    };
+    const allowedPaymentModes = [
+      'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      'PERSONAL_ACCOUNT',
+      'COMPANY_ACCOUNT',
+      'PERSONAL_ADVANCE_ACCOUNT',
+    ];
+    expect(accountsService.getPaymentModes(paymentModesAccountsData, allowedPaymentModes, config)).toEqual(
+      paymentModesResData
+    );
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 });

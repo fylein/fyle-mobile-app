@@ -47,14 +47,13 @@ import { AuditHistoryComponent } from './components/comments-history/audit-histo
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
 import { FyApproverComponent } from './components/fy-approver/fy-approver.component';
 import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-policy-violation.component';
-import { PolicyViolationDetailsComponent } from './components/policy-violation-details/policy-violation-details.component';
 
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 import { FormatDateDirective } from './directive/format-date.directive';
 
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
-import { PinchZoomModule } from 'ngx-pinch-zoom';
+import { PinchZoomModule } from 'ngx13-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
@@ -198,7 +197,6 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     RouteVisualizerComponent,
     RouteSelectorComponent,
     RouteSelectorModalComponent,
-    PolicyViolationDetailsComponent,
     FyViewReportInfoComponent,
     BankAccountCardsComponent,
     BankAccountCardComponent,
@@ -328,7 +326,6 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     RouteVisualizerComponent,
     RouteSelectorComponent,
     MatChipsModule,
-    PolicyViolationDetailsComponent,
     ExpenseCardLiteComponent,
     BankAccountCardsComponent,
     PersonalCardTransactionComponent,

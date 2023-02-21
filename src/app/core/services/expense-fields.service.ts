@@ -1,41 +1,99 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
+import { from, Observable, of } from 'rxjs';
+import { map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
-import { ApiService } from './api.service';
+import { ExpenseFieldsObj } from '../models/v1/expense-fields-obj.model';
+import { OrgCategory } from '../models/v1/org-category.model';
 import { AuthService } from './auth.service';
+import { DateService } from './date.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseFieldsService {
-  constructor(private apiService: ApiService, private authService: AuthService) {}
+  constructor(
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private authService: AuthService,
+    private dateService: DateService
+  ) {}
 
   @Cacheable()
   getAllEnabled(): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiService.get('/expense_fields', {
+        this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField>>('/expense_fields', {
           params: {
-            org_id: eou.ou.org_id,
-            is_enabled: true,
-            is_custom: false,
+            org_id: `eq.${eou.ou.org_id}`,
+            is_enabled: 'eq.true',
+            is_custom: 'eq.false',
           },
         })
-      )
+      ),
+      map((res) => this.transformFrom(res.data)),
+      map((res) => this.dateService.fixDates(res))
     );
   }
 
-  formatBillableFields(expenseFields: ExpenseField[]) {
-    return expenseFields.map((field) => {
-      if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
-        field.default_value = field.default_value === 'true';
-      }
-      return field;
-    });
+  getColumnName(columnName: string, seq?: number) {
+    //Mapping of platform to legacy column name
+    const columnNameMapping = {
+      spent_at: 'txn_dt',
+      category_id: 'org_category_id',
+      merchant: 'vendor_id',
+      is_billable: 'billable',
+      started_at: 'from_dt',
+      ended_at: 'to_dt',
+      'locations[0]': 'location1',
+      'locations[1]': 'location2',
+    };
+
+    //For travel class, column name depends on seq which is the key of nested object
+    const travelClassMapping = {
+      'travel_classes[0]': {
+        1: 'flight_journey_travel_class',
+        2: 'bus_travel_class',
+        3: 'train_travel_class',
+      },
+      'travel_classes[1]': {
+        1: 'flight_return_travel_class',
+      },
+    };
+
+    //Return the column name
+    if (columnNameMapping[columnName]) {
+      return columnNameMapping[columnName];
+    } else if (travelClassMapping[columnName] && seq !== undefined) {
+      return travelClassMapping[columnName][seq];
+    } else {
+      return columnName;
+    }
+  }
+
+  transformFrom(data: PlatformExpenseField[]): ExpenseField[] {
+    return data.map((datum) => ({
+      id: datum.id,
+      code: datum.code,
+      column_name: this.getColumnName(datum.column_name, datum.seq),
+      created_at: datum.created_at,
+      default_value: datum.default_value,
+      field_name: datum.field_name,
+      is_custom: datum.is_custom,
+      is_enabled: datum.is_enabled,
+      is_mandatory: datum.is_mandatory,
+      options: datum.options,
+      org_category_ids: datum.category_ids,
+      org_id: datum.org_id,
+      placeholder: datum.placeholder,
+      seq: datum.seq,
+      type: datum.type,
+      updated_at: datum.updated_at,
+    }));
   }
 
   /* getAllMap() method returns a mapping of column_names and their respective mapped fields
@@ -72,19 +130,11 @@ export class ExpenseFieldsService {
     );
   }
 
-  getUserRoles(): Observable<string[]> {
-    return from(this.authService.getRoles());
-  }
-
-  findCommonRoles(roles): Observable<string[]> {
-    return this.getUserRoles().pipe(map((userRoles) => roles.filter((role) => userRoles.indexOf(role) > -1)));
-  }
-
-  canEdit(roles): Observable<boolean> {
-    return this.findCommonRoles(roles).pipe(map((commonRoles) => commonRoles.length > 0));
-  }
-
-  filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<Partial<ExpenseFieldsMap>> {
+  filterByOrgCategoryId(
+    tfcMap: Partial<ExpenseFieldsMap>,
+    fields: string[],
+    orgCategory: OrgCategory
+  ): Observable<Partial<ExpenseFieldsMap | ExpenseFieldsObj>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map((fields) =>
@@ -119,16 +169,9 @@ export class ExpenseFieldsService {
           .filter((filteredField) => !!filteredField)
       ),
       switchMap((fields) => from(fields)),
-      concatMap((field) =>
-        forkJoin({
-          canEdit: this.canEdit(field.roles_editable),
-        }).pipe(
-          map((res) => ({
-            ...field,
-            ...res,
-          }))
-        )
-      ),
+      map((field) => ({
+        ...field,
+      })),
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;
@@ -136,7 +179,18 @@ export class ExpenseFieldsService {
     );
   }
 
-  getDefaultTxnFieldValues(txnFields): DefaultTxnFieldValues {
+  /* TODO: txnFields should be of one type, handle inconsistency in forms
+      There are 3 types of responses here:
+      1st type, expense field -> {column_name, id..} etc
+      2nd type, expense field obj -> {purpose: {}, txn_dt: {}……}
+      3rd type, expense field map -> {purpose: [{}], txn_dt: [{}, {},…]….}
+      Till date the type was any, so this issue didn't come up,
+      This is wrong, all our expense forms pages expects the results as expense field map, but, before that, we filter these by org category, so the response changes to expense field obj
+      To handle both case added this, it can take the type based on use case, but, ideally, we should have a single type of response
+  */
+  getDefaultTxnFieldValues(
+    txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>
+  ): Partial<DefaultTxnFieldValues> {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {
       if (txnFields.hasOwnProperty(configurationColumn)) {
@@ -147,5 +201,14 @@ export class ExpenseFieldsService {
     }
 
     return defaultValues;
+  }
+
+  private formatBillableFields(expenseFields: ExpenseField[]): ExpenseField[] {
+    return expenseFields.map((field) => {
+      if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
+        field.default_value = field.default_value === 'true';
+      }
+      return field;
+    });
   }
 }
