@@ -45,22 +45,6 @@ export class UserEventService {
     return this.taskCacheClearSubject.subscribe(callback);
   }
 
-  onInternalError(callback) {
-    return this.internalSubject.subscribe(callback);
-  }
-
-  onOutdatedClientError(callback) {
-    return this.outdatedClientSubject.subscribe(callback);
-  }
-
-  internalError(data) {
-    return this.internalSubject.next(data);
-  }
-
-  outdatedClientError(data) {
-    return this.outdatedClientSubject.next(data);
-  }
-
   onClearCache(callback) {
     return this.clearCacheSubject.subscribe(callback);
   }
