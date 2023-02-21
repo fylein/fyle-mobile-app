@@ -24,9 +24,6 @@ export class MileageRatesService {
     cacheBusterObserver: mileageRateCacheBuster$,
   })
   getAllMileageRates(): Observable<PlatformMileageRates[]> {
-    this.getAllMileageRatesCount().subscribe((res) => {
-      console.log(res);
-    });
     return this.getAllMileageRatesCount().pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
