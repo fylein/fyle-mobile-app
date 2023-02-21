@@ -13,6 +13,7 @@ import {
 } from '../mock-data/mileage-rate.data';
 import { platformMileageRates, platformMileageRatesSingleData } from '../mock-data/platform-mileage-rate.data';
 import { of } from 'rxjs';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 describe('MileageRatesService', () => {
   let mileageRatesService: MileageRatesService;
@@ -33,6 +34,10 @@ describe('MileageRatesService', () => {
         {
           provide: CurrencyPipe,
           useValue: currencyPipeSpy,
+        },
+        {
+          provide: PAGINATION_SIZE,
+          useValue: 2,
         },
       ],
     });
@@ -139,14 +144,12 @@ describe('MileageRatesService', () => {
 
   it('getAllMileageRates(): should get all mileage rates', (done) => {
     const spyGetMileageRates = spyOn(mileageRatesService, 'getMileageRates');
-    spyOn(mileageRatesService, 'getAllMileageRatesCount').and.returnValue(of(100));
+    spyOn(mileageRatesService, 'getAllMileageRatesCount').and.returnValue(of(3));
 
-    // simulate first page of 50 mileage rates
-    const testParams1 = { offset: 0, limit: 50 };
+    const testParams1 = { offset: 0, limit: 2 };
     spyGetMileageRates.withArgs(testParams1).and.returnValue(of(mileageRateApiRes1));
 
-    // simulate second page of 50 mileage rates
-    const testParams2 = { offset: 50, limit: 50 };
+    const testParams2 = { offset: 2, limit: 2 };
     spyGetMileageRates.withArgs(testParams2).and.returnValue(of(mileageRateApiRes2));
 
     mileageRatesService.getAllMileageRates().subscribe((res) => {
