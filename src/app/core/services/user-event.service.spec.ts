@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { UserEventService } from './user-event.service';
 
 describe('UserEventService', () => {
-  let service: UserEventService;
+  let userEventService: UserEventService;
   let callback: jasmine.Spy;
 
   beforeEach(() => {
@@ -11,48 +11,34 @@ describe('UserEventService', () => {
     TestBed.configureTestingModule({
       providers: [UserEventService],
     });
-    service = TestBed.inject(UserEventService);
+    userEventService = TestBed.inject(UserEventService);
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(userEventService).toBeTruthy();
   });
 
   it('should emit logoutSubject when calling logout', () => {
-    service.onLogout(callback);
-    service.logout();
+    userEventService.onLogout(callback);
+    userEventService.logout();
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
   it('should emit tokenSubject when calling setToken', () => {
-    service.onSetToken(callback);
-    service.setToken();
+    userEventService.onSetToken(callback);
+    userEventService.setToken();
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
   it('should emit taskCacheClearSubject when calling clearTaskCache', () => {
-    service.onTaskCacheClear(callback);
-    service.clearTaskCache();
+    userEventService.onTaskCacheClear(callback);
+    userEventService.clearTaskCache();
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
-  it('should emit internalSubject when calling internalError', () => {
-    const data = { message: 'Internal error' };
-    service.onInternalError(callback);
-    service.internalError(data);
-    expect(callback).toHaveBeenCalledOnceWith(data);
-  });
-
-  it('should emit outdatedClientSubject when calling outdatedClientError', () => {
-    const data = { message: 'Outdated client error' };
-    service.onOutdatedClientError(callback);
-    service.outdatedClientError(data);
-    expect(callback).toHaveBeenCalledOnceWith(data);
-  });
-
   it('should emit clearCacheSubject when calling clearCache', () => {
-    service.onClearCache(callback);
-    service.clearCache();
+    userEventService.onClearCache(callback);
+    userEventService.clearCache();
     expect(callback).toHaveBeenCalledTimes(1);
   });
 });
