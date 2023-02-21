@@ -1,6 +1,6 @@
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
 
-export const unfilterdMileageRatesData: PlatformMileageRates[] = [
+export const unfilteredMileageRatesData: PlatformMileageRates[] = [
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -122,7 +122,7 @@ export const filterEnabledMileageRatesData: PlatformMileageRates[] = [
   },
 ];
 
-export const nullRateIncludedData: PlatformMileageRates[] = [
+export const nullMileageRateData: PlatformMileageRates[] = [
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -174,7 +174,7 @@ export const nullRateIncludedData: PlatformMileageRates[] = [
   },
 ];
 
-export const nullRateExcludedData1: PlatformMileageRates[] = [
+export const platformMileageRatesData1: PlatformMileageRates[] = [
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -208,7 +208,7 @@ export const nullRateExcludedData1: PlatformMileageRates[] = [
   },
 ];
 
-export const nullRateExcludedData2: PlatformMileageRates[] = [
+export const platformMileageRatesData2: PlatformMileageRates[] = [
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),

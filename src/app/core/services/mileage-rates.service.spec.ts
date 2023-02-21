@@ -4,12 +4,12 @@ import { MileageRatesService } from './mileage-rates.service';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import {
   filterEnabledMileageRatesData,
-  unfilterdMileageRatesData,
-  nullRateExcludedData1,
-  nullRateIncludedData,
+  unfilteredMileageRatesData,
+  platformMileageRatesData1,
+  nullMileageRateData,
   mileageRateApiRes1,
   mileageRateApiRes2,
-  nullRateExcludedData2,
+  platformMileageRatesData2,
 } from '../mock-data/mileage-rate.data';
 import { platformMileageRates, platformMileageRatesSingleData } from '../mock-data/platform-mileage-rate.data';
 import { of } from 'rxjs';
@@ -56,7 +56,7 @@ describe('MileageRatesService', () => {
     });
 
     it('should return the input string if it is not a valid rate name', () => {
-      const input = 'invalid_rate_name';
+      const input = 'three_wheeler';
       const output = mileageRatesService.formatMileageRateName(input);
       expect(output).toEqual(input);
     });
@@ -94,18 +94,18 @@ describe('MileageRatesService', () => {
   });
 
   it('filterEnabledMileageRates(): should retutn enabled mileage rates', () => {
-    const result = mileageRatesService.filterEnabledMileageRates(unfilterdMileageRatesData);
+    const result = mileageRatesService.filterEnabledMileageRates(unfilteredMileageRatesData);
     expect(result.length).toEqual(filterEnabledMileageRatesData.length);
     expect(result).toEqual(filterEnabledMileageRatesData);
   });
 
   it('excludeNullRates(): should exclude mileage rates with null rates', () => {
-    const result = mileageRatesService.excludeNullRates(nullRateIncludedData);
-    expect(result.length).toEqual(nullRateExcludedData1.length);
-    expect(result).toEqual(nullRateExcludedData1);
+    const result = mileageRatesService.excludeNullRates(nullMileageRateData);
+    expect(result.length).toEqual(platformMileageRatesData1.length);
+    expect(result).toEqual(platformMileageRatesData1);
   });
 
-  it('should get mileage rates', (done) => {
+  it('getMileageRates(): should get mileage rates', (done) => {
     spenderPlatformV1BetaApiService.get.and.returnValue(of(platformMileageRates));
     const data = {
       params: {
@@ -113,9 +113,9 @@ describe('MileageRatesService', () => {
         limit: 4,
       },
     };
-    spyOn(mileageRatesService, 'excludeNullRates').and.returnValue(nullRateExcludedData1);
+    spyOn(mileageRatesService, 'excludeNullRates').and.returnValue(platformMileageRatesData1);
     mileageRatesService.getMileageRates({ offset: 0, limit: 4 }).subscribe((res) => {
-      expect(res).toEqual(nullRateExcludedData1);
+      expect(res).toEqual(platformMileageRatesData1);
       expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', data);
       expect(mileageRatesService.excludeNullRates).toHaveBeenCalledOnceWith(platformMileageRates.data);
       done();
@@ -150,7 +150,7 @@ describe('MileageRatesService', () => {
     spyGetMileageRates.withArgs(testParams2).and.returnValue(of(mileageRateApiRes2));
 
     mileageRatesService.getAllMileageRates().subscribe((res) => {
-      expect(res).toEqual([...nullRateExcludedData1, ...nullRateExcludedData2]);
+      expect(res).toEqual([...platformMileageRatesData1, ...platformMileageRatesData2]);
       expect(spyGetMileageRates).toHaveBeenCalledTimes(2);
       expect(spyGetMileageRates).toHaveBeenCalledWith(testParams1);
       expect(spyGetMileageRates).toHaveBeenCalledWith(testParams2);

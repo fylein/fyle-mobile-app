@@ -61,7 +61,7 @@ export class MileageRatesService {
     return validMileageRates;
   }
 
-  formatMileageRateName(rateName: string) {
+  formatMileageRateName(rateName: string): string {
     const names = {
       two_wheeler: 'Two Wheeler',
       four_wheeler: 'Four Wheeler - Type 1',
