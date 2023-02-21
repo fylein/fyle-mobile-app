@@ -61,24 +61,95 @@ describe('DeepLinkService', () => {
     expect(result).toEqual({});
   });
 
-  xit('should redirect to auth verification', fakeAsync(() => {
-    const testParam = {
-      redirect_uri: 'https://staging.fylehq.ninja/app/main/#/enterprise/reports/rpsv8oKuAfGe',
-      org_id: 'orrjqbDbeP9p',
-    };
-    deepLinkService.redirect(testParam);
-    tick();
-    router
-      .navigate([
+  describe('redirect():', () => {
+    it('should navigate to the expense page when the redirect URI contains "/view_expense/" with txn ID', () => {
+      deepLinkService.redirect({
+        redirect_uri: 'https://staging.fyle.tech/app/main/#/enterprise/view_expense/tx1oTNwgRdRq',
+      });
+      expect(router.navigate).toHaveBeenCalledWith([
+        '/',
+        'deep_link_redirection',
+        { sub_module: 'expense', id: 'tx1oTNwgRdRq' },
+      ]);
+    });
+
+    it('should navigate to the verify page when the redirect URI contains "/verify"', () => {
+      deepLinkService.redirect({
+        redirect_uri: 'https://staging.fyle.tech/app/main/#/verify/',
+        verification_code: '12345',
+        org_id: 'orYtMVz2qisQ',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'verify',
+        {
+          verification_code: '12345',
+          org_id: 'orYtMVz2qisQ',
+        },
+      ]);
+    });
+
+    it('should navigate to the new password page when the redirect URI contains "/new_password"', () => {
+      deepLinkService.redirect({
+        redirect_uri: 'https://staging.fyle.tech/app/main/#/new_password/',
+        refresh_token: 'token',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'new_password',
+        {
+          refreshToken: 'token',
+        },
+      ]);
+    });
+
+    it('should navigate to the report when the redirect URI contains "/reports" along with report ID', () => {
+      const reportID = 'rpFE5X1Pqi9P';
+      deepLinkService.redirect({
+        redirect_uri: `https://staging.fyle.tech/app/main/#/enterprise/reports/${reportID}`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'deep_link_redirection',
         {
-          sub_module: 'reports',
-          id: 'tx1oTNwgRdRq',
+          sub_module: 'report',
+          id: reportID,
         },
-      ])
-      .then((data) => {
-        console.log(data);
+      ]);
+    });
+
+    it('should navigate to switch organisation page when the there is no redirection URL', () => {
+      deepLinkService.redirect({});
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
+    });
+
+    it('should navigate to the advance request when the URI contains "/advance_request" along with advance request ID', () => {
+      const advReqID = 'areqVDe9nW1X4v';
+
+      deepLinkService.redirect({
+        redirect_uri: `https://staging.fyle.tech/app/main/#/enterprise/advance_request/${advReqID}`,
       });
-  }));
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'advReq',
+          id: advReqID,
+        },
+      ]);
+    });
+
+    it('should navigate to switch organisation page when there are incorrect details in redirection URL', () => {
+      deepLinkService.redirect({
+        redirect_uri: `https://staging.fyle.tech/app/main/#/enterprise/advanceRequest/`,
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
+    });
+  });
 });
