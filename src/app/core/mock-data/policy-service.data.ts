@@ -1,87 +1,5 @@
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 
-// export const publicPolicyExpenseData: PublicPolicyExpense = {
-//     skip_reimbursement: false,
-//     source: "MOBILE",
-//     txn_dt: new Date("2023-02-21T06:30:00.000Z"),
-//     currency: "INR",
-//     amount: 4000,
-//     orig_currency: null,
-//     orig_amount: null,
-//     policy_amount: null,
-//     locations: [
-//         {
-//             city:"Mumbai",
-//             state:"India",
-//             display_name:"Bangalore Airport Terminal Services Private Limited, Sahar Road, Tank View, Sahar Village, Andheri East, Mumbai, Maharashtra, India",
-//             country:"India",
-//             formatted_address:"Shop No:8, Sahar Cargo, Andheri Victor Mati Lane, Sahar Rd, Tank View, Sahar Village, Andheri East, Mumbai, Maharashtra 400099, India",
-//             latitude:19.098039,
-//             longitude:72.867626,
-//           }
-//     ],
-//     custom_properties: [
-//         {
-//             id: 174083,
-//             mandatory: false,
-//             name: "userlist test",
-//             options: [],
-//             placeholder: "userlist test",
-//             prefix: "",
-//             type: "USER_LIST",
-//             value: []
-//         },
-//         {
-//             id: 210078,
-//             mandatory: false,
-//             name: "tettest",
-//             options: [],
-//             placeholder: "testtet",
-//             prefix: "",
-//             type: "TEXT",
-//             value: "test"
-//         },
-//         {
-//             id: 218778,
-//             mandatory: false,
-//             name: "select type field",
-//             options: [
-//                 {
-//                     label: "select-1",
-//                     value: "select-1",
-//                 },
-//                 {
-//                     label: "select-2",
-//                     value: "select-2",
-//                 }
-//             ],
-//             placeholder: "select custom field",
-//             prefix: "",
-//             type: "SELECT",
-//             value: ""
-//         }
-//     ],
-//     num_files: 0,
-//     org_user_id: "ouH8VvkHBg9H",
-//     source_account_id: "accKjESAsqQcR",
-//     project_id: 3898,
-//     tax_amount: null,
-//     org_category_id: 53107,
-//     fyle_category: "Office Supplies",
-//     vendor: "test",
-//     purpose: "Testing Policy Service",
-//     from_dt: null,
-//     to_dt: null,
-//     flight_journey_travel_class: null,
-//     flight_return_travel_class: null,
-//     train_travel_class: null,
-//     bus_travel_class: null,
-//     distance: null,
-//     distance_unit: null,
-//     cost_center_id: 4736,
-//     is_matching_ccc_expense: false
-// }};
-
 export const publicPolicyExpenseData: PublicPolicyExpense = {
   skip_reimbursement: false,
   source: 'MOBILE',
@@ -112,15 +30,6 @@ export const publicPolicyExpenseData: PublicPolicyExpense = {
       display_name:
         'Bangalore Airport Terminal Services Private Limited, Sahar Road, Tank View, Sahar Village, Andheri East, Mumbai, Maharashtra, India',
     },
-    // {
-    //     city: "Bengaluru",
-    //     state: "Karnataka",
-    //     country: "India",
-    //     formatted_address: "Test, St Thomas Town, Ramaiah Layout, Kacharakanahalli, Bengaluru, Karnataka 560043, India",
-    //     latitude: 13.0175303,
-    //     longitude: 77.633241,
-    //     display_name: "Test, Saint Thomas Town, Ramaiah Layout, Kacharakanahalli, Bengaluru, Karnataka, India"
-    // }
   ],
   custom_properties: [
     {
