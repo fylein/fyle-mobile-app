@@ -115,7 +115,7 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-import { PlatformExpenseField } from 'src/app/core/models/platform/platform-expense-field.model';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -364,7 +364,7 @@ export class AddEditExpensePage implements OnInit {
 
   onPageExit$: Subject<void>;
 
-  dependentFields$: Observable<PlatformExpenseField[]>;
+  dependentFields$: Observable<ExpenseField[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1457,20 +1457,7 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    const selectedCustomInputs$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        this.customInputsService
-          .getAll(true)
-          .pipe(
-            map((customFields) =>
-              this.customFieldsService.standardizeCustomFields(
-                [],
-                this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id)
-              )
-            )
-          )
-      )
-    );
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
     const txnReceiptsCount$ = this.etxn$.pipe(
       switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
@@ -1487,7 +1474,7 @@ export class AddEditExpensePage implements OnInit {
             category: selectedCategory$,
             report: selectedReport$,
             costCenter: selectedCostCenter$,
-            customInputs: selectedCustomInputs$,
+            customExpenseFields: customExpenseFields$,
             txnReceiptsCount: txnReceiptsCount$,
             homeCurrency: this.currencyService.getHomeCurrency(),
             orgSettings: this.orgSettingsService.get(),
@@ -1512,7 +1499,7 @@ export class AddEditExpensePage implements OnInit {
           category,
           report,
           costCenter,
-          customInputs,
+          customExpenseFields,
           txnReceiptsCount,
           homeCurrency,
           orgSettings,
@@ -1526,17 +1513,18 @@ export class AddEditExpensePage implements OnInit {
           taxGroups,
           txnFields,
         }) => {
-          const dependentFields: PlatformExpenseField[] = customInputs
-            .filter((customInput) => customInput.type === 'DEPENDENT_SELECT')
-            .map((dependentField) => ({
-              ...dependentField,
-              is_mandatory: dependentField.mandatory,
-              field_name: dependentField.name,
-            }));
+          const dependentFields: ExpenseField[] = customExpenseFields.filter(
+            (customInput) => customInput.type === 'DEPENDENT_SELECT'
+          );
 
           if (dependentFields?.length && project) {
             this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, txnFields.project_id?.id);
           }
+
+          const customInputs = this.customFieldsService.standardizeCustomFields(
+            [],
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+          );
 
           const customInputValues: { name: string; value: string }[] = customInputs
             .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
@@ -2833,7 +2821,7 @@ export class AddEditExpensePage implements OnInit {
           )
         )
       )
-      .subscribe((dependentField) => {
+      .subscribe((dependentField: ExpenseField) => {
         if (dependentField) {
           this.addDependentField(dependentField);
         }
@@ -2859,7 +2847,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  addDependentField(dependentField: PlatformExpenseField, value = null): void {
+  addDependentField(dependentField: ExpenseField, value = null): void {
     const dependentFieldControl = this.formBuilder.group({
       id: dependentField.id,
       label: dependentField.field_name,
@@ -2883,7 +2871,7 @@ export class AddEditExpensePage implements OnInit {
     this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
   }
 
-  getDependentField(parentFieldId: number, parentFieldValue: string): Observable<PlatformExpenseField> {
+  getDependentField(parentFieldId: number, parentFieldValue: string): Observable<ExpenseField> {
     return this.dependentFields$.pipe(
       switchMap((dependentCustomFields) => {
         const dependentField = dependentCustomFields.find(
@@ -2896,11 +2884,7 @@ export class AddEditExpensePage implements OnInit {
               parentFieldId,
               parentFieldValue,
             })
-            .pipe(
-              //TODO: Remove the delay once APIs are available
-              delay(1000),
-              map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null))
-            );
+            .pipe(map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null)));
         }
         return of(null);
       })
@@ -4464,7 +4448,7 @@ export class AddEditExpensePage implements OnInit {
   //Recursive method to add dependent fields with value
   private addDependentFieldWithValue(
     txCustomProperties: CustomProperty<string>[],
-    dependentFields: PlatformExpenseField[],
+    dependentFields: ExpenseField[],
     parentFieldId: number
   ) {
     //Get dependent field for the field whose id is parentFieldId

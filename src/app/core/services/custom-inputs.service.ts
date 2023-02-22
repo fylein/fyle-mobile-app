@@ -29,7 +29,7 @@ export class CustomInputsService {
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$,
   })
-  getAll(active: boolean): Observable<any[]> {
+  getAll(active: boolean): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField>>('/expense_fields', {

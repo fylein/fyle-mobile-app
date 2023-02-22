@@ -1369,13 +1369,9 @@ export class AddEditPerDiemPage implements OnInit {
           recentProjects,
           recentCostCenters,
         }) => {
-          const dependentFields: ExpenseField[] = customInputs
-            .filter((customInput) => customInput.type === 'DEPENDENT_SELECT')
-            .map((dependentField) => ({
-              ...dependentField,
-              is_mandatory: dependentField.mandatory,
-              field_name: dependentField.name,
-            }));
+          const dependentFields: ExpenseField[] = customInputs.filter(
+            (customInput) => customInput.type === 'DEPENDENT_SELECT'
+          );
 
           if (dependentFields?.length && project) {
             this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, txnFields.project_id?.id);
@@ -2281,19 +2277,14 @@ export class AddEditPerDiemPage implements OnInit {
               parentFieldId,
               parentFieldValue,
             })
-            .pipe(
-              //TODO: Remove the delay once APIs are available
-              delay(1000),
-              map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null))
-            );
+            .pipe(map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null)));
         }
         return of(null);
       })
     );
   }
 
-  //TODO: Add type of dependentField. It's a mix of legacy and platform as expense_fields is still using legacy APIs.
-  private addDependentField(dependentField, value = null): void {
+  private addDependentField(dependentField: ExpenseField, value = null): void {
     const dependentFieldControl = this.fb.group({
       id: dependentField.id,
       label: dependentField.field_name,
