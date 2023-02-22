@@ -51,7 +51,7 @@ import { orgUserSettingsData, orgUserSettingsData2, orgUserSettingsData3 } from 
 import { orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { accountsData } from '../test-data/accounts.service.spec.data';
 import { currencySummaryData } from '../mock-data/currency-summary.data';
-import { platformPolicyExpenseData } from '../mock-data/platform-policy-expense.data';
+import { platformPolicyExpenseData1 } from '../mock-data/platform-policy-expense.data';
 import { expensePolicyData } from '../mock-data/expense-policy.data';
 import { txnAccountData } from '../mock-data/txn-account.data';
 import { txnCustomPropertiesData, txnCustomPropertiesData2 } from '../mock-data/txn-custom-properties.data';
@@ -1410,10 +1410,10 @@ describe('TransactionService', () => {
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData2));
     spenderPlatformV1BetaApiService.post.and.returnValue(of(expensePolicyData));
 
-    transactionService.checkPolicy(platformPolicyExpenseData).subscribe((res) => {
+    transactionService.checkPolicy(platformPolicyExpenseData1).subscribe((res) => {
       expect(res).toEqual(expensePolicyData);
       expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledOnceWith('/expenses/check_policies', {
-        data: platformPolicyExpenseData,
+        data: platformPolicyExpenseData1,
       });
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       done();
