@@ -1,4 +1,5 @@
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
+import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 
 export const publicPolicyExpenseData: PublicPolicyExpense = {
   skip_reimbursement: false,
@@ -118,4 +119,45 @@ export const publicPolicyExpenseData: PublicPolicyExpense = {
   user_reason_for_duplicate_expenses: '',
   vendor: '',
   vendor_id: 0,
+};
+
+export const expensePolicyData: ExpensePolicy = {
+  data: {
+    final_desired_state: {
+      add_approver_user_ids: [],
+      amount: null,
+      flag: true,
+      is_receipt_mandatory: false,
+      remove_employee_approver1: false,
+      run_status: 'SUCCESS',
+      run_summary: ['expense will be flagged for verification and approval'],
+    },
+    individual_desired_states: [
+      {
+        add_approver_user_ids: [],
+        amount: 0.00005,
+        expense_policy_rule: {
+          action_show_warning: true,
+          description:
+            'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+          id: 'tprlDUfXa0idO',
+        },
+        expense_policy_rule_id: 'tprlDUfXa0idO',
+        expenses_query_object_params: {
+          limit_end_date: '2023-03-01',
+          limit_start_date: '2023-02-01',
+          params: {
+            category_id: 'in.(1630)',
+            employee_id: 'eq.ouWmQvnfr9x0',
+            cost_center_id: 'CostCentId1',
+            currency: 'INR',
+            mileage_rate_id: 'MilRatId1',
+            project_id: 'ProId1',
+          },
+        },
+        run_result: ['expense will be flagged for verification and approval'],
+        run_status: 'VIOLATED_ACTION_SUCCESS',
+      },
+    ],
+  },
 };

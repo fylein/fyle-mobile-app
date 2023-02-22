@@ -1,4 +1,6 @@
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
+import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 export const platformPolicyServiceData: PlatformPolicyExpense = {
   merchant: '',
@@ -72,4 +74,58 @@ export const platformPolicyServiceData: PlatformPolicyExpense = {
   per_diem_num_days: 0,
   num_files: 0,
   is_matching_ccc: false,
+};
+
+export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = {
+  count: 1,
+  data: [
+    {
+      expense_id: 'txVTmNOp5JEa',
+      final_desired_state: {
+        add_approver_user_ids: [],
+        amount: null,
+        expense_id: 'txVTmNOp5JEa',
+        flag: true,
+        is_receipt_mandatory: false,
+        remove_employee_approver1: false,
+        run_status: 'SUCCESS',
+        run_summary: ['expense will be flagged for verification and approval'],
+      },
+      individual_desired_states: [
+        {
+          add_approver_user_ids: [],
+          amount: null,
+          expense_id: 'txVTmNOp5JEa',
+          expense_policy_rule: {
+            action_show_warning: false,
+            description:
+              'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000. ',
+            id: 'tprlDUfXa0idO',
+          },
+          expense_policy_rule_id: 'tprlDUfXa0idO',
+          expenses_query_object_params: {
+            limit_end_date: '2023-03-01',
+            limit_start_date: '2023-02-01',
+            params: {
+              category_id: 'in.(1630)',
+              employee_id: 'eq.ouWmQvnfr9x0',
+              cost_center_id: 'CostCentId2',
+              currency: 'INR',
+              mileage_rate_id: 'MilRatId2',
+              project_id: 'ProId2',
+            },
+          },
+          run_result: ['expense will be flagged for verification and approval'],
+          run_status: 'VIOLATED_ACTION_SUCCESS',
+        },
+      ],
+    },
+  ],
+  offset: 0,
+};
+
+export const emptyApiResponse: PlatformApiResponse<ExpensePolicyStates> = {
+  count: 0,
+  data: [],
+  offset: 0,
 };

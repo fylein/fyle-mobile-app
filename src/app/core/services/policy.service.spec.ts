@@ -2,8 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { PolicyService } from './policy.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { publicPolicyExpenseData } from '../mock-data/policy-service.data';
-import { platformPolicyServiceData } from '../mock-data/platform-policy-service.data';
+import { publicPolicyExpenseData, expensePolicyData } from '../mock-data/policy-service.data';
+import {
+  platformPolicyServiceData,
+  expensePolicyStatesData,
+  emptyApiResponse,
+} from '../mock-data/platform-policy-service.data';
+import { of } from 'rxjs';
 
 describe('PolicyService', () => {
   let policyService: PolicyService;
@@ -69,10 +74,54 @@ describe('PolicyService', () => {
     expect(result).toBe(true);
   });
 
-  it('isExpenseFlagged(): should return true for a description that includes expense flag', () => {
+  it('isExpenseFlagged() : should return true for a description that includes expense flag', () => {
     const description =
       ' The expense will be flagged and employee will be alerted when expenses cross total sum of all expenses in a half year is greater than: INR 100.';
     const result = policyService.isExpenseFlagged(description);
     expect(result).toBe(true);
+  });
+
+  it('getCriticalPolicyRules(): should return an empty array if no individual desired state is violated successfully', () => {
+    const result = policyService.getCriticalPolicyRules(expensePolicyData);
+    expect(result).toEqual([
+      'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+    ]);
+  });
+
+  it('getPolicyRules() should et all the policy rules', () => {
+    const result = policyService.getPolicyRules(expensePolicyData);
+    expect(result).toEqual([
+      'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+    ]);
+  });
+
+  describe('getSpenderExpensePolicyViolations()', () => {
+    it('should get the spender expense policy violations', (done) => {
+      spenderPlatformV1BetaApiService.get.and.returnValue(of(expensePolicyStatesData));
+
+      policyService.getSpenderExpensePolicyViolations('txVTmNOp5JEa').subscribe((res) => {
+        expect(res).toEqual(expensePolicyStatesData.data[0].individual_desired_states);
+        const expectedParams = {
+          expense_id: 'eq.txVTmNOp5JEa',
+        };
+        expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', {
+          params: expectedParams,
+        });
+        done();
+      });
+    });
+
+    it('should return an empty array when there are no policy states', (done) => {
+      const expenseId = 'noPolicyStates';
+      const params = {
+        expense_id: `eq.${expenseId}`,
+      };
+      spenderPlatformV1BetaApiService.get.and.returnValue(of(emptyApiResponse));
+      policyService.getSpenderExpensePolicyViolations(expenseId).subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', { params });
+        done();
+      });
+    });
   });
 });
