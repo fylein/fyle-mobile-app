@@ -27,7 +27,7 @@ describe('PolicyService', () => {
         },
         {
           provide: ApproverPlatformApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          useValue: approverPlatformApiServiceSpy,
         },
       ],
     });
@@ -68,7 +68,7 @@ describe('PolicyService', () => {
     expect(result).toBe(true);
   });
 
-  it('isExpenseCapped(): should return true for a description matches', () => {
+  it('isExpenseCapped(): should return true if thedescription matches', () => {
     const description = 'This expense will be capped to $1000';
     const result = policyService.isExpenseCapped(description);
     expect(result).toBe(true);
@@ -88,7 +88,7 @@ describe('PolicyService', () => {
     ]);
   });
 
-  it('getPolicyRules() should et all the policy rules', () => {
+  it('getPolicyRules(): should get all the policy rules', () => {
     const result = policyService.getPolicyRules(expensePolicyData);
     expect(result).toEqual([
       'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
