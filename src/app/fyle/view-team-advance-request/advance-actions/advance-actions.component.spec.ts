@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatRippleModule } from '@angular/material/core';
 import { IonicModule, PopoverController } from '@ionic/angular';
-import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 import { AdvanceActionsComponent } from './advance-actions.component';
 
@@ -83,6 +83,17 @@ describe('AdvanceActionsComponent', () => {
       expect(getTextContent(actionsEl[1])).toContain('Send Back Advance');
       expect(getTextContent(actionsEl[2])).toContain('Reject Advance');
     });
+
+    it('should not show the advance actions cta button if all 3 advance actions are false', () => {
+      component.actions = {
+        can_approve: false,
+        can_inquire: false,
+        can_reject: false,
+      };
+      fixture.detectChanges();
+      const actionsEl = getElementBySelector(fixture, '.advance-action');
+      expect(getTextContent(actionsEl)).not.toBeTruthy();
+    });
   });
 
   describe('openAnotherPopover():', () => {
@@ -91,7 +102,7 @@ describe('AdvanceActionsComponent', () => {
       // @ts-ignore
       component.popoverController.dismiss.and.returnValue(Promise.resolve());
       const sendBackButton = getElementBySelector(fixture, '.advance-action--action') as HTMLElement;
-      sendBackButton.click();
+      click(sendBackButton);
       component.openAnotherPopover(mockCommand);
       // @ts-ignore
       expect(component.popoverController.dismiss).toHaveBeenCalledWith({ command: mockCommand });
@@ -102,7 +113,7 @@ describe('AdvanceActionsComponent', () => {
       // @ts-ignore
       component.popoverController.dismiss.and.returnValue(Promise.resolve());
       const approveButton = getElementBySelector(fixture, '.advance-action--action') as HTMLElement;
-      approveButton.click();
+      click(approveButton);
       component.openAnotherPopover(mockCommand);
       // @ts-ignore
       expect(component.popoverController.dismiss).toHaveBeenCalledWith({ command: mockCommand });
@@ -113,7 +124,7 @@ describe('AdvanceActionsComponent', () => {
       // @ts-ignore
       component.popoverController.dismiss.and.returnValue(Promise.resolve());
       const rejectButton = getElementBySelector(fixture, '.advance-action--action') as HTMLElement;
-      rejectButton.click();
+      click(rejectButton);
       component.openAnotherPopover(mockCommand);
       // @ts-ignore
       expect(component.popoverController.dismiss).toHaveBeenCalledWith({ command: mockCommand });
