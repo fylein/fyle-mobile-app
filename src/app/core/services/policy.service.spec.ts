@@ -4,10 +4,10 @@ import { PolicyService } from './policy.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { publicPolicyExpenseData, expensePolicyData } from '../mock-data/policy-service.data';
 import {
-  platformPolicyServiceData,
+  platformPolicyExpenseData2,
   expensePolicyStatesData,
   emptyApiResponse,
-} from '../mock-data/platform-policy-service.data';
+} from '../mock-data/platform-policy-expense.data';
 import { of } from 'rxjs';
 
 describe('PolicyService', () => {
@@ -44,9 +44,9 @@ describe('PolicyService', () => {
     expect(policyService).toBeTruthy();
   });
 
-  it('transformTo() : should map a PublicPolicyExpense to a PlatformPolicyExpense', () => {
+  it('transformTo() : should transform a PublicPolicyExpense to a PlatformPolicyExpense', () => {
     const result = policyService.transformTo(publicPolicyExpenseData);
-    expect(result).toEqual(platformPolicyServiceData);
+    expect(result).toEqual(platformPolicyExpenseData2);
   });
 
   it('getApprovalString(): should return string with emails in bold when given array of emails', () => {
@@ -59,26 +59,26 @@ describe('PolicyService', () => {
   it('isPrimaryApproverSkipped(): should return true if the description matches', () => {
     const description = 'Primary approver will be skipped for this expense.';
     const result = policyService.isPrimaryApproverSkipped(description);
-    expect(result).toBe(true);
+    expect(result).toBeTrue();
   });
 
   it('needAdditionalApproval(): should return true if the description matches', () => {
     const description = 'This expense will need approval from the finance team.';
     const result = policyService.needAdditionalApproval(description);
-    expect(result).toBe(true);
+    expect(result).toBeTrue();
   });
 
   it('isExpenseCapped(): should return true if thedescription matches', () => {
     const description = 'This expense will be capped to $1000';
     const result = policyService.isExpenseCapped(description);
-    expect(result).toBe(true);
+    expect(result).toBeTrue();
   });
 
   it('isExpenseFlagged() : should return true for a description that includes expense flag', () => {
     const description =
       ' The expense will be flagged and employee will be alerted when expenses cross total sum of all expenses in a half year is greater than: INR 100.';
     const result = policyService.isExpenseFlagged(description);
-    expect(result).toBe(true);
+    expect(result).toBeTrue();
   });
 
   it('getCriticalPolicyRules(): should return an empty array if no individual desired state is violated successfully', () => {
