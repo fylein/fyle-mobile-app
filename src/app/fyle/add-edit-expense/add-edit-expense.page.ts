@@ -3500,10 +3500,10 @@ export class AddEditExpensePage implements OnInit {
 
                   if (this.activatedRoute.snapshot.params.rp_id) {
                     return of(
-                      this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null)
+                      this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId)
                     );
                   } else {
-                    this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null).then(noop);
+                    this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId).then(noop);
 
                     return of(null);
                   }
