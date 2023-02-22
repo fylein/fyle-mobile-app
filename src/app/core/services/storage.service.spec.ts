@@ -29,6 +29,7 @@ describe('StorageService', () => {
         key,
         value: JSON.stringify(value),
       });
+      // Since there is no expect block, adding pending() to avoid the warning while running tests
       pending();
     });
   });
