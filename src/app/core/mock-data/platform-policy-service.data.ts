@@ -129,3 +129,24 @@ export const emptyApiResponse: PlatformApiResponse<ExpensePolicyStates> = {
   data: [],
   offset: 0,
 };
+
+export const ApproverExpensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = {
+  count: 1,
+  data: [
+    {
+      expense_id: 'txRNWeQRXhso',
+      final_desired_state: {
+        add_approver_user_ids: [],
+        amount: null,
+        expense_id: 'txRNWeQRXhso',
+        flag: false,
+        is_receipt_mandatory: false,
+        remove_employee_approver1: false,
+        run_status: 'SUCCESS',
+        run_summary: [],
+      },
+      individual_desired_states: [],
+    },
+  ],
+  offset: 0,
+};

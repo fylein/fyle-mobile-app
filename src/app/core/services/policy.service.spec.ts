@@ -2,13 +2,15 @@ import { TestBed } from '@angular/core/testing';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { PolicyService } from './policy.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { publicPolicyExpenseData, expensePolicyData } from '../mock-data/policy-service.data';
+import { publicPolicyExpenseData, expensePolicyData, policyViolationData } from '../mock-data/policy-service.data';
 import {
+  ApproverExpensePolicyStatesData,
   platformPolicyServiceData,
   expensePolicyStatesData,
   emptyApiResponse,
 } from '../mock-data/platform-policy-service.data';
 import { of } from 'rxjs';
+import { PolicyViolation } from '../models/policy-violation.model';
 
 describe('PolicyService', () => {
   let policyService: PolicyService;
@@ -27,7 +29,7 @@ describe('PolicyService', () => {
         },
         {
           provide: ApproverPlatformApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          useValue: approverPlatformApiServiceSpy,
         },
       ],
     });
@@ -123,5 +125,43 @@ describe('PolicyService', () => {
         done();
       });
     });
+  });
+
+  describe('getApproverExpensePolicyViolations()', () => {
+    it('should get approver expense policy violations', (done) => {
+      const params = {
+        expense_id: 'eq.txRNWeQRXhso',
+      };
+      approverPlatformApiService.get.and.returnValue(of(ApproverExpensePolicyStatesData));
+      policyService.getApproverExpensePolicyViolations('txRNWeQRXhso').subscribe((res) => {
+        expect(res).toEqual(ApproverExpensePolicyStatesData.data[0].individual_desired_states);
+        expect(approverPlatformApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', {
+          params,
+        });
+        done();
+      });
+    });
+
+    it('should return an empty array when there are no policy states', (done) => {
+      const expenseId = 'noPolicyStates';
+      const params = {
+        expense_id: `eq.${expenseId}`,
+      };
+      approverPlatformApiService.get.and.returnValue(of(emptyApiResponse));
+      policyService.getApproverExpensePolicyViolations(expenseId).subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(approverPlatformApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', { params });
+        done();
+      });
+    });
+  });
+
+  it('checkIfViolationsExist(): should check for policy violations', () => {
+    const violations: { [id: string]: PolicyViolation } = {
+      txVTmNOp5JEa: policyViolationData,
+    };
+    spyOn(policyService, 'getPolicyRules').and.returnValue([]);
+    expect(policyService.checkIfViolationsExist(violations)).toBe(false);
+    expect(policyService.getPolicyRules).toHaveBeenCalledOnceWith(policyViolationData);
   });
 });
