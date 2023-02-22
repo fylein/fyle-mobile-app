@@ -22,6 +22,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 type Image = Partial<{
   source: string;
@@ -50,8 +51,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   lastCapturedReceipt: string;
 
-  isInstafyleEnabled$: Observable<boolean>;
-
   isOffline$: Observable<boolean>;
 
   isBulkModePromptShown = false;
@@ -73,6 +72,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private orgUserSettingsService: OrgUserSettingsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
+    private authService: AuthService,
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
@@ -90,14 +90,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
     this.noOfReceipts = 0;
-    this.isInstafyleEnabled$ = this.orgUserSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgUserSettings) =>
-            orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
-        )
-      );
   }
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
@@ -112,17 +104,16 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     return forkJoin({
       isOffline: this.isOffline$.pipe(take(1)),
-      homeCurrency: this.currencyService.getHomeCurrency(),
-      isInstafyleEnabled: this.isInstafyleEnabled$,
+      eou: this.authService.getEou(),
     }).pipe(
-      switchMap(({ homeCurrency, isOffline, isInstafyleEnabled }) => {
+      switchMap(({ eou, isOffline }) => {
         if (isOffline) {
           source += '_OFFLINE';
         }
         const transaction = {
           source,
           txn_dt: new Date(),
-          currency: homeCurrency,
+          currency: eou.org.currency,
         };
 
         const attachmentUrls = [
@@ -132,7 +123,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             url: base64ImagesWithSource.base64Image,
           },
         ];
-        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, isInstafyleEnabled);
+        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, true);
       })
     );
   }
@@ -183,7 +174,16 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   navigateToExpenseForm() {
-    this.isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
+    const isInstafyleEnabled$ = this.orgUserSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgUserSettings) =>
+            orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
+        )
+      );
+
+    isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
       this.router.navigate([
         '/',
         'enterprise',
@@ -227,8 +227,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     const saveReceipt$ = receiptPreviewDetails$.pipe(
       filter((receiptPreviewDetails) => !!receiptPreviewDetails.base64ImagesWithSource.length),
-      map(() => {
-        this.addPerformanceTrackers();
+      switchMap(() => this.isOffline$.pipe(take(1))),
+      map((isOffline) => {
+        if (!isOffline) {
+          this.addPerformanceTrackers();
+        }
         this.loaderService.showLoader();
         return this.isModal;
       }),
