@@ -25,7 +25,7 @@ export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = {
       areq_approved_at: null,
       areq_approvers_ids: ['oul4Zj5uQge0'],
       areq_created_at: new Date('2022-05-27T08:33:32.879009'),
-      areq_currency: 'GNF',
+      areq_currency: 'USD',
       areq_custom_field_values:
         '[{"id":110,"name":"Test text","value":null,"type":null},{"id":111,"name":"Test Number","value":123,"type":null},{"id":112,"name":"Test Select","value":null,"type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":null,"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":false,"type":null}]',
       areq_id: 'areqdQ9jnokUva',
@@ -89,7 +89,7 @@ export const extendedAdvReqDraft: ExtendedAdvanceRequest = {
   areq_approved_at: null,
   areq_approvers_ids: null,
   areq_created_at: new Date('2023-01-16T06:22:47.058Z'),
-  areq_currency: 'GNF',
+  areq_currency: 'USD',
   areq_custom_field_values:
     '[{"id":111,"name":"Test Number","value":43,"type":null},{"id":112,"name":"Test Select","value":"ch09","type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":["ch89","ch763"],"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":true,"type":null},{"id":150,"name":"checking","value":true,"type":null},{"id":151,"name":"123","value":"34","type":null},{"id":152,"name":"Okay?","value":true,"type":null}]',
   areq_id: 'areqoVuT5I8OOy',
