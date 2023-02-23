@@ -11,10 +11,10 @@ describe('DeepLinkService', () => {
   let router: jasmine.SpyObj<Router>;
   let location: jasmine.SpyObj<Location>;
 
-  const baseURL = 'http://localhost:8100/enterprise/my_dashboard';
+  const baseURL = 'https://app.fylehq.com/app';
 
   const mockURL =
-    'http://localhost:8100/enterprise/my_dashboard/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p';
+    'https://app.fylehq.com/app/accounts/#/switch_org?fyle_redirect_url=aHR0cHM6Ly9hcHAuZnlsZWhxLmNvbS9hcHAvbWFpbi8jL215X2V4cGVuc2VzLz9zdGF0ZT1kcmFmdCZvcmdfaWQ9b3JLYWVPNXhvak9E&org_id=orKaeO5xojOD';
 
   const routes: Routes = {
     ...appRoutes,
@@ -50,8 +50,9 @@ describe('DeepLinkService', () => {
 
   it('should get json from URL', () => {
     const expectedJson = {
-      redirect_uri: 'https://staging.fylehq.ninja/app/main/#/enterprise/reports/rpsv8oKuAfGe',
-      org_id: 'orrjqbDbeP9p',
+      fyle_redirect_url:
+        'aHR0cHM6Ly9hcHAuZnlsZWhxLmNvbS9hcHAvbWFpbi8jL215X2V4cGVuc2VzLz9zdGF0ZT1kcmFmdCZvcmdfaWQ9b3JLYWVPNXhvak9E',
+      org_id: 'orKaeO5xojOD',
     };
 
     const result = deepLinkService.getJsonFromUrl(mockURL);
