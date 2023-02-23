@@ -17,14 +17,63 @@ xdescribe('AdvanceRequestService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let advanceRequestPolicyService: jasmine.SpyObj<AdvanceRequestPolicyService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
-  let dateService: jasmine.SpyObj<DateService>;
+  let dateService: DateService;
   let fileService: jasmine.SpyObj<FileService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
+    const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const advanceRequestPolicyServiceSpy = jasmine.createSpyObj('AdvanceRequestPolicyService', ['servicePost']);
+    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', 'convertToUtc');
+
+    TestBed.configureTestingModule({
+      providers: [
+        AdvanceRequestService,
+        DateService,
+        {
+          provide: ApiService,
+          useValue: apiServiceSpy,
+        },
+        {
+          provide: ApiV2Service,
+          useValue: apiv2ServiceSpy,
+        },
+        {
+          provide: AuthService,
+          useValue: authServiceSpy,
+        },
+        {
+          provide: AdvanceRequestPolicyService,
+          useValue: advanceRequestPolicyServiceSpy,
+        },
+        {
+          provide: DataTransformService,
+          useValue: dataTransformServiceSpy,
+        },
+        {
+          provide: FileService,
+          useValue: fileServiceSpy,
+        },
+        {
+          provide: OrgUserSettingsService,
+          useValue: orgUserSettingsServiceSpy,
+        },
+        {
+          provide: TimezoneService,
+          useValue: timezoneServiceSpy,
+        },
+      ],
+    });
     advanceRequestService = TestBed.inject(AdvanceRequestService);
+    dateService = TestBed.inject(DateService);
+    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    apiv2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
   });
 
   it('should be created', () => {
