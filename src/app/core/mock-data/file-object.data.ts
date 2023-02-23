@@ -49,3 +49,11 @@ export const fileObjectData2: FileObject = {
   email_meta_data: null,
   fyle_sub_url: '/api/files/fi6PQ6z4w6ET/download',
 };
+
+export const thumbnailUrlMockData: FileObject[] = [
+  {
+    id: 'fiwJ0nQTBpYH',
+    purpose: 'THUMBNAILx200x200',
+    url: 'mock-url-1',
+  },
+];
