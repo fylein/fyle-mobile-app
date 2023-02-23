@@ -2,7 +2,7 @@ import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { PolicyViolation } from '../models/policy-violation.model';
 
-export const publicPolicyExpenseData: PublicPolicyExpense = {
+export const publicPolicyExpenseData1: PublicPolicyExpense = {
   skip_reimbursement: false,
   source: 'MOBILE',
   state: 'COMPLETE',
@@ -18,7 +18,7 @@ export const publicPolicyExpenseData: PublicPolicyExpense = {
   mileage_rate: 33,
   distance_unit: 'MILES',
   mileage_is_round_trip: false,
-  fyle_category: 'Mileage',
+  fyle_category: 'flight',
   org_user_id: 'ouH8VvkHBg9H',
   locations: [
     {
@@ -76,7 +76,7 @@ export const publicPolicyExpenseData: PublicPolicyExpense = {
   activity_policy_pending: false,
   admin_amount: 0,
   billable: false,
-  bus_travel_class: '',
+  bus_travel_class: 'luxury',
   created_at: undefined,
   creator_id: '',
   exchange_rate: 0,
@@ -111,15 +111,35 @@ export const publicPolicyExpenseData: PublicPolicyExpense = {
   status_id: '',
   tax: '',
   tax_amount: 0,
-  tax_group_id: '',
+  tax_group_id: 'txid1',
   taxi_travel_class: '',
   to_dt: undefined,
-  train_travel_class: '',
+  train_travel_class: 'first-class',
   updated_at: undefined,
   user_amount: 0,
   user_reason_for_duplicate_expenses: '',
-  vendor: '',
+  vendor: 'Uber',
   vendor_id: 0,
+};
+
+export const publicPolicyExpenseData2: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  fyle_category: 'airlines',
+};
+
+export const publicPolicyExpenseData3: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  fyle_category: 'bus',
+};
+
+export const publicPolicyExpenseData4: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  fyle_category: 'train',
+};
+
+export const publicPolicyExpenseData5: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  skip_reimbursement: null,
 };
 
 export const expensePolicyData: ExpensePolicy = {
@@ -207,4 +227,8 @@ export const policyViolationData: PolicyViolation = {
   currency: 'INR',
   name: 'Policy Violation 1',
   type: 'Expense Policy',
+};
+
+export const violations: { [id: string]: PolicyViolation } = {
+  txVTmNOp5JEa: policyViolationData,
 };

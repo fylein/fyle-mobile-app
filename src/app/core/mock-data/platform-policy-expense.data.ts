@@ -129,7 +129,7 @@ export const platformPolicyExpenseData1: PlatformPolicyExpense = {
 };
 
 export const platformPolicyExpenseData2: PlatformPolicyExpense = {
-  merchant: '',
+  merchant: 'Uber',
   spent_at: new Date('2023-02-21T06:30:00.000Z'),
   foreign_currency: null,
   foreign_amount: null,
@@ -190,9 +190,9 @@ export const platformPolicyExpenseData2: PlatformPolicyExpense = {
   mileage_rate_id: 24329,
   mileage_calculated_distance: 619.81,
   mileage_calculated_amount: 20453.73,
-  travel_classes: [],
+  travel_classes: ['economy', 'business'],
   tax_amount: 0,
-  tax_group_id: '',
+  tax_group_id: 'txid1',
   is_billable: false,
   started_at: undefined,
   ended_at: undefined,
@@ -200,6 +200,21 @@ export const platformPolicyExpenseData2: PlatformPolicyExpense = {
   per_diem_num_days: 0,
   num_files: 0,
   is_matching_ccc: false,
+};
+
+export const platformPolicyExpenseData3: PlatformPolicyExpense = {
+  ...platformPolicyExpenseData2,
+  travel_classes: ['luxury'],
+};
+
+export const platformPolicyExpenseData4: PlatformPolicyExpense = {
+  ...platformPolicyExpenseData2,
+  travel_classes: ['first-class'],
+};
+
+export const platformPolicyExpenseData5: PlatformPolicyExpense = {
+  ...platformPolicyExpenseData2,
+  is_reimbursable: null,
 };
 
 export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = {
