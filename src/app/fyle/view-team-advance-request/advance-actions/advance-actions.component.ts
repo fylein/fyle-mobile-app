@@ -15,7 +15,7 @@ export class AdvanceActionsComponent implements OnInit {
 
   ngOnInit() {}
 
-  openAnotherPopover(command) {
+  openAnotherPopover(command: string) {
     this.popoverController.dismiss({
       command,
     });

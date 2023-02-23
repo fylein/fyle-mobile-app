@@ -26,11 +26,7 @@ import {
 import { apiAdvanceRequestAction } from '../mock-data/advance-request-actions.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { apiAdvanceReqRes } from '../mock-data/stats-dimension-response.data';
-import {
-  advancedRequests,
-  createAndSaveFileAdvReq,
-  pullBackAdvancedRequests,
-} from '../mock-data/advance-requests.data';
+import { advancedRequests, pullBackAdvancedRequests } from '../mock-data/advance-requests.data';
 import { advanceReqApprovals } from '../mock-data/approval.data';
 import { fileObjectData3 } from '../mock-data/file-object.data';
 import { fileData1 } from '../mock-data/file.data';
