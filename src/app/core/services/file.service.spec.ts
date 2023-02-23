@@ -275,4 +275,33 @@ describe('FileService', () => {
       done();
     });
   });
+
+  describe('getReceiptDetails():', () => {
+    it('should return the receipt details', () => {
+      spyOn(fileService, 'getReceiptExtension').and.returnValue('jpeg');
+      expect(fileService.getReceiptDetails(fileObjectAdv[0].url)).toEqual(fileObjectAdv[0].type);
+      expect(fileService.getReceiptExtension).toHaveBeenCalledOnceWith(fileObjectAdv[0].url);
+    });
+
+    it('should return the pdf receipt details', () => {
+      spyOn(fileService, 'getReceiptExtension').and.returnValue('pdf');
+      expect(fileService.getReceiptDetails(fileObjectAdv1.url)).toEqual(fileObjectAdv1.type);
+      expect(fileService.getReceiptExtension).toHaveBeenCalledOnceWith(fileObjectAdv1.url);
+    });
+  });
+
+  it('getDataUrlFromBlob(): should convert a Blob to a data URL', async () => {
+    const blob = new Blob(['Never Lose Track'], { type: 'text/plain' });
+    const result = await fileService.getDataUrlFromBlob(blob);
+    expect(result).toContain('data:text/plain;base64,TmV2ZXIgTG9zZSBUcmFjaw==');
+  });
+
+  it('getBlobFromDataUrl():', async () => {
+    const base64 = 'data:image/heic;base64,R0lGODdhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+    const arrayBuffer = Uint8Array.from(atob(base64.split(',')[1]), (c) => c.charCodeAt(0)).buffer;
+    const blob = new Blob([arrayBuffer], { type: 'image/heic' });
+
+    const result = fileService.getBlobFromDataUrl(base64);
+    expect(result).toEqual(blob);
+  });
 });
