@@ -78,7 +78,7 @@ describe('DeepLinkService', () => {
     it('should navigate to the verify page when the redirect URI contains "/verify"', () => {
       deepLinkService.redirect({
         redirect_uri: `${baseURL}/verify/`,
-        verification_code: '12345',
+        verification_code: 'ouX8dwsbLCLv',
         org_id: 'orYtMVz2qisQ',
       });
 
@@ -87,7 +87,7 @@ describe('DeepLinkService', () => {
         'auth',
         'verify',
         {
-          verification_code: '12345',
+          verification_code: 'ouX8dwsbLCLv',
           org_id: 'orYtMVz2qisQ',
         },
       ]);
