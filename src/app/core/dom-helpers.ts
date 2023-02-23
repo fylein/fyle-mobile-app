@@ -45,3 +45,5 @@ export const getAllElementsBySelector = <T>(fixture: ComponentFixture<T>, select
  */
 export const getElementAttributeValue = (element: Element, attributeName: string): string =>
   element.getAttribute(attributeName);
+
+export const click = (element: HTMLElement): void => element.click();
