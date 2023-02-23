@@ -10,7 +10,7 @@ import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
 
-xdescribe('AdvanceRequestService', () => {
+describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiv2Service: jasmine.SpyObj<ApiV2Service>;
@@ -30,7 +30,7 @@ xdescribe('AdvanceRequestService', () => {
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
-    const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', 'convertToUtc');
+    const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -74,6 +74,14 @@ xdescribe('AdvanceRequestService', () => {
     dateService = TestBed.inject(DateService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiv2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    advanceRequestPolicyService = TestBed.inject(
+      AdvanceRequestPolicyService
+    ) as jasmine.SpyObj<AdvanceRequestPolicyService>;
+    dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
+    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
+    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
   });
 
   it('should be created', () => {
