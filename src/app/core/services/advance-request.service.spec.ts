@@ -9,6 +9,19 @@ import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
+import { of } from 'rxjs';
+import {
+  singleExtendedAdvReqRes,
+  extendedAdvReqDraft,
+  extendedAdvReqInquiry,
+  extendedAdvReqApproved,
+  extendedAdvReqPaid,
+  extendedAdvReqRejected,
+  extendedAdvReqSubmitted,
+  extendedAdvReqPulledBack,
+  extendedAdvReqSentBack,
+} from '../mock-data/extended-advance-request.data';
+import { apiAdvanceRequestAction } from '../mock-data/advance-request-actions.data';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -86,5 +99,112 @@ describe('AdvanceRequestService', () => {
 
   it('should be created', () => {
     expect(advanceRequestService).toBeTruthy();
+  });
+
+  it('getAdvanceRequest(): should get an advance request from ID', (done) => {
+    const advReqID = 'areqdQ9jnokUva';
+    apiv2Service.get.and.returnValue(of(singleExtendedAdvReqRes));
+    // @ts-ignore
+    spyOn(advanceRequestService, 'fixDates').and.returnValue(singleExtendedAdvReqRes.data[0]);
+
+    advanceRequestService.getAdvanceRequest(advReqID).subscribe((res) => {
+      expect(res).toEqual(singleExtendedAdvReqRes.data[0]);
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: {
+          areq_id: `eq.${advReqID}`,
+        },
+      });
+      // @ts-ignore
+      expect(advanceRequestService.fixDates).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data[0]);
+      done();
+    });
+  });
+
+  it('getActions(): should get advance request actions from ID', (done) => {
+    const advReqID = 'areqoVuT5I8OOy';
+    apiService.get.and.returnValue(of(apiAdvanceRequestAction));
+
+    advanceRequestService.getActions(advReqID).subscribe((res) => {
+      expect(res).toEqual(apiAdvanceRequestAction);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/advance_requests/${advReqID}/actions`);
+      done();
+    });
+  });
+
+  describe('getInternalStateAndDisplayName():', () => {
+    it('should get state and display name of an advance request | DRAFT state', () => {
+      //@ts-ignore
+      spyOn(advanceRequestService, 'getStateIfDraft').and.returnValue({
+        state: 'draft',
+        name: 'Draft',
+      });
+      expect(advanceRequestService.getInternalStateAndDisplayName(extendedAdvReqDraft)).toEqual({
+        state: 'draft',
+        name: 'Draft',
+      });
+      //@ts-ignore
+      expect(advanceRequestService.getStateIfDraft).toHaveBeenCalledOnceWith(extendedAdvReqDraft);
+    });
+
+    it('should get state and display name of an advance request | INQUIRY state', () => {
+      expect(advanceRequestService.getInternalStateAndDisplayName(extendedAdvReqInquiry)).toEqual({
+        state: 'inquiry',
+        name: 'Sent Back',
+      });
+    });
+
+    it('should get state and display name of an advance request | APPROVED state', () => {
+      expect(advanceRequestService.getInternalStateAndDisplayName(extendedAdvReqApproved)).toEqual({
+        state: 'approved',
+        name: 'Approved',
+      });
+    });
+
+    it('should get state and display name of an advance request | SUBMITTED state', () => {
+      expect(advanceRequestService.getInternalStateAndDisplayName(extendedAdvReqSubmitted)).toEqual({
+        state: 'pendingApproval',
+        name: 'Pending',
+      });
+    });
+
+    it('should get state and display name of an advance request | PAID state', () => {
+      expect(advanceRequestService.getInternalStateAndDisplayName(extendedAdvReqPaid)).toEqual({
+        state: 'paid',
+        name: 'Paid',
+      });
+    });
+
+    it('should get state and display name of an advance request | REJECTED state', () => {
+      expect(advanceRequestService.getInternalStateAndDisplayName(extendedAdvReqRejected)).toEqual({
+        state: 'rejected',
+        name: 'Rejected',
+      });
+    });
+  });
+
+  describe('getStateIfDraft():', () => {
+    it('get state if request is draft', () => {
+      //@ts-ignore
+      expect(advanceRequestService.getStateIfDraft(extendedAdvReqDraft)).toEqual({
+        state: 'draft',
+        name: 'Draft',
+      });
+    });
+
+    it('get state if request is draft', () => {
+      //@ts-ignore
+      expect(advanceRequestService.getStateIfDraft(extendedAdvReqPulledBack)).toEqual({
+        state: 'pulledBack',
+        name: 'Pulled Back',
+      });
+    });
+
+    it('get state if request is draft', () => {
+      //@ts-ignore
+      expect(advanceRequestService.getStateIfDraft(extendedAdvReqSentBack)).toEqual({
+        state: 'inquiry',
+        name: 'Sent Back',
+      });
+    });
   });
 });
