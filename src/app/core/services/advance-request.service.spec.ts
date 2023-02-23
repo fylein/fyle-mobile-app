@@ -20,8 +20,21 @@ import {
   extendedAdvReqSubmitted,
   extendedAdvReqPulledBack,
   extendedAdvReqSentBack,
+  extendedAdvReqWithoutDates,
+  extendedAdvReqWithDates,
 } from '../mock-data/extended-advance-request.data';
 import { apiAdvanceRequestAction } from '../mock-data/advance-request-actions.data';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
+import { apiAdvanceReqRes } from '../mock-data/stats-dimension-response.data';
+import {
+  advancedRequests,
+  createAndSaveFileAdvReq,
+  pullBackAdvancedRequests,
+} from '../mock-data/advance-requests.data';
+import { advanceReqApprovals } from '../mock-data/approval.data';
+import { fileObjectData3 } from '../mock-data/file-object.data';
+import { fileData1 } from '../mock-data/file.data';
+import { advRequestFile } from '../mock-data/advance-request-file.data';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -99,6 +112,13 @@ describe('AdvanceRequestService', () => {
 
   it('should be created', () => {
     expect(advanceRequestService).toBeTruthy();
+  });
+
+  it('destroyAdvanceRequestsCacheBuster(): should reset advance request cache', (done) => {
+    advanceRequestService.destroyAdvanceRequestsCacheBuster().subscribe((res) => {
+      expect(res).toBeNull();
+      done();
+    });
   });
 
   it('getAdvanceRequest(): should get an advance request from ID', (done) => {
@@ -205,6 +225,129 @@ describe('AdvanceRequestService', () => {
         state: 'inquiry',
         name: 'Sent Back',
       });
+    });
+  });
+
+  it('getMyAdvanceRequestStats(): should get advance request stats by params provided', (done) => {
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    //@ts-ignore
+    spyOn(advanceRequestService, 'getAdvanceRequestStats').and.returnValue(of(apiAdvanceReqRes));
+    const params = {
+      aggregates: 'count(areq_id),sum(areq_amount)',
+      areq_state: 'in.(DRAFT)',
+      areq_is_sent_back: 'is.true',
+      scalar: true,
+    };
+
+    advanceRequestService.getMyAdvanceRequestStats(params).subscribe((res) => {
+      expect(res).toEqual(apiAdvanceReqRes.data);
+      //@ts-ignore
+      expect(advanceRequestService.getAdvanceRequestStats).toHaveBeenCalledOnceWith(apiEouRes, params);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getAdvanceRequestStats(): should get advance request stats', (done) => {
+    apiv2Service.get.and.returnValue(of(apiAdvanceReqRes));
+
+    const params = {
+      aggregates: 'count(areq_id),sum(areq_amount)',
+      areq_state: 'in.(DRAFT)',
+      areq_is_sent_back: 'is.true',
+      scalar: true,
+    };
+
+    //@ts-ignore
+    advanceRequestService.getAdvanceRequestStats(apiEouRes, params).subscribe((res) => {
+      expect(res).toEqual(apiAdvanceReqRes);
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests/stats', {
+        params: {
+          areq_org_user_id: 'eq.' + apiEouRes.ou.id,
+          ...params,
+        },
+      });
+      done();
+    });
+  });
+
+  it('submit(): should submit an advance request', (done) => {
+    apiService.post.and.returnValue(of(advancedRequests));
+
+    advanceRequestService.submit(advancedRequests).subscribe((res) => {
+      expect(res).toEqual(advancedRequests);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', advancedRequests);
+      done();
+    });
+  });
+
+  it('pullBackadvanceRequest(): should pull back an advance requests', (done) => {
+    apiService.post.and.returnValue(of(pullBackAdvancedRequests));
+
+    const payloadParam = {
+      status: {
+        comment: 'sdf',
+      },
+      notify: false,
+    };
+
+    const advanceID = 'areqMP09oaYXBf';
+
+    advanceRequestService.pullBackadvanceRequest(advanceID, payloadParam).subscribe((res) => {
+      expect(res).toEqual(pullBackAdvancedRequests);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advanceID}/pull_back`, payloadParam);
+      done();
+    });
+  });
+
+  it('delete(): should delete an advance request', (done) => {
+    apiService.delete.and.returnValue(of(advancedRequests));
+
+    advanceRequestService.delete(advancedRequests.id).subscribe((res) => {
+      expect(res).toEqual(advancedRequests);
+      expect(apiService.delete).toHaveBeenCalledOnceWith(`/advance_requests/${advancedRequests.id}`);
+      done();
+    });
+  });
+
+  it('fixDates(): should convert string values to dates', () => {
+    //@ts-ignore
+    expect(advanceRequestService.fixDates(extendedAdvReqWithoutDates)).toEqual(extendedAdvReqWithDates);
+  });
+
+  it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
+    const advID = 'areqa4CojbCAqd';
+    //@ts-ignore
+    spyOn(advanceRequestService, 'getApproversByAdvanceRequestId').and.returnValue(of(advanceReqApprovals));
+
+    advanceRequestService.getActiveApproversByAdvanceRequestId(advID).subscribe((res) => {
+      expect(res).toEqual(advanceReqApprovals);
+      //@ts-ignore
+      expect(advanceRequestService.getApproversByAdvanceRequestId).toHaveBeenCalledOnceWith(advID);
+      done();
+    });
+  });
+
+  it('getApproversByAdvanceRequestId(): should get approvers for an advance request', (done) => {
+    apiService.get.and.returnValue(of(advanceReqApprovals));
+    const advID = 'areqa4CojbCAqd';
+
+    //@ts-ignore
+    advanceRequestService.getActiveApproversByAdvanceRequestId(advID).subscribe((res) => {
+      expect(res).toEqual(advanceReqApprovals);
+      expect(apiService.get).toHaveBeenCalledOnceWith(`/eadvance_requests/${advID}/approvals`);
+      done();
+    });
+  });
+
+  it('createAdvReqWithFilesAndSubmit(): should create advanced request and submit it', (done) => {
+    fileService.post.and.returnValue(of(fileObjectData3));
+    spyOn(advanceRequestService, 'submit').and.returnValue(of(advancedRequests));
+
+    advanceRequestService.createAdvReqWithFilesAndSubmit(advancedRequests, of(fileData1)).subscribe((res) => {
+      expect(res).toEqual(advRequestFile);
+      expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advancedRequests);
+      done();
     });
   });
 });

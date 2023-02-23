@@ -21,6 +21,9 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { StatsDimensionResponse } from '../models/stats-dimension-response.model';
+import { StatsResponse } from '../models/v2/stats-response.model';
+import { AdvanceRequests } from '../models/advance-requests.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -121,7 +124,15 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  pullBackadvanceRequest(advanceRequestId: string, addStatusPayload) {
+  pullBackadvanceRequest(
+    advanceRequestId: string,
+    addStatusPayload: {
+      status: {
+        comment: string;
+      };
+      notify: boolean;
+    }
+  ) {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
   }
 
@@ -141,7 +152,7 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  submit(advanceRequest) {
+  submit(advanceRequest: AdvanceRequests): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/submit', advanceRequest);
   }
 
@@ -238,7 +249,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getEReq(advanceRequestId) {
+  getEReq(advanceRequestId: string) {
     return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
       map((res) => {
         const eAdvanceRequest = this.dataTransformService.unflatten(res);
@@ -343,7 +354,7 @@ export class AdvanceRequestService {
     return internalRepresentation;
   }
 
-  createAdvReqWithFilesAndSubmit(advanceRequest, fileObservables?: Observable<any[]>) {
+  createAdvReqWithFilesAndSubmit(advanceRequest: AdvanceRequests, fileObservables?: Observable<File[]>) {
     return forkJoin({
       files: fileObservables,
       advanceReq: this.submit(advanceRequest),
