@@ -2,11 +2,24 @@ import { TestBed } from '@angular/core/testing';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { PolicyService } from './policy.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { publicPolicyExpenseData, expensePolicyData } from '../mock-data/policy-service.data';
 import {
+  publicPolicyExpenseData1,
+  expensePolicyData,
+  policyViolationData,
+  violations,
+  publicPolicyExpenseData2,
+  publicPolicyExpenseData3,
+  publicPolicyExpenseData4,
+  publicPolicyExpenseData5,
+} from '../mock-data/public-policy-expense.data';
+import {
+  ApproverExpensePolicyStatesData,
   platformPolicyExpenseData2,
   expensePolicyStatesData,
   emptyApiResponse,
+  platformPolicyExpenseData3,
+  platformPolicyExpenseData4,
+  platformPolicyExpenseData5,
 } from '../mock-data/platform-policy-expense.data';
 import { of } from 'rxjs';
 
@@ -44,9 +57,31 @@ describe('PolicyService', () => {
     expect(policyService).toBeTruthy();
   });
 
-  it('transformTo() : should transform a PublicPolicyExpense to a PlatformPolicyExpense', () => {
-    const result = policyService.transformTo(publicPolicyExpenseData);
-    expect(result).toEqual(platformPolicyExpenseData2);
+  describe('transformTo():', () => {
+    it('should transform a PublicPolicyExpense to a PlatformPolicyExpense', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData1);
+      expect(result).toEqual(platformPolicyExpenseData2);
+    });
+
+    it('should check for the category to be airlines', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData2);
+      expect(result).toEqual(platformPolicyExpenseData2);
+    });
+
+    it('should check for the category to be bus', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData3);
+      expect(result).toEqual(platformPolicyExpenseData3);
+    });
+
+    it(' should check for the category to be train', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData4);
+      expect(result).toEqual(platformPolicyExpenseData4);
+    });
+
+    it('should return null if reimbersment status is null', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData5);
+      expect(result).toEqual(platformPolicyExpenseData5);
+    });
   });
 
   it('getApprovalString(): should return string with emails in bold when given array of emails', () => {
@@ -123,5 +158,40 @@ describe('PolicyService', () => {
         done();
       });
     });
+  });
+
+  describe('getApproverExpensePolicyViolations():', () => {
+    it('should get approver expense policy violations', (done) => {
+      const params = {
+        expense_id: 'eq.txRNWeQRXhso',
+      };
+      approverPlatformApiService.get.and.returnValue(of(ApproverExpensePolicyStatesData));
+      policyService.getApproverExpensePolicyViolations('txRNWeQRXhso').subscribe((res) => {
+        expect(res).toEqual(ApproverExpensePolicyStatesData.data[0].individual_desired_states);
+        expect(approverPlatformApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', {
+          params,
+        });
+        done();
+      });
+    });
+
+    it('should return an empty array when there are no policy states', (done) => {
+      const expenseId = 'noPolicyStates';
+      const params = {
+        expense_id: `eq.${expenseId}`,
+      };
+      approverPlatformApiService.get.and.returnValue(of(emptyApiResponse));
+      policyService.getApproverExpensePolicyViolations(expenseId).subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(approverPlatformApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', { params });
+        done();
+      });
+    });
+  });
+
+  it('checkIfViolationsExist(): should check for policy violations', () => {
+    spyOn(policyService, 'getPolicyRules').and.returnValue([]);
+    expect(policyService.checkIfViolationsExist(violations)).toBe(false);
+    expect(policyService.getPolicyRules).toHaveBeenCalledOnceWith(policyViolationData);
   });
 });

@@ -1,7 +1,8 @@
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
+import { PolicyViolation } from '../models/policy-violation.model';
 
-export const publicPolicyExpenseData: PublicPolicyExpense = {
+export const publicPolicyExpenseData1: PublicPolicyExpense = {
   skip_reimbursement: false,
   source: 'MOBILE',
   state: 'COMPLETE',
@@ -17,7 +18,7 @@ export const publicPolicyExpenseData: PublicPolicyExpense = {
   mileage_rate: 33,
   distance_unit: 'MILES',
   mileage_is_round_trip: false,
-  fyle_category: 'Mileage',
+  fyle_category: 'flight',
   org_user_id: 'ouH8VvkHBg9H',
   locations: [
     {
@@ -75,7 +76,7 @@ export const publicPolicyExpenseData: PublicPolicyExpense = {
   activity_policy_pending: false,
   admin_amount: 0,
   billable: false,
-  bus_travel_class: '',
+  bus_travel_class: 'luxury',
   created_at: undefined,
   creator_id: '',
   exchange_rate: 0,
@@ -110,15 +111,35 @@ export const publicPolicyExpenseData: PublicPolicyExpense = {
   status_id: '',
   tax: '',
   tax_amount: 0,
-  tax_group_id: '',
+  tax_group_id: 'txid1',
   taxi_travel_class: '',
   to_dt: undefined,
-  train_travel_class: '',
+  train_travel_class: 'first-class',
   updated_at: undefined,
   user_amount: 0,
   user_reason_for_duplicate_expenses: '',
-  vendor: '',
+  vendor: 'Uber',
   vendor_id: 0,
+};
+
+export const publicPolicyExpenseData2: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  fyle_category: 'airlines',
+};
+
+export const publicPolicyExpenseData3: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  fyle_category: 'bus',
+};
+
+export const publicPolicyExpenseData4: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  fyle_category: 'train',
+};
+
+export const publicPolicyExpenseData5: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  skip_reimbursement: null,
 };
 
 export const expensePolicyData: ExpensePolicy = {
@@ -160,4 +181,54 @@ export const expensePolicyData: ExpensePolicy = {
       },
     ],
   },
+};
+
+export const policyViolationData: PolicyViolation = {
+  data: {
+    individual_desired_states: [
+      {
+        expense_id: 'txGNXsC1bmIo',
+        add_approver_user_ids: [],
+        amount: 0.00005,
+        expense_policy_rule: {
+          action_show_warning: true,
+          description:
+            'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+          id: 'tprlDUfXa0idO',
+        },
+        expense_policy_rule_id: 'tprlDUfXa0idO',
+        expenses_query_object_params: {
+          limit_end_date: '2023-03-01',
+          limit_start_date: '2023-02-01',
+          params: {
+            category_id: 'in.(1630)',
+            employee_id: 'eq.ouWmQvnfr9x0',
+            cost_center_id: 'CostCentId1',
+            currency: 'INR',
+            mileage_rate_id: 'MilRatId1',
+            project_id: 'ProId1',
+          },
+        },
+        run_result: ['expense will be flagged for verification and approval'],
+        run_status: 'VIOLATED_ACTION_SUCCESS',
+      },
+    ],
+    final_desired_state: {
+      add_approver_user_ids: [],
+      amount: null,
+      flag: true,
+      is_receipt_mandatory: false,
+      remove_employee_approver1: false,
+      run_status: 'SUCCESS',
+      run_summary: ['expense will be flagged for verification and approval'],
+    },
+  },
+  amount: 100,
+  currency: 'INR',
+  name: 'Policy Violation 1',
+  type: 'Expense Policy',
+};
+
+export const violations: { [id: string]: PolicyViolation } = {
+  txVTmNOp5JEa: policyViolationData,
 };
