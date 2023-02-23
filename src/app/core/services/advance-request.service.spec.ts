@@ -343,6 +343,7 @@ describe('AdvanceRequestService', () => {
     advanceRequestService.createAdvReqWithFilesAndSubmit(advancedRequests, of(fileData1)).subscribe((res) => {
       expect(res).toEqual(advRequestFile);
       expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advancedRequests);
+      expect(fileService.post).toHaveBeenCalledOnceWith(fileData1[0]);
       done();
     });
   });
