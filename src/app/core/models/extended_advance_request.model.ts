@@ -1,7 +1,14 @@
 import { Approval } from './approval.model';
 
 export interface ExtendedAdvanceRequest {
-  advance_request_approvals: { [id: string]: Approval };
+  _search_document?: string;
+  advance_request_approvals:
+    | { [id: string]: Approval }
+    | {
+        [id: string]: {
+          state: string;
+        };
+      };
   areq_advance_id: string;
   areq_advance_request_number: string;
   areq_amount: number;
