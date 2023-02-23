@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./error.component.scss'],
 })
 export class ErrorComponent implements OnInit {
-  @Input() header = 'Account dosent Exist';
+  @Input() header = 'Account does not Exist';
 
   @Input() error;
 

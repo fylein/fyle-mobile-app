@@ -2,7 +2,7 @@
   <div class="error-internal--header" id="sign-in--error-msg">
     {{ header }}
   </div>
-  <div class="error-internal--details">
+  <div *ngIf="error" class="error-internal--details">
     <div *ngIf="error.status === 401 && (error.data || error.message)">
       This email address will be temporarily locked after 5 unsuccessful login attempts. Try
       <a class="error-internal--redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
@@ -28,7 +28,7 @@
     </div>
 
     <div *ngIf="error.status === 401 && !(error.data || error.message)">
-      <div>Your organization has restricted Fyle’s access to its corporate network.</div>
+      <div>Your organization has restricted Fyle access to its corporate network.</div>
     </div>
   </div>
   <div class="error-internal--primary-cta">
