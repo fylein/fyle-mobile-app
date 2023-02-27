@@ -11,7 +11,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class ErrorComponent implements OnInit {
   @Input() header = 'Account does not Exist';
 
-  @Input() error: HttpErrorResponse;
+  @Input() error;
 
   constructor(private popoverController: PopoverController, private router: Router) {}
 
