@@ -21,6 +21,8 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import * as dayjs from 'dayjs';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 
 type Filters = Partial<{
   state: string[];
@@ -90,6 +92,8 @@ export class TeamReportsPage implements OnInit {
 
   teamReportsTaskCount = 0;
 
+  isNewReportsFlowEnabled = false;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -102,7 +106,8 @@ export class TeamReportsPage implements OnInit {
     private trackingService: TrackingService,
     private activatedRoute: ActivatedRoute,
     private apiV2Service: ApiV2Service,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get HeaderState() {
@@ -234,6 +239,12 @@ export class TeamReportsPage implements OnInit {
     } else {
       this.clearFilters();
     }
+
+    this.orgSettingsService.get().subscribe((orgSettings) => {
+      if (orgSettings?.simplified_report_closure_settings?.enabled) {
+        this.isNewReportsFlowEnabled = true;
+      }
+    });
 
     setTimeout(() => {
       this.isLoading = false;
@@ -656,20 +667,13 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
+    const reportState = new ReportState();
     filterPills.push({
       label: 'State',
       type: 'state',
       value: filter.state
         .map((state) => {
-          if (state === 'APPROVER_INQUIRY') {
-            return 'Sent Back';
-          }
-
-          if (state === 'APPROVER_PENDING') {
-            return 'Reported';
-          }
-
-          return state.replace(/_/g, ' ').toLowerCase();
+          return reportState.transform(state, this.isNewReportsFlowEnabled).replace(/_/g, ' ');
         })
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
@@ -846,7 +850,7 @@ export class TeamReportsPage implements OnInit {
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Reported',
+                label: this.isNewReportsFlowEnabled ? 'Submitted' : 'Reported',
                 value: 'APPROVER_PENDING',
               },
               {
@@ -858,7 +862,7 @@ export class TeamReportsPage implements OnInit {
                 value: 'APPROVED',
               },
               {
-                label: 'Paid',
+                label: this.isNewReportsFlowEnabled ? 'Closed' : 'Paid',
                 value: 'PAID',
               },
             ],
