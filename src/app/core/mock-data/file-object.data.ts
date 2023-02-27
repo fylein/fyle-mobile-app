@@ -106,7 +106,7 @@ export const fileObjectAdv1: FileObject = {
     'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
 };
 
-export const fileObjectData3: FileObject = {
+export const fileObjectData4: FileObject = {
   id: 'fiXpfkKFhf6w',
   org_user_id: 'ouCI4UQ2G0K1',
   created_at: new Date('2023-02-23T16:22:03.264Z'),

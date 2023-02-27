@@ -4,7 +4,7 @@ import {
   fileObjectAdv,
   fileObjectAdv1,
   fileObjectData,
-  fileObjectData3,
+  fileObjectData4,
   thumbnailUrlMockData,
 } from '../mock-data/file-object.data';
 import { ApiService } from './api.service';
@@ -267,11 +267,11 @@ describe('FileService', () => {
   });
 
   it('post(): should post the file', (done) => {
-    const payload = { name: fileObjectData3.name };
-    apiService.post.and.returnValue(of(fileObjectData3));
+    const payload = { name: fileObjectData4.name };
+    apiService.post.and.returnValue(of(fileObjectData4));
     fileService.post(payload).subscribe((res) => {
-      expect(res).toEqual(fileObjectData3);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/files', { name: fileObjectData3.name });
+      expect(res).toEqual(fileObjectData4);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/files', { name: fileObjectData4.name });
       done();
     });
   });
