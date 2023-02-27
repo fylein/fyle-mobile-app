@@ -41,7 +41,7 @@ export class FileService {
     return this.apiService.get('/files/' + fileId + '/download_b64');
   }
 
-  findByAdvanceRequestId(advanceRequestId: string): Observable<File[]> {
+  findByAdvanceRequestId(advanceRequestId: string): Observable<FileObject[]> {
     return from(
       this.apiService.get('/files', {
         params: {
@@ -55,7 +55,7 @@ export class FileService {
           this.dateService.fixDates(file);
           this.setFileType(file);
         });
-        return files as File[];
+        return files as FileObject[];
       })
     );
   }
@@ -74,7 +74,7 @@ export class FileService {
     return res;
   }
 
-  setFileType(file: File): FileObject {
+  setFileType(file: FileObject): FileObject {
     let fileType = 'unknown';
     const extension = this.getFileExtension(file.name);
 
@@ -92,7 +92,7 @@ export class FileService {
     return this.apiService.post('/files', fileObj);
   }
 
-  uploadUrl(fileId: string) {
+  uploadUrl(fileId: string): Observable<string> {
     return this.apiService.post('/files/' + fileId + '/upload_url').pipe(map((data) => data.url));
   }
 
