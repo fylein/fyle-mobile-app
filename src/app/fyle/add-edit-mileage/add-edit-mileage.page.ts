@@ -1413,11 +1413,7 @@ export class AddEditMileagePage implements OnInit {
           );
 
           if (dependentFields?.length && project) {
-            const parentField = {
-              id: txnFields.project_id?.id,
-              value: project.project_name,
-            };
-            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, parentField);
+            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, txnFields.project_id?.id);
           }
 
           const customInputValues = customInputs
@@ -1575,9 +1571,9 @@ export class AddEditMileagePage implements OnInit {
           )
         )
       )
-      .subscribe((res) => {
-        if (res?.dependentField) {
-          this.addDependentField(res.dependentField, res.parentFieldValue);
+      .subscribe((dependentField) => {
+        if (dependentField) {
+          this.addDependentField(dependentField);
         }
       });
   }
@@ -2496,10 +2492,7 @@ export class AddEditMileagePage implements OnInit {
     this.onPageExit$.complete();
   }
 
-  private getDependentField(
-    parentFieldId: number,
-    parentFieldValue: string
-  ): Observable<{ dependentField: ExpenseField; parentFieldValue: string }> {
+  private getDependentField(parentFieldId: number, parentFieldValue: string): Observable<ExpenseField> {
     return this.dependentFields$.pipe(
       switchMap((dependentCustomFields) => {
         const dependentField = dependentCustomFields.find(
@@ -2507,23 +2500,19 @@ export class AddEditMileagePage implements OnInit {
         );
         if (dependentField) {
           return this.dependentFieldsService
-            .getOptionsForDependentField({
+            .getOptionsForDependentFieldUtil({
               fieldId: dependentField.id,
               parentFieldId,
               parentFieldValue,
             })
-            .pipe(
-              map((dependentFieldOptions) =>
-                dependentFieldOptions?.length > 0 ? { dependentField, parentFieldValue } : null
-              )
-            );
+            .pipe(map((dependentFieldOptions) => (dependentFieldOptions?.length > 0 ? dependentField : null)));
         }
         return of(null);
       })
     );
   }
 
-  private addDependentField(dependentField: ExpenseField, parentFieldValue: string, value = null): void {
+  private addDependentField(dependentField: ExpenseField, value = null): void {
     const dependentFieldControl = this.fb.group({
       id: dependentField.id,
       label: dependentField.field_name,
@@ -2538,7 +2527,6 @@ export class AddEditMileagePage implements OnInit {
     this.dependentFields.push({
       id: dependentField.id,
       parentFieldId: dependentField.parent_field_id,
-      parentFieldValue,
       field: dependentField.field_name,
       mandatory: dependentField.is_mandatory,
       control: dependentFieldControl,
@@ -2570,9 +2558,9 @@ export class AddEditMileagePage implements OnInit {
     this.isDependentFieldLoading = true;
     this.getDependentField(data.id, data.value)
       .pipe(finalize(() => (this.isDependentFieldLoading = false)))
-      .subscribe((res) => {
-        if (res?.dependentField) {
-          this.addDependentField(res.dependentField, res.parentFieldValue);
+      .subscribe((dependentField) => {
+        if (dependentField) {
+          this.addDependentField(dependentField);
         }
       });
   }
@@ -2581,10 +2569,10 @@ export class AddEditMileagePage implements OnInit {
   private addDependentFieldWithValue(
     txCustomProperties: CustomProperty<string>[],
     dependentFields: ExpenseField[],
-    parentField: { id: number; value: string }
+    parentFieldId: number
   ) {
     //Get dependent field for the field whose id is parentFieldId
-    const dependentField = dependentFields.find((dependentField) => dependentField.parent_field_id === parentField.id);
+    const dependentField = dependentFields.find((dependentField) => dependentField.parent_field_id === parentFieldId);
 
     if (dependentField) {
       //Get selected value for dependent field
@@ -2592,11 +2580,11 @@ export class AddEditMileagePage implements OnInit {
         (customProp) => customProp.name === dependentField.field_name
       );
       //Add dependent field with selected value
-      this.addDependentField(dependentField, parentField.value, dependentFieldValue?.value);
+      this.addDependentField(dependentField, dependentFieldValue?.value);
 
       //Add field which is dependent on the depenent field (if present)
       if (dependentFieldValue?.value) {
-        this.addDependentFieldWithValue(txCustomProperties, dependentFields, parentField);
+        this.addDependentFieldWithValue(txCustomProperties, dependentFields, dependentField.id);
       }
     }
   }
