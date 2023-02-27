@@ -31,7 +31,9 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import * as dayjs from 'dayjs';
 
 type Filters = Partial<{
@@ -101,6 +103,8 @@ export class MyReportsPage implements OnInit {
 
   filterPills = [];
 
+  isNewReportsFlowEnabled = false;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -114,7 +118,8 @@ export class MyReportsPage implements OnInit {
     private trackingService: TrackingService,
     private apiV2Service: ApiV2Service,
     private tasksService: TasksService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get HeaderState() {
@@ -271,6 +276,12 @@ export class MyReportsPage implements OnInit {
     } else {
       this.clearFilters();
     }
+
+    this.orgSettingsService.get().subscribe((orgSettings) => {
+      if (orgSettings?.simplified_report_closure_settings?.enabled) {
+        this.isNewReportsFlowEnabled = true;
+      }
+    });
 
     setTimeout(() => {
       this.isLoading = false;
@@ -718,20 +729,21 @@ export class MyReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
+    const reportState = new ReportState();
     filterPills.push({
       label: 'State',
       type: 'state',
       value: filter.state
         .map((state) => {
-          if (state === 'APPROVER_INQUIRY') {
-            return 'Sent Back';
-          }
+          // if (state === 'APPROVER_INQUIRY') {
+          //   return 'Sent Back';
+          // }
 
-          if (state === 'APPROVER_PENDING') {
-            return 'Reported';
-          }
-
-          return state.replace(/_/g, ' ').toLowerCase();
+          // if (state === 'APPROVER_PENDING') {
+          //   return 'Reported';
+          // }
+          return reportState.transform(state, this.isNewReportsFlowEnabled).replace(/_/g, ' ');
+          // return state.replace(/_/g, ' ').toLowerCase();
         })
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
@@ -912,7 +924,7 @@ export class MyReportsPage implements OnInit {
                 value: 'DRAFT',
               },
               {
-                label: 'Reported',
+                label: this.isNewReportsFlowEnabled ? 'Submitted' : 'Reported',
                 value: 'APPROVER_PENDING',
               },
               {
@@ -932,7 +944,7 @@ export class MyReportsPage implements OnInit {
                 value: 'PAYMENT_PROCESSING',
               },
               {
-                label: 'Paid',
+                label: this.isNewReportsFlowEnabled ? 'Closed' : 'Paid',
                 value: 'PAID',
               },
             ],

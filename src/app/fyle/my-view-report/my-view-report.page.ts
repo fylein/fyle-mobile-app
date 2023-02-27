@@ -27,6 +27,7 @@ import { cloneDeep, isEqual } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 enum Segment {
   EXPENSES,
@@ -98,6 +99,8 @@ export class MyViewReportPage {
 
   segmentValue = Segment.EXPENSES;
 
+  isNewReportsFlowEnabled = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -113,7 +116,8 @@ export class MyViewReportPage {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
-    private refinerService: RefinerService
+    private refinerService: RefinerService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get Segment() {
@@ -290,6 +294,12 @@ export class MyViewReportPage {
         })
       )
       .subscribe(noop);
+
+    this.orgSettingsService.get().subscribe((orgSettings) => {
+      if (orgSettings?.simplified_report_closure_settings?.enabled) {
+        this.isNewReportsFlowEnabled = true;
+      }
+    });
   }
 
   updateReportName(reportName: string) {

@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'reportState',
 })
 export class ReportState implements PipeTransform {
-  transform(val) {
+  transform(val, isNewReportsFlowEnabled) {
     if (!val) {
       return val;
     }
@@ -13,7 +13,7 @@ export class ReportState implements PipeTransform {
       DRAFT: 'draft',
       DRAFT_INQUIRY: 'incomplete',
       COMPLETE: 'unreported',
-      APPROVER_PENDING: 'reported',
+      APPROVER_PENDING: isNewReportsFlowEnabled ? 'submitted' : 'reported',
       SUBMITTED: 'reported',
       APPROVER_INQUIRY: 'sent_back',
       POLICY_INQUIRY: 'auto_flagged',
@@ -21,9 +21,9 @@ export class ReportState implements PipeTransform {
       APPROVED: 'approved',
       PAYMENT_PENDING: 'payment_pending',
       PAYMENT_PROCESSING: 'payment_processing',
-      PAID: 'paid',
+      PAID: isNewReportsFlowEnabled ? 'closed' : 'paid',
       CANCELLED: 'cancelled',
-      APPROVAL_PENDING: 'reported',
+      APPROVAL_PENDING: isNewReportsFlowEnabled ? 'submitted' : 'reported',
       APPROVAL_DONE: 'approved',
       APPROVAL_DISABLED: 'disabled',
       APPROVAL_REJECTED: 'rejected',

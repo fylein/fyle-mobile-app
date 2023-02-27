@@ -45,6 +45,8 @@ export class StatsComponent implements OnInit {
 
   isIncompleteExpensesStatsLoading = true;
 
+  isNewReportsFlowEnabled = false;
+
   reportStatsLoading = true;
 
   loadData$ = new Subject();
@@ -151,6 +153,10 @@ export class StatsComponent implements OnInit {
         that.initializeCCCStats();
       } else {
         this.cardTransactionsAndDetails = [];
+      }
+
+      if (orgSettings?.simplified_report_closure_settings?.enabled) {
+        that.isNewReportsFlowEnabled = true;
       }
     });
 

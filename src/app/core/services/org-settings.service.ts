@@ -393,6 +393,10 @@ export class OrgSettingsService {
         allowed: incoming.company_expenses_beta_settings && incoming.company_expenses_beta_settings.allowed,
         enabled: incoming.company_expenses_beta_settings && incoming.company_expenses_beta_settings.enabled,
       },
+      simplified_report_closure_settings: {
+        allowed: incoming.simplified_report_closure_settings && incoming.simplified_report_closure_settings.allowed,
+        enabled: incoming.simplified_report_closure_settings && incoming.simplified_report_closure_settings.enabled,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
