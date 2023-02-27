@@ -50,6 +50,21 @@ export const fileObjectData2: FileObject = {
   fyle_sub_url: '/api/files/fi6PQ6z4w6ET/download',
 };
 
+export const fileObjectData3: FileObject = {
+  id: 'finwabtsAZRy',
+  org_user_id: 'ouX8dwsbLCLv',
+  created_at: new Date('2023-02-23T13:16:15.227Z'),
+  name: '000.jpeg',
+  s3url: '2023-02-23/orNVthTo2Zyo/receipts/finwabtsAZRy.000.jpeg',
+  transaction_id: null,
+  invoice_id: null,
+  advance_request_id: 'areqGzKF1Tne23',
+  purpose: 'ORIGINAL',
+  password: null,
+  receipt_coordinates: null,
+  email_meta_data: null,
+  fyle_sub_url: '/api/files/finwabtsAZRy/download',
+};
 export const thumbnailUrlMockData: FileObject[] = [
   {
     id: 'fiwJ0nQTBpYH',
