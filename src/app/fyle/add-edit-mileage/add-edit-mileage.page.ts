@@ -1826,10 +1826,22 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getCustomFields() {
-    return this.customInputs$.pipe(
-      take(1),
-      map((customInputs) =>
-        customInputs.map((customInput, i) => ({
+    const dependentFields$ = this.dependentFields$.pipe(
+      map((customFields) => {
+        const mappedDependentFields = this.fg.value.dependent_fields.map((dependentField) => ({
+          name: dependentField.label,
+          value: dependentField.value,
+        }));
+        return this.customFieldsService.standardizeCustomFields(mappedDependentFields || [], customFields);
+      })
+    );
+
+    return forkJoin({
+      customInputs: this.customInputs$.pipe(take(1)),
+      dependentFields: dependentFields$.pipe(take(1)),
+    }).pipe(
+      map(({ customInputs, dependentFields }) => {
+        const customInputsWithValue = customInputs.map((customInput, i) => ({
           id: customInput.id,
           mandatory: customInput.mandatory,
           name: customInput.name,
@@ -1838,9 +1850,9 @@ export class AddEditMileagePage implements OnInit {
           prefix: customInput.prefix,
           type: customInput.type,
           value: this.fg.value.custom_inputs[i].value,
-          parent_field_id: customInput.parent_field_id,
-        }))
-      )
+        }));
+        return customInputsWithValue.concat(dependentFields);
+      })
     );
   }
 

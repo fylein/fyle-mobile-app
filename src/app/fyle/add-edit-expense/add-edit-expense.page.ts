@@ -3025,7 +3025,6 @@ export class AddEditExpensePage implements OnInit {
           prefix: customInput.prefix,
           type: customInput.type,
           value: this.fg.value.custom_inputs[i].value,
-          parent_field_id: customInput.parent_field_id,
         }));
         return customInputsWithValue.concat(dependentFields);
       })
