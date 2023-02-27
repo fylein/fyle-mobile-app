@@ -288,6 +288,12 @@ describe('FileService', () => {
       expect(fileService.getReceiptDetails(fileObjectAdv1.url)).toEqual(fileObjectAdv1.type);
       expect(fileService.getReceiptExtension).toHaveBeenCalledOnceWith(fileObjectAdv1.url);
     });
+
+    it('should return empty string if the there is no receipt type set', () => {
+      spyOn(fileService, 'getReceiptExtension').and.returnValue('test');
+      expect(fileService.getReceiptDetails('')).toEqual('');
+      expect(fileService.getReceiptExtension).toHaveBeenCalledOnceWith('');
+    });
   });
 
   it('getDataUrlFromBlob(): should convert a Blob to a data URL', async () => {
