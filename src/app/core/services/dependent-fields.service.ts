@@ -5,18 +5,6 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
-interface DependentFieldValuesApiParams {
-  params: {
-    expense_field_id: string;
-    parent_expense_field_id: string;
-    parent_expense_field_value: string;
-    expense_field_value?: string;
-    is_enabled?: string;
-    offset?: number;
-    limit?: number;
-  };
-}
-
 @Injectable({
   providedIn: 'root',
 })
