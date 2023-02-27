@@ -173,3 +173,17 @@ export const extendedAdvReqSentBack: ExtendedAdvanceRequest = {
   ...extendedAdvReqDraft,
   areq_is_sent_back: true,
 };
+
+export const extendedAdvReqWithoutDates = {
+  ...extendedAdvReqDraft,
+  areq_created_at: '2023-01-16T06:22:47.058Z',
+  areq_updated_at: '2023-01-16T06:22:47.058Z',
+  areq_approved_at: '2023-01-16T06:22:47.058Z',
+};
+
+export const extendedAdvReqWithDates = {
+  ...extendedAdvReqDraft,
+  areq_created_at: new Date('2023-01-16T06:22:47.058Z'),
+  areq_updated_at: new Date('2023-01-16T06:22:47.058Z'),
+  areq_approved_at: new Date('2023-01-16T06:22:47.058Z'),
+};
