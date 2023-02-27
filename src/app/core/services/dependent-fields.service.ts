@@ -3,7 +3,6 @@ import { map, Observable } from 'rxjs';
 import { DependentFieldValuesApiParams } from '../models/platform/dependent-field-values-api-params.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
-import { CategoriesService } from './categories.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 interface DependentFieldValuesApiParams {
@@ -22,10 +21,7 @@ interface DependentFieldValuesApiParams {
   providedIn: 'root',
 })
 export class DependentFieldsService {
-  constructor(
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private categoryService: CategoriesService
-  ) {}
+  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
   getOptionsForDependentField(config: {
     fieldId: number;
@@ -52,32 +48,5 @@ export class DependentFieldsService {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformDependentFieldValue>>('/dependent_expense_field_values', data)
       .pipe(map((res) => res.data));
-  }
-
-  //TODO: Remove this dummy method once APIs are available
-  getOptionsForDependentFieldUtil(config: {
-    fieldId: number;
-    parentFieldId: number;
-    parentFieldValue: string;
-    searchQuery?: string;
-  }): Observable<PlatformDependentFieldValue[]> {
-    return this.categoryService
-      .getCategories({
-        offset: 0,
-        limit: 20,
-      })
-      .pipe(
-        map((categories) =>
-          categories.map((category) => ({
-            id: category.id,
-            created_at: category.created_at,
-            updated_at: category.updated_at,
-            org_id: category.org_id,
-            is_enabled: true,
-            parent_expense_field_value: config.parentFieldValue,
-            expense_field_value: category.displayName,
-          }))
-        )
-      );
   }
 }
