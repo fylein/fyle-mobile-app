@@ -1,7 +1,8 @@
 import { ExtendedAdvance } from '../models/extended_advance.model';
 import { ApiV2Response } from '../models/api-v2.model';
-export const extendedAdvancesData: ApiV2Response<ExtendedAdvance> = {
-  count: 21,
+
+export const singleExtendedAdvancesData: ApiV2Response<ExtendedAdvance> = {
+  count: 1,
   data: [
     {
       // _search_document: "'-14948.330':14 '-2':5 '300':2 'a/2019/10/t/49':8 'advance':4 'ar/2019/10/r/78':15 'bank':6 'dimple':12 'dimple.kh@fyle.in':13 'inr':1 'm':10 'madhav':9 'madhav.mansuriya@fyle.in':11 'new':3 'transfer':7",
@@ -56,4 +57,18 @@ export const extendedAdvancesData: ApiV2Response<ExtendedAdvance> = {
   limit: 1,
   offset: 0,
   url: '/v2/advances',
+};
+
+export const extendedAdvWithDates = {
+  ...singleExtendedAdvancesData,
+  adv_created_at: new Date('2019-10-31T04:36:01.927Z'),
+  adv_issued_at: new Date('2019-10-31T04:35:10.391Z'),
+  areq_approved_at: new Date('2019-10-31T04:35:46.866Z'),
+};
+
+export const extendedAdvWithoutDates = {
+  ...singleExtendedAdvancesData,
+  adv_created_at: '2019-10-31T04:36:01.927Z',
+  adv_issued_at: '2019-10-31T04:35:10.391Z',
+  areq_approved_at: '2019-10-31T04:35:46.866Z',
 };
