@@ -5,6 +5,18 @@ import { PlatformDependentFieldValue } from '../models/platform/platform-depende
 import { CategoriesService } from './categories.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
+interface DependentFieldValuesApiParams {
+  params: {
+    expense_field_id: string;
+    parent_expense_field_id: string;
+    parent_expense_field_value: string;
+    expense_field_value?: string;
+    is_enabled?: string;
+    offset?: number;
+    limit?: number;
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -19,25 +31,26 @@ export class DependentFieldsService {
     parentFieldId: number;
     parentFieldValue: string;
     searchQuery?: string;
-  }) {
+  }): Observable<PlatformDependentFieldValue[]> {
     const { fieldId, parentFieldId, parentFieldValue, searchQuery } = config;
-    const data = {
+    const data: DependentFieldValuesApiParams = {
       params: {
-        is_enabled: 'eq.true',
-        offset: 'eq.0',
-        limit: 'eq.20',
         expense_field_id: `eq.${fieldId}`,
         parent_expense_field_id: `eq.${parentFieldId}`,
         parent_expense_field_value: `eq.${parentFieldValue}`,
-        expense_field_value: `ilike.%${searchQuery}%`,
+        is_enabled: 'eq.true',
+        offset: 0,
+        limit: 20,
       },
     };
 
-    //TODO: Use v1 Platform APIs instead of v1-beta. Will be done once expense_fields is migrated
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformDependentFieldValue>>(
-      '/dependent_expense_field_values',
-      data
-    );
+    if (searchQuery?.length) {
+      data.params.expense_field_value = `ilike.%${searchQuery}%`;
+    }
+
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformDependentFieldValue>>('/dependent_expense_field_values', data)
+      .pipe(map((res) => res.data));
   }
 
   //TODO: Remove this dummy method once APIs are available
