@@ -49,7 +49,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
 
     return this.dependentFieldsService
-      .getOptionsForDependentField({
+      .getOptionsForDependentFieldUtil({
         fieldId: this.fieldId,
         parentFieldId: this.parentFieldId,
         parentFieldValue: this.parentFieldValue,
