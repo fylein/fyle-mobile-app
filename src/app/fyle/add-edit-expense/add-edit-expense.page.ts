@@ -2832,77 +2832,6 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
-    const updatedFieldIndex = this.dependentFieldControls.value.findIndex((depField) => depField.label === data.label);
-
-    //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
-    if (updatedFieldIndex !== this.dependentFieldControls.length - 1) {
-      this.removeAllDependentFields(updatedFieldIndex);
-    }
-
-    //Create new dependent field based on this field
-    this.isDependentFieldLoading = true;
-    this.getDependentField(data.id, data.value)
-      .pipe(finalize(() => (this.isDependentFieldLoading = false)))
-      .subscribe((res) => {
-        if (res?.dependentField) {
-          this.addDependentField(res.dependentField, res.parentFieldValue);
-        }
-      });
-  }
-
-  addDependentField(dependentField: ExpenseField, parentFieldValue: string, value = null): void {
-    const dependentFieldControl = this.formBuilder.group({
-      id: dependentField.id,
-      label: dependentField.field_name,
-      parent_field_id: dependentField.parent_field_id,
-      value: [value, (dependentField.is_mandatory || null) && Validators.required],
-    });
-
-    dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
-      this.onDependentFieldChanged(value);
-    });
-
-    this.dependentFields.push({
-      id: dependentField.id,
-      parentFieldId: dependentField.parent_field_id,
-      parentFieldValue,
-      field: dependentField.field_name,
-      mandatory: dependentField.is_mandatory,
-      control: dependentFieldControl,
-      placeholder: dependentField.placeholder,
-    });
-
-    this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
-  }
-
-  getDependentField(
-    parentFieldId: number,
-    parentFieldValue: string
-  ): Observable<{ dependentField: ExpenseField; parentFieldValue: string }> {
-    return this.dependentFields$.pipe(
-      switchMap((dependentCustomFields) => {
-        const dependentField = dependentCustomFields.find(
-          (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId
-        );
-        if (dependentField) {
-          return this.dependentFieldsService
-            .getOptionsForDependentField({
-              fieldId: dependentField.id,
-              parentFieldId,
-              parentFieldValue,
-            })
-            .pipe(
-              map((dependentFieldOptions) =>
-                dependentFieldOptions?.length > 0 ? { dependentField, parentFieldValue } : null
-              )
-            );
-        }
-        return of(null);
-      })
-    );
-  }
-
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
     const editExpenseAttachments = etxn$.pipe(
       switchMap((etxn: any) => this.fileService.findByTransactionId(etxn.tx.id)),
@@ -4460,6 +4389,58 @@ export class AddEditExpensePage implements OnInit {
     this.onPageExit$.complete();
   }
 
+  private getDependentField(
+    parentFieldId: number,
+    parentFieldValue: string
+  ): Observable<{ dependentField: ExpenseField; parentFieldValue: string }> {
+    return this.dependentFields$.pipe(
+      switchMap((dependentCustomFields) => {
+        const dependentField = dependentCustomFields.find(
+          (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId
+        );
+        if (dependentField) {
+          return this.dependentFieldsService
+            .getOptionsForDependentField({
+              fieldId: dependentField.id,
+              parentFieldId,
+              parentFieldValue,
+            })
+            .pipe(
+              map((dependentFieldOptions) =>
+                dependentFieldOptions?.length > 0 ? { dependentField, parentFieldValue } : null
+              )
+            );
+        }
+        return of(null);
+      })
+    );
+  }
+
+  private addDependentField(dependentField: ExpenseField, parentFieldValue: string, value = null): void {
+    const dependentFieldControl = this.formBuilder.group({
+      id: dependentField.id,
+      label: dependentField.field_name,
+      parent_field_id: dependentField.parent_field_id,
+      value: [value, (dependentField.is_mandatory || null) && Validators.required],
+    });
+
+    dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
+      this.onDependentFieldChanged(value);
+    });
+
+    this.dependentFields.push({
+      id: dependentField.id,
+      parentFieldId: dependentField.parent_field_id,
+      parentFieldValue,
+      field: dependentField.field_name,
+      mandatory: dependentField.is_mandatory,
+      control: dependentFieldControl,
+      placeholder: dependentField.placeholder,
+    });
+
+    this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
+  }
+
   private removeAllDependentFields(updatedFieldIndex: number) {
     //Remove all dependent field controls after the changed one
     for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
@@ -4468,6 +4449,25 @@ export class AddEditExpensePage implements OnInit {
 
     //Removing fields from UI
     this.dependentFields = this.dependentFields.slice(0, updatedFieldIndex + 1);
+  }
+
+  private onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
+    const updatedFieldIndex = this.dependentFieldControls.value.findIndex((depField) => depField.label === data.label);
+
+    //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
+    if (updatedFieldIndex !== this.dependentFieldControls.length - 1) {
+      this.removeAllDependentFields(updatedFieldIndex);
+    }
+
+    //Create new dependent field based on this field
+    this.isDependentFieldLoading = true;
+    this.getDependentField(data.id, data.value)
+      .pipe(finalize(() => (this.isDependentFieldLoading = false)))
+      .subscribe((res) => {
+        if (res?.dependentField) {
+          this.addDependentField(res.dependentField, res.parentFieldValue);
+        }
+      });
   }
 
   //Recursive method to add dependent fields with value
