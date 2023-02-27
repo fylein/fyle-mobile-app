@@ -34,15 +34,9 @@ describe('DisabledPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call logout on userEventService when onGotoSignInClick is called', () => {
+  it('should logout and navigate to /auth/sign_in when onGotoSignInClick is called', () => {
     component.onGotoSignInClick();
-
     expect(userEventService.logout).toHaveBeenCalledTimes(1);
-  });
-
-  it('should navigate to /auth/sign_in when onGotoSignInClick is called', () => {
-    component.onGotoSignInClick();
-
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'sign_in']);
   });
 });
