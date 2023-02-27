@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-error',
@@ -10,7 +11,7 @@ import { Router } from '@angular/router';
 export class ErrorComponent implements OnInit {
   @Input() header = 'Account does not Exist';
 
-  @Input() error;
+  @Input() error: HttpErrorResponse;
 
   constructor(private popoverController: PopoverController, private router: Router) {}
 

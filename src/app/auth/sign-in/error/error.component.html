@@ -3,7 +3,7 @@
     {{ header }}
   </div>
   <div *ngIf="error" class="error-internal--details">
-    <div *ngIf="error.status === 401 && (error.data || error.message)">
+    <div *ngIf="error.status === 401 && error.message">
       This email address will be temporarily locked after 5 unsuccessful login attempts. Try
       <a class="error-internal--redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
       password?
@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <div *ngIf="error.status === 401 && !(error.data || error.message)">
+    <div *ngIf="error.status === 401 && !error.message">
       <div>Your organization has restricted Fyle access to its corporate network.</div>
     </div>
   </div>
