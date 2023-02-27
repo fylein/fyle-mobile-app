@@ -735,15 +735,7 @@ export class MyReportsPage implements OnInit {
       type: 'state',
       value: filter.state
         .map((state) => {
-          // if (state === 'APPROVER_INQUIRY') {
-          //   return 'Sent Back';
-          // }
-
-          // if (state === 'APPROVER_PENDING') {
-          //   return 'Reported';
-          // }
-          return reportState.transform(state, this.isNewReportsFlowEnabled).replace(/_/g, ' ');
-          // return state.replace(/_/g, ' ').toLowerCase();
+          return reportState.transform(state, this.isNewReportsFlowEnabled).replace(/_/g, '');
         })
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
