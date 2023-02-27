@@ -1312,20 +1312,7 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    const selectedCustomInputs$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        this.customInputsService
-          .getAll(true)
-          .pipe(
-            map((customFields) =>
-              this.customFieldsService.standardizeCustomFields(
-                [],
-                this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id)
-              )
-            )
-          )
-      )
-    );
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
     from(this.loaderService.showLoader())
       .pipe(
@@ -1339,7 +1326,7 @@ export class AddEditPerDiemPage implements OnInit {
             txnFields: this.txnFields$.pipe(take(1)),
             report: selectedReport$,
             costCenter: selectedCostCenter$,
-            customInputs: selectedCustomInputs$,
+            customExpenseFields: customExpenseFields$,
             defaultPaymentMode: defaultPaymentMode$,
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
@@ -1361,7 +1348,7 @@ export class AddEditPerDiemPage implements OnInit {
           txnFields,
           report,
           costCenter,
-          customInputs,
+          customExpenseFields,
           defaultPaymentMode,
           orgUserSettings,
           orgSettings,
@@ -1369,7 +1356,7 @@ export class AddEditPerDiemPage implements OnInit {
           recentProjects,
           recentCostCenters,
         }) => {
-          const dependentFields: ExpenseField[] = customInputs.filter(
+          const dependentFields: ExpenseField[] = customExpenseFields.filter(
             (customInput) => customInput.type === 'DEPENDENT_SELECT'
           );
 
@@ -1380,6 +1367,11 @@ export class AddEditPerDiemPage implements OnInit {
             };
             this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, projectField);
           }
+
+          const customInputs = this.customFieldsService.standardizeCustomFields(
+            [],
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+          );
 
           const customInputValues = customInputs
             .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
@@ -1598,6 +1590,37 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
+  getCustomFields() {
+    const dependentFields$ = this.dependentFields$.pipe(
+      map((customFields) => {
+        const mappedDependentFields = this.fg.value.dependent_fields.map((dependentField) => ({
+          name: dependentField.label,
+          value: dependentField.value,
+        }));
+        return this.customFieldsService.standardizeCustomFields(mappedDependentFields || [], customFields);
+      })
+    );
+
+    return forkJoin({
+      customInputs: this.customInputs$.pipe(take(1)),
+      dependentFields: dependentFields$.pipe(take(1)),
+    }).pipe(
+      map(({ customInputs, dependentFields }) => {
+        const customInputsWithValue = customInputs.map((customInput, i) => ({
+          id: customInput.id,
+          mandatory: customInput.mandatory,
+          name: customInput.name,
+          options: customInput.options,
+          placeholder: customInput.placeholder,
+          prefix: customInput.prefix,
+          type: customInput.type,
+          value: this.fg.value.custom_inputs[i].value,
+        }));
+        return customInputsWithValue.concat(dependentFields);
+      })
+    );
+  }
+
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
     const transactionCopy = cloneDeep(etxn.tx);
 
@@ -1649,22 +1672,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
     this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
 
-    const customFields$ = this.customInputs$.pipe(
-      take(1),
-      map((customInputs) =>
-        customInputs.map((customInput, i) => ({
-          id: customInput.id,
-          mandatory: customInput.mandatory,
-          name: customInput.name,
-          options: customInput.options,
-          placeholder: customInput.placeholder,
-          prefix: customInput.prefix,
-          type: customInput.type,
-          value: this.fg.value.custom_inputs[i].value,
-          parent_field_id: customInput.parent_field_id,
-        }))
-      )
-    );
+    const customFields$ = this.getCustomFields();
 
     return from(this.generateEtxnFromFg(this.etxn$, customFields$)).pipe(
       switchMap((etxn) =>
@@ -1808,21 +1816,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.trackPolicyCorrections();
 
-    const customFields$ = this.customInputs$.pipe(
-      take(1),
-      map((customInputs) =>
-        customInputs.map((customInput, i) => ({
-          id: customInput.id,
-          mandatory: customInput.mandatory,
-          name: customInput.name,
-          options: customInput.options,
-          placeholder: customInput.placeholder,
-          prefix: customInput.prefix,
-          type: customInput.type,
-          value: this.fg.value.custom_inputs[i].value,
-        }))
-      )
-    );
+    const customFields$ = this.getCustomFields();
 
     return from(this.generateEtxnFromFg(this.etxn$, customFields$)).pipe(
       switchMap((etxn) => {
