@@ -1352,20 +1352,8 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
-    const selectedCustomInputs$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        this.customInputsService
-          .getAll(true)
-          .pipe(
-            map((customFields) =>
-              this.customFieldsService.standardizeCustomFields(
-                [],
-                this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id)
-              )
-            )
-          )
-      )
-    );
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
+
     from(this.loaderService.showLoader('Please wait...', 10000))
       .pipe(
         switchMap(() =>
@@ -1377,7 +1365,7 @@ export class AddEditMileagePage implements OnInit {
             txnFields: this.txnFields$.pipe(take(1)),
             report: selectedReport$,
             costCenter: selectedCostCenter$,
-            customInputs: selectedCustomInputs$,
+            customExpenseFields: customExpenseFields$,
             allMileageRates: this.allMileageRates$,
             defaultPaymentMode: defaultPaymentMode$,
             orgUserSettings: orgUserSettings$,
@@ -1399,7 +1387,7 @@ export class AddEditMileagePage implements OnInit {
           txnFields,
           report,
           costCenter,
-          customInputs,
+          customExpenseFields,
           allMileageRates,
           defaultPaymentMode,
           orgUserSettings,
@@ -1408,17 +1396,22 @@ export class AddEditMileagePage implements OnInit {
           recentProjects,
           recentCostCenters,
         }) => {
-          const dependentFields: ExpenseField[] = customInputs.filter(
+          const dependentFields: ExpenseField[] = customExpenseFields.filter(
             (customInput) => customInput.type === 'DEPENDENT_SELECT'
           );
 
           if (dependentFields?.length && project) {
-            const parentField = {
+            const projectField = {
               id: txnFields.project_id?.id,
               value: project.project_name,
             };
-            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, parentField);
+            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, projectField);
           }
+
+          const customInputs = this.customFieldsService.standardizeCustomFields(
+            [],
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+          );
 
           const customInputValues = customInputs
             .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
@@ -2608,7 +2601,11 @@ export class AddEditMileagePage implements OnInit {
 
       //Add field which is dependent on the depenent field (if present)
       if (dependentFieldValue?.value) {
-        this.addDependentFieldWithValue(txCustomProperties, dependentFields, parentField);
+        const currentField = {
+          id: dependentField.id,
+          value: dependentFieldValue?.value,
+        };
+        this.addDependentFieldWithValue(txCustomProperties, dependentFields, currentField);
       }
     }
   }

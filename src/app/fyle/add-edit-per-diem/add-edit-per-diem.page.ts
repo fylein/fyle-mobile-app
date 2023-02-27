@@ -1374,7 +1374,11 @@ export class AddEditPerDiemPage implements OnInit {
           );
 
           if (dependentFields?.length && project) {
-            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, txnFields.project_id?.id);
+            const projectField = {
+              id: txnFields.project_id?.id,
+              value: project.project_name,
+            };
+            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, projectField);
           }
 
           const customInputValues = customInputs
@@ -2364,7 +2368,11 @@ export class AddEditPerDiemPage implements OnInit {
 
       //Add field which is dependent on the depenent field (if present)
       if (dependentFieldValue?.value) {
-        this.addDependentFieldWithValue(txCustomProperties, dependentFields, parentField);
+        const currentField = {
+          id: dependentField.id,
+          value: dependentFieldValue?.value,
+        };
+        this.addDependentFieldWithValue(txCustomProperties, dependentFields, currentField);
       }
     }
   }
