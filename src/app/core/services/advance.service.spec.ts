@@ -1,16 +1,72 @@
 import { TestBed } from '@angular/core/testing';
-
+import { ApiV2Service } from './api-v2.service';
+import { AuthService } from './auth.service';
 import { AdvanceService } from './advance.service';
+import {
+  singleExtendedAdvancesData,
+  extendedAdvWithoutDates,
+  extendedAdvWithDates,
+} from '../mock-data/extended-advance.data';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
+import { of } from 'rxjs';
 
-xdescribe('AdvanceService', () => {
-  let service: AdvanceService;
+describe('AdvanceService', () => {
+  let advanceService: AdvanceService;
+  let apiv2Service: jasmine.SpyObj<ApiV2Service>;
+  let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(AdvanceService);
+    const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    TestBed.configureTestingModule({
+      providers: [
+        AdvanceService,
+        {
+          provide: ApiV2Service,
+          useValue: apiv2ServiceSpy,
+        },
+        {
+          provide: AuthService,
+          useValue: authServiceSpy,
+        },
+      ],
+    });
+    advanceService = TestBed.inject(AdvanceService);
+    apiv2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(advanceService).toBeTruthy();
+  });
+
+  it('getAdvance(): should get an advance from ID', (done) => {
+    const id = 'advETmi3eePvQ';
+    apiv2Service.get.and.returnValue(of(singleExtendedAdvancesData));
+    // @ts-ignore
+    spyOn(advanceService, 'fixDates').and.returnValue(singleExtendedAdvancesData.data[0]);
+
+    advanceService.getAdvance(id).subscribe((res) => {
+      expect(res).toEqual(singleExtendedAdvancesData.data[0]);
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advances', {
+        params: {
+          adv_id: `eq.${id}`,
+        },
+      });
+      // @ts-ignore
+      expect(advanceService.fixDates).toHaveBeenCalledOnceWith(singleExtendedAdvancesData.data[0]);
+      done();
+    });
+  });
+
+  it('destroyAdvancesCacheBuster(): should destroy advances cache buster', () => {
+    advanceService.destroyAdvancesCacheBuster().subscribe((result) => {
+      expect(result).toBeNull();
+    });
+  });
+
+  it('fixDates(): should convert string values to dates', () => {
+    //@ts-ignore
+    expect(advanceService.fixDates(extendedAdvWithoutDates)).toEqual(extendedAdvWithDates);
   });
 });
