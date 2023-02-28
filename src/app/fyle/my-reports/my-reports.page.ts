@@ -105,6 +105,8 @@ export class MyReportsPage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
+  isCCCOnlyOrg = false;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -278,9 +280,12 @@ export class MyReportsPage implements OnInit {
     }
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
-      if (orgSettings?.simplified_report_closure_settings?.enabled) {
-        this.isNewReportsFlowEnabled = true;
-      }
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+      this.isCCCOnlyOrg =
+        orgSettings.payment_mode_settings?.allowed &&
+        orgSettings.payment_mode_settings?.enabled &&
+        orgSettings.payment_mode_settings?.payment_modes_order?.length === 1 &&
+        orgSettings.payment_mode_settings?.payment_modes_order[0] === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
     });
 
     setTimeout(() => {
@@ -903,6 +908,24 @@ export class MyReportsPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string) {
+    const newReportsFlowPaymentStateFilters =
+      (!this.isCCCOnlyOrg && [
+        {
+          label: 'Processing',
+          value: 'PAYMENT_PROCESSING',
+        },
+      ]) ||
+      [];
+    const paymentStateFilters = [
+      {
+        label: 'Payment Pending',
+        value: 'PAYMENT_PENDING',
+      },
+      {
+        label: 'Payment Processing',
+        value: 'PAYMENT_PROCESSING',
+      },
+    ];
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
@@ -927,14 +950,7 @@ export class MyReportsPage implements OnInit {
                 label: 'Approved',
                 value: 'APPROVED',
               },
-              {
-                label: 'Payment Pending',
-                value: 'PAYMENT_PENDING',
-              },
-              {
-                label: 'Payment Processing',
-                value: 'PAYMENT_PROCESSING',
-              },
+              ...(this.isNewReportsFlowEnabled ? newReportsFlowPaymentStateFilters : paymentStateFilters),
               {
                 label: this.isNewReportsFlowEnabled ? 'Closed' : 'Paid',
                 value: 'PAID',
