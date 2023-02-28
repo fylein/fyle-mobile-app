@@ -3001,7 +3001,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getCustomFields() {
-    const dependentFields$ = this.dependentFields$.pipe(
+    const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
         const mappedDependentFields = this.fg.value.dependent_fields.map((dependentField) => ({
           name: dependentField.label,
@@ -3013,9 +3013,9 @@ export class AddEditExpensePage implements OnInit {
 
     return forkJoin({
       customInputs: this.customInputs$.pipe(take(1)),
-      dependentFields: dependentFields$.pipe(take(1)),
+      dependentFieldsWithValue: dependentFieldsWithValue$.pipe(take(1)),
     }).pipe(
-      map(({ customInputs, dependentFields }) => {
+      map(({ customInputs, dependentFieldsWithValue }) => {
         const customInputsWithValue = customInputs.map((customInput, i) => ({
           id: customInput.id,
           mandatory: customInput.mandatory,
@@ -3026,7 +3026,7 @@ export class AddEditExpensePage implements OnInit {
           type: customInput.type,
           value: this.fg.value.custom_inputs[i].value,
         }));
-        return customInputsWithValue.concat(dependentFields);
+        return customInputsWithValue.concat(dependentFieldsWithValue);
       })
     );
   }
