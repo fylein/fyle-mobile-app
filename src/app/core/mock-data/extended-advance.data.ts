@@ -5,7 +5,6 @@ export const singleExtendedAdvancesData: ApiV2Response<ExtendedAdvance> = {
   count: 1,
   data: [
     {
-      // _search_document: "'-14948.330':14 '-2':5 '300':2 'a/2019/10/t/49':8 'advance':4 'ar/2019/10/r/78':15 'bank':6 'dimple':12 'dimple.kh@fyle.in':13 'inr':1 'm':10 'madhav':9 'madhav.mansuriya@fyle.in':11 'new':3 'transfer':7",
       account_current_balance_amount: -12928.33,
       account_id: 'acc37LwFcAIpg',
       account_name: 'Advance Account',
@@ -31,7 +30,6 @@ export const singleExtendedAdvancesData: ApiV2Response<ExtendedAdvance> = {
       areq_approved_at: new Date('2019-10-31T04:35:46.866Z'),
       areq_custom_field_values: '[{"id:64,"name:"test","value:null,"type:"NUMBER"}]',
       areq_id: 'areqmq8cmnd5v4',
-      //areq_notes: null,
       assignee_business_unit: null,
       assignee_department_id: 'deptYSONXoGd64',
       assignee_level_id: 'lvl7Lme2OI5FH',
