@@ -2692,20 +2692,19 @@ export class AddEditExpensePage implements OnInit {
     this.fg.controls.project.valueChanges
       .pipe(
         takeUntil(this.onPageExit$),
-        filter((project) => !!project),
-        distinctUntilChanged(),
         tap(() => {
-          this.isDependentFieldLoading = true;
           this.dependentFieldControls.clear();
           this.dependentFields = [];
         }),
-        switchMap((project) =>
-          this.txnFields$.pipe(
+        filter((project) => !!project),
+        switchMap((project) => {
+          this.isDependentFieldLoading = true;
+          return this.txnFields$.pipe(
             take(1),
             switchMap((txnFields) => this.getDependentField(txnFields.project_id.id, project.project_name)),
             finalize(() => (this.isDependentFieldLoading = false))
-          )
-        )
+          );
+        })
       )
       .subscribe((res) => {
         if (res?.dependentField) {
