@@ -75,7 +75,7 @@ export const expensesWithDependentFields: Expense[] = [
       },
       {
         name: 'CF3',
-        value: 'CF3.1',
+        value: null,
       },
     ],
     tx_decimal_column1: null,

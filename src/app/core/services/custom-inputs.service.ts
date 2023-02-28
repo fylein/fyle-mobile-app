@@ -29,9 +29,7 @@ export class CustomInputsService {
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$,
   })
-  //TODO: Remove this mapping and fix type once APIs are available
-  //These are for 'Yash's Test Organization' on staging
-  getAll(active: boolean): Observable<any[]> {
+  getAll(active: boolean): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField>>('/expense_fields', {
@@ -42,14 +40,7 @@ export class CustomInputsService {
           },
         })
       ),
-      map((res) => this.expenseFieldsService.transformFrom(res.data)),
-      map((customInputs) =>
-        customInputs.map((customInput) => ({
-          ...customInput,
-          parent_field_id: customInput.id === 218227 ? 214662 : customInput.id - 1,
-          type: customInput.field_name.length === 3 ? 'DEPENDENT_SELECT' : customInput.type,
-        }))
-      )
+      map((res) => this.expenseFieldsService.transformFrom(res.data))
     );
   }
 
@@ -172,9 +163,9 @@ export class CustomInputsService {
           return {
             id: customInput.id,
             name: customInput.field_name,
-            value: customProperty?.value,
+            value: customProperty.value,
             type: customInput.type,
-            displayValue: customProperty?.value || '-',
+            displayValue: customProperty.value || '-',
             mandatory: customInput.is_mandatory,
           };
         })

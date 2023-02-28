@@ -93,6 +93,7 @@ export class ExpenseFieldsService {
       seq: datum.seq,
       type: datum.type,
       updated_at: datum.updated_at,
+      parent_field_id: datum.parent_field_id,
     }));
   }
 
