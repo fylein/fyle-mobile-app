@@ -2,7 +2,6 @@ import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChange
 import { CameraPreview, CameraPreviewOptions } from '@capacitor-community/camera-preview';
 import { Camera } from '@capacitor/camera';
 import { from } from 'rxjs';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 
 enum CameraState {
@@ -82,7 +81,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   startCameraPreview() {
-    if (this.cameraState !== CameraState.STARTING) {
+    if (![CameraState.STARTING, CameraState.RUNNING].includes(this.cameraState)) {
       this.cameraState = CameraState.STARTING;
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -101,7 +100,8 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   stopCamera() {
-    if ([CameraState.STARTING, CameraState.RUNNING].includes(this.cameraState)) {
+    //Stop camera only if it is in RUNNING state
+    if (this.cameraState === CameraState.RUNNING) {
       this.cameraState = CameraState.STOPPING;
       from(CameraPreview.stop()).subscribe((_) => (this.cameraState = CameraState.STOPPED));
     }
@@ -157,7 +157,10 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    //Component is initialized with camera in STOPPED state
+    this.cameraState = CameraState.STOPPED;
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.isBulkMode?.previousValue !== undefined) {

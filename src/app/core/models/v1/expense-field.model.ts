@@ -6,11 +6,11 @@ export interface ExpenseField {
   created_at: Date;
   created_by?: UserDetails;
   default_value: string | boolean;
-  field_name: string;
+  field_name?: string;
   id?: number;
   is_custom: boolean;
   is_enabled: boolean;
-  is_mandatory: boolean;
+  is_mandatory?: boolean;
   options?: string[];
   org_category_ids: number[];
   org_id: string;
@@ -22,4 +22,5 @@ export interface ExpenseField {
   parent_field_id?: number;
   updated_by?: UserDetails;
   field?: string;
+  input_type?: string;
 }
