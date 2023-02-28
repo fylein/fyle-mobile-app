@@ -43,9 +43,8 @@ export class PaymentModesService {
     return forkJoin({
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.checkIfPaymentModeConfigurationsIsEnabled(),
-      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden }) => {
+      map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
         let defaultAccountType = AccountType.PERSONAL;
 
         if (isPaymentModeConfigurationsEnabled) {
@@ -57,10 +56,7 @@ export class PaymentModesService {
             orgSettings?.corporate_credit_card_settings?.enabled;
           if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
             defaultAccountType = AccountType.CCC;
-          } else if (
-            orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY &&
-            !isPaidByCompanyHidden
-          ) {
+          } else if (orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY) {
             defaultAccountType = AccountType.COMPANY;
           }
         }

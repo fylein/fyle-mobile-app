@@ -498,27 +498,16 @@ export class AddEditPerDiemPage implements OnInit {
       etxn: this.etxn$,
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      map(
-        ({
-          accounts,
-          orgSettings,
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+        const config = {
           etxn,
-          allowedPaymentModes,
+          orgSettings,
+          expenseType: ExpenseType.MILEAGE,
           isPaymentModeConfigurationsEnabled,
-          isPaidByCompanyHidden,
-        }) => {
-          const config = {
-            etxn,
-            orgSettings,
-            expenseType: ExpenseType.MILEAGE,
-            isPaymentModeConfigurationsEnabled,
-            isPaidByCompanyHidden,
-          };
-          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
-        }
-      ),
+        };
+        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+      }),
       shareReplay(1)
     );
   }
