@@ -23,7 +23,7 @@ export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDepend
   count: 2,
   data: [
     {
-      created_at: new Date('2023-02-23T10:50:38.058403+00:00'),
+      created_at: '2023-02-23T10:50:38.058403+00:00',
       expense_field_id: 219199,
       expense_field_value: 'Cost Code 1',
       id: 4,
@@ -31,10 +31,10 @@ export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDepend
       org_id: 'orN6GkZNaD8b',
       parent_expense_field_id: 219175,
       parent_expense_field_value: 'Project 1',
-      updated_at: new Date('2023-02-23T10:51:06.155705+00:00'),
+      updated_at: '2023-02-23T10:51:06.155705+00:00',
     },
     {
-      created_at: new Date('2023-02-23T10:50:56.756648+00:00'),
+      created_at: '2023-02-23T10:50:56.756648+00:00',
       expense_field_id: 219199,
       expense_field_value: 'Cost Code 2',
       id: 8,
@@ -42,7 +42,7 @@ export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDepend
       org_id: 'orN6GkZNaD8b',
       parent_expense_field_id: 219175,
       parent_expense_field_value: 'Project 1',
-      updated_at: new Date('2023-02-23T10:51:06.155705+00:00'),
+      updated_at: '2023-02-23T10:51:06.155705+00:00',
     },
   ],
   offset: 0,
@@ -71,7 +71,7 @@ export const dependentFieldValuesApiResponseForSearchQuery: PlatformApiResponse<
   count: 1,
   data: [
     {
-      created_at: new Date('2023-02-23T10:50:56.756648+00:00'),
+      created_at: '2023-02-23T10:50:56.756648+00:00',
       expense_field_id: 219199,
       expense_field_value: 'Cost Code 2',
       id: 8,
@@ -79,7 +79,7 @@ export const dependentFieldValuesApiResponseForSearchQuery: PlatformApiResponse<
       org_id: 'orN6GkZNaD8b',
       parent_expense_field_id: 219175,
       parent_expense_field_value: 'Project 1',
-      updated_at: new Date('2023-02-23T10:51:06.155705+00:00'),
+      updated_at: '2023-02-23T10:51:06.155705+00:00',
     },
   ],
   offset: 0,

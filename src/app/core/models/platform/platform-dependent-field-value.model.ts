@@ -1,7 +1,7 @@
 export interface PlatformDependentFieldValue {
   id: number;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   org_id: string;
   is_enabled: boolean;
   parent_expense_field_id: number;
