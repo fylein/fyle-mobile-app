@@ -51,7 +51,7 @@ describe('CardTransactionPreviewComponent', () => {
     expect(getTextContent(amount)).toBe('$100.00');
   });
 
-  it('should not render transaction details when transactionDetails is falsy', () => {
+  it('should not render transaction details when transactionDetails is null', () => {
     component.transactionDetails = null;
     fixture.detectChanges();
 
