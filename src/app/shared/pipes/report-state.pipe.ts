@@ -20,7 +20,7 @@ export class ReportState implements PipeTransform {
       REJECTED: 'rejected',
       APPROVED: 'approved',
       PAYMENT_PENDING: 'payment_pending',
-      PAYMENT_PROCESSING: 'payment_processing',
+      PAYMENT_PROCESSING: isNewReportsFlowEnabled ? 'processing' : 'payment_processing',
       PAID: isNewReportsFlowEnabled ? 'closed' : 'paid',
       CANCELLED: 'cancelled',
       APPROVAL_PENDING: isNewReportsFlowEnabled ? 'submitted' : 'reported',

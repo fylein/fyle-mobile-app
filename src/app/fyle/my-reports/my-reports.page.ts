@@ -739,7 +739,7 @@ export class MyReportsPage implements OnInit {
       label: 'State',
       type: 'state',
       value: filter.state
-        .map((state) => reportState.transform(state, this.isNewReportsFlowEnabled).replace(/_/g, ''))
+        .map((state) => reportState.transform(state, this.isNewReportsFlowEnabled))
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
