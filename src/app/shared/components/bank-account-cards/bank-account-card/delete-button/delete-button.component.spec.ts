@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { PopoverController } from '@ionic/angular';
-import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 
 import { DeleteButtonComponent } from './delete-button-component';
 
@@ -31,9 +30,7 @@ describe('DeleteButtonComponent', () => {
   });
 
   it('should call popoverController.dismiss when confirmDelete button is clicked', () => {
-    const deleteButton = getElementBySelector(fixture, '.delete-button') as HTMLElement;
-    click(deleteButton);
     component.confirmDelete();
-    expect(popoverController.dismiss).toHaveBeenCalledWith('delete');
+    expect(popoverController.dismiss).toHaveBeenCalledOnceWith('delete');
   });
 });
