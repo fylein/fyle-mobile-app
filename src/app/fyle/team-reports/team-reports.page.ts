@@ -241,9 +241,7 @@ export class TeamReportsPage implements OnInit {
     }
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
-      if (orgSettings?.simplified_report_closure_settings?.enabled) {
-        this.isNewReportsFlowEnabled = true;
-      }
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
     });
 
     setTimeout(() => {
@@ -672,9 +670,7 @@ export class TeamReportsPage implements OnInit {
       label: 'State',
       type: 'state',
       value: filter.state
-        .map((state) => {
-          return reportState.transform(state, this.isNewReportsFlowEnabled).replace(/_/g, ' ');
-        })
+        .map((state) => reportState.transform(state, this.isNewReportsFlowEnabled).replace(/_/g, ' '))
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
