@@ -2580,16 +2580,22 @@ export class AddEditMileagePage implements OnInit {
       const dependentFieldValue = txCustomProperties.find(
         (customProp) => customProp.name === dependentField.field_name
       );
-      //Add dependent field with selected value
-      this.addDependentField(dependentField, parentField.value, dependentFieldValue?.value);
 
-      //Add field which is dependent on the depenent field (if present)
       if (dependentFieldValue?.value) {
+        //Add dependent field with selected value
+        this.addDependentField(dependentField, parentField.value, dependentFieldValue?.value);
+
+        //Add field which is dependent on the depenent field (if present
         const currentField = {
           id: dependentField.id,
           value: dependentFieldValue?.value,
         };
         this.addDependentFieldWithValue(txCustomProperties, dependentFields, currentField);
+      } else {
+        //If the dependent field does not have a value, trigger the onChange event for parent field
+        //This will add a new field(if it exists) for the selected value of parent field
+        const parentDependentFieldControl = this.dependentFieldControls.at(this.dependentFieldControls.length - 1);
+        this.onDependentFieldChanged(parentDependentFieldControl.value);
       }
     }
   }
