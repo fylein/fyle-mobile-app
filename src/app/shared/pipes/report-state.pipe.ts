@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'reportState',
 })
 export class ReportState implements PipeTransform {
-  transform(val, isNewReportsFlowEnabled) {
+  transform(val, isNewReportsFlowEnabled = false) {
     if (!val) {
       return val;
     }
