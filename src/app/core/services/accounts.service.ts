@@ -51,9 +51,10 @@ export class AccountsService {
       orgSettings: OrgSettings;
       expenseType: ExpenseType;
       isPaymentModeConfigurationsEnabled: boolean;
+      isPaidByCompanyHidden: boolean;
     }
   ): AccountOption[] {
-    const { etxn, orgSettings, expenseType, isPaymentModeConfigurationsEnabled } = config;
+    const { etxn, orgSettings, expenseType, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden } = config;
     const isAdvanceEnabled = orgSettings.advances.enabled || orgSettings.advance_requests.enabled;
     const isMultipleAdvanceEnabled = orgSettings.advance_account_settings.multiple_accounts;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
