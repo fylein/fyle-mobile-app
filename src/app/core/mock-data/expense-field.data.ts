@@ -629,6 +629,7 @@ export const customExpensefields: ExpenseField[] = [
     seq: 1,
     type: 'USER_LIST',
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
   },
   {
     id: 206198,
@@ -647,6 +648,7 @@ export const customExpensefields: ExpenseField[] = [
     seq: 1,
     type: 'DATE',
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
   },
   {
     id: 206206,
@@ -665,6 +667,7 @@ export const customExpensefields: ExpenseField[] = [
     seq: 1,
     type: 'LOCATION',
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
   },
   {
     id: 210281,
@@ -683,6 +686,7 @@ export const customExpensefields: ExpenseField[] = [
     seq: 1,
     type: 'MULTI_SELECT',
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
   },
   {
     id: 210649,
@@ -701,6 +705,7 @@ export const customExpensefields: ExpenseField[] = [
     seq: 1,
     type: 'USER_LIST',
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
   },
   {
     id: 211321,
@@ -719,6 +724,7 @@ export const customExpensefields: ExpenseField[] = [
     seq: 1,
     type: 'LOCATION',
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
   },
   {
     id: 211326,
@@ -737,6 +743,7 @@ export const customExpensefields: ExpenseField[] = [
     seq: 1,
     type: 'DATE',
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
   },
   {
     id: 212819,
@@ -755,5 +762,6 @@ export const customExpensefields: ExpenseField[] = [
     seq: 1,
     type: 'MULTI_SELECT',
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
   },
 ];

@@ -1960,6 +1960,7 @@ export const customInputData: ExpenseField[] = [
     seq: 1,
     type: 'DATE',
     updated_at: new Date('2023-02-06T07:08:25.258371+00:00'),
+    parent_field_id: null,
   },
   {
     org_category_ids: [248066, 248067, 248068, 248069, 110351],
@@ -1976,6 +1977,7 @@ export const customInputData: ExpenseField[] = [
     seq: 1,
     type: 'DATE',
     updated_at: new Date('2023-02-06T07:08:25.258371+00:00'),
+    parent_field_id: null,
   },
   {
     id: 211326,
@@ -1994,6 +1996,7 @@ export const customInputData: ExpenseField[] = [
     seq: 1,
     type: 'DATE',
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
   },
   {
     org_category_ids: [248066, 248067, 248068, 248069, 110351],
@@ -2012,5 +2015,6 @@ export const customInputData: ExpenseField[] = [
     seq: 1,
     type: 'BOOLEAN',
     updated_at: new Date('2023-02-06T07:08:06.528927+00:00'),
+    parent_field_id: null,
   },
 ];
