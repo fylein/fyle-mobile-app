@@ -12,6 +12,8 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import * as dayjs from 'dayjs';
+import { ApiV2Response } from '../models/api-v2.model';
+import { PersonalCardTxn } from '../models/personal_card_txn.model';
 
 type matchExpenseResponse = Partial<{
   external_expense_id: string;
@@ -103,12 +105,17 @@ export class PersonalCardsService {
   }
 
   getBankTransactions(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+    config: Partial<{
+      offset: number;
+      limit: number;
+      order: string;
+      queryParams: { btxn_status?: string; ba_id?: string };
+    }> = {
       offset: 0,
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<PersonalCardTxn>> {
     return this.apiv2Service.get('/personal_bank_transactions', {
       params: {
         limit: config.limit,
@@ -139,7 +146,7 @@ export class PersonalCardsService {
     });
   }
 
-  getBankTransactionsCount(queryParams) {
+  getBankTransactionsCount(queryParams: { btxn_status?: string; ba_id?: string }): Observable<number> {
     const params = {
       limit: 10,
       offset: 0,
