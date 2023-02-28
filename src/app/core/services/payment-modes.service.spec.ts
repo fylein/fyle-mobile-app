@@ -74,6 +74,7 @@ describe('PaymentModesService', () => {
       expect(res).toEqual(
         orgUserSettingsData.payment_mode_settings.allowed && orgUserSettingsData.payment_mode_settings.enabled
       );
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
