@@ -66,6 +66,7 @@ describe('PopupService', () => {
       cssClass: 'dialog-popover',
     });
     expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+    expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual('primary');
   });
