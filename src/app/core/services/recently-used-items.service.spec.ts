@@ -73,7 +73,7 @@ describe('RecentlyUsedItemsService', () => {
       });
     });
 
-    it('returns null when there are no recently used projects', (done) => {
+    it('should return null when there are no recently used projects', (done) => {
       const config = {
         recentValues: null,
         eou: apiEouRes,
