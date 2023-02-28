@@ -1,16 +1,69 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import {
+  dependentFieldValuesApiParams,
+  dependentFieldValuesApiResponse,
+  dependentFieldValuesApiResponseForSearchQuery,
+  dependentFieldValuesMethodParams,
+  dependentFieldValuesWithSearchQueryApiParams,
+  dependentFieldValuesWithSearchQueryMethodParams,
+} from '../test-data/dependent-fields.service.spec.data';
 
 import { DependentFieldsService } from './dependent-fields.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
-xdescribe('DependentFieldsService', () => {
-  let service: DependentFieldsService;
+describe('DependentFieldsService', () => {
+  let dependentFieldsService: DependentFieldsService;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(DependentFieldsService);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+
+    TestBed.configureTestingModule({
+      providers: [
+        DependentFieldsService,
+        {
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
+        },
+      ],
+    });
+
+    dependentFieldsService = TestBed.inject(DependentFieldsService);
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(dependentFieldsService).toBeTruthy();
+  });
+
+  it('getOptionsForDependentField(): should return all options for dependent field', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(dependentFieldValuesApiResponse));
+
+    const result = dependentFieldsService.getOptionsForDependentField(dependentFieldValuesMethodParams);
+    result.subscribe((res) => {
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith(
+        '/dependent_expense_field_values',
+        dependentFieldValuesApiParams
+      );
+      expect(res).toEqual(dependentFieldValuesApiResponse.data);
+      done();
+    });
+  });
+
+  it('getOptionsForDependentField(): should return options for dependent field based on search query', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(dependentFieldValuesApiResponseForSearchQuery));
+
+    const result = dependentFieldsService.getOptionsForDependentField(dependentFieldValuesWithSearchQueryMethodParams);
+    result.subscribe((res) => {
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith(
+        '/dependent_expense_field_values',
+        dependentFieldValuesWithSearchQueryApiParams
+      );
+      expect(res).toEqual(dependentFieldValuesApiResponseForSearchQuery.data);
+      done();
+    });
   });
 });
