@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
-import { from, empty, EMPTY, forkJoin, noop, concat, of } from 'rxjs';
-import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
+import { from, noop } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
@@ -14,6 +14,7 @@ import { ParsedReceipt } from '../models/parsed_receipt.model';
 import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
 import { CurrencyService } from './currency.service';
+import { OrgUserSettingsService } from './org-user-settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -43,7 +44,8 @@ export class TransactionsOutboxService {
     private httpClient: HttpClient,
     private reportService: ReportService,
     private trackingService: TrackingService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -239,7 +241,7 @@ export class TransactionsOutboxService {
 
   // TODO: High impact area. Fix later
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  addEntry(transaction, dataUrls, comments?, reportId?, applyMagic?) {
+  addEntry(transaction, dataUrls, comments?, reportId?, applyMagic = false) {
     this.queue.push({
       transaction,
       dataUrls,
@@ -253,7 +255,7 @@ export class TransactionsOutboxService {
 
   // TODO: High impact area. Fix later
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?) {
+  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic = false) {
     this.addEntry(transaction, dataUrls, comments, reportId, applyMagic);
     return this.syncEntry(this.queue.pop());
   }
@@ -353,7 +355,20 @@ export class TransactionsOutboxService {
           }
 
           if (entry.applyMagic) {
-            that.addDataExtractionEntry(resp, entry.dataUrls);
+            const isInstafyleEnabled$ = this.orgUserSettingsService
+              .get()
+              .pipe(
+                map(
+                  (orgUserSettings) =>
+                    orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
+                )
+              );
+
+            isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
+              if (isInstafyleEnabled) {
+                that.addDataExtractionEntry(resp, entry.dataUrls);
+              }
+            });
           }
 
           that
