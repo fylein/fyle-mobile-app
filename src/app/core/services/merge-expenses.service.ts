@@ -20,6 +20,7 @@ import { TaxGroupService } from './tax-group.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { cloneDeep } from 'lodash';
 import { CustomProperty } from '../models/custom-properties.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 type Option = Partial<{
   label: string;
@@ -594,14 +595,14 @@ export class MergeExpensesService {
 
   getProjectDependentFieldsMapping(
     expenses: Expense[],
-    dependentFields: CustomInputs[]
+    dependentFields: TxnCustomProperties[]
   ): {
     [projectId: number]: CustomProperty<string>[];
   } {
     const projectDependentFieldsMapping = {};
     expenses.forEach((expense) => {
       const txDependentFields: CustomProperty<string>[] = dependentFields
-        ?.map((dependentField: CustomInputs) =>
+        ?.map((dependentField: TxnCustomProperties) =>
           expense.tx_custom_properties.find(
             (txCustomProperty: CustomProperty<string>) => dependentField.name === txCustomProperty.name
           )
