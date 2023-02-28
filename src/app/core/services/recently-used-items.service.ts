@@ -7,7 +7,6 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
 import { ExtendedProject } from '../models/v2/extended-project.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgCategoryListItem } from '../models/v1/org-category.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 @Injectable({
