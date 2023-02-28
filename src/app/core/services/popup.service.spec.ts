@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { PopoverController } from '@ionic/angular';
+import { FyPopupComponent } from 'src/app/shared/components/fy-popup/fy-popup.component';
 import { PopupService } from './popup.service';
 
 describe('PopupService', () => {
@@ -7,7 +8,7 @@ describe('PopupService', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
 
   beforeEach(() => {
-    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'present']);
     TestBed.configureTestingModule({
       providers: [
         PopupService,
@@ -26,9 +27,9 @@ describe('PopupService', () => {
   });
 
   it('showPopup(): should show popup to the user', async () => {
+    const popoverSpy = jasmine.createSpyObj('popup', ['onWillDismiss', 'present']) as any;
     popoverController.create.and.returnValue(
       new Promise((resolve) => {
-        const popoverSpy = jasmine.createSpyObj('popup', ['onWillDismiss', 'present']) as any;
         popoverSpy.onWillDismiss.and.returnValue(
           new Promise((resInt) => {
             const data = {
@@ -50,6 +51,21 @@ describe('PopupService', () => {
         text: 'Delete',
       },
     });
+
+    expect(popoverController.create).toHaveBeenCalledWith({
+      componentProps: {
+        config: {
+          header: 'Delete Expense',
+          message: 'Are you sure you want to delete this expense?',
+          primaryCta: {
+            text: 'Delete',
+          },
+        },
+      },
+      component: FyPopupComponent,
+      cssClass: 'dialog-popover',
+    });
+    expect(popoverSpy.present).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual('primary');
   });
