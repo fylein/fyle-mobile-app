@@ -424,6 +424,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isNewReportsFlowEnabled = false;
     this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.MEDIUM, () => {
       if (this.headerState === HeaderState.multiselect) {
         this.switchSelectionMode();
