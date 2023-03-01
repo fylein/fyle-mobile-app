@@ -73,7 +73,7 @@ export class RecentlyUsedItemsService {
       const recentCostCenterList = recentValue.recent_cost_center_ids
         .map((id) => costCentersMap[id])
         .filter((id) => id);
-      if (recentCostCenterList) {
+      if (recentCostCenterList.length > 0) {
         return of(
           recentCostCenterList.map((costCenter) => ({ label: costCenter.value.name, value: costCenter.value }))
         );

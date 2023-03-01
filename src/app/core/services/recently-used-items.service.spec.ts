@@ -8,11 +8,16 @@ import {
   recentCurrencyRes,
   currencies,
   recentlyUsedResWithoutCurr,
+  recentlyUsedCostCentersRes,
+  recentlyUsedResWithoutCostCenterId,
+  recentlyUsedCategoryWithoutId,
+  recentUsedCategoriesRes,
+  costCentersResWithNonMatchingIds,
 } from '../mock-data/recently-used.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { of } from 'rxjs';
 
-describe('RecentlyUsedItemsService', () => {
+fdescribe('RecentlyUsedItemsService', () => {
   let recentlyUsedItemsService: RecentlyUsedItemsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let projectService: jasmine.SpyObj<ProjectsService>;
@@ -99,6 +104,51 @@ describe('RecentlyUsedItemsService', () => {
         expect(res).toEqual([]);
         done();
       });
+    });
+  });
+
+  describe('getRecentCostCenters():', () => {
+    it('should get recent cost centers', (done) => {
+      recentlyUsedItemsService.getRecentCostCenters(recentlyUsedCostCentersRes, recentlyUsedRes).subscribe((res) => {
+        expect(res).toEqual(recentlyUsedCostCentersRes);
+        done();
+      });
+    });
+
+    it('should return null when there are no recent cost centers', (done) => {
+      recentlyUsedItemsService
+        .getRecentCostCenters(recentlyUsedCostCentersRes, recentlyUsedResWithoutCostCenterId)
+        .subscribe((res) => {
+          expect(res).toBeNull();
+          done();
+        });
+    });
+
+    it('should return null when there are no matching recent cost center ids', (done) => {
+      recentlyUsedItemsService
+        .getRecentCostCenters(recentlyUsedCostCentersRes, costCentersResWithNonMatchingIds)
+        .subscribe((res) => {
+          expect(res).toBeNull();
+          done();
+        });
+    });
+  });
+
+  describe('getRecentCategories() : ', () => {
+    it('should get recent categories', (done) => {
+      recentlyUsedItemsService.getRecentCategories(recentUsedCategoriesRes, recentlyUsedRes).subscribe((res) => {
+        expect(res).toEqual(recentUsedCategoriesRes);
+      });
+      done();
+    });
+
+    it('should return null if there are no recent categories', (done) => {
+      recentlyUsedItemsService
+        .getRecentCategories(recentUsedCategoriesRes, recentlyUsedCategoryWithoutId)
+        .subscribe((res) => {
+          expect(res).toBeNull();
+          done();
+        });
     });
   });
 });
