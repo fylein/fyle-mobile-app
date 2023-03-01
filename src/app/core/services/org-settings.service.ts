@@ -543,6 +543,7 @@ export class OrgSettingsService {
       company_expenses_beta_settings: outgoing.company_expenses_beta_settings,
       visa_enrollment_settings: outgoing.visa_enrollment_settings,
       mastercard_enrollment_settings: outgoing.mastercard_enrollment_settings,
+      simplified_report_closure_settings: outgoing.simplified_report_closure_settings,
     };
   }
 }
