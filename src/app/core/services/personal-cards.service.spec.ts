@@ -278,8 +278,8 @@ describe('PersonalCardsService', () => {
       const filters = {
         createdOn: {
           name: 'custom',
-          customDateStart: '2023-02-21T18:30:00.000Z',
-          customDateEnd: '2023-02-23T18:30:00.000Z',
+          customDateStart: '2023-02-21T00:00:00.000Z',
+          customDateEnd: '2023-02-23T00:00:00.000Z',
         },
       };
 
@@ -291,7 +291,7 @@ describe('PersonalCardsService', () => {
         {
           label: 'Created On',
           type: 'date',
-          value: '2023-02-22 to 2023-02-24',
+          value: '2023-02-21 to 2023-02-23',
         },
       ]);
     });
@@ -300,7 +300,7 @@ describe('PersonalCardsService', () => {
       const filters = {
         createdOn: {
           name: 'custom',
-          customDateStart: '2023-02-21T18:30:00.000Z',
+          customDateStart: '2023-02-21T00:00:00.000Z',
         },
       };
 
@@ -312,7 +312,7 @@ describe('PersonalCardsService', () => {
         {
           label: 'Created On',
           type: 'date',
-          value: '>= 2023-02-22',
+          value: '>= 2023-02-21',
         },
       ]);
     });
@@ -321,7 +321,7 @@ describe('PersonalCardsService', () => {
       const filters = {
         createdOn: {
           name: 'custom',
-          customDateEnd: '2023-02-23T18:30:00.000Z',
+          customDateEnd: '2023-02-23T00:00:00.000Z',
         },
       };
 
@@ -333,7 +333,7 @@ describe('PersonalCardsService', () => {
         {
           label: 'Created On',
           type: 'date',
-          value: '<= 2023-02-24',
+          value: '<= 2023-02-23',
         },
       ]);
     });
@@ -344,8 +344,8 @@ describe('PersonalCardsService', () => {
       const filters = {
         updatedOn: {
           name: 'custom',
-          customDateStart: '2023-02-21T18:30:00.000Z',
-          customDateEnd: '2023-02-23T18:30:00.000Z',
+          customDateStart: '2023-02-21T00:00:00.000Z',
+          customDateEnd: '2023-02-23T00:00:00.000Z',
         },
       };
 
@@ -357,7 +357,7 @@ describe('PersonalCardsService', () => {
         {
           label: 'Updated On',
           type: 'date',
-          value: '2023-02-22 to 2023-02-24',
+          value: '2023-02-21 to 2023-02-23',
         },
       ]);
     });
@@ -366,7 +366,7 @@ describe('PersonalCardsService', () => {
       const filters = {
         updatedOn: {
           name: 'custom',
-          customDateStart: '2023-02-21T18:30:00.000Z',
+          customDateStart: '2023-02-21T00:00:00.000Z',
         },
       };
 
@@ -378,7 +378,7 @@ describe('PersonalCardsService', () => {
         {
           label: 'Updated On',
           type: 'date',
-          value: '>= 2023-02-22',
+          value: '>= 2023-02-21',
         },
       ]);
     });
@@ -387,7 +387,7 @@ describe('PersonalCardsService', () => {
       const filters = {
         updatedOn: {
           name: 'custom',
-          customDateEnd: '2023-02-23T18:30:00.000Z',
+          customDateEnd: '2023-02-23T00:00:00.000Z',
         },
       };
 
@@ -399,7 +399,7 @@ describe('PersonalCardsService', () => {
         {
           label: 'Updated On',
           type: 'date',
-          value: '<= 2023-02-24',
+          value: '<= 2023-02-23',
         },
       ]);
     });
