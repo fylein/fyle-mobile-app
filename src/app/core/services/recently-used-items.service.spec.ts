@@ -17,7 +17,7 @@ import {
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { of } from 'rxjs';
 
-fdescribe('RecentlyUsedItemsService', () => {
+describe('RecentlyUsedItemsService', () => {
   let recentlyUsedItemsService: RecentlyUsedItemsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let projectService: jasmine.SpyObj<ProjectsService>;
