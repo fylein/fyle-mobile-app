@@ -38,7 +38,7 @@ export class PolicyService {
       is_reimbursable: transaction.skip_reimbursement === null ? null : !transaction.skip_reimbursement,
       distance: transaction.distance,
       distance_unit: transaction.distance_unit,
-      locations: transaction.locations.filter((location) => !!location),
+      locations: transaction.locations?.filter((location) => !!location),
       custom_fields: transaction.custom_properties,
       started_at: transaction.from_dt,
       ended_at: transaction.to_dt,
@@ -53,8 +53,8 @@ export class PolicyService {
     };
 
     if (
-      transaction.fyle_category.toLowerCase() === 'flight' ||
-      transaction.fyle_category.toLowerCase() === 'airlines'
+      transaction.fyle_category?.toLowerCase() === 'flight' ||
+      transaction.fyle_category?.toLowerCase() === 'airlines'
     ) {
       if (transaction.flight_journey_travel_class) {
         platformPolicyExpense.travel_classes.push(transaction.flight_journey_travel_class);
@@ -62,9 +62,9 @@ export class PolicyService {
       if (transaction.flight_return_travel_class) {
         platformPolicyExpense.travel_classes.push(transaction.flight_return_travel_class);
       }
-    } else if (transaction.fyle_category.toLowerCase() === 'bus' && transaction.bus_travel_class) {
+    } else if (transaction.fyle_category?.toLowerCase() === 'bus' && transaction.bus_travel_class) {
       platformPolicyExpense.travel_classes.push(transaction.bus_travel_class);
-    } else if (transaction.fyle_category.toLowerCase() === 'train' && transaction.train_travel_class) {
+    } else if (transaction.fyle_category?.toLowerCase() === 'train' && transaction.train_travel_class) {
       platformPolicyExpense.travel_classes.push(transaction.train_travel_class);
     }
 
