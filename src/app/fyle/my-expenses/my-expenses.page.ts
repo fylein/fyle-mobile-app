@@ -178,6 +178,8 @@ export class MyExpensesPage implements OnInit {
 
   hardwareBackButton: Subscription;
 
+  isNewReportsFlowEnabled = false;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -453,6 +455,7 @@ export class MyExpensesPage implements OnInit {
     this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       this.setupActionSheet(orgSettings);
     });
 
@@ -1234,7 +1237,7 @@ export class MyExpensesPage implements OnInit {
       .pipe(
         switchMap((openReports) => {
           const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
-            data: { openReports },
+            data: { openReports, isNewReportsFlowEnabled: this.isNewReportsFlowEnabled },
             panelClass: ['mat-bottom-sheet-1'],
           });
           return addTxnToReportDialog.afterDismissed();

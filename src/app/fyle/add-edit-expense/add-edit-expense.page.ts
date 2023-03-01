@@ -345,6 +345,8 @@ export class AddEditExpensePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  isNewReportsFlowEnabled = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -739,6 +741,7 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       map(({ orgSettings, costCenters, projects, txnFields }) => {
         const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
+        this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
 
         const actionSheetOptions = [];
 

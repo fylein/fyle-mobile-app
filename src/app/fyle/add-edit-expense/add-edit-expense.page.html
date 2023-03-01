@@ -952,6 +952,7 @@
                     [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                     [autoSubmissionReportName]="autoSubmissionReportName$|async"
                     [options]="reports"
+                    [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
                     formControlName="report"
                   ></app-fy-add-to-report>
                 </div>
