@@ -1,10 +1,12 @@
 import { RecentlyUsed } from '../models/v1/recently_used.model';
 import { ExtendedProject } from '../models/v2/extended-project.model';
 import { Currency, CurrencyName } from '../models/currency.model';
+import { CostCenter } from '../models/v1/cost-center.model';
+import { OrgCategoryListItem } from '../models/v1/org-category.model';
 
 export const recentlyUsedRes: RecentlyUsed = {
   recent_project_ids: [168826, 247943, 247946],
-  recent_org_category_ids: [89469, 129111, 16576, 106680],
+  recent_org_category_ids: [89469, 129111, 16576],
   recent_cost_center_ids: [6671, 6725, 89, 2406],
   recent_currencies: ['ARS', 'INR', 'EUR', 'CLP'],
   recent_vehicle_types: ['two_wheeler'],
@@ -116,3 +118,121 @@ export const recentlyUsedResWithoutCurr = {
   ...recentlyUsedRes,
   recent_currencies: [],
 };
+
+export const recentlyUsedResWithoutCostCenterId = {
+  ...recentlyUsedRes,
+  recent_cost_center_ids: [],
+};
+
+export const recentlyUsedCategoryWithoutId = {
+  ...recentlyUsedRes,
+  recent_org_category_ids: [],
+};
+
+export const costCentersResWithNonMatchingIds = {
+  ...recentlyUsedRes,
+  recent_cost_center_ids: [2456, 2457, 3457, 3458],
+};
+
+export const recentlyUsedCostCentersRes: Partial<{ label: string; value: CostCenter; selected?: boolean }[]> = [
+  {
+    label: 'Cost center 1',
+    value: {
+      active: true,
+      code: '92344',
+      created_at: new Date('2020-10-27T17:07:55.516633+00:00'),
+      description: 'This is the description for cost center 1',
+      id: 6671,
+      name: 'Cost center 1',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2020-10-27T17:08:13.441319+00:00'),
+    },
+  },
+  {
+    label: 'Cost center 2',
+    value: {
+      active: true,
+      code: 'A very long cost center code',
+      created_at: new Date('2020-12-08T03:11:07.653324+00:00'),
+      description: 'This is the description for cost center 2',
+      id: 6725,
+      name: 'Cost center 2',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2022-07-14T13:13:56.757449+00:00'),
+    },
+  },
+  {
+    label: 'Cost center 3',
+    value: {
+      active: true,
+      code: 'Administrion',
+      created_at: new Date('2019-02-01T06:59:07.889634+00:00'),
+      description: 'This is the description for cost center 3',
+      id: 89,
+      name: 'Cost center 3',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2019-08-28T10:11:41.004307+00:00'),
+    },
+  },
+  {
+    label: 'Cost center 4',
+    value: {
+      active: true,
+      code: 'code1',
+      created_at: new Date('2019-06-24T08:25:08.307285+00:00'),
+      description: 'This is the description for cost center 4',
+      id: 2406,
+      name: 'Cost center 4',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2022-09-08T19:17:19.671789+00:00'),
+    },
+  },
+];
+
+export const recentUsedCategoriesRes: OrgCategoryListItem[] = [
+  {
+    label: 'Office Supplies',
+    value: {
+      code: null,
+      created_at: new Date('2020-03-04T09:51:01.619958+00:00'),
+      displayName: 'Office supplies',
+      enabled: true,
+      fyle_category: 'Mail',
+      id: 89469,
+      name: 'Office Supplies',
+      org_id: 'orNVthTo2Zyo',
+      sub_category: 'Office supplies',
+      updated_at: new Date('2022-11-23T13:11:51.771676+00:00'),
+    },
+  },
+  {
+    label: 'Accm.Depr. Furniture & Fixtures',
+    value: {
+      code: '15510',
+      created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
+      displayName: 'Accm.Depr. Furniture & Fixtures',
+      enabled: true,
+      fyle_category: null,
+      id: 129111,
+      name: 'Accm.Depr. Furniture & Fixtures',
+      org_id: 'orNVthTo2Zyo',
+      sub_category: 'Accm.Depr. Furniture & Fixtures',
+      updated_at: new Date('2022-05-05T17:45:11.742874+00:00'),
+    },
+  },
+  {
+    label: 'Flight',
+    value: {
+      code: null,
+      created_at: new Date('2018-01-31T23:50:27.268007+00:00'),
+      displayName: 'Flight',
+      enabled: true,
+      fyle_category: 'Airlines',
+      id: 16576,
+      name: 'Flight',
+      org_id: 'orNVthTo2Zyo',
+      sub_category: 'Flight',
+      updated_at: new Date('2022-11-23T13:11:51.771676+00:00'),
+    },
+  },
+];
