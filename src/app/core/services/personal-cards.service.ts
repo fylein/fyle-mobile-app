@@ -23,20 +23,22 @@ type matchExpenseResponse = Partial<{
 
 type Filter = Partial<{
   amount: number;
-  createdOn: Partial<{
+  createdOn?: Partial<{
     name?: string;
     customDateStart?: Date;
     customDateEnd?: Date;
   }>;
-  updatedOn: Partial<{
+  updatedOn?: Partial<{
     name?: string;
     customDateStart?: Date;
     customDateEnd?: Date;
   }>;
-  transactionType: string;
+  transactionType?: string;
 }>;
 
-type QueryParam = { ba_id?: string; btxn_status?: string; or?: string[] };
+type QueryParam = { ba_id?: string; btxn_status?: string; or?: string };
+
+type Params = { pageNumber: number; queryParams: QueryParam; sortParam: string; sortDir: string; searchString: string };
 
 @Injectable({
   providedIn: 'root',
@@ -163,20 +165,20 @@ export class PersonalCardsService {
     });
   }
 
-  hideTransactions(txnIds: string[]): Observable<[]> {
+  hideTransactions(txnIds: string[]): Observable<Expense[]> {
     return this.expenseAggregationService.post('/bank_transactions/hide/bulk', {
       bank_transaction_ids: txnIds,
     });
   }
 
-  unmatchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<any> {
+  unmatchExpense(transactionSplitGroupId: string, externalExpenseId: string) {
     return this.apiService.post('/transactions/external_expense/unmatch', {
       transaction_split_group_id: transactionSplitGroupId,
       external_expense_id: externalExpenseId,
     });
   }
 
-  generateDateParams(data, currentParams) {
+  generateDateParams(data: { range: string; endDate?: string; startDate?: string }, currentParams: Partial<Params>) {
     if (data.range === 'This Month') {
       const thisMonth = this.dateService.getThisMonthRange();
       currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${thisMonth.from.toISOString()},btxn_transaction_dt.lt.${thisMonth.to.toISOString()}))`;
@@ -310,7 +312,12 @@ export class PersonalCardsService {
     }
   }
 
-  generateCustomDateParams(newQueryParams: QueryParam, filters: Filter, type: string, queryType: string) {
+  generateCustomDateParams(
+    newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[] },
+    filters: Filter,
+    type: string,
+    queryType: string
+  ) {
     if (filters[type].name === DateFilters.custom) {
       const startDate = filters[type].customDateStart?.toISOString();
       const endDate = filters[type].customDateEnd?.toISOString();
@@ -324,7 +331,7 @@ export class PersonalCardsService {
     }
   }
 
-  generateCreditParams(newQueryParams: QueryParam, filters: Filter) {
+  generateCreditParams(newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[] }, filters: Filter) {
     const transactionTypeMap = {
       credit: '(btxn_transaction_type.in.(credit))',
       debit: '(btxn_transaction_type.in.(debit))',
@@ -352,7 +359,7 @@ export class PersonalCardsService {
     return filterPills;
   }
 
-  private generateUpdatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
+  private generateUpdatedOnCustomDatePill(filters: Filter, filterPills: FilterPill[]) {
     const startDate = filters.updatedOn.customDateStart && dayjs(filters.updatedOn.customDateStart).format('YYYY-MM-D');
     const endDate = filters.updatedOn.customDateEnd && dayjs(filters.updatedOn.customDateEnd).format('YYYY-MM-D');
 
@@ -395,7 +402,7 @@ export class PersonalCardsService {
     }
   }
 
-  private generateCreatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
+  private generateCreatedOnCustomDatePill(filters: Filter, filterPills: FilterPill[]) {
     const startDate = filters.createdOn.customDateStart && dayjs(filters.createdOn.customDateStart).format('YYYY-MM-D');
     const endDate = filters.createdOn.customDateEnd && dayjs(filters.createdOn.customDateEnd).format('YYYY-MM-D');
 
