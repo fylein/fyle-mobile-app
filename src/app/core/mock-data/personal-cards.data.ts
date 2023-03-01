@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import { ApiV2Response } from '../models/api-v2.model';
 import { PersonalCard } from '../models/personal_card.model';
 

@@ -21,7 +21,7 @@ type matchExpenseResponse = Partial<{
   transaction_split_group_id: string;
 }>;
 
-type Filters = Partial<{
+type Filter = Partial<{
   amount: number;
   createdOn: Partial<{
     name?: string;
@@ -35,6 +35,8 @@ type Filters = Partial<{
   }>;
   transactionType: string;
 }>;
+
+type QueryParam = { ba_id?: string; btxn_status?: string; or?: string[] };
 
 @Injectable({
   providedIn: 'root',
@@ -209,8 +211,8 @@ export class PersonalCardsService {
     return currentParams;
   }
 
-  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
-    const generatedFilters: Filters = {};
+  convertFilters(selectedFilters: SelectedFilters<any>[]): Filter {
+    const generatedFilters: Filter = {};
     const createdOnDateFilter = selectedFilters.find((filter) => filter.name === 'Created On');
     if (createdOnDateFilter) {
       generatedFilters.createdOn = { name: createdOnDateFilter.value };
@@ -238,7 +240,7 @@ export class PersonalCardsService {
     return generatedFilters;
   }
 
-  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
+  generateSelectedFilters(filter: Filter): SelectedFilters<any>[] {
     const generatedFilters: SelectedFilters<any>[] = [];
 
     if (filter?.updatedOn) {
@@ -308,10 +310,10 @@ export class PersonalCardsService {
     }
   }
 
-  generateCustomDateParams(newQueryParams: any, filters: Filters, type: string, queryType: string) {
+  generateCustomDateParams(newQueryParams: QueryParam, filters: Filter, type: string, queryType: string) {
     if (filters[type].name === DateFilters.custom) {
-      const startDate = filters[type].customDateStart.toISOString();
-      const endDate = filters[type].customDateEnd.toISOString();
+      const startDate = filters[type].customDateStart?.toISOString();
+      const endDate = filters[type].customDateEnd?.toISOString();
       if (filters[type].customDateStart && filters[type].customDateEnd) {
         newQueryParams.or.push(`(and(${queryType}.gte.${startDate},${queryType}.lt.${endDate}))`);
       } else if (filters[type].customDateStart) {
@@ -322,7 +324,7 @@ export class PersonalCardsService {
     }
   }
 
-  generateCreditParams(newQueryParams, filters) {
+  generateCreditParams(newQueryParams: QueryParam, filters: Filter) {
     const transactionTypeMap = {
       credit: '(btxn_transaction_type.in.(credit))',
       debit: '(btxn_transaction_type.in.(debit))',
@@ -332,7 +334,7 @@ export class PersonalCardsService {
     }
   }
 
-  generateFilterPills(filters: Filters) {
+  generateFilterPills(filters: Filter) {
     const filterPills: FilterPill[] = [];
 
     if (filters?.createdOn) {
