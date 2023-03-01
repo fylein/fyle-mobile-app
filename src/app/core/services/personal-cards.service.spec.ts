@@ -12,6 +12,7 @@ import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filter
 import { filterData1 } from '../mock-data/filter.data';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { apiExpenseRes, etxncData } from '../mock-data/expense.data';
+import * as dayjs from 'dayjs';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
@@ -710,6 +711,10 @@ describe('PersonalCardsService', () => {
 
   describe('generateTxnDateParams():', () => {
     it('should generate txn date param when range is this week', () => {
+      spyOn(dateService, 'getThisWeekRange').and.returnValue({
+        from: dayjs().startOf('week'),
+        to: dayjs().startOf('week').add(7, 'days'),
+      });
       const type = 'createdOn';
 
       const filters = {
@@ -733,9 +738,14 @@ describe('PersonalCardsService', () => {
         btxn_status: 'in.(INITIALIZED)',
         ba_id: 'eq.baccLesaRlyvLY',
       });
+      expect(dateService.getThisWeekRange).toHaveBeenCalledTimes(1);
     });
 
     it('should generate txn date param when range is this month', () => {
+      spyOn(dateService, 'getThisMonthRange').and.returnValue({
+        from: new Date('2023-02-28T00:00:00.000Z'),
+        to: new Date('2023-03-31T00:00:00.000Z'),
+      });
       const type = 'updatedOn';
 
       const filters = {
@@ -754,14 +764,19 @@ describe('PersonalCardsService', () => {
       expect(queryParam).toEqual({
         or: [
           '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
-          '(and(btxn_updated_at.gte.2023-02-28T18:30:00.000Z,btxn_updated_at.lt.2023-03-31T18:29:00.000Z))',
+          '(and(btxn_updated_at.gte.2023-02-28T00:00:00.000Z,btxn_updated_at.lt.2023-03-31T00:00:00.000Z))',
         ],
         btxn_status: 'in.(INITIALIZED)',
         ba_id: 'eq.baccLesaRlyvLY',
       });
+      expect(dateService.getThisMonthRange).toHaveBeenCalledTimes(1);
     });
 
     it('should generate txn date param when range is last month', () => {
+      spyOn(dateService, 'getLastMonthRange').and.returnValue({
+        from: new Date('2023-01-31T00:00:00.000Z'),
+        to: new Date('2023-02-28T00:00:00.000Z'),
+      });
       const type = 'updatedOn';
 
       const filters = {
@@ -786,11 +801,12 @@ describe('PersonalCardsService', () => {
         or: [
           '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
           '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
-          '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
+          '(and(btxn_updated_at.gte.2023-01-31T00:00:00.000Z,btxn_updated_at.lt.2023-02-28T00:00:00.000Z))',
         ],
         btxn_status: 'in.(INITIALIZED)',
         ba_id: 'eq.baccLesaRlyvLY',
       });
+      expect(dateService.getLastMonthRange).toHaveBeenCalledTimes(1);
     });
   });
 
