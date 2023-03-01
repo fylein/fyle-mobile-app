@@ -113,6 +113,8 @@ export class ViewExpensePage implements OnInit {
 
   systemCategoriesWithTaxi: string[];
 
+  isNewReportsFlowEnabled = false;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -337,6 +339,7 @@ export class ViewExpensePage implements OnInit {
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
     });
 
     this.expenseFieldsService

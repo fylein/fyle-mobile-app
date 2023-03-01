@@ -97,7 +97,7 @@
             [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
           >
             <div class="state-pill state-{{etxn.tx_state | expenseState}}">
-              {{ etxn.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
+              {{ etxn.tx_state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
             </div>
           </div>
         </div>

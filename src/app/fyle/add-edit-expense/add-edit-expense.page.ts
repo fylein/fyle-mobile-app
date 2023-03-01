@@ -741,7 +741,6 @@ export class AddEditExpensePage implements OnInit {
     }).pipe(
       map(({ orgSettings, costCenters, projects, txnFields }) => {
         const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
-        this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
 
         const actionSheetOptions = [];
 
@@ -2379,6 +2378,8 @@ export class AddEditExpensePage implements OnInit {
     orgSettings$.subscribe((orgSettings) => {
       this.isCorporateCreditCardEnabled =
         orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
 
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&

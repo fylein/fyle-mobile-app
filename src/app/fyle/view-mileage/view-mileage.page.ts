@@ -82,6 +82,8 @@ export class ViewMileagePage implements OnInit {
 
   projectFieldName: string;
 
+  isNewReportsFlowEnabled = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -296,6 +298,7 @@ export class ViewMileagePage implements OnInit {
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
+        this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       });
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(

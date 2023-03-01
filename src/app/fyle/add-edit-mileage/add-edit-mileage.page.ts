@@ -217,6 +217,8 @@ export class AddEditMileagePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  isNewReportsFlowEnabled = false;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -920,6 +922,10 @@ export class AddEditMileagePage implements OnInit {
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
       )
     );
+
+    orgSettings$.subscribe((orgSettings) => {
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+    });
 
     this.setupNetworkWatcher();
 
