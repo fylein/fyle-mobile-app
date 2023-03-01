@@ -531,10 +531,8 @@ describe('PersonalCardsService', () => {
     });
   });
 
-  describe('generateFilterPills():', () => {
-    it('should generate filter pills with all properties', () => {
-      expect(personalCardsService.generateFilterPills(filterData1)).toEqual(allFilterPills);
-    });
+  it('should generate filter pills with all properties', () => {
+    expect(personalCardsService.generateFilterPills(filterData1)).toEqual(allFilterPills);
   });
 
   describe('generateDateParams():', () => {
@@ -721,10 +719,7 @@ describe('PersonalCardsService', () => {
       };
 
       const queryParam = {
-        or: [
-          '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
-          '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
-        ],
+        or: ['(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))'],
         btxn_status: 'in.(INITIALIZED)',
         ba_id: 'eq.baccLesaRlyvLY',
       };
@@ -733,7 +728,6 @@ describe('PersonalCardsService', () => {
       expect(queryParam).toEqual({
         or: [
           '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
-          '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
           '(and(btxn_created_at.gte.2023-02-25T18:30:00.000Z,btxn_created_at.lt.2023-03-04T18:30:00.000Z))',
         ],
         btxn_status: 'in.(INITIALIZED)',
@@ -751,10 +745,7 @@ describe('PersonalCardsService', () => {
       };
 
       const queryParam = {
-        or: [
-          '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
-          '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
-        ],
+        or: ['(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))'],
         btxn_status: 'in.(INITIALIZED)',
         ba_id: 'eq.baccLesaRlyvLY',
       };
@@ -762,7 +753,6 @@ describe('PersonalCardsService', () => {
       personalCardsService.generateTxnDateParams(queryParam, filters, type);
       expect(queryParam).toEqual({
         or: [
-          '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
           '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
           '(and(btxn_updated_at.gte.2023-02-28T18:30:00.000Z,btxn_updated_at.lt.2023-03-31T18:29:00.000Z))',
         ],

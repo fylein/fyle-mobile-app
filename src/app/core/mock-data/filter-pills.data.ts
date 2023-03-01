@@ -20,12 +20,12 @@ export const allFilterPills: FilterPill[] = [
   {
     label: 'Created On',
     type: 'date',
-    value: '2023-02-21 to 2023-02-23',
+    value: '2023-02-20 to 2023-02-22',
   },
   {
     label: 'Updated On',
     type: 'date',
-    value: '2023-02-23 to 2023-02-25',
+    value: '2023-02-22 to 2023-02-24',
   },
   {
     label: 'Transactions Type',
