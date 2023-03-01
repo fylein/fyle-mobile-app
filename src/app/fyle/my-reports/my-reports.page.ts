@@ -259,14 +259,13 @@ export class MyReportsPage implements OnInit {
       map((orgSettings) => orgSettings?.simplified_report_closure_settings?.enabled)
     );
     this.isCCCOnlyOrg$ = orgSettings$.pipe(
-      map((orgSettings) => {
-        return (
+      map(
+        (orgSettings) =>
           orgSettings.payment_mode_settings?.allowed &&
           orgSettings.payment_mode_settings?.enabled &&
           orgSettings.payment_mode_settings?.payment_modes_order?.length === 1 &&
           orgSettings.payment_mode_settings?.payment_modes_order[0] === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-        );
-      })
+      )
     );
 
     this.myReports$.subscribe(noop);
@@ -1034,7 +1033,7 @@ export class MyReportsPage implements OnInit {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
-        filterOptions: filterOptions,
+        filterOptions,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

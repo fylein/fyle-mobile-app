@@ -931,7 +931,7 @@ export class TeamReportsPage implements OnInit {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
-        filterOptions: filterOptions,
+        filterOptions,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },
