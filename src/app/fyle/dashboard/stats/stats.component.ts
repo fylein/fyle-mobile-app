@@ -45,7 +45,7 @@ export class StatsComponent implements OnInit {
 
   isIncompleteExpensesStatsLoading = true;
 
-  isNewReportsFlowEnabled = false;
+  isNewReportsFlowEnabled$: Observable<boolean>;
 
   reportStatsLoading = true;
 
@@ -154,11 +154,12 @@ export class StatsComponent implements OnInit {
       } else {
         this.cardTransactionsAndDetails = [];
       }
-
-      if (orgSettings?.simplified_report_closure_settings?.enabled) {
-        that.isNewReportsFlowEnabled = true;
-      }
     });
+
+    const orgSettings$ = this.orgSettingsService.get();
+    that.isNewReportsFlowEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings?.simplified_report_closure_settings?.enabled)
+    );
 
     this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;

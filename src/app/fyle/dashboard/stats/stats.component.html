@@ -23,7 +23,7 @@
           <app-stat-badge
             [currency]="homeCurrency$ | async"
             [currencySymbol]="currencySymbol$ | async"
-            [name]="isNewReportsFlowEnabled ? 'Submitted' : 'Reported'"
+            [name]="(isNewReportsFlowEnabled$ | async) ? 'Submitted' : 'Reported'"
             [reportState]="ReportStates.APPROVER_PENDING"
             [count]="(reportedStats$ | async)?.count"
             [value]="(reportedStats$ | async)?.sum"

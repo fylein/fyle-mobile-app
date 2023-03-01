@@ -92,7 +92,7 @@ export class TeamReportsPage implements OnInit {
 
   teamReportsTaskCount = 0;
 
-  isNewReportsFlowEnabled = false;
+  isNewReportsFlowEnabled$: Observable<boolean>;
 
   constructor(
     private networkService: NetworkService,
@@ -129,6 +129,11 @@ export class TeamReportsPage implements OnInit {
     this.tasksService.getTeamReportsTaskCount().subscribe((teamReportsTaskCount) => {
       this.teamReportsTaskCount = teamReportsTaskCount;
     });
+
+    const orgSettings$ = this.orgSettingsService.get();
+    this.isNewReportsFlowEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings?.simplified_report_closure_settings?.enabled)
+    );
 
     this.loadData$ = new BehaviorSubject({
       pageNumber: 1,
@@ -239,10 +244,6 @@ export class TeamReportsPage implements OnInit {
     } else {
       this.clearFilters();
     }
-
-    this.orgSettingsService.get().subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
-    });
 
     setTimeout(() => {
       this.isLoading = false;
@@ -665,13 +666,15 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
-    const reportState = new ReportState();
-    filterPills.push({
-      label: 'State',
-      type: 'state',
-      value: filter.state
-        .map((state) => reportState.transform(state, this.isNewReportsFlowEnabled))
-        .reduce((state1, state2) => `${state1}, ${state2}`),
+    this.isNewReportsFlowEnabled$.subscribe((isNewReportsFlowEnabled) => {
+      const reportState = new ReportState();
+      filterPills.push({
+        label: 'State',
+        type: 'state',
+        value: filter.state
+          .map((state) => reportState.transform(state, isNewReportsFlowEnabled))
+          .reduce((state1, state2) => `${state1}, ${state2}`),
+      });
     });
   }
 
@@ -836,90 +839,99 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
+  async createFilterOptions() {
+    let filterOptions;
+    this.isNewReportsFlowEnabled$.subscribe((isNewReportsFlowEnabled) => {
+      filterOptions = [
+        {
+          name: 'State',
+          optionType: FilterOptionType.multiselect,
+          options: [
+            {
+              label: isNewReportsFlowEnabled ? 'Submitted' : 'Reported',
+              value: 'APPROVER_PENDING',
+            },
+            {
+              label: 'Sent Back',
+              value: 'APPROVER_INQUIRY',
+            },
+            {
+              label: 'Approved',
+              value: 'APPROVED',
+            },
+            {
+              label: isNewReportsFlowEnabled ? 'Closed' : 'Paid',
+              value: 'PAID',
+            },
+          ],
+        } as FilterOptions<string>,
+        {
+          name: 'Submitted Date',
+          optionType: FilterOptionType.date,
+          options: [
+            {
+              label: 'All',
+              value: DateFilters.all,
+            },
+            {
+              label: 'This Week',
+              value: DateFilters.thisWeek,
+            },
+            {
+              label: 'This Month',
+              value: DateFilters.thisMonth,
+            },
+            {
+              label: 'Last Month',
+              value: DateFilters.lastMonth,
+            },
+            {
+              label: 'Custom',
+              value: DateFilters.custom,
+            },
+          ],
+        } as FilterOptions<DateFilters>,
+        {
+          name: 'Sort By',
+          optionType: FilterOptionType.singleselect,
+          options: [
+            {
+              label: 'Submitted Date - New to Old',
+              value: 'dateNewToOld',
+            },
+            {
+              label: 'Submitted Date - Old to New',
+              value: 'dateOldToNew',
+            },
+            {
+              label: 'Amount - High to Low',
+              value: 'amountHighToLow',
+            },
+            {
+              label: 'Amount - Low to High',
+              value: 'amountLowToHigh',
+            },
+            {
+              label: 'Name - A to Z',
+              value: 'nameAToZ',
+            },
+            {
+              label: 'Name - Z to A',
+              value: 'nameZToA',
+            },
+          ],
+        } as FilterOptions<string>,
+      ];
+    });
+    return filterOptions;
+  }
+
   async openFilters(activeFilterInitialName?: string) {
+    const filterOptions = await this.createFilterOptions();
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
-        filterOptions: [
-          {
-            name: 'State',
-            optionType: FilterOptionType.multiselect,
-            options: [
-              {
-                label: this.isNewReportsFlowEnabled ? 'Submitted' : 'Reported',
-                value: 'APPROVER_PENDING',
-              },
-              {
-                label: 'Sent Back',
-                value: 'APPROVER_INQUIRY',
-              },
-              {
-                label: 'Approved',
-                value: 'APPROVED',
-              },
-              {
-                label: this.isNewReportsFlowEnabled ? 'Closed' : 'Paid',
-                value: 'PAID',
-              },
-            ],
-          } as FilterOptions<string>,
-          {
-            name: 'Submitted Date',
-            optionType: FilterOptionType.date,
-            options: [
-              {
-                label: 'All',
-                value: DateFilters.all,
-              },
-              {
-                label: 'This Week',
-                value: DateFilters.thisWeek,
-              },
-              {
-                label: 'This Month',
-                value: DateFilters.thisMonth,
-              },
-              {
-                label: 'Last Month',
-                value: DateFilters.lastMonth,
-              },
-              {
-                label: 'Custom',
-                value: DateFilters.custom,
-              },
-            ],
-          } as FilterOptions<DateFilters>,
-          {
-            name: 'Sort By',
-            optionType: FilterOptionType.singleselect,
-            options: [
-              {
-                label: 'Submitted Date - New to Old',
-                value: 'dateNewToOld',
-              },
-              {
-                label: 'Submitted Date - Old to New',
-                value: 'dateOldToNew',
-              },
-              {
-                label: 'Amount - High to Low',
-                value: 'amountHighToLow',
-              },
-              {
-                label: 'Amount - Low to High',
-                value: 'amountLowToHigh',
-              },
-              {
-                label: 'Name - A to Z',
-                value: 'nameAToZ',
-              },
-              {
-                label: 'Name - Z to A',
-                value: 'nameZToA',
-              },
-            ],
-          } as FilterOptions<string>,
-        ],
+        filterOptions: filterOptions,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

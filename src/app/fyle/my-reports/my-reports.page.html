@@ -95,7 +95,7 @@
         <app-my-reports-card
           [erpt]="erpt"
           [prevDate]="list[i-1]?.rp_created_at"
-          [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
+          [isNewReportsFlowEnabled]="isNewReportsFlowEnabled$ | async"
           (gotoReport)="onReportClick($event)"
           (deleteReport)="onDeleteReportClick($event)"
           (viewComments)="onViewCommentsClick($event)"
