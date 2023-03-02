@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PersonalCard } from '../models/personal_card.model';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
+import { PersonalCardFilter } from '../models/personal-card-filters.model';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
@@ -19,21 +20,6 @@ type matchExpenseResponse = Partial<{
   external_expense_id: string;
   id: string;
   transaction_split_group_id: string;
-}>;
-
-type Filter = Partial<{
-  amount: number;
-  createdOn?: Partial<{
-    name?: string;
-    customDateStart?: Date;
-    customDateEnd?: Date;
-  }>;
-  updatedOn?: Partial<{
-    name?: string;
-    customDateStart?: Date;
-    customDateEnd?: Date;
-  }>;
-  transactionType?: string;
 }>;
 
 type QueryParam = { ba_id?: string; btxn_status?: string; or?: string };
@@ -213,8 +199,8 @@ export class PersonalCardsService {
     return currentParams;
   }
 
-  convertFilters(selectedFilters: SelectedFilters<any>[]): Filter {
-    const generatedFilters: Filter = {};
+  convertFilters(selectedFilters: SelectedFilters<any>[]): PersonalCardFilter {
+    const generatedFilters: PersonalCardFilter = {};
     const createdOnDateFilter = selectedFilters.find((filter) => filter.name === 'Created On');
     if (createdOnDateFilter) {
       generatedFilters.createdOn = { name: createdOnDateFilter.value };
@@ -242,8 +228,8 @@ export class PersonalCardsService {
     return generatedFilters;
   }
 
-  generateSelectedFilters(filter: Filter): SelectedFilters<any>[] {
-    const generatedFilters: SelectedFilters<any>[] = [];
+  generateSelectedFilters(filter: PersonalCardFilter): SelectedFilters<string>[] {
+    const generatedFilters: SelectedFilters<string>[] = [];
 
     if (filter?.updatedOn) {
       generatedFilters.push({
@@ -314,7 +300,7 @@ export class PersonalCardsService {
 
   generateCustomDateParams(
     newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[] },
-    filters: Filter,
+    filters: PersonalCardFilter,
     type: string,
     queryType: string
   ) {
@@ -331,7 +317,10 @@ export class PersonalCardsService {
     }
   }
 
-  generateCreditParams(newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[] }, filters: Filter) {
+  generateCreditParams(
+    newQueryParams: { ba_id?: string; btxn_status?: string; or?: string[] },
+    filters: PersonalCardFilter
+  ) {
     const transactionTypeMap = {
       credit: '(btxn_transaction_type.in.(credit))',
       debit: '(btxn_transaction_type.in.(debit))',
@@ -341,7 +330,7 @@ export class PersonalCardsService {
     }
   }
 
-  generateFilterPills(filters: Filter) {
+  generateFilterPills(filters: PersonalCardFilter) {
     const filterPills: FilterPill[] = [];
 
     if (filters?.createdOn) {
@@ -359,7 +348,7 @@ export class PersonalCardsService {
     return filterPills;
   }
 
-  private generateUpdatedOnCustomDatePill(filters: Filter, filterPills: FilterPill[]) {
+  private generateUpdatedOnCustomDatePill(filters: PersonalCardFilter, filterPills: FilterPill[]) {
     const startDate = filters.updatedOn.customDateStart && dayjs(filters.updatedOn.customDateStart).format('YYYY-MM-D');
     const endDate = filters.updatedOn.customDateEnd && dayjs(filters.updatedOn.customDateEnd).format('YYYY-MM-D');
 
@@ -402,7 +391,7 @@ export class PersonalCardsService {
     }
   }
 
-  private generateCreatedOnCustomDatePill(filters: Filter, filterPills: FilterPill[]) {
+  private generateCreatedOnCustomDatePill(filters: PersonalCardFilter, filterPills: FilterPill[]) {
     const startDate = filters.createdOn.customDateStart && dayjs(filters.createdOn.customDateStart).format('YYYY-MM-D');
     const endDate = filters.createdOn.customDateEnd && dayjs(filters.createdOn.customDateEnd).format('YYYY-MM-D');
 
