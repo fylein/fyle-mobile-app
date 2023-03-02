@@ -64,10 +64,6 @@ export class LaunchDarklyService {
     return this.getVariation('keyboard_plugin_enabled', true);
   }
 
-  checkIfPaidByCompanyIsHidden(): Observable<boolean> {
-    return this.getVariation('hide_paid_by_company', false);
-  }
-
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)
   private isTheSameUser(newUser: LDClient.LDUser): boolean {
     const previousUser = this.ldClient?.getUser();
