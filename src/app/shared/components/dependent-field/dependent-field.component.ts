@@ -24,15 +24,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   @Input() mandatory = false;
 
-  @Input() disabled = false;
-
-  @Input() showNullOption = true;
-
-  @Input() enableSearch = true;
-
   @Input() valid = true;
-
-  @Input() selectModalHeader = '';
 
   @Input() fieldId: number;
 
@@ -55,9 +47,6 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
       component: DependentFieldModalComponent,
       componentProps: {
         currentSelection: this.displayValue,
-        showNullOption: this.showNullOption,
-        enableSearch: this.enableSearch,
-        selectModalHeader: this.selectModalHeader || 'Select Item',
         placeholder: this.placeholder,
         label: this.label,
         fieldId: this.fieldId,

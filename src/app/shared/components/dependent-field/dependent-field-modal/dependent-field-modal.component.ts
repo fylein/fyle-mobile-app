@@ -15,12 +15,6 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelection: string;
 
-  @Input() showNullOption = true;
-
-  @Input() enableSearch: boolean;
-
-  @Input() selectModalHeader = '';
-
   @Input() placeholder: string;
 
   @Input() label: string;
