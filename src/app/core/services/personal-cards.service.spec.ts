@@ -12,6 +12,7 @@ import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filter
 import { filterData1 } from '../mock-data/filter.data';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { apiExpenseRes, etxncData } from '../mock-data/expense.data';
+import { apiToken } from '../mock-data/yoodle-token.data';
 import * as dayjs from 'dayjs';
 
 describe('PersonalCardsService', () => {
@@ -710,11 +711,12 @@ describe('PersonalCardsService', () => {
   });
 
   describe('generateTxnDateParams():', () => {
-    xit('should generate txn date param when range is this week', () => {
-      spyOn(dateService, 'getThisWeekRange').and.returnValue({
+    it('should generate txn date param when range is this week', () => {
+      const thisWeek = {
         from: dayjs().startOf('week'),
         to: dayjs().startOf('week').add(7, 'days'),
-      });
+      };
+      spyOn(dateService, 'getThisWeekRange').and.returnValue(thisWeek);
       const type = 'createdOn';
 
       const filters = {
@@ -733,7 +735,7 @@ describe('PersonalCardsService', () => {
       expect(queryParam).toEqual({
         or: [
           '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
-          '(and(btxn_created_at.gte.2023-02-25T00:00:00.000Z,btxn_created_at.lt.2023-03-04T00:00:00.000Z))',
+          `(and(btxn_created_at.gte.${thisWeek.from.toISOString()},btxn_created_at.lt.${thisWeek.to.toISOString()}))`,
         ],
         btxn_status: 'in.(INITIALIZED)',
         ba_id: 'eq.baccLesaRlyvLY',
@@ -742,14 +744,15 @@ describe('PersonalCardsService', () => {
     });
 
     it('should generate txn date param when range is this month', () => {
-      spyOn(dateService, 'getThisMonthRange').and.returnValue({
-        from: new Date('2023-02-28T00:00:00.000Z'),
-        to: new Date('2023-03-31T00:00:00.000Z'),
-      });
-      const type = 'updatedOn';
+      const thisMonth = {
+        from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+        to: new Date(new Date().getFullYear(), new Date().getMonth(), 0, 23, 59),
+      };
+      spyOn(dateService, 'getThisMonthRange').and.returnValue(thisMonth);
+      const type = 'createdOn';
 
       const filters = {
-        updatedOn: {
+        createdOn: {
           name: DateFilters.thisMonth,
         },
       };
@@ -764,7 +767,7 @@ describe('PersonalCardsService', () => {
       expect(queryParam).toEqual({
         or: [
           '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
-          '(and(btxn_updated_at.gte.2023-02-28T00:00:00.000Z,btxn_updated_at.lt.2023-03-31T00:00:00.000Z))',
+          `(and(btxn_created_at.gte.${thisMonth.from.toISOString()},btxn_created_at.lt.${thisMonth.to.toISOString()}))`,
         ],
         btxn_status: 'in.(INITIALIZED)',
         ba_id: 'eq.baccLesaRlyvLY',
@@ -773,10 +776,11 @@ describe('PersonalCardsService', () => {
     });
 
     it('should generate txn date param when range is last month', () => {
-      spyOn(dateService, 'getLastMonthRange').and.returnValue({
-        from: new Date('2023-01-31T00:00:00.000Z'),
-        to: new Date('2023-02-28T00:00:00.000Z'),
-      });
+      const thisMonth = {
+        from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+        to: new Date(new Date().getFullYear(), new Date().getMonth(), 0, 23, 59),
+      };
+      spyOn(dateService, 'getLastMonthRange').and.returnValue(thisMonth);
       const type = 'updatedOn';
 
       const filters = {
@@ -790,7 +794,7 @@ describe('PersonalCardsService', () => {
       const queryParam = {
         or: [
           '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
-          '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
+          `(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))`,
         ],
         btxn_status: 'in.(INITIALIZED)',
         ba_id: 'eq.baccLesaRlyvLY',
@@ -801,7 +805,7 @@ describe('PersonalCardsService', () => {
         or: [
           '(and(btxn_created_at.gte.2023-02-28T18:30:00.000Z,btxn_created_at.lt.2023-03-31T18:29:00.000Z))',
           '(and(btxn_updated_at.gte.2023-01-31T18:30:00.000Z,btxn_updated_at.lt.2023-02-28T18:29:00.000Z))',
-          '(and(btxn_updated_at.gte.2023-01-31T00:00:00.000Z,btxn_updated_at.lt.2023-02-28T00:00:00.000Z))',
+          `(and(btxn_updated_at.gte.${thisMonth.from.toISOString()},btxn_updated_at.lt.${thisMonth.to.toISOString()}))`,
         ],
         btxn_status: 'in.(INITIALIZED)',
         ba_id: 'eq.baccLesaRlyvLY',
@@ -827,10 +831,11 @@ describe('PersonalCardsService', () => {
   });
 
   it('fetchTransactions(): should fetch transactions', (done) => {
-    expenseAggregationService.post.and.returnValue(of(null));
+    expenseAggregationService.post.and.returnValue(of(apiPersonalCardTxnsRes));
     const accountId = 'baccLesaRlyvLY';
 
-    personalCardsService.fetchTransactions(accountId).subscribe(() => {
+    personalCardsService.fetchTransactions(accountId).subscribe((res) => {
+      expect(res).toEqual(apiPersonalCardTxnsRes);
       expect(expenseAggregationService.post).toHaveBeenCalledOnceWith(`/bank_accounts/${accountId}/sync`, {
         owner_type: 'org_user',
       });
@@ -924,5 +929,15 @@ describe('PersonalCardsService', () => {
     expect(personalCardsService.htmlFormUrl(URL, '123')).toEqual(
       'data:text/html;base64,PGZvcm0gaWQ9ImZhc3RsaW5rLWZvcm0iIG5hbWU9ImZhc3RsaW5rLWZvcm0iIGFjdGlvbj0iaHR0cHM6Ly9yZXBvMS5tYXZlbi5vcmcvbWF2ZW4yIiBtZXRob2Q9IlBPU1QiPgogICAgICAgICAgICAgICAgICAgICAgICAgIDxpbnB1dCBuYW1lPSJhY2Nlc3NUb2tlbiIgdmFsdWU9IkJlYXJlciAxMjMiIGhpZGRlbj0idHJ1ZSIgLz4KICAgICAgICAgICAgICAgICAgICAgICAgICA8aW5wdXQgIG5hbWU9ImV4dHJhUGFyYW1zIiB2YWx1ZT0iY29uZmlnTmFtZT1BZ2dyZWdhdGlvbiZjYWxsYmFjaz1odHRwczovL3d3dy5meWxlaHEuY29tIiBoaWRkZW49InRydWUiIC8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgPC9mb3JtPiAKICAgICAgICAgICAgICAgICAgICAgICAgICA8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImZhc3RsaW5rLWZvcm0iKS5zdWJtaXQoKTsKICAgICAgICAgICAgICAgICAgICAgICAgICA8L3NjcmlwdD4KICAgICAgICAgICAgICAgICAgICAgICAgICA='
     );
+  });
+
+  it('getToken(): should get access token', (done) => {
+    expenseAggregationService.get.and.returnValue(of(apiToken));
+
+    personalCardsService.getToken().subscribe((res) => {
+      expect(res).toEqual(apiToken);
+      expect(expenseAggregationService.get).toHaveBeenCalledOnceWith('/yodlee/personal/access_token');
+      done();
+    });
   });
 });

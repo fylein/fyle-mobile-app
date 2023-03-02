@@ -159,7 +159,7 @@ export class PersonalCardsService {
     return this.getBankTransactions(params).pipe(map((res) => res.count));
   }
 
-  fetchTransactions(accountId: string): Observable<string[]> {
+  fetchTransactions(accountId: string): Observable<ApiV2Response<PersonalCardTxn>> {
     return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
       owner_type: 'org_user',
     });
