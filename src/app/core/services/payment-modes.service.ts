@@ -11,6 +11,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { OrgSettings } from '../models/org-settings.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -36,7 +37,7 @@ export class PaymentModesService {
   }
 
   getDefaultAccount(
-    orgSettings: any,
+    orgSettings: OrgSettings,
     accounts: ExtendedAccount[],
     orgUserSettings: OrgUserSettings
   ): Observable<ExtendedAccount> {
@@ -50,10 +51,9 @@ export class PaymentModesService {
         if (isPaymentModeConfigurationsEnabled) {
           defaultAccountType = allowedPaymentModes[0];
         } else {
-          const userDefaultPaymentMode = orgUserSettings.preferences?.default_payment_mode;
+          const userDefaultPaymentMode = orgUserSettings.preferences.default_payment_mode;
           const isCCCEnabled =
-            orgSettings?.corporate_credit_card_settings?.allowed &&
-            orgSettings?.corporate_credit_card_settings?.enabled;
+            orgSettings.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings?.enabled;
           if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
             defaultAccountType = AccountType.CCC;
           } else if (orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY) {

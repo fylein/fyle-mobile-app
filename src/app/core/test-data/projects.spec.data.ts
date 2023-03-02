@@ -310,7 +310,7 @@ export const params = {
   limit: 10,
   offset: 0,
   project_active: 'eq.true',
-  project_org_category_ids: 'cs.{,122269,122270,122271,122272,122273}',
+  project_org_category_ids: 'ov.{,122269,122270,122271,122272,122273}',
   project_id: 'in.(3943,305792,148971,247936)',
   project_name: 'ilike.%search%',
 };

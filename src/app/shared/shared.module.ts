@@ -47,7 +47,6 @@ import { AuditHistoryComponent } from './components/comments-history/audit-histo
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
 import { FyApproverComponent } from './components/fy-approver/fy-approver.component';
 import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-policy-violation.component';
-import { PolicyViolationDetailsComponent } from './components/policy-violation-details/policy-violation-details.component';
 
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
@@ -198,7 +197,6 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     RouteVisualizerComponent,
     RouteSelectorComponent,
     RouteSelectorModalComponent,
-    PolicyViolationDetailsComponent,
     FyViewReportInfoComponent,
     BankAccountCardsComponent,
     BankAccountCardComponent,
@@ -328,7 +326,6 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     RouteVisualizerComponent,
     RouteSelectorComponent,
     MatChipsModule,
-    PolicyViolationDetailsComponent,
     ExpenseCardLiteComponent,
     BankAccountCardsComponent,
     PersonalCardTransactionComponent,

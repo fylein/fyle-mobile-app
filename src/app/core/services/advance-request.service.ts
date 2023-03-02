@@ -21,6 +21,12 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { AdvanceRequests } from '../models/advance-requests.model';
+import { StatusPayload } from '../models/status-payload.model';
+import { ApiV2Response } from '../models/api-v2.model';
+import { StatsDimensionResponse } from '../models/stats-dimension-response.model';
+import { AdvanceRequestActions } from '../models/advance-request-actions.model';
+import { AdvanceRequestFile } from '../models/advance-request-file.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -69,7 +75,7 @@ export class AdvanceRequestService {
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/advance_requests', {
@@ -81,16 +87,7 @@ export class AdvanceRequestService {
           },
         })
       ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: ExtendedAdvanceRequest[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
+      map((res) => res as ApiV2Response<ExtendedAdvanceRequest>),
       map((res) => ({
         ...res,
         data: res.data.map(this.fixDates),
@@ -114,21 +111,21 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  delete(advanceRequestId: string) {
+  delete(advanceRequestId: string): Observable<AdvanceRequests> {
     return this.apiService.delete('/advance_requests/' + advanceRequestId);
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  pullBackadvanceRequest(advanceRequestId: string, addStatusPayload) {
+  pullBackadvanceRequest(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  addApprover(advanceRequestId, approverEmail, comment) {
+  addApprover(advanceRequestId: string, approverEmail: string, comment: string): Observable<AdvanceRequests> {
     const data = {
       advance_request_id: advanceRequestId,
       approver_email: approverEmail,
@@ -141,35 +138,35 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  submit(advanceRequest) {
+  submit(advanceRequest: AdvanceRequests): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/submit', advanceRequest);
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  saveDraft(advanceRequest) {
+  saveDraft(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/save', advanceRequest);
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  approve(advanceRequestId) {
+  approve(advanceRequestId: string): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/approve');
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  sendBack(advanceRequestId, addStatusPayload) {
+  sendBack(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/inquire', addStatusPayload);
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  reject(advanceRequestId, addStatusPayload) {
+  reject(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/reject', addStatusPayload);
   }
 
@@ -189,7 +186,7 @@ export class AdvanceRequestService {
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => {
         const defaultParams = {};
@@ -221,16 +218,7 @@ export class AdvanceRequestService {
           },
         });
       }),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: ExtendedAdvanceRequest[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
+      map((res) => res as ApiV2Response<ExtendedAdvanceRequest>),
       map((res) => ({
         ...res,
         data: res.data.map(this.fixDates),
@@ -238,7 +226,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getEReq(advanceRequestId) {
+  getEReq(advanceRequestId: string) {
     return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
       map((res) => {
         const eAdvanceRequest = this.dataTransformService.unflatten(res);
@@ -248,7 +236,7 @@ export class AdvanceRequestService {
     );
   }
 
-  testPolicy(advanceRequest): Observable<any> {
+  testPolicy(advanceRequest: AdvanceRequests): Observable<any> {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         if (advanceRequest.created_at) {
@@ -262,11 +250,11 @@ export class AdvanceRequestService {
     );
   }
 
-  getActions(advanceRequestId: string) {
+  getActions(advanceRequestId: string): Observable<AdvanceRequestActions> {
     return this.apiService.get('/advance_requests/' + advanceRequestId + '/actions');
   }
 
-  getActiveApproversByAdvanceRequestId(advanceRequestId: string) {
+  getActiveApproversByAdvanceRequestId(advanceRequestId: string): Observable<Approval[]> {
     return from(this.getApproversByAdvanceRequestId(advanceRequestId)).pipe(
       map((approvers) => {
         const filteredApprovers = approvers.filter((approver) => {
@@ -279,7 +267,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getMyAdvanceRequestsCount(queryParams = {}) {
+  getMyAdvanceRequestsCount(queryParams = {}): Observable<number> {
     return this.getMyadvanceRequests({
       offset: 0,
       limit: 1,
@@ -287,7 +275,7 @@ export class AdvanceRequestService {
     }).pipe(map((advanceRequest) => advanceRequest.count));
   }
 
-  getTeamAdvanceRequestsCount(queryParams: {}, filter: Filters) {
+  getTeamAdvanceRequestsCount(queryParams: {}, filter: Filters): Observable<number> {
     return this.getTeamAdvanceRequests({
       offset: 0,
       limit: 1,
@@ -296,7 +284,7 @@ export class AdvanceRequestService {
     }).pipe(map((advanceRequest) => advanceRequest.count));
   }
 
-  modifyAdvanceRequestCustomFields(customFields): CustomField[] {
+  modifyAdvanceRequestCustomFields(customFields: CustomField[]): CustomField[] {
     customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
         customField.value = new Date(customField.value);
@@ -343,7 +331,10 @@ export class AdvanceRequestService {
     return internalRepresentation;
   }
 
-  createAdvReqWithFilesAndSubmit(advanceRequest, fileObservables?: Observable<any[]>) {
+  createAdvReqWithFilesAndSubmit(
+    advanceRequest: AdvanceRequests,
+    fileObservables?: Observable<File[]>
+  ): Observable<AdvanceRequestFile> {
     return forkJoin({
       files: fileObservables,
       advanceReq: this.submit(advanceRequest),
@@ -364,7 +355,10 @@ export class AdvanceRequestService {
     );
   }
 
-  saveDraftAdvReqWithFiles(advanceRequest, fileObservables?: Observable<any[]>) {
+  saveDraftAdvReqWithFiles(
+    advanceRequest: AdvanceRequests,
+    fileObservables?: Observable<File[]>
+  ): Observable<AdvanceRequestFile> {
     return forkJoin({
       files: fileObservables,
       advanceReq: this.saveDraft(advanceRequest),
@@ -392,7 +386,7 @@ export class AdvanceRequestService {
     );
   }
 
-  private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection) {
+  private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection): string {
     let order: string;
     if (sortParam === SortingParam.creationDate) {
       order = 'areq_created_at';
@@ -413,7 +407,10 @@ export class AdvanceRequestService {
     return order;
   }
 
-  private getAdvanceRequestStats(eou: ExtendedOrgUser, params: advanceRequestStat): Observable<any> {
+  private getAdvanceRequestStats(
+    eou: ExtendedOrgUser,
+    params: advanceRequestStat
+  ): Observable<Partial<ApiV2Response<StatsDimensionResponse>>> {
     return this.apiv2Service.get('/advance_requests/stats', {
       params: {
         areq_org_user_id: 'eq.' + eou.ou.id,
@@ -422,29 +419,32 @@ export class AdvanceRequestService {
     });
   }
 
-  private getApproversByAdvanceRequestId(advanceRequestId: string) {
+  private getApproversByAdvanceRequestId(advanceRequestId: string): Observable<Approval[]> {
     return this.apiService
       .get('/eadvance_requests/' + advanceRequestId + '/approvals')
       .pipe(map((res) => res as Approval[]));
   }
 
-  private fixDates(data: ExtendedAdvanceRequest) {
+  private fixDates(data: ExtendedAdvanceRequest): ExtendedAdvanceRequest {
     if (data?.areq_created_at) {
-      data.areq_created_at = new Date(data?.areq_created_at);
+      data.areq_created_at = new Date(data.areq_created_at);
     }
 
     if (data.areq_updated_at) {
-      data.areq_updated_at = new Date(data?.areq_updated_at);
+      data.areq_updated_at = new Date(data.areq_updated_at);
     }
 
     if (data.areq_approved_at) {
-      data.areq_approved_at = new Date(data?.areq_approved_at);
+      data.areq_approved_at = new Date(data.areq_approved_at);
     }
 
     return data;
   }
 
-  private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest) {
+  private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest): {
+    state: string;
+    name: string;
+  } {
     const internalRepresentation: { state: string; name: string } = {
       state: null,
       name: null,

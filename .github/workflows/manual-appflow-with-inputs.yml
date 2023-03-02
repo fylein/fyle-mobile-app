@@ -11,9 +11,9 @@ on:
         type: choice
         required: true
         description: Environment
-        options: 
-        - staging
-        - production
+        options:
+          - staging
+          - production
 
 jobs:
   build-android:
@@ -29,6 +29,7 @@ jobs:
           app-id: 32316914
           platform: Android
           build-type: debug
+          build-stack: Linux - 2022.07
           environment: ${{ github.event.inputs.name }}
           native-config: prod
           upload-artifact: Android
@@ -42,7 +43,7 @@ jobs:
       - name: Rename file
         run: mv *.apk android.apk
 
-      - name: Upload apk to diawi 
+      - name: Upload apk to diawi
         uses: rnkdsh/action-upload-diawi@v1.2.0
         id: diwaiAndroid
         with:
@@ -61,6 +62,7 @@ jobs:
           app-id: 32316914
           platform: iOS
           build-type: development
+          build-stack: macOS - 2022.09
           certificate: Fyle signing
           environment: ${{ github.event.inputs.name }}
           native-config: prod
@@ -68,20 +70,19 @@ jobs:
 
       - uses: actions/download-artifact@v2
         id: ios
-        with: 
+        with:
           name: 'ios'
           path: ./
 
       - name: Rename file
         run: mv *.ipa ios.ipa
-     
+
       - name: Upload ipa to diawi Slack
         uses: rnkdsh/action-upload-diawi@v1.2.0
         id: diwaiIos
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: ios.ipa
-
 
   send-to-slack:
     needs: [build-android, build-ios]

@@ -69,7 +69,6 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { CorporateCreditCardExpenseSuggestionsService } from '../../core/services/corporate-credit-card-expense-suggestions.service';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
@@ -191,8 +190,6 @@ export class AddEditExpensePage implements OnInit {
 
   costCenters$: Observable<any[]>;
 
-  receiptsData: any;
-
   isAmountCapped$: Observable<boolean>;
 
   isAmountDisabled$: Observable<boolean>;
@@ -225,10 +222,6 @@ export class AddEditExpensePage implements OnInit {
 
   isCCCPaymentModeSelected$: Observable<boolean>;
 
-  isLoadingSuggestions = false;
-
-  matchingCCCTransactions = [];
-
   matchedCCCTransaction;
 
   alreadyApprovedExpenses;
@@ -240,8 +233,6 @@ export class AddEditExpensePage implements OnInit {
   canEditCCCMatchedSplitExpense: boolean;
 
   cardEndingDigits: string;
-
-  selectedCCCTransactionInSuggestions: boolean;
 
   isCCCTransactionAutoSelected: boolean;
 
@@ -379,7 +370,6 @@ export class AddEditExpensePage implements OnInit {
     private networkService: NetworkService,
     private popupService: PopupService,
     private navController: NavController,
-    private corporateCreditCardExpenseSuggestionService: CorporateCreditCardExpenseSuggestionsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private trackingService: TrackingService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
@@ -561,88 +551,6 @@ export class AddEditExpensePage implements OnInit {
 
       this.selectedCCCTransaction = null;
     }
-  }
-
-  setupExpenseSuggestions() {
-    const that = this;
-    that.isCCCPaymentModeSelected$
-      .pipe(
-        switchMap((isCCCPaymentModeSelected) => {
-          if (isCCCPaymentModeSelected) {
-            return merge(that.fg.controls.currencyObj.valueChanges, that.fg.controls.dateOfSpend.valueChanges).pipe(
-              map(() => ({
-                currencyObj: that.fg.controls.currencyObj.value,
-                txnDt: that.fg.controls.dateOfSpend.value,
-              })),
-              startWith({
-                currencyObj: that.fg.controls.currencyObj.value,
-                txnDt: that.fg.controls.dateOfSpend.value,
-              })
-            );
-          } else {
-            return EMPTY;
-          }
-        }),
-        filter(({ currencyObj, txnDt }) => currencyObj && currencyObj.amount && txnDt),
-        switchMap(({ currencyObj, txnDt }) => {
-          this.isLoadingSuggestions = true;
-          return that.corporateCreditCardExpenseSuggestionService.getSuggestions({
-            amount: currencyObj.amount,
-            txn_dt: txnDt,
-          });
-        })
-      )
-      .subscribe((matchingCCCTransactions) => {
-        this.isLoadingSuggestions = false;
-        if (matchingCCCTransactions.length > 0) {
-          this.matchingCCCTransactions = matchingCCCTransactions;
-        } else {
-          this.matchingCCCTransactions = [];
-        }
-
-        if (this.selectedCCCTransaction) {
-          this.selectedCCCTransactionInSuggestions = this.matchingCCCTransactions.some(
-            (cccTxn) => cccTxn.id === this.selectedCCCTransaction.id
-          );
-        }
-
-        this.etxn$.subscribe((etxn) => {
-          if (
-            typeof etxn.tx.corporate_credit_card_expense_group_id === 'undefined' ||
-            etxn.tx.corporate_credit_card_expense_group_id === null
-          ) {
-            if (
-              this.selectedCCCTransaction &&
-              !this.selectedCCCTransactionInSuggestions &&
-              (!this.isCCCTransactionAutoSelected || this.isChangeCCCSuggestionClicked)
-            ) {
-              this.matchingCCCTransactions.push(this.selectedCCCTransaction);
-            }
-
-            if (
-              this.selectedCCCTransaction &&
-              !this.selectedCCCTransactionInSuggestions &&
-              this.isCCCTransactionAutoSelected &&
-              !this.isChangeCCCSuggestionClicked
-            ) {
-              this.selectedCCCTransaction = null;
-              this.isCCCTransactionAutoSelected = false;
-            }
-
-            if (
-              !this.selectedCCCTransaction &&
-              this.matchingCCCTransactions &&
-              this.matchingCCCTransactions.length > 0 &&
-              !this.isChangeCCCSuggestionClicked
-            ) {
-              this.selectedCCCTransaction = this.matchingCCCTransactions[0];
-              this.isCCCTransactionAutoSelected = true;
-            }
-          } else if (this.selectedCCCTransaction && !this.selectedCCCTransactionInSuggestions) {
-            this.matchingCCCTransactions.push(this.selectedCCCTransaction);
-          }
-        });
-      });
   }
 
   setupNetworkWatcher() {
@@ -1158,19 +1066,6 @@ export class AddEditExpensePage implements OnInit {
             this.presetCurrency = recentValue.recent_currencies[0];
           } else {
             etxn.tx.currency = (recentCurrency && recentCurrency[0] && recentCurrency[0].shortCode) || etxn.tx.currency;
-          }
-
-          const receiptsData = this.activatedRoute.snapshot.params.receiptsData;
-
-          if (receiptsData) {
-            if (receiptsData.amount) {
-              etxn.tx.amount = receiptsData.amount;
-              etxn.tx.orig_amount = receiptsData.amount;
-            }
-            if (receiptsData.dataUrls) {
-              etxn.dataUrls = receiptsData.dataUrls;
-              etxn.tx.num_files = etxn.dataUrls ? 1 : 0;
-            }
           }
 
           if (projectEnabled && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
@@ -2448,8 +2343,6 @@ export class AddEditExpensePage implements OnInit {
     this.isCreatedFromPersonalCard =
       !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.personalCardTxn;
 
-    this.setupExpenseSuggestions();
-
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.orgSettingsService.get();
@@ -2503,8 +2396,6 @@ export class AddEditExpensePage implements OnInit {
       }),
       shareReplay(1)
     );
-
-    this.receiptsData = this.activatedRoute.snapshot.params.receiptsData;
 
     this.individualProjectIds$ = this.orgUserSettings$.pipe(
       map((orgUserSettings: any) => orgUserSettings.project_ids || []),
@@ -2646,47 +2537,33 @@ export class AddEditExpensePage implements OnInit {
           }
         }
 
-        forkJoin({
-          matchedExpense: this.corporateCreditCardExpenseService.getEccceByGroupId(
-            etxn.tx.corporate_credit_card_expense_group_id
-          ),
-          matchingTransactions: this.corporateCreditCardExpenseSuggestionService.getSuggestions({
-            amount: etxn.tx.amount,
-            txn_dt: etxn.tx.txn_dt,
-          }),
-        }).subscribe(({ matchedExpense, matchingTransactions }) => {
-          this.matchedCCCTransaction = matchedExpense[0].ccce;
-          this.matchingCCCTransactions = matchingTransactions;
-          this.selectedCCCTransaction = this.matchedCCCTransaction;
-          this.cardEndingDigits = (
-            this.selectedCCCTransaction.cxorporate_credit_card_account_number
-              ? this.selectedCCCTransaction.corporate_credit_card_account_number
-              : this.selectedCCCTransaction.card_or_account_number
-          ).slice(-4);
+        this.corporateCreditCardExpenseService
+          .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
+          .subscribe((matchedExpense) => {
+            this.matchedCCCTransaction = matchedExpense[0].ccce;
+            this.selectedCCCTransaction = this.matchedCCCTransaction;
+            this.cardEndingDigits = (
+              this.selectedCCCTransaction.cxorporate_credit_card_account_number
+                ? this.selectedCCCTransaction.corporate_credit_card_account_number
+                : this.selectedCCCTransaction.card_or_account_number
+            ).slice(-4);
 
-          etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+            etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
 
-          const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
+            const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
 
-          this.selectedCCCTransaction.displayObject =
-            txnDt +
-            ' - ' +
-            (this.selectedCCCTransaction.vendor
-              ? this.selectedCCCTransaction.vendor
-              : this.selectedCCCTransaction.description) +
-            this.selectedCCCTransaction.amount;
+            this.selectedCCCTransaction.displayObject =
+              txnDt +
+              ' - ' +
+              (this.selectedCCCTransaction.vendor
+                ? this.selectedCCCTransaction.vendor
+                : this.selectedCCCTransaction.description) +
+              this.selectedCCCTransaction.amount;
 
-          if (this.selectedCCCTransaction) {
-            this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
-            this.selectedCCCTransactionInSuggestions = this.matchingCCCTransactions.some(
-              (cccExpense) => cccExpense.id === this.matchedCCCTransaction?.id
-            );
-          }
-
-          if (!this.selectedCCCTransactionInSuggestions) {
-            this.matchingCCCTransactions.push(this.matchedCCCTransaction);
-          }
-        });
+            if (this.selectedCCCTransaction) {
+              this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
+            }
+          });
       });
 
     this.setupFilteredCategories(activeCategories$);
@@ -3614,14 +3491,6 @@ export class AddEditExpensePage implements OnInit {
             if (this.activatedRoute.snapshot.params.bankTxn) {
               return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
             } else {
-              let receiptsData = null;
-              if (this.receiptsData) {
-                receiptsData = {
-                  linked_by: eou.ou.id,
-                  receipt_id: this.receiptsData.receiptId,
-                  fileId: this.receiptsData.fileId,
-                };
-              }
               return this.isConnected$.pipe(
                 take(1),
                 switchMap((isConnected) => {
@@ -3631,19 +3500,10 @@ export class AddEditExpensePage implements OnInit {
 
                   if (this.activatedRoute.snapshot.params.rp_id) {
                     return of(
-                      this.transactionOutboxService.addEntryAndSync(
-                        etxn.tx,
-                        etxn.dataUrls,
-                        comments,
-                        reportId,
-                        null,
-                        receiptsData
-                      )
+                      this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId)
                     );
                   } else {
-                    this.transactionOutboxService
-                      .addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
-                      .then(noop);
+                    this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId).then(noop);
 
                     return of(null);
                   }

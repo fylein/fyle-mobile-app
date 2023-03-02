@@ -7,9 +7,8 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
 import { ExtendedProject } from '../models/v2/extended-project.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgCategoryListItem } from '../models/v1/org-category.model';
-import { Currency } from '../models/currency.model';
+import { Currency, CurrencyName } from '../models/currency.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -74,7 +73,7 @@ export class RecentlyUsedItemsService {
       const recentCostCenterList = recentValue.recent_cost_center_ids
         .map((id) => costCentersMap[id])
         .filter((id) => id);
-      if (recentCostCenterList) {
+      if (recentCostCenterList.length > 0) {
         return of(
           recentCostCenterList.map((costCenter) => ({ label: costCenter.value.name, value: costCenter.value }))
         );
@@ -107,7 +106,7 @@ export class RecentlyUsedItemsService {
     }
   }
 
-  getRecentCurrencies(currencies: string[], recentValue: RecentlyUsed): Observable<Currency[]> {
+  getRecentCurrencies(currencies: CurrencyName, recentValue: RecentlyUsed): Observable<Currency[]> {
     if (currencies && recentValue && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
       const recentCurrenciesList = recentValue.recent_currencies.map((id) => ({ id, value: currencies[id] }));
       if (recentCurrenciesList) {

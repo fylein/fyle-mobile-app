@@ -3,7 +3,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
 import { CostCentersService } from './cost-centers.service';
 import { of } from 'rxjs';
-import { platformCostCenterSingleRes, platformCostCenterMultipleRes } from '../mock-data/platformCostCenter.data';
+import { platformCostCenterSingleRes, platformCostCenterMultipleRes } from '../mock-data/platform-cost-centers.data';
 import { costCenterApiRes1, costCenterApiRes2, costCentersData } from '../mock-data/cost-centers.data';
 
 describe('CostCentersService', () => {

@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
-import { from, empty, EMPTY, forkJoin, noop, concat, of } from 'rxjs';
-import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
+import { from, noop } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
 import { FileService } from './file.service';
 import { StatusService } from './status.service';
 import { cloneDeep, indexOf } from 'lodash';
-import { ReceiptService } from './receipt.service';
 import { ReportService } from './report.service';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
 import { CurrencyService } from './currency.service';
+import { OrgUserSettingsService } from './org-user-settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -42,10 +42,10 @@ export class TransactionsOutboxService {
     private fileService: FileService,
     private statusService: StatusService,
     private httpClient: HttpClient,
-    private receiptService: ReceiptService,
     private reportService: ReportService,
     private trackingService: TrackingService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -241,14 +241,13 @@ export class TransactionsOutboxService {
 
   // TODO: High impact area. Fix later
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  addEntry(transaction, dataUrls, comments?, reportId?, applyMagic?, receiptsData?) {
+  addEntry(transaction, dataUrls, comments?, reportId?, applyMagic = false) {
     this.queue.push({
       transaction,
       dataUrls,
       comments,
       reportId,
       applyMagic: !!applyMagic,
-      receiptsData,
     });
 
     return this.saveQueue();
@@ -256,8 +255,8 @@ export class TransactionsOutboxService {
 
   // TODO: High impact area. Fix later
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic?, receiptsData?) {
-    this.addEntry(transaction, dataUrls, comments, reportId, applyMagic, receiptsData);
+  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic = false) {
+    this.addEntry(transaction, dataUrls, comments, reportId, applyMagic);
     return this.syncEntry(this.queue.pop());
   }
 
@@ -300,7 +299,7 @@ export class TransactionsOutboxService {
     const fileObjPromiseArray = [];
     const reportId = entry.reportId;
 
-    if (!entry.receiptsData && !entry.fileUploadCompleted) {
+    if (!entry.fileUploadCompleted) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
           const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates);
@@ -330,13 +329,6 @@ export class TransactionsOutboxService {
               that.statusService.post('transactions', resp.id, { comment }, true).subscribe(noop);
             });
           }
-          if (entry.receiptsData) {
-            const linkReceiptPayload = {
-              transaction_id: entry.transaction.id,
-              linked_by: entry.receiptsData.linked_by,
-            };
-            that.receiptService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
-          }
           if (entry.dataUrls && entry.dataUrls.length > 0) {
             that.transactionService
               .getETxnUnflattened(resp.id)
@@ -363,7 +355,20 @@ export class TransactionsOutboxService {
           }
 
           if (entry.applyMagic) {
-            that.addDataExtractionEntry(resp, entry.dataUrls);
+            const isInstafyleEnabled$ = this.orgUserSettingsService
+              .get()
+              .pipe(
+                map(
+                  (orgUserSettings) =>
+                    orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
+                )
+              );
+
+            isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
+              if (isInstafyleEnabled) {
+                that.addDataExtractionEntry(resp, entry.dataUrls);
+              }
+            });
           }
 
           that

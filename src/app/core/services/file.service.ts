@@ -6,18 +6,19 @@ import { ApiService } from './api.service';
 import { FileObject } from '../models/file-obj.model';
 import { ReceiptInfo } from '../models/receipt-info.model';
 import heic2any from 'heic2any';
+import { DateService } from './date.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileService {
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private dateService: DateService) {}
 
   downloadUrl(fileId: string): Observable<string> {
     return this.apiService.post('/files/' + fileId + '/download_url').pipe(map((res) => res.url));
   }
 
-  downloadThumbnailUrl(fileId: string): Observable<any[]> {
+  downloadThumbnailUrl(fileId: string): Observable<FileObject[]> {
     return this.apiService.post('/files/download_urls', [
       {
         id: fileId,
@@ -26,7 +27,7 @@ export class FileService {
     ]);
   }
 
-  getFilesWithThumbnail(txnId: string): Observable<any[]> {
+  getFilesWithThumbnail(txnId: string): Observable<FileObject[]> {
     return this.apiService.get('/files', {
       params: {
         transaction_id: txnId,
@@ -36,11 +37,11 @@ export class FileService {
     });
   }
 
-  base64Download(fileId) {
+  base64Download(fileId: string): Observable<{ content: string }> {
     return this.apiService.get('/files/' + fileId + '/download_b64');
   }
 
-  findByAdvanceRequestId(advanceRequestId: string): Observable<File[]> {
+  findByAdvanceRequestId(advanceRequestId: string): Observable<FileObject[]> {
     return from(
       this.apiService.get('/files', {
         params: {
@@ -51,20 +52,15 @@ export class FileService {
     ).pipe(
       map((files) => {
         files.map((file) => {
-          this.fixDates(file);
+          this.dateService.fixDates(file);
           this.setFileType(file);
         });
-        return files as File[];
+        return files as FileObject[];
       })
     );
   }
 
-  fixDates(data: File) {
-    data.created_at = new Date(data.created_at);
-    return data;
-  }
-
-  getFileExtension(fileName) {
+  getFileExtension(fileName: string): string {
     let res = null;
 
     if (fileName) {
@@ -78,7 +74,7 @@ export class FileService {
     return res;
   }
 
-  setFileType(file: File) {
+  setFileType(file: FileObject): FileObject {
     let fileType = 'unknown';
     const extension = this.getFileExtension(file.name);
 
@@ -96,24 +92,12 @@ export class FileService {
     return this.apiService.post('/files', fileObj);
   }
 
-  uploadUrl(fileId) {
+  uploadUrl(fileId: string): Observable<string> {
     return this.apiService.post('/files/' + fileId + '/upload_url').pipe(map((data) => data.url));
   }
 
-  uploadComplete(fileId) {
+  uploadComplete(fileId: string) {
     return this.apiService.post('/files/' + fileId + '/upload_completed');
-  }
-
-  // TODO: High impact. To be separately fixed
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  base64Upload(name, content, transactionId?, invoiceId?, password?) {
-    return this.apiService.post('/files/upload_b64', {
-      name,
-      content,
-      transaction_id: transactionId,
-      invoice_id: invoiceId,
-      password,
-    });
   }
 
   findByTransactionId(txnId: string): Observable<FileObject[]> {
@@ -171,7 +155,7 @@ export class FileService {
     return this.apiService.delete('/files/' + fileId);
   }
 
-  getAttachmentType(type: string) {
+  getAttachmentType(type: string): string {
     let attachmentType = 'image';
     if (type === 'application/pdf' || type === 'pdf') {
       attachmentType = 'pdf';
@@ -179,7 +163,7 @@ export class FileService {
     return attachmentType;
   }
 
-  getReceiptDetails(url: string) {
+  getReceiptDetails(url: string): string {
     const ext = this.getReceiptExtension(url);
     let type = '';
 
@@ -192,7 +176,7 @@ export class FileService {
     return type;
   }
 
-  getReceiptExtension(url: string) {
+  getReceiptExtension(url: string): string {
     let receiptExtension = null;
     const name = url.split('?')[0];
     if (name) {
@@ -207,7 +191,7 @@ export class FileService {
     return receiptExtension;
   }
 
-  getImageTypeFromDataUrl(dataUrl: string) {
+  getImageTypeFromDataUrl(dataUrl: string): string {
     return dataUrl.split(';')[0].split(':')[1];
   }
 

@@ -21,51 +21,51 @@ export class PolicyService {
 
   transformTo(transaction: PublicPolicyExpense): PlatformPolicyExpense {
     const platformPolicyExpense: PlatformPolicyExpense = {
-      id: transaction?.id,
-      spent_at: transaction?.txn_dt,
-      merchant: transaction?.vendor,
-      foreign_currency: transaction?.orig_currency,
-      foreign_amount: transaction?.orig_amount,
-      claim_amount: transaction?.amount,
-      purpose: transaction?.purpose,
-      cost_center_id: transaction?.cost_center_id,
-      category_id: transaction?.org_category_id,
-      project_id: transaction?.project_id,
-      source_account_id: transaction?.source_account_id,
-      tax_amount: transaction?.tax_amount,
-      tax_group_id: transaction?.tax_group_id,
-      is_billable: transaction?.billable,
-      is_reimbursable: transaction?.skip_reimbursement === null ? null : !transaction?.skip_reimbursement,
-      distance: transaction?.distance,
-      distance_unit: transaction?.distance_unit,
-      locations: transaction?.locations?.filter((location) => !!location),
-      custom_fields: transaction?.custom_properties,
-      started_at: transaction?.from_dt,
-      ended_at: transaction?.to_dt,
-      per_diem_rate_id: transaction?.per_diem_rate_id,
-      per_diem_num_days: transaction?.num_days,
-      num_files: transaction?.num_files,
-      is_matching_ccc: transaction?.is_matching_ccc_expense,
-      mileage_rate_id: transaction?.mileage_rate_id,
-      mileage_calculated_distance: transaction?.mileage_calculated_distance,
-      mileage_calculated_amount: transaction?.mileage_calculated_amount,
+      id: transaction.id,
+      spent_at: transaction.txn_dt,
+      merchant: transaction.vendor,
+      foreign_currency: transaction.orig_currency,
+      foreign_amount: transaction.orig_amount,
+      claim_amount: transaction.amount,
+      purpose: transaction.purpose,
+      cost_center_id: transaction.cost_center_id,
+      category_id: transaction.org_category_id,
+      project_id: transaction.project_id,
+      source_account_id: transaction.source_account_id,
+      tax_amount: transaction.tax_amount,
+      tax_group_id: transaction.tax_group_id,
+      is_billable: transaction.billable,
+      is_reimbursable: transaction.skip_reimbursement === null ? null : !transaction.skip_reimbursement,
+      distance: transaction.distance,
+      distance_unit: transaction.distance_unit,
+      locations: transaction.locations?.filter((location) => !!location),
+      custom_fields: transaction.custom_properties,
+      started_at: transaction.from_dt,
+      ended_at: transaction.to_dt,
+      per_diem_rate_id: transaction.per_diem_rate_id,
+      per_diem_num_days: transaction.num_days,
+      num_files: transaction.num_files,
+      is_matching_ccc: transaction.is_matching_ccc_expense,
+      mileage_rate_id: transaction.mileage_rate_id,
+      mileage_calculated_distance: transaction.mileage_calculated_distance,
+      mileage_calculated_amount: transaction.mileage_calculated_amount,
       travel_classes: [],
     };
 
     if (
-      transaction?.fyle_category?.toLowerCase() === 'flight' ||
-      transaction?.fyle_category?.toLowerCase() === 'airlines'
+      transaction.fyle_category?.toLowerCase() === 'flight' ||
+      transaction.fyle_category?.toLowerCase() === 'airlines'
     ) {
-      if (transaction?.flight_journey_travel_class) {
-        platformPolicyExpense.travel_classes.push(transaction?.flight_journey_travel_class);
+      if (transaction.flight_journey_travel_class) {
+        platformPolicyExpense.travel_classes.push(transaction.flight_journey_travel_class);
       }
-      if (transaction?.flight_return_travel_class) {
-        platformPolicyExpense.travel_classes.push(transaction?.flight_return_travel_class);
+      if (transaction.flight_return_travel_class) {
+        platformPolicyExpense.travel_classes.push(transaction.flight_return_travel_class);
       }
-    } else if (transaction?.fyle_category?.toLowerCase() === 'bus' && transaction?.bus_travel_class) {
-      platformPolicyExpense.travel_classes.push(transaction?.bus_travel_class);
-    } else if (transaction?.fyle_category?.toLowerCase() === 'train' && transaction?.train_travel_class) {
-      platformPolicyExpense.travel_classes.push(transaction?.train_travel_class);
+    } else if (transaction.fyle_category?.toLowerCase() === 'bus' && transaction.bus_travel_class) {
+      platformPolicyExpense.travel_classes.push(transaction.bus_travel_class);
+    } else if (transaction.fyle_category?.toLowerCase() === 'train' && transaction.train_travel_class) {
+      platformPolicyExpense.travel_classes.push(transaction.train_travel_class);
     }
 
     return platformPolicyExpense;
