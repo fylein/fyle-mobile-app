@@ -50,7 +50,6 @@ export class AccountsService {
       etxn: Partial<UnflattenedTransaction>;
       orgSettings: OrgSettings;
       expenseType: ExpenseType;
-      isPaymentModeConfigurationsEnabled: boolean;
     }
   ): AccountOption[] {
     const { etxn, orgSettings, expenseType } = config;
