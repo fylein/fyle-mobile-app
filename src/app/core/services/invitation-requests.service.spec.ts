@@ -21,7 +21,7 @@ describe('InvitationRequestsService', () => {
     const expectedEndpoint = '/invitation_requests/invite';
     const expectedRequestBody = { email: mockEmail };
 
-    routerApiServiceSpy.post.and.returnValue(of({}));
+    routerApiServiceSpy.post.and.returnValue(of(null));
 
     invitationRequestsService.upsertRouter(mockEmail).subscribe(() => {
       expect(routerApiServiceSpy.post).toHaveBeenCalledOnceWith(expectedEndpoint, expectedRequestBody);
