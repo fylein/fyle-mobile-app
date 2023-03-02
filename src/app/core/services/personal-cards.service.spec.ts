@@ -8,7 +8,8 @@ import { creditTxnFilterPill, debitTxnFilterPill } from '../mock-data/filter-pil
 import { apiLinkedAccRes, deletePersonalCardRes } from '../mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import { apiPersonalCardTxnsRes } from '../mock-data/personal-card-txns.data';
-import { selectedFilters1 } from '../mock-data/selected-filters.data';
+import { selectedFilters1, selectedFilters2 } from '../mock-data/selected-filters.data';
+import { filterData1 } from '../mock-data/filter.data';
 
 describe('PersonalCardsService', () => {
   let personalCardsService: PersonalCardsService;
@@ -137,19 +138,7 @@ describe('PersonalCardsService', () => {
   });
 
   it('convertFilters(): should convert selected filters', () => {
-    expect(personalCardsService.convertFilters(selectedFilters1)).toEqual({
-      createdOn: {
-        name: 'custom',
-        customDateStart: new Date('2023-02-20T18:30:00.000Z'),
-        customDateEnd: new Date('2023-02-22T18:30:00.000Z'),
-      },
-      updatedOn: {
-        name: 'custom',
-        customDateStart: new Date('2023-02-22T18:30:00.000Z'),
-        customDateEnd: new Date('2023-02-24T18:30:00.000Z'),
-      },
-      transactionType: 'Debit',
-    });
+    expect(personalCardsService.convertFilters(selectedFilters1)).toEqual(filterData1);
   });
 
   describe('generateCreditTrasactionsFilterPills():', () => {
@@ -171,6 +160,248 @@ describe('PersonalCardsService', () => {
       //@ts-ignore
       personalCardsService.generateCreditTrasactionsFilterPills(filters, filterPills);
       expect(filterPills).toEqual(debitTxnFilterPill);
+    });
+  });
+
+  it('generateSelectedFilters(): should generate selected filters from available filters', () => {
+    expect(personalCardsService.generateSelectedFilters(filterData1)).toEqual(selectedFilters2);
+  });
+
+  it('generateCreditParams(): should generate credit params', () => {
+    const queryParam = {
+      or: ['(btxn_transaction_type.in.(credit))'],
+      btxn_status: 'in.(INITIALIZED)',
+      ba_id: 'eq.baccLesaRlyvLY',
+    };
+
+    const filter = {
+      transactionType: 'Credit',
+    };
+
+    personalCardsService.generateCreditParams(queryParam, filter);
+    expect(queryParam).toEqual({
+      or: ['(btxn_transaction_type.in.(credit))', '(btxn_transaction_type.in.(credit))'],
+      btxn_status: 'in.(INITIALIZED)',
+      ba_id: 'eq.baccLesaRlyvLY',
+    });
+  });
+
+  describe('generateCustomDateParams():', () => {
+    it(' should generate custom date params with both start and end dates', () => {
+      const queryParam = {
+        or: ['(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))'],
+        btxn_status: 'in.(INITIALIZED)',
+        ba_id: 'eq.baccLesaRlyvLY',
+      };
+
+      const filter = {
+        createdOn: {
+          name: 'custom',
+          customDateStart: new Date('2023-02-22T18:30:00.000Z'),
+          customDateEnd: new Date('2023-02-27T18:30:00.000Z'),
+        },
+      };
+
+      const type = 'createdOn';
+      const queryType = 'btxn_created_at';
+
+      personalCardsService.generateCustomDateParams(queryParam, filter, type, queryType);
+      expect(queryParam).toEqual({
+        or: [
+          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
+          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
+        ],
+        btxn_status: 'in.(INITIALIZED)',
+        ba_id: 'eq.baccLesaRlyvLY',
+      });
+    });
+
+    it(' should generate custom date params with start date', () => {
+      const queryParam = {
+        or: ['(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))'],
+        btxn_status: 'in.(INITIALIZED)',
+        ba_id: 'eq.baccLesaRlyvLY',
+      };
+
+      const filter = {
+        createdOn: {
+          name: 'custom',
+          customDateStart: new Date('2023-02-22T18:30:00.000Z'),
+        },
+      };
+
+      const type = 'createdOn';
+      const queryType = 'btxn_created_at';
+
+      personalCardsService.generateCustomDateParams(queryParam, filter, type, queryType);
+      expect(queryParam).toEqual({
+        or: [
+          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
+          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z))',
+        ],
+        btxn_status: 'in.(INITIALIZED)',
+        ba_id: 'eq.baccLesaRlyvLY',
+      });
+    });
+
+    it(' should generate custom date params with end date', () => {
+      const queryParam = {
+        or: ['(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))'],
+        btxn_status: 'in.(INITIALIZED)',
+        ba_id: 'eq.baccLesaRlyvLY',
+      };
+
+      const filter = {
+        createdOn: {
+          name: 'custom',
+          customDateEnd: new Date('2023-02-27T18:30:00.000Z'),
+        },
+      };
+
+      const type = 'createdOn';
+      const queryType = 'btxn_created_at';
+
+      personalCardsService.generateCustomDateParams(queryParam, filter, type, queryType);
+      expect(queryParam).toEqual({
+        or: [
+          '(and(btxn_created_at.gte.2023-02-22T18:30:00.000Z,btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
+          '(and(btxn_created_at.lt.2023-02-27T18:30:00.000Z))',
+        ],
+        btxn_status: 'in.(INITIALIZED)',
+        ba_id: 'eq.baccLesaRlyvLY',
+      });
+    });
+  });
+
+  describe('generateCreatedOnCustomDatePill():', () => {
+    it('should generate custom date pills with both start and end dates', () => {
+      const filters = {
+        createdOn: {
+          name: 'custom',
+          customDateStart: '2023-02-21T00:00:00.000Z',
+          customDateEnd: '2023-02-23T00:00:00.000Z',
+        },
+      };
+
+      const filterPills = [];
+
+      //@ts-ignore
+      personalCardsService.generateCreatedOnCustomDatePill(filters, filterPills);
+      expect(filterPills).toEqual([
+        {
+          label: 'Created On',
+          type: 'date',
+          value: '2023-02-21 to 2023-02-23',
+        },
+      ]);
+    });
+
+    it('should generate custom date pills with start dates', () => {
+      const filters = {
+        createdOn: {
+          name: 'custom',
+          customDateStart: '2023-02-21T00:00:00.000Z',
+        },
+      };
+
+      const filterPills = [];
+
+      //@ts-ignore
+      personalCardsService.generateCreatedOnCustomDatePill(filters, filterPills);
+      expect(filterPills).toEqual([
+        {
+          label: 'Created On',
+          type: 'date',
+          value: '>= 2023-02-21',
+        },
+      ]);
+    });
+
+    it('should generate custom date pills with end dates', () => {
+      const filters = {
+        createdOn: {
+          name: 'custom',
+          customDateEnd: '2023-02-23T00:00:00.000Z',
+        },
+      };
+
+      const filterPills = [];
+
+      //@ts-ignore
+      personalCardsService.generateCreatedOnCustomDatePill(filters, filterPills);
+      expect(filterPills).toEqual([
+        {
+          label: 'Created On',
+          type: 'date',
+          value: '<= 2023-02-23',
+        },
+      ]);
+    });
+  });
+
+  describe('generateUpdatedOnCustomDatePill():', () => {
+    it('should generate custom date pills with both start and end dates', () => {
+      const filters = {
+        updatedOn: {
+          name: 'custom',
+          customDateStart: '2023-02-21T00:00:00.000Z',
+          customDateEnd: '2023-02-23T00:00:00.000Z',
+        },
+      };
+
+      const filterPills = [];
+
+      //@ts-ignore
+      personalCardsService.generateUpdatedOnCustomDatePill(filters, filterPills);
+      expect(filterPills).toEqual([
+        {
+          label: 'Updated On',
+          type: 'date',
+          value: '2023-02-21 to 2023-02-23',
+        },
+      ]);
+    });
+
+    it('should generate custom date pills with start dates', () => {
+      const filters = {
+        updatedOn: {
+          name: 'custom',
+          customDateStart: '2023-02-21T00:00:00.000Z',
+        },
+      };
+
+      const filterPills = [];
+
+      //@ts-ignore
+      personalCardsService.generateUpdatedOnCustomDatePill(filters, filterPills);
+      expect(filterPills).toEqual([
+        {
+          label: 'Updated On',
+          type: 'date',
+          value: '>= 2023-02-21',
+        },
+      ]);
+    });
+
+    it('should generate custom date pills with end dates', () => {
+      const filters = {
+        updatedOn: {
+          name: 'custom',
+          customDateEnd: '2023-02-23T00:00:00.000Z',
+        },
+      };
+
+      const filterPills = [];
+
+      //@ts-ignore
+      personalCardsService.generateUpdatedOnCustomDatePill(filters, filterPills);
+      expect(filterPills).toEqual([
+        {
+          label: 'Updated On',
+          type: 'date',
+          value: '<= 2023-02-23',
+        },
+      ]);
     });
   });
 });
