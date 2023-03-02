@@ -1498,20 +1498,19 @@ export class AddEditPerDiemPage implements OnInit {
     this.fg.controls.project.valueChanges
       .pipe(
         takeUntil(this.onPageExit$),
-        filter((val) => !!val),
-        distinctUntilChanged(),
         tap(() => {
-          this.isDependentFieldLoading = true;
           this.dependentFieldControls.clear();
           this.dependentFields = [];
         }),
-        switchMap((val) =>
-          this.txnFields$.pipe(
+        filter((project) => !!project),
+        switchMap((project) => {
+          this.isDependentFieldLoading = true;
+          return this.txnFields$.pipe(
             take(1),
-            switchMap((txnFields) => this.getDependentField(txnFields.project_id.id, val.project_name)),
+            switchMap((txnFields) => this.getDependentField(txnFields.project_id.id, project.project_name)),
             finalize(() => (this.isDependentFieldLoading = false))
-          )
-        )
+          );
+        })
       )
       .subscribe((res) => {
         if (res?.dependentField) {
@@ -2346,16 +2345,22 @@ export class AddEditPerDiemPage implements OnInit {
       const dependentFieldValue = txCustomProperties.find(
         (customProp) => customProp.name === dependentField.field_name
       );
-      //Add dependent field with selected value
-      this.addDependentField(dependentField, parentField.value, dependentFieldValue?.value);
 
-      //Add field which is dependent on the depenent field (if present)
       if (dependentFieldValue?.value) {
+        //Add dependent field with selected value
+        this.addDependentField(dependentField, parentField.value, dependentFieldValue?.value);
+
+        //Add field which is dependent on the depenent field (if present)
         const currentField = {
           id: dependentField.id,
           value: dependentFieldValue?.value,
         };
         this.addDependentFieldWithValue(txCustomProperties, dependentFields, currentField);
+      } else {
+        //If the dependent field does not have a value, trigger the onChange event for parent field
+        //This will add a new field(if it exists) for the selected value of parent field
+        const parentDependentFieldControl = this.dependentFieldControls.at(this.dependentFieldControls.length - 1);
+        this.onDependentFieldChanged(parentDependentFieldControl.value);
       }
     }
   }
