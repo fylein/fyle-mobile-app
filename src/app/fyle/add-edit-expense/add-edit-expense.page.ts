@@ -900,35 +900,23 @@ export class AddEditExpensePage implements OnInit {
       etxn: this.etxn$,
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      map(
-        ({
-          accounts,
-          orgSettings,
-          etxn,
-          allowedPaymentModes,
-          isPaymentModeConfigurationsEnabled,
-          isPaidByCompanyHidden,
-        }) => {
-          const isCCCEnabled =
-            orgSettings?.corporate_credit_card_settings?.allowed &&
-            orgSettings?.corporate_credit_card_settings?.enabled;
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+        const isCCCEnabled =
+          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
-          if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
-            this.showCardTransaction = false;
-          }
-          const config = {
-            etxn,
-            orgSettings,
-            expenseType: ExpenseType.EXPENSE,
-            isPaymentModeConfigurationsEnabled,
-            isPaidByCompanyHidden,
-          };
-
-          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
+          this.showCardTransaction = false;
         }
-      ),
+        const config = {
+          etxn,
+          orgSettings,
+          expenseType: ExpenseType.EXPENSE,
+          isPaymentModeConfigurationsEnabled,
+        };
+
+        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+      }),
       shareReplay(1)
     );
   }
