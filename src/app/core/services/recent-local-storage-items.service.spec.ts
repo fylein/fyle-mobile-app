@@ -29,7 +29,7 @@ describe('RecentLocalStorageItemsService', () => {
     const cacheName = 'test-cache';
     await recentLocalStorageItemsService.clear(cacheName);
 
-    expect(storageService.delete).toHaveBeenCalledWith(cacheName);
+    expect(storageService.delete).toHaveBeenCalledOnceWith(cacheName);
   });
 
   it('clearRecentLocalStorageCache(): should clear multiple recent local storage cache', async () => {
