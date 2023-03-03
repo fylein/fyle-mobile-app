@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CategoriesService } from './categories.service';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { platformApiCategoryRes, platformApiAllCategories } from '../mock-data/platform-api-category.data';
 import { of } from 'rxjs';
 import {
@@ -23,17 +23,17 @@ import {
 
 describe('CategoriesService', () => {
   let categoriesService: CategoriesService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let SpenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const SpenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
         CategoriesService,
         {
-          provide: SpenderPlatformV1BetaApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: SpenderPlatformV1ApiServiceSpy,
         },
         {
           provide: PAGINATION_SIZE,
@@ -42,9 +42,9 @@ describe('CategoriesService', () => {
       ],
     });
     categoriesService = TestBed.inject(CategoriesService);
-    spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+    SpenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
@@ -68,7 +68,7 @@ describe('CategoriesService', () => {
   });
 
   it('getActiveCategoriesCount(): should get category count', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformApiCategoryRes));
+    SpenderPlatformV1ApiService.get.and.returnValue(of(platformApiCategoryRes));
 
     const apiParam = {
       params: {
@@ -80,13 +80,13 @@ describe('CategoriesService', () => {
 
     categoriesService.getActiveCategoriesCount().subscribe((res) => {
       expect(res).toEqual(platformApiCategoryRes.count);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/categories', apiParam);
+      expect(SpenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/categories', apiParam);
       done();
     });
   });
 
   it('getCategories(): should get categories from the api', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformApiAllCategories));
+    SpenderPlatformV1ApiService.get.and.returnValue(of(platformApiAllCategories));
     spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategories);
     spyOn(categoriesService, 'sortCategories').and.returnValue(sortedOrgCategories);
     spyOn(categoriesService, 'addDisplayName').and.returnValue(expectedAllOrgCategories);

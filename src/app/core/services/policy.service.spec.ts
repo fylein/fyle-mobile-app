@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { PolicyService } from './policy.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import {
@@ -25,18 +25,18 @@ import { of } from 'rxjs';
 
 describe('PolicyService', () => {
   let policyService: PolicyService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let SpenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const SpenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         PolicyService,
         {
-          provide: SpenderPlatformV1BetaApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: SpenderPlatformV1ApiServiceSpy,
         },
         {
           provide: ApproverPlatformApiService,
@@ -45,9 +45,9 @@ describe('PolicyService', () => {
       ],
     });
     policyService = TestBed.inject(PolicyService);
-    spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+    SpenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     approverPlatformApiService = TestBed.inject(
       ApproverPlatformApiService
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
@@ -132,14 +132,14 @@ describe('PolicyService', () => {
 
   describe('getSpenderExpensePolicyViolations()', () => {
     it('should get the spender expense policy violations', (done) => {
-      spenderPlatformV1BetaApiService.get.and.returnValue(of(expensePolicyStatesData));
+      SpenderPlatformV1ApiService.get.and.returnValue(of(expensePolicyStatesData));
 
       policyService.getSpenderExpensePolicyViolations('txVTmNOp5JEa').subscribe((res) => {
         expect(res).toEqual(expensePolicyStatesData.data[0].individual_desired_states);
         const expectedParams = {
           expense_id: 'eq.txVTmNOp5JEa',
         };
-        expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', {
+        expect(SpenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', {
           params: expectedParams,
         });
         done();
@@ -151,10 +151,10 @@ describe('PolicyService', () => {
       const params = {
         expense_id: `eq.${expenseId}`,
       };
-      spenderPlatformV1BetaApiService.get.and.returnValue(of(emptyApiResponse));
+      SpenderPlatformV1ApiService.get.and.returnValue(of(emptyApiResponse));
       policyService.getSpenderExpensePolicyViolations(expenseId).subscribe((res) => {
         expect(res).toEqual([]);
-        expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', { params });
+        expect(SpenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', { params });
         done();
       });
     });

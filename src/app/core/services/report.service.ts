@@ -16,7 +16,7 @@ import { TransactionService } from './transaction.service';
 import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { UserEventService } from './user-event.service';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PermissionsService } from './permissions.service';
@@ -49,7 +49,7 @@ export class ReportService {
     private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
     private userEventService: UserEventService,
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private SpenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private datePipe: DatePipe,
     private launchDarklyService: LaunchDarklyService,
     private permissionsService: PermissionsService
@@ -238,19 +238,20 @@ export class ReportService {
     cacheBusterObserver: reportsCacheBuster$,
   })
   getReportAutoSubmissionDetails(): Observable<ReportAutoSubmissionDetails> {
-    return this.spenderPlatformV1BetaApiService
-      .post<ReportAutoSubmissionDetails>('/automations/report_submissions/next_at', {
+    return this.SpenderPlatformV1ApiService.post<ReportAutoSubmissionDetails>(
+      '/automations/report_submissions/next_at',
+      {
         data: null,
+      }
+    ).pipe(
+      map((res) => {
+        if (res.data.next_at) {
+          const dateObj = new Date(res.data.next_at);
+          res.data.next_at = dateObj;
+        }
+        return res;
       })
-      .pipe(
-        map((res) => {
-          if (res.data.next_at) {
-            const dateObj = new Date(res.data.next_at);
-            res.data.next_at = dateObj;
-          }
-          return res;
-        })
-      );
+    );
   }
 
   @Cacheable()
