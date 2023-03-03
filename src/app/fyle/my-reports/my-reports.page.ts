@@ -35,6 +35,8 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import * as dayjs from 'dayjs';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 type Filters = Partial<{
   state: string[];
@@ -103,7 +105,7 @@ export class MyReportsPage implements OnInit {
 
   filterPills = [];
 
-  isNewReportsFlowEnabled$: Observable<boolean>;
+  simplifyReportsEnabled$: Observable<boolean>;
 
   isCCCOnlyOrg$: Observable<boolean>;
 
@@ -255,7 +257,7 @@ export class MyReportsPage implements OnInit {
     );
 
     const orgSettings$ = this.orgSettingsService.get();
-    this.isNewReportsFlowEnabled$ = orgSettings$.pipe(
+    this.simplifyReportsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings?.simplified_report_closure_settings?.enabled)
     );
     this.isCCCOnlyOrg$ = orgSettings$.pipe(
@@ -264,7 +266,8 @@ export class MyReportsPage implements OnInit {
           orgSettings.payment_mode_settings?.allowed &&
           orgSettings.payment_mode_settings?.enabled &&
           orgSettings.payment_mode_settings?.payment_modes_order?.length === 1 &&
-          orgSettings.payment_mode_settings?.payment_modes_order[0] === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+          orgSettings.payment_mode_settings?.payment_modes_order[0] ===
+            AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
       )
     );
 
@@ -739,13 +742,13 @@ export class MyReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
-    this.isNewReportsFlowEnabled$.subscribe((isNewReportsFlowEnabled) => {
+    this.simplifyReportsEnabled$.subscribe((simplifyReportsEnabled) => {
       const reportState = new ReportState();
       filterPills.push({
         label: 'State',
         type: 'state',
         value: filter.state
-          .map((state) => reportState.transform(state, isNewReportsFlowEnabled))
+          .map((state) => reportState.transform(state, simplifyReportsEnabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });
@@ -914,10 +917,10 @@ export class MyReportsPage implements OnInit {
 
   async createFilterOptions() {
     let filterOptions;
-    forkJoin({
-      isNewReportsFlowEnabled: this.isNewReportsFlowEnabled$,
+    await forkJoin({
+      simplifyReportsEnabled: this.simplifyReportsEnabled$,
       isCCCOnlyOrg: this.isCCCOnlyOrg$,
-    }).subscribe(({ isCCCOnlyOrg, isNewReportsFlowEnabled }) => {
+    }).subscribe(({ isCCCOnlyOrg, simplifyReportsEnabled }) => {
       // payment state filters should not be shown to CCC only orgs in the new reports flow.
       const newReportsFlowPaymentStateFilters =
         (!isCCCOnlyOrg && [
@@ -949,7 +952,7 @@ export class MyReportsPage implements OnInit {
               value: 'DRAFT',
             },
             {
-              label: isNewReportsFlowEnabled ? 'Submitted' : 'Reported',
+              label: simplifyReportsEnabled ? 'Submitted' : 'Reported',
               value: 'APPROVER_PENDING',
             },
             {
@@ -960,9 +963,9 @@ export class MyReportsPage implements OnInit {
               label: 'Approved',
               value: 'APPROVED',
             },
-            ...(isNewReportsFlowEnabled ? newReportsFlowPaymentStateFilters : paymentStateFilters),
+            ...(simplifyReportsEnabled ? newReportsFlowPaymentStateFilters : paymentStateFilters),
             {
-              label: isNewReportsFlowEnabled ? 'Closed' : 'Paid',
+              label: simplifyReportsEnabled ? 'Closed' : 'Paid',
               value: 'PAID',
             },
           ],

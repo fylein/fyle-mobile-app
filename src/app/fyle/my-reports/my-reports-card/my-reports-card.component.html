@@ -32,7 +32,7 @@
         <span>{{ erpt.rp_num_transactions === 1 ? 'Expense' : 'Expenses' }}</span>
       </div>
       <div class="state-pill state-{{ erpt.rp_state | reportState }}">
-        {{ erpt.rp_state | reportState : isNewReportsFlowEnabled | snakeCaseToSpaceCase }}
+        {{ erpt.rp_state | reportState : simplifyReportsEnabled | snakeCaseToSpaceCase }}
       </div>
     </div>
   </div>

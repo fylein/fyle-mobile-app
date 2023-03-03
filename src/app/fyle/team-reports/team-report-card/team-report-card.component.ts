@@ -12,7 +12,7 @@ export class TeamReportCardComponent implements OnInit {
 
   @Input() prevDate: Date;
 
-  @Input() isNewReportsFlowEnabled: boolean;
+  @Input() simplifyReportsEnabled: boolean;
 
   @Output() deleteReport: EventEmitter<ExtendedReport> = new EventEmitter();
 

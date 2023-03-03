@@ -45,7 +45,7 @@ export class StatsComponent implements OnInit {
 
   isIncompleteExpensesStatsLoading = true;
 
-  isNewReportsFlowEnabled$: Observable<boolean>;
+  simplifyReportsEnabled$: Observable<boolean>;
 
   reportStatsLoading = true;
 
@@ -156,8 +156,8 @@ export class StatsComponent implements OnInit {
       }
     });
 
-    const orgSettings$ = this.orgSettingsService.get();
-    that.isNewReportsFlowEnabled$ = orgSettings$.pipe(
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    that.simplifyReportsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings?.simplified_report_closure_settings?.enabled)
     );
 

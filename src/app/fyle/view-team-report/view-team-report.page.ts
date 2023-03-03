@@ -115,7 +115,7 @@ export class ViewTeamReportPage implements OnInit {
 
   canShowTooltip = false;
 
-  isNewReportsFlowEnabled = false;
+  simplifyReportsEnabled = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -323,7 +323,7 @@ export class ViewTeamReportPage implements OnInit {
         ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
         : true;
       this.canShowTooltip = true;
-      this.isNewReportsFlowEnabled = res?.orgSettings?.simplified_report_closure_settings?.enabled;
+      this.simplifyReportsEnabled = res?.orgSettings?.simplified_report_closure_settings?.enabled;
     });
 
     this.refreshApprovals$.next(null);

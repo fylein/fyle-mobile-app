@@ -75,7 +75,7 @@
         <app-team-report-card
           [erpt]="erpt"
           [prevDate]="list[i-1]?.rp_created_at"
-          [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
+          [simplifyReportsEnabled]="simplifyReportsEnabled"
           (gotoReport)="onReportClick($event)"
           (deleteReport)="onDeleteReportClick($event)"
         >

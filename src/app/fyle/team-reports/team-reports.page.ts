@@ -92,7 +92,7 @@ export class TeamReportsPage implements OnInit {
 
   teamReportsTaskCount = 0;
 
-  isNewReportsFlowEnabled$: Observable<boolean>;
+  simplifyReportsEnabled$: Observable<boolean>;
 
   constructor(
     private networkService: NetworkService,
@@ -131,7 +131,7 @@ export class TeamReportsPage implements OnInit {
     });
 
     const orgSettings$ = this.orgSettingsService.get();
-    this.isNewReportsFlowEnabled$ = orgSettings$.pipe(
+    this.simplifyReportsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings?.simplified_report_closure_settings?.enabled)
     );
 
@@ -666,13 +666,13 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
-    this.isNewReportsFlowEnabled$.subscribe((isNewReportsFlowEnabled) => {
+    this.simplifyReportsEnabled$.subscribe((simplifyReportsEnabled) => {
       const reportState = new ReportState();
       filterPills.push({
         label: 'State',
         type: 'state',
         value: filter.state
-          .map((state) => reportState.transform(state, isNewReportsFlowEnabled))
+          .map((state) => reportState.transform(state, simplifyReportsEnabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });
@@ -841,14 +841,14 @@ export class TeamReportsPage implements OnInit {
 
   async createFilterOptions() {
     let filterOptions;
-    this.isNewReportsFlowEnabled$.subscribe((isNewReportsFlowEnabled) => {
+    await this.simplifyReportsEnabled$.subscribe((simplifyReportsEnabled) => {
       filterOptions = [
         {
           name: 'State',
           optionType: FilterOptionType.multiselect,
           options: [
             {
-              label: isNewReportsFlowEnabled ? 'Submitted' : 'Reported',
+              label: simplifyReportsEnabled ? 'Submitted' : 'Reported',
               value: 'APPROVER_PENDING',
             },
             {
@@ -860,7 +860,7 @@ export class TeamReportsPage implements OnInit {
               value: 'APPROVED',
             },
             {
-              label: isNewReportsFlowEnabled ? 'Closed' : 'Paid',
+              label: simplifyReportsEnabled ? 'Closed' : 'Paid',
               value: 'PAID',
             },
           ],
