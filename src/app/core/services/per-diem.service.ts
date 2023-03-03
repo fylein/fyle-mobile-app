@@ -3,7 +3,7 @@ import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { PlatformPerDiemRates } from '../models/platform/platform-per-diem-rates.model';
 import { PerDiemRates } from '../models/v1/per-diem-rates.model';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { switchMap, concatMap, tap, map, reduce } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';

@@ -31,7 +31,7 @@ import { NetworkService } from './network.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { PaymentModesService } from './payment-modes.service';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { StorageService } from './storage.service';
 import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';

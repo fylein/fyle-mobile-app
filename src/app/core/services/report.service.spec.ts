@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { DatePipe } from '@angular/common';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';

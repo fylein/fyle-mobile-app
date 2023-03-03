@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CategoriesService } from './categories.service';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { platformApiCategoryRes, platformApiAllCategories } from '../mock-data/platform-api-category.data';
 import { of } from 'rxjs';
 import {

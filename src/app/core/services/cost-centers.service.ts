@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { CostCenter } from '../models/v1/cost-center.model';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';

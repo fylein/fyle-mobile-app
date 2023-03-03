@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { CurrencyPipe } from '@angular/common';
 import { switchMap, concatMap, tap, map, reduce } from 'rxjs/operators';

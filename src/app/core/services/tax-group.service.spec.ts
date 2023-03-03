@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { TaxGroupService } from './tax-group.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { globalCacheBusterNotifier } from 'ts-cacheable';

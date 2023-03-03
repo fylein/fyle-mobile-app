@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CurrencyPipe } from '@angular/common';
 import { MileageRatesService } from './mileage-rates.service';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import {
   filterEnabledMileageRatesData,
   unfilteredMileageRatesData,
