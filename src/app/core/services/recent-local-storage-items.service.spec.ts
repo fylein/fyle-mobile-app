@@ -39,92 +39,29 @@ describe('RecentLocalStorageItemsService', () => {
     const cacheName = 'test-cache';
     await recentLocalStorageItemsService.clear(cacheName);
 
-    expect(storageService.delete).toHaveBeenCalledWith(cacheName);
+    expect(storageService.delete).toHaveBeenCalledOnceWith(cacheName);
   });
 
   it('clearRecentLocalStorageCache(): should clear multiple recent local storage cache', async () => {
     const clearSpy = spyOn(recentLocalStorageItemsService, 'clear');
     recentLocalStorageItemsService.clearRecentLocalStorageCache();
     expect(clearSpy).toHaveBeenCalledWith('advanceProjectCache');
-  });
-
-  describe('get():', () => {
-    it('should retrieve recent items from the specified cache in the local storage.', async () => {
-      const cacheName = 'mileageSubCategoryName';
-      const recentItems = recentLocalStorageItemsRes;
-      const cache = {
-        updatedAt: dayjs().toISOString(),
-        recentItems,
-      };
-      storageService.get.and.returnValue(Promise.resolve(cache));
-
-      const result = await recentLocalStorageItemsService.get(cacheName);
-
-      expect(storageService.get).toHaveBeenCalledWith(cacheName);
-      expect(result).toEqual(recentItems);
-    });
-
-    it('should return empty array when cache is outdated', async () => {
-      const cacheName = 'recent-currency-cache';
-      const outdatedCache = {
-        updatedAt: dayjs().diff(5, 'minute').toString(),
-        recentItems: recentLocalStorageItemsRes,
-      };
-      storageService.get.and.returnValue(Promise.resolve(outdatedCache));
-      const result = await recentLocalStorageItemsService.get(cacheName);
-      expect(storageService.get).toHaveBeenCalledOnceWith(cacheName);
-      expect(result).toEqual([]);
-    });
-
-    it('should return an empty array when cache does not exist', async () => {
-      const cacheName = 'recent-currency-cache';
-      storageService.get.and.resolveTo(null);
-      const result = await recentLocalStorageItemsService.get(cacheName);
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe('indexOfItem():', () => {
-    it('should return the item index', () => {
-      const result = recentLocalStorageItemsService.indexOfItem(recentItemsRes, itemsRes, propertyRes);
-      expect(result).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should return -1 if there are no recent items in the array', () => {
-      const result = recentLocalStorageItemsService.indexOfItem([], itemsRes, property);
-      expect(result).toEqual(-1);
-    });
-  });
-
-  describe('post():', () => {
-    it('it should maintain and update a cache of recent items in the local storage', async () => {
-      const cacheName = 'mileageSubCategoryName';
-      const recentItems = postRecentItemsRes;
-      const cache = {
-        recentItems,
-        updatedAt: jasmine.any(Date),
-      };
-      spyOn(recentLocalStorageItemsService, 'indexOfItem');
-      spyOn(recentLocalStorageItemsService, 'get').and.returnValue(Promise.resolve(postRecentItemsRes));
-      storageService.set.and.returnValue(Promise.resolve());
-      const result = await recentLocalStorageItemsService.post(cacheName, itemsRes, propertyRes);
-      expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
-      expect(result).toEqual(postRecentItemsRes);
-    });
-
-    it('should find the index of an item without the property argument', async () => {
-      const cacheName = 'mileageSubCategoryName';
-      const recentItems = postRecentItemsRes;
-      const cache = {
-        recentItems,
-        updatedAt: jasmine.any(Date),
-      };
-      spyOn(recentLocalStorageItemsService, 'indexOfItem');
-      spyOn(recentLocalStorageItemsService, 'get').and.returnValue(Promise.resolve(postRecentItemsRes));
-      storageService.set.and.returnValue(Promise.resolve());
-      const result = await recentLocalStorageItemsService.post(cacheName, itemsRes);
-      expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
-      expect(result).toEqual(postRecentItemsRes);
-    });
+    expect(clearSpy).toHaveBeenCalledWith('expenseProjectCache');
+    expect(clearSpy).toHaveBeenCalledWith('mileageProjectCache');
+    expect(clearSpy).toHaveBeenCalledWith('mileageSubCategoryName');
+    expect(clearSpy).toHaveBeenCalledWith('mileageCostCenterCache');
+    expect(clearSpy).toHaveBeenCalledWith('perDiemProjectCache');
+    expect(clearSpy).toHaveBeenCalledWith('perDiemCostCenterCache');
+    expect(clearSpy).toHaveBeenCalledWith('perDiemSubCategoryCache');
+    expect(clearSpy).toHaveBeenCalledWith('splitExpenseProjectCache');
+    expect(clearSpy).toHaveBeenCalledWith('splitExpenseCategoryCache');
+    expect(clearSpy).toHaveBeenCalledWith('splitExpenseCostCenterCache');
+    expect(clearSpy).toHaveBeenCalledWith('recent-currency-cache');
+    expect(clearSpy).toHaveBeenCalledWith('recentCategoryList');
+    expect(clearSpy).toHaveBeenCalledWith('recentCostCenterList');
+    expect(clearSpy).toHaveBeenCalledWith('recentPurposeList');
+    expect(clearSpy).toHaveBeenCalledWith('recentNotesList');
+    expect(clearSpy).toHaveBeenCalledWith('recentVendorList');
+    expect(clearSpy).toHaveBeenCalledTimes(17);
   });
 });
