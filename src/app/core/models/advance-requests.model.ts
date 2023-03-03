@@ -19,7 +19,7 @@ export interface AdvanceRequests {
   updated_at: Date;
   source: string;
   advance_request_number: string;
-  updated_by: Date;
+  updated_by?: string;
   is_sent_back: boolean;
   is_pulled_back: boolean;
 }

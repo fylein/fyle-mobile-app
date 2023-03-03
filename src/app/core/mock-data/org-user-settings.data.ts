@@ -161,6 +161,24 @@ export const orgUserSettingsData: OrgUserSettings = {
   },
 };
 
+export const orgUserSettingsWoPaymentModes: OrgUserSettings = {
+  ...orgUserSettingsData,
+  payment_mode_settings: {
+    allowed: false,
+    enabled: false,
+    allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
+  },
+};
+
+export const orgUserSettingsWoPayModesCompany: OrgUserSettings = {
+  ...orgUserSettingsWoPaymentModes,
+  preferences: {
+    default_project_id: 3943,
+    default_vehicle_type: 'four_wheeler',
+    default_payment_mode: 'COMPANY_ACCOUNT',
+  },
+};
+
 export const orgUserSettingsData2: OrgUserSettings = {
   id: 'ousS9MgDNQ6NB',
   created_at: new Date('2018-02-01T02:32:25.275Z'),

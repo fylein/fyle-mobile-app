@@ -50,10 +50,9 @@ export class AccountsService {
       etxn: Partial<UnflattenedTransaction>;
       orgSettings: OrgSettings;
       expenseType: ExpenseType;
-      isPaymentModeConfigurationsEnabled: boolean;
     }
   ): AccountOption[] {
-    const { etxn, orgSettings, expenseType, isPaymentModeConfigurationsEnabled } = config;
+    const { etxn, orgSettings, expenseType } = config;
     const isAdvanceEnabled = orgSettings.advances.enabled || orgSettings.advance_requests.enabled;
     const isMultipleAdvanceEnabled = orgSettings.advance_account_settings.multiple_accounts;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
