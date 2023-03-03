@@ -8,9 +8,7 @@ import {
   propertyRes,
   postRecentItemsRes,
 } from '../mock-data/recent-local-storage-items.data';
-import { of } from 'rxjs';
 import * as dayjs from 'dayjs';
-import { property, result } from 'lodash';
 
 describe('RecentLocalStorageItemsService', () => {
   let recentLocalStorageItemsService: RecentLocalStorageItemsService;
@@ -115,7 +113,7 @@ describe('RecentLocalStorageItemsService', () => {
   });
 
   describe('post():', () => {
-    it('it should maintain and update a cache of recent items in the local storage', async () => {
+    it('should maintain and update a cache of recent items in the local storage', async () => {
       const cacheName = 'mileageSubCategoryName';
       const recentItems = postRecentItemsRes;
       const cache = {
