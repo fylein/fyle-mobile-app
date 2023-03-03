@@ -841,7 +841,7 @@ export class TeamReportsPage implements OnInit {
 
   async createFilterOptions() {
     let filterOptions;
-    await this.simplifyReportsEnabled$.subscribe((simplifyReportsEnabled) => {
+    this.simplifyReportsEnabled$.subscribe((simplifyReportsEnabled) => {
       filterOptions = [
         {
           name: 'State',

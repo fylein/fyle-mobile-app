@@ -68,14 +68,17 @@
       </div>
     </ng-container>
 
-    <app-fy-loading-screen *ngIf="isLoading" class="reports--shimmers"></app-fy-loading-screen>
+    <app-fy-loading-screen
+      *ngIf="isLoading || (simplifyReportsEnabled$ | async) === null"
+      class="reports--shimmers"
+    ></app-fy-loading-screen>
 
-    <div *ngIf="!isLoading">
+    <div *ngIf="!isLoading && (simplifyReportsEnabled$ | async) !== null">
       <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
         <app-team-report-card
           [erpt]="erpt"
           [prevDate]="list[i-1]?.rp_created_at"
-          [simplifyReportsEnabled]="simplifyReportsEnabled"
+          [simplifyReportsEnabled]="simplifyReportsEnabled$ | async"
           (gotoReport)="onReportClick($event)"
           (deleteReport)="onDeleteReportClick($event)"
         >

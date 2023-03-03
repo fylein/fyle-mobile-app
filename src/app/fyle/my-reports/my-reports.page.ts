@@ -917,7 +917,7 @@ export class MyReportsPage implements OnInit {
 
   async createFilterOptions() {
     let filterOptions;
-    await forkJoin({
+    forkJoin({
       simplifyReportsEnabled: this.simplifyReportsEnabled$,
       isCCCOnlyOrg: this.isCCCOnlyOrg$,
     }).subscribe(({ isCCCOnlyOrg, simplifyReportsEnabled }) => {
