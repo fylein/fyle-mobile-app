@@ -17,7 +17,7 @@ const perDiemsCacheBuster$ = new Subject<void>();
 export class PerDiemService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1ApiService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
@@ -63,7 +63,7 @@ export class PerDiemService {
         id: 'eq.' + id,
       },
     };
-    return this.spenderPlatformV1BetaApiService
+    return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
       .pipe(
         map((res) => this.transformFrom(res.data)),
@@ -79,7 +79,7 @@ export class PerDiemService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformV1BetaApiService
+    return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
       .pipe(map((res) => this.transformFrom(res.data)));
   }
@@ -92,7 +92,7 @@ export class PerDiemService {
         limit: 1,
       },
     };
-    return this.spenderPlatformV1BetaApiService
+    return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
       .pipe(map((res) => res.count));
   }

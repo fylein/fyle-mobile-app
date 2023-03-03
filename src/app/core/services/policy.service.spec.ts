@@ -25,18 +25,18 @@ import { of } from 'rxjs';
 
 describe('PolicyService', () => {
   let policyService: PolicyService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         PolicyService,
         {
           provide: SpenderPlatformV1ApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: ApproverPlatformApiService,
@@ -45,7 +45,7 @@ describe('PolicyService', () => {
       ],
     });
     policyService = TestBed.inject(PolicyService);
-    spenderPlatformV1BetaApiService = TestBed.inject(
+    spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     approverPlatformApiService = TestBed.inject(
@@ -132,14 +132,14 @@ describe('PolicyService', () => {
 
   describe('getSpenderExpensePolicyViolations()', () => {
     it('should get the spender expense policy violations', (done) => {
-      spenderPlatformV1BetaApiService.get.and.returnValue(of(expensePolicyStatesData));
+      spenderPlatformV1ApiService.get.and.returnValue(of(expensePolicyStatesData));
 
       policyService.getSpenderExpensePolicyViolations('txVTmNOp5JEa').subscribe((res) => {
         expect(res).toEqual(expensePolicyStatesData.data[0].individual_desired_states);
         const expectedParams = {
           expense_id: 'eq.txVTmNOp5JEa',
         };
-        expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', {
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', {
           params: expectedParams,
         });
         done();
@@ -151,10 +151,10 @@ describe('PolicyService', () => {
       const params = {
         expense_id: `eq.${expenseId}`,
       };
-      spenderPlatformV1BetaApiService.get.and.returnValue(of(emptyApiResponse));
+      spenderPlatformV1ApiService.get.and.returnValue(of(emptyApiResponse));
       policyService.getSpenderExpensePolicyViolations(expenseId).subscribe((res) => {
         expect(res).toEqual([]);
-        expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', { params });
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', { params });
         done();
       });
     });

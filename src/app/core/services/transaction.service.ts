@@ -68,7 +68,7 @@ export class TransactionService {
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService,
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1ApiService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
@@ -417,7 +417,7 @@ export class TransactionService {
         const payload = {
           data: platformPolicyExpense,
         };
-        return this.spenderPlatformV1BetaApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
+        return this.spenderPlatformV1ApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
       })
     );
   }

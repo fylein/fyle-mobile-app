@@ -23,17 +23,17 @@ import {
 
 describe('CategoriesService', () => {
   let categoriesService: CategoriesService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
         CategoriesService,
         {
           provide: SpenderPlatformV1ApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: PAGINATION_SIZE,
@@ -42,7 +42,7 @@ describe('CategoriesService', () => {
       ],
     });
     categoriesService = TestBed.inject(CategoriesService);
-    spenderPlatformV1BetaApiService = TestBed.inject(
+    spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
@@ -68,7 +68,7 @@ describe('CategoriesService', () => {
   });
 
   it('getActiveCategoriesCount(): should get category count', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformApiCategoryRes));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformApiCategoryRes));
 
     const apiParam = {
       params: {
@@ -80,13 +80,13 @@ describe('CategoriesService', () => {
 
     categoriesService.getActiveCategoriesCount().subscribe((res) => {
       expect(res).toEqual(platformApiCategoryRes.count);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/categories', apiParam);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/categories', apiParam);
       done();
     });
   });
 
   it('getCategories(): should get categories from the api', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformApiAllCategories));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformApiAllCategories));
     spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategories);
     spyOn(categoriesService, 'sortCategories').and.returnValue(sortedOrgCategories);
     spyOn(categoriesService, 'addDisplayName').and.returnValue(expectedAllOrgCategories);

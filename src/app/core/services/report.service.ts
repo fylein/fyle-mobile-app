@@ -49,7 +49,7 @@ export class ReportService {
     private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
     private userEventService: UserEventService,
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1ApiService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private datePipe: DatePipe,
     private launchDarklyService: LaunchDarklyService,
     private permissionsService: PermissionsService
@@ -238,7 +238,7 @@ export class ReportService {
     cacheBusterObserver: reportsCacheBuster$,
   })
   getReportAutoSubmissionDetails(): Observable<ReportAutoSubmissionDetails> {
-    return this.spenderPlatformV1BetaApiService
+    return this.spenderPlatformV1ApiService
       .post<ReportAutoSubmissionDetails>('/automations/report_submissions/next_at', {
         data: null,
       })

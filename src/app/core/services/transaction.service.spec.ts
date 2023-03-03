@@ -68,7 +68,7 @@ describe('TransactionService', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let fileService: jasmine.SpyObj<FileService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let paymentModesService: jasmine.SpyObj<PaymentModesService>;
@@ -96,7 +96,7 @@ describe('TransactionService', () => {
       'convertToTimezone',
     ]);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['discardRedundantCharacters']);
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
@@ -148,7 +148,7 @@ describe('TransactionService', () => {
         },
         {
           provide: SpenderPlatformV1ApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: StorageService,
@@ -188,7 +188,7 @@ describe('TransactionService', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
-    spenderPlatformV1BetaApiService = TestBed.inject(
+    spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
@@ -1408,11 +1408,11 @@ describe('TransactionService', () => {
 
   it('checkPolicy(): should check policy', (done) => {
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData2));
-    spenderPlatformV1BetaApiService.post.and.returnValue(of(expensePolicyData));
+    spenderPlatformV1ApiService.post.and.returnValue(of(expensePolicyData));
 
     transactionService.checkPolicy(platformPolicyExpenseData1).subscribe((res) => {
       expect(res).toEqual(expensePolicyData);
-      expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledOnceWith('/expenses/check_policies', {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/expenses/check_policies', {
         data: platformPolicyExpenseData1,
       });
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);

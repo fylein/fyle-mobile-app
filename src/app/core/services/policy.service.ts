@@ -15,7 +15,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.serv
 })
 export class PolicyService {
   constructor(
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1ApiService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 
@@ -121,7 +121,7 @@ export class PolicyService {
     const params = {
       expense_id: `eq.${expenseId}`,
     };
-    return this.spenderPlatformV1BetaApiService
+    return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
         params,
       })

@@ -79,7 +79,7 @@ describe('ReportService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -111,7 +111,7 @@ describe('ReportService', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache', 'onLogout']);
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
     const permissionsServiceSpy = jasmine.createSpyObj('PermissionsService', ['allowedActions']);
 
     TestBed.configureTestingModule({
@@ -153,7 +153,7 @@ describe('ReportService', () => {
         },
         {
           provide: SpenderPlatformV1ApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: PermissionsService,
@@ -176,7 +176,7 @@ describe('ReportService', () => {
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
-    spenderPlatformV1BetaApiService = TestBed.inject(
+    spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
@@ -613,7 +613,7 @@ describe('ReportService', () => {
 
   describe('getReportAutoSubmissionDetails():', () => {
     it('should get submission details', (done) => {
-      spenderPlatformV1BetaApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
+      spenderPlatformV1ApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
 
       reportService.getReportAutoSubmissionDetails().subscribe((res) => {
         expect(res).toEqual({
@@ -621,12 +621,9 @@ describe('ReportService', () => {
             next_at: new Date('2023-02-01T00:00:00.000000'),
           },
         });
-        expect(spenderPlatformV1BetaApiService.post).toHaveBeenCalledOnceWith(
-          '/automations/report_submissions/next_at',
-          {
-            data: null,
-          }
-        );
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/automations/report_submissions/next_at', {
+          data: null,
+        });
         done();
       });
     });

@@ -8,7 +8,7 @@ import { costCenterApiRes1, costCenterApiRes2, costCentersData } from '../mock-d
 
 describe('CostCentersService', () => {
   let costCentersService: CostCentersService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
     const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
@@ -26,7 +26,7 @@ describe('CostCentersService', () => {
       ],
     });
     costCentersService = TestBed.inject(CostCentersService);
-    spenderPlatformV1BetaApiService = TestBed.inject(
+    spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
@@ -36,7 +36,7 @@ describe('CostCentersService', () => {
   });
 
   it('getActiveCostCentersCount(): should get active cost center count', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformCostCenterSingleRes));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformCostCenterSingleRes));
 
     const params = {
       params: {
@@ -48,13 +48,13 @@ describe('CostCentersService', () => {
 
     costCentersService.getActiveCostCentersCount().subscribe((res) => {
       expect(res).toEqual(platformCostCenterSingleRes.count);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/cost_centers', params);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/cost_centers', params);
       done();
     });
   });
 
   it('getCostCenters(): should get cost centers as per config', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformCostCenterMultipleRes));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformCostCenterMultipleRes));
     const data = {
       params: {
         is_enabled: 'eq.' + true,
@@ -66,7 +66,7 @@ describe('CostCentersService', () => {
     spyOn(costCentersService, 'transformFrom').and.returnValue(costCentersData);
     costCentersService.getCostCenters({ offset: 0, limit: 4 }).subscribe((res) => {
       expect(res).toEqual(costCentersData);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/cost_centers', data);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/cost_centers', data);
       expect(costCentersService.transformFrom).toHaveBeenCalledOnceWith(platformCostCenterMultipleRes.data);
       done();
     });
