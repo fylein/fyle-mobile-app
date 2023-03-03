@@ -16,13 +16,13 @@ type Filter = Partial<{
 export const filterData1: Filter = {
   createdOn: {
     name: 'custom',
-    customDateStart: new Date('2023-02-20T18:30:00.000Z'),
-    customDateEnd: new Date('2023-02-22T18:30:00.000Z'),
+    customDateStart: new Date('2023-02-20T00:00:00.000Z'),
+    customDateEnd: new Date('2023-02-22T00:00:00.000Z'),
   },
   updatedOn: {
     name: 'custom',
-    customDateStart: new Date('2023-02-22T18:30:00.000Z'),
-    customDateEnd: new Date('2023-02-24T18:30:00.000Z'),
+    customDateStart: new Date('2023-02-22T00:00:00.000Z'),
+    customDateEnd: new Date('2023-02-24T00:00:00.000Z'),
   },
   transactionType: 'Debit',
 };
