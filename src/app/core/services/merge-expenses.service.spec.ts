@@ -1,4 +1,18 @@
 import { TestBed } from '@angular/core/testing';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { dependentFields } from '../mock-data/dependent-field.data';
+import { expensesWithDependentFields, expensesWithSameProject } from '../mock-data/expenses.data';
+import {
+  projectDependentFieldsMapping,
+  projectDependentFieldsMappingForNoDependentFields,
+  projectDependentFieldsMappingForSameProject,
+} from '../mock-data/project-dependent-field-mapping.data';
+import { ApiService } from './api.service';
+import { CategoriesService } from './categories.service';
+import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
+import { CustomInputsService } from './custom-inputs.service';
+import { DateService } from './date.service';
+import { FileService } from './file.service';
 import { MergeExpensesService } from './merge-expenses.service';
 import { ProjectsService } from './projects.service';
 import { TaxGroupService } from './tax-group.service';
