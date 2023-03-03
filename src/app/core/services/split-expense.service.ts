@@ -3,12 +3,14 @@ import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap, toArray } from 'rxjs/operators';
 import { Expense } from '../models/expense.model';
 import { FileObject } from '../models/file-obj.model';
+import { FileTransaction } from '../models/file-txn.model';
 import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgCategory } from '../models/v1/org-category.model';
+import { Transaction } from '../models/v1/transaction.model';
 import { CategoriesService } from './categories.service';
 import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
@@ -33,7 +35,7 @@ export class SplitExpenseService {
     private dataTransformService: DataTransformService
   ) {}
 
-  linkTxnWithFiles(data) {
+  linkTxnWithFiles(data: FileTransaction): Observable<FileObject[]> {
     const observables = [];
     const files = data.files;
     const txns = data.txns;
@@ -51,7 +53,7 @@ export class SplitExpenseService {
     return forkJoin(observables);
   }
 
-  getBase64Content(fileObjs) {
+  getBase64Content(fileObjs: FileObject[]) {
     const fileObservables = [];
     const newFileObjs: any[] = fileObjs.map((fileObj) => ({
       id: fileObj.id,
@@ -255,7 +257,13 @@ export class SplitExpenseService {
 
   // TODO: Fix later. High impact
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, totalSplitExpensesCount) {
+  createTxns(
+    sourceTxn,
+    splitExpenses,
+    splitGroupAmount,
+    splitGroupId,
+    totalSplitExpensesCount
+  ): Observable<Transaction[]> {
     const txnsObservables = [];
 
     splitExpenses.forEach((splitExpense, index) => {
@@ -292,7 +300,12 @@ export class SplitExpenseService {
     return forkJoin(txnsObservables);
   }
 
-  private setupSplitExpensePurpose(transaction: any, splitGroupId: any, index: any, totalSplitExpensesCount: any) {
+  private setupSplitExpensePurpose(
+    transaction: Transaction,
+    splitGroupId: string,
+    index: number,
+    totalSplitExpensesCount: number
+  ) {
     if (transaction.purpose) {
       let splitIndex = 1;
 
