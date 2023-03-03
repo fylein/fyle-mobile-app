@@ -25,11 +25,7 @@ import { policyViolation1, policyViolationData3, policyVoilationData2 } from '..
 import { splitExpData } from '../mock-data/expense.data';
 import { formattedTxnViolations } from '../mock-data/formatted-policy-violation.data';
 import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
-import {
-  violcationComment1,
-  violcationComment2,
-  violcationComment3,
-} from '../mock-data/policy-violcation-comment.data';
+import { violationComment1, violationComment2, violationComment3 } from '../mock-data/policy-violcation-comment.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
@@ -145,6 +141,7 @@ describe('SplitExpenseService', () => {
           content: 'base64encodedcontent',
         },
       ]);
+      expect(fileService.base64Download).toHaveBeenCalledOnceWith(splitExpFileObj[0].id);
       done();
     });
   });
@@ -152,16 +149,22 @@ describe('SplitExpenseService', () => {
   it('postComment(): should post a comment', (done) => {
     statusService.post.and.returnValue(of(txnStatusData));
 
-    splitExpenseService.postComment(violcationComment1).subscribe((res) => {
+    splitExpenseService.postComment(violationComment1).subscribe((res) => {
       expect(res).toEqual(txnStatusData);
+      expect(statusService.post).toHaveBeenCalledOnceWith(
+        violationComment1.objectType,
+        violationComment1.txnId,
+        violationComment1.comment,
+        violationComment1.notify
+      );
       done();
     });
   });
 
   it('postCommentsFromUsers(): should post comments from users', (done) => {
     const postCommentSpy = spyOn<any>(splitExpenseService, 'postComment');
-    postCommentSpy.withArgs(violcationComment2).and.returnValue(of(txnStatusData1));
-    postCommentSpy.withArgs(violcationComment3).and.returnValue(of(txnStatusData2));
+    postCommentSpy.withArgs(violationComment2).and.returnValue(of(txnStatusData1));
+    postCommentSpy.withArgs(violationComment3).and.returnValue(of(txnStatusData2));
 
     splitExpenseService
       .postCommentsFromUsers(['txxkBruL0EO9', 'txNVtsqF8Siq'], {
@@ -170,6 +173,9 @@ describe('SplitExpenseService', () => {
       })
       .subscribe((res) => {
         expect(res).toEqual([txnStatusData1, txnStatusData2]);
+        expect(postCommentSpy).toHaveBeenCalledWith(violationComment2);
+        expect(postCommentSpy).toHaveBeenCalledWith(violationComment3);
+        expect(postCommentSpy).toHaveBeenCalledTimes(2);
         done();
       });
   });
@@ -259,5 +265,11 @@ describe('SplitExpenseService', () => {
     ]);
 
     expect(splitExpenseService.formatPolicyViolations(policyViolationData3)).toEqual(formattedTxnViolations);
+    expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
+    expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
+    expect(policyService.getPolicyRules).toHaveBeenCalledTimes(2);
+    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
+    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
+    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,5 +1,5 @@
 import { PolicyViolation } from '../models/policy-violation.model';
-
+import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
 export const policyViolation1: PolicyViolation = {
   data: {
     final_desired_state: {
@@ -53,7 +53,7 @@ export const splitPolicyExp3: PolicyViolation = {
   type: 'category',
 };
 
-export const policyVoilationData2 = {
+export const policyVoilationData2: PolicyViolationTxn = {
   txVHydZVrGYC: splitPolicyExp2,
   tx4QhcvNHpuh: splitPolicyExp3,
 };
@@ -148,7 +148,7 @@ export const splitPolicyExp5: PolicyViolation = {
   type: 'category',
 };
 
-export const policyViolationData3 = {
+export const policyViolationData3: PolicyViolationTxn = {
   txc2KIogxUAy: splitPolicyExp4,
   txgfkvuYteta: splitPolicyExp5,
 };

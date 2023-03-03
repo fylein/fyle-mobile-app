@@ -1,6 +1,6 @@
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 
-export const violcationComment1: PolicyViolationComment = {
+export const violationComment1: PolicyViolationComment = {
   objectType: 'reports',
   txnId: 'rpkpSa8guCuR',
   comment: {
@@ -9,7 +9,7 @@ export const violcationComment1: PolicyViolationComment = {
   notify: false,
 };
 
-export const violcationComment2: PolicyViolationComment = {
+export const violationComment2: PolicyViolationComment = {
   objectType: 'transactions',
   txnId: 'txxkBruL0EO9',
   comment: {
@@ -18,7 +18,7 @@ export const violcationComment2: PolicyViolationComment = {
   notify: true,
 };
 
-export const violcationComment3: PolicyViolationComment = {
+export const violationComment3: PolicyViolationComment = {
   objectType: 'transactions',
   txnId: 'txNVtsqF8Siq',
   comment: {
