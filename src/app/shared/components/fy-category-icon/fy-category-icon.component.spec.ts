@@ -1,16 +1,17 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatIconModule } from '@angular/material/icon';
 import { IonicModule } from '@ionic/angular';
 
 import { FyCategoryIconComponent } from './fy-category-icon.component';
 
-xdescribe('FyCategoryIconComponent', () => {
+describe('FyCategoryIconComponent', () => {
   let fyCategoryIconComponent: FyCategoryIconComponent;
   let fixture: ComponentFixture<FyCategoryIconComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [FyCategoryIconComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), MatIconModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyCategoryIconComponent);

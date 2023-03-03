@@ -50,10 +50,9 @@ export class AccountsService {
       etxn: Partial<UnflattenedTransaction>;
       orgSettings: OrgSettings;
       expenseType: ExpenseType;
-      isPaymentModeConfigurationsEnabled: boolean;
     }
   ): AccountOption[] {
-    const { etxn, orgSettings, expenseType, isPaymentModeConfigurationsEnabled } = config;
+    const { etxn, orgSettings, expenseType } = config;
     const isAdvanceEnabled = orgSettings.advances.enabled || orgSettings.advance_requests.enabled;
     const isMultipleAdvanceEnabled = orgSettings.advance_account_settings.multiple_accounts;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
@@ -166,15 +165,22 @@ export class AccountsService {
       }
     }
 
-    return allowedPaymentModes.map((allowedPaymentMode) => {
-      const accountForPaymentMode = allAccounts.find((account) => {
-        if (allowedPaymentMode === AccountType.COMPANY) {
-          return account.acc.type === AccountType.PERSONAL;
-        }
-        return account.acc.type === allowedPaymentMode;
-      });
-      return this.setAccountProperties(accountForPaymentMode, allowedPaymentMode, isMultipleAdvanceEnabled);
-    });
+    return allowedPaymentModes
+      .map((allowedPaymentMode) => {
+        const accountsForPaymentMode = allAccounts.filter((account) => {
+          if (allowedPaymentMode === AccountType.COMPANY) {
+            return account.acc.type === AccountType.PERSONAL;
+          }
+          return account.acc.type === allowedPaymentMode;
+        });
+
+        //There can be multiple accounts of type PERSONAL_ADVANCE_ACCOUNT
+        const accountsWithRenamedProperties = accountsForPaymentMode.map((accountForPaymentMode) =>
+          this.setAccountProperties(accountForPaymentMode, allowedPaymentMode, isMultipleAdvanceEnabled)
+        );
+        return accountsWithRenamedProperties;
+      })
+      .reduce((allowedAccounts, accountsForPaymentMode) => [...allowedAccounts, ...accountsForPaymentMode]);
   }
 
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
