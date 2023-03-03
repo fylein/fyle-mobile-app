@@ -142,6 +142,16 @@ export const publicPolicyExpenseData5: PublicPolicyExpense = {
   skip_reimbursement: null,
 };
 
+export const publicPolicyExpenseData6: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  locations: null,
+};
+
+export const publicPolicyExpenseData7: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  fyle_category: null,
+};
+
 export const expensePolicyData: ExpensePolicy = {
   data: {
     final_desired_state: {

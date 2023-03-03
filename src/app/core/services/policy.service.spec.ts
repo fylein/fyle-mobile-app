@@ -11,6 +11,8 @@ import {
   publicPolicyExpenseData3,
   publicPolicyExpenseData4,
   publicPolicyExpenseData5,
+  publicPolicyExpenseData6,
+  publicPolicyExpenseData7,
 } from '../mock-data/public-policy-expense.data';
 import {
   ApproverExpensePolicyStatesData,
@@ -73,7 +75,7 @@ describe('PolicyService', () => {
       expect(result).toEqual(platformPolicyExpenseData3);
     });
 
-    it(' should check for the category to be train', () => {
+    it('should check for the category to be train', () => {
       const result = policyService.transformTo(publicPolicyExpenseData4);
       expect(result).toEqual(platformPolicyExpenseData4);
     });
@@ -81,6 +83,16 @@ describe('PolicyService', () => {
     it('should return null if reimbersment status is null', () => {
       const result = policyService.transformTo(publicPolicyExpenseData5);
       expect(result).toEqual(platformPolicyExpenseData5);
+    });
+
+    it('should filter out null values from location array', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData6);
+      expect(result.locations).toBeUndefined();
+    });
+
+    it('should return empty array if the category is null', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData7);
+      expect(result.travel_classes).toEqual([]);
     });
   });
 
