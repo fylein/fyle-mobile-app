@@ -74,7 +74,6 @@ describe('RecentLocalStorageItemsService', () => {
       storageService.get.and.returnValue(Promise.resolve(cache));
 
       const result = await recentLocalStorageItemsService.get(cacheName);
-
       expect(storageService.get).toHaveBeenCalledOnceWith(cacheName);
       expect(result).toEqual(recentItems);
     });
@@ -89,6 +88,7 @@ describe('RecentLocalStorageItemsService', () => {
       const result = await recentLocalStorageItemsService.get(cacheName);
       expect(storageService.get).toHaveBeenCalledOnceWith(cacheName);
       expect(result).toEqual([]);
+      expect(storageService.delete).toHaveBeenCalledOnceWith(cacheName);
     });
 
     it('should return an empty array when cache does not exist', async () => {
@@ -118,18 +118,21 @@ describe('RecentLocalStorageItemsService', () => {
       const recentItems = postRecentItemsRes;
       const cache = {
         recentItems,
-        updatedAt: jasmine.any(Date),
+        updatedAt: new Date(),
       };
 
       const indexOfItemSpy = spyOn(recentLocalStorageItemsService, 'indexOfItem');
       const getSpy = spyOn(recentLocalStorageItemsService, 'get').and.returnValue(Promise.resolve(postRecentItemsRes));
-      const result = await recentLocalStorageItemsService.post(cacheName, itemsRes, propertyRes);
+
+      await recentLocalStorageItemsService.post(cacheName, itemsRes, propertyRes);
       storageService.set.and.returnValue(Promise.resolve());
 
-      expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
       expect(indexOfItemSpy).toHaveBeenCalledOnceWith(recentItems, itemsRes, propertyRes);
       expect(getSpy).toHaveBeenCalledOnceWith(cacheName);
-      expect(result).toEqual(postRecentItemsRes);
+      recentLocalStorageItemsService.post(cacheName, itemsRes, propertyRes).then((res) => {
+        expect(res).toEqual(postRecentItemsRes);
+      });
+      expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
     });
 
     it('should find the index of an item without the property argument', async () => {
@@ -137,15 +140,17 @@ describe('RecentLocalStorageItemsService', () => {
       const recentItems = postRecentItemsRes;
       const cache = {
         recentItems,
-        updatedAt: jasmine.any(Date),
+        updatedAt: new Date(),
       };
 
       const getSpy = spyOn(recentLocalStorageItemsService, 'get').and.returnValue(Promise.resolve(postRecentItemsRes));
-      const result = await recentLocalStorageItemsService.post(cacheName, itemsRes);
+      await recentLocalStorageItemsService.post(cacheName, itemsRes);
       storageService.set.and.returnValue(Promise.resolve());
-      expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
       expect(getSpy).toHaveBeenCalledOnceWith(cacheName);
-      expect(result).toEqual(postRecentItemsRes);
+      recentLocalStorageItemsService.post(cacheName, itemsRes).then((res) => {
+        expect(res).toEqual(postRecentItemsRes);
+      });
+      expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
     });
   });
 });
