@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { TaxGroupService } from './tax-group.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
@@ -91,16 +91,16 @@ const fixDate = (data) =>
 
 describe('TaxGroupService', () => {
   let taxGroupService: TaxGroupService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
         TaxGroupService,
         {
-          provide: SpenderPlatformV1BetaApiService,
+          provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
@@ -111,8 +111,8 @@ describe('TaxGroupService', () => {
     });
     taxGroupService = TestBed.inject(TaxGroupService);
     spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     globalCacheBusterNotifier.next();
   });
 

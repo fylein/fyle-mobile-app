@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { CostCentersService } from './cost-centers.service';
 import { of } from 'rxjs';
 import { platformCostCenterSingleRes, platformCostCenterMultipleRes } from '../mock-data/platform-cost-centers.data';
@@ -8,15 +8,15 @@ import { costCenterApiRes1, costCenterApiRes2, costCentersData } from '../mock-d
 
 describe('CostCentersService', () => {
   let costCentersService: CostCentersService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
-    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         CostCentersService,
         {
-          provide: SpenderPlatformV1BetaApiService,
+          provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformApiServiceSpy,
         },
         {
@@ -27,8 +27,8 @@ describe('CostCentersService', () => {
     });
     costCentersService = TestBed.inject(CostCentersService);
     spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {

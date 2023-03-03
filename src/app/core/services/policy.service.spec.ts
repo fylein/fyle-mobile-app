@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { PolicyService } from './policy.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import {
@@ -25,17 +25,17 @@ import { of } from 'rxjs';
 
 describe('PolicyService', () => {
   let policyService: PolicyService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         PolicyService,
         {
-          provide: SpenderPlatformV1BetaApiService,
+          provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
@@ -46,8 +46,8 @@ describe('PolicyService', () => {
     });
     policyService = TestBed.inject(PolicyService);
     spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     approverPlatformApiService = TestBed.inject(
       ApproverPlatformApiService
     ) as jasmine.SpyObj<ApproverPlatformApiService>;

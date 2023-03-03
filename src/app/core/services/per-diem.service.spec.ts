@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { PerDiemService } from './per-diem.service';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import {
@@ -26,18 +26,18 @@ const fixDate = (data) =>
 
 describe('PerDiemService', () => {
   let perDiemService: PerDiemService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
         PerDiemService,
         {
-          provide: SpenderPlatformV1BetaApiService,
+          provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
@@ -52,8 +52,8 @@ describe('PerDiemService', () => {
     });
     perDiemService = TestBed.inject(PerDiemService);
     spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
   });
 

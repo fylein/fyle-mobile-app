@@ -8,14 +8,14 @@ import { PlatformPolicyExpense } from '../models/platform/platform-policy-expens
 import { PolicyViolation } from '../models/policy-violation.model';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PolicyService {
   constructor(
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1ApiService,
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 

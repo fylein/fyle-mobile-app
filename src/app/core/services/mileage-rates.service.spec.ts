@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CurrencyPipe } from '@angular/common';
 import { MileageRatesService } from './mileage-rates.service';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import {
   filterEnabledMileageRatesData,
   unfilteredMileageRatesData,
@@ -17,18 +17,18 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 
 describe('MileageRatesService', () => {
   let mileageRatesService: MileageRatesService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let currencyPipe: jasmine.SpyObj<CurrencyPipe>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
       providers: [
         MileageRatesService,
         {
-          provide: SpenderPlatformV1BetaApiService,
+          provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
@@ -43,8 +43,8 @@ describe('MileageRatesService', () => {
     });
     mileageRatesService = TestBed.inject(MileageRatesService);
     spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
     currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
   });

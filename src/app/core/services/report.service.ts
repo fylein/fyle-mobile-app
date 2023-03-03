@@ -16,7 +16,7 @@ import { TransactionService } from './transaction.service';
 import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { UserEventService } from './user-event.service';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PermissionsService } from './permissions.service';
@@ -49,7 +49,7 @@ export class ReportService {
     private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
     private userEventService: UserEventService,
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1ApiService,
     private datePipe: DatePipe,
     private launchDarklyService: LaunchDarklyService,
     private permissionsService: PermissionsService

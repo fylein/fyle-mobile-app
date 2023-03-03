@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CategoriesService } from './categories.service';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { platformApiCategoryRes, platformApiAllCategories } from '../mock-data/platform-api-category.data';
 import { of } from 'rxjs';
 import {
@@ -23,16 +23,16 @@ import {
 
 describe('CategoriesService', () => {
   let categoriesService: CategoriesService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
         CategoriesService,
         {
-          provide: SpenderPlatformV1BetaApiService,
+          provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
@@ -43,8 +43,8 @@ describe('CategoriesService', () => {
     });
     categoriesService = TestBed.inject(CategoriesService);
     spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {

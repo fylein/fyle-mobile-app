@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { DatePipe } from '@angular/common';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
@@ -79,7 +79,7 @@ describe('ReportService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -152,7 +152,7 @@ describe('ReportService', () => {
           useValue: userEventServiceSpy,
         },
         {
-          provide: SpenderPlatformV1BetaApiService,
+          provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1BetaApiServiceSpy,
         },
         {
@@ -177,8 +177,8 @@ describe('ReportService', () => {
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
   });

@@ -24,7 +24,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
 import { AccountsService } from './accounts.service';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-beta-api.service';
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { EtxnParams } from '../models/etxn-params.model';
@@ -68,7 +68,7 @@ export class TransactionService {
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService,
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private spenderPlatformV1BetaApiService: SpenderPlatformV1ApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
