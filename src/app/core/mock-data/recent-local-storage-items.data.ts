@@ -134,6 +134,3 @@ export const postRecentItemsRes: RecentLocalStorageItems[] = [
     custom: false,
   },
 ];
-
-// property
-//  label

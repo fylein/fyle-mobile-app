@@ -64,4 +64,90 @@ describe('RecentLocalStorageItemsService', () => {
     expect(clearSpy).toHaveBeenCalledWith('recentVendorList');
     expect(clearSpy).toHaveBeenCalledTimes(17);
   });
+
+  describe('get():', () => {
+    it('should retrieve recent items from the specified cache in the local storage.', async () => {
+      const cacheName = 'mileageSubCategoryName';
+      const recentItems = recentLocalStorageItemsRes;
+      const cache = {
+        updatedAt: dayjs().toISOString(),
+        recentItems,
+      };
+      storageService.get.and.returnValue(Promise.resolve(cache));
+
+      const result = await recentLocalStorageItemsService.get(cacheName);
+
+      expect(storageService.get).toHaveBeenCalledOnceWith(cacheName);
+      expect(result).toEqual(recentItems);
+    });
+
+    it('should return empty array when cache is outdated', async () => {
+      const cacheName = 'recent-currency-cache';
+      const outdatedCache = {
+        updatedAt: dayjs().diff(5, 'minute').toString(),
+        recentItems: recentLocalStorageItemsRes,
+      };
+      storageService.get.and.returnValue(Promise.resolve(outdatedCache));
+      const result = await recentLocalStorageItemsService.get(cacheName);
+      expect(storageService.get).toHaveBeenCalledOnceWith(cacheName);
+      expect(result).toEqual([]);
+    });
+
+    it('should return an empty array when cache does not exist', async () => {
+      const cacheName = 'recent-currency-cache';
+      storageService.get.and.resolveTo(null);
+      const result = await recentLocalStorageItemsService.get(cacheName);
+      expect(storageService.get).toHaveBeenCalledOnceWith(cacheName);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('indexOfItem():', () => {
+    it('should return the item index', () => {
+      const result = recentLocalStorageItemsService.indexOfItem(recentItemsRes, itemsRes, propertyRes);
+      expect(result).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should return -1 if there are no recent items in the array', () => {
+      const result = recentLocalStorageItemsService.indexOfItem([], itemsRes, propertyRes);
+      expect(result).toEqual(-1);
+    });
+  });
+
+  describe('post():', () => {
+    it('it should maintain and update a cache of recent items in the local storage', async () => {
+      const cacheName = 'mileageSubCategoryName';
+      const recentItems = postRecentItemsRes;
+      const cache = {
+        recentItems,
+        updatedAt: jasmine.any(Date),
+      };
+
+      const indexOfItemSpy = spyOn(recentLocalStorageItemsService, 'indexOfItem');
+      const getSpy = spyOn(recentLocalStorageItemsService, 'get').and.returnValue(Promise.resolve(postRecentItemsRes));
+      const result = await recentLocalStorageItemsService.post(cacheName, itemsRes, propertyRes);
+      storageService.set.and.returnValue(Promise.resolve());
+
+      expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
+      expect(indexOfItemSpy).toHaveBeenCalledOnceWith(recentItems, itemsRes, propertyRes);
+      expect(getSpy).toHaveBeenCalledOnceWith(cacheName);
+      expect(result).toEqual(postRecentItemsRes);
+    });
+
+    it('should find the index of an item without the property argument', async () => {
+      const cacheName = 'mileageSubCategoryName';
+      const recentItems = postRecentItemsRes;
+      const cache = {
+        recentItems,
+        updatedAt: jasmine.any(Date),
+      };
+
+      const getSpy = spyOn(recentLocalStorageItemsService, 'get').and.returnValue(Promise.resolve(postRecentItemsRes));
+      const result = await recentLocalStorageItemsService.post(cacheName, itemsRes);
+      storageService.set.and.returnValue(Promise.resolve());
+      expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
+      expect(getSpy).toHaveBeenCalledOnceWith(cacheName);
+      expect(result).toEqual(postRecentItemsRes);
+    });
+  });
 });
