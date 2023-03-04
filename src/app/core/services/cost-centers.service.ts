@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { CostCenter } from '../models/v1/cost-center.model';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
@@ -16,7 +16,7 @@ const costCentersCacheBuster$ = new Subject<void>();
 export class CostCentersService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
   @Cacheable({
@@ -41,7 +41,7 @@ export class CostCentersService {
         limit: 1,
       },
     };
-    return this.spenderPlatformV1BetaApiService
+    return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
       .pipe(map((res) => res.count));
   }
@@ -54,7 +54,7 @@ export class CostCentersService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformV1BetaApiService
+    return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
       .pipe(map((res) => this.transformFrom(res.data)));
   }
