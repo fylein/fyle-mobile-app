@@ -11,6 +11,8 @@ import {
   publicPolicyExpenseData3,
   publicPolicyExpenseData4,
   publicPolicyExpenseData5,
+  publicPolicyExpenseData6,
+  publicPolicyExpenseData7,
 } from '../mock-data/public-policy-expense.data';
 import {
   ApproverExpensePolicyStatesData,
@@ -73,7 +75,7 @@ describe('PolicyService', () => {
       expect(result).toEqual(platformPolicyExpenseData3);
     });
 
-    it(' should check for the category to be train', () => {
+    it('should check for the category to be train', () => {
       const result = policyService.transformTo(publicPolicyExpenseData4);
       expect(result).toEqual(platformPolicyExpenseData4);
     });
@@ -81,6 +83,16 @@ describe('PolicyService', () => {
     it('should return null if reimbersment status is null', () => {
       const result = policyService.transformTo(publicPolicyExpenseData5);
       expect(result).toEqual(platformPolicyExpenseData5);
+    });
+
+    it('should filter out null values from location array', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData6);
+      expect(result.locations).toBeUndefined();
+    });
+
+    it('should return empty array if the fyle category is null', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData7);
+      expect(result.travel_classes).toEqual([]);
     });
   });
 
@@ -109,9 +121,9 @@ describe('PolicyService', () => {
     expect(result).toBeTrue();
   });
 
-  it('isExpenseFlagged() : should return true for a description that includes expense flag', () => {
+  it('isExpenseFlagged(): should return true for a description that includes expense flag', () => {
     const description =
-      ' The expense will be flagged and employee will be alerted when expenses cross total sum of all expenses in a half year is greater than: INR 100.';
+      'The expense will be flagged and employee will be alerted when expenses cross total sum of all expenses in a half year is greater than: INR 100.';
     const result = policyService.isExpenseFlagged(description);
     expect(result).toBeTrue();
   });
@@ -130,7 +142,7 @@ describe('PolicyService', () => {
     ]);
   });
 
-  describe('getSpenderExpensePolicyViolations()', () => {
+  describe('getSpenderExpensePolicyViolations():', () => {
     it('should get the spender expense policy violations', (done) => {
       spenderPlatformV1ApiService.get.and.returnValue(of(expensePolicyStatesData));
 
