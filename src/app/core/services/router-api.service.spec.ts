@@ -1,16 +1,29 @@
 import { TestBed } from '@angular/core/testing';
-
+import { HttpClient } from '@angular/common/http';
 import { RouterApiService } from './router-api.service';
+import { of } from 'rxjs';
 
-xdescribe('RouterApiService', () => {
-  let service: RouterApiService;
-
+describe('RouterApiService', () => {
+  let routerApiService: RouterApiService;
+  let httpClient: jasmine.SpyObj<HttpClient>;
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(RouterApiService);
+    const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
+
+    TestBed.configureTestingModule({
+      providers: [
+        RouterApiService,
+        {
+          provide: HttpClient,
+          useValue: httpClientSpy,
+        },
+      ],
+    });
+
+    routerApiService = TestBed.inject(RouterApiService);
+    httpClient = TestBed.inject(HttpClient) as jasmine.SpyObj<HttpClient>;
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(routerApiService).toBeTruthy();
   });
 });
