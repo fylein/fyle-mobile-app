@@ -26,6 +26,7 @@ import { splitExpData } from '../mock-data/expense.data';
 import { formattedTxnViolations } from '../mock-data/formatted-policy-violation.data';
 import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
 import { violationComment1, violationComment2, violationComment3 } from '../mock-data/policy-violcation-comment.data';
+import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data/crtical-policy-violations.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
@@ -162,7 +163,7 @@ describe('SplitExpenseService', () => {
   });
 
   it('postCommentsFromUsers(): should post comments from users', (done) => {
-    const postCommentSpy = spyOn<any>(splitExpenseService, 'postComment');
+    const postCommentSpy = spyOn(splitExpenseService, 'postComment');
     postCommentSpy.withArgs(violationComment2).and.returnValue(of(txnStatusData1));
     postCommentSpy.withArgs(violationComment3).and.returnValue(of(txnStatusData2));
 
@@ -250,19 +251,26 @@ describe('SplitExpenseService', () => {
   });
 
   it('mapViolationDataWithEtxn(): should map violation data with expenses', () => {
+    const formatDisplayNameSpy = spyOn(splitExpenseService, 'formatDisplayName');
+    formatDisplayNameSpy.and.returnValue('Food');
+    formatDisplayNameSpy.and.returnValue('Food / Travelling - Inland');
     expect(
       splitExpenseService.mapViolationDataWithEtxn(policyVoilationData2, splitExpData, transformedOrgCategories)
     ).toEqual(policyVoilationData2);
+    expect(splitExpenseService.formatDisplayName).toHaveBeenCalledWith(
+      splitExpData[0].tx_org_category_id,
+      transformedOrgCategories
+    );
+    expect(splitExpenseService.formatDisplayName).toHaveBeenCalledWith(
+      splitExpData[1].tx_org_category_id,
+      transformedOrgCategories
+    );
+    expect(splitExpenseService.formatDisplayName).toHaveBeenCalledTimes(2);
   });
 
   it('formatPolicyViolations(): should format policy violations', () => {
-    policyService.getPolicyRules.and.returnValue([
-      'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit when expense amount in category 1 / chumma returns/1 / sd/1 / sub 123/aniruddha test / aniruddha sub/Food/Food / Travelling - Inland/Snacks/Stuff/te knklw/TEst Cateogory / 12 exceeds: INR 1000 and are fyled from  Paid by Employee payment mode(s). ',
-    ]);
-    policyService.getCriticalPolicyRules.and.returnValue([
-      'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit when expense amount in category 1 / chumma returns/1 / sd/1 / sub 123/aniruddha test / aniruddha sub/Food/Food / Travelling - Inland/Snacks/Stuff/te knklw/TEst Cateogory / 12 exceeds: INR 1000 and are fyled from  Paid by Employee payment mode(s). ',
-      'Receipt needed for expenses above INR 123',
-    ]);
+    policyService.getPolicyRules.and.returnValue(criticalPolicyViolation1);
+    policyService.getCriticalPolicyRules.and.returnValue(criticalPolicyViolation2);
 
     expect(splitExpenseService.formatPolicyViolations(policyViolationData3)).toEqual(formattedTxnViolations);
     expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
