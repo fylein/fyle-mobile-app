@@ -2,10 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { dependentFields } from '../mock-data/dependent-field.data';
-import { advanceExpensesList, apiExpenseRes, expenseData2 } from '../mock-data/expense.data';
+import { advanceExpensesList, apiExpenseRes, expenseData2, mergeExpenseData1 } from '../mock-data/expense.data';
 import {
   expenseInfoWithoutDefaultExpense,
   expensesInfo,
+  expensesInfoWithMultipleAdvanceExpenses,
   expensesInfoWithReportedExpense,
 } from '../mock-data/expenses-info.data';
 import { expensesWithDependentFields, expensesWithSameProject } from '../mock-data/expenses.data';
@@ -24,6 +25,16 @@ import { FileService } from './file.service';
 import { MergeExpensesService } from './merge-expenses.service';
 import { ProjectsService } from './projects.service';
 import { TaxGroupService } from './tax-group.service';
+import {
+  billableOptions1,
+  billableOptions2,
+  paymentModeOptions1,
+  paymentModeOptions2,
+  paymentModeOptions3,
+  sameOptions,
+} from '../mock-data/merge-expenses-option.data';
+import { AccountType } from '../enums/account-type.enum';
+import { optionsData2 } from '../mock-data/merge-expenses-options-data.data';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -181,6 +192,87 @@ describe('MergeExpensesService', () => {
       expect(
         mergeExpensesService.isReportedOrAbove({ isReportedAndAbove: true, ...expenseInfoWithoutDefaultExpense })
       ).toBeFalse();
+    });
+  });
+
+  describe('setDefaultExpenseToKeep():', () => {
+    it('should set the default expense to keep', () => {
+      spyOn(mergeExpensesService, 'checkIfAdvanceExpensePresent').and.returnValue([mergeExpenseData1[1]]);
+      expect(mergeExpensesService.setDefaultExpenseToKeep(mergeExpenseData1)).toEqual(
+        expensesInfoWithMultipleAdvanceExpenses
+      );
+      expect(mergeExpensesService.checkIfAdvanceExpensePresent).toHaveBeenCalledOnceWith(mergeExpenseData1);
+    });
+
+    it('should set default expense to null when advance expense is not present and all expenses are not reported and above', () => {
+      spyOn(mergeExpensesService, 'checkIfAdvanceExpensePresent').and.returnValue([]);
+      expect(mergeExpensesService.setDefaultExpenseToKeep(mergeExpenseData1)).toEqual(expenseInfoWithoutDefaultExpense);
+      expect(mergeExpensesService.checkIfAdvanceExpensePresent).toHaveBeenCalledOnceWith(mergeExpenseData1);
+    });
+  });
+
+  describe('formatBillableOptions():', () => {
+    it('should return the billable options when billable is true', () => {
+      // @ts-ignore
+      expect(mergeExpensesService.formatBillableOptions({ value: true })).toEqual(billableOptions1);
+    });
+
+    it('should return the billable options when billable is false', () => {
+      // @ts-ignore
+      expect(mergeExpensesService.formatBillableOptions({ value: false })).toEqual(billableOptions2);
+    });
+  });
+
+  describe('formatPaymentModeOptions():', () => {
+    it('should return the payment mode options when payment mode is personal cash', () => {
+      // @ts-ignore
+      expect(mergeExpensesService.formatPaymentModeOptions({ value: AccountType.PERSONAL })).toEqual(
+        paymentModeOptions1
+      );
+    });
+
+    it('should return the payment mode options when payment mode is advance', () => {
+      // @ts-ignore
+      expect(mergeExpensesService.formatPaymentModeOptions({ value: AccountType.ADVANCE })).toEqual(
+        paymentModeOptions2
+      );
+    });
+
+    it('should return the payment mode options when payment mode is corporate card', () => {
+      // @ts-ignore
+      expect(mergeExpensesService.formatPaymentModeOptions({ value: AccountType.CCC })).toEqual(paymentModeOptions3);
+    });
+  });
+
+  it('checkOptionsAreSame(): should return true if options are same', () => {
+    // @ts-ignore
+    expect(mergeExpensesService.checkOptionsAreSame(sameOptions)).toBeTrue();
+  });
+
+  it('formatOptions(): should return the formatted options', () => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'checkOptionsAreSame').and.returnValue(true);
+
+    // @ts-ignore
+    expect(mergeExpensesService.formatOptions(sameOptions)).toEqual({ options: sameOptions, areSameValues: true });
+    // @ts-ignore
+    expect(mergeExpensesService.checkOptionsAreSame).toHaveBeenCalledWith([sameOptions[0].value, sameOptions[1].value]);
+  });
+
+  it('generateBillableOptions(): should return the billable options', () => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatBillableOptions').and.returnValue(optionsData2.options[0]);
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData2);
+
+    mergeExpensesService.generateBillableOptions(apiExpenseRes).subscribe((res) => {
+      expect(res).toEqual(optionsData2);
+      // @ts-ignore
+      expect(mergeExpensesService.formatBillableOptions).toHaveBeenCalledWith({ label: 'false', value: false });
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledOnceWith([
+        { label: 'false', ...optionsData2.options[0] },
+      ]);
     });
   });
 });
