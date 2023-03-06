@@ -18,6 +18,9 @@ import { DateService } from './date.service';
 import { AccountType } from '../enums/account-type.enum';
 import { TaxGroupService } from './tax-group.service';
 import { CustomInputsService } from './custom-inputs.service';
+import { cloneDeep } from 'lodash';
+import { CustomProperty } from '../models/custom-properties.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 type Option = Partial<{
   label: string;
@@ -33,10 +36,10 @@ type OptionsData = Partial<{
 
 type CustomInputs = Partial<{
   control: FormControl;
-  id: string;
+  id: number;
   mandatory: boolean;
   name: string;
-  options: Option[];
+  options: string[];
   placeholder: string;
   prefix: string;
   type: string;
@@ -579,13 +582,42 @@ export class MergeExpensesService {
   }
 
   getCustomInputValues(expenses: Expense[]): CustomInputs[] {
-    return expenses
+    //Create a copy so that we don't modify the expense object
+    const expensesCopy = cloneDeep(expenses);
+    return expensesCopy
       .map((expense) => {
         if (expense.tx_custom_properties !== null && expense.tx_custom_properties.length > 0) {
           return expense.tx_custom_properties;
         }
       })
       .filter((element) => element !== undefined);
+  }
+
+  getProjectDependentFieldsMapping(
+    expenses: Expense[],
+    dependentFields: TxnCustomProperties[]
+  ): {
+    [projectId: number]: CustomProperty<string>[];
+  } {
+    const projectDependentFieldsMapping = {};
+    expenses.forEach((expense) => {
+      const txDependentFields: CustomProperty<string>[] = dependentFields
+        ?.map((dependentField: TxnCustomProperties) =>
+          expense.tx_custom_properties.find(
+            (txCustomProperty: CustomProperty<string>) => dependentField.name === txCustomProperty.name
+          )
+        )
+        .filter((txDependentField) => !!txDependentField);
+
+      const dependentFieldsForProject = projectDependentFieldsMapping[expense.tx_project_id];
+
+      //If both the expenses have same project id but first one does not have any dependent field
+      //then use the dependent fields from the second expense, else use fields from first expense
+      if (!dependentFieldsForProject || dependentFieldsForProject.length === 0) {
+        projectDependentFieldsMapping[expense.tx_project_id] = txDependentFields || [];
+      }
+    });
+    return projectDependentFieldsMapping;
   }
 
   formatCustomInputOptions(combinedCustomProperties: OptionsData[]) {

@@ -1,0 +1,59 @@
+@import '../../../../../assets/styles/fy_select';
+
+.dependent-field-modal {
+  color: $pure-black;
+  &__list-element {
+    padding: 18px 0;
+    margin: 0 16px;
+    // border-color-font
+    @extend %fy-select-list-element-default-border-color-font;
+    // list-item-layout
+    @extend %fy-select-list-element-layout;
+  }
+
+  &__title {
+    @extend %fy-select-title;
+  }
+
+  &__label {
+    text-align: justify;
+    word-break: break-word;
+  }
+
+  &__header {
+    @extend %fy-select-header;
+  }
+
+  &__clear-button {
+    background: transparent;
+    color: $pure-black;
+  }
+
+  &__search-input {
+    @extend %fy-select-search-input;
+  }
+
+  &__form-field {
+    @extend %fy-select-mat-form-field;
+  }
+
+  &__search-icon {
+    @extend %fy-select-search-icon;
+  }
+
+  &__container {
+    @extend %flex-layout-column;
+  }
+
+  &__single-element-block {
+    margin-bottom: 20px;
+  }
+
+  &__autocomplete-loader {
+    @extend %autocomplete-loader;
+  }
+
+  &__check {
+    @extend %fy-select-check;
+  }
+}

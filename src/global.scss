@@ -561,7 +561,8 @@ input {
   padding: 0.3em 0 1em 0;
 }
 
-.selection-modal--form-field {
+.selection-modal--form-field,
+.dependent-field-modal__form-field {
   .mat-form-field-wrapper {
     border: 1px solid $grey-lighter;
     border-radius: 4px;

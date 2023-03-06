@@ -7,4 +7,5 @@ export interface TxnCustomProperties {
   prefix?: string;
   type?: string;
   value: any;
+  parent_field_id?: number;
 }
