@@ -12,7 +12,7 @@ export const dependentFieldValuesApiParams: DependentFieldValuesApiParams = {
   params: {
     expense_field_id: 'eq.219199',
     parent_expense_field_id: 'eq.219175',
-    parent_expense_field_value: 'eq.Project 1',
+    parent_expense_field_value: `eq."Project 1"`,
     is_enabled: 'eq.true',
     offset: 0,
     limit: 20,
@@ -58,9 +58,9 @@ export const dependentFieldValuesWithSearchQueryMethodParams = {
 export const dependentFieldValuesWithSearchQueryApiParams: DependentFieldValuesApiParams = {
   params: {
     expense_field_id: 'eq.219199',
-    expense_field_value: 'ilike.%code 2%',
+    expense_field_value: `ilike."%code 2%"`,
     parent_expense_field_id: 'eq.219175',
-    parent_expense_field_value: 'eq.Project 1',
+    parent_expense_field_value: `eq."Project 1"`,
     is_enabled: 'eq.true',
     offset: 0,
     limit: 20,
