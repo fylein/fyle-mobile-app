@@ -35,7 +35,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import * as dayjs from 'dayjs';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 type Filters = Partial<{
@@ -256,7 +255,7 @@ export class MyReportsPage implements OnInit {
       )
     );
 
-    const orgSettings$ = this.orgSettingsService.get();
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.simplifyReportsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings?.simplified_report_closure_settings?.enabled)
     );
@@ -915,128 +914,102 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  async createFilterOptions() {
-    let filterOptions;
-    forkJoin({
-      simplifyReportsEnabled: this.simplifyReportsEnabled$,
-      isCCCOnlyOrg: this.isCCCOnlyOrg$,
-    }).subscribe(({ isCCCOnlyOrg, simplifyReportsEnabled }) => {
-      // payment state filters should not be shown to CCC only orgs in the new reports flow.
-      const newReportsFlowPaymentStateFilters =
-        (!isCCCOnlyOrg && [
-          {
-            label: 'Processing',
-            value: 'PAYMENT_PROCESSING',
-          },
-        ]) ||
-        [];
-
-      const paymentStateFilters = [
-        {
-          label: 'Payment Pending',
-          value: 'PAYMENT_PENDING',
-        },
-        {
-          label: 'Payment Processing',
-          value: 'PAYMENT_PROCESSING',
-        },
-      ];
-
-      filterOptions = [
-        {
-          name: 'State',
-          optionType: FilterOptionType.multiselect,
-          options: [
-            {
-              label: 'Draft',
-              value: 'DRAFT',
-            },
-            {
-              label: simplifyReportsEnabled ? 'Submitted' : 'Reported',
-              value: 'APPROVER_PENDING',
-            },
-            {
-              label: 'Sent Back',
-              value: 'APPROVER_INQUIRY',
-            },
-            {
-              label: 'Approved',
-              value: 'APPROVED',
-            },
-            ...(simplifyReportsEnabled ? newReportsFlowPaymentStateFilters : paymentStateFilters),
-            {
-              label: simplifyReportsEnabled ? 'Closed' : 'Paid',
-              value: 'PAID',
-            },
-          ],
-        } as FilterOptions<string>,
-        {
-          name: 'Date',
-          optionType: FilterOptionType.date,
-          options: [
-            {
-              label: 'All',
-              value: DateFilters.all,
-            },
-            {
-              label: 'This Week',
-              value: DateFilters.thisWeek,
-            },
-            {
-              label: 'This Month',
-              value: DateFilters.thisMonth,
-            },
-            {
-              label: 'Last Month',
-              value: DateFilters.lastMonth,
-            },
-            {
-              label: 'Custom',
-              value: DateFilters.custom,
-            },
-          ],
-        } as FilterOptions<DateFilters>,
-        {
-          name: 'Sort By',
-          optionType: FilterOptionType.singleselect,
-          options: [
-            {
-              label: 'Date - New to Old',
-              value: 'dateNewToOld',
-            },
-            {
-              label: 'Date - Old to New',
-              value: 'dateOldToNew',
-            },
-            {
-              label: 'Amount - High to Low',
-              value: 'amountHighToLow',
-            },
-            {
-              label: 'Amount - Low to High',
-              value: 'amountLowToHigh',
-            },
-            {
-              label: 'Name - A to Z',
-              value: 'nameAToZ',
-            },
-            {
-              label: 'Name - Z to A',
-              value: 'nameZToA',
-            },
-          ],
-        } as FilterOptions<string>,
-      ];
-    });
-    return filterOptions;
-  }
-
   async openFilters(activeFilterInitialName?: string) {
-    const filterOptions = await this.createFilterOptions();
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
-        filterOptions,
+        filterOptions: [
+          {
+            name: 'State',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Reported',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Payment Pending',
+                value: 'PAYMENT_PENDING',
+              },
+              {
+                label: 'Payment Processing',
+                value: 'PAYMENT_PROCESSING',
+              },
+              {
+                label: 'Paid',
+                value: 'PAID',
+              },
+            ],
+          } as FilterOptions<string>,
+          {
+            name: 'Date',
+            optionType: FilterOptionType.date,
+            options: [
+              {
+                label: 'All',
+                value: DateFilters.all,
+              },
+              {
+                label: 'This Week',
+                value: DateFilters.thisWeek,
+              },
+              {
+                label: 'This Month',
+                value: DateFilters.thisMonth,
+              },
+              {
+                label: 'Last Month',
+                value: DateFilters.lastMonth,
+              },
+              {
+                label: 'Custom',
+                value: DateFilters.custom,
+              },
+            ],
+          } as FilterOptions<DateFilters>,
+          {
+            name: 'Sort By',
+            optionType: FilterOptionType.singleselect,
+            options: [
+              {
+                label: 'Date - New to Old',
+                value: 'dateNewToOld',
+              },
+              {
+                label: 'Date - Old to New',
+                value: 'dateOldToNew',
+              },
+              {
+                label: 'Amount - High to Low',
+                value: 'amountHighToLow',
+              },
+              {
+                label: 'Amount - Low to High',
+                value: 'amountLowToHigh',
+              },
+              {
+                label: 'Name - A to Z',
+                value: 'nameAToZ',
+              },
+              {
+                label: 'Name - Z to A',
+                value: 'nameZToA',
+              },
+            ],
+          } as FilterOptions<string>,
+        ],
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },
