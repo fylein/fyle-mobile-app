@@ -90,7 +90,7 @@ describe('PolicyService', () => {
       expect(result.locations).toBeUndefined();
     });
 
-    it('should return empty array if the category is null', () => {
+    it('should return empty array if the fyle category is null', () => {
       const result = policyService.transformTo(publicPolicyExpenseData7);
       expect(result.travel_classes).toEqual([]);
     });
@@ -142,7 +142,7 @@ describe('PolicyService', () => {
     ]);
   });
 
-  describe('getSpenderExpensePolicyViolations()', () => {
+  describe('getSpenderExpensePolicyViolations():', () => {
     it('should get the spender expense policy violations', (done) => {
       spenderPlatformV1ApiService.get.and.returnValue(of(expensePolicyStatesData));
 
