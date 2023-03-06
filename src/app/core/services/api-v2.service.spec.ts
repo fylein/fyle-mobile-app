@@ -42,13 +42,59 @@ describe('ApiV2Service', () => {
     expect(apiV2Service.ROOT_ENDPOINT).toBe(rootUrl);
   });
 
-  it('get():should make GET request without params', (done) => {
-    httpClient.get.and.returnValue(of(apiResponse));
+  describe('get():', () => {
+    it('should make GET request without params', (done) => {
+      httpClient.get.and.returnValue(of(apiResponse));
+      apiV2Service.get('/reports').subscribe((res) => {
+        expect(res).toEqual(apiResponse);
+        expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/v2/reports', {});
+        done();
+      });
+    });
 
-    apiV2Service.get('/reports').subscribe((res) => {
-      expect(res).toEqual(apiResponse);
-      expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/v2/reports', {});
-      done();
+    it('should make GET request with params', (done) => {
+      httpClient.get.and.returnValue(of(apiResponse));
+
+      apiV2Service
+        .get('/reports', {
+          params: requestObj,
+        })
+        .subscribe((res) => {
+          expect(res).toEqual(apiResponse);
+          expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/v2/reports', {
+            params: requestObj,
+          });
+          done();
+        });
+    });
+  });
+
+  describe('extendQueryParamsForTextSearch():', () => {
+    const queryParams = {
+      param1: 'value1',
+      param2: 'value2',
+    };
+
+    it('should return the original queryParams when simpleSearchText is undefined', () => {
+      const result = apiV2Service.extendQueryParamsForTextSearch(queryParams, undefined);
+      expect(result).toEqual(queryParams);
+    });
+
+    it('should return the original queryParams when simpleSearchText is an empty string', () => {
+      const result = apiV2Service.extendQueryParamsForTextSearch(queryParams, '');
+      expect(result).toEqual(queryParams);
+    });
+
+    it('should append the correct search query to the queryParams when simpleSearchText is not empty', () => {
+      const simpleSearchText = 'example text search';
+      const expectedSearchQuery = 'text & example & search:*';
+      const expectedQueryParams = {
+        param1: 'value1',
+        param2: 'value2',
+        _search_document: 'fts.' + expectedSearchQuery,
+      };
+      const result = apiV2Service.extendQueryParamsForTextSearch(queryParams, simpleSearchText);
+      expect(result).toEqual(expectedQueryParams);
     });
   });
 });
