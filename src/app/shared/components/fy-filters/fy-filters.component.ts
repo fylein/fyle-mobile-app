@@ -3,7 +3,7 @@ import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
 import { ModalController } from '@ionic/angular';
-import { forkJoin, interval, map, Observable, of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-fy-filters',
