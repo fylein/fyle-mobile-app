@@ -121,3 +121,53 @@ export const fileObjectData4: FileObject = {
   email_meta_data: null,
   fyle_sub_url: '/api/files/fiXpfkKFhf6w/download',
 };
+
+export const splitExpFileObj: FileObject[] = [
+  {
+    id: 'fijCeF0G0jTl',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-03-02T14:00:36.639Z'),
+    name: '000.jpeg',
+    s3url: '2023-03-02/orNVthTo2Zyo/receipts/fijCeF0G0jTl.000.jpeg',
+    transaction_id: 'tx5QJJy2ogTJ',
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/fijCeF0G0jTl/download',
+  },
+];
+
+export const splitExpFile2: FileObject = {
+  id: 'fiebA5W5GLhr',
+  org_user_id: 'ouX8dwsbLCLv',
+  created_at: new Date('2023-03-02T14:13:19.604Z'),
+  name: '000.jpeg',
+  s3url: '2023-03-02/orNVthTo2Zyo/receipts/fiebA5W5GLhr.000.jpeg',
+  transaction_id: 'txnumQykfO9h',
+  invoice_id: null,
+  advance_request_id: null,
+  purpose: 'ORIGINAL',
+  password: null,
+  receipt_coordinates: null,
+  email_meta_data: null,
+  fyle_sub_url: '/api/files/fiebA5W5GLhr/download',
+};
+
+export const splitExpFile3: FileObject = {
+  id: 'figgpRkIApZE',
+  org_user_id: 'ouX8dwsbLCLv',
+  created_at: new Date('2023-03-02T14:13:19.587Z'),
+  name: '000.jpeg',
+  s3url: '2023-03-02/orNVthTo2Zyo/receipts/figgpRkIApZE.000.jpeg',
+  transaction_id: 'txB9uUczgwgO',
+  invoice_id: null,
+  advance_request_id: null,
+  purpose: 'ORIGINAL',
+  password: null,
+  receipt_coordinates: null,
+  email_meta_data: null,
+  fyle_sub_url: '/api/files/figgpRkIApZE/download',
+};

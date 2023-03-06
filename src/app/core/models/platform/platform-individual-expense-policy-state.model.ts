@@ -16,7 +16,7 @@ export interface IndividualExpensePolicyState {
     action_show_warning: boolean;
   };
   amount: number;
-  expenses_query_object_params: {
+  expenses_query_object_params?: {
     limit_start_date: string;
     limit_end_date: string;
     params: {

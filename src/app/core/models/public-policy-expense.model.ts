@@ -1,5 +1,5 @@
 export interface PublicPolicyExpense {
-  activity_details: string;
+  activity_details?: string;
   activity_policy_pending: boolean;
   admin_amount: number;
   amount: number;
@@ -45,7 +45,7 @@ export interface PublicPolicyExpense {
       formatted_address?: string;
       latitude?: number;
       longitude?: number;
-    }
+    }?
   ];
   mandatory_fields_present: boolean;
   manual_flag: boolean;
