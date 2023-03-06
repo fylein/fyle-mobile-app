@@ -17,7 +17,7 @@ describe('ApiV2Service', () => {
   };
 
   beforeEach(() => {
-    const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
+    const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
