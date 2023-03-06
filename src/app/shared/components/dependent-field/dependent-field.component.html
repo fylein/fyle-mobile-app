@@ -1,0 +1,19 @@
+<label class="dependent-field__label">
+  <div class="dependent-field__label-content">
+    {{ label }}
+    <span *ngIf="mandatory" class="dependent-field__mandatory"> * </span>
+  </div>
+  <div class="dependent-field__input-container" [ngClass]="{ 'dependent-field__input-invalid': !valid }">
+    <input
+      class="dependent-field__input smartlook-show"
+      type="text"
+      [placeholder]="placeholder || 'Select ' + label"
+      [ngModel]="displayValue"
+      (blur)="onBlur()"
+      (click)="openModal()"
+    />
+    <mat-icon class="dependent-field__icon" svgIcon="fy-arrow-down"></mat-icon>
+  </div>
+</label>
+
+<div *ngIf="!valid" class="dependent-field__error">Please enter {{ label }}.</div>
