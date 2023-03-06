@@ -121,9 +121,9 @@ describe('PolicyService', () => {
     expect(result).toBeTrue();
   });
 
-  it('isExpenseFlagged() : should return true for a description that includes expense flag', () => {
+  it('isExpenseFlagged(): should return true for a description that includes expense flag', () => {
     const description =
-      ' The expense will be flagged and employee will be alerted when expenses cross total sum of all expenses in a half year is greater than: INR 100.';
+      'The expense will be flagged and employee will be alerted when expenses cross total sum of all expenses in a half year is greater than: INR 100.';
     const result = policyService.isExpenseFlagged(description);
     expect(result).toBeTrue();
   });
