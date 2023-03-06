@@ -24,7 +24,7 @@ export class DependentFieldsService {
       params: {
         expense_field_id: `eq.${fieldId}`,
         parent_expense_field_id: `eq.${parentFieldId}`,
-        parent_expense_field_value: `eq.${parentFieldValue}`,
+        parent_expense_field_value: `eq."${parentFieldValue}"`,
         is_enabled: 'eq.true',
         offset: 0,
         limit: 20,
@@ -32,7 +32,7 @@ export class DependentFieldsService {
     };
 
     if (searchQuery?.length) {
-      data.params.expense_field_value = `ilike.%${searchQuery}%`;
+      data.params.expense_field_value = `ilike."%${searchQuery}%"`;
     }
 
     return this.spenderPlatformV1ApiService
