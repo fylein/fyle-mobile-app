@@ -47,7 +47,7 @@ describe('RouterApiService', () => {
   describe('get():', () => {
     it('should make GET request without params', (done) => {
       httpClient.get.and.returnValue(of(apiResponse));
-      routerApiService.get('/invitation_requests', {}).subscribe((res) => {
+      routerApiService.get('/invitation_requests').subscribe((res) => {
         expect(res).toEqual(apiResponse);
         expect(httpClient.get).toHaveBeenCalledWith('/routerapi/invitation_requests', {});
         done();
