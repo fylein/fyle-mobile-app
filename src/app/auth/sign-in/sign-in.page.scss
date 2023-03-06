@@ -1,9 +1,9 @@
+@import '../../../theme/colors.scss';
 $sign-in-header: #220033;
 $form-header: #000;
 $form-subheader: #4a4a4a;
 $password-icon: #b9beba;
-$secondary-cta-border: #e0e0e0;
-
+$secondary-cta-border: #a9acbc;
 .sign-in {
   &--header {
     min-height: 180px;
@@ -17,7 +17,7 @@ $secondary-cta-border: #e0e0e0;
 
   &--header-container {
     min-height: 180px;
-    background-color: $sign-in-header;
+    background-image: $pink-gradient-2;
   }
 
   &--header-logo-container {
@@ -71,8 +71,19 @@ $secondary-cta-border: #e0e0e0;
       min-height: 47px;
       letter-spacing: 1.6px;
       border: 1px solid $secondary-cta-border;
+      background-color: $white;
     }
     margin-top: 24px;
+    &-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      &-logo {
+        display: inline-block;
+        vertical-align: middle;
+      }
+    }
   }
 
   &--redirect {
