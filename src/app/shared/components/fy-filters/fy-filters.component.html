@@ -63,23 +63,38 @@
 
       <ion-col size="6">
         <ng-container *ngIf="activeFilter.optionType === FilterOptionType.multiselect">
-          <ion-item
-            class="fy-filters--filter-option"
-            mode="md"
-            *ngFor="let option of activeFilter.options"
-            button
-            (click)="switchFilter(activeFilter, option)"
+          <ng-container
+            *ngIf="(simplifyReportsEnabled$ | async) !== null && (isCCCOnlyOrg$ | async) !== null; else loading"
           >
-            <ng-container
-              *ngIf="currentFilterValueMap[activeFilter.name]?.includes(option.value); else uncheckedCheckbox"
+            <ion-item
+              class="fy-filters--filter-option"
+              mode="md"
+              *ngFor="let option of activeFilter.options"
+              button
+              (click)="switchFilter(activeFilter, option)"
             >
-              <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/fy-checkbox-checked.svg"></ion-icon>
-            </ng-container>
-            <ng-template #uncheckedCheckbox>
-              <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/fy-checkbox-unchecked.svg"></ion-icon>
-            </ng-template>
-            {{ option.label }}
-          </ion-item>
+              <ng-container
+                *ngIf="currentFilterValueMap[activeFilter.name]?.includes(option.value); else uncheckedCheckbox"
+              >
+                <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/fy-checkbox-checked.svg"></ion-icon>
+              </ng-container>
+              <ng-template #uncheckedCheckbox>
+                <ion-icon
+                  class="fy-filters--checkbox"
+                  src="../../../../assets/svg/fy-checkbox-unchecked.svg"
+                ></ion-icon>
+              </ng-template>
+              {{ option.label }}
+            </ion-item>
+          </ng-container>
+          <ng-template #loading>
+            <ion-item *ngFor="let option of activeFilter.options" class="fy-filters--filter-option">
+              <ion-skeleton-text
+                class="fy-filters--skeleton-loader fy-filters--skeleton-loader__width-large"
+                animated
+              ></ion-skeleton-text>
+            </ion-item>
+          </ng-template>
         </ng-container>
 
         <ng-container *ngIf="activeFilter.optionType === FilterOptionType.singleselect">

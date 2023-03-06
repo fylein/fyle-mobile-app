@@ -952,6 +952,54 @@ export class MyReportsPage implements OnInit {
                 value: 'PAID',
               },
             ],
+            optionsNewFlow: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Processing',
+                value: 'PAYMENT_PROCESSING',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
+            optionsNewFlowCCCOnly: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
           } as FilterOptions<string>,
           {
             name: 'Date',
@@ -1010,6 +1058,8 @@ export class MyReportsPage implements OnInit {
             ],
           } as FilterOptions<string>,
         ],
+        simplifyReportsEnabled$: this.simplifyReportsEnabled$,
+        isCCCOnlyOrg$: this.isCCCOnlyOrg$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

@@ -84,4 +84,15 @@
   &--footer {
     box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
   }
+
+  &--skeleton-loader {
+    height: 12px;
+    &__width-medium {
+      width: 66%;
+    }
+
+    &__width-large {
+      width: 80%;
+    }
+  }
 }
