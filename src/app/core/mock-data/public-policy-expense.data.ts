@@ -1,6 +1,7 @@
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { PolicyViolation } from '../models/policy-violation.model';
+import { Transaction } from '../models/v1/transaction.model';
 
 export const publicPolicyExpenseData1: PublicPolicyExpense = {
   skip_reimbursement: false,
@@ -140,6 +141,16 @@ export const publicPolicyExpenseData4: PublicPolicyExpense = {
 export const publicPolicyExpenseData5: PublicPolicyExpense = {
   ...publicPolicyExpenseData1,
   skip_reimbursement: null,
+};
+
+export const publicPolicyExpenseData6: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  locations: null,
+};
+
+export const publicPolicyExpenseData7: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  fyle_category: null,
 };
 
 export const expensePolicyData: ExpensePolicy = {

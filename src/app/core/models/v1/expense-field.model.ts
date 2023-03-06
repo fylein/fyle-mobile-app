@@ -11,7 +11,7 @@ export interface ExpenseField {
   is_custom: boolean;
   is_enabled: boolean;
   is_mandatory?: boolean;
-  options: string[];
+  options?: string[];
   org_category_ids: number[];
   org_id: string;
   placeholder: string;
@@ -19,6 +19,7 @@ export interface ExpenseField {
   seq: number;
   type: string;
   updated_at: Date;
+  parent_field_id?: number;
   updated_by?: UserDetails;
   field?: string;
   input_type?: string;

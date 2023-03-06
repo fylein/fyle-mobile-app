@@ -18,6 +18,6 @@ export class ApproverPlatformApiService {
   }
 
   get<T>(url: string, config = {}): Observable<T> {
-    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/platform/v1beta/approver' + url, config);
+    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/platform/v1/approver' + url, config);
   }
 }
