@@ -11,8 +11,6 @@ import { forkJoin, interval, map, Observable, of } from 'rxjs';
   styleUrls: ['./fy-filters.component.scss'],
 })
 export class FyFiltersComponent implements OnInit {
-  filterOptions: FilterOptions<any>[];
-
   @Input() simplifyReportsEnabled$: Observable<boolean> = of(false);
 
   @Input() isCCCOnlyOrg$: Observable<boolean> = of(false);
@@ -20,6 +18,8 @@ export class FyFiltersComponent implements OnInit {
   @Input() selectedFilterValues: SelectedFilters<any>[];
 
   @Input() activeFilterInitialName;
+
+  filterOptions: FilterOptions<any>[];
 
   currentFilterValueMap: { [key: string]: any | any[] } = {};
 
