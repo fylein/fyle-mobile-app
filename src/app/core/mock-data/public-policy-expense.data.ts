@@ -1,7 +1,6 @@
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { Transaction } from '../models/v1/transaction.model';
 
 export const publicPolicyExpenseData1: PublicPolicyExpense = {
   skip_reimbursement: false,
