@@ -6,8 +6,8 @@ export interface PolicyViolation {
     individual_desired_states: IndividualExpensePolicyState[];
     final_desired_state: FinalExpensePolicyState;
   };
-  amount: number;
-  currency: string;
-  name: string;
-  type: string;
+  amount?: number;
+  currency?: string;
+  name?: string;
+  type?: string;
 }
