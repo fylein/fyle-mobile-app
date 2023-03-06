@@ -47,7 +47,7 @@ describe('ApiV2Service', () => {
       httpClient.get.and.returnValue(of(apiResponse));
       apiV2Service.get('/reports').subscribe((res) => {
         expect(res).toEqual(apiResponse);
-        expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/v2/reports', {});
+        expect(httpClient.get).toHaveBeenCalledOnceWith('https://staging.fyle.tech/v2/reports', {});
         done();
       });
     });
@@ -61,7 +61,7 @@ describe('ApiV2Service', () => {
         })
         .subscribe((res) => {
           expect(res).toEqual(apiResponse);
-          expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/v2/reports', {
+          expect(httpClient.get).toHaveBeenCalledOnceWith('https://staging.fyle.tech/v2/reports', {
             params: requestObj,
           });
           done();
