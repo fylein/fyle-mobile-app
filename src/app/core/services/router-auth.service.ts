@@ -12,9 +12,8 @@ import { LocationService } from './location.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { PushNotificationService } from './push-notification.service';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
-import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { ApproverPlatformApiService } from './approver-platform-api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +30,6 @@ export class RouterAuthService {
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
     private pushNotificationService: PushNotificationService,
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
@@ -60,7 +58,7 @@ export class RouterAuthService {
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
     this.pushNotificationService.setRoot(domain);
-    this.spenderPlatformV1BetaApiService.setRoot(domain);
+    this.spenderPlatformV1ApiService.setRoot(domain);
     this.approverPlatformApiService.setRoot(domain);
     this.spenderPlatformV1ApiService.setRoot(domain);
 

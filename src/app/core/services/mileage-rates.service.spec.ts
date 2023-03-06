@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CurrencyPipe } from '@angular/common';
 import { MileageRatesService } from './mileage-rates.service';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import {
   filterEnabledMileageRatesData,
   unfilteredMileageRatesData,
@@ -17,19 +17,19 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 
 describe('MileageRatesService', () => {
   let mileageRatesService: MileageRatesService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let currencyPipe: jasmine.SpyObj<CurrencyPipe>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
       providers: [
         MileageRatesService,
         {
-          provide: SpenderPlatformV1BetaApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: CurrencyPipe,
@@ -42,9 +42,9 @@ describe('MileageRatesService', () => {
       ],
     });
     mileageRatesService = TestBed.inject(MileageRatesService);
-    spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
     currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
   });
@@ -111,7 +111,7 @@ describe('MileageRatesService', () => {
   });
 
   it('getMileageRates(): should get mileage rates', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformMileageRates));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformMileageRates));
     const data = {
       params: {
         offset: 0,
@@ -121,14 +121,14 @@ describe('MileageRatesService', () => {
     spyOn(mileageRatesService, 'excludeNullRates').and.returnValue(platformMileageRatesData1);
     mileageRatesService.getMileageRates({ offset: 0, limit: 4 }).subscribe((res) => {
       expect(res).toEqual(platformMileageRatesData1);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', data);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', data);
       expect(mileageRatesService.excludeNullRates).toHaveBeenCalledOnceWith(platformMileageRates.data);
       done();
     });
   });
 
   it('getAllMileageRatesCount(): should get all mileage rates count', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformMileageRatesSingleData));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformMileageRatesSingleData));
     const data = {
       params: {
         offset: 0,
@@ -137,7 +137,7 @@ describe('MileageRatesService', () => {
     };
     mileageRatesService.getAllMileageRatesCount().subscribe((res) => {
       expect(res).toEqual(platformMileageRatesSingleData.data.length);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', data);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', data);
       done();
     });
   });
