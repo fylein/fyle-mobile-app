@@ -406,6 +406,7 @@
                 <div [formGroup]="dependentField.control">
                   <app-dependent-field
                     [label]="dependentField.field"
+                    [placeholder]="dependentField.placeholder"
                     [mandatory]="dependentField.mandatory"
                     [valid]="!(dependentField?.control?.touched && !dependentField?.control?.valid)"
                     [fieldId]="dependentField.id"

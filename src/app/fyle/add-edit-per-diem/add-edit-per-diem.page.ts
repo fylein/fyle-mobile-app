@@ -2359,8 +2359,14 @@ export class AddEditPerDiemPage implements OnInit {
       } else {
         //If the dependent field does not have a value, trigger the onChange event for parent field
         //This will add a new field(if it exists) for the selected value of parent field
-        const parentDependentFieldControl = this.dependentFieldControls.at(this.dependentFieldControls.length - 1);
-        this.onDependentFieldChanged(parentDependentFieldControl.value);
+        this.isDependentFieldLoading = true;
+        this.getDependentField(parentField.id, parentField.value)
+          .pipe(finalize(() => (this.isDependentFieldLoading = false)))
+          .subscribe((res) => {
+            if (res?.dependentField) {
+              this.addDependentField(res.dependentField, res.parentFieldValue);
+            }
+          });
       }
     }
   }

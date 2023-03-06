@@ -2,9 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="dependent-field-modal__title">
-        {{ selectModalHeader }}
-      </div>
+      <div class="dependent-field-modal__title">Select {{ label }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -12,7 +10,7 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar *ngIf="enableSearch" class="text-center">
+  <ion-toolbar class="text-center">
     <mat-form-field appearance="none" class="dependent-field-modal__form-field mat-form-field-no-padding">
       <mat-icon class="dependent-field-modal__search-icon" matPrefix svgIcon="fy-search"></mat-icon>
       <input

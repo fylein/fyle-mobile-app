@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
+import { Cacheable } from 'ts-cacheable';
 import { DependentFieldValuesApiParams } from '../models/platform/dependent-field-values-api-params.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
@@ -11,6 +12,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 export class DependentFieldsService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
+  @Cacheable()
   getOptionsForDependentField(config: {
     fieldId: number;
     parentFieldId: number;
