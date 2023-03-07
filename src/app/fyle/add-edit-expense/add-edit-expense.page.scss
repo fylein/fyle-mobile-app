@@ -685,4 +685,16 @@
     height: 10px;
     width: 10px;
   }
+
+  &__skeleton-loader {
+    background: $off-white;
+    border-radius: 4px;
+    height: 16px;
+
+    &--title {
+      @extend .add-edit-expense__skeleton-loader;
+      width: 30%;
+      margin-bottom: 8px;
+    }
+  }
 }

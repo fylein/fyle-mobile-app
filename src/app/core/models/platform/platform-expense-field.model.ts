@@ -11,7 +11,7 @@ export interface PlatformExpenseField {
   is_mandatory: boolean;
   options: string[];
   org_id: string;
-  parent_field_id?: number;
+  parent_field_id?: number | null;
   placeholder: string;
   seq: number;
   type: string;

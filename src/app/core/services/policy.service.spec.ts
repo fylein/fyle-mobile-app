@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PolicyService } from './policy.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import {
@@ -11,6 +11,8 @@ import {
   publicPolicyExpenseData3,
   publicPolicyExpenseData4,
   publicPolicyExpenseData5,
+  publicPolicyExpenseData6,
+  publicPolicyExpenseData7,
 } from '../mock-data/public-policy-expense.data';
 import {
   ApproverExpensePolicyStatesData,
@@ -25,18 +27,18 @@ import { of } from 'rxjs';
 
 describe('PolicyService', () => {
   let policyService: PolicyService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
 
   beforeEach(() => {
-    const spenderPlatformV1BetaApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         PolicyService,
         {
-          provide: SpenderPlatformV1BetaApiService,
-          useValue: spenderPlatformV1BetaApiServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: ApproverPlatformApiService,
@@ -45,9 +47,9 @@ describe('PolicyService', () => {
       ],
     });
     policyService = TestBed.inject(PolicyService);
-    spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     approverPlatformApiService = TestBed.inject(
       ApproverPlatformApiService
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
@@ -73,7 +75,7 @@ describe('PolicyService', () => {
       expect(result).toEqual(platformPolicyExpenseData3);
     });
 
-    it(' should check for the category to be train', () => {
+    it('should check for the category to be train', () => {
       const result = policyService.transformTo(publicPolicyExpenseData4);
       expect(result).toEqual(platformPolicyExpenseData4);
     });
@@ -81,6 +83,16 @@ describe('PolicyService', () => {
     it('should return null if reimbersment status is null', () => {
       const result = policyService.transformTo(publicPolicyExpenseData5);
       expect(result).toEqual(platformPolicyExpenseData5);
+    });
+
+    it('should filter out null values from location array', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData6);
+      expect(result.locations).toBeUndefined();
+    });
+
+    it('should return empty array if the fyle category is null', () => {
+      const result = policyService.transformTo(publicPolicyExpenseData7);
+      expect(result.travel_classes).toEqual([]);
     });
   });
 
@@ -109,9 +121,9 @@ describe('PolicyService', () => {
     expect(result).toBeTrue();
   });
 
-  it('isExpenseFlagged() : should return true for a description that includes expense flag', () => {
+  it('isExpenseFlagged(): should return true for a description that includes expense flag', () => {
     const description =
-      ' The expense will be flagged and employee will be alerted when expenses cross total sum of all expenses in a half year is greater than: INR 100.';
+      'The expense will be flagged and employee will be alerted when expenses cross total sum of all expenses in a half year is greater than: INR 100.';
     const result = policyService.isExpenseFlagged(description);
     expect(result).toBeTrue();
   });
@@ -130,16 +142,16 @@ describe('PolicyService', () => {
     ]);
   });
 
-  describe('getSpenderExpensePolicyViolations()', () => {
+  describe('getSpenderExpensePolicyViolations():', () => {
     it('should get the spender expense policy violations', (done) => {
-      spenderPlatformV1BetaApiService.get.and.returnValue(of(expensePolicyStatesData));
+      spenderPlatformV1ApiService.get.and.returnValue(of(expensePolicyStatesData));
 
       policyService.getSpenderExpensePolicyViolations('txVTmNOp5JEa').subscribe((res) => {
         expect(res).toEqual(expensePolicyStatesData.data[0].individual_desired_states);
         const expectedParams = {
           expense_id: 'eq.txVTmNOp5JEa',
         };
-        expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', {
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', {
           params: expectedParams,
         });
         done();
@@ -151,10 +163,10 @@ describe('PolicyService', () => {
       const params = {
         expense_id: `eq.${expenseId}`,
       };
-      spenderPlatformV1BetaApiService.get.and.returnValue(of(emptyApiResponse));
+      spenderPlatformV1ApiService.get.and.returnValue(of(emptyApiResponse));
       policyService.getSpenderExpensePolicyViolations(expenseId).subscribe((res) => {
         expect(res).toEqual([]);
-        expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', { params });
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/expense_policy_states', { params });
         done();
       });
     });
