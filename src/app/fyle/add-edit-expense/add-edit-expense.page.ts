@@ -856,13 +856,6 @@ export class AddEditExpensePage implements OnInit {
   ngOnInit() {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-
-    // This is to check if user has clicked on show more in the past
-    if (localStorage.getItem('isExpandedView')) {
-      if (JSON.parse(localStorage.getItem('isExpandedView')) === true) {
-        this.isExpandedView = true;
-      }
-    }
   }
 
   getFormValidationErrors() {
@@ -2466,8 +2459,14 @@ export class AddEditExpensePage implements OnInit {
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
-    // If isExpandedView is already true from localStorage we need to be updating that
-    this.isExpandedView = this.isExpandedView || this.mode !== 'add';
+    // If User has already clicked on See More he need not to click again and again
+    from(this.recentLocalStorageItemsService.get('isExpandedView')).subscribe((view: boolean[]) => {
+      if (view.length === 0) {
+        this.isExpandedView = this.mode !== 'add';
+      } else if (view[0] === true) {
+        this.isExpandedView = true;
+      }
+    });
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList =
@@ -4036,7 +4035,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = false;
-    JSON.stringify(localStorage.removeItem('isExpandedView'));
+    this.recentLocalStorageItemsService.clear('isExpandedView');
   }
 
   showFields() {
@@ -4045,7 +4044,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = true;
-    JSON.stringify(localStorage.setItem('isExpandedView', 'true'));
+    this.recentLocalStorageItemsService.post('isExpandedView', this.isExpandedView, 'true');
   }
 
   getPolicyDetails() {
