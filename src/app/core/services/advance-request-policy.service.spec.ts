@@ -36,10 +36,8 @@ describe('AdvanceRequestPolicyService', () => {
   });
 
   it('getPolicyRules() : shoulg get the poilcy rules', () => {
-    const expectedRules = ['policy desc 1', 'policy desc 2'];
-
+    const expectedRules = ['Policy rule 1', 'Policy rule 3'];
     const result = advanceRequestPolicyService.getPolicyRules(checkPolicyWithRulesData);
-
     expect(result).toEqual(expectedRules);
   });
 

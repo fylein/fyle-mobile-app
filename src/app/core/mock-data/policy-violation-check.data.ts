@@ -21,5 +21,9 @@ export const checkPolicyWithRulesData: PolicyViolationCheck = {
     currency: null,
     advance_request_id: 'areq4YujEm52Ub',
   },
-  advance_request_policy_rule_desired_states: ['policy desc 1', null, 'policy desc 2'],
+  advance_request_policy_rule_desired_states: [
+    { description: 'Policy rule 1', popup: true },
+    { description: 'Policy rule 2', popup: false },
+    { description: 'Policy rule 3', popup: true },
+  ],
 };
