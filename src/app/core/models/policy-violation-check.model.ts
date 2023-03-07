@@ -7,5 +7,8 @@ export interface PolicyViolationCheck {
     currency: string;
     advance_request_id: string;
   };
-  advance_request_policy_rule_desired_states: string[];
+  advance_request_policy_rule_desired_states?: {
+    description?: string;
+    popup?: boolean;
+  }[];
 }
