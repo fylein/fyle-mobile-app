@@ -858,12 +858,9 @@ export class AddEditExpensePage implements OnInit {
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
 
     // This is to check if user has clicked on show more in the past
-    console.log(typeof JSON.parse(localStorage.getItem('isExpandedView')));
     if (localStorage.getItem('isExpandedView')) {
       if (JSON.parse(localStorage.getItem('isExpandedView')) === true) {
-        console.log('hey');
         this.isExpandedView = true;
-        console.log(this.isExpandedView);
       }
     }
   }
