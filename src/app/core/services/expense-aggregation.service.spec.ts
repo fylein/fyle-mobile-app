@@ -43,7 +43,7 @@ describe('ExpenseAggregationService', () => {
   });
 
   describe('get():', () => {
-    it('should make a GET call with params', (done) => {
+    it('should make a GET call without params', (done) => {
       httpClient.get.and.returnValue(of(apiResponse));
 
       expenseAggregationService.get('/yodlee/personal/access_token').subscribe((res) => {
@@ -56,7 +56,7 @@ describe('ExpenseAggregationService', () => {
       });
     });
 
-    it('should make a GET call without params', (done) => {
+    it('should make a GET call with params', (done) => {
       httpClient.get.and.returnValue(of(apiResponse));
 
       expenseAggregationService.get('/yodlee/personal/access_token', { params: requestObj }).subscribe((res) => {
