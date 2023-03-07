@@ -53,7 +53,7 @@ describe('AdvanceRequestPolicyService', () => {
 
     advanceRequestPolicyService.servicePost('/policy_check', requestObj, {}).subscribe((res) => {
       expect(res).toEqual(apiResponse);
-      expect(httpClient.post).toHaveBeenCalledWith(
+      expect(httpClient.post).toHaveBeenCalledOnceWith(
         'https://staging.fyle.tech/policy/advance_requests/policy_check',
         requestObj
       );
