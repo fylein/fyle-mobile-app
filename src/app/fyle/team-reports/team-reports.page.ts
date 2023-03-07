@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, Subject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
