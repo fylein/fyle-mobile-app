@@ -141,7 +141,7 @@ describe('MergeExpensesService', () => {
     });
   });
 
-  it('mergeExpenses(): should merge the expenses', () => {
+  it('mergeExpenses(): should merge the expenses', (done) => {
     const mergeExpensesRes = {
       txn_id: 'txVNpvgTPW4Z',
     };
@@ -162,6 +162,7 @@ describe('MergeExpensesService', () => {
           target_txn_id: mergeExpensesPayload.target_txn_id,
           target_txn_fields: mergeExpensesPayload.target_txn_fields,
         });
+        done();
       });
   });
 
