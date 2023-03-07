@@ -152,3 +152,8 @@ export const policyViolationData3: PolicyViolationTxn = {
   txc2KIogxUAy: splitPolicyExp4,
   txgfkvuYteta: splitPolicyExp5,
 };
+
+export const policyViolationData4: PolicyViolationTxn = {
+  txSEM4DtjyKR: splitPolicyExp4,
+  txNyI8ot5CuJ: splitPolicyExp5,
+};
