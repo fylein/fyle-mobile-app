@@ -118,7 +118,7 @@ describe('RecentLocalStorageItemsService', () => {
       const recentItems = postRecentItemsRes;
       const cache = {
         recentItems,
-        updatedAt: new Date(),
+        updatedAt: jasmine.any(Date),
       };
 
       const indexOfItemSpy = spyOn(recentLocalStorageItemsService, 'indexOfItem');
@@ -140,7 +140,7 @@ describe('RecentLocalStorageItemsService', () => {
       const recentItems = postRecentItemsRes;
       const cache = {
         recentItems,
-        updatedAt: new Date(),
+        updatedAt: jasmine.any(Date),
       };
 
       const getSpy = spyOn(recentLocalStorageItemsService, 'get').and.returnValue(Promise.resolve(postRecentItemsRes));
