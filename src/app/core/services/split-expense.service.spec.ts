@@ -297,29 +297,31 @@ describe('SplitExpenseService', () => {
     expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(2);
   });
 
-  it('runPolicyCheck(): should run policy check on expenses', (done) => {
-    dataTransformService.unflatten.withArgs(splitExpData2[0]).and.returnValue(unflattenExp1);
-    dataTransformService.unflatten.withArgs(splitExpData2[1]).and.returnValue(unflattenExp2);
+  describe('runPolicyCheck():', () => {
+    it('should run policy check on expenses', (done) => {
+      dataTransformService.unflatten.withArgs(splitExpData2[0]).and.returnValue(unflattenExp1);
+      dataTransformService.unflatten.withArgs(splitExpData2[1]).and.returnValue(unflattenExp2);
 
-    spyOn(splitExpenseService, 'checkPolicyForTransactions').and.returnValue(of(policyViolationData4));
+      spyOn(splitExpenseService, 'checkPolicyForTransactions').and.returnValue(of(policyViolationData4));
 
-    splitExpenseService.runPolicyCheck(splitExpData2, fileObject4).subscribe((res) => {
-      expect(res).toEqual(policyViolationData4);
-      expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[0]);
-      expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[1]);
-      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(2);
-      expect(splitExpenseService.checkPolicyForTransactions).toHaveBeenCalledOnceWith([
-        unflattenExp1.tx,
-        unflattenExp2.tx,
-      ]);
-      done();
+      splitExpenseService.runPolicyCheck(splitExpData2, fileObject4).subscribe((res) => {
+        expect(res).toEqual(policyViolationData4);
+        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[0]);
+        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[1]);
+        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(2);
+        expect(splitExpenseService.checkPolicyForTransactions).toHaveBeenCalledOnceWith([
+          unflattenExp1.tx,
+          unflattenExp2.tx,
+        ]);
+        done();
+      });
     });
-  });
 
-  it('runPolicyCheck(): should return empty object when no expenses are provided', (done) => {
-    splitExpenseService.runPolicyCheck([], fileObject4).subscribe((res) => {
-      expect(res).toEqual({});
-      done();
+    it('should return empty object when no expenses are provided', (done) => {
+      splitExpenseService.runPolicyCheck([], fileObject4).subscribe((res) => {
+        expect(res).toEqual({});
+        done();
+      });
     });
   });
 

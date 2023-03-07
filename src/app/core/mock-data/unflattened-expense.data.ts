@@ -1,6 +1,6 @@
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 
-export const unflattenExp1 = {
+export const unflattenExp1: { tx: PublicPolicyExpense } = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -110,7 +110,7 @@ export const unflattenExp1 = {
   },
 };
 
-export const unflattenExp2 = {
+export const unflattenExp2: { tx: PublicPolicyExpense } = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
