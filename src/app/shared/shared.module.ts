@@ -359,6 +359,6 @@ import { CameraPreviewComponent } from './components/capture-receipt/camera-prev
     AutoSubmissionInfoCardComponent,
     CameraPreviewComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })
 export class SharedModule {}

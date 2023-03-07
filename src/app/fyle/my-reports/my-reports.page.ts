@@ -122,7 +122,8 @@ export class MyReportsPage implements OnInit {
     private apiV2Service: ApiV2Service,
     private tasksService: TasksService,
     private modalController: ModalController,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private reportStatePipe: ReportState
   ) {}
 
   get HeaderState() {
@@ -742,12 +743,11 @@ export class MyReportsPage implements OnInit {
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
     this.simplifyReportsEnabled$.subscribe((simplifyReportsEnabled) => {
-      const reportState = new ReportState();
       filterPills.push({
         label: 'State',
         type: 'state',
         value: filter.state
-          .map((state) => reportState.transform(state, simplifyReportsEnabled))
+          .map((state) => this.reportStatePipe.transform(state, simplifyReportsEnabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });
