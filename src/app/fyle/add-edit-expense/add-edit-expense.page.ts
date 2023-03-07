@@ -856,6 +856,16 @@ export class AddEditExpensePage implements OnInit {
   ngOnInit() {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+
+    // This is to check if user has clicked on show more in the past
+    console.log(typeof JSON.parse(localStorage.getItem('isExpandedView')));
+    if (localStorage.getItem('isExpandedView')) {
+      if (JSON.parse(localStorage.getItem('isExpandedView')) === true) {
+        console.log('hey');
+        this.isExpandedView = true;
+        console.log(this.isExpandedView);
+      }
+    }
   }
 
   getFormValidationErrors() {
@@ -2459,7 +2469,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
-    this.isExpandedView = this.mode !== 'add';
+    // If isExpandedView is already true from localStorage we need to be updating that
+    this.isExpandedView = this.isExpandedView || this.mode !== 'add';
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList =
@@ -4028,6 +4039,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = false;
+    JSON.stringify(localStorage.removeItem('isExpandedView'));
   }
 
   showFields() {
@@ -4036,6 +4048,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = true;
+    JSON.stringify(localStorage.setItem('isExpandedView', 'true'));
   }
 
   getPolicyDetails() {
