@@ -71,7 +71,7 @@ describe('ExpenseAggregationService', () => {
   });
 
   describe('post():', () => {
-    it('should make a POST call with params', (done) => {
+    it('should make a POST call with body', (done) => {
       httpClient.post.and.returnValue(of(apiResponse));
 
       expenseAggregationService.post('/bank_accounts', requestObj).subscribe((res) => {
@@ -84,7 +84,7 @@ describe('ExpenseAggregationService', () => {
       });
     });
 
-    it('should make a POST call without params', (done) => {
+    it('should make a POST call without body', (done) => {
       httpClient.post.and.returnValue(of(apiResponse));
 
       expenseAggregationService.post('/bank_accounts').subscribe((res) => {
