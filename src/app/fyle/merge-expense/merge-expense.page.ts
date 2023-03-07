@@ -18,25 +18,15 @@ import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-
-type Option = Partial<{
-  label: string;
-  value: any;
-}>;
-
-type OptionsData = Partial<{
-  options: Option[];
-  areSameValues: boolean;
-  name: string;
-  value: any;
-}>;
+import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
+import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
 
 type CustomInputs = Partial<{
   control: FormControl;
   id: string;
   mandatory: boolean;
   name: string;
-  options: Option[];
+  options: MergeExpensesOption[];
   placeholder: string;
   prefix: string;
   type: string;
@@ -44,11 +34,11 @@ type CustomInputs = Partial<{
 }>;
 
 interface CombinedOptions {
-  [key: string]: OptionsData;
+  [key: string]: MergeExpensesOptionsData;
 }
 
 interface OptionsSet {
-  [key: string]: OptionsData;
+  [key: string]: MergeExpensesOptionsData;
 }
 
 @Component({
@@ -61,51 +51,51 @@ export class MergeExpensePage implements OnInit {
 
   fg: FormGroup;
 
-  expenseOptions$: Observable<Option[]>;
+  expenseOptions$: Observable<MergeExpensesOption[]>;
 
-  amountOptionsData$: Observable<OptionsData>;
+  amountOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  dateOfSpendOptionsData$: Observable<OptionsData>;
+  dateOfSpendOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  paymentModeOptionsData$: Observable<OptionsData>;
+  paymentModeOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  projectOptionsData$: Observable<OptionsData>;
+  projectOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  billableOptionsData$: Observable<OptionsData>;
+  billableOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  vendorOptionsData$: Observable<OptionsData>;
+  vendorOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  categoryOptionsData$: Observable<OptionsData>;
+  categoryOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  taxGroupOptionsData$: Observable<OptionsData>;
+  taxGroupOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  taxAmountOptionsData$: Observable<OptionsData>;
+  taxAmountOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  constCenterOptionsData$: Observable<OptionsData>;
+  constCenterOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  purposeOptionsData$: Observable<OptionsData>;
+  purposeOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  location1OptionsData$: Observable<OptionsData>;
+  location1OptionsData$: Observable<MergeExpensesOptionsData>;
 
-  location2OptionsData$: Observable<OptionsData>;
+  location2OptionsData$: Observable<MergeExpensesOptionsData>;
 
-  onwardDateOptionsData$: Observable<OptionsData>;
+  onwardDateOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  returnDateOptionsData$: Observable<OptionsData>;
+  returnDateOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  flightJourneyTravelClassOptionsData$: Observable<OptionsData>;
+  flightJourneyTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  flightReturnTravelClassOptionsData$: Observable<OptionsData>;
+  flightReturnTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  trainTravelClassOptionsData$: Observable<OptionsData>;
+  trainTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  busTravelClassOptionsData$: Observable<OptionsData>;
+  busTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  distanceOptionsData$: Observable<OptionsData>;
+  distanceOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  distanceUnitOptionsData$: Observable<OptionsData>;
+  distanceUnitOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  receiptOptions: Option[];
+  receiptOptions: MergeExpensesOption[];
 
   genericFieldsOptions$: Observable<OptionsSet>;
 
