@@ -4,6 +4,13 @@ $form-header: #000;
 $form-subheader: #4a4a4a;
 $password-icon: #b9beba;
 $secondary-cta-border: #a9acbc;
+
+.background {
+  background-image: $pink-gradient-2;
+  height: 100vh;
+  overflow-y: hidden;
+}
+
 .sign-in {
   &--header {
     min-height: 180px;
@@ -30,6 +37,8 @@ $secondary-cta-border: #a9acbc;
 
   &--form {
     padding: 24px;
+    margin: 8px 24px;
+    background-color: $white;
   }
 
   &--form-field {
