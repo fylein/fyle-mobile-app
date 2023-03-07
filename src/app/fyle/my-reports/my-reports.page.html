@@ -92,18 +92,17 @@
         message="We couldn't find any report that matched your search."
       ></app-fy-zero-state>
     </div>
-    <ng-container *ngIf="(simplifyReportsEnabled$ | async) !== null; else loading">
-      <div *ngIf="!isLoading; else loading">
-        <div *ngFor="let erpt of myReports$ | async as list; let i = index">
-          <app-my-reports-card
-            [erpt]="erpt"
-            [prevDate]="list[i-1]?.rp_created_at"
-            [simplifyReportsEnabled]="simplifyReportsEnabled$ | async"
-            (gotoReport)="onReportClick($event)"
-            (deleteReport)="onDeleteReportClick($event)"
-            (viewComments)="onViewCommentsClick($event)"
-          ></app-my-reports-card>
-        </div>
+
+    <ng-container *ngIf="!isLoading && (simplifyReportsEnabled$ | async) !== null; else loading">
+      <div *ngFor="let erpt of myReports$ | async as list; let i = index">
+        <app-my-reports-card
+          [erpt]="erpt"
+          [prevDate]="list[i-1]?.rp_created_at"
+          [simplifyReportsEnabled]="simplifyReportsEnabled$ | async"
+          (gotoReport)="onReportClick($event)"
+          (deleteReport)="onDeleteReportClick($event)"
+          (viewComments)="onViewCommentsClick($event)"
+        ></app-my-reports-card>
       </div>
     </ng-container>
     <ng-container *ngIf="isConnected$|async">
