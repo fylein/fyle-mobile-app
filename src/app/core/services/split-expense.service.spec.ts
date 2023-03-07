@@ -13,21 +13,30 @@ import {
   sourceSplitTxn,
   sourceTxn2,
   splitTxns,
-  sourceTxn3,
+  createSourceTxn,
+  splitTxn2,
+  txnParam1,
+  txnParam2,
+  createSourceTxn2,
 } from '../mock-data/transaction.data';
 import { of } from 'rxjs';
-import { splitExpFileObj, splitExpFile2, splitExpFile3 } from '../mock-data/file-object.data';
+import { splitExpFileObj, splitExpFile2, splitExpFile3, fileObject4 } from '../mock-data/file-object.data';
 import { fileTxns } from '../mock-data/file-txn.data';
 import { splitExpensePolicyExp } from '../mock-data/platform-policy-expense.data';
 import { splitExpPolicyData } from '../mock-data/expense-policy.data';
 import { splitPolicyExp } from '../mock-data/public-policy-expense.data';
-import { policyViolation1, policyViolationData3, policyVoilationData2 } from '../mock-data/policy-violation.data';
-import { splitExpData } from '../mock-data/expense.data';
+import {
+  policyViolation1,
+  policyViolationData3,
+  policyViolationData4,
+  policyVoilationData2,
+} from '../mock-data/policy-violation.data';
+import { splitExpData, splitExpData2 } from '../mock-data/expense.data';
 import { formattedTxnViolations } from '../mock-data/formatted-policy-violation.data';
 import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
 import { violationComment1, violationComment2, violationComment3 } from '../mock-data/policy-violcation-comment.data';
+import { unflattenExp1, unflattenExp2 } from '../mock-data/unflattened-expense.data';
 import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data/crtical-policy-violations.data';
-
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -212,10 +221,17 @@ describe('SplitExpenseService', () => {
   });
 
   it('createSplitTxns(): should create split transaction', (done) => {
-    spyOn(splitExpenseService, 'createTxns').and.returnValue(of(splitTxns));
+    spyOn(splitExpenseService, 'createTxns').and.returnValue(of(splitTxn2));
 
-    splitExpenseService.createSplitTxns(sourceTxn2, sourceTxn2.amount, splitTxns).subscribe((res) => {
-      expect(res).toEqual(splitTxns);
+    splitExpenseService.createSplitTxns(createSourceTxn, createSourceTxn.amount, splitTxn2).subscribe((res) => {
+      expect(res).toEqual(splitTxn2);
+      expect(splitExpenseService.createTxns).toHaveBeenCalledOnceWith(
+        createSourceTxn,
+        splitTxn2,
+        createSourceTxn.split_group_user_amount,
+        createSourceTxn.split_group_id,
+        splitTxn2.length
+      );
       done();
     });
   });
@@ -279,5 +295,60 @@ describe('SplitExpenseService', () => {
     expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
     expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
     expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(2);
+  });
+
+  it('runPolicyCheck(): should run policy check on expenses', (done) => {
+    dataTransformService.unflatten.withArgs(splitExpData2[0]).and.returnValue(unflattenExp1);
+    dataTransformService.unflatten.withArgs(splitExpData2[1]).and.returnValue(unflattenExp2);
+
+    spyOn(splitExpenseService, 'checkPolicyForTransactions').and.returnValue(of(policyViolationData4));
+
+    splitExpenseService.runPolicyCheck(splitExpData2, fileObject4).subscribe((res) => {
+      expect(res).toEqual(policyViolationData4);
+      expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[0]);
+      expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[1]);
+      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(2);
+      expect(splitExpenseService.checkPolicyForTransactions).toHaveBeenCalledOnceWith([
+        unflattenExp1.tx,
+        unflattenExp2.tx,
+      ]);
+      done();
+    });
+  });
+
+  it('runPolicyCheck(): should return empty object when no expenses are provided', (done) => {
+    splitExpenseService.runPolicyCheck([], fileObject4).subscribe((res) => {
+      expect(res).toEqual({});
+      done();
+    });
+  });
+
+  it('executePolicyCheck(): should execute policy check', (done) => {
+    spyOn(splitExpenseService, 'runPolicyCheck').and.returnValue(of(policyViolationData4));
+    spyOn(splitExpenseService, 'mapViolationDataWithEtxn').and.returnValue(policyViolationData4);
+
+    splitExpenseService.executePolicyCheck(splitExpData2, fileObject4, transformedOrgCategories).subscribe((res) => {
+      expect(res).toEqual(policyViolationData4);
+      expect(splitExpenseService.runPolicyCheck).toHaveBeenCalledOnceWith(splitExpData2, fileObject4);
+      expect(splitExpenseService.mapViolationDataWithEtxn).toHaveBeenCalledOnceWith(
+        policyViolationData4,
+        splitExpData2,
+        transformedOrgCategories
+      );
+      done();
+    });
+  });
+
+  it('checkForPolicyViolations(): check for policy violations', (done) => {
+    transactionService.getEtxn.withArgs(splitExpData2[0].tx_id).and.returnValue(of(splitExpData2[0]));
+    transactionService.getEtxn.withArgs(splitExpData2[1].tx_id).and.returnValue(of(splitExpData2[1]));
+    spyOn(splitExpenseService, 'executePolicyCheck').and.returnValue(of(policyViolationData4));
+
+    splitExpenseService
+      .checkForPolicyViolations([splitExpData2[0].tx_id, splitExpData2[1].tx_id], fileObject4, transformedOrgCategories)
+      .subscribe((res) => {
+        expect(res).toEqual(policyViolationData4);
+        done();
+      });
   });
 });
