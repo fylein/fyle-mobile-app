@@ -36,7 +36,7 @@ export interface PublicPolicyExpense {
   is_matching_ccc_expense: boolean;
   mileage_rate_id: number;
   invoice_number: number;
-  locations: [
+  locations?: [
     {
       city?: string;
       state?: string;
@@ -93,4 +93,23 @@ export interface PublicPolicyExpense {
   user_reason_for_duplicate_expenses: string;
   vendor: string;
   vendor_id: number;
+  risk_state?: string;
+  is_duplicate_expense?: boolean;
+  duplicates?: string[];
+  receipt_required?: boolean;
+  user_can_delete?: boolean;
+  project_name?: string;
+  project_code?: string;
+  cost_center_name?: string;
+  cost_center_code?: string;
+  transcription_state?: string;
+  verification_state?: string;
+  org_category?: string;
+  sub_category?: string;
+  org_category_code?: string;
+  corporate_credit_card_expense_group_id?: string;
+  transcribed_data?: string;
+  user_review_needed?: string;
+  is_implicit_merge_blocked?: boolean;
+  categoryDisplayName?: string;
 }
