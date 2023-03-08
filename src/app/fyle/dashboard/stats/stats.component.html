@@ -20,16 +20,18 @@
           ></app-stat-badge>
         </ion-col>
         <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
-          <app-stat-badge
-            [currency]="homeCurrency$ | async"
-            [currencySymbol]="currencySymbol$ | async"
-            [name]="(simplifyReportsEnabled$ | async) ? 'Submitted' : 'Reported'"
-            [reportState]="ReportStates.APPROVER_PENDING"
-            [count]="(reportedStats$ | async)?.count"
-            [value]="(reportedStats$ | async)?.sum"
-            [loading]="(simplifyReportsEnabled$ | async) === null || reportStatsLoading"
-            (badgeClicked)="goToReportsPage($event)"
-          ></app-stat-badge>
+          <ng-container *ngIf="(simplifyReportsEnabled$ | async) !== null as loaded">
+            <app-stat-badge
+              [currency]="homeCurrency$ | async"
+              [currencySymbol]="currencySymbol$ | async"
+              [name]="(simplifyReportsEnabled$ | async) ? 'Submitted' : 'Reported'"
+              [reportState]="ReportStates.APPROVER_PENDING"
+              [count]="(reportedStats$ | async)?.count"
+              [value]="(reportedStats$ | async)?.sum"
+              [loading]="!loaded || reportStatsLoading"
+              (badgeClicked)="goToReportsPage($event)"
+            ></app-stat-badge>
+          </ng-container>
         </ion-col>
       </ion-row>
       <ion-row *ngIf="isConnected$ | async">

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, Subject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -107,7 +107,8 @@ export class TeamReportsPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private apiV2Service: ApiV2Service,
     private tasksService: TasksService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private reportStatePipe: ReportState
   ) {}
 
   get HeaderState() {
@@ -667,12 +668,11 @@ export class TeamReportsPage implements OnInit {
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
     this.simplifyReportsEnabled$.subscribe((simplifyReportsEnabled) => {
-      const reportState = new ReportState();
       filterPills.push({
         label: 'State',
         type: 'state',
         value: filter.state
-          .map((state) => reportState.transform(state, simplifyReportsEnabled))
+          .map((state) => this.reportStatePipe.transform(state, simplifyReportsEnabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });

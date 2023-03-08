@@ -71,10 +71,9 @@
       </div>
     </ng-container>
 
-    <app-fy-loading-screen
-      *ngIf="isLoading || (simplifyReportsEnabled$ | async) === null"
-      class="my-reports--shimmers"
-    ></app-fy-loading-screen>
+    <ng-template #loading>
+      <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
+    </ng-template>
     <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
       <app-fy-zero-state
         *ngIf="!(filters?.state || filters?.date || simpleSearchText)"
@@ -93,7 +92,8 @@
         message="We couldn't find any report that matched your search."
       ></app-fy-zero-state>
     </div>
-    <div *ngIf="!isLoading && (simplifyReportsEnabled$ | async) !== null">
+
+    <ng-container *ngIf="!isLoading && (simplifyReportsEnabled$ | async) !== null; else loading">
       <div *ngFor="let erpt of myReports$ | async as list; let i = index">
         <app-my-reports-card
           [erpt]="erpt"
@@ -104,7 +104,7 @@
           (viewComments)="onViewCommentsClick($event)"
         ></app-my-reports-card>
       </div>
-    </div>
+    </ng-container>
     <ng-container *ngIf="isConnected$|async">
       <ng-container *ngIf="isLoadingDataInInfiniteScroll">
         <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
