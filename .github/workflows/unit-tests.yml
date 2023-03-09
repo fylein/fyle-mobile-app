@@ -34,26 +34,39 @@ jobs:
           path: coverage/coverage-summary.json
           title: Unit Test Coverage
 
-      - name: Services Test Coverage
-        uses: fylein/comment-test-coverage@master
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: coverage/coverage-summary.json
-          title: Unit Test Coverage
-      
-      - name: Get coverage difference
-        id: coverage
+      - name: Get Code Coverage for Services Folder
         run: |
-        before_coverage=$(awk '/Statements/ {print $3}' coverage/lcov.info)
-        git fetch origin pull/${{ github.event.pull_request.number }}/merge --no-tags --depth=1
-        git diff --name-only origin/main -- '*.spec.ts' | xargs npx karma start karma.conf.js --single-run --reporters coverage --no-auto-watch --no-refresh --browsers ChromeHeadlessCI > /dev/null
-        after_coverage=$(awk '/Statements/ {print $3}' coverage/lcov.info)
-        echo ::set-output name=before_coverage::$before_coverage
-        echo ::set-output name=after_coverage::$after_coverage
+          SERVICES_COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+          SERVICES_COVERAGE="${SERVICES_COVERAGE%\"}"
+          SERVICES_COVERAGE="${SERVICES_COVERAGE#\"}"
+          SERVICES_COVERAGE=$(echo "$SERVICES_COVERAGE > 0" | bc -l)
+          echo "::set-output name=services_coverage::$SERVICES_COVERAGE"
 
-      - name: Add coverage comment
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: unsplash/comment-on-pr@v1.4.1
+      - name: Add Code Coverage Comment
+        uses: actions/github-script@v4
         with:
-          message: |
-          Code coverage has changed from ${{ steps.coverage.outputs.before_coverage }}% to ${{ steps.coverage.outputs.after_coverage }}% after this change.
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pullRequest } = await github.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+
+            const servicesCoverage = parseInt('${{ steps.get_coverage.outputs.services_coverage }}');
+            const servicesCoverageMessage = servicesCoverage > 0
+              ? `Code coverage for the services folder is ${servicesCoverage}%`
+              : `No code coverage found for the services folder`;
+
+            const comment = `
+              **Code Coverage Report**
+              
+              ${servicesCoverageMessage}
+            `;
+            
+            await github.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pullRequest.number,
+              body: comment
+            });
