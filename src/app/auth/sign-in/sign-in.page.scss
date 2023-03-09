@@ -6,9 +6,8 @@ $password-icon: #b9beba;
 $secondary-cta-border: #a9acbc;
 
 .background {
-  background-image: $pink-gradient-3;
-  height: 100vh;
-  overflow-y: hidden;
+  --background: none;
+  background-image: $pink-gradient-3 !important;
 }
 
 .sign-in {
@@ -36,9 +35,10 @@ $secondary-cta-border: #a9acbc;
   }
 
   &--form {
-    padding: 24px;
+    padding: 40px 24px;
     margin: 16px;
     background-color: $white;
+    border-radius: 8px;
   }
 
   &--form-field {
@@ -89,6 +89,7 @@ $secondary-cta-border: #a9acbc;
       justify-content: center;
       gap: 10px;
       &-logo {
+        width: 10%;
         display: inline-block;
         vertical-align: middle;
       }
