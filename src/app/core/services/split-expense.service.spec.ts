@@ -18,6 +18,8 @@ import {
   txnParam1,
   txnParam2,
   createSourceTxn2,
+  expectedSplitTxns,
+  txnData2,
 } from '../mock-data/transaction.data';
 import { of } from 'rxjs';
 import { splitExpFileObj, splitExpFile2, splitExpFile3, fileObject4 } from '../mock-data/file-object.data';
@@ -32,7 +34,7 @@ import {
   policyVoilationData2,
 } from '../mock-data/policy-violation.data';
 import { splitExpData, splitExpData2 } from '../mock-data/expense.data';
-import { formattedTxnViolations } from '../mock-data/formatted-policy-violation.data';
+import { formattedTxnViolations, formattedTxnViolations2 } from '../mock-data/formatted-policy-violation.data';
 import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
 import { violationComment1, violationComment2, violationComment3 } from '../mock-data/policy-violcation-comment.data';
 import { unflattenExp1, unflattenExp2 } from '../mock-data/unflattened-expense.data';
@@ -200,14 +202,26 @@ describe('SplitExpenseService', () => {
     expect(categoriesService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(model, transformedOrgCategories);
   });
 
-  it('setupSplitExpensePurpose(): should modify split expense purpose', () => {
-    const splitGroupId = 'txfwF576rExp';
-    const index = 0;
-    const numberOfTxn = 2;
+  describe('setupSplitExpensePurpose():', () => {
+    it('should modify split expense purpose', () => {
+      const splitGroupId = 'txfwF576rExp';
+      const index = 0;
+      const numberOfTxn = 2;
 
-    //@ts-ignore
-    splitExpenseService.setupSplitExpensePurpose(splitPurposeTxn, splitGroupId, index, numberOfTxn);
-    expect(splitPurposeTxn.purpose).toEqual('test_term (1) (1)');
+      //@ts-ignore
+      splitExpenseService.setupSplitExpensePurpose(splitPurposeTxn, splitGroupId, index, numberOfTxn);
+      expect(splitPurposeTxn.purpose).toEqual('test_term (1) (1)');
+    });
+
+    it('should modify split expense purpose without group ID', () => {
+      const splitGroupId = null;
+      const index = 0;
+      const numberOfTxn = 2;
+
+      //@ts-ignore
+      splitExpenseService.setupSplitExpensePurpose(txnData2, splitGroupId, index, numberOfTxn);
+      expect(txnData2.purpose).toBeNull();
+    });
   });
 
   it('setUpSplitExpenseBillable(): setup expense billable amount', () => {
@@ -215,9 +229,22 @@ describe('SplitExpenseService', () => {
     expect(splitExpenseService.setUpSplitExpenseBillable(sourceSplitTxn, splitTxn)).toEqual(splitTxn.billable);
   });
 
+  it('setUpSplitExpenseBillable(): setup expense billable amount with project ID', () => {
+    //@ts-ignore
+    expect(splitExpenseService.setUpSplitExpenseBillable(sourceSplitTxn, { project_id: 123, ...splitTxn })).toEqual(
+      splitTxn.billable
+    );
+  });
+
   it('setUpSplitExpenseTax(): setup expense tax', () => {
     //@ts-ignore
     expect(splitExpenseService.setUpSplitExpenseTax(sourceSplitTxn, splitTxn)).toEqual(splitTxn.tax_amount);
+  });
+
+  it('setUpSplitExpenseTax(): setup expense tax', () => {
+    const { tax_amount, ...newSourceTxn } = splitTxn;
+    //@ts-ignore
+    expect(splitExpenseService.setUpSplitExpenseTax(sourceSplitTxn, newSourceTxn)).toEqual(sourceSplitTxn.tax_amount);
   });
 
   it('createSplitTxns(): should create split transaction', (done) => {
@@ -232,6 +259,18 @@ describe('SplitExpenseService', () => {
         createSourceTxn.split_group_id,
         splitTxn2.length
       );
+      done();
+    });
+  });
+
+  it('createSplitTxns(): should create split transaction when IDs are not present', (done) => {
+    spyOn(splitExpenseService, 'createTxns').and.returnValue(of(splitTxn2));
+
+    const amount = 16428.56;
+
+    splitExpenseService.createSplitTxns(createSourceTxn2, amount, splitTxn2).subscribe((res) => {
+      expect(res).toEqual(expectedSplitTxns);
+      expect(splitExpenseService.createTxns).toHaveBeenCalledTimes(2);
       done();
     });
   });
@@ -284,11 +323,40 @@ describe('SplitExpenseService', () => {
     expect(splitExpenseService.formatDisplayName).toHaveBeenCalledTimes(2);
   });
 
+  it('mapViolationDataWithEtxn(): should map violation data with expenses', () => {
+    const formatDisplayNameSpy = spyOn(splitExpenseService, 'formatDisplayName');
+    formatDisplayNameSpy.and.returnValue('Food');
+    formatDisplayNameSpy.and.returnValue('Food / Travelling - Inland');
+
+    const { tx_orig_amount, tx_orig_currency, ...newSplitData } = splitExpData[0];
+
+    expect(
+      splitExpenseService.mapViolationDataWithEtxn(policyVoilationData2, [newSplitData], transformedOrgCategories)
+    ).toEqual(policyVoilationData2);
+    expect(splitExpenseService.formatDisplayName).toHaveBeenCalledOnceWith(
+      newSplitData.tx_org_category_id,
+      transformedOrgCategories
+    );
+  });
+
   it('formatPolicyViolations(): should format policy violations', () => {
     policyService.getPolicyRules.and.returnValue(criticalPolicyViolation1);
     policyService.getCriticalPolicyRules.and.returnValue(criticalPolicyViolation2);
 
     expect(splitExpenseService.formatPolicyViolations(policyViolationData3)).toEqual(formattedTxnViolations);
+    expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
+    expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
+    expect(policyService.getPolicyRules).toHaveBeenCalledTimes(2);
+    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
+    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
+    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(2);
+  });
+
+  it('formatPolicyViolations(): should format policy violations without critical policy violations', () => {
+    policyService.getPolicyRules.and.returnValue(criticalPolicyViolation1);
+    policyService.getCriticalPolicyRules.and.returnValue(null);
+
+    expect(splitExpenseService.formatPolicyViolations(policyViolationData3)).toEqual(formattedTxnViolations2);
     expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
     expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
     expect(policyService.getPolicyRules).toHaveBeenCalledTimes(2);
@@ -320,6 +388,25 @@ describe('SplitExpenseService', () => {
     it('should return empty object when no expenses are provided', (done) => {
       splitExpenseService.runPolicyCheck([], fileObject4).subscribe((res) => {
         expect(res).toEqual({});
+        done();
+      });
+    });
+
+    it('should run policy check on expenses when files are not present', (done) => {
+      dataTransformService.unflatten.withArgs(splitExpData2[0]).and.returnValue(unflattenExp1);
+      dataTransformService.unflatten.withArgs(splitExpData2[1]).and.returnValue(unflattenExp2);
+
+      spyOn(splitExpenseService, 'checkPolicyForTransactions').and.returnValue(of(policyViolationData4));
+
+      splitExpenseService.runPolicyCheck(splitExpData2).subscribe((res) => {
+        expect(res).toEqual(policyViolationData4);
+        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[0]);
+        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[1]);
+        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(2);
+        expect(splitExpenseService.checkPolicyForTransactions).toHaveBeenCalledOnceWith([
+          unflattenExp1.tx,
+          unflattenExp2.tx,
+        ]);
         done();
       });
     });
