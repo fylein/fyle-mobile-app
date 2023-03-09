@@ -115,6 +115,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { StorageService } from 'src/app/core/services/storage.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -404,7 +405,8 @@ export class AddEditExpensePage implements OnInit {
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
+    private storageService: StorageService
   ) {}
 
   get dependentFieldControls() {
@@ -2460,11 +2462,11 @@ export class AddEditExpensePage implements OnInit {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
     // If User has already clicked on See More he need not to click again and again
-    from(this.recentLocalStorageItemsService.get('isExpandedView')).subscribe((view: boolean[]) => {
-      if (view.length === 0) {
-        this.isExpandedView = this.mode !== 'add';
-      } else if (view[0] === true) {
+    from(this.storageService.get('isExpandedView')).subscribe((expandedView) => {
+      if (expandedView === true) {
         this.isExpandedView = true;
+      } else {
+        this.isExpandedView = this.mode !== 'add';
       }
     });
 
@@ -4035,7 +4037,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = false;
-    this.recentLocalStorageItemsService.clear('isExpandedView');
+    this.storageService.delete('isExpandedView');
   }
 
   showFields() {
@@ -4044,7 +4046,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = true;
-    this.recentLocalStorageItemsService.post('isExpandedView', this.isExpandedView, 'true');
+    this.storageService.set('isExpandedView', true);
   }
 
   getPolicyDetails() {
