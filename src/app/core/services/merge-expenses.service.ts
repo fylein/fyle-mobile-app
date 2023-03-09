@@ -11,7 +11,6 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';
 import { FileObject } from '../models/file-obj.model';
-import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { FormControl } from '@angular/forms';
 import { DateService } from './date.service';

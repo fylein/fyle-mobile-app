@@ -28,6 +28,7 @@ import { TaxGroupService } from './tax-group.service';
 import {
   billableOptions1,
   billableOptions2,
+  mergeExpensesOptionsData,
   paymentModeOptions1,
   paymentModeOptions2,
   paymentModeOptions3,
@@ -35,6 +36,9 @@ import {
 } from '../mock-data/merge-expenses-option.data';
 import { AccountType } from '../enums/account-type.enum';
 import { optionsData2 } from '../mock-data/merge-expenses-options-data.data';
+import { fileObject5 } from '../mock-data/file-object.data';
+import { mergeExpenesesCustomInputsData } from '../mock-data/merge-expenses-custom-inputs.data';
+import * as lodash from 'lodash';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -50,7 +54,11 @@ describe('MergeExpensesService', () => {
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post']);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId', 'downloadUrl']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', [
+      'findByTransactionId',
+      'downloadUrl',
+      'getReceiptsDetails',
+    ]);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getv2CardTransactions',
     ]);
@@ -275,5 +283,37 @@ describe('MergeExpensesService', () => {
         { label: 'false', ...optionsData2.options[0] },
       ]);
     });
+  });
+
+  it('getAttachements(): should return the attachments', (done) => {
+    fileService.findByTransactionId.and.returnValue(of(fileObject5));
+    fileService.downloadUrl.and.returnValue(of('mock-url'));
+    fileService.getReceiptsDetails.and.returnValue({
+      thumbnail: fileObject5[0].thumbnail,
+      type: fileObject5[0].type,
+    });
+
+    const transactionId = 'txz2vohKxBXu';
+    mergeExpensesService.getAttachements(transactionId).subscribe((res) => {
+      expect(res).toEqual(fileObject5);
+      expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
+      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject5[0].id);
+      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(fileObject5[0]);
+      done();
+    });
+  });
+
+  it('generateReceiptOptions(): should return the receipt options', (done) => {
+    mergeExpensesService.generateReceiptOptions(apiExpenseRes).subscribe((res) => {
+      expect(res).toEqual(mergeExpensesOptionsData);
+      done();
+    });
+  });
+
+  it('getCustomInputValues(): should return the custom input values', () => {
+    spyOn(lodash, 'cloneDeep').and.returnValue(apiExpenseRes);
+    // @ts-ignore
+    expect(mergeExpensesService.getCustomInputValues(apiExpenseRes)).toEqual(mergeExpenesesCustomInputsData);
+    expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(apiExpenseRes);
   });
 });

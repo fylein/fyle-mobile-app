@@ -27,3 +27,10 @@ export const paymentModeOptions3: MergeExpensesOption = {
 };
 
 export const sameOptions: MergeExpensesOption[] = [billableOptions1, billableOptions1];
+
+export const mergeExpensesOptionsData: MergeExpensesOption[] = [
+  {
+    label: 'Receipt From Expense 1 ',
+    value: 'tx3nHShG60zq',
+  },
+];
