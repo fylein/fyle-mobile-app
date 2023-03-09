@@ -24,7 +24,7 @@ describe('OrgCardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit the selectOrg event when onSelectOrg method is called', () => {
+  it('onSelectOrg(): should emit the selectOrg event when onSelectOrg method is called', () => {
     spyOn(component.selectOrg, 'emit');
     component.onSelectOrg();
     expect(component.selectOrg.emit).toHaveBeenCalled();
@@ -32,7 +32,6 @@ describe('OrgCardComponent', () => {
 
   it('should display the correct org card details', () => {
     component.isLoading = false;
-    fixture.detectChanges();
     const currencyEl = fixture.nativeElement.querySelector('.org-card__icon-container__icon');
     expect(currencyEl.textContent).toContain('USD');
 
