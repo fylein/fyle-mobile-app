@@ -207,7 +207,7 @@ export class SplitExpenseService {
     );
   }
 
-  runPolicyCheck(etxns: Expense[], fileObjs?: FileObject[]): Observable<PolicyViolationTxn> {
+  runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<PolicyViolationTxn> {
     if (etxns?.length > 0) {
       const platformExpensesList = [];
       etxns.forEach((etxn) => {
