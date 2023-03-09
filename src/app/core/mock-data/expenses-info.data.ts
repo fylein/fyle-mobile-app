@@ -1,4 +1,5 @@
 import { ExpensesInfo } from '../services/expenses-info.model';
+import { apiExpenseRes } from './expense.data';
 
 export const expensesInfo: ExpensesInfo = {
   isReportedAndAbove: false,
@@ -272,6 +273,12 @@ export const expensesInfoWithReportedExpense: ExpensesInfo = {
       ...expensesInfo.defaultExpenses[0],
     },
   ],
+};
+
+export const expensesInfoWithReportedExpenseAndNoAdvance: ExpensesInfo = {
+  isReportedAndAbove: true,
+  isAdvancePresent: false,
+  defaultExpenses: [apiExpenseRes[0], apiExpenseRes[0]],
 };
 
 export const expensesInfoWithMultipleAdvanceExpenses: ExpensesInfo = {

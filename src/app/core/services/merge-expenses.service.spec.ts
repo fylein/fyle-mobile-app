@@ -8,6 +8,7 @@ import {
   expensesInfo,
   expensesInfoWithMultipleAdvanceExpenses,
   expensesInfoWithReportedExpense,
+  expensesInfoWithReportedExpenseAndNoAdvance,
 } from '../mock-data/expenses-info.data';
 import { expensesWithDependentFields, expensesWithSameProject } from '../mock-data/expenses.data';
 import { mergeExpensesPayload } from '../mock-data/merge-expenses-payload.data';
@@ -28,10 +29,12 @@ import { TaxGroupService } from './tax-group.service';
 import {
   billableOptions1,
   billableOptions2,
+  categoryOptionsData,
   mergeExpensesOptionsData,
   paymentModeOptions1,
   paymentModeOptions2,
   paymentModeOptions3,
+  projectOptionsData,
   sameOptions,
 } from '../mock-data/merge-expenses-option.data';
 import { AccountType } from '../enums/account-type.enum';
@@ -39,6 +42,7 @@ import { optionsData2 } from '../mock-data/merge-expenses-options-data.data';
 import { fileObject5 } from '../mock-data/file-object.data';
 import { mergeExpenesesCustomInputsData } from '../mock-data/merge-expenses-custom-inputs.data';
 import * as lodash from 'lodash';
+import { projectsV1Data } from '../test-data/projects.spec.data';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -218,6 +222,23 @@ describe('MergeExpensesService', () => {
       expect(mergeExpensesService.setDefaultExpenseToKeep(mergeExpenseData1)).toEqual(expenseInfoWithoutDefaultExpense);
       expect(mergeExpensesService.checkIfAdvanceExpensePresent).toHaveBeenCalledOnceWith(mergeExpenseData1);
     });
+
+    it('should set default expenses when advance expense is not present and all expenses are reported and above', () => {
+      spyOn(mergeExpensesService, 'checkIfAdvanceExpensePresent').and.returnValue([]);
+      expect(mergeExpensesService.setDefaultExpenseToKeep([apiExpenseRes[0], apiExpenseRes[0]])).toEqual(
+        expensesInfoWithReportedExpenseAndNoAdvance
+      );
+      expect(mergeExpensesService.checkIfAdvanceExpensePresent).toHaveBeenCalledOnceWith([
+        apiExpenseRes[0],
+        apiExpenseRes[0],
+      ]);
+    });
+
+    it('should set default expense to null when expense is not present', () => {
+      spyOn(mergeExpensesService, 'checkIfAdvanceExpensePresent').and.returnValue(null);
+      expect(mergeExpensesService.setDefaultExpenseToKeep([])).toEqual(expenseInfoWithoutDefaultExpense);
+      expect(mergeExpensesService.checkIfAdvanceExpensePresent).toHaveBeenCalledOnceWith([]);
+    });
   });
 
   describe('formatBillableOptions():', () => {
@@ -268,7 +289,7 @@ describe('MergeExpensesService', () => {
     expect(mergeExpensesService.checkOptionsAreSame).toHaveBeenCalledWith([sameOptions[0].value, sameOptions[1].value]);
   });
 
-  it('generateBillableOptions(): should return the billable options', () => {
+  it('generateBillableOptions(): should return the billable options', (done) => {
     // @ts-ignore
     spyOn(mergeExpensesService, 'formatBillableOptions').and.returnValue(optionsData2.options[0]);
     // @ts-ignore
@@ -282,6 +303,7 @@ describe('MergeExpensesService', () => {
       expect(mergeExpensesService.formatOptions).toHaveBeenCalledOnceWith([
         { label: 'false', ...optionsData2.options[0] },
       ]);
+      done();
     });
   });
 
@@ -315,5 +337,32 @@ describe('MergeExpensesService', () => {
     // @ts-ignore
     expect(mergeExpensesService.getCustomInputValues(apiExpenseRes)).toEqual(mergeExpenesesCustomInputsData);
     expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(apiExpenseRes);
+  });
+
+  describe('formatProjectOptions():', () => {
+    it('should return the project options', (done) => {
+      projectService.getAllActive.and.returnValue(of(projectsV1Data));
+      // @ts-ignore
+      mergeExpensesService.formatProjectOptions(projectOptionsData).subscribe((res) => {
+        expect(res).toEqual(projectOptionsData);
+        done();
+      });
+    });
+
+    it('should return the project options when project is not present', (done) => {
+      projectService.getAllActive.and.returnValue(of([]));
+      // @ts-ignore
+      mergeExpensesService.formatProjectOptions({ label: null, value: null }).subscribe((res) => {
+        expect(res).toEqual({ label: undefined, value: null });
+        done();
+      });
+    });
+  });
+
+  it('removeUnspecified(): should remove unspecified from the options', () => {
+    // @ts-ignore
+    console.log(mergeExpensesService.removeUnspecified(categoryOptionsData));
+    // @ts-ignore
+    expect(mergeExpensesService.removeUnspecified(categoryOptionsData)).toEqual(categoryOptionsData);
   });
 });

@@ -34,3 +34,19 @@ export const mergeExpensesOptionsData: MergeExpensesOption[] = [
     value: 'tx3nHShG60zq',
   },
 ];
+
+export const projectOptionsData: MergeExpensesOption = {
+  label: 'Staging Project',
+  value: 3943,
+};
+
+export const categoryOptionsData: MergeExpensesOption[] = [
+  {
+    label: 'Food / Travelling - Inland',
+    value: 201952,
+  },
+  {
+    label: 'Unspecified',
+    value: 16582,
+  },
+];

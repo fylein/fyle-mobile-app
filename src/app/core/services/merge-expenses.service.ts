@@ -77,11 +77,11 @@ export class MergeExpensesService {
       ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
     );
     const expensesInfo: ExpensesInfo = {
-      isReportedAndAbove: reportedAndAboveExpenses?.length > 0,
+      isReportedAndAbove: reportedAndAboveExpenses.length > 0,
       isAdvancePresent: advanceExpenses?.length > 0,
       defaultExpenses: [],
     };
-    if (reportedAndAboveExpenses?.length > 0) {
+    if (reportedAndAboveExpenses.length > 0) {
       expensesInfo.defaultExpenses = reportedAndAboveExpenses;
     } else if (advanceExpenses?.length > 0) {
       expensesInfo.defaultExpenses = advanceExpenses;
@@ -737,7 +737,7 @@ export class MergeExpensesService {
     const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
     return projects$.pipe(
       map((projects) => {
-        const index = projects.map((project) => project?.id).indexOf(option?.value);
+        const index = projects.map((project) => project.id).indexOf(option.value);
         option.label = projects[index]?.name;
         return option;
       })
