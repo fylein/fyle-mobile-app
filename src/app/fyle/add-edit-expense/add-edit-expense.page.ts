@@ -2463,11 +2463,7 @@ export class AddEditExpensePage implements OnInit {
 
     // If User has already clicked on See More he need not to click again and again
     from(this.storageService.get('isExpandedView')).subscribe((expandedView) => {
-      if (expandedView === true) {
-        this.isExpandedView = true;
-      } else {
-        this.isExpandedView = this.mode !== 'add';
-      }
+      this.isExpandedView = this.mode !== 'add' || expandedView;
     });
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
@@ -4037,7 +4033,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = false;
-    this.storageService.delete('isExpandedView');
+    this.storageService.set('isExpandedView', false);
   }
 
   showFields() {
