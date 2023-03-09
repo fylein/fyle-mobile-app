@@ -361,8 +361,6 @@ describe('MergeExpensesService', () => {
 
   it('removeUnspecified(): should remove unspecified from the options', () => {
     // @ts-ignore
-    console.log(mergeExpensesService.removeUnspecified(categoryOptionsData));
-    // @ts-ignore
     expect(mergeExpensesService.removeUnspecified(categoryOptionsData)).toEqual(categoryOptionsData);
   });
 });
