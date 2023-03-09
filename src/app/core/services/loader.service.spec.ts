@@ -60,11 +60,12 @@ describe('LoaderService', () => {
     expect(loadingController.dismiss).toHaveBeenCalledTimes(1);
   }));
 
-  it('hideLoader(): should catch errors in hide loader', () => {
+  it('hideLoader(): should catch errors in hide loader', fakeAsync(() => {
     const error = 'Something went wrong';
     loadingController.dismiss.and.returnValue(Promise.reject(error));
 
     loaderService.hideLoader();
+    tick();
     expect(loadingController.dismiss).toHaveBeenCalledTimes(1);
-  });
+  }));
 });
