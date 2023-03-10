@@ -304,8 +304,6 @@ export class AddEditExpensePage implements OnInit {
 
   actionSheetOptions$: Observable<{ text: string; handler: () => void }[]>;
 
-  isExpandedView = false;
-
   billableDefaultValue: boolean;
 
   taxGroups$: Observable<TaxGroup[]>;
@@ -360,6 +358,8 @@ export class AddEditExpensePage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
+  private _isExpandedView = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -411,6 +411,19 @@ export class AddEditExpensePage implements OnInit {
 
   get dependentFieldControls() {
     return this.fg?.controls.dependent_fields as FormArray;
+  }
+
+  get isExpandedView() {
+    return this._isExpandedView;
+  }
+
+  set isExpandedView(expandedView: boolean) {
+    this._isExpandedView = expandedView;
+
+    //Change the storage only in case of add expense
+    if (this.mode === 'add') {
+      this.storageService.set('isExpandedView', expandedView);
+    }
   }
 
   @HostListener('keydown')
@@ -4033,7 +4046,6 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = false;
-    this.storageService.set('isExpandedView', false);
   }
 
   showFields() {
@@ -4042,7 +4054,6 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = true;
-    this.storageService.set('isExpandedView', true);
   }
 
   getPolicyDetails() {
