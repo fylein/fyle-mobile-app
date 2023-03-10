@@ -38,12 +38,12 @@ describe('ApproverPlatformApiService', () => {
     httpClient.get.and.returnValue(of(ApproverExpensePolicyStatesData));
     const url = '/expense_policy_states';
 
-    const params = {
-      expense_id: 'eq.txRNWeQRXhso',
-    };
-
-    approverPlatformService.get(url, params).subscribe((res) => {
+    approverPlatformService.get(url).subscribe((res) => {
       expect(res).toEqual(ApproverExpensePolicyStatesData);
+      expect(httpClient.get).toHaveBeenCalledOnceWith(
+        `${approverPlatformService.ROOT_ENDPOINT}/platform/v1/approver${url}`,
+        {}
+      );
       done();
     });
   });
