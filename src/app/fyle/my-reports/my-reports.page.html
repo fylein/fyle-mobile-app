@@ -93,12 +93,12 @@
       ></app-fy-zero-state>
     </div>
 
-    <ng-container *ngIf="!isLoading && (simplifyReportsEnabled$ | async) !== null; else loading">
+    <ng-container *ngIf="!isLoading && (simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
       <div *ngFor="let erpt of myReports$ | async as list; let i = index">
         <app-my-reports-card
           [erpt]="erpt"
           [prevDate]="list[i-1]?.rp_created_at"
-          [simplifyReportsEnabled]="simplifyReportsEnabled$ | async"
+          [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
           (gotoReport)="onReportClick($event)"
           (deleteReport)="onDeleteReportClick($event)"
           (viewComments)="onViewCommentsClick($event)"

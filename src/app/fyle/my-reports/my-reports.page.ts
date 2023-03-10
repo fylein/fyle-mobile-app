@@ -104,7 +104,7 @@ export class MyReportsPage implements OnInit {
 
   filterPills = [];
 
-  simplifyReportsEnabled$: Observable<boolean>;
+  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
   isCCCOnlyOrg$: Observable<boolean>;
 
@@ -257,8 +257,8 @@ export class MyReportsPage implements OnInit {
     );
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    this.simplifyReportsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings?.simplified_report_closure_settings?.enabled)
+    this.simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
     );
     this.isCCCOnlyOrg$ = orgSettings$.pipe(
       map(
@@ -742,12 +742,12 @@ export class MyReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
-    this.simplifyReportsEnabled$.subscribe((simplifyReportsEnabled) => {
+    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
       filterPills.push({
         label: 'State',
         type: 'state',
         value: filter.state
-          .map((state) => this.reportStatePipe.transform(state, simplifyReportsEnabled))
+          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });
