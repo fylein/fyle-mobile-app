@@ -104,3 +104,8 @@ export const formattedTxnViolations = {
   txc2KIogxUAy: formattedTxn1,
   txgfkvuYteta: formattedTxn2,
 };
+
+export const formattedTxnViolations2 = {
+  txc2KIogxUAy: { ...formattedTxn1, isCriticalPolicyViolation: false },
+  txgfkvuYteta: { ...formattedTxn2, isCriticalPolicyViolation: false },
+};
