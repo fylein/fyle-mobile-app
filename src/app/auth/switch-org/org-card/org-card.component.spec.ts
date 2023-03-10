@@ -3,6 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { MatRippleModule } from '@angular/material/core';
 import { OrgCardComponent } from './org-card.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 describe('OrgCardComponent', () => {
   let component: OrgCardComponent;
@@ -32,34 +33,35 @@ describe('OrgCardComponent', () => {
 
   it('should display the correct org card details', () => {
     component.isLoading = false;
-    const currencyEl = fixture.nativeElement.querySelector('.org-card__icon-container__icon');
-    expect(currencyEl.textContent).toContain('USD');
+    fixture.detectChanges();
+    const currencyEl = getElementBySelector(fixture, '.org-card__icon-container__icon');
+    expect(getTextContent(currencyEl)).toContain('USD');
 
-    const domainEl = fixture.nativeElement.querySelector('.org-card__content-container__sub-title');
-    expect(domainEl.textContent).toContain('fyle.in');
+    const domainEl = getElementBySelector(fixture, '.org-card__content-container__sub-title');
+    expect(getTextContent(domainEl)).toContain('fyle.in');
 
-    const nameEl = fixture.nativeElement.querySelector('.org-card__content-container__title');
-    expect(nameEl.textContent).toContain('Staging Loaded');
+    const nameEl = getElementBySelector(fixture, '.org-card__content-container__title');
+    expect(getTextContent(nameEl)).toContain('Staging Loaded');
   });
 
   it('should show the skeleton text when isLoading is true', () => {
     component.isLoading = true;
     fixture.detectChanges();
-    const skeletonTextEl = fixture.nativeElement.querySelector('ion-skeleton-text');
+    const skeletonTextEl = getElementBySelector(fixture, 'ion-skeleton-text');
     expect(skeletonTextEl).toBeTruthy();
   });
 
   it('should show "Primary" when isPrimaryOrg is true', () => {
     component.isPrimaryOrg = true;
     fixture.detectChanges();
-    const pillEl = fixture.nativeElement.querySelector('.org-card__pill-container__pill');
-    expect(pillEl.textContent).toContain('Primary');
+    const pillEl = getElementBySelector(fixture, '.org-card__pill-container__pill');
+    expect(getTextContent(pillEl)).toContain('Primary');
   });
 
   it('should not show "Primary" when isPrimaryOrg is false', () => {
     component.isPrimaryOrg = false;
     fixture.detectChanges();
-    const pillEl = fixture.nativeElement.querySelector('.org-card__pill-container__pill');
-    expect(pillEl).toBeFalsy();
+    const pillEl = getElementBySelector(fixture, '.org-card__pill-container__pill');
+    expect(pillEl).toBeNull();
   });
 });
