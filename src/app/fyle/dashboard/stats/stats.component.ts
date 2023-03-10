@@ -156,7 +156,7 @@ export class StatsComponent implements OnInit {
     that.initializeReportStats();
     that.initializeExpensesStats();
     that.orgSettingsService.get().subscribe((orgSettings) => {
-      this.isNonReimbursableOrg = this.paymentModeService.isNonReimbursableOrg(orgSettings);
+      this.isNonReimbursableOrg = this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings);
       if (orgSettings?.corporate_credit_card_settings?.enabled) {
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();

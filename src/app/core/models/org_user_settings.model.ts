@@ -1,4 +1,5 @@
 import { AccountType } from '../enums/account-type.enum';
+import { AllowedPaymentModes } from './allowed-payment-modes.enum';
 import { BankDataAggregationSettings, OrgFylerCccFlowSettings } from './org-settings.model';
 
 export interface AutoFyleSettings {
