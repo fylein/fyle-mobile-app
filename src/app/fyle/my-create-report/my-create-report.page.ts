@@ -9,7 +9,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { ReportSummaryComponent } from './report-summary/report-summary.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { NgModel } from '@angular/forms';
