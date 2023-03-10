@@ -12,6 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { OrgSettings } from '../models/org-settings.model';
+import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 @Injectable({
   providedIn: 'root',
 })
@@ -74,6 +75,21 @@ export class PaymentModesService {
         return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
       })
     );
+  }
+
+  isNonReimbursableOrg(orgSettings: OrgSettings): boolean {
+    const paymentModesOrder = orgSettings?.payment_mode_settings?.payment_modes_order;
+
+    if (paymentModesOrder?.length === 1) {
+      return paymentModesOrder[0] === AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
+    }
+    if (paymentModesOrder?.length === 2) {
+      return (
+        paymentModesOrder?.includes(AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) &&
+        paymentModesOrder?.includes(AllowedPaymentModes.COMPANY_ACCOUNT)
+      );
+    }
+    return false;
   }
 
   showInvalidPaymentModeToast() {

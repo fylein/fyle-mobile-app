@@ -6,7 +6,7 @@ import { delay, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
-import { concat, of, Subject } from 'rxjs';
+import { concat, interval, of, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -16,6 +16,7 @@ import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 
 @Component({
   selector: 'app-stats',
@@ -30,6 +31,8 @@ export class StatsComponent implements OnInit {
   approvedStats$: Observable<{ count: number; sum: number }>;
 
   paymentPendingStats$: Observable<{ count: number; sum: number }>;
+
+  processingStats$: Observable<{ count: number; sum: number }>;
 
   homeCurrency$: Observable<string>;
 
@@ -47,6 +50,8 @@ export class StatsComponent implements OnInit {
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
+  isNonReimbursableOrg = false;
+
   reportStatsLoading = true;
 
   loadData$ = new Subject();
@@ -62,7 +67,8 @@ export class StatsComponent implements OnInit {
     private networkService: NetworkService,
     private trackingService: TrackingService,
     private orgSettingsService: OrgSettingsService,
-    private orgService: OrgService
+    private orgService: OrgService,
+    private paymentModeService: PaymentModesService
   ) {}
 
   get ReportStates() {
@@ -93,6 +99,8 @@ export class StatsComponent implements OnInit {
     this.approvedStats$ = reportStats$.pipe(map((stats) => stats.approved));
 
     this.paymentPendingStats$ = reportStats$.pipe(map((stats) => stats.paymentPending));
+
+    this.processingStats$ = reportStats$.pipe(map((stats) => stats.processing));
   }
 
   initializeExpensesStats() {
@@ -148,6 +156,7 @@ export class StatsComponent implements OnInit {
     that.initializeReportStats();
     that.initializeExpensesStats();
     that.orgSettingsService.get().subscribe((orgSettings) => {
+      this.isNonReimbursableOrg = this.paymentModeService.isNonReimbursableOrg(orgSettings);
       if (orgSettings?.corporate_credit_card_settings?.enabled) {
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
