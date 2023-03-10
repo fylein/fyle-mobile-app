@@ -13,7 +13,7 @@ import {
   filledDependentFields,
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
-import { expensesWithDependentFields } from '../mock-data/expenses.data';
+import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;

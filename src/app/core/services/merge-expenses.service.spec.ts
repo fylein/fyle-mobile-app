@@ -10,7 +10,7 @@ import {
   expensesInfoWithReportedExpense,
   expensesInfoWithReportedExpenseAndNoAdvance,
 } from '../mock-data/expenses-info.data';
-import { expensesWithDependentFields, expensesWithSameProject } from '../mock-data/expenses.data';
+import { expensesWithDependentFields, expensesWithSameProject } from '../mock-data/dependent-field-expenses.data';
 import { mergeExpensesPayload } from '../mock-data/merge-expenses-payload.data';
 import {
   projectDependentFieldsMapping,
