@@ -3,14 +3,13 @@ $sign-in-header: #220033;
 $form-header: #000;
 $form-subheader: #4a4a4a;
 $password-icon: #b9beba;
-$secondary-cta-border: #a9acbc;
-
-.background {
-  --background: none;
-  background-image: $pink-gradient-3;
-}
 
 .sign-in {
+  &--page-container {
+    --background: none;
+    background-image: $pink-gradient-3;
+  }
+
   &--header {
     min-height: 180px;
   }
@@ -79,7 +78,7 @@ $secondary-cta-border: #a9acbc;
       font-weight: 700;
       min-height: 47px;
       letter-spacing: 1.6px;
-      border: 1px solid $secondary-cta-border;
+      border: 1px solid $grey-light;
       background-color: $white;
     }
     margin-top: 24px;
@@ -90,6 +89,8 @@ $secondary-cta-border: #a9acbc;
       gap: 10px;
       &-logo {
         width: 10%;
+        min-width: 28px;
+        max-width: 34px;
         display: inline-block;
         vertical-align: middle;
       }
