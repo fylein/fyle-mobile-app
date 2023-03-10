@@ -4,7 +4,7 @@ on: [pull_request]
 
 jobs:
   size:
-    runs-one: ubuntu-latest
+    runs-on: ubuntu-latest
     name: Label the size of PR
     steps:
       - uses: "pascalgn/size-label-action@v0.4.3"
