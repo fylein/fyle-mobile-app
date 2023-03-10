@@ -15,6 +15,12 @@ import { orgSettingsParams, orgSettingsParamWoCCC } from '../mock-data/org-setti
 import { multiplePaymentModesData } from '../test-data/accounts.service.spec.data';
 import { AccountType } from '../enums/account-type.enum';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import {
+  cccAndPaidByCompanyPaymentModeSettingsParam,
+  cccAndReimbursablePaymentModeSettingsParam,
+  cccOnlyPaymentModeSettingsParam,
+  reimbursableOnlyPaymentModeSettingsParam,
+} from '../mock-data/org-payment-mode-settings.data';
 
 describe('PaymentModesService', () => {
   let paymentModesService: PaymentModesService;
@@ -177,5 +183,17 @@ describe('PaymentModesService', () => {
       panelClass: ['msb-failure-with-report-btn'],
     });
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
+  });
+
+  describe('isNonReimbursableOrg():', () => {
+    it('should return true if only non reimbursable payment modes in payment mode settings', () => {
+      expect(paymentModesService.isNonReimbursableOrg(cccOnlyPaymentModeSettingsParam)).toBeTrue();
+      expect(paymentModesService.isNonReimbursableOrg(cccAndPaidByCompanyPaymentModeSettingsParam)).toBeTrue();
+    });
+
+    it('should return false if reimbursable payment modes in payment mode settings', () => {
+      expect(paymentModesService.isNonReimbursableOrg(reimbursableOnlyPaymentModeSettingsParam)).toBeFalse();
+      expect(paymentModesService.isNonReimbursableOrg(cccAndReimbursablePaymentModeSettingsParam)).toBeFalse();
+    });
   });
 });
