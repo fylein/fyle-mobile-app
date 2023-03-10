@@ -1,0 +1,21 @@
+name: PR Cheks
+
+on: [pull_request]
+
+jobs:
+  size:
+    runs-one: ubuntu-latest
+    name: Label the size of PR
+    steps:
+      - uses: "pascalgn/size-label-action@v0.4.3"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          sizes: >
+            {
+              "0": "XS",
+              "20": "S",
+              "50": "M",
+              "250": "L",
+              "800": "XL"
+            }
