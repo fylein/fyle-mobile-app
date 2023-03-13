@@ -6,7 +6,7 @@ import { delay, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
-import { concat, Subject } from 'rxjs';
+import { concat, interval, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -50,7 +50,7 @@ export class StatsComponent implements OnInit {
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
-  isNonReimbursableOrg = false;
+  isNonReimbursableOrg$: Observable<{ value: boolean }>;
 
   reportStatsLoading = true;
 
@@ -156,7 +156,6 @@ export class StatsComponent implements OnInit {
     that.initializeReportStats();
     that.initializeExpensesStats();
     that.orgSettingsService.get().subscribe((orgSettings) => {
-      this.isNonReimbursableOrg = this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings);
       if (orgSettings?.corporate_credit_card_settings?.enabled) {
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
@@ -168,6 +167,10 @@ export class StatsComponent implements OnInit {
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     that.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+    );
+
+    that.isNonReimbursableOrg$ = orgSettings$.pipe(
+      map((orgSettings) => ({ value: this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings) }))
     );
 
     this.orgService.getOrgs().subscribe((orgs) => {
