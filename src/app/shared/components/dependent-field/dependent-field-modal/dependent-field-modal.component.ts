@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
@@ -31,11 +31,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   isLoading = false;
 
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private dependentFieldsService: DependentFieldsService
-  ) {}
+  constructor(private modalController: ModalController, private dependentFieldsService: DependentFieldsService) {}
 
   ngOnInit() {}
 
@@ -78,8 +74,6 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
         })
       )
     );
-
-    this.cdr.detectChanges();
   }
 
   onDoneClick() {
