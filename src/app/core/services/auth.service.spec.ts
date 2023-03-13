@@ -6,7 +6,7 @@ import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 import { JwtHelperService } from './jwt-helper.service';
 import { apiEouRes, eouFlattended, eouRes3 } from '../mock-data/extended-org-user.data';
-import { finalize, map, of, tap } from 'rxjs';
+import { finalize, noop, of, tap } from 'rxjs';
 import { apiAccessTokenRes } from '../mock-data/acess-token-data.data';
 
 describe('AuthService', () => {
@@ -17,6 +17,7 @@ describe('AuthService', () => {
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let jwtHelperService: jasmine.SpyObj<JwtHelperService>;
 
+  //The token consists of user-details
   const access_token =
     'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzgzNDk1NDksImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXN2S0E0WDhVZ2NyIiwib3JnX3VzZXJfaWQiOiJvdVg4ZHdzYkxDTHYiLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkFETUlOXCIsXCJBUFBST1ZFUlwiLFwiRllMRVJcIixcIkhPUFwiLFwiSE9EXCIsXCJPV05FUlwiXSIsInNjb3BlcyI6IltdIiwiYWxsb3dlZF9DSURScyI6IltdIiwidmVyc2lvbiI6IjMiLCJjbHVzdGVyX2RvbWFpbiI6IlwiaHR0cHM6Ly9zdGFnaW5nLmZ5bGUudGVjaFwiIiwiZXhwIjoxNjc4MzUzMTQ5fQ.sOJKf_ndYvhFplZL-KOImnvGujGEReQ7SYq_kvay88w';
 
@@ -93,11 +94,16 @@ describe('AuthService', () => {
 
   describe('getRoles():', () => {
     it('should get roles from access token', (done) => {
+      const roles = ['ADMIN', 'APPROVER', 'FYLER', 'HOP', 'HOD', 'OWNER'];
       tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
       jwtHelperService.decodeToken.and.returnValue(apiAccessTokenRes);
+      spyOn(JSON, 'parse').and.returnValue(roles);
 
       authService.getRoles().subscribe((res) => {
-        expect(res).toEqual(['ADMIN', 'APPROVER', 'FYLER', 'HOP', 'HOD', 'OWNER']);
+        expect(res).toEqual(roles);
+        expect(tokenService.getAccessToken).toHaveBeenCalledTimes(1);
+        expect(jwtHelperService.decodeToken).toHaveBeenCalledOnceWith(access_token);
+        expect(JSON.parse).toHaveBeenCalledOnceWith(apiAccessTokenRes.roles);
         done();
       });
     });
@@ -116,10 +122,13 @@ describe('AuthService', () => {
     const clusterDomain = {
       cluster_domain: 'https://staging.fyle.tech',
     };
+    const email = 'ajain@fyle.in';
+    const org_id = 'orNVthTo2Zyo';
     apiService.post.and.returnValue(of(clusterDomain));
 
-    authService.resendEmailVerification('ajain@fyle.in', 'orNVthTo2Zyo').subscribe((res) => {
+    authService.resendEmailVerification(email, org_id).subscribe((res) => {
       expect(res).toEqual(clusterDomain);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/auth/resend_email_verification', { email, org_id });
       done();
     });
   });
@@ -133,26 +142,34 @@ describe('AuthService', () => {
     apiService.post.withArgs('/auth/logout', payload).and.returnValue(of(true));
     apiService.post.withArgs('/auth/logout').and.returnValue(of(true));
 
-    authService.logout(payload).pipe(
-      tap((res) => expect(res).toBeTruthy()),
-      finalize(() => {
-        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedProjects');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedCategories');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedMileageCategories');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedPerDiemCategories');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedCostCenters');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('user');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('role');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('currentView');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('ui-grid-pagination-page-size');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('ui-grid-pagination-page-number');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('customExportFields');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('lastLoggedInDelegatee');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('lastLoggedInOrgQueue');
-        expect(storageService.delete).toHaveBeenCalledOnceWith('isSidenavCollapsed');
-        expect(storageService.delete).toHaveBeenCalledTimes(12);
-      })
-    );
+    authService
+      .logout(payload)
+      .pipe(
+        tap((res) => {
+          expect(res).toBeTruthy();
+          expect(apiService.post).toHaveBeenCalledWith('/auth/logout');
+          expect(apiService.post).toHaveBeenCalledWith('/auth/logout', payload);
+          expect(apiService.post).toHaveBeenCalledTimes(2);
+        }),
+        finalize(() => {
+          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedProjects');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedCategories');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedMileageCategories');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedPerDiemCategories');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedCostCenters');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('user');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('role');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('currentView');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('ui-grid-pagination-page-size');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('ui-grid-pagination-page-number');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('customExportFields');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('lastLoggedInDelegatee');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('lastLoggedInOrgQueue');
+          expect(storageService.delete).toHaveBeenCalledOnceWith('isSidenavCollapsed');
+          expect(storageService.delete).toHaveBeenCalledTimes(12);
+        })
+      )
+      .subscribe(noop);
     done();
   });
 });
