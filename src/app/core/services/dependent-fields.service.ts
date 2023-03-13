@@ -28,6 +28,7 @@ export class DependentFieldsService {
         is_enabled: 'eq.true',
         offset: 0,
         limit: 20,
+        order: 'expense_field_value.asc',
       },
     };
 
