@@ -37,6 +37,9 @@ import {
   billableOptions1,
   billableOptions2,
   categoryOptionsData,
+  mergeExpensesOptionData1,
+  mergeExpensesOptionData2,
+  mergeExpensesOptionData3,
   mergeExpensesOptionsData,
   paymentModeOptions1,
   paymentModeOptions2,
@@ -45,11 +48,20 @@ import {
   sameOptions,
 } from '../mock-data/merge-expenses-option.data';
 import { AccountType } from '../enums/account-type.enum';
-import { optionsData2 } from '../mock-data/merge-expenses-options-data.data';
+import {
+  optionsData2,
+  optionsData3,
+  optionsData4,
+  optionsData5,
+  optionsData6,
+  optionsData7,
+  optionsData8,
+  optionsData9,
+} from '../mock-data/merge-expenses-options-data.data';
 import { fileObject5 } from '../mock-data/file-object.data';
 import { mergeExpenesesCustomInputsData } from '../mock-data/merge-expenses-custom-inputs.data';
 import * as lodash from 'lodash';
-import { projectsV1Data } from '../test-data/projects.spec.data';
+import { projectsV1Data, projectsV1Data2 } from '../test-data/projects.spec.data';
 import { corporateCardExpenseData } from '../mock-data/corporate-card-expense.data';
 import { customInputData } from '../test-data/custom-inputs.spec.data';
 
@@ -422,6 +434,122 @@ describe('MergeExpensesService', () => {
     mergeExpensesService.getCorporateCardTransactions([]).subscribe((res) => {
       expect(res).toEqual([]);
       expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+      done();
+    });
+  });
+
+  describe('generateExpenseToKeepOptions(): ', () => {
+    it('should return the merge expenses options of the expense to be kept with date', (done) => {
+      humanizeCurrencyPipe.transform.and.returnValue('₹1.00');
+      mergeExpensesService.generateExpenseToKeepOptions(expensesDataWithCC).subscribe((res) => {
+        expect(res).toEqual(mergeExpensesOptionData1);
+        expect(humanizeCurrencyPipe.transform).toHaveBeenCalledWith(1, 'INR');
+        expect(humanizeCurrencyPipe.transform).toHaveBeenCalledTimes(2);
+        done();
+      });
+    });
+
+    it('should return the merge expenses options of the expense to be kept without date', (done) => {
+      humanizeCurrencyPipe.transform.and.returnValue('₹1.00');
+      const expenses = [
+        {
+          ...expensesDataWithCC[0],
+          tx_txn_dt: null,
+        },
+        {
+          ...expensesDataWithCC[1],
+          tx_txn_dt: null,
+        },
+      ];
+      mergeExpensesService.generateExpenseToKeepOptions(expenses).subscribe((res) => {
+        expect(res).toEqual(mergeExpensesOptionData2);
+        expect(humanizeCurrencyPipe.transform).toHaveBeenCalledWith(1, 'INR');
+        expect(humanizeCurrencyPipe.transform).toHaveBeenCalledTimes(2);
+        done();
+      });
+    });
+  });
+
+  describe('generateAmountOptions():', () => {
+    it('should return the amount options', (done) => {
+      mergeExpensesService.generateAmountOptions(expensesDataWithCC).subscribe((res) => {
+        expect(res).toEqual(optionsData3);
+        done();
+      });
+    });
+
+    it('should return the amount options with foreign currency', (done) => {
+      const expenses = [
+        {
+          ...expensesDataWithCC[0],
+          tx_orig_currency: 'USD',
+          tx_orig_amount: 1,
+        },
+        {
+          ...expensesDataWithCC[1],
+          tx_orig_currency: 'USD',
+          tx_orig_amount: 1,
+        },
+      ];
+      mergeExpensesService.generateAmountOptions(expenses).subscribe((res) => {
+        expect(res).toEqual(optionsData4);
+        done();
+      });
+    });
+
+    it('should return default options when amount is is not present', (done) => {
+      const expenses = [
+        {
+          ...expensesDataWithCC[0],
+          tx_orig_currency: 'USD',
+          tx_orig_amount: 0,
+          tx_amount: null,
+        },
+        {
+          ...expensesDataWithCC[1],
+          tx_orig_currency: 'USD',
+          tx_orig_amount: 0,
+          tx_amount: null,
+        },
+      ];
+      mergeExpensesService.generateAmountOptions(expenses).subscribe((res) => {
+        expect(res).toEqual(optionsData5);
+        done();
+      });
+    });
+  });
+
+  it('generateDateOfSpendOptions(): should return the date of spend options', (done) => {
+    mergeExpensesService.generateDateOfSpendOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData6);
+      done();
+    });
+  });
+
+  it('generatePaymentModeOptions(): should return the payment mode options', (done) => {
+    mergeExpensesService.generatePaymentModeOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData7);
+      done();
+    });
+  });
+
+  it('generateVendorOptions(): should return the vendor options', (done) => {
+    mergeExpensesService.generateVendorOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData8);
+      done();
+    });
+  });
+
+  it('generateProjectOptions(): should return the project options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatProjectOptions').and.returnValue(of(mergeExpensesOptionData3));
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData9);
+
+    mergeExpensesService.generateProjectOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData9);
+      // @ts-ignore
+      expect(mergeExpensesService.formatProjectOptions).toHaveBeenCalledTimes(2);
       done();
     });
   });

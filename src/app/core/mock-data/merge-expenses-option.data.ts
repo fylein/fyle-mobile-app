@@ -50,3 +50,36 @@ export const categoryOptionsData: MergeExpensesOption[] = [
     value: 16582,
   },
 ];
+
+export const mergeExpensesOptionData1: MergeExpensesOption[] = [
+  {
+    label: 'Mar 13 ₹1.00 Nilesh As Vendor - Staging Project',
+    value: 'txKJAJ1flx7n',
+  },
+  {
+    label: 'Mar 08 ₹1.00 Nilesh As Vendor - Staging Project',
+    value: 'txz2vohKxBXu',
+  },
+];
+
+export const mergeExpensesOptionData2: MergeExpensesOption[] = [
+  {
+    label: '  Nilesh As Vendor - Staging Project',
+    value: 'txKJAJ1flx7n',
+  },
+  {
+    label: '  Nilesh As Vendor - Staging Project',
+    value: 'txz2vohKxBXu',
+  },
+];
+
+export const mergeExpensesOptionData3: MergeExpensesOption[] = [
+  {
+    label: 'Staging Project',
+    value: '3943',
+  },
+  {
+    label: 'Staging Project',
+    value: '3943',
+  },
+];

@@ -329,3 +329,13 @@ export const projectsV1Data: ProjectV1[] = [
     ...apiResponseActiveOnly[1],
   },
 ];
+
+export const projectsV1Data2: ProjectV1[] = [
+  {
+    created_at: new Date('2021-05-12T10:28:40.834844'),
+    updated_at: new Date('2021-07-08T10:28:27.686886'),
+    id: 3943,
+    name: 'Staging Project',
+    ...apiResponseActiveOnly[0],
+  },
+];
