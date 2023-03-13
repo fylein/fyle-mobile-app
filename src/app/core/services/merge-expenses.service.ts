@@ -132,7 +132,7 @@ export class MergeExpensesService {
     );
   }
 
-  getCardCardTransactions(expenses: Expense[]): Observable<CorporateCardExpense[]> {
+  getCorporateCardTransactions(expenses: Expense[]): Observable<CorporateCardExpense[]> {
     return this.customInputsService.getAll(true).pipe(
       switchMap(() => {
         const CCCGroupIds = expenses.map((expense) => expense?.tx_corporate_credit_card_expense_group_id);

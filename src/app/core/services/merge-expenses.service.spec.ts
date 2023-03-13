@@ -2,10 +2,17 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { dependentFields } from '../mock-data/dependent-field.data';
-import { advanceExpensesList, apiExpenseRes, expenseData2, mergeExpenseData1 } from '../mock-data/expense.data';
+import {
+  advanceExpensesList,
+  apiExpenseRes,
+  expenseData2,
+  expensesDataWithCC,
+  mergeExpenseData1,
+} from '../mock-data/expense.data';
 import {
   expenseInfoWithoutDefaultExpense,
   expensesInfo,
+  expensesInfoData1,
   expensesInfoWithMultipleAdvanceExpenses,
   expensesInfoWithReportedExpense,
   expensesInfoWithReportedExpenseAndNoAdvance,
@@ -43,6 +50,8 @@ import { fileObject5 } from '../mock-data/file-object.data';
 import { mergeExpenesesCustomInputsData } from '../mock-data/merge-expenses-custom-inputs.data';
 import * as lodash from 'lodash';
 import { projectsV1Data } from '../test-data/projects.spec.data';
+import { corporateCardExpenseData } from '../mock-data/corporate-card-expense.data';
+import { customInputData } from '../test-data/custom-inputs.spec.data';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -362,5 +371,58 @@ describe('MergeExpensesService', () => {
   it('removeUnspecified(): should remove unspecified from the options', () => {
     // @ts-ignore
     expect(mergeExpensesService.removeUnspecified(categoryOptionsData)).toEqual(categoryOptionsData);
+  });
+
+  describe('isMoreThanOneAdvancePresent():', () => {
+    it('should return false if more than one advance is not present', () => {
+      // @ts-ignore
+      expect(
+        mergeExpensesService.isMoreThanOneAdvancePresent(expensesInfoWithMultipleAdvanceExpenses, false)
+      ).toBeFalse();
+    });
+
+    it('should return true if more than one advance is present', () => {
+      // @ts-ignore
+      expect(mergeExpensesService.isMoreThanOneAdvancePresent(expensesInfoData1, true)).toBeTrue();
+    });
+
+    it('should return false if default expenses are not present', () => {
+      // @ts-ignore
+      expect(mergeExpensesService.isMoreThanOneAdvancePresent(expenseInfoWithoutDefaultExpense, false)).toBeFalse();
+    });
+  });
+
+  describe('getCorporateCardTransactions(): ', () => {
+    it('should return the corportate card transactions', (done) => {
+      const params = {
+        queryParams: {
+          group_id: ['in.(,)'],
+        },
+        offset: 0,
+        limit: 1,
+      };
+
+      customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
+      corporateCreditCardExpenseService.getv2CardTransactions
+        .withArgs(params)
+        .and.returnValue(of(corporateCardExpenseData));
+
+      mergeExpensesService.getCorporateCardTransactions(expensesDataWithCC).subscribe((res) => {
+        expect(res).toEqual(corporateCardExpenseData.data);
+        expect(corporateCreditCardExpenseService.getv2CardTransactions).toHaveBeenCalledOnceWith(params);
+        expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+        done();
+      });
+    });
+  });
+
+  it('should return empty list if there are no expenses', (done) => {
+    customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
+
+    mergeExpensesService.getCorporateCardTransactions([]).subscribe((res) => {
+      expect(res).toEqual([]);
+      expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+      done();
+    });
   });
 });
