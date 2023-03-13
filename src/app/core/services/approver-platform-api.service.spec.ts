@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { ApproverExpensePolicyStatesData } from '../mock-data/platform-policy-expense.data';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpRequest } from '@angular/common/http';
 
 describe('ApproverPlatformApiService', () => {
   let approverPlatformService: ApproverPlatformApiService;
@@ -29,15 +29,35 @@ describe('ApproverPlatformApiService', () => {
     expect(approverPlatformService.ROOT_ENDPOINT).toBe(rootUrl);
   });
 
-  it('get(): should get data from the API', (done) => {
-    const url = '/expense_policy_states';
-    approverPlatformService.get(url).subscribe((res) => {
-      expect(res).toEqual(ApproverExpensePolicyStatesData);
+  describe('get():', () => {
+    it('should get data from the API without config', (done) => {
+      const url = '/expense_policy_states';
+      approverPlatformService.get(url).subscribe((res) => {
+        expect(res).toEqual(ApproverExpensePolicyStatesData);
+      });
+      const req = httpTestingController.expectOne(`${rootUrl}/platform/v1/approver${url}`);
+      expect(req.request.method).toEqual('GET');
+      req.flush(ApproverExpensePolicyStatesData);
+      done();
     });
-    const req = httpTestingController.expectOne(`${rootUrl}/platform/v1/approver${url}`);
-    expect(req.request.method).toEqual('GET');
-    req.flush(ApproverExpensePolicyStatesData);
-    done();
+
+    it('should get data from the API with config', (done) => {
+      const url = '/expense_policy_states';
+      const params = {
+        expense_id: 'eq.txRNWeQRXhso',
+      };
+      approverPlatformService.get(url, params).subscribe((res) => {
+        expect(res).toEqual(ApproverExpensePolicyStatesData);
+      });
+      const req = httpTestingController.expectOne(
+        (request: HttpRequest<any>) =>
+          request.urlWithParams === `${rootUrl}/platform/v1/approver${url}?expense_id=${params.expense_id}`
+      );
+      expect(req.request.method).toEqual('GET');
+      expect();
+      req.flush(ApproverExpensePolicyStatesData);
+      done();
+    });
   });
 
   afterEach(() => {
