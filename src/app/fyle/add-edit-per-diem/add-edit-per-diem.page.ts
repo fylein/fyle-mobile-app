@@ -2265,6 +2265,7 @@ export class AddEditPerDiemPage implements OnInit {
               fieldId: dependentField.id,
               parentFieldId,
               parentFieldValue,
+              searchQuery: '',
             })
             .pipe(
               map((dependentFieldOptions) =>
