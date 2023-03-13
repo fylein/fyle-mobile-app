@@ -58,13 +58,8 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
             selected: false,
           }))
         ),
-        map((dependentFieldOptions) => {
-          const nullOption = { label: 'None', value: null, selected: false };
-          return [nullOption, ...dependentFieldOptions];
-        }),
-        finalize(() => {
-          this.isLoading = false;
-        })
+        map((dependentFieldOptions) => this.getFinalDependentFieldValues(dependentFieldOptions, this.currentSelection)),
+        finalize(() => (this.isLoading = false))
       );
   }
 
@@ -80,13 +75,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchString) => this.getDependentFieldOptions(searchString)),
-      map((dependentFieldOptions: DependentFieldOption[]) =>
-        dependentFieldOptions.map((dependentFieldOption) => {
-          dependentFieldOption.selected = dependentFieldOption.value === this.currentSelection;
-          return dependentFieldOption;
-        })
-      )
+      switchMap((searchString) => this.getDependentFieldOptions(searchString))
     );
   }
 
@@ -96,5 +85,29 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   onElementSelect(option: DependentFieldOption) {
     this.modalController.dismiss(option);
+  }
+
+  private getFinalDependentFieldValues(dependentFieldOptions: DependentFieldOption[], currentSelection: string) {
+    const nullOption = { label: 'None', value: null, selected: currentSelection === null };
+
+    if (!currentSelection) {
+      return [nullOption, ...dependentFieldOptions];
+    }
+
+    let selectedOption = dependentFieldOptions.find(
+      (dependentFieldOption) => dependentFieldOption.value === currentSelection
+    );
+
+    if (selectedOption) {
+      selectedOption.selected = true;
+      return [nullOption, ...dependentFieldOptions];
+    } else {
+      selectedOption = {
+        label: currentSelection,
+        value: currentSelection,
+        selected: true,
+      };
+      return [nullOption, selectedOption, ...dependentFieldOptions];
+    }
   }
 }
