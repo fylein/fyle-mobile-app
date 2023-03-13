@@ -1,28 +1,24 @@
 import { TestBed } from '@angular/core/testing';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { ApproverExpensePolicyStatesData } from '../mock-data/platform-policy-expense.data';
-import { of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 describe('ApproverPlatformApiService', () => {
   let approverPlatformService: ApproverPlatformApiService;
-  let httpClient: jasmine.SpyObj<HttpClient>;
+  let httpTestingController: HttpTestingController;
+  let httpClient: HttpClient;
   const rootUrl = 'https://staging.fyle.tech';
 
   beforeEach(() => {
     const httpSpy = jasmine.createSpyObj('HttpClient', ['get']);
     TestBed.configureTestingModule({
-      providers: [
-        ApproverPlatformApiService,
-        {
-          provide: HttpClient,
-          useValue: httpSpy,
-        },
-      ],
+      imports: [HttpClientTestingModule],
+      providers: [ApproverPlatformApiService],
     });
     approverPlatformService = TestBed.inject(ApproverPlatformApiService);
-    httpClient = TestBed.inject(HttpClient) as jasmine.SpyObj<HttpClient>;
-
+    httpTestingController = TestBed.inject(HttpTestingController);
+    httpClient = TestBed.inject(HttpClient);
     approverPlatformService.setRoot(rootUrl);
   });
 
@@ -35,16 +31,17 @@ describe('ApproverPlatformApiService', () => {
   });
 
   it('get(): should get data from the API', (done) => {
-    httpClient.get.and.returnValue(of(ApproverExpensePolicyStatesData));
     const url = '/expense_policy_states';
-
     approverPlatformService.get(url).subscribe((res) => {
       expect(res).toEqual(ApproverExpensePolicyStatesData);
-      expect(httpClient.get).toHaveBeenCalledOnceWith(
-        `${approverPlatformService.ROOT_ENDPOINT}/platform/v1/approver${url}`,
-        {}
-      );
-      done();
     });
+    const req = httpTestingController.expectOne(`${rootUrl}/platform/v1/approver${url}`);
+    expect(req.request.method).toEqual('GET');
+    req.flush(ApproverExpensePolicyStatesData);
+    done();
+  });
+
+  afterEach(() => {
+    httpTestingController.verify();
   });
 });
