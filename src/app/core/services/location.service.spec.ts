@@ -96,7 +96,7 @@ describe('LocationService', () => {
     });
   });
 
-  it('should return location details with display name if displayName is provided', () => {
+  it('getGeocode(): should return location details with display name if displayName is provided', () => {
     const placeId = 'pLcId123';
     const displayName = 'Tollygunge, Kolkata, West Bengal, India';
     const locationDetails = locationData1;
