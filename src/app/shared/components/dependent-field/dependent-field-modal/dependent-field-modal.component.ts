@@ -3,7 +3,12 @@ import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
+
+interface DependentFieldOption {
+  label: string;
+  value: string;
+  selected: boolean;
+}
 
 @Component({
   selector: 'app-dependent-field-modal',
@@ -25,7 +30,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   @Input() parentFieldValue: string;
 
-  filteredOptions$: Observable<(PlatformDependentFieldValue & { selected?: boolean })[]>;
+  filteredOptions$: Observable<DependentFieldOption[]>;
 
   value: string;
 
@@ -35,7 +40,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {}
 
-  getDependentFieldOptions(searchQuery: string) {
+  getDependentFieldOptions(searchQuery: string): Observable<DependentFieldOption[]> {
     this.isLoading = true;
 
     return this.dependentFieldsService
@@ -46,6 +51,17 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
         searchQuery,
       })
       .pipe(
+        map((dependentFieldOptions) =>
+          dependentFieldOptions.map((dependentFieldOption) => ({
+            label: dependentFieldOption.expense_field_value,
+            value: dependentFieldOption.expense_field_value,
+            selected: false,
+          }))
+        ),
+        map((dependentFieldOptions) => {
+          const nullOption = { label: 'None', value: null, selected: false };
+          return [nullOption, ...dependentFieldOptions];
+        }),
         finalize(() => {
           this.isLoading = false;
         })
@@ -65,12 +81,10 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchString) => this.getDependentFieldOptions(searchString)),
-      map((dependentFieldOptions: (PlatformDependentFieldValue & { selected?: boolean })[]) =>
-        dependentFieldOptions.map((option) => {
-          if (option.expense_field_value === this.currentSelection) {
-            option.selected = true;
-          }
-          return option;
+      map((dependentFieldOptions: DependentFieldOption[]) =>
+        dependentFieldOptions.map((dependentFieldOption) => {
+          dependentFieldOption.selected = dependentFieldOption.value === this.currentSelection;
+          return dependentFieldOption;
         })
       )
     );
@@ -80,7 +94,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option: PlatformDependentFieldValue & { selected?: boolean }) {
-    this.modalController.dismiss(option.expense_field_value);
+  onElementSelect(option: DependentFieldOption) {
+    this.modalController.dismiss(option);
   }
 }

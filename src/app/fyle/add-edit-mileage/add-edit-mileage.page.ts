@@ -2494,7 +2494,7 @@ export class AddEditMileagePage implements OnInit {
         const dependentField = dependentCustomFields.find(
           (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId
         );
-        if (dependentField) {
+        if (dependentField && parentFieldValue) {
           return this.dependentFieldsService
             .getOptionsForDependentField({
               fieldId: dependentField.id,
