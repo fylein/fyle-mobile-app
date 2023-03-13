@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { of, delay } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { LocationService } from './location.service';
 import { locationData1 } from '../mock-data/location.data';
 
 describe('LocationService', () => {
   let locationService: LocationService;
-  let httpClient: jasmine.SpyObj<HttpClient>;
+  let httpMock: HttpTestingController;
   const rootUrl = 'https://staging.fyle.tech';
 
   const requestObj = {
@@ -18,19 +18,18 @@ describe('LocationService', () => {
   };
 
   beforeEach(() => {
-    const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
     TestBed.configureTestingModule({
-      providers: [
-        LocationService,
-        {
-          provide: HttpClient,
-          useValue: httpClientSpy,
-        },
-      ],
+      imports: [HttpClientTestingModule],
+      providers: [LocationService],
     });
+
     locationService = TestBed.inject(LocationService);
-    httpClient = TestBed.inject(HttpClient) as jasmine.SpyObj<HttpClient>;
+    httpMock = TestBed.inject(HttpTestingController);
     locationService.setRoot(rootUrl);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should be created', () => {
@@ -43,40 +42,40 @@ describe('LocationService', () => {
 
   describe('get():', () => {
     it('should make GET request without params', (done) => {
-      httpClient.get.and.returnValue(of(apiResponse));
-
       locationService.get('/geocode').subscribe((res) => {
         expect(res).toEqual(apiResponse);
-        expect(httpClient.get).toHaveBeenCalledOnceWith(`${rootUrl}/location/geocode`, {});
         done();
       });
+
+      const req = httpMock.expectOne(`${rootUrl}/location/geocode`);
+      expect(req.request.method).toBe('GET');
+      req.flush(apiResponse);
     });
 
     it('should make GET request with params', (done) => {
-      httpClient.get.and.returnValue(of(apiResponse));
-
       locationService
         .get('/geocode', {
           params: requestObj,
         })
         .subscribe((res) => {
           expect(res).toEqual(apiResponse);
-          expect(httpClient.get).toHaveBeenCalledOnceWith(`${rootUrl}/location/geocode`, {
-            params: requestObj,
-          });
           done();
         });
+
+      const req = httpMock.expectOne(`${rootUrl}/location/geocode?someKey=someValue`);
+      expect(req.request.method).toBe('GET');
+      req.flush(apiResponse);
     });
   });
 
   describe('timeoutWhen', () => {
     it('should not apply timeout when condition is false', (done) => {
-      const source$ = of('Searching the location');
+      const source$ = of('hello');
       const result$ = source$.pipe(locationService.timeoutWhen(false, 5000));
 
       result$.subscribe({
         next: (value) => {
-          expect(value).toBe('Searching the location');
+          expect(value).toBe('hello');
         },
         complete: () => {
           done();
@@ -98,18 +97,15 @@ describe('LocationService', () => {
   });
 
   it('should return location details with display name if displayName is provided', () => {
-    const placeId = 'pLcId1234';
+    const placeId = 'pLcId123';
     const displayName = 'Tollygunge, Kolkata, West Bengal, India';
     const locationDetails = locationData1;
-
-    httpClient.get.and.returnValue(of(locationDetails));
-
-    const locationService = new LocationService(httpClient);
-
     locationService.getGeocode(placeId, displayName).subscribe((result) => {
       expect(result).toEqual({ ...locationDetails, display: displayName });
     });
-
-    expect(httpClient.get).toHaveBeenCalledOnceWith(`/location/geocode/${placeId}`, {});
+    const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
+    expect(req.request.body).toEqual(null);
+    expect(req.request.method).toEqual('GET');
+    req.flush(locationDetails);
   });
 });
