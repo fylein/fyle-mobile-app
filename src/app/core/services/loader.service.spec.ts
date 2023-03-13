@@ -53,20 +53,19 @@ describe('LoaderService', () => {
 
   it('hideLoader(): should hide loader', fakeAsync(() => {
     const loadingElementSpy = jasmine.createSpyObj('HTMLIonLoadingElement', ['dismiss']);
-    loadingController.dismiss.and.returnValue(Promise.resolve(true));
-    loadingController.create.and.returnValue(Promise.resolve(loadingElementSpy));
+    loadingController.dismiss.and.returnValue(Promise.resolve(loadingElementSpy));
 
     loaderService.hideLoader();
     tick();
     expect(loadingController.dismiss).toHaveBeenCalledTimes(1);
   }));
 
-  it('hideLoader(): should catch errors in hide loader', async () => {
+  it('hideLoader(): should catch errors in hide loader', fakeAsync(() => {
     const error = 'Something went wrong';
     loadingController.dismiss.and.returnValue(Promise.reject(error));
 
-    await loaderService.hideLoader().catch((err) => {
-      expect(err).toBe(error);
-    });
-  });
+    loaderService.hideLoader();
+    tick();
+    expect(loadingController.dismiss).toHaveBeenCalledTimes(1);
+  }));
 });

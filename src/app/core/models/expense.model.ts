@@ -207,4 +207,5 @@ export interface Expense {
   debit?: boolean;
   duplicates?: { fields: string[]; percent: number; reason: string; transaction_id: string }[];
   tx_is_split_expense?: boolean;
+  custom_fields?: { [key: string]: any };
 }
