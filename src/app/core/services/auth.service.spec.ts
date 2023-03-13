@@ -142,34 +142,32 @@ describe('AuthService', () => {
     apiService.post.withArgs('/auth/logout', payload).and.returnValue(of(true));
     apiService.post.withArgs('/auth/logout').and.returnValue(of(true));
 
-    authService
-      .logout(payload)
-      .pipe(
-        tap((res) => {
-          expect(res).toBeTruthy();
-          expect(apiService.post).toHaveBeenCalledWith('/auth/logout');
-          expect(apiService.post).toHaveBeenCalledWith('/auth/logout', payload);
-          expect(apiService.post).toHaveBeenCalledTimes(2);
-        }),
-        finalize(() => {
-          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedProjects');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedCategories');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedMileageCategories');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedPerDiemCategories');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedCostCenters');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('user');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('role');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('currentView');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('ui-grid-pagination-page-size');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('ui-grid-pagination-page-number');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('customExportFields');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('lastLoggedInDelegatee');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('lastLoggedInOrgQueue');
-          expect(storageService.delete).toHaveBeenCalledOnceWith('isSidenavCollapsed');
-          expect(storageService.delete).toHaveBeenCalledTimes(12);
-        })
-      )
-      .subscribe(noop);
+    authService.logout(payload).pipe(
+      tap((res) => {
+        expect(res).toBeTruthy();
+        expect(apiService.post).toHaveBeenCalledWith('/auth/logout');
+        expect(apiService.post).toHaveBeenCalledWith('/auth/logout', payload);
+        expect(apiService.post).toHaveBeenCalledTimes(2);
+      }),
+      finalize(() => {
+        expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedProjects');
+        expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedCategories');
+        expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedMileageCategories');
+        expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedPerDiemCategories');
+        expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedCostCenters');
+        expect(storageService.delete).toHaveBeenCalledWith('user');
+        expect(storageService.delete).toHaveBeenCalledWith('role');
+        expect(storageService.delete).toHaveBeenCalledWith('currentView');
+        expect(storageService.delete).toHaveBeenCalledWith('ui-grid-pagination-page-size');
+        expect(storageService.delete).toHaveBeenCalledWith('ui-grid-pagination-page-number');
+        expect(storageService.delete).toHaveBeenCalledWith('customExportFields');
+        expect(storageService.delete).toHaveBeenCalledWith('lastLoggedInDelegatee');
+        expect(storageService.delete).toHaveBeenCalledWith('lastLoggedInOrgQueue');
+        expect(storageService.delete).toHaveBeenCalledWith('isSidenavCollapsed');
+        expect(storageService.delete).toHaveBeenCalledTimes(12);
+      })
+    );
+
     done();
   });
 });
