@@ -19,6 +19,7 @@ import {
   tap,
   filter,
   delay,
+  distinctUntilKeyChanged,
 } from 'rxjs/operators';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
@@ -2521,9 +2522,11 @@ export class AddEditMileagePage implements OnInit {
       value: [value, (dependentField.is_mandatory || null) && Validators.required],
     });
 
-    dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
-      this.onDependentFieldChanged(value);
-    });
+    dependentFieldControl.valueChanges
+      .pipe(takeUntil(this.onPageExit$), distinctUntilKeyChanged('value'))
+      .subscribe((value) => {
+        this.onDependentFieldChanged(value);
+      });
 
     this.dependentFields.push({
       id: dependentField.id,
