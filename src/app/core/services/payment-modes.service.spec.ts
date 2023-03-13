@@ -186,12 +186,12 @@ describe('PaymentModesService', () => {
   });
 
   describe('isNonReimbursableOrg():', () => {
-    it('should return true if only non reimbursable payment modes in payment mode settings', () => {
+    it('should return true if only non-reimbursable payment modes exist in the payment mode settings', () => {
       expect(paymentModesService.isNonReimbursableOrg(cccOnlyPaymentModeSettingsParam)).toBeTrue();
       expect(paymentModesService.isNonReimbursableOrg(cccAndPaidByCompanyPaymentModeSettingsParam)).toBeTrue();
     });
 
-    it('should return false if reimbursable payment modes in payment mode settings', () => {
+    it('should return false if only reimbursable payment modes exist in the payment mode settings', () => {
       expect(paymentModesService.isNonReimbursableOrg(reimbursableOnlyPaymentModeSettingsParam)).toBeFalse();
       expect(paymentModesService.isNonReimbursableOrg(cccAndReimbursablePaymentModeSettingsParam)).toBeFalse();
     });
