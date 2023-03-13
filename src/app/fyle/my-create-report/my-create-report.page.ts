@@ -9,7 +9,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { ReportSummaryComponent } from './report-summary/report-summary.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { NgModel } from '@angular/forms';
@@ -164,84 +163,6 @@ export class MyCreateReportPage implements OnInit {
               this.router.navigate(['/', 'enterprise', 'my_reports']);
 
               this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
-            })
-          )
-          .subscribe(noop);
-      }
-    }
-  }
-
-  async showReportSummaryPopover(action) {
-    this.showReportNameError = false;
-    if (this.reportTitle.trim().length <= 0) {
-      this.showReportNameError = true;
-      return;
-    }
-    const homeCurrency = await this.homeCurrency$.toPromise();
-
-    const reportSummaryPopover = await this.popoverController.create({
-      component: ReportSummaryComponent,
-      componentProps: {
-        selectedTotalAmount: this.selectedTotalAmount,
-        selectedTotalTxns: this.selectedTotalTxns,
-        homeCurrency,
-        purpose: this.reportTitle,
-        action,
-      },
-      cssClass: 'dialog-popover',
-    });
-
-    await reportSummaryPopover.present();
-
-    const { data } = await reportSummaryPopover.onWillDismiss();
-
-    if (data && data.saveReport) {
-      this.sendFirstReportCreated();
-
-      const report = {
-        purpose: this.reportTitle,
-        source: 'MOBILE',
-        type: 'EXPENSE',
-      };
-      const etxns = this.readyToReportEtxns.filter((etxn) => etxn.isSelected);
-      const txnIds = etxns.map((etxn) => etxn.tx_id);
-      this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
-
-      if (action === 'draft') {
-        this.saveDraftReportLoading = true;
-        this.reportService
-          .createDraft(report)
-          .pipe(
-            tap(() => {
-              this.trackingService.createReport({
-                Expense_Count: txnIds.length,
-                Report_Value: this.selectedTotalAmount,
-              });
-            }),
-            switchMap((res) =>
-              iif(() => txnIds.length > 0, this.reportService.addTransactions(res.id, txnIds), of(null))
-            ),
-            finalize(() => {
-              this.saveDraftReportLoading = false;
-              this.router.navigate(['/', 'enterprise', 'my_reports']);
-            })
-          )
-          .subscribe(noop);
-      } else {
-        this.saveReportLoading = true;
-        this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
-        this.reportService
-          .create(report, txnIds)
-          .pipe(
-            tap(() =>
-              this.trackingService.createReport({
-                Expense_Count: txnIds.length,
-                Report_Value: this.selectedTotalAmount,
-              })
-            ),
-            finalize(() => {
-              this.saveReportLoading = false;
-              this.router.navigate(['/', 'enterprise', 'my_reports']);
             })
           )
           .subscribe(noop);
