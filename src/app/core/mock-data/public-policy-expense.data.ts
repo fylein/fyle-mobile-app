@@ -1,6 +1,7 @@
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { PolicyViolation } from '../models/policy-violation.model';
+import { Transaction } from '../models/v1/transaction.model';
 
 export const publicPolicyExpenseData1: PublicPolicyExpense = {
   skip_reimbursement: false,
@@ -142,6 +143,16 @@ export const publicPolicyExpenseData5: PublicPolicyExpense = {
   skip_reimbursement: null,
 };
 
+export const publicPolicyExpenseData6: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  locations: null,
+};
+
+export const publicPolicyExpenseData7: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  fyle_category: null,
+};
+
 export const expensePolicyData: ExpensePolicy = {
   data: {
     final_desired_state: {
@@ -231,4 +242,14 @@ export const policyViolationData: PolicyViolation = {
 
 export const violations: { [id: string]: PolicyViolation } = {
   txVTmNOp5JEa: policyViolationData,
+};
+
+export const splitPolicyExp: PublicPolicyExpense = {
+  ...publicPolicyExpenseData1,
+  id: 'txqhb1IwrujH',
+  org_user_id: 'ouX8dwsbLCLv',
+  created_at: new Date('2023-03-03T06:50:11.644Z'),
+  txn_dt: new Date('2023-02-15T06:30:00.000Z'),
+  amount: 20.4,
+  user_amount: 20.4,
 };

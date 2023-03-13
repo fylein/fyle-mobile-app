@@ -116,6 +116,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { StorageService } from 'src/app/core/services/storage.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -304,8 +305,6 @@ export class AddEditExpensePage implements OnInit {
 
   actionSheetOptions$: Observable<{ text: string; handler: () => void }[]>;
 
-  isExpandedView = false;
-
   billableDefaultValue: boolean;
 
   taxGroups$: Observable<TaxGroup[]>;
@@ -360,6 +359,8 @@ export class AddEditExpensePage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
+  private _isExpandedView = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -405,11 +406,25 @@ export class AddEditExpensePage implements OnInit {
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
+    private storageService: StorageService
   ) {}
 
   get dependentFieldControls() {
     return this.fg?.controls.dependent_fields as FormArray;
+  }
+
+  get isExpandedView() {
+    return this._isExpandedView;
+  }
+
+  set isExpandedView(expandedView: boolean) {
+    this._isExpandedView = expandedView;
+
+    //Change the storage only in case of add expense
+    if (this.mode === 'add') {
+      this.storageService.set('isExpandedView', expandedView);
+    }
   }
 
   @HostListener('keydown')
@@ -2460,7 +2475,10 @@ export class AddEditExpensePage implements OnInit {
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
-    this.isExpandedView = this.mode !== 'add';
+    // If User has already clicked on See More he need not to click again and again
+    from(this.storageService.get('isExpandedView')).subscribe((expandedView) => {
+      this.isExpandedView = this.mode !== 'add' || expandedView;
+    });
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList =

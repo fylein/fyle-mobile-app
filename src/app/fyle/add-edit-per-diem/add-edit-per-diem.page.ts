@@ -87,6 +87,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
+import { StorageService } from 'src/app/core/services/storage.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -198,8 +199,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
 
-  isExpandedView = false;
-
   isProjectVisible$: Observable<boolean>;
 
   billableDefaultValue: boolean;
@@ -219,6 +218,8 @@ export class AddEditPerDiemPage implements OnInit {
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
+
+  private _isExpandedView = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -258,7 +259,8 @@ export class AddEditPerDiemPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
+    private storageService: StorageService
   ) {}
 
   get dependentFieldControls() {
@@ -273,6 +275,19 @@ export class AddEditPerDiemPage implements OnInit {
 
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
+  }
+
+  get isExpandedView() {
+    return this._isExpandedView;
+  }
+
+  set isExpandedView(expandedView: boolean) {
+    this._isExpandedView = expandedView;
+
+    //Change the storage only in case of add expense
+    if (this.mode === 'add') {
+      this.storageService.set('isExpandedViewPerDiem', expandedView);
+    }
   }
 
   @HostListener('keydown')
@@ -806,7 +821,10 @@ export class AddEditPerDiemPage implements OnInit {
       this.mode = 'edit';
     }
 
-    this.isExpandedView = this.mode !== 'add';
+    // If User has already clicked on See More he need not to click again and again
+    from(this.storageService.get('isExpandedViewPerDiem')).subscribe((expandedView) => {
+      this.isExpandedView = this.mode !== 'add' || expandedView;
+    });
 
     const orgSettings$ = this.orgSettingsService.get();
     const perDiemRates$ = this.perDiemService.getRates();
