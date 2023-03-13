@@ -11,7 +11,6 @@ describe('ApproverPlatformApiService', () => {
   const rootUrl = 'https://staging.fyle.tech';
 
   beforeEach(() => {
-    const httpSpy = jasmine.createSpyObj('HttpClient', ['get']);
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [ApproverPlatformApiService],
