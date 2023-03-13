@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { ApproverExpensePolicyStatesData } from '../mock-data/platform-policy-expense.data';
-import { HttpClient, HttpRequest } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 describe('ApproverPlatformApiService', () => {
   let approverPlatformService: ApproverPlatformApiService;
@@ -43,15 +43,14 @@ describe('ApproverPlatformApiService', () => {
 
     it('should get data from the API with config', (done) => {
       const url = '/expense_policy_states';
-      const params = {
+      const exp_id = {
         expense_id: 'eq.txRNWeQRXhso',
       };
-      approverPlatformService.get(url, params).subscribe((res) => {
+      approverPlatformService.get(url, { params: exp_id }).subscribe((res) => {
         expect(res).toEqual(ApproverExpensePolicyStatesData);
       });
       const req = httpTestingController.expectOne(
-        (request: HttpRequest<any>) =>
-          request.urlWithParams === `${rootUrl}/platform/v1/approver${url}?expense_id=${params.expense_id}`
+        `${rootUrl}/platform/v1/approver${url}?expense_id=${exp_id.expense_id}`
       );
       expect(req.request.method).toEqual('GET');
       expect();
