@@ -6,7 +6,7 @@ import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 import { JwtHelperService } from './jwt-helper.service';
 import { apiEouRes, eouFlattended, eouRes3 } from '../mock-data/extended-org-user.data';
-import { finalize, of } from 'rxjs';
+import { finalize, map, of, tap } from 'rxjs';
 import { apiAccessTokenRes } from '../mock-data/acess-token-data.data';
 
 describe('AuthService', () => {
@@ -133,16 +133,26 @@ describe('AuthService', () => {
     apiService.post.withArgs('/auth/logout', payload).and.returnValue(of(true));
     apiService.post.withArgs('/auth/logout').and.returnValue(of(true));
 
-    authService
-      .logout(payload)
-      .pipe(
-        finalize(async () => {
-          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedProjects');
-        })
-      )
-      .subscribe((res) => {
-        expect(res).toBeTruthy();
-        done();
-      });
+    authService.logout(payload).pipe(
+      tap((res) => expect(res).toBeTruthy()),
+      finalize(() => {
+        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedProjects');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedCategories');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedMileageCategories');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedPerDiemCategories');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedCostCenters');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('user');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('role');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('currentView');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('ui-grid-pagination-page-size');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('ui-grid-pagination-page-number');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('customExportFields');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('lastLoggedInDelegatee');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('lastLoggedInOrgQueue');
+        expect(storageService.delete).toHaveBeenCalledOnceWith('isSidenavCollapsed');
+        expect(storageService.delete).toHaveBeenCalledTimes(12);
+      })
+    );
+    done();
   });
 });
