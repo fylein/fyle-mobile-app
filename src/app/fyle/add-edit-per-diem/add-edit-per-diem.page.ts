@@ -22,6 +22,7 @@ import {
   debounceTime,
   delay,
   distinctUntilChanged,
+  distinctUntilKeyChanged,
   filter,
   finalize,
   map,
@@ -2277,12 +2278,13 @@ export class AddEditPerDiemPage implements OnInit {
         const dependentField = dependentCustomFields.find(
           (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId
         );
-        if (dependentField) {
+        if (dependentField && parentFieldValue) {
           return this.dependentFieldsService
             .getOptionsForDependentField({
               fieldId: dependentField.id,
               parentFieldId,
               parentFieldValue,
+              searchQuery: '',
             })
             .pipe(
               map((dependentFieldOptions) =>
@@ -2303,9 +2305,11 @@ export class AddEditPerDiemPage implements OnInit {
       value: [value, (dependentField.is_mandatory || null) && Validators.required],
     });
 
-    dependentFieldControl.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((value) => {
-      this.onDependentFieldChanged(value);
-    });
+    dependentFieldControl.valueChanges
+      .pipe(takeUntil(this.onPageExit$), distinctUntilKeyChanged('value'))
+      .subscribe((value) => {
+        this.onDependentFieldChanged(value);
+      });
 
     this.dependentFields.push({
       id: dependentField.id,
