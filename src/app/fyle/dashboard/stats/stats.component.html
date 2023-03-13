@@ -56,7 +56,7 @@
           size="6"
         >
           <ng-container *ngIf="simplifyReportsSettings$ | async as simplifyReportsSettings; else loading">
-            <ng-container *ngIf="!simplifyReportsSettings.enabled">
+            <ng-container *ngIf="!simplifyReportsSettings.enabled; else simplifyReportsEnabled">
               <app-stat-badge
                 [currency]="homeCurrency$ | async"
                 [currencySymbol]="currencySymbol$ | async"
@@ -68,7 +68,7 @@
                 (badgeClicked)="goToReportsPage($event)"
               ></app-stat-badge>
             </ng-container>
-            <ng-container *ngIf="simplifyReportsSettings.enabled">
+            <ng-template #simplifyReportsEnabled>
               <app-stat-badge
                 [currency]="homeCurrency$ | async"
                 [currencySymbol]="currencySymbol$ | async"
@@ -79,7 +79,7 @@
                 [loading]="reportStatsLoading"
                 (badgeClicked)="goToReportsPage($event)"
               ></app-stat-badge>
-            </ng-container>
+            </ng-template>
           </ng-container>
           <ng-template #loading>
             <app-stat-badge [loading]="true"></app-stat-badge>
