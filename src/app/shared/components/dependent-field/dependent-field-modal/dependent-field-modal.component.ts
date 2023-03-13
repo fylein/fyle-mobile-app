@@ -1,9 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { PlatformDependentFieldValue } from 'src/app/core/models/platform/platform-dependent-field-value.model';
+
+interface DependentFieldOption {
+  label: string;
+  value: string;
+  selected: boolean;
+}
 
 @Component({
   selector: 'app-dependent-field-modal',
@@ -25,21 +30,17 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
 
   @Input() parentFieldValue: string;
 
-  filteredOptions$: Observable<(PlatformDependentFieldValue & { selected?: boolean })[]>;
+  filteredOptions$: Observable<DependentFieldOption[]>;
 
   value: string;
 
   isLoading = false;
 
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private dependentFieldsService: DependentFieldsService
-  ) {}
+  constructor(private modalController: ModalController, private dependentFieldsService: DependentFieldsService) {}
 
   ngOnInit() {}
 
-  getDependentFieldOptions(searchQuery: string) {
+  getDependentFieldOptions(searchQuery: string): Observable<DependentFieldOption[]> {
     this.isLoading = true;
 
     return this.dependentFieldsService
@@ -50,9 +51,15 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
         searchQuery,
       })
       .pipe(
-        finalize(() => {
-          this.isLoading = false;
-        })
+        map((dependentFieldOptions) =>
+          dependentFieldOptions.map((dependentFieldOption) => ({
+            label: dependentFieldOption.expense_field_value,
+            value: dependentFieldOption.expense_field_value,
+            selected: false,
+          }))
+        ),
+        map((dependentFieldOptions) => this.getFinalDependentFieldValues(dependentFieldOptions, this.currentSelection)),
+        finalize(() => (this.isLoading = false))
       );
   }
 
@@ -68,25 +75,39 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchString) => this.getDependentFieldOptions(searchString)),
-      map((dependentFieldOptions: (PlatformDependentFieldValue & { selected?: boolean })[]) =>
-        dependentFieldOptions.map((option) => {
-          if (option.expense_field_value === this.currentSelection) {
-            option.selected = true;
-          }
-          return option;
-        })
-      )
+      switchMap((searchString) => this.getDependentFieldOptions(searchString))
     );
-
-    this.cdr.detectChanges();
   }
 
   onDoneClick() {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option: PlatformDependentFieldValue & { selected?: boolean }) {
-    this.modalController.dismiss(option.expense_field_value);
+  onElementSelect(option: DependentFieldOption) {
+    this.modalController.dismiss(option);
+  }
+
+  private getFinalDependentFieldValues(dependentFieldOptions: DependentFieldOption[], currentSelection: string) {
+    const nullOption = { label: 'None', value: null, selected: currentSelection === null };
+
+    if (!currentSelection) {
+      return [nullOption, ...dependentFieldOptions];
+    }
+
+    let selectedOption = dependentFieldOptions.find(
+      (dependentFieldOption) => dependentFieldOption.value === currentSelection
+    );
+
+    if (selectedOption) {
+      selectedOption.selected = true;
+      return [nullOption, ...dependentFieldOptions];
+    } else {
+      selectedOption = {
+        label: currentSelection,
+        value: currentSelection,
+        selected: true,
+      };
+      return [nullOption, selectedOption, ...dependentFieldOptions];
+    }
   }
 }

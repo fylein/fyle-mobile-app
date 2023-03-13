@@ -16,6 +16,7 @@ export const dependentFieldValuesApiParams: DependentFieldValuesApiParams = {
     is_enabled: 'eq.true',
     offset: 0,
     limit: 20,
+    order: 'expense_field_value.asc',
   },
 };
 
@@ -64,6 +65,7 @@ export const dependentFieldValuesWithSearchQueryApiParams: DependentFieldValuesA
     is_enabled: 'eq.true',
     offset: 0,
     limit: 20,
+    order: 'expense_field_value.asc',
   },
 };
 

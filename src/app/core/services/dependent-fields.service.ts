@@ -12,7 +12,11 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 export class DependentFieldsService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
-  @Cacheable()
+  //Cache response for 5 unique configurations for config object
+  //This avoids repetitive calls if user opens the parent modal again after changing child field
+  @Cacheable({
+    maxCacheCount: 5,
+  })
   getOptionsForDependentField(config: {
     fieldId: number;
     parentFieldId: number;
@@ -28,6 +32,7 @@ export class DependentFieldsService {
         is_enabled: 'eq.true',
         offset: 0,
         limit: 20,
+        order: 'expense_field_value.asc',
       },
     };
 

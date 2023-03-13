@@ -62,8 +62,7 @@
           matRipple
         >
           <div class="dependent-field-modal__label">
-            <app-fy-highlight-text [fullText]="filteredListItem.expense_field_value" [queryText]="value">
-            </app-fy-highlight-text>
+            <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
           </div>
           <mat-icon *ngIf="filteredListItem.selected" class="dependent-field-modal__check"> check </mat-icon>
         </div>
