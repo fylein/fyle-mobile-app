@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
-import { locationData1 } from '../mock-data/location.data';
+import { locationData1, locationData2 } from '../mock-data/location.data';
+import { HttpParams } from '@angular/common/http';
 
 describe('LocationService', () => {
   let locationService: LocationService;
@@ -107,5 +108,27 @@ describe('LocationService', () => {
     expect(req.request.body).toEqual(null);
     expect(req.request.method).toEqual('GET');
     req.flush(locationDetails);
+  });
+
+  it('getDistance(): should get the distance between locations', () => {
+    const fromLocation = locationData1;
+    const toLocation = locationData2;
+    const expectedDistance = 13167;
+    const params = {
+      origin_lat: fromLocation.latitude,
+      origin_long: fromLocation.longitude,
+      destination_lat: toLocation.latitude,
+      destination_long: toLocation.longitude,
+      mode: 'driving',
+    };
+    const queryParams = new HttpParams({ fromObject: params });
+    locationService.getDistance(fromLocation, toLocation).subscribe((res) => {
+      expect(typeof res).toEqual('number');
+      expect(res).toEqual(expectedDistance);
+    });
+    const req = httpMock.expectOne(`${rootUrl}/location/distance?${queryParams}`);
+    expect(req.request.method).toEqual('GET');
+    expect(req.request.body).toEqual(null);
+    req.flush(expectedDistance);
   });
 });
