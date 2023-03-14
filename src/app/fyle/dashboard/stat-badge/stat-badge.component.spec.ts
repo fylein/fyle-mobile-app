@@ -72,7 +72,7 @@ describe('StatBadgeComponent', () => {
     it('should emit badgeClicked event on click', () => {
       spyOn(component.badgeClicked, 'emit');
       component.onBadgeClicked();
-      expect(component.badgeClicked.emit).toHaveBeenCalled();
+      expect(component.badgeClicked.emit).toHaveBeenCalledTimes(1);
     });
 
     it('should emit badgeClicked event on click with expense state', () => {
@@ -80,14 +80,14 @@ describe('StatBadgeComponent', () => {
       fixture.detectChanges();
       spyOn(component.badgeClicked, 'emit');
       component.onBadgeClicked();
-      expect(component.badgeClicked.emit).toHaveBeenCalled();
+      expect(component.badgeClicked.emit).toHaveBeenCalledTimes(2);
     });
 
     it('should not emit badgeClicked event if loading is true', () => {
       spyOn(component.badgeClicked, 'emit');
       component.loading = true;
       component.onBadgeClicked();
-      expect(component.badgeClicked.emit).not.toHaveBeenCalled();
+      expect(component.badgeClicked.emit).not.toHaveBeenCalledTimes(1);
     });
   });
 });
