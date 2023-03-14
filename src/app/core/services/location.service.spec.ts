@@ -2,10 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
-import { locationData1, locationData2 } from '../mock-data/location.data';
+import { locationData1, locationData2, predictedLocation1 } from '../mock-data/location.data';
 import { HttpParams } from '@angular/common/http';
 
-describe('LocationService', () => {
+fdescribe('LocationService', () => {
   let locationService: LocationService;
   let httpMock: HttpTestingController;
   const rootUrl = 'https://staging.fyle.tech';
@@ -130,5 +130,49 @@ describe('LocationService', () => {
     expect(req.request.method).toEqual('GET');
     expect(req.request.body).toEqual(null);
     req.flush(expectedDistance);
+  });
+
+  describe('getAutocompletePredictions():', () => {
+    it('should autocomplete the predictions without the type param ', () => {
+      const text = 'Ben';
+      const userId = 'usMjLibmye7s';
+      const location = '19.0748,72.8856';
+      const params = {
+        text,
+        user_id: userId,
+        location,
+      };
+      const queryParams = new HttpParams({ fromObject: params });
+      locationService.getAutocompletePredictions(text, userId, location).subscribe((res) => {
+        expect(typeof res).toEqual('object');
+        expect(res).toEqual(predictedLocation1);
+      });
+      const req = httpMock.expectOne(`${rootUrl}/location/autocomplete?${queryParams}`);
+      expect(req.request.method).toEqual('GET');
+      expect(req.request.body).toEqual(null);
+      req.flush({ predictions: predictedLocation1 });
+    });
+
+    it('should autocomplete the predictions with the type param ', () => {
+      const text = 'Ben';
+      const userId = 'usMjLibmye7s';
+      const location = '19.0748,72.8856';
+      const types = 'DummyType1';
+      const params = {
+        text,
+        user_id: userId,
+        location,
+        types,
+      };
+      const queryParams = new HttpParams({ fromObject: params });
+      locationService.getAutocompletePredictions(text, userId, location, types).subscribe((res) => {
+        expect(typeof res).toEqual('object');
+        expect(res).toEqual(predictedLocation1);
+      });
+      const req = httpMock.expectOne(`${rootUrl}/location/autocomplete?${queryParams}`);
+      expect(req.request.method).toEqual('GET');
+      expect(req.request.body).toEqual(null);
+      req.flush({ predictions: predictedLocation1 });
+    });
   });
 });
