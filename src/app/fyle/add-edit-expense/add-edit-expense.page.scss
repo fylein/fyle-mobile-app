@@ -200,6 +200,10 @@
 
   &--date {
     border-bottom: 1px solid $grey-lighter;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
   }
 
   &--date-label {
@@ -696,5 +700,14 @@
       width: 30%;
       margin-bottom: 8px;
     }
+  }
+
+  &--date-error,
+  &--travel-class-error,
+  &--distance-error {
+    color: $red;
+    line-height: 16px;
+    font-size: 12px;
+    margin-top: -8px;
   }
 }
