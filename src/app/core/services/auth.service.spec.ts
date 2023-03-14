@@ -145,6 +145,7 @@ describe('AuthService', () => {
     });
   });
 
+  // TODO: fix the test, to include calls for all storageService.delete calls
   it('logout(): should logout a user', (done) => {
     const payload = {
       device_id: 'cfffc3e5-e975-42c6-9cde-d3ec892703d0',
