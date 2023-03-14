@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { of, delay, take } from 'rxjs';
+import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
 import { locationData1, locationData2, predictedLocation1 } from '../mock-data/location.data';
 import { HttpParams } from '@angular/common/http';
