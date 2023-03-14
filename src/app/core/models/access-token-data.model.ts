@@ -4,7 +4,7 @@ export interface AccessTokenData {
   user_id: string;
   org_user_id: string;
   org_id: string;
-  roles: string;
+  roles?: string;
   scopes: string;
   allowed_CIDRs: string;
   version: string;

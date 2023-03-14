@@ -25,7 +25,7 @@ export class CorporateCreditCardExpenseService {
 
   getv2CardTransactions(config: {
     offset: number;
-    queryParams: { state?: string };
+    queryParams: { state?: string; group_id?: string[] };
     limit: number;
     order?: string;
   }): Observable<ApiV2Response<CorporateCardExpense>> {

@@ -8,7 +8,6 @@ import { MyCreateReportPageRoutingModule } from './my-create-report-routing.modu
 
 import { MyCreateReportPage } from './my-create-report.page';
 import { MatIconModule } from '@angular/material/icon';
-import { ReportSummaryComponent } from './report-summary/report-summary.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
@@ -22,6 +21,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     SharedModule,
     MatCheckboxModule,
   ],
-  declarations: [MyCreateReportPage, ReportSummaryComponent],
+  declarations: [MyCreateReportPage],
 })
 export class MyCreateReportPageModule {}

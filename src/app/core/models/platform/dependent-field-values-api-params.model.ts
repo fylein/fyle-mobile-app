@@ -7,5 +7,6 @@ export interface DependentFieldValuesApiParams {
     is_enabled?: string;
     offset?: number;
     limit?: number;
+    order?: string;
   };
 }

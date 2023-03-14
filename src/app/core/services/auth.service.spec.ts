@@ -6,9 +6,9 @@ import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 import { JwtHelperService } from './jwt-helper.service';
 import { apiEouRes, eouFlattended, eouRes3 } from '../mock-data/extended-org-user.data';
-import { finalize, of } from 'rxjs';
-import { apiAccessTokenRes } from '../mock-data/acess-token-data.data';
 import { apiAuthResponseRes } from '../mock-data/auth-response.data';
+import { finalize, noop, of, tap } from 'rxjs';
+import { apiAccessTokenRes, apiTokenWithoutRoles } from '../mock-data/acess-token-data.data';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -18,6 +18,7 @@ describe('AuthService', () => {
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let jwtHelperService: jasmine.SpyObj<JwtHelperService>;
 
+  //The token consists of user-details
   const access_token =
     'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzgzNDk1NDksImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXN2S0E0WDhVZ2NyIiwib3JnX3VzZXJfaWQiOiJvdVg4ZHdzYkxDTHYiLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkFETUlOXCIsXCJBUFBST1ZFUlwiLFwiRllMRVJcIixcIkhPUFwiLFwiSE9EXCIsXCJPV05FUlwiXSIsInNjb3BlcyI6IltdIiwiYWxsb3dlZF9DSURScyI6IltdIiwidmVyc2lvbiI6IjMiLCJjbHVzdGVyX2RvbWFpbiI6IlwiaHR0cHM6Ly9zdGFnaW5nLmZ5bGUudGVjaFwiIiwiZXhwIjoxNjc4MzUzMTQ5fQ.sOJKf_ndYvhFplZL-KOImnvGujGEReQ7SYq_kvay88w';
 
@@ -97,11 +98,16 @@ describe('AuthService', () => {
 
   describe('getRoles():', () => {
     it('should get roles from access token', (done) => {
+      const roles = ['ADMIN', 'APPROVER', 'FYLER', 'HOP', 'HOD', 'OWNER'];
       tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
       jwtHelperService.decodeToken.and.returnValue(apiAccessTokenRes);
+      spyOn(JSON, 'parse').and.returnValue(roles);
 
       authService.getRoles().subscribe((res) => {
-        expect(res).toEqual(['ADMIN', 'APPROVER', 'FYLER', 'HOP', 'HOD', 'OWNER']);
+        expect(res).toEqual(roles);
+        expect(tokenService.getAccessToken).toHaveBeenCalledTimes(1);
+        expect(jwtHelperService.decodeToken).toHaveBeenCalledOnceWith(access_token);
+        expect(JSON.parse).toHaveBeenCalledOnceWith(apiAccessTokenRes.roles);
         done();
       });
     });
@@ -114,20 +120,36 @@ describe('AuthService', () => {
         done();
       });
     });
+
+    it('should return empty array if roles not present', (done) => {
+      tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
+      jwtHelperService.decodeToken.and.returnValue(apiTokenWithoutRoles);
+
+      authService.getRoles().subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(tokenService.getAccessToken).toHaveBeenCalledTimes(1);
+        expect(jwtHelperService.decodeToken).toHaveBeenCalledOnceWith(access_token);
+        done();
+      });
+    });
   });
 
   it('resendEmailVerification(): should send email verfication', (done) => {
     const clusterDomain = {
       cluster_domain: 'https://staging.fyle.tech',
     };
+    const email = 'ajain@fyle.in';
+    const org_id = 'orNVthTo2Zyo';
     apiService.post.and.returnValue(of(clusterDomain));
 
-    authService.resendEmailVerification('ajain@fyle.in', 'orNVthTo2Zyo').subscribe((res) => {
+    authService.resendEmailVerification(email, org_id).subscribe((res) => {
       expect(res).toEqual(clusterDomain);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/auth/resend_email_verification', { email, org_id });
       done();
     });
   });
 
+  // TODO: fix the test, to include calls for all storageService.delete calls
   it('logout(): should logout a user', (done) => {
     const payload = {
       device_id: 'cfffc3e5-e975-42c6-9cde-d3ec892703d0',
@@ -140,14 +162,18 @@ describe('AuthService', () => {
     authService
       .logout(payload)
       .pipe(
-        finalize(async () => {
-          expect(storageService.delete).toHaveBeenCalledOnceWith('recentlyUsedProjects');
+        tap((res) => {
+          expect(res).toBeTruthy();
+          expect(apiService.post).toHaveBeenCalledWith('/auth/logout');
+          expect(apiService.post).toHaveBeenCalledWith('/auth/logout', payload);
+          expect(apiService.post).toHaveBeenCalledTimes(2);
+        }),
+        finalize(() => {
+          expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedProjects');
         })
       )
-      .subscribe((res) => {
-        expect(res).toBeTruthy();
-        done();
-      });
+      .subscribe(noop);
+    done();
   });
 
   it('newRefreshToken(): should refresh new token', (done) => {

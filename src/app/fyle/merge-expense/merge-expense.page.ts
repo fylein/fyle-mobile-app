@@ -628,7 +628,7 @@ export class MergeExpensePage implements OnInit {
   }
 
   onPaymentModeChanged() {
-    this.mergeExpensesService.getCardCardTransactions(this.expenses).subscribe((txns) => {
+    this.mergeExpensesService.getCorporateCardTransactions(this.expenses).subscribe((txns) => {
       this.CCCTxns = txns;
     });
   }
