@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { callbackify } from 'util';
 import { SecureStorageService } from './secure-storage.service';
 
@@ -29,79 +29,79 @@ describe('TokenService', () => {
     expect(tokenService).toBeTruthy();
   });
 
-  it('getAccessToken(): should get access token from secure storage', (done) => {
+  it('getAccessToken(): should get access token from secure storage', fakeAsync(() => {
     secureStorageService.get.and.returnValue(Promise.resolve('token'));
+    tick();
     tokenService.getAccessToken().then((token) => {
       expect(token).toEqual('token');
       expect(secureStorageService.get).toHaveBeenCalledOnceWith('X-AUTH-TOKEN');
-      done();
     });
-  });
+  }));
 
-  it('setAccessToken(): should set access token to secure storage', (done) => {
-    userEventService.setToken.and.returnValue();
+  it('setAccessToken(): should set access token to secure storage', fakeAsync(() => {
+    userEventService.setToken.and.returnValue(null);
     secureStorageService.set.and.returnValue(Promise.resolve({ value: true }));
+    tick();
     tokenService.setAccessToken('token').then(() => {
       expect(secureStorageService.set).toHaveBeenCalledOnceWith('X-AUTH-TOKEN', 'token');
-      done();
     });
-  });
+  }));
 
-  it('resetAccessToken(): should reset access token from secure storage', (done) => {
+  it('resetAccessToken(): should reset access token from secure storage', fakeAsync(() => {
     secureStorageService.delete.and.returnValue(Promise.resolve({ value: true }));
+    tick();
     tokenService.resetAccessToken().then(() => {
       expect(secureStorageService.delete).toHaveBeenCalledOnceWith('X-AUTH-TOKEN');
-      done();
     });
-  });
+  }));
 
-  it('getRefreshToken(): should get refresh token from secure storage', (done) => {
+  it('getRefreshToken(): should get refresh token from secure storage', fakeAsync(() => {
     secureStorageService.get.and.returnValue(Promise.resolve('token'));
+    tick();
     tokenService.getRefreshToken().then((token) => {
       expect(token).toEqual('token');
       expect(secureStorageService.get).toHaveBeenCalledOnceWith('X-REFRESH-TOKEN');
-      done();
     });
-  });
+  }));
 
-  it('setRefreshToken(): should set refresh token to secure storage', (done) => {
+  it('setRefreshToken(): should set refresh token to secure storage', fakeAsync(() => {
     secureStorageService.set.and.returnValue(Promise.resolve({ value: true }));
+    tick();
     tokenService.setRefreshToken('token').then(() => {
       expect(secureStorageService.set).toHaveBeenCalledOnceWith('X-REFRESH-TOKEN', 'token');
-      done();
     });
-  });
+  }));
 
-  it('resetRefreshToken(): should reset refresh token from secure storage', (done) => {
+  it('resetRefreshToken(): should reset refresh token from secure storage', fakeAsync(() => {
     secureStorageService.delete.and.returnValue(Promise.resolve({ value: true }));
+    tick();
     tokenService.resetRefreshToken().then(() => {
       expect(secureStorageService.delete).toHaveBeenCalledOnceWith('X-REFRESH-TOKEN');
-      done();
     });
-  });
+  }));
 
-  it('getClusterDomain(): should get cluster domain from secure storage', (done) => {
+  it('getClusterDomain(): should get cluster domain from secure storage', fakeAsync(() => {
     secureStorageService.get.and.returnValue(Promise.resolve('domain'));
+    tick();
     tokenService.getClusterDomain().then((domain) => {
       expect(domain).toEqual('domain');
       expect(secureStorageService.get).toHaveBeenCalledOnceWith('CLUSTER-DOMAIN');
-      done();
     });
-  });
+  }));
 
-  it('setClusterDomain(): should set cluster domain to secure storage', (done) => {
+  it('setClusterDomain(): should set cluster domain to secure storage', fakeAsync(() => {
     secureStorageService.set.and.returnValue(Promise.resolve({ value: true }));
+    tick();
     tokenService.setClusterDomain('domain').then(() => {
       expect(secureStorageService.set).toHaveBeenCalledOnceWith('CLUSTER-DOMAIN', 'domain');
-      done();
     });
-  });
+  }));
 
-  it('resetClusterDomain(): should reset cluster domain from secure storage', (done) => {
+  it('resetClusterDomain(): should reset cluster domain from secure storage', fakeAsync(() => {
     secureStorageService.delete.and.returnValue(Promise.resolve({ value: true }));
+    tick();
     tokenService.resetClusterDomain().then(() => {
       expect(secureStorageService.delete).toHaveBeenCalledOnceWith('CLUSTER-DOMAIN');
-      done();
     });
-  });
+  }));
 });
