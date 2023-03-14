@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { of, delay } from 'rxjs';
+import { of, delay, take } from 'rxjs';
 import { LocationService } from './location.service';
 import { locationData1, locationData2, predictedLocation1 } from '../mock-data/location.data';
 import { HttpParams } from '@angular/common/http';
 
-fdescribe('LocationService', () => {
+describe('LocationService', () => {
   let locationService: LocationService;
   let httpMock: HttpTestingController;
   const rootUrl = 'https://staging.fyle.tech';
@@ -69,7 +69,7 @@ fdescribe('LocationService', () => {
     });
   });
 
-  describe('timeoutWhen', () => {
+  describe('timeoutWhen():', () => {
     it('should not apply timeout when condition is false', (done) => {
       const source$ = of('hello');
       const result$ = source$.pipe(locationService.timeoutWhen(false, 5000));
