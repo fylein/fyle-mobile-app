@@ -6,6 +6,7 @@ import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 import { JwtHelperService } from './jwt-helper.service';
 import { apiEouRes, eouFlattended, eouRes3 } from '../mock-data/extended-org-user.data';
+import { apiAuthResponseRes } from '../mock-data/auth-response.data';
 import { finalize, noop, of, tap } from 'rxjs';
 import { apiAccessTokenRes, apiTokenWithoutRoles } from '../mock-data/acess-token-data.data';
 
@@ -20,6 +21,9 @@ describe('AuthService', () => {
   //The token consists of user-details
   const access_token =
     'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzgzNDk1NDksImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXN2S0E0WDhVZ2NyIiwib3JnX3VzZXJfaWQiOiJvdVg4ZHdzYkxDTHYiLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkFETUlOXCIsXCJBUFBST1ZFUlwiLFwiRllMRVJcIixcIkhPUFwiLFwiSE9EXCIsXCJPV05FUlwiXSIsInNjb3BlcyI6IltdIiwiYWxsb3dlZF9DSURScyI6IltdIiwidmVyc2lvbiI6IjMiLCJjbHVzdGVyX2RvbWFpbiI6IlwiaHR0cHM6Ly9zdGFnaW5nLmZ5bGUudGVjaFwiIiwiZXhwIjoxNjc4MzUzMTQ5fQ.sOJKf_ndYvhFplZL-KOImnvGujGEReQ7SYq_kvay88w';
+
+  const access_token_2 =
+    'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2Nzg0MzIwOTcsImlzcyI6IkZ5bGVBcHAiLCJvcmdfdXNlcl9pZCI6Ilwib3VIaW9KWVJGMmNyXCIiLCJjbHVzdGVyX2RvbWFpbiI6IlwiaHR0cHM6Ly9zdGFnaW5nLmZ5bGUudGVjaFwiIiwiZXhwIjoxOTkzNzkyMDk3fQ.2hfZze-tCMX88uRc1cQnC_KxbFieH90CGA-jm_C2hA0';
 
   beforeEach(() => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set', 'delete']);
@@ -170,5 +174,32 @@ describe('AuthService', () => {
       )
       .subscribe(noop);
     done();
+  });
+
+  it('newRefreshToken(): should refresh new token', (done) => {
+    storageService.delete.withArgs('user').and.returnValue(Promise.resolve(null));
+    storageService.delete.withArgs('role').and.returnValue(Promise.resolve(null));
+    tokenService.resetAccessToken.and.returnValue(Promise.resolve({ value: true }));
+    tokenService.setRefreshToken.withArgs(access_token_2).and.returnValue(Promise.resolve({ value: true }));
+    apiService.post.and.returnValue(of(apiAuthResponseRes));
+    tokenService.setAccessToken
+      .withArgs(apiAuthResponseRes.access_token)
+      .and.returnValue(Promise.resolve({ value: true }));
+    spyOn(authService, 'refreshEou').and.returnValue(of(eouRes3));
+
+    authService.newRefreshToken(access_token_2).subscribe((res) => {
+      expect(res).toEqual(eouRes3);
+      expect(storageService.delete).toHaveBeenCalledWith('user');
+      expect(storageService.delete).toHaveBeenCalledWith('role');
+      expect(storageService.delete).toHaveBeenCalledTimes(2);
+      expect(tokenService.resetAccessToken).toHaveBeenCalledOnceWith();
+      expect(tokenService.setRefreshToken).toHaveBeenCalledOnceWith(access_token_2);
+      expect(tokenService.setAccessToken).toHaveBeenCalledOnceWith(apiAuthResponseRes.access_token);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/auth/access_token', {
+        refresh_token: access_token_2,
+      });
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      done();
+    });
   });
 });
