@@ -105,7 +105,7 @@ describe('LocationService', () => {
       expect(result).toEqual({ ...locationDetails, display: displayName });
     });
     const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
-    expect(req.request.body).toEqual(null);
+    expect(req.request.body).toBeNull();
     expect(req.request.method).toEqual('GET');
     req.flush(locationDetails);
   });
@@ -128,7 +128,7 @@ describe('LocationService', () => {
     });
     const req = httpMock.expectOne(`${rootUrl}/location/distance?${queryParams}`);
     expect(req.request.method).toEqual('GET');
-    expect(req.request.body).toEqual(null);
+    expect(req.request.body).toBeNull();
     req.flush(expectedDistance);
   });
 
@@ -149,7 +149,7 @@ describe('LocationService', () => {
       });
       const req = httpMock.expectOne(`${rootUrl}/location/autocomplete?${queryParams}`);
       expect(req.request.method).toEqual('GET');
-      expect(req.request.body).toEqual(null);
+      expect(req.request.body).toBeNull();
       req.flush({ predictions: predictedLocation1 });
     });
 
@@ -171,7 +171,7 @@ describe('LocationService', () => {
       });
       const req = httpMock.expectOne(`${rootUrl}/location/autocomplete?${queryParams}`);
       expect(req.request.method).toEqual('GET');
-      expect(req.request.body).toEqual(null);
+      expect(req.request.body).toBeNull();
       req.flush({ predictions: predictedLocation1 });
     });
   });

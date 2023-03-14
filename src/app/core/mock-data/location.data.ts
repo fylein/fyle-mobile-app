@@ -1,5 +1,5 @@
-import { Location, PredictedLocation } from '../models/location.model';
-
+import { Location } from '../models/location.model';
+import { PredictedLocation } from '../models/predicted-location.model';
 export const locationData1: Location = {
   city: 'Kolkata',
   state: 'West Bengal',
