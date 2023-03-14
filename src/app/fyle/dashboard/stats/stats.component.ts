@@ -6,7 +6,7 @@ import { delay, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
-import { concat, of, Subject } from 'rxjs';
+import { concat, forkJoin, of, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -16,6 +16,7 @@ import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { ReportStats } from 'src/app/core/models/report-stats.model';
 
 @Component({
   selector: 'app-stats',
@@ -45,8 +46,6 @@ export class StatsComponent implements OnInit {
 
   isIncompleteExpensesStatsLoading = true;
 
-  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
-
   reportStatsLoading = true;
 
   loadData$ = new Subject();
@@ -54,6 +53,8 @@ export class StatsComponent implements OnInit {
   isCCCStatsLoading: boolean;
 
   cardTransactionsAndDetails: CardDetail[];
+
+  reportStatsData$: Observable<{ reportStats: ReportStats; simplifyReportsSettings: { enabled: boolean } }>;
 
   constructor(
     private dashboardService: DashboardService,
@@ -85,6 +86,13 @@ export class StatsComponent implements OnInit {
       }),
       shareReplay(1)
     );
+
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    const simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+    );
+
+    this.reportStatsData$ = forkJoin({ reportStats: reportStats$, simplifyReportsSettings: simplifyReportsSettings$ });
 
     this.draftStats$ = reportStats$.pipe(map((stats) => stats.draft));
 
@@ -155,11 +163,6 @@ export class StatsComponent implements OnInit {
         this.cardTransactionsAndDetails = [];
       }
     });
-
-    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    that.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
-    );
 
     this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;
