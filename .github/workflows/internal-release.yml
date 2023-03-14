@@ -1,0 +1,55 @@
+# Workflow for releasing application for internal testing
+name: Prod Internal Release
+on: workflow_dispatch
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Android with Appflow
+        uses: ionic-team/appflow-build@v1
+        with:
+          token: ${{ secrets.APPFLOW_TOKEN }}
+          app-id: 32316914
+          platform: Android
+          build-type: release
+          build-stack: Linux - 2022.07
+          certificate: Android Prod Release
+          environment: production
+          native-config: prod
+          destinations: Fyle prod
+
+  build-ios:
+    runs-on: ubuntu-latest
+    steps :
+      - name: Build iOS on Appflow
+        uses: ionic-team/appflow-build@v1
+        with:
+          token: ${{ secrets.APPFLOW_TOKEN }}
+          app-id: 32316914
+          platform: iOS
+          build-type: App Store
+          build-stack: macOS - 2022.09
+          certificate: iOS Prod Release
+          environment: production
+          native-config: prod
+          destinations: iOS Prod Release
+
+  send-to-slack:
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get branch name
+        id: get-branch
+        uses: xom9ikk/split@v1
+        with:
+          string: ${{ github.ref }}
+          separator: refs/heads/
+
+      - name: Send Message to Slack
+        uses: archive/github-actions-slack@v2.0.1
+        id: notify
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-channel: C029QPGHSQL
+          slack-text: Prod application released for internal testing \n Branch - "${{ steps.get-branch.outputs._1 }}"
+
