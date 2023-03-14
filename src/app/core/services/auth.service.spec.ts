@@ -7,7 +7,7 @@ import { DataTransformService } from './data-transform.service';
 import { JwtHelperService } from './jwt-helper.service';
 import { apiEouRes, eouFlattended, eouRes3 } from '../mock-data/extended-org-user.data';
 import { finalize, noop, of, tap } from 'rxjs';
-import { apiAccessTokenRes } from '../mock-data/acess-token-data.data';
+import { apiAccessTokenRes, apiTokenWithoutRoles } from '../mock-data/acess-token-data.data';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -113,6 +113,18 @@ describe('AuthService', () => {
 
       authService.getRoles().subscribe((res) => {
         expect(res).toEqual([]);
+        done();
+      });
+    });
+
+    it('should return empty array if roles not present', (done) => {
+      tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
+      jwtHelperService.decodeToken.and.returnValue(apiTokenWithoutRoles);
+
+      authService.getRoles().subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(tokenService.getAccessToken).toHaveBeenCalledTimes(1);
+        expect(jwtHelperService.decodeToken).toHaveBeenCalledOnceWith(access_token);
         done();
       });
     });

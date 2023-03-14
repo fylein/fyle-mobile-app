@@ -13,3 +13,16 @@ export const apiAccessTokenRes: AccessTokenData = {
   cluster_domain: '"https://staging.fyle.tech"',
   exp: 1678353149,
 };
+
+export const apiTokenWithoutRoles: AccessTokenData = {
+  iat: 1678349549,
+  iss: 'FyleApp',
+  user_id: 'usvKA4X8Ugcr',
+  org_user_id: 'ouX8dwsbLCLv',
+  org_id: 'orNVthTo2Zyo',
+  scopes: '[]',
+  allowed_CIDRs: '[]',
+  version: '3',
+  cluster_domain: '"https://staging.fyle.tech"',
+  exp: 1678353149,
+};
