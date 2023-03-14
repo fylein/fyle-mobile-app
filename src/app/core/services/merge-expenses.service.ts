@@ -11,7 +11,6 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';
 import { FileObject } from '../models/file-obj.model';
-import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { FormControl } from '@angular/forms';
 import { DateService } from './date.service';
@@ -78,11 +77,11 @@ export class MergeExpensesService {
       ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
     );
     const expensesInfo: ExpensesInfo = {
-      isReportedAndAbove: reportedAndAboveExpenses?.length > 0,
+      isReportedAndAbove: reportedAndAboveExpenses.length > 0,
       isAdvancePresent: advanceExpenses?.length > 0,
       defaultExpenses: [],
     };
-    if (reportedAndAboveExpenses?.length > 0) {
+    if (reportedAndAboveExpenses.length > 0) {
       expensesInfo.defaultExpenses = reportedAndAboveExpenses;
     } else if (advanceExpenses?.length > 0) {
       expensesInfo.defaultExpenses = advanceExpenses;
@@ -133,7 +132,7 @@ export class MergeExpensesService {
     );
   }
 
-  getCardCardTransactions(expenses: Expense[]): Observable<CorporateCardExpense[]> {
+  getCorporateCardTransactions(expenses: Expense[]): Observable<CorporateCardExpense[]> {
     return this.customInputsService.getAll(true).pipe(
       switchMap(() => {
         const CCCGroupIds = expenses.map((expense) => expense?.tx_corporate_credit_card_expense_group_id);
@@ -738,7 +737,7 @@ export class MergeExpensesService {
     const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
     return projects$.pipe(
       map((projects) => {
-        const index = projects.map((project) => project?.id).indexOf(option?.value);
+        const index = projects.map((project) => project.id).indexOf(option.value);
         option.label = projects[index]?.name;
         return option;
       })
