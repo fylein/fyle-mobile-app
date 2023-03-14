@@ -20,13 +20,11 @@
           ></app-stat-badge>
         </ion-col>
         <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
-          <ng-container
-            *ngIf="!reportStatsLoading && (simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading"
-          >
+          <ng-container *ngIf="reportStatsData$ | async as reportStatsData; else loading">
             <app-stat-badge
               [currency]="homeCurrency$ | async"
               [currencySymbol]="currencySymbol$ | async"
-              [name]="simplifyReportsSettings.enabled ? 'Submitted' : 'Reported'"
+              [name]="reportStatsData.simplifyReportsSettings.enabled ? 'Submitted' : 'Reported'"
               [reportState]="ReportStates.APPROVER_PENDING"
               [count]="(reportedStats$ | async)?.count"
               [value]="(reportedStats$ | async)?.sum"
