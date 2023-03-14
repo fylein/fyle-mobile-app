@@ -1,0 +1,20 @@
+import { AuthResponse } from '../models/auth-response.model';
+
+export const apiAuthRes: AuthResponse = {
+  cluster_domain: 'https://staging.fyle.tech',
+  access_token: null,
+  signup: false,
+  org_id: 'orDjkSfq43i2',
+  redirect_url: 'https://staging1.fyle.tech/app/accounts/#/verify?org_id=orDjkSfq43i2',
+  refresh_token:
+    'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2Nzg3NzU4MzgsImlzcyI6IkZ5bGVBcHAiLCJvcmdfdXNlcl9pZCI6Ilwib3VIaW9KWVJGMmNyXCIiLCJjbHVzdGVyX2RvbWFpbiI6IlwiaHR0cHM6Ly9zdGFnaW5nLmZ5bGUudGVjaFwiIiwiZXhwIjoxOTk0MTM1ODM4fQ.FswsVpGpAt1sKI9TZ2Jxc_CqnV1K7iijoobmioH7X0o',
+};
+
+export const apiLogoutRes: AuthResponse = {
+  access_token:
+    'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2Nzg3NzU4MzgsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXN1UVB6YVQwdzlDIiwib3JnX3VzZXJfaWQiOiJvdUhpb0pZUkYyY3IiLCJvcmdfaWQiOiJvckRqa1NmcTQzaTIiLCJyb2xlcyI6IltcIkZZTEVSXCJdIiwic2NvcGVzIjoiW10iLCJhbGxvd2VkX0NJRFJzIjoiW10iLCJ2ZXJzaW9uIjoiMyIsImNsdXN0ZXJfZG9tYWluIjoiXCJodHRwczovL3N0YWdpbmcuZnlsZS50ZWNoXCIiLCJleHAiOjE2Nzg3Nzk0Mzh9.RLRU6te7V8WkZ7AFwmSB865NDfRHUunL-VgLA4A5R44',
+  signup: null,
+  org_id: null,
+  redirect_url: null,
+  refresh_token: null,
+};
