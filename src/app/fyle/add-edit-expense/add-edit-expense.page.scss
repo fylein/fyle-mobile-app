@@ -703,11 +703,17 @@
   }
 
   &--date-error,
-  &--travel-class-error,
+  &--travel-text-mode-error,
   &--distance-error {
     color: $red;
     line-height: 16px;
     font-size: 12px;
     margin-top: -8px;
+  }
+  &--travel-select-mode-error {
+    color: $red;
+    line-height: 16px;
+    font-size: 12px;
+    margin-top: -12px;
   }
 }

@@ -671,8 +671,8 @@
 
                 <div
                   *ngIf="txnFields.train_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
-                  class="add-edit-expense--internal-block add-edit-expense--text"
+                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid && txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--text': txnFields.train_travel_class?.type === 'TEXT'}"
+                  class="add-edit-expense--internal-block"
                 >
                   <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'">
                     <div
@@ -704,15 +704,15 @@
                 </div>
                 <div
                   *ngIf="fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid"
-                  class="add-edit-expense--travel-class-error"
+                  [ngClass]="{'add-edit-expense--travel-text-mode-error': txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-mode-error': txnFields.train_travel_class?.type === 'SELECT'}"
                 >
-                  Please enter valid {{ txnFields.train_travel_class?.field_name }}.
+                  Please select valid {{ txnFields.train_travel_class?.field_name }}.
                 </div>
 
                 <div
                   *ngIf="txnFields.bus_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
-                  class="add-edit-expense--internal-block add-edit-expense--text"
+                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid && txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--text': txnFields.bus_travel_class?.type === 'TEXT'}"
+                  class="add-edit-expense--internal-block"
                 >
                   <div
                     *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
@@ -745,7 +745,7 @@
                 </div>
                 <div
                   *ngIf="fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid"
-                  class="add-edit-expense--travel-class-error"
+                  [ngClass]="{'add-edit-expense--travel-text-mode-error': txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-mode-error': txnFields.bus_travel_class?.type === 'SELECT'}"
                 >
                   Please select valid {{ txnFields.bus_travel_class?.field_name }}.
                 </div>
