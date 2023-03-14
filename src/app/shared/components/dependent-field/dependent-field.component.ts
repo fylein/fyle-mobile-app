@@ -62,7 +62,7 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.displayValue = data;
+      this.displayValue = data.value;
       this.onChangeCallback(this.displayValue);
     }
   }
