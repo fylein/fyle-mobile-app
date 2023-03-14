@@ -34,11 +34,11 @@ describe('ApproverPlatformApiService', () => {
       const url = '/expense_policy_states';
       approverPlatformService.get(url).subscribe((res) => {
         expect(res).toEqual(ApproverExpensePolicyStatesData);
+        done();
       });
       const req = httpTestingController.expectOne(`${rootUrl}/platform/v1/approver${url}`);
       expect(req.request.method).toEqual('GET');
       req.flush(ApproverExpensePolicyStatesData);
-      done();
     });
 
     it('should get data from the API with config', (done) => {
@@ -48,14 +48,14 @@ describe('ApproverPlatformApiService', () => {
       };
       approverPlatformService.get(url, { params: exp_id }).subscribe((res) => {
         expect(res).toEqual(ApproverExpensePolicyStatesData);
+        done();
       });
       const req = httpTestingController.expectOne(
         `${rootUrl}/platform/v1/approver${url}?expense_id=${exp_id.expense_id}`
       );
       expect(req.request.method).toEqual('GET');
-      expect();
+      expect(req.request.params.get('expense_id')).toEqual(exp_id.expense_id);
       req.flush(ApproverExpensePolicyStatesData);
-      done();
     });
   });
 
