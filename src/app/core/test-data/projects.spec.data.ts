@@ -1,3 +1,5 @@
+import { ProjectV1 } from '../models/v1/extended-project.model';
+
 export const apiResponseActiveOnly = [
   {
     id: 257528,
@@ -314,3 +316,26 @@ export const params = {
   project_id: 'in.(3943,305792,148971,247936)',
   project_name: 'ilike.%search%',
 };
+
+export const projectsV1Data: ProjectV1[] = [
+  {
+    created_at: new Date('2021-05-12T10:28:40.834844'),
+    updated_at: new Date('2021-07-08T10:28:27.686886'),
+    ...apiResponseActiveOnly[0],
+  },
+  {
+    created_at: new Date('2021-05-12T10:28:40.834844'),
+    updated_at: new Date('2021-07-08T10:28:27.686886'),
+    ...apiResponseActiveOnly[1],
+  },
+];
+
+export const projectsV1Data2: ProjectV1[] = [
+  {
+    created_at: new Date('2021-05-12T10:28:40.834844'),
+    updated_at: new Date('2021-07-08T10:28:27.686886'),
+    id: 3943,
+    name: 'Staging Project',
+    ...apiResponseActiveOnly[0],
+  },
+];
