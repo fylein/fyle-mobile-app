@@ -254,7 +254,7 @@
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"
-                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid, 'add-edit-expense--date__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                     class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin"
                   >
                     <div
@@ -554,7 +554,7 @@
                       *ngIf="txnFields.from_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category), 'add-edit-expense--date__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
                         class="add-edit-expense--date add-edit-expense--internal-block"
                       >
                         <div
@@ -584,7 +584,7 @@
                       *ngIf="txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid, 'add-edit-expense--date__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
                         class="add-edit-expense--date add-edit-expense--internal-block"
                       >
                         <div
@@ -761,7 +761,7 @@
 
                 <ng-container *ngIf="txnFields.distance?.is_mandatory && fg.value?.category?.fyle_category === 'Taxi'">
                   <div
-                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.distance.touched && !fg.controls.distance.valid, 'add-edit-expense--text__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
                     class="add-edit-expense--internal-block add-edit-expense--text"
                   >
                     <div
