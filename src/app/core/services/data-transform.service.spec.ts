@@ -29,32 +29,4 @@ describe('DataTransformService', () => {
       expect(actualOutput).toEqual(expectedOutput);
     });
   });
-  //   it(' should correctly unflatten a flattened object', () => {
-  //     const input = {
-  //       name: 'John Doe',
-  //       age: 30,
-  //       address_street: '123 Main St',
-  //       address_city: 'Anytown',
-  //       address_state: 'CA'
-  //     };
-  //     const expectedOutput = {
-  //       name: 'John Doe',
-  //       age: 30,
-  //       address: {
-  //         street: '123 Main St',
-  //         city: 'Anytown',
-  //         state: 'CA'
-  //       }
-  //     };
-  //     const actualOutput = dataTransformService.unflatten(input);
-  //     expect(actualOutput).toEqual(expectedOutput);
-  //   });
-
-  //   it('should return an empty object if input is empty', () => {
-  //     const input = {};
-  //     const expectedOutput = {};
-  //     const actualOutput = dataTransformService.unflatten(input);
-  //     expect(actualOutput).toEqual(expectedOutput);
-  //   });
-  // });
 });
