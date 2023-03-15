@@ -180,21 +180,21 @@ describe('LocationService', () => {
   });
 
   describe('getCurrentLocation() :', () => {
-    const geoCoords: GeolocationCoordinates = {
-      latitude: 19.0748,
-      longitude: 72.8856,
-      altitude: null,
-      accuracy: 1,
-      altitudeAccuracy: null,
-      heading: null,
-      speed: null,
-    };
+    it('should return the current position', (done) => {
+      const geoCoords: GeolocationCoordinates = {
+        latitude: 19.0748,
+        longitude: 72.8856,
+        altitude: null,
+        accuracy: 1,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      };
 
-    const mockPosition: GeolocationPosition = Object.create(GeolocationPosition.prototype);
-    Object.defineProperty(mockPosition, 'coords', { value: geoCoords });
-    Object.defineProperty(mockPosition, 'timestamp', { value: 1678860713437 });
+      const mockPosition: GeolocationPosition = Object.create(GeolocationPosition.prototype);
+      Object.defineProperty(mockPosition, 'coords', { value: geoCoords });
+      Object.defineProperty(mockPosition, 'timestamp', { value: 1678860713437 });
 
-    it('should return the current position', (done: DoneFn) => {
       spyOn(Geolocation, 'getCurrentPosition').and.returnValue(Promise.resolve(mockPosition));
       locationService.getCurrentLocation().subscribe((position: GeolocationPosition) => {
         expect(position).toEqual(mockPosition);
