@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { of, delay, throwError } from 'rxjs';
+import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
 import { locationData1, locationData2, predictedLocation1 } from '../mock-data/location.data';
 import { HttpParams } from '@angular/common/http';
-import { Geolocation, Position } from '@capacitor/geolocation';
+import { Geolocation } from '@capacitor/geolocation';
 
 describe('LocationService', () => {
   let locationService: LocationService;
@@ -179,22 +179,21 @@ describe('LocationService', () => {
     });
   });
 
-  describe('getCurrentLocation() :', () => {
+  describe('getCurrentLocation():', () => {
+    const geoCoords: GeolocationCoordinates = {
+      latitude: 19.0748,
+      longitude: 72.8856,
+      altitude: null,
+      accuracy: 1,
+      altitudeAccuracy: null,
+      heading: null,
+      speed: null,
+    };
+
+    const mockPosition: GeolocationPosition = Object.create(GeolocationPosition.prototype);
+    Object.defineProperty(mockPosition, 'coords', { value: geoCoords });
+    Object.defineProperty(mockPosition, 'timestamp', { value: 1678860713437 });
     it('should return the current position', (done) => {
-      const geoCoords: GeolocationCoordinates = {
-        latitude: 19.0748,
-        longitude: 72.8856,
-        altitude: null,
-        accuracy: 1,
-        altitudeAccuracy: null,
-        heading: null,
-        speed: null,
-      };
-
-      const mockPosition: GeolocationPosition = Object.create(GeolocationPosition.prototype);
-      Object.defineProperty(mockPosition, 'coords', { value: geoCoords });
-      Object.defineProperty(mockPosition, 'timestamp', { value: 1678860713437 });
-
       spyOn(Geolocation, 'getCurrentPosition').and.returnValue(Promise.resolve(mockPosition));
       locationService.getCurrentLocation().subscribe((position: GeolocationPosition) => {
         expect(position).toEqual(mockPosition);
