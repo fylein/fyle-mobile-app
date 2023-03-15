@@ -35,8 +35,6 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
 
   onPageExit$: Subject<void>;
 
-  dependentFields$: Observable<ExpenseField[]>;
-
   constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: FormBuilder) {}
 
   get dependentFieldControls() {
@@ -45,11 +43,11 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.onPageExit$ = new Subject();
-    this.expenseForm.controls.project.valueChanges
+    this.expenseForm?.controls.project.valueChanges
       .pipe(
         takeUntil(this.onPageExit$),
         tap(() => {
-          this.dependentFieldControls.clear();
+          this.dependentFieldControls?.clear();
           this.dependentFields = [];
         }),
         filter((project) => !!project),

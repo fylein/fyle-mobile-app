@@ -1,22 +1,24 @@
-<div *ngIf="dependentFields?.length">
-  <ng-container formArrayName="dependent_fields">
-    <div *ngFor="let dependentField of dependentFields" class="dependent-fields--internal-block">
-      <div [formGroup]="dependentField.control">
-        <app-dependent-field
-          [label]="dependentField.field"
-          [placeholder]="dependentField.placeholder"
-          [mandatory]="dependentField.mandatory"
-          [valid]="!(dependentField?.control?.touched && !dependentField?.control?.valid)"
-          [fieldId]="dependentField.id"
-          [parentFieldId]="dependentField.parentFieldId"
-          [parentFieldValue]="dependentField.parentFieldValue"
-          formControlName="value"
-        >
-        </app-dependent-field>
+<ng-container *ngIf="dependentFields?.length && expenseForm">
+  <ng-container [formGroup]="expenseForm">
+    <ng-container formArrayName="dependent_fields">
+      <div *ngFor="let dependentField of dependentFields" class="dependent-fields--internal-block">
+        <div [formGroup]="dependentField.control">
+          <app-dependent-field
+            [label]="dependentField.field"
+            [placeholder]="dependentField.placeholder"
+            [mandatory]="dependentField.mandatory"
+            [valid]="!(dependentField?.control?.touched && !dependentField?.control?.valid)"
+            [fieldId]="dependentField.id"
+            [parentFieldId]="dependentField.parentFieldId"
+            [parentFieldValue]="dependentField.parentFieldValue"
+            formControlName="value"
+          >
+          </app-dependent-field>
+        </div>
       </div>
-    </div>
+    </ng-container>
   </ng-container>
-</div>
+</ng-container>
 
 <div class="dependent-fields--primary-block" *ngIf="isDependentFieldLoading">
   <ion-skeleton-text class="dependent-fields__skeleton-loader--title" [animated]="true"></ion-skeleton-text>
