@@ -95,9 +95,6 @@ export class AuthService {
         await this.storageService.delete('user');
         await this.storageService.delete('role');
         await this.storageService.delete('currentView');
-        await this.storageService.delete('ui-grid-pagination-page-size');
-        await this.storageService.delete('ui-grid-pagination-page-number');
-        await this.storageService.delete('customExportFields');
         await this.storageService.delete('lastLoggedInDelegatee');
         await this.storageService.delete('lastLoggedInOrgQueue');
         await this.storageService.delete('isSidenavCollapsed');

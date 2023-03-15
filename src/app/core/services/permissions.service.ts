@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { map, switchMap } from 'rxjs/operators';
 import { throwError, of, iif } from 'rxjs';
+import { OrgSettings } from '../models/org-settings.model';
+import { ReportAllowedActions } from '../models/allowed-actions.model';
 
 @Injectable({
   providedIn: 'root',
@@ -1575,7 +1577,7 @@ export class PermissionsService {
 
   constructor(private authService: AuthService) {}
 
-  allowedActions(resource, actions, orgSettings) {
+  allowedActions(resource: string, actions: string[], orgSettings: OrgSettings) {
     const roles$ = this.authService.getRoles();
     const allowedActions: any = {
       allowedRouteAccess: false,
@@ -1615,7 +1617,7 @@ export class PermissionsService {
     );
   }
 
-  setAllowedActions(actions: any, allowedActions: any, role: any, resource: any) {
+  setAllowedActions(actions: string[], allowedActions: Partial<ReportAllowedActions>, role: string, resource: string) {
     for (const action of actions) {
       if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {
         allowedActions[action] = this.roleActionMap[role][resource][action];
@@ -1626,7 +1628,7 @@ export class PermissionsService {
     }
   }
 
-  allowedAccess(resource, orgSettings) {
+  allowedAccess(resource: string, orgSettings: OrgSettings): boolean {
     let allowed = true;
 
     if (resource === 'advances') {
