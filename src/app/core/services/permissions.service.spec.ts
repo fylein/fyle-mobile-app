@@ -37,6 +37,40 @@ describe('PermissionsService', () => {
       authService.getRoles.and.returnValue(of(roles));
       spyOn(permissionsService, 'allowedAccess').and.returnValue(true);
 
+      const setAllowedActionsSpy = spyOn(permissionsService, 'setAllowedActions');
+      setAllowedActionsSpy
+        .withArgs(
+          actions,
+          {
+            allowedRouteAccess: true,
+            approve: true,
+            create: true,
+            delete: true,
+          },
+          'admin',
+          resource
+        )
+        .and.callThrough();
+
+      setAllowedActionsSpy
+        .withArgs(
+          actions,
+          {
+            allowedRouteAccess: false,
+          },
+          'hop',
+          resource
+        )
+        .and.callThrough();
+
+      setAllowedActionsSpy
+        .withArgs(actions, { allowedRouteAccess: true, approve: true, create: false, delete: false }, 'hod', resource)
+        .and.callThrough();
+
+      setAllowedActionsSpy
+        .withArgs(actions, { allowedRouteAccess: true, approve: true, create: false, delete: false }, 'owner', resource)
+        .and.callThrough();
+
       permissionsService.allowedActions(resource, actions, orgSettingsParams).subscribe((res) => {
         expect(res).toEqual({
           allowedRouteAccess: true,
@@ -44,6 +78,25 @@ describe('PermissionsService', () => {
           create: false,
           delete: false,
         });
+        expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
+          actions,
+          { allowedRouteAccess: true, approve: true, create: false, delete: false },
+          'hop',
+          resource
+        );
+        expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
+          actions,
+          { allowedRouteAccess: true, approve: true, create: false, delete: false },
+          'hod',
+          resource
+        );
+        expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
+          actions,
+          { allowedRouteAccess: true, approve: true, create: false, delete: false },
+          'owner',
+          resource
+        );
+        expect(permissionsService.setAllowedActions).toHaveBeenCalledTimes(3);
         expect(authService.getRoles).toHaveBeenCalledTimes(1);
         done();
       });
@@ -98,7 +151,7 @@ describe('PermissionsService', () => {
 
   describe('allowedAccess():', () => {
     it('should return resource actions', () => {
-      expect(permissionsService.allowedAccess('advances', orgSettingsParams)).toBeTruthy();
+      expect(permissionsService.allowedAccess('advances', orgSettingsParams)).toBeTrue();
     });
 
     it('should return resource actions when advance_requests in not present', () => {
@@ -110,7 +163,7 @@ describe('PermissionsService', () => {
             enabled: false,
           },
         })
-      ).toBeTruthy();
+      ).toBeTrue();
     });
   });
 });
