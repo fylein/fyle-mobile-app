@@ -39,45 +39,18 @@ describe('PermissionsService', () => {
 
       const setAllowedActionsSpy = spyOn(permissionsService, 'setAllowedActions');
       setAllowedActionsSpy
-        .withArgs(
-          actions,
-          {
-            allowedRouteAccess: true,
-            approve: true,
-            create: true,
-            delete: true,
-          },
-          'admin',
-          resource
-        )
+        .withArgs(actions, { allowedRouteAccess: true, approve: true, create: true, delete: true }, 'admin', resource)
         .and.callThrough();
-
-      setAllowedActionsSpy
-        .withArgs(
-          actions,
-          {
-            allowedRouteAccess: false,
-          },
-          'hop',
-          resource
-        )
-        .and.callThrough();
-
+      setAllowedActionsSpy.withArgs(actions, { allowedRouteAccess: false }, 'hop', resource).and.callThrough();
       setAllowedActionsSpy
         .withArgs(actions, { allowedRouteAccess: true, approve: true, create: false, delete: false }, 'hod', resource)
         .and.callThrough();
-
       setAllowedActionsSpy
         .withArgs(actions, { allowedRouteAccess: true, approve: true, create: false, delete: false }, 'owner', resource)
         .and.callThrough();
 
       permissionsService.allowedActions(resource, actions, orgSettingsParams).subscribe((res) => {
-        expect(res).toEqual({
-          allowedRouteAccess: true,
-          approve: true,
-          create: false,
-          delete: false,
-        });
+        expect(res).toEqual({ allowedRouteAccess: true, approve: true, create: false, delete: false });
         expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
           actions,
           { allowedRouteAccess: true, approve: true, create: false, delete: false },
