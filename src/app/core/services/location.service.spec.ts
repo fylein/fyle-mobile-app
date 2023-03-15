@@ -183,22 +183,33 @@ describe('LocationService', () => {
     const geoCoords: GeolocationCoordinates = {
       latitude: 19.0748,
       longitude: 72.8856,
-      altitude: null,
-      accuracy: 1,
-      altitudeAccuracy: null,
-      heading: null,
-      speed: null,
+      altitude: 42.345,
+      accuracy: 95.56,
+      altitudeAccuracy: 99.343,
+      heading: 3,
+      speed: 23,
     };
 
     const mockPosition: GeolocationPosition = Object.create(GeolocationPosition.prototype);
     Object.defineProperty(mockPosition, 'coords', { value: geoCoords });
     Object.defineProperty(mockPosition, 'timestamp', { value: 1678860713437 });
+
     it('should return the current position', (done) => {
       spyOn(Geolocation, 'getCurrentPosition').and.returnValue(Promise.resolve(mockPosition));
-      locationService.getCurrentLocation().subscribe((position: GeolocationPosition) => {
-        expect(position).toEqual(mockPosition);
-        done();
+      const sub = locationService.getCurrentLocation().subscribe({
+        next: (position: GeolocationPosition) => {
+          expect(position).toEqual(mockPosition);
+          done();
+        },
+        error: (err: any) => {
+          expect(err).toBeNull();
+          done();
+        },
       });
+
+      jasmine.clock().install(); // Install the mock clock
+      jasmine.clock().tick(5001); // Advance the clock past the 5000ms timeout threshold
+      jasmine.clock().uninstall(); // Uninstall the mock clock
     });
   });
 });
