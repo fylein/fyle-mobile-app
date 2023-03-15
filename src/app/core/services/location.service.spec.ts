@@ -4,11 +4,13 @@ import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
 import { locationData1, locationData2, predictedLocation1 } from '../mock-data/location.data';
 import { HttpParams } from '@angular/common/http';
+import { Position, Geolocation } from '@capacitor/geolocation';
 
 describe('LocationService', () => {
   let locationService: LocationService;
   let httpMock: HttpTestingController;
   const rootUrl = 'https://staging.fyle.tech';
+  let geolocationSpy: jasmine.SpyObj<Geolocation>;
 
   const requestObj = {
     someKey: 'someValue',
@@ -19,6 +21,7 @@ describe('LocationService', () => {
   };
 
   beforeEach(() => {
+    geolocationSpy = jasmine.createSpyObj('Geolocation', ['getCurrentPosition']);
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [LocationService],
@@ -173,6 +176,30 @@ describe('LocationService', () => {
       expect(req.request.method).toEqual('GET');
       expect(req.request.body).toBeNull();
       req.flush({ predictions: predictedLocation1 });
+    });
+  });
+
+  describe('getCurrentLocation() :', () => {
+    it('should return the current location with default accuracy', async () => {
+      const mockGeolocationPosition: Position = {
+        coords: {
+          latitude: 19.0748,
+          longitude: 72.8856,
+          accuracy: 1,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null,
+        },
+        timestamp: 1678817374221,
+      };
+      spyOn(Geolocation, 'getCurrentPosition').and.returnValue(Promise.resolve(mockGeolocationPosition));
+
+      const result$ = locationService.getCurrentLocation();
+      await result$.subscribe((res) => {
+        expect(typeof res).toBe('object');
+        expect(res).toEqual(mockGeolocationPosition);
+      });
     });
   });
 });
