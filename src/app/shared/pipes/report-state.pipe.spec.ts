@@ -70,4 +70,21 @@ describe('ReportStatePipe', () => {
   it('transforms "APPROVAL_REJECTED" state to "rejected"', () => {
     expect(pipe.transform('APPROVAL_REJECTED')).toBe('rejected');
   });
+
+  // Tests for new reports flow.
+  it('transforms "APPROVER_PENDING" state to "submitted" for an account in the new reports flow', () => {
+    expect(pipe.transform('APPROVER_PENDING', true)).toBe('submitted');
+  });
+
+  it('transforms "PAID" state to "closed" for an account in the new reports flow', () => {
+    expect(pipe.transform('PAID', true)).toBe('closed');
+  });
+
+  it('transforms "PAYMENT_PROCESSING" state to "processing" for an account in the new reports flow', () => {
+    expect(pipe.transform('PAYMENT_PROCESSING', true)).toBe('processing');
+  });
+
+  it('transforms "APPROVAL_PENDING" state to "submitted" for an account in the new reports flow', () => {
+    expect(pipe.transform('APPROVAL_PENDING', true)).toBe('submitted');
+  });
 });
