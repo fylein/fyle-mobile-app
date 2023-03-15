@@ -129,3 +129,67 @@ export const apiErptReporDataParam = {
     full_name: 'Abhishek Jain',
   },
 };
+
+export const flattenedData = {
+  acc_id: 'acct0vTdfNQrT',
+  acc_created_at: '2019-09-19T10:19:37.764Z',
+  acc_updated_at: '2023-03-10T11:29:40.049Z',
+  acc_name: 'Personal Account',
+  acc_type: 'PERSONAL_ACCOUNT',
+  acc_currency: 'INR',
+  acc_target_balance_amount: 0,
+  acc_current_balance_amount: -65.060000000006,
+  acc_tentative_balance_amount: -67645301481.37274,
+  acc_category: 'category1',
+  ou_id: 'ourw7Hi4mmpO',
+  ou_org_id: 'orNVthTo2Zyo',
+  us_email: 'dimple.kh@fyle.in',
+  us_full_name: 'Dimple',
+  org_id: 'oRg123',
+  org_domain: 'staging.in',
+  advance_purpose: 'Testing',
+  advance_number1: '1234',
+  orig_currency: 'INR',
+  currency: 'INR',
+  orig_amount: 2500,
+  amount: 2500,
+  advance_id: 'aDvId123',
+};
+
+export const unflattenedData = {
+  acc: {
+    id: 'acct0vTdfNQrT',
+    created_at: '2019-09-19T10:19:37.764Z',
+    updated_at: '2023-03-10T11:29:40.049Z',
+    name: 'Personal Account',
+    type: 'PERSONAL_ACCOUNT',
+    currency: 'INR',
+    target_balance_amount: 0,
+    current_balance_amount: -65.060000000006,
+    tentative_balance_amount: -67645301481.37274,
+    category: 'category1',
+  },
+  ou: {
+    id: 'ourw7Hi4mmpO',
+    org_id: 'orNVthTo2Zyo',
+  },
+  us: {
+    email: 'dimple.kh@fyle.in',
+    full_name: 'Dimple',
+  },
+  org: {
+    id: 'oRg123',
+    domain: 'staging.in',
+  },
+  advance: {
+    purpose: 'Testing',
+    number1: '1234',
+    id: 'aDvId123',
+  },
+  orig: {
+    currency: 'INR',
+    amount: 2500,
+  },
+  currency: 'INR',
+  amount: 2500,
+};
