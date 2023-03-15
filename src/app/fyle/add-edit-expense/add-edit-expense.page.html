@@ -403,6 +403,7 @@
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="dependentFields$|async as dependentFields">
               <app-dependent-fields
+                #dependentFields
                 [expenseForm]="fg"
                 [txnFields]="txnFields"
                 [dependentCustomFields]="dependentFields"

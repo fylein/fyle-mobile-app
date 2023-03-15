@@ -70,6 +70,46 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
     this.onPageExit$.complete();
   }
 
+  //Recursive method to add dependent fields with value
+  addDependentFieldWithValue(
+    txCustomProperties: CustomProperty<string>[],
+    dependentFields: ExpenseField[],
+    parentField: { id: number; value: string }
+  ) {
+    //Get dependent field for the field whose id is parentFieldId
+    const dependentField = dependentFields.find((dependentField) => dependentField.parent_field_id === parentField.id);
+
+    if (dependentField) {
+      //Get selected value for dependent field
+      const dependentFieldValue = txCustomProperties.find(
+        (customProp) => customProp.name === dependentField.field_name
+      );
+
+      if (dependentFieldValue?.value) {
+        //Add dependent field with selected value
+        this.addDependentField(dependentField, parentField.value, dependentFieldValue?.value);
+
+        //Add field which is dependent on the depenent field (if present)
+        const currentField = {
+          id: dependentField.id,
+          value: dependentFieldValue?.value,
+        };
+        this.addDependentFieldWithValue(txCustomProperties, dependentFields, currentField);
+      } else {
+        //If the dependent field does not have a value, trigger the onChange event for parent field
+        //This will add a new field(if it exists) for the selected value of parent field
+        this.isDependentFieldLoading = true;
+        this.getDependentField(parentField.id, parentField.value)
+          .pipe(finalize(() => (this.isDependentFieldLoading = false)))
+          .subscribe((res) => {
+            if (res?.dependentField) {
+              this.addDependentField(res.dependentField, res.parentFieldValue);
+            }
+          });
+      }
+    }
+  }
+
   private getDependentField(
     parentFieldId: number,
     parentFieldValue: string
@@ -148,45 +188,5 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
           this.addDependentField(res.dependentField, res.parentFieldValue);
         }
       });
-  }
-
-  //Recursive method to add dependent fields with value
-  private addDependentFieldWithValue(
-    txCustomProperties: CustomProperty<string>[],
-    dependentFields: ExpenseField[],
-    parentField: { id: number; value: string }
-  ) {
-    //Get dependent field for the field whose id is parentFieldId
-    const dependentField = dependentFields.find((dependentField) => dependentField.parent_field_id === parentField.id);
-
-    if (dependentField) {
-      //Get selected value for dependent field
-      const dependentFieldValue = txCustomProperties.find(
-        (customProp) => customProp.name === dependentField.field_name
-      );
-
-      if (dependentFieldValue?.value) {
-        //Add dependent field with selected value
-        this.addDependentField(dependentField, parentField.value, dependentFieldValue?.value);
-
-        //Add field which is dependent on the depenent field (if present)
-        const currentField = {
-          id: dependentField.id,
-          value: dependentFieldValue?.value,
-        };
-        this.addDependentFieldWithValue(txCustomProperties, dependentFields, currentField);
-      } else {
-        //If the dependent field does not have a value, trigger the onChange event for parent field
-        //This will add a new field(if it exists) for the selected value of parent field
-        this.isDependentFieldLoading = true;
-        this.getDependentField(parentField.id, parentField.value)
-          .pipe(finalize(() => (this.isDependentFieldLoading = false)))
-          .subscribe((res) => {
-            if (res?.dependentField) {
-              this.addDependentField(res.dependentField, res.parentFieldValue);
-            }
-          });
-      }
-    }
   }
 }

@@ -117,6 +117,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
+import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -131,6 +132,8 @@ export class AddEditExpensePage implements OnInit {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
+
+  @ViewChild('dependentFields') dependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<any>;
 
@@ -350,8 +353,6 @@ export class AddEditExpensePage implements OnInit {
   breakfastSystemCategories: string[];
 
   hardwareBackButtonAction: Subscription;
-
-  // dependentFields = [];
 
   onPageExit$: Subject<void>;
 
@@ -1421,17 +1422,22 @@ export class AddEditExpensePage implements OnInit {
           taxGroups,
           txnFields,
         }) => {
-          // const dependentFields: ExpenseField[] = customExpenseFields.filter(
-          //   (customInput) => customInput.type === 'DEPENDENT_SELECT'
-          // );
+          const dependentFields: ExpenseField[] = customExpenseFields.filter(
+            (customInput) => customInput.type === 'DEPENDENT_SELECT'
+          );
 
-          // if (dependentFields?.length && project) {
-          //   const projectField = {
-          //     id: txnFields.project_id?.id,
-          //     value: project.project_name,
-          //   };
-          //   this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, projectField);
-          // }
+          if (dependentFields?.length && project) {
+            const projectField = {
+              id: txnFields.project_id?.id,
+              value: project.project_name,
+            };
+
+            this.dependentFieldsRef.addDependentFieldWithValue(
+              etxn.tx.custom_properties,
+              dependentFields,
+              projectField
+            );
+          }
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
