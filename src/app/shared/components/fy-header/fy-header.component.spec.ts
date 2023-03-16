@@ -51,7 +51,7 @@ describe('FyHeaderComponent', () => {
     component.currentState = HeaderState.simpleSearch;
     fixture.detectChanges();
 
-    const cancelButton = fixture.debugElement.nativeElement.querySelector('.fy-header--simple-search-cancel');
+    const cancelButton = getElementBySelector(fixture, '.fy-header--simple-search-cancel') as HTMLElement;
     cancelButton.click();
     expect(component.simpleSearchCancel.emit).toHaveBeenCalledTimes(1);
   });
@@ -61,7 +61,7 @@ describe('FyHeaderComponent', () => {
     component.currentState = HeaderState.multiselect;
     fixture.detectChanges();
 
-    const cancelButton = fixture.debugElement.nativeElement.querySelector('ion-button');
+    const cancelButton = getElementBySelector(fixture, '.fy-header--simple-search-cancel') as HTMLElement;
     cancelButton.click();
     expect(component.multiselectBack.emit).toHaveBeenCalledTimes(1);
   });
