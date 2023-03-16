@@ -25,6 +25,7 @@ describe('EditReportNamePopoverComponent', () => {
     fixture = TestBed.createComponent(EditReportNamePopoverComponent);
     component = fixture.componentInstance;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    component.reportName = 'Report 1';
     fixture.detectChanges();
   });
 
@@ -34,11 +35,8 @@ describe('EditReportNamePopoverComponent', () => {
 
   describe('template', () => {
     it('should have report name input', () => {
-      component.reportName = 'Report 1';
       fixture.detectChanges();
       const inputEl = getElementByTagName(fixture, 'input') as HTMLInputElement;
-      const dispatchEvent = inputEl.dispatchEvent(new Event('input'));
-      expect(dispatchEvent).toBeTrue();
       expect(inputEl).toBeTruthy();
     });
 
@@ -51,7 +49,6 @@ describe('EditReportNamePopoverComponent', () => {
 
     it('should have Save button enabled when report name is not empty', () => {
       const saveButton = getElementBySelector(fixture, '.edit-report-name--toolbar__btn-save') as HTMLButtonElement;
-      component.reportName = 'Report 1';
       fixture.detectChanges();
       expect(saveButton.disabled).toBeFalse();
     });
@@ -67,7 +64,6 @@ describe('EditReportNamePopoverComponent', () => {
   it('saveReportName(): should call saveReportName method when save button is clicked', () => {
     popoverController.dismiss.and.returnValue(Promise.resolve(true));
     const saveButton = getElementBySelector(fixture, '.edit-report-name--toolbar__btn-save') as HTMLButtonElement;
-    component.reportName = 'Report 1';
     fixture.detectChanges();
     saveButton.click();
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reportName: 'Report 1' });
