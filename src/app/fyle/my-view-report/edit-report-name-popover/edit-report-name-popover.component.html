@@ -10,7 +10,7 @@
     </ion-buttons>
     <ion-buttons slot="end">
       <ion-button
-        [disabled]="!reportName.trim().length"
+        [disabled]="!reportName?.trim().length"
         class="edit-report-name--toolbar__btn-save"
         (click)="saveReportName()"
       >
