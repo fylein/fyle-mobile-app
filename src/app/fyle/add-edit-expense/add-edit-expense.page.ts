@@ -4,11 +4,9 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } 
 import {
   combineLatest,
   concat,
-  EMPTY,
   forkJoin,
   from,
   iif,
-  merge,
   Observable,
   of,
   BehaviorSubject,
@@ -22,10 +20,7 @@ import { TitleCasePipe } from '@angular/common';
 import {
   catchError,
   concatMap,
-  debounceTime,
-  delay,
   distinctUntilChanged,
-  distinctUntilKeyChanged,
   filter,
   finalize,
   map,
@@ -34,7 +29,6 @@ import {
   startWith,
   switchMap,
   take,
-  takeUntil,
   tap,
   timeout,
   withLatestFrom,
@@ -60,7 +54,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -103,7 +96,6 @@ import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
@@ -113,8 +105,6 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
@@ -372,7 +362,6 @@ export class AddEditExpensePage implements OnInit {
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private transactionService: TransactionService,
-    private dataTransformService: DataTransformService,
     private policyService: PolicyService,
     private transactionOutboxService: TransactionsOutboxService,
     private router: Router,
@@ -401,11 +390,9 @@ export class AddEditExpensePage implements OnInit {
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
     private handleDuplicates: HandleDuplicatesService,
-    private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private dependentFieldsService: DependentFieldsService,
     private storageService: StorageService
   ) {}
 
