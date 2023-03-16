@@ -58,9 +58,9 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
           );
         })
       )
-      .subscribe((res) => {
-        if (res?.dependentField) {
-          this.addDependentField(res.dependentField, res.parentFieldValue);
+      .subscribe((dependentFieldDetails) => {
+        if (dependentFieldDetails?.dependentField) {
+          this.addDependentField(dependentFieldDetails.dependentField, dependentFieldDetails.parentFieldValue);
         }
       });
   }
@@ -101,9 +101,9 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
         this.isDependentFieldLoading = true;
         this.getDependentField(parentField.id, parentField.value)
           .pipe(finalize(() => (this.isDependentFieldLoading = false)))
-          .subscribe((res) => {
-            if (res?.dependentField) {
-              this.addDependentField(res.dependentField, res.parentFieldValue);
+          .subscribe((dependentFieldDetails) => {
+            if (dependentFieldDetails?.dependentField) {
+              this.addDependentField(dependentFieldDetails.dependentField, dependentFieldDetails.parentFieldValue);
             }
           });
       }
@@ -183,9 +183,9 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
     this.isDependentFieldLoading = true;
     this.getDependentField(data.id, data.value)
       .pipe(finalize(() => (this.isDependentFieldLoading = false)))
-      .subscribe((res) => {
-        if (res?.dependentField) {
-          this.addDependentField(res.dependentField, res.parentFieldValue);
+      .subscribe((dependentFieldDetails) => {
+        if (dependentFieldDetails?.dependentField) {
+          this.addDependentField(dependentFieldDetails.dependentField, dependentFieldDetails.parentFieldValue);
         }
       });
   }

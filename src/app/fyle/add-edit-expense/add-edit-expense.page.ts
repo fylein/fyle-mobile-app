@@ -2310,6 +2310,7 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillEnter() {
     this.onPageExit$ = new Subject();
+    this.dependentFieldsRef?.ngOnInit();
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -4248,6 +4249,7 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
+    this.dependentFieldsRef.ngOnDestroy();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
   }
