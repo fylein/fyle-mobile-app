@@ -61,7 +61,7 @@ describe('FyHeaderComponent', () => {
     component.currentState = HeaderState.multiselect;
     fixture.detectChanges();
 
-    const cancelButton = getElementBySelector(fixture, '.fy-header--simple-search-cancel') as HTMLElement;
+    const cancelButton = getElementBySelector(fixture, 'ion-button') as HTMLElement;
     cancelButton.click();
     expect(component.multiselectBack.emit).toHaveBeenCalledTimes(1);
   });
