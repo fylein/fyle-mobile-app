@@ -22,7 +22,7 @@
   </div>
 </ion-header>
 <div class="fy-modal">
-  <div class="report-list--container">
+  <div *ngIf="data.openReports.length; else zeroState" class="report-list--container">
     <div class="report-list--list" *ngFor="let report of data.openReports; index as i">
       <div mat-ripple (click)="addTransactionToReport(report)">
         <div *ngIf="i > 0" class="report-list--divider"></div>
@@ -38,7 +38,7 @@
               <div class="report-list--currency-amount-container">
                 <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
                 <span class="report-list--amount">{{
-                  report.rp_amount || 0 | humanizeCurrency: report.rp_currency:true
+                  report.rp_amount || 0 | humanizeCurrency : report.rp_currency : true
                 }}</span>
               </div>
               <div class="ion-text-right">
@@ -52,4 +52,22 @@
       </div>
     </div>
   </div>
+  <ng-template #zeroState>
+    <div class="report-list--zero-state">
+      <img
+        class="report-list--zero-state__img"
+        src="../../../../../assets/images/zero-states/expenses.png"
+        alt="zero"
+      />
+      <div class="report-list--zero-state__title">No Reports found</div>
+      <div class="report-list--zero-state__subtitle">
+        To create a draft report please click on
+        <ion-icon
+          class="report-list--zero-state__icon"
+          slot="icon-only"
+          src="../../../../../assets/svg/fy-plus.svg"
+        ></ion-icon>
+      </div>
+    </div>
+  </ng-template>
 </div>
