@@ -53,21 +53,11 @@
     </div>
   </div>
   <ng-template #zeroState>
-    <div class="report-list--zero-state">
-      <img
-        class="report-list--zero-state__img"
-        src="../../../../../assets/images/zero-states/expenses.png"
-        alt="zero"
-      />
-      <div class="report-list--zero-state__title">No Reports found</div>
-      <div class="report-list--zero-state__subtitle">
-        To create a draft report please click on
-        <ion-icon
-          class="report-list--zero-state__icon"
-          slot="icon-only"
-          src="../../../../../assets/svg/fy-plus.svg"
-        ></ion-icon>
-      </div>
-    </div>
+    <app-fy-zero-state
+      image="../../../../../assets/images/zero-states/expenses.png"
+      [useTaskReportImage]="true"
+      header="No Reports found"
+      message='To create a draft report please click on <ion-icon class="report-list--zero-state__icon" slot="icon-only" src="../../../../../assets/svg/fy-plus.svg"></ion-icon>'
+    ></app-fy-zero-state>
   </ng-template>
 </div>

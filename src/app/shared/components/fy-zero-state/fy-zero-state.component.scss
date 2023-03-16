@@ -13,6 +13,11 @@
       max-height: initial;
       max-width: initial;
     }
+    &__report {
+      width: 220px;
+      max-width: 220px;
+      max-height: 124px;
+    }
   }
 
   &--header {
