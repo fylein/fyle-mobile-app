@@ -26,6 +26,7 @@ import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -80,6 +81,8 @@ export class SplitExpensePage implements OnInit {
   completeTxnIds: string[];
 
   categoryList: OrgCategory[];
+
+  projectDependentFields: ExpenseField[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -212,6 +215,12 @@ export class SplitExpensePage implements OnInit {
       this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
     this.transaction.to_dt = this.transaction?.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
 
+    //TODO: Check why dependent fields are not getting set for split expenses
+    let txnCustomProperties = this.transaction.custom_properties;
+    if (this.splitType === 'projects' && splitExpenseValue.project?.project_id === this.transaction.project_id) {
+      txnCustomProperties = this.transaction.custom_properties.concat(this.projectDependentFields);
+    }
+
     return {
       ...this.transaction,
       org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
@@ -222,6 +231,7 @@ export class SplitExpensePage implements OnInit {
       source: 'MOBILE',
       billable: this.setUpSplitExpenseBillable(splitExpenseValue),
       tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
+      custom_properties: txnCustomProperties,
     };
   }
 
@@ -465,51 +475,64 @@ export class SplitExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
-      const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
-      const orgSettings$ = this.orgSettingsService.get();
-      this.splitType = this.activatedRoute.snapshot.params.splitType;
-      this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields);
-      this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
-      this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
-      this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
-      this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
+    const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
+    const orgSettings$ = this.orgSettingsService.get();
+    this.splitType = this.activatedRoute.snapshot.params.splitType;
+    this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields);
+    this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
+    this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
+    this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
 
-      this.categories$ = this.getActiveCategories().pipe(
-        map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+    this.categories$ = this.getActiveCategories().pipe(
+      map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+    );
+    this.getCategoryList();
+
+    this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
+
+    //Remove project dependent fields if split type is project.
+    if (this.splitType === 'projects') {
+      this.projectDependentFields = this.transaction.custom_properties.filter(
+        (customProperty) => customProperty.type === 'DEPENDENT_SELECT'
       );
-      this.getCategoryList();
 
-      if (this.splitType === 'cost centers') {
-        const orgSettings$ = this.orgSettingsService.get();
-        const orgUserSettings$ = this.orgUserSettingsService.get();
-        this.costCenters$ = forkJoin({
-          orgSettings: orgSettings$,
-          orgUserSettings: orgUserSettings$,
-        }).pipe(
-          switchMap(({ orgSettings, orgUserSettings }) => {
-            if (orgSettings.cost_centers.enabled) {
-              return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
-            } else {
-              return of([]);
-            }
-          }),
-          map((costCenters) =>
-            costCenters.map((costCenter) => ({
-              label: costCenter.name,
-              value: costCenter,
-            }))
-          )
-        );
-      }
+      this.transaction.custom_properties = this.transaction.custom_properties.filter(
+        (customProperty) => customProperty.type !== 'DEPENDENT_SELECT'
+      );
+    }
 
-      this.isCorporateCardsEnabled$ = orgSettings$.pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
+    if (this.splitType === 'cost centers') {
+      const orgSettings$ = this.orgSettingsService.get();
+      const orgUserSettings$ = this.orgUserSettingsService.get();
+      this.costCenters$ = forkJoin({
+        orgSettings: orgSettings$,
+        orgUserSettings: orgUserSettings$,
+      }).pipe(
+        switchMap(({ orgSettings, orgUserSettings }) => {
+          if (orgSettings.cost_centers.enabled) {
+            return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+          } else {
+            return of([]);
+          }
+        }),
+        map((costCenters) =>
+          costCenters.map((costCenter) => ({
+            label: costCenter.name,
+            value: costCenter,
+          }))
         )
       );
+    }
 
+    this.isCorporateCardsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
+      )
+    );
+
+    //TODO: Remove this nested subscribe
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
         this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       });
