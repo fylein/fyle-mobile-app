@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActiveOrgCardComponent } from './active-org-card.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
-import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 describe('ActiveOrgCardComponent', () => {
   let component: ActiveOrgCardComponent;
@@ -25,9 +25,9 @@ describe('ActiveOrgCardComponent', () => {
   });
 
   it('switchOrg(): should emit event for switch org', () => {
-    spyOn(component.orgSelected, 'emit');
+    const orgSelectedSpy = spyOn(component.orgSelected, 'emit');
     component.switchOrg();
-    expect(component.orgSelected.emit).toHaveBeenCalledTimes(1);
+    expect(orgSelectedSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should load with correct org data', () => {
@@ -56,10 +56,10 @@ describe('ActiveOrgCardComponent', () => {
   });
 
   it('should emit event when active org card is clicked', () => {
-    spyOn(component.orgSelected, 'emit');
+    const orgSelectedSpy = spyOn(component.orgSelected, 'emit');
 
     const button = getElementBySelector(fixture, '.active-org-card') as HTMLElement;
-    button.click();
-    expect(component.orgSelected.emit).toHaveBeenCalledTimes(1);
+    click(button);
+    expect(orgSelectedSpy).toHaveBeenCalledTimes(1);
   });
 });
