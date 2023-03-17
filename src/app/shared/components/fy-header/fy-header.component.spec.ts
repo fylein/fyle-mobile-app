@@ -1,7 +1,6 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
-import { By } from 'protractor';
-import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
 import { FyHeaderComponent } from './fy-header.component';
 import { HeaderState } from './header-state.enum';
@@ -25,16 +24,16 @@ describe('FyHeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('onSimpleSearchCancel(): should emit and event when the method is called', () => {
-    spyOn(component.simpleSearchCancel, 'emit');
+  it('onSimpleSearchCancel(): should emit event when the method is called', () => {
+    const simpleSearchCancelSpy = spyOn(component.simpleSearchCancel, 'emit');
     component.onSimpleSearchCancel();
-    expect(component.simpleSearchCancel.emit).toHaveBeenCalledTimes(1);
+    expect(simpleSearchCancelSpy).toHaveBeenCalledTimes(1);
   });
 
   it('onMultiselectBack(): should emit and event when the method is called', () => {
-    spyOn(component.multiselectBack, 'emit');
+    const multiselectSpy = spyOn(component.multiselectBack, 'emit');
     component.onMultiselectBack();
-    expect(component.multiselectBack.emit).toHaveBeenCalledTimes(1);
+    expect(multiselectSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should show the correct title as given when HeaderState is Base', () => {
@@ -46,23 +45,23 @@ describe('FyHeaderComponent', () => {
     expect(getTextContent(header)).toEqual('Expenses');
   });
 
-  it('should click a button when HeaderState is SimpleSearch', () => {
-    spyOn(component.simpleSearchCancel, 'emit');
+  it('should click the Cancel button when HeaderState is SimpleSearch', () => {
+    const simpleSearchCancelSpy = spyOn(component.simpleSearchCancel, 'emit');
     component.currentState = HeaderState.simpleSearch;
     fixture.detectChanges();
 
     const cancelButton = getElementBySelector(fixture, '.fy-header--simple-search-cancel') as HTMLElement;
-    cancelButton.click();
-    expect(component.simpleSearchCancel.emit).toHaveBeenCalledTimes(1);
+    click(cancelButton);
+    expect(simpleSearchCancelSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should click a button when HeaderState is MultiSelect', () => {
-    spyOn(component.multiselectBack, 'emit');
+  it('should click the Back button when HeaderState is MultiSelect', () => {
+    const multiselectSpy = spyOn(component.multiselectBack, 'emit');
     component.currentState = HeaderState.multiselect;
     fixture.detectChanges();
 
-    const cancelButton = getElementBySelector(fixture, 'ion-button') as HTMLElement;
-    cancelButton.click();
-    expect(component.multiselectBack.emit).toHaveBeenCalledTimes(1);
+    const backButton = getElementBySelector(fixture, 'ion-button') as HTMLElement;
+    click(backButton);
+    expect(multiselectSpy).toHaveBeenCalledTimes(1);
   });
 });
