@@ -54,7 +54,12 @@ export class StatsComponent implements OnInit {
 
   cardTransactionsAndDetails: CardDetail[];
 
-  reportStatsData$: Observable<{ reportStats: ReportStats; simplifyReportsSettings: { enabled: boolean } }>;
+  reportStatsData$: Observable<{
+    reportStats: ReportStats;
+    simplifyReportsSettings: { enabled: boolean };
+    homeCurrency: String;
+    currencySymbol: String;
+  }>;
 
   constructor(
     private dashboardService: DashboardService,
