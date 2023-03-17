@@ -1,15 +1,16 @@
 import { TestBed } from '@angular/core/testing';
+import * as dayjs from 'dayjs';
 import * as lodash from 'lodash';
 import { customFieldData1, customFieldData2 } from '../mock-data/custom-field.data';
 import { allAdvanceRequestsRes, singleExtendedAdvReqRes } from '../mock-data/extended-advance-request.data';
 import { txnDataPayload } from '../mock-data/transaction.data';
+import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
 
 import { UtilityService } from './utility.service';
 
 describe('UtilityService', () => {
   let utilityService: UtilityService;
-  const EPOCH = 19700101;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -67,6 +68,22 @@ describe('UtilityService', () => {
       );
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(allAdvanceRequestsRes.data);
     });
+
+    it('should sort advances by approval date', () => {
+      spyOn(lodash, 'cloneDeep').and.returnValue(allAdvanceRequestsRes.data);
+      expect(utilityService.sortAllAdvances(1, SortingParam.approvalDate, allAdvanceRequestsRes.data)).toEqual(
+        allAdvanceRequestsRes.data
+      );
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(allAdvanceRequestsRes.data);
+    });
+
+    it('should sort advances by project', () => {
+      spyOn(lodash, 'cloneDeep').and.returnValue(allAdvanceRequestsRes.data);
+      expect(
+        utilityService.sortAllAdvances(SortingDirection.ascending, SortingParam.project, allAdvanceRequestsRes.data)
+      ).toEqual(allAdvanceRequestsRes.data);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(allAdvanceRequestsRes.data);
+    });
   });
 
   it('getEmailsFromString(): should return emails from a string', () => {
@@ -79,5 +96,36 @@ describe('UtilityService', () => {
     expect(utilityService.getAmountWithCurrencyFromString(mockStr)).toEqual(
       mockStr.match(/capped to ([a-zA-Z]{1,3} \d+)/i)
     );
+  });
+
+  it('should return 1 if sortingValue1 is greater than sortingValue2 and sortDir is ascending', () => {
+    const sortingValue1 = 'project1';
+    const sortingValue2 = 'project2';
+    const sortDir = SortingDirection.ascending;
+    const sortingParam = SortingParam.project;
+    // @ts-ignore
+    expect(utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam)).toBe(1);
+  });
+
+  it('should return -1 if sortingValue1 is greater than sortingValue2 and sortDir is descending', () => {
+    const sortingValue1 = dayjs('2022-02-02');
+    const sortingValue2 = dayjs('2022-02-01');
+    const sortDir = SortingDirection.descending;
+    const sortingParam = SortingParam.creationDate;
+    // @ts-ignore
+    expect(utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam)).toBe(-1);
+  });
+
+  it('should handle default sort if sortingValue1 and sortingValue2 are null', () => {
+    const sortingValue1 = null;
+    const sortingValue2 = null;
+    const sortDir = SortingDirection.ascending;
+    const sortingParam = SortingParam.creationDate;
+    // @ts-ignore
+    spyOn(utilityService, 'handleDefaultSort').and.returnValue(null);
+    // @ts-ignore
+    utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
+    // @ts-ignore
+    expect(utilityService.handleDefaultSort).toHaveBeenCalledWith(sortingValue1, sortingValue2, sortingParam);
   });
 });
