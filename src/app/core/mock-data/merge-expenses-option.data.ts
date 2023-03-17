@@ -83,3 +83,25 @@ export const mergeExpensesOptionData3: MergeExpensesOption[] = [
     value: '3943',
   },
 ];
+
+export const mergeExpensesOptionData4: MergeExpensesOption[] = [
+  {
+    label: 'Food',
+    value: '201952',
+  },
+  {
+    label: 'Hotel',
+    value: '16582',
+  },
+];
+
+export const mergeExpensesOptionData5: MergeExpensesOption[] = [
+  {
+    label: '23',
+    value: 'tgXEJA6YUoZ1',
+  },
+  {
+    label: '23',
+    value: 'tgXEJA6YUoZ1',
+  },
+];

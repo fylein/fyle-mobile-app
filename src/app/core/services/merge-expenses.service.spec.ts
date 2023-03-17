@@ -40,6 +40,8 @@ import {
   mergeExpensesOptionData1,
   mergeExpensesOptionData2,
   mergeExpensesOptionData3,
+  mergeExpensesOptionData4,
+  mergeExpensesOptionData5,
   mergeExpensesOptionsData,
   paymentModeOptions1,
   paymentModeOptions2,
@@ -49,6 +51,10 @@ import {
 } from '../mock-data/merge-expenses-option.data';
 import { AccountType } from '../enums/account-type.enum';
 import {
+  optionsData10,
+  optionsData11,
+  optionsData12,
+  optionsData13,
   optionsData2,
   optionsData3,
   optionsData4,
@@ -550,6 +556,59 @@ describe('MergeExpensesService', () => {
       expect(res).toEqual(optionsData9);
       // @ts-ignore
       expect(mergeExpensesService.formatProjectOptions).toHaveBeenCalledTimes(2);
+      done();
+    });
+  });
+
+  it('generateCategoryOptions(): should return the category options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatCategoryOption').and.returnValue(of(mergeExpensesOptionData4));
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'checkOptionsAreSame').and.returnValue(false);
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'removeUnspecified').and.returnValue(mergeExpensesOptionData4);
+
+    mergeExpensesService.generateCategoryOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData10);
+      // @ts-ignore
+      expect(mergeExpensesService.formatCategoryOption).toHaveBeenCalledTimes(2);
+      done();
+    });
+  });
+
+  it('generateTaxGroupOptions(): should return the tax group options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatTaxGroupOption').and.returnValue(of(mergeExpensesOptionData5));
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData11);
+
+    mergeExpensesService.generateTaxGroupOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData11);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('generateTaxAmountOptions(): should return the tax amount options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData12);
+    mergeExpensesService.generateTaxAmountOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData12);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('generateCostCenterOptions(): should return the cost center options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData13);
+
+    mergeExpensesService.generateCostCenterOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData13);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledTimes(1);
       done();
     });
   });

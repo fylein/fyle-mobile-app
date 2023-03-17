@@ -108,3 +108,59 @@ export const optionsData9: MergeExpensesOptionsData = {
   ],
   areSameValues: true,
 };
+
+export const optionsData10: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Food',
+      value: '201952',
+    },
+    {
+      label: 'Hotel',
+      value: '16582',
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData11: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: '23',
+      value: 'tgXEJA6YUoZ1',
+    },
+    {
+      label: '23',
+      value: 'tgXEJA6YUoZ1',
+    },
+  ],
+  areSameValues: true,
+};
+
+export const optionsData12: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: '0.01',
+      value: 0.01,
+    },
+    {
+      label: '0.01',
+      value: 0.01,
+    },
+  ],
+  areSameValues: true,
+};
+
+export const optionsData13: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Cost Center 1',
+      value: 13788,
+    },
+    {
+      label: 'Cost Center 2',
+      value: 13795,
+    },
+  ],
+  areSameValues: false,
+};
