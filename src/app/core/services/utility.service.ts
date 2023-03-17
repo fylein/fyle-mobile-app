@@ -6,6 +6,7 @@ import { SortingDirection } from '../models/sorting-direction.model';
 import * as dayjs from 'dayjs';
 import { CustomField } from '../models/custom_field.model';
 import { Transaction } from '../models/v1/transaction.model';
+import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -102,7 +103,7 @@ export class UtilityService {
     return obj;
   }
 
-  sortAllAdvances(sortDir: SortingDirection, sortParam: SortingParam, advancesArray: any[]) {
+  sortAllAdvances(sortDir: SortingDirection, sortParam: SortingParam, advancesArray: ExtendedAdvanceRequest[]) {
     //used for sorting an array that has both advances and advance requests mixed together
     const sortedAdvancesArray = cloneDeep(advancesArray);
 
