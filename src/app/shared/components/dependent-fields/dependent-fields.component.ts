@@ -53,7 +53,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
         filter((project) => !!project),
         switchMap((project) => {
           this.isDependentFieldLoading = true;
-          return this.getDependentField(this.txnFields.project_id.id, project.project_name).pipe(
+          return this.getDependentField(this.txnFields.project_id.id, project.projectv2_name).pipe(
             finalize(() => (this.isDependentFieldLoading = false))
           );
         })
