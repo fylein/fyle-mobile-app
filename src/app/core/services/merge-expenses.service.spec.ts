@@ -55,6 +55,7 @@ import {
   optionsData11,
   optionsData12,
   optionsData13,
+  optionsData14,
   optionsData2,
   optionsData3,
   optionsData4,
@@ -610,6 +611,28 @@ describe('MergeExpensesService', () => {
       // @ts-ignore
       expect(mergeExpensesService.formatOptions).toHaveBeenCalledTimes(1);
       done();
+    });
+  });
+
+  it('generatePurposeOptions(): should return the purpose options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData14);
+
+    mergeExpensesService.generatePurposeOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData14);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('getFieldValue():', () => {
+    it('should return the field value when options are passed', () => {
+      expect(mergeExpensesService.getFieldValue(optionsData12)).toEqual(0.01);
+    });
+
+    it('should return null when options are not passed', () => {
+      expect(mergeExpensesService.getFieldValue(optionsData13)).toBeNull();
     });
   });
 });

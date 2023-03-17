@@ -164,3 +164,17 @@ export const optionsData13: MergeExpensesOptionsData = {
   ],
   areSameValues: false,
 };
+
+export const optionsData14: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Outing',
+      value: 'Outing',
+    },
+    {
+      label: 'Offsite',
+      value: 'Offsite',
+    },
+  ],
+  areSameValues: false,
+};
