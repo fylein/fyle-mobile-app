@@ -92,7 +92,12 @@ export class StatsComponent implements OnInit {
       map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
     );
 
-    this.reportStatsData$ = forkJoin({ reportStats: reportStats$, simplifyReportsSettings: simplifyReportsSettings$ });
+    this.reportStatsData$ = forkJoin({
+      reportStats: reportStats$,
+      simplifyReportsSettings: simplifyReportsSettings$,
+      homeCurrency: this.homeCurrency$,
+      currencySymbol: this.currencySymbol$,
+    });
 
     this.draftStats$ = reportStats$.pipe(map((stats) => stats.draft));
 
