@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActiveOrgCardComponent } from './active-org-card.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { IonicModule } from '@ionic/angular';
 
 describe('ActiveOrgCardComponent', () => {
   let component: ActiveOrgCardComponent;
@@ -9,6 +10,7 @@ describe('ActiveOrgCardComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
+      imports: [IonicModule.forRoot()],
       declarations: [ActiveOrgCardComponent],
     }).compileComponents();
   }));
