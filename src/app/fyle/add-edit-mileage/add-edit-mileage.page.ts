@@ -1398,7 +1398,7 @@ export class AddEditMileagePage implements OnInit {
           if (dependentFields?.length && project) {
             const projectField = {
               id: txnFields.project_id?.id,
-              value: project.project_name,
+              value: project.projectv2_name,
             };
             this.dependentFieldsRef.addDependentFieldWithValue(
               etxn.tx.custom_properties,
