@@ -26,8 +26,6 @@ import { ReportStats } from 'src/app/core/models/report-stats.model';
 export class StatsComponent implements OnInit {
   draftStats$: Observable<{ count: number; sum: number }>;
 
-  reportedStats$: Observable<{ count: number; sum: number }>;
-
   approvedStats$: Observable<{ count: number; sum: number }>;
 
   paymentPendingStats$: Observable<{ count: number; sum: number }>;
@@ -105,8 +103,6 @@ export class StatsComponent implements OnInit {
     });
 
     this.draftStats$ = reportStats$.pipe(map((stats) => stats.draft));
-
-    this.reportedStats$ = reportStats$.pipe(map((stats) => stats.report));
 
     this.approvedStats$ = reportStats$.pipe(map((stats) => stats.approved));
 
