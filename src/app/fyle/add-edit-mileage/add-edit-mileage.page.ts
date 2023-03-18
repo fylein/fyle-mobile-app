@@ -1409,7 +1409,7 @@ export class AddEditMileagePage implements OnInit {
           if (dependentFields?.length && project) {
             const projectField = {
               id: txnFields.project_id?.id,
-              value: project.project_name,
+              value: project.projectv2_name,
             };
             this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, projectField);
           }
@@ -1568,7 +1568,7 @@ export class AddEditMileagePage implements OnInit {
           this.isDependentFieldLoading = true;
           return this.txnFields$.pipe(
             take(1),
-            switchMap((txnFields) => this.getDependentField(txnFields.project_id.id, project.project_name)),
+            switchMap((txnFields) => this.getDependentField(txnFields.project_id.id, project.projectv2_name)),
             finalize(() => (this.isDependentFieldLoading = false))
           );
         })
