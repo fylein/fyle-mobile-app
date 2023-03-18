@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { ConnectionMessageStatus } from './connection-status.enum';
 import { NetworkService } from '../../../core/services/network.service';
 import { FyConnectionComponent } from './fy-connection.component';
-import { getElementBySelector } from 'src/app/core/dom-helpers';
+import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { of } from 'rxjs';
 
 describe('FyConnectionComponent', () => {
@@ -53,7 +53,7 @@ describe('FyConnectionComponent', () => {
       fyConnectionComponent.ngOnInit();
       fixture.detectChanges();
       const connMsg = getElementBySelector(fixture, '.connection--online-message');
-      expect(connMsg).toBeTruthy();
+      expect(getTextContent(connMsg)).toEqual('Back online');
     });
   });
 
@@ -63,7 +63,7 @@ describe('FyConnectionComponent', () => {
       fyConnectionComponent.ngOnInit();
       fixture.detectChanges();
       const connMsg = getElementBySelector(fixture, '.connection--offline');
-      expect(connMsg).toBeTruthy();
+      expect(getTextContent(connMsg)).toEqual('No internet connection');
     });
 
     it('should return correct ConnectionMessageStatus', () => {
