@@ -530,12 +530,12 @@ export class SplitExpensePage implements OnInit {
       )
     );
 
-    //TODO: Remove this nested subscribe
-    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
-      this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
-        this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
-      });
-    });
+    forkJoin({
+      homeCurrency: this.currencyService.getHomeCurrency(),
+      isCorporateCardsEnabled: this.isCorporateCardsEnabled$,
+    }).subscribe(({ homeCurrency, isCorporateCardsEnabled }) =>
+      this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled)
+    );
   }
 
   setValuesForCCC(currencyObj: any, homeCurrency: any, isCorporateCardsEnabled: boolean) {
