@@ -202,11 +202,11 @@ export const optionsData16: MergeExpensesOptionsData = {
   options: [
     {
       label: 'Mar 13, 2023',
-      value: new Date('2023-03-13T05:31:06.601Z'),
+      value: new Date('2023-03-13T05:31:00.000Z'),
     },
     {
       label: 'Mar 10, 2023',
-      value: new Date('2023-03-10T05:31:06.601Z'),
+      value: new Date('2023-03-10T05:31:00.000Z'),
     },
   ],
   areSameValues: false,
