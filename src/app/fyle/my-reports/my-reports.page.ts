@@ -106,7 +106,7 @@ export class MyReportsPage implements OnInit {
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
-  isCCCOnlyOrg$: Observable<boolean>;
+  nonReimbursableOrg$: Observable<boolean>;
 
   constructor(
     private networkService: NetworkService,
@@ -260,7 +260,7 @@ export class MyReportsPage implements OnInit {
     this.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
     );
-    this.isCCCOnlyOrg$ = orgSettings$.pipe(
+    this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
           orgSettings.payment_mode_settings?.allowed &&
