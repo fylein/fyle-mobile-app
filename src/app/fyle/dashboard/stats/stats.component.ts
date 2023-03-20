@@ -16,6 +16,7 @@ import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ReportStats } from 'src/app/core/models/report-stats.model';
 
 @Component({
@@ -29,6 +30,8 @@ export class StatsComponent implements OnInit {
   approvedStats$: Observable<{ count: number; sum: number }>;
 
   paymentPendingStats$: Observable<{ count: number; sum: number }>;
+
+  processingStats$: Observable<{ count: number; sum: number }>;
 
   homeCurrency$: Observable<string>;
 
@@ -44,6 +47,8 @@ export class StatsComponent implements OnInit {
 
   isIncompleteExpensesStatsLoading = true;
 
+  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
   reportStatsLoading = true;
 
   loadData$ = new Subject();
@@ -55,8 +60,9 @@ export class StatsComponent implements OnInit {
   reportStatsData$: Observable<{
     reportStats: ReportStats;
     simplifyReportsSettings: { enabled: boolean };
-    homeCurrency: String;
-    currencySymbol: String;
+    homeCurrency: string;
+    currencySymbol: string;
+    isNonReimbursableOrg: boolean;
   }>;
 
   constructor(
@@ -66,7 +72,8 @@ export class StatsComponent implements OnInit {
     private networkService: NetworkService,
     private trackingService: TrackingService,
     private orgSettingsService: OrgSettingsService,
-    private orgService: OrgService
+    private orgService: OrgService,
+    private paymentModeService: PaymentModesService
   ) {}
 
   get ReportStates() {
@@ -95,11 +102,16 @@ export class StatsComponent implements OnInit {
       map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
     );
 
+    const isNonReimbursableOrg$ = orgSettings$.pipe(
+      map((orgSettings) => this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings))
+    );
+
     this.reportStatsData$ = forkJoin({
       reportStats: reportStats$,
       simplifyReportsSettings: simplifyReportsSettings$,
       homeCurrency: this.homeCurrency$,
       currencySymbol: this.currencySymbol$,
+      isNonReimbursableOrg: isNonReimbursableOrg$,
     });
 
     this.draftStats$ = reportStats$.pipe(map((stats) => stats.draft));
@@ -107,6 +119,8 @@ export class StatsComponent implements OnInit {
     this.approvedStats$ = reportStats$.pipe(map((stats) => stats.approved));
 
     this.paymentPendingStats$ = reportStats$.pipe(map((stats) => stats.paymentPending));
+
+    this.processingStats$ = reportStats$.pipe(map((stats) => stats.processing));
   }
 
   initializeExpensesStats() {
