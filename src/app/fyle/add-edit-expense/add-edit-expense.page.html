@@ -577,7 +577,7 @@
                         *ngIf="fg.controls.from_dt.touched && !fg.controls.from_dt.valid"
                         class="add-edit-expense--date-error"
                       >
-                        Please select a valid date.
+                        Please select a valid {{txnFields.from_dt?.field_name}}.
                       </div>
                     </ion-col>
                     <ion-col
@@ -607,7 +607,7 @@
                         *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid"
                         class="add-edit-expense--date-error"
                       >
-                        Please select a valid date.
+                        Please select a valid {{txnFields.to_dt?.field_name}}.
                       </div>
                     </ion-col>
                   </ion-row>
