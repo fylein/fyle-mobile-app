@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformCategory } from '../models/platform/platform-category.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
@@ -18,7 +18,7 @@ export class CategoriesService {
 
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
   @Cacheable({
@@ -43,7 +43,7 @@ export class CategoriesService {
         limit: 1,
       },
     };
-    return this.spenderPlatformV1BetaApiService
+    return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
       .pipe(map((res) => res.count));
   }
@@ -56,7 +56,7 @@ export class CategoriesService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformV1BetaApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.sortCategories(res)),
       map((res) => this.addDisplayName(res))

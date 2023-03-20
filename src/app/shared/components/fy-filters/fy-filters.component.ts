@@ -3,6 +3,7 @@ import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
 import { ModalController } from '@ionic/angular';
+import { forkJoin, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-fy-filters',
@@ -10,11 +11,15 @@ import { ModalController } from '@ionic/angular';
   styleUrls: ['./fy-filters.component.scss'],
 })
 export class FyFiltersComponent implements OnInit {
-  @Input() filterOptions: FilterOptions<any>[];
+  @Input() simplifyReportsSettings$: Observable<any> = of({ enabled: false });
+
+  @Input() nonReimbursableOrg$: Observable<boolean> = of(false);
 
   @Input() selectedFilterValues: SelectedFilters<any>[];
 
   @Input() activeFilterInitialName;
+
+  filterOptions: FilterOptions<any>[];
 
   currentFilterValueMap: { [key: string]: any | any[] } = {};
 
@@ -60,6 +65,18 @@ export class FyFiltersComponent implements OnInit {
       this.startDate = this.customDateMap[this.activeFilter.name]?.startDate;
       this.endDate = this.customDateMap[this.activeFilter.name]?.endDate;
     }
+
+    const stateFilterIndex = this.filterOptions.findIndex((option) => option.name === 'State');
+    forkJoin({
+      simplifyReportsSettings: this.simplifyReportsSettings$,
+      nonReimbursableOrg: this.nonReimbursableOrg$,
+    }).subscribe(({ simplifyReportsSettings, nonReimbursableOrg }) => {
+      if (simplifyReportsSettings.enabled) {
+        this.filterOptions[stateFilterIndex].options = nonReimbursableOrg
+          ? this.filterOptions[stateFilterIndex].optionsNewFlowCCCOnly
+          : this.filterOptions[stateFilterIndex].optionsNewFlow;
+      }
+    });
   }
 
   getNoOfFilters() {

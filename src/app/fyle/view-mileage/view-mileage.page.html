@@ -85,7 +85,7 @@
           [ngClass]="{'view-mileage--card-container__state-pill--with-project': isProjectShown}"
         >
           <div class="state-pill state-{{extendedMileage.tx_state | expenseState}}">
-            {{ extendedMileage.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
+            {{ extendedMileage.tx_state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
       </div>
@@ -274,7 +274,7 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid class="view-mileage--grid">
+    <ion-grid *ngIf="extendedMileage.tx_mileage_rate" class="view-mileage--grid">
       <ion-row>
         <ion-col>
           <ion-grid>
@@ -301,7 +301,10 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid class="view-mileage--grid">
+    <ion-grid
+      *ngIf="extendedMileage.tx_distance || extendedMileage.tx_mileage_calculated_distance"
+      class="view-mileage--grid"
+    >
       <ion-row>
         <ion-col *ngIf="extendedMileage.tx_distance" size="6">
           <ion-grid>
@@ -340,9 +343,9 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid class="view-mileage--grid">
+    <ion-grid *ngIf="extendedMileage.tx_mileage_calculated_amount" class="view-mileage--grid">
       <ion-row>
-        <ion-col *ngIf="extendedMileage.tx_mileage_calculated_amount" size="6">
+        <ion-col size="6">
           <ion-grid>
             <ion-row>
               <ion-col class="view-mileage--icon-container">
@@ -410,21 +413,60 @@
       </ion-row>
     </ion-grid>
 
-    <ng-container *ngIf="extendedMileage.tx_custom_properties">
-      <div class="view-mileage--divider"></div>
-      <ion-grid *ngFor="let customProperty of extendedMileage.tx_custom_properties" class="view-mileage--grid">
-        <ion-row>
-          <ion-col class="view-mileage--icon-container">
-            <div class="view-mileage--icon-container__background">
-              <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-            </div>
-          </ion-col>
-          <ion-col class="view-mileage--content-container">
-            <div class="view-mileage--label">{{customProperty.name}}</div>
-            <div class="view-mileage--value">{{ getDisplayValue(customProperty) }}</div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+    <ng-container *ngIf="projectDependantCustomProperties$|async as projectDependantCustomProperties">
+      <ng-container *ngIf="projectDependantCustomProperties?.length > 0">
+        <div class="view-mileage--divider"></div>
+        <ion-grid *ngIf="isProjectShown" class="view-mileage--grid">
+          <ion-row>
+            <ion-col class="view-mileage--icon-container">
+              <div class="view-mileage--icon-container__background">
+                <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+              </div>
+            </ion-col>
+            <ion-col class="view-mileage--content-container">
+              <div class="view-mileage--label">Project</div>
+              <div class="view-mileage--value">
+                {{ projectFieldName | titlecase }}: {{ extendedMileage.tx_project_name ? extendedMileage.tx_project_name
+                : 'Unspecified' }}
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <ng-container *ngFor="let customProperty of projectDependantCustomProperties">
+          <ion-grid class="view-mileage--grid">
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">{{ customProperty.name }}</div>
+                <div class="view-mileage--value">{{ customProperty.displayValue }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="mileageCustomFields$|async as customProperties">
+      <ng-container *ngIf="customProperties?.length > 0">
+        <div class="view-mileage--divider"></div>
+        <ion-grid *ngFor="let customProperty of customProperties" class="view-mileage--grid">
+          <ion-row>
+            <ion-col class="view-mileage--icon-container">
+              <div class="view-mileage--icon-container__background">
+                <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+              </div>
+            </ion-col>
+            <ion-col class="view-mileage--content-container">
+              <div class="view-mileage--label">{{customProperty.name}}</div>
+              <div class="view-mileage--value">{{ customProperty.displayValue }}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
     </ng-container>
   </div>
 </ion-content>

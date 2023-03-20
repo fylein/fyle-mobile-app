@@ -10,8 +10,10 @@ import {
   filledCustomProperties,
   customProperties,
   filterTestData,
+  filledDependentFields,
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
+import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
@@ -264,6 +266,16 @@ describe('CustomInputsService', () => {
 
     const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
     expect(result).toEqual(expectedProperty);
+  });
+
+  it('should fill dependent field properties', (done) => {
+    authService.getEou.and.returnValue(Promise.resolve(authRespone));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
+    const result = customInputsService.fillDependantFieldProperties(expensesWithDependentFields[0]);
+    result.subscribe((res) => {
+      expect(res).toEqual(filledDependentFields);
+      done();
+    });
   });
 
   it('should fill custom properties', (done) => {

@@ -99,7 +99,7 @@ export class MyViewReportPage {
 
   segmentValue = Segment.EXPENSES;
 
-  simplifyReportsEnabled$: Observable<boolean>;
+  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -296,8 +296,8 @@ export class MyViewReportPage {
       .subscribe(noop);
 
     const orgSettings$ = this.orgSettingsService.get();
-    this.simplifyReportsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings?.simplified_report_closure_settings?.enabled)
+    this.simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
     );
   }
 

@@ -38,6 +38,8 @@ export class ViewPerDiemPage implements OnInit {
 
   perDiemCustomFields$: Observable<CustomField[]>;
 
+  projectDependantCustomProperties$: Observable<CustomField[]>;
+
   perDiemRate$: Observable<any>;
 
   isCriticalPolicyViolated$: Observable<boolean>;
@@ -77,6 +79,8 @@ export class ViewPerDiemPage implements OnInit {
   isProjectShown: boolean;
 
   projectFieldName: string;
+
+  isNewReportsFlowEnabled = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -195,6 +199,7 @@ export class ViewPerDiemPage implements OnInit {
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
+        this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       });
 
     this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(
@@ -207,6 +212,11 @@ export class ViewPerDiemPage implements OnInit {
           return customProperties;
         })
       )
+    );
+
+    this.projectDependantCustomProperties$ = this.extendedPerDiem$.pipe(
+      concatMap((extendedPerDiem) => this.customInputsService.fillDependantFieldProperties(extendedPerDiem)),
+      shareReplay(1)
     );
 
     this.perDiemRate$ = this.extendedPerDiem$.pipe(

@@ -6,7 +6,7 @@ import { delay, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
-import { concat, Subject } from 'rxjs';
+import { concat, forkJoin, of, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -17,6 +17,7 @@ import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { ReportStats } from 'src/app/core/models/report-stats.model';
 
 @Component({
   selector: 'app-stats',
@@ -25,8 +26,6 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 })
 export class StatsComponent implements OnInit {
   draftStats$: Observable<{ count: number; sum: number }>;
-
-  reportedStats$: Observable<{ count: number; sum: number }>;
 
   approvedStats$: Observable<{ count: number; sum: number }>;
 
@@ -50,8 +49,6 @@ export class StatsComponent implements OnInit {
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
-  isNonReimbursableOrg$: Observable<{ value: boolean }>;
-
   reportStatsLoading = true;
 
   loadData$ = new Subject();
@@ -59,6 +56,14 @@ export class StatsComponent implements OnInit {
   isCCCStatsLoading: boolean;
 
   cardTransactionsAndDetails: CardDetail[];
+
+  reportStatsData$: Observable<{
+    reportStats: ReportStats;
+    simplifyReportsSettings: { enabled: boolean };
+    homeCurrency: string;
+    currencySymbol: string;
+    isNonReimbursableOrg: boolean;
+  }>;
 
   constructor(
     private dashboardService: DashboardService,
@@ -92,9 +97,24 @@ export class StatsComponent implements OnInit {
       shareReplay(1)
     );
 
-    this.draftStats$ = reportStats$.pipe(map((stats) => stats.draft));
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    const simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+    );
 
-    this.reportedStats$ = reportStats$.pipe(map((stats) => stats.report));
+    const isNonReimbursableOrg$ = orgSettings$.pipe(
+      map((orgSettings) => this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings))
+    );
+
+    this.reportStatsData$ = forkJoin({
+      reportStats: reportStats$,
+      simplifyReportsSettings: simplifyReportsSettings$,
+      homeCurrency: this.homeCurrency$,
+      currencySymbol: this.currencySymbol$,
+      isNonReimbursableOrg: isNonReimbursableOrg$,
+    });
+
+    this.draftStats$ = reportStats$.pipe(map((stats) => stats.draft));
 
     this.approvedStats$ = reportStats$.pipe(map((stats) => stats.approved));
 
@@ -163,15 +183,6 @@ export class StatsComponent implements OnInit {
         this.cardTransactionsAndDetails = [];
       }
     });
-
-    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    that.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
-    );
-
-    that.isNonReimbursableOrg$ = orgSettings$.pipe(
-      map((orgSettings) => ({ value: this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings) }))
-    );
 
     this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;

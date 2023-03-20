@@ -3,18 +3,21 @@ import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap, toArray } from 'rxjs/operators';
 import { Expense } from '../models/expense.model';
 import { FileObject } from '../models/file-obj.model';
+import { FileTransaction } from '../models/file-txn.model';
 import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgCategory } from '../models/v1/org-category.model';
+import { Transaction } from '../models/v1/transaction.model';
 import { CategoriesService } from './categories.service';
 import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
 import { StatusService } from './status.service';
 import { TransactionService } from './transaction.service';
+import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +36,7 @@ export class SplitExpenseService {
     private dataTransformService: DataTransformService
   ) {}
 
-  linkTxnWithFiles(data) {
+  linkTxnWithFiles(data: FileTransaction): Observable<FileObject[]> {
     const observables = [];
     const files = data.files;
     const txns = data.txns;
@@ -51,7 +54,7 @@ export class SplitExpenseService {
     return forkJoin(observables);
   }
 
-  getBase64Content(fileObjs) {
+  getBase64Content(fileObjs: FileObject[]) {
     const fileObservables = [];
     const newFileObjs: any[] = fileObjs.map((fileObj) => ({
       id: fileObj.id,
@@ -74,7 +77,7 @@ export class SplitExpenseService {
     );
   }
 
-  checkPolicyForTransaction(etxn: PublicPolicyExpense): Observable<{ [transactionID: string]: PolicyViolation }> {
+  checkPolicyForTransaction(etxn: PublicPolicyExpense): Observable<PolicyViolationTxn> {
     const policyResponse = {};
 
     /*
@@ -121,7 +124,7 @@ export class SplitExpenseService {
     );
   }
 
-  formatPolicyViolations(violations: { [id: string]: PolicyViolation }): {
+  formatPolicyViolations(violations: PolicyViolationTxn): {
     [transactionID: string]: FormattedPolicyViolation;
   } {
     const formattedViolations = {};
@@ -154,7 +157,7 @@ export class SplitExpenseService {
   }
 
   mapViolationDataWithEtxn(
-    policyViolation: { [transactionID: string]: PolicyViolation },
+    policyViolation: PolicyViolationTxn,
     etxns: Expense[],
     categoryList: OrgCategory[]
   ): { [transactionID: string]: PolicyViolation } {
@@ -176,7 +179,7 @@ export class SplitExpenseService {
     etxns: Expense[],
     fileObjs: FileObject[],
     categoryList: OrgCategory[]
-  ): Observable<{ [id: string]: PolicyViolation }> {
+  ): Observable<PolicyViolationTxn> {
     return this.runPolicyCheck(etxns, fileObjs).pipe(
       map((policyViolation) => this.mapViolationDataWithEtxn(policyViolation, etxns, categoryList))
     );
@@ -186,7 +189,7 @@ export class SplitExpenseService {
     txnIds: string[],
     fileObjs: FileObject[],
     categoryList: OrgCategory[]
-  ): Observable<{ [id: string]: PolicyViolation }> {
+  ): Observable<PolicyViolationTxn> {
     return from(txnIds).pipe(
       concatMap((txnId) => this.transactionService.getEtxn(txnId)),
       toArray(),
@@ -194,7 +197,7 @@ export class SplitExpenseService {
     );
   }
 
-  checkPolicyForTransactions(etxns: PublicPolicyExpense[]): Observable<{ [transactionID: string]: PolicyViolation }> {
+  checkPolicyForTransactions(etxns: PublicPolicyExpense[]): Observable<PolicyViolationTxn> {
     return from(etxns).pipe(
       concatMap((etxn) => this.checkPolicyForTransaction(etxn)),
       reduce((accumulator, violation) => {
@@ -204,7 +207,7 @@ export class SplitExpenseService {
     );
   }
 
-  runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<{ [transactionID: string]: PolicyViolation }> {
+  runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<PolicyViolationTxn> {
     if (etxns?.length > 0) {
       const platformExpensesList = [];
       etxns.forEach((etxn) => {
@@ -255,7 +258,13 @@ export class SplitExpenseService {
 
   // TODO: Fix later. High impact
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, totalSplitExpensesCount) {
+  createTxns(
+    sourceTxn: Transaction,
+    splitExpenses: Transaction[],
+    splitGroupAmount: number,
+    splitGroupId: string,
+    totalSplitExpensesCount: number
+  ): Observable<Transaction[]> {
     const txnsObservables = [];
 
     splitExpenses.forEach((splitExpense, index) => {
@@ -283,6 +292,7 @@ export class SplitExpenseService {
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
       transaction.billable = this.setUpSplitExpenseBillable(sourceTxn, splitExpense);
       transaction.tax_amount = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
+      transaction.custom_properties = splitExpense.custom_properties || sourceTxn.custom_properties;
 
       this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
@@ -292,7 +302,12 @@ export class SplitExpenseService {
     return forkJoin(txnsObservables);
   }
 
-  private setupSplitExpensePurpose(transaction: any, splitGroupId: any, index: any, totalSplitExpensesCount: any) {
+  private setupSplitExpensePurpose(
+    transaction: Transaction,
+    splitGroupId: string,
+    index: number,
+    totalSplitExpensesCount: number
+  ) {
     if (transaction.purpose) {
       let splitIndex = 1;
 

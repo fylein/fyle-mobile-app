@@ -12,7 +12,7 @@ export class MyReportsCardComponent implements OnInit {
 
   @Input() prevDate: Date;
 
-  @Input() simplifyReportsEnabled: Boolean;
+  @Input() simplifyReportsEnabled: boolean;
 
   @Output() deleteReport: EventEmitter<ExtendedReport> = new EventEmitter();
 

@@ -47,6 +47,8 @@ export class ViewExpensePage implements OnInit {
 
   customProperties$: Observable<CustomField[]>;
 
+  projectDependantCustomProperties$: Observable<CustomField[]>;
+
   etxnWithoutCustomProperties$: Observable<Expense>;
 
   canFlagOrUnflag$: Observable<boolean>;
@@ -112,6 +114,8 @@ export class ViewExpensePage implements OnInit {
   breakfastSystemCategories: string[];
 
   systemCategoriesWithTaxi: string[];
+
+  isNewReportsFlowEnabled = false;
 
   constructor(
     private loaderService: LoaderService,
@@ -238,6 +242,11 @@ export class ViewExpensePage implements OnInit {
       this.reportId = res.tx_report_id;
     });
 
+    this.projectDependantCustomProperties$ = this.etxnWithoutCustomProperties$.pipe(
+      concatMap((etxn) => this.customInputsService.fillDependantFieldProperties(etxn)),
+      shareReplay(1)
+    );
+
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap((etxn) =>
         this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)
@@ -245,11 +254,7 @@ export class ViewExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.etxn$ = combineLatest([this.etxnWithoutCustomProperties$, this.customProperties$]).pipe(
-      map((res) => {
-        res[0].tx_custom_properties = res[1];
-        return res[0];
-      }),
+    this.etxn$ = this.etxnWithoutCustomProperties$.pipe(
       finalize(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
@@ -337,6 +342,7 @@ export class ViewExpensePage implements OnInit {
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
     });
 
     this.expenseFieldsService

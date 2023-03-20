@@ -106,7 +106,7 @@ export class MyReportsPage implements OnInit {
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
-  isCCCOnlyOrg$: Observable<boolean>;
+  nonReimbursableOrg$: Observable<boolean>;
 
   constructor(
     private networkService: NetworkService,
@@ -260,7 +260,7 @@ export class MyReportsPage implements OnInit {
     this.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
     );
-    this.isCCCOnlyOrg$ = orgSettings$.pipe(
+    this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
           orgSettings.payment_mode_settings?.allowed &&
@@ -952,6 +952,54 @@ export class MyReportsPage implements OnInit {
                 value: 'PAID',
               },
             ],
+            optionsNewFlow: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Processing',
+                value: 'PAYMENT_PROCESSING',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
+            optionsNewFlowCCCOnly: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
           } as FilterOptions<string>,
           {
             name: 'Date',
@@ -1010,6 +1058,8 @@ export class MyReportsPage implements OnInit {
             ],
           } as FilterOptions<string>,
         ],
+        simplifyReportsSettings$: this.simplifyReportsSettings$,
+        nonReimbursableOrg$: this.nonReimbursableOrg$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

@@ -329,6 +329,30 @@
               </div>
             </ng-container>
 
+            <div *ngIf="dependentFields?.length">
+              <ng-container formArrayName="dependent_fields">
+                <div *ngFor="let dependentField of dependentFields" class="add-edit-mileage--internal-block">
+                  <div [formGroup]="dependentField.control">
+                    <app-dependent-field
+                      [label]="dependentField.field"
+                      [mandatory]="dependentField.mandatory"
+                      [valid]="!(dependentField?.control?.touched && !dependentField?.control?.valid)"
+                      [fieldId]="dependentField.id"
+                      [parentFieldId]="dependentField.parentFieldId"
+                      [parentFieldValue]="dependentField.parentFieldValue"
+                      formControlName="value"
+                    >
+                    </app-dependent-field>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
+            <div class="add-edit-mileage--primary-block" *ngIf="isDependentFieldLoading">
+              <ion-skeleton-text class="add-edit-mileage__skeleton-loader--title" [animated]="true"></ion-skeleton-text>
+              <ion-skeleton-text class="add-edit-mileage__skeleton-loader" [animated]="true"></ion-skeleton-text>
+            </div>
+
             <ng-container *ngIf="filteredCategories$|async as subCategories">
               <ng-container *ngIf="subCategories.length > 0">
                 <div
@@ -530,6 +554,7 @@
                             [options]="reports"
                             formControlName="report"
                             [autoSubmissionReportName]="autoSubmissionReportName$|async"
+                            [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
                           ></app-fy-add-to-report>
                         </div>
                       </ng-container>

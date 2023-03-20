@@ -220,6 +220,7 @@ export const txnCustomPropertiesData3: TxnCustomProperties[] = [
     type: 'BOOLEAN',
     mandatory: false,
     options: [],
+    parent_field_id: null,
   },
   {
     id: 218778,
@@ -239,6 +240,7 @@ export const txnCustomPropertiesData3: TxnCustomProperties[] = [
         value: 'select-2',
       },
     ],
+    parent_field_id: null,
   },
   {
     id: 218265,
@@ -249,6 +251,7 @@ export const txnCustomPropertiesData3: TxnCustomProperties[] = [
     type: undefined,
     options: undefined,
     mandatory: false,
+    parent_field_id: null,
   },
   {
     id: 218266,
@@ -259,6 +262,7 @@ export const txnCustomPropertiesData3: TxnCustomProperties[] = [
     type: undefined,
     options: undefined,
     mandatory: true,
+    parent_field_id: null,
   },
   {
     id: 218266,
@@ -269,6 +273,7 @@ export const txnCustomPropertiesData3: TxnCustomProperties[] = [
     type: undefined,
     options: undefined,
     mandatory: undefined,
+    parent_field_id: null,
   },
   {
     id: 211326,
@@ -279,6 +284,7 @@ export const txnCustomPropertiesData3: TxnCustomProperties[] = [
     type: undefined,
     mandatory: false,
     options: undefined,
+    parent_field_id: null,
   },
 ];
 
@@ -292,6 +298,7 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     type: 'USER_LIST',
     mandatory: false,
     options: [],
+    parent_field_id: null,
   },
   {
     id: 210649,
@@ -302,6 +309,7 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     type: 'USER_LIST',
     mandatory: false,
     options: [],
+    parent_field_id: null,
   },
   {
     id: 210281,
@@ -312,6 +320,7 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     type: 'MULTI_SELECT',
     mandatory: false,
     options: ['asd', 'asdf', 'asdff'],
+    parent_field_id: null,
   },
   {
     id: 212819,
@@ -322,6 +331,7 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     type: 'MULTI_SELECT',
     mandatory: false,
     options: ['asdf', 'asdfa'],
+    parent_field_id: null,
   },
   {
     id: 206206,
@@ -332,6 +342,7 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     type: 'LOCATION',
     mandatory: false,
     options: [],
+    parent_field_id: null,
   },
   {
     id: 211321,
@@ -342,6 +353,7 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     type: 'LOCATION',
     mandatory: false,
     options: [],
+    parent_field_id: null,
   },
   {
     id: 206198,
@@ -352,6 +364,7 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     type: 'DATE',
     mandatory: false,
     options: [],
+    parent_field_id: null,
   },
   {
     id: 211326,
@@ -362,5 +375,6 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     type: 'DATE',
     mandatory: false,
     options: [],
+    parent_field_id: null,
   },
 ];
