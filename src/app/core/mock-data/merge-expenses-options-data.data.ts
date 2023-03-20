@@ -178,3 +178,106 @@ export const optionsData14: MergeExpensesOptionsData = {
   ],
   areSameValues: false,
 };
+
+export const optionsData15: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
+      value: {
+        actual: 'null',
+        city: 'Kalyan',
+        country: 'India',
+        display: 'Kalyan Station Road, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra, India',
+        formatted_address: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
+        latitude: 19.238037,
+        longitude: 73.1296469,
+        state: 'Maharashtra',
+      },
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData16: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Mar 13, 2023',
+      value: new Date('2023-03-13T05:31:06.601Z'),
+    },
+    {
+      label: 'Mar 10, 2023',
+      value: new Date('2023-03-10T05:31:06.601Z'),
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData17: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'ECONOMY',
+      value: 'ECONOMY',
+    },
+    {
+      label: 'BUSINESS',
+      value: 'BUSINESS',
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData18: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'SLEEPER',
+      value: 'SLEEPER',
+    },
+    {
+      label: 'SLEEPER',
+      value: 'SLEEPER',
+    },
+  ],
+  areSameValues: true,
+};
+
+export const optionsData19: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'AC',
+      value: 'AC',
+    },
+    {
+      label: 'AC',
+      value: 'AC',
+    },
+  ],
+  areSameValues: true,
+};
+
+export const optionsData20: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: '25',
+      value: 25,
+    },
+    {
+      label: '30',
+      value: 30,
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData21: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'KM',
+      value: 'KM',
+    },
+    {
+      label: 'MILES',
+      value: 'MILES',
+    },
+  ],
+  areSameValues: false,
+};

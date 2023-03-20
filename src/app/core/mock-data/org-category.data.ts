@@ -418,6 +418,35 @@ export const expectedOrgCategoriesPaginated: OrgCategory[] = [
   },
 ];
 
+export const orgCategoryData1: OrgCategory[] = [
+  { ...expectedOrgCategoriesPaginated[0] },
+  { ...expectedOrgCategoriesPaginated[1] },
+  {
+    code: '4060344',
+    created_at: new Date('2023-01-09T16:54:09.929Z'),
+    displayName: 'Hotel',
+    enabled: true,
+    fyle_category: 'Others',
+    id: 16582,
+    name: 'Hotel',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Hotel',
+    updated_at: new Date('2023-01-09T16:54:09.929Z'),
+  },
+  {
+    code: null,
+    created_at: new Date('2023-01-09T16:54:09.929Z'),
+    displayName: 'Food',
+    enabled: true,
+    fyle_category: 'Others',
+    id: 201952,
+    name: 'Food',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Food',
+    updated_at: new Date('2023-01-09T16:54:09.929Z'),
+  },
+];
+
 export const expectedTransformedCategories: OrgCategory[] = [
   {
     code: '93',
