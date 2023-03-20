@@ -126,11 +126,11 @@ export const optionsData10: MergeExpensesOptionsData = {
 export const optionsData11: MergeExpensesOptionsData = {
   options: [
     {
-      label: '23',
+      label: 'GST',
       value: 'tgXEJA6YUoZ1',
     },
     {
-      label: '23',
+      label: 'GST',
       value: 'tgXEJA6YUoZ1',
     },
   ],
@@ -281,3 +281,183 @@ export const optionsData21: MergeExpensesOptionsData = {
   ],
   areSameValues: false,
 };
+
+export const optionsData22: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'userlist',
+        value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+      },
+    ],
+    areSameValues: false,
+    value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+    id: 200227,
+    name: 'userlist',
+  },
+  {
+    options: [],
+    areSameValues: false,
+    value: new Date('2021-03-10T05:31:00.000Z'),
+    id: 200229,
+    name: 'date field',
+  },
+];
+
+export const optionsData23: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'ajain+12+12+1@fyle.in,aaaaasdjskjd@sdsd.com',
+        value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+      },
+    ],
+    areSameValues: false,
+    value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+    id: 200227,
+    name: 'userlist',
+  },
+  {
+    areSameValues: false,
+    value: new Date('2021-03-10T05:31:00.000Z'),
+    id: 200229,
+    name: 'date field',
+    options: [
+      {
+        label: 'Mar 10, 2021',
+        value: new Date('2021-03-10T05:31:00.000Z'),
+      },
+    ],
+  },
+];
+
+export const optionsData24: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'ajain+12+12+1@fyle.in,aaaaasdjskjd@sdsd.com',
+        value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+      },
+    ],
+    areSameValues: false,
+    value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+    id: 200227,
+    name: 'userlist',
+  },
+  {
+    options: [],
+    areSameValues: false,
+    value: 'some value',
+    id: 200211,
+    name: 'text field',
+  },
+];
+
+export const optionsData25: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'ajain+12+12+1@fyle.in,aaaaasdjskjd@sdsd.com',
+        value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+      },
+    ],
+    areSameValues: false,
+    value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+    id: 200227,
+    name: 'userlist',
+  },
+  {
+    options: [
+      {
+        label: 'some value',
+        value: 'some value',
+      },
+    ],
+    areSameValues: false,
+    value: 'some value',
+    id: 200211,
+    name: 'text field',
+  },
+];
+
+export const optionsData26: MergeExpensesOptionsData[] = [
+  {
+    options: null,
+    areSameValues: false,
+    value: 12,
+    id: 200212,
+    name: 'numberfield',
+  },
+];
+
+export const optionsData27: MergeExpensesOptionsData[] = [
+  {
+    options: [],
+    areSameValues: false,
+    value: 'Food',
+    id: 200213,
+    name: 'customcategory',
+  },
+  {
+    options: [],
+    areSameValues: false,
+    value: 'Food',
+    id: 200213,
+    name: 'customcategory',
+  },
+];
+
+export const optionsData28: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'Food',
+        value: 'Food',
+      },
+      {
+        label: 'Food',
+        value: 'Food',
+      },
+    ],
+    areSameValues: false,
+    value: 'Food',
+    id: 200213,
+    name: 'customcategory',
+  },
+];
+
+export const optionsData29: MergeExpensesOptionsData[] = [
+  {
+    options: [],
+    areSameValues: false,
+    value: 16,
+    id: 200215,
+    name: 'customNumber',
+  },
+  {
+    options: [],
+    areSameValues: false,
+    value: 16,
+    id: 200215,
+    name: 'customNumber',
+  },
+];
+
+export const optionsData30: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: '16',
+        value: 16,
+      },
+      {
+        label: '16',
+        value: 16,
+      },
+    ],
+    areSameValues: false,
+    value: 16,
+    id: 200215,
+    name: 'customNumber',
+  },
+];

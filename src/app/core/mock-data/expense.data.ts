@@ -5053,7 +5053,7 @@ export const expensesDataWithCC: Expense[] = [
     rp_reimbursed_at: null,
     source_account_id: 'accZ1IWjhjLv4',
     source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-    tg_name: '23',
+    tg_name: 'GST',
     tg_percentage: 0.01,
     tx_activity_details: null,
     tx_activity_policy_pending: null,

@@ -97,11 +97,11 @@ export const mergeExpensesOptionData4: MergeExpensesOption[] = [
 
 export const mergeExpensesOptionData5: MergeExpensesOption[] = [
   {
-    label: '23',
+    label: 'GST',
     value: 'tgXEJA6YUoZ1',
   },
   {
-    label: '23',
+    label: 'GST',
     value: 'tgXEJA6YUoZ1',
   },
 ];
