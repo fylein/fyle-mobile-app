@@ -43,6 +43,7 @@ describe('ConfigService', () => {
       tokenService.getClusterDomain.and.returnValue(Promise.resolve(clusterDomain));
       await configService.loadConfigurationData();
       expect(routerAuthService.setClusterDomain).toHaveBeenCalledOnceWith(clusterDomain);
+      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
     });
 
     it('should clear all stored data if clusterDomain is not present', async () => {
