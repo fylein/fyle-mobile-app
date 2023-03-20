@@ -215,7 +215,6 @@ export class SplitExpensePage implements OnInit {
       this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
     this.transaction.to_dt = this.transaction?.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
 
-    //TODO: Check why dependent fields are not getting set for split expenses
     let txnCustomProperties = this.transaction.custom_properties;
     if (this.splitType === 'projects' && splitExpenseValue.project?.project_id === this.transaction.project_id) {
       txnCustomProperties = this.transaction.custom_properties.concat(this.projectDependentFields);
