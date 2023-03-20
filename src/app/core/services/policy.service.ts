@@ -8,14 +8,14 @@ import { PlatformPolicyExpense } from '../models/platform/platform-policy-expens
 import { PolicyViolation } from '../models/policy-violation.model';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PolicyService {
   constructor(
-    private spenderPlatformV1BetaApiService: SpenderPlatformV1BetaApiService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 
@@ -38,7 +38,7 @@ export class PolicyService {
       is_reimbursable: transaction.skip_reimbursement === null ? null : !transaction.skip_reimbursement,
       distance: transaction.distance,
       distance_unit: transaction.distance_unit,
-      locations: transaction.locations.filter((location) => !!location),
+      locations: transaction.locations?.filter((location) => !!location),
       custom_fields: transaction.custom_properties,
       started_at: transaction.from_dt,
       ended_at: transaction.to_dt,
@@ -53,8 +53,8 @@ export class PolicyService {
     };
 
     if (
-      transaction.fyle_category.toLowerCase() === 'flight' ||
-      transaction.fyle_category.toLowerCase() === 'airlines'
+      transaction.fyle_category?.toLowerCase() === 'flight' ||
+      transaction.fyle_category?.toLowerCase() === 'airlines'
     ) {
       if (transaction.flight_journey_travel_class) {
         platformPolicyExpense.travel_classes.push(transaction.flight_journey_travel_class);
@@ -62,9 +62,9 @@ export class PolicyService {
       if (transaction.flight_return_travel_class) {
         platformPolicyExpense.travel_classes.push(transaction.flight_return_travel_class);
       }
-    } else if (transaction.fyle_category.toLowerCase() === 'bus' && transaction.bus_travel_class) {
+    } else if (transaction.fyle_category?.toLowerCase() === 'bus' && transaction.bus_travel_class) {
       platformPolicyExpense.travel_classes.push(transaction.bus_travel_class);
-    } else if (transaction.fyle_category.toLowerCase() === 'train' && transaction.train_travel_class) {
+    } else if (transaction.fyle_category?.toLowerCase() === 'train' && transaction.train_travel_class) {
       platformPolicyExpense.travel_classes.push(transaction.train_travel_class);
     }
 
@@ -121,7 +121,7 @@ export class PolicyService {
     const params = {
       expense_id: `eq.${expenseId}`,
     };
-    return this.spenderPlatformV1BetaApiService
+    return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
         params,
       })

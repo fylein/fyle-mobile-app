@@ -68,20 +68,24 @@
       </div>
     </ng-container>
 
-    <app-fy-loading-screen *ngIf="isLoading" class="reports--shimmers"></app-fy-loading-screen>
+    <ng-template #loading>
+      <app-fy-loading-screen class="reports--shimmers"></app-fy-loading-screen>
+    </ng-template>
 
-    <div *ngIf="!isLoading">
-      <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
-        <app-team-report-card
-          [erpt]="erpt"
-          [prevDate]="list[i-1]?.rp_created_at"
-          [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
-          (gotoReport)="onReportClick($event)"
-          (deleteReport)="onDeleteReportClick($event)"
-        >
-        </app-team-report-card>
-      </div>
-    </div>
+    <ng-container *ngIf="!isLoading; else loading">
+      <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
+        <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
+          <app-team-report-card
+            [erpt]="erpt"
+            [prevDate]="list[i-1]?.rp_created_at"
+            [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
+            (gotoReport)="onReportClick($event)"
+            (deleteReport)="onDeleteReportClick($event)"
+          >
+          </app-team-report-card>
+        </div>
+      </ng-container>
+    </ng-container>
 
     <ng-container *ngIf="isConnected$|async">
       <ng-container *ngIf="isLoadingDataInInfiniteScroll">

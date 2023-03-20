@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { from, Observable, of, Subject } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { ApiV2Response } from '../models/api-v2.model';
 import { ExtendedAdvance } from '../models/extended_advance.model';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
@@ -23,7 +24,7 @@ export class AdvanceService {
       limit: 10,
       queryParams: {},
     }
-  ) {
+  ): Observable<ApiV2Response<ExtendedAdvance>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/advances', {
@@ -35,16 +36,7 @@ export class AdvanceService {
           },
         })
       ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: ExtendedAdvance[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
+      map((res) => res as ApiV2Response<ExtendedAdvance>),
       map((res) => ({
         ...res,
         data: res.data.map(this.fixDates),

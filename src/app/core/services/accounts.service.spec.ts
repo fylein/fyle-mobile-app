@@ -7,7 +7,9 @@ import {
   account1Data,
   account2Data,
   etxnObjData,
+  etxnObjWithAdvSourceData,
   etxnObjWithSourceData,
+  multipleAdvAccountsData,
   multiplePaymentModesData,
   multiplePaymentModesIncPersonalAccData,
   multiplePaymentModesWithCompanyAccData,
@@ -226,6 +228,21 @@ describe('AccountsService', () => {
         false
       )
     ).toEqual(multiplePaymentModesIncPersonalAccData);
+  });
+
+  it('should be able to return allowed accounts with advance accounts', () => {
+    fyCurrencyPipe.transform.and.returnValue('$223,146,386.93');
+    const allowedPaymentModes = ['PERSONAL_ADVANCE_ACCOUNT'];
+    expect(
+      accountsService.getAllowedAccounts(
+        multipleAdvAccountsData,
+        allowedPaymentModes,
+        true,
+        etxnObjWithAdvSourceData,
+        false
+      )
+    ).toEqual(multipleAdvAccountsData);
+    expect(fyCurrencyPipe.transform).toHaveBeenCalledWith(223146386.93, 'USD');
   });
 
   it('should be able to get payment modes', () => {

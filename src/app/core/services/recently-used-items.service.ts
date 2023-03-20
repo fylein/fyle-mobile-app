@@ -7,7 +7,6 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
 import { ExtendedProject } from '../models/v2/extended-project.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgCategoryListItem } from '../models/v1/org-category.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 @Injectable({
@@ -74,7 +73,7 @@ export class RecentlyUsedItemsService {
       const recentCostCenterList = recentValue.recent_cost_center_ids
         .map((id) => costCentersMap[id])
         .filter((id) => id);
-      if (recentCostCenterList) {
+      if (recentCostCenterList.length > 0) {
         return of(
           recentCostCenterList.map((costCenter) => ({ label: costCenter.value.name, value: costCenter.value }))
         );

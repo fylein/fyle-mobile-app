@@ -1,7 +1,7 @@
 require('dotenv').config();
 
-module.exports.getIosInfo = () => 
-`<?xml version="1.0" encoding="UTF-8"?>
+module.exports.getIosInfo = () =>
+  `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
@@ -98,6 +98,8 @@ module.exports.getIosInfo = () =>
         <string>30</string>
       <key>IonApi</key>
         <string>https://api.ionicjs.com</string>
+      <key>ITSAppUsesNonExemptEncryption</key>
+        <string>NO</string>
   </dict>
 </plist>    
-`
+`;

@@ -9,7 +9,7 @@ import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import {
   singleExtendedAdvReqRes,
   extendedAdvReqDraft,
@@ -22,15 +22,36 @@ import {
   extendedAdvReqSentBack,
   extendedAdvReqWithoutDates,
   extendedAdvReqWithDates,
+  withoutDatesAdv,
+  singleErqRes,
+  singleErqUnflattened,
+  teamAdvanceCountRes,
+  allAdvanceRequestsRes,
+  allTeamAdvanceRequestsRes,
 } from '../mock-data/extended-advance-request.data';
 import { apiAdvanceRequestAction } from '../mock-data/advance-request-actions.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { apiAdvanceReqRes } from '../mock-data/stats-dimension-response.data';
-import { advancedRequests, pullBackAdvancedRequests } from '../mock-data/advance-requests.data';
+import {
+  advancedRequests,
+  advancedRequests2,
+  checkPolicyAdvReqParam,
+  draftAdvancedRequestParam,
+  draftAdvancedRequestRes,
+  expectedSingleErq,
+  pullBackAdvancedRequests,
+  rejectedAdvReqRes,
+} from '../mock-data/advance-requests.data';
 import { advanceReqApprovals } from '../mock-data/approval.data';
-import { fileObjectData3 } from '../mock-data/file-object.data';
-import { fileData1 } from '../mock-data/file.data';
-import { advRequestFile } from '../mock-data/advance-request-file.data';
+import { fileObjectData3, fileObjectData4 } from '../mock-data/file-object.data';
+import { fileData1, fileData2 } from '../mock-data/file.data';
+import { advRequestFile, advRequestFile2 } from '../mock-data/advance-request-file.data';
+import { customFieldData1, expectedCustomField } from '../mock-data/custom-field.data';
+import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
+import { checkPolicyData } from '../mock-data/policy-violation-check.data';
+import { SortingParam } from '../models/sorting-param.model';
+import { SortingDirection } from '../models/sorting-direction.model';
+import { AdvancesStates } from '../models/advances-states.model';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -277,6 +298,64 @@ describe('AdvanceRequestService', () => {
     });
   });
 
+  it('saveDraft(): should save a draft advance request', (done) => {
+    apiService.post.and.returnValue(of(draftAdvancedRequestRes));
+
+    advanceRequestService.saveDraft(draftAdvancedRequestParam).subscribe((res) => {
+      expect(res).toEqual(draftAdvancedRequestRes);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/save', draftAdvancedRequestParam);
+      done();
+    });
+  });
+
+  it('reject(): should reject an advance request', (done) => {
+    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+
+    const advReq = 'areqVU0Xr5suPC';
+    const payload = {
+      status: {
+        comment: 'a comment',
+      },
+      notify: false,
+    };
+
+    advanceRequestService.reject(advReq, payload).subscribe((res) => {
+      expect(res).toEqual(rejectedAdvReqRes);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/reject`, payload);
+      done();
+    });
+  });
+
+  it('approve(): should approve an advanced request', (done) => {
+    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+
+    const advReq = 'areqVU0Xr5suPC';
+
+    advanceRequestService.approve(advReq).subscribe((res) => {
+      expect(res).toEqual(rejectedAdvReqRes);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/approve`);
+      done();
+    });
+  });
+
+  it('sendBack(): should send back an advance request', (done) => {
+    apiService.post.and.returnValue(of(rejectedAdvReqRes));
+
+    const advReq = 'areqVU0Xr5suPC';
+    const payload = {
+      status: {
+        comment: 'a comment',
+      },
+      notify: false,
+    };
+
+    advanceRequestService.sendBack(advReq, payload).subscribe((res) => {
+      expect(res).toEqual(rejectedAdvReqRes);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advReq}/inquire`, payload);
+      done();
+    });
+  });
+
   it('pullBackadvanceRequest(): should pull back an advance requests', (done) => {
     apiService.post.and.returnValue(of(pullBackAdvancedRequests));
 
@@ -296,6 +375,23 @@ describe('AdvanceRequestService', () => {
     });
   });
 
+  it('addApprover(): should add approver to an advance request', (done) => {
+    apiService.post.and.returnValue(of(pullBackAdvancedRequests));
+    const advanceID = 'areqMP09oaYXBf';
+
+    const data = {
+      advance_request_id: advanceID,
+      approver_email: 'ajain@fyle.in',
+      comment: 'a comment',
+    };
+
+    advanceRequestService.addApprover(advanceID, data.approver_email, data.comment).subscribe((res) => {
+      expect(res).toEqual(pullBackAdvancedRequests);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/add_approver', data);
+      done();
+    });
+  });
+
   it('delete(): should delete an advance request', (done) => {
     apiService.delete.and.returnValue(of(advancedRequests));
 
@@ -306,9 +402,11 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('fixDates(): should convert string values to dates', () => {
-    //@ts-ignore
-    expect(advanceRequestService.fixDates(extendedAdvReqWithoutDates)).toEqual(extendedAdvReqWithDates);
+  describe('fixDates():', () => {
+    it('should convert string values to dates', () => {
+      //@ts-ignore
+      expect(advanceRequestService.fixDates(extendedAdvReqWithoutDates)).toEqual(extendedAdvReqWithDates);
+    });
   });
 
   it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
@@ -336,15 +434,339 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('createAdvReqWithFilesAndSubmit(): should create advanced request and submit it', (done) => {
-    fileService.post.and.returnValue(of(fileObjectData3));
-    spyOn(advanceRequestService, 'submit').and.returnValue(of(advancedRequests));
+  describe('createAdvReqWithFilesAndSubmit():', () => {
+    it('should create advanced request and submit it with the file', (done) => {
+      fileService.post.and.returnValue(of(fileObjectData3));
+      spyOn(advanceRequestService, 'submit').and.returnValue(of(advancedRequests));
 
-    advanceRequestService.createAdvReqWithFilesAndSubmit(advancedRequests, of(fileData1)).subscribe((res) => {
-      expect(res).toEqual(advRequestFile);
-      expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advancedRequests);
-      expect(fileService.post).toHaveBeenCalledOnceWith(fileData1[0]);
+      advanceRequestService.createAdvReqWithFilesAndSubmit(advancedRequests, of(fileData1)).subscribe((res) => {
+        expect(res).toEqual(advRequestFile);
+        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advancedRequests);
+        expect(fileService.post).toHaveBeenCalledOnceWith(fileData1[0]);
+        done();
+      });
+    });
+
+    it('should create advanced request and submit it without the file', (done) => {
+      spyOn(advanceRequestService, 'submit').and.returnValue(of(advancedRequests));
+
+      advanceRequestService.createAdvReqWithFilesAndSubmit(advancedRequests, of(null)).subscribe((res) => {
+        expect(res).toEqual({ ...advRequestFile, files: null });
+        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advancedRequests);
+        done();
+      });
+    });
+  });
+
+  describe('saveDraftAdvReqWithFiles():', () => {
+    it('should save draft advance request along with the file', (done) => {
+      fileService.post.and.returnValue(of(fileObjectData4));
+      spyOn(advanceRequestService, 'saveDraft').and.returnValue(of(advancedRequests2));
+
+      advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(fileData2)).subscribe((res) => {
+        expect(res).toEqual(advRequestFile2);
+        expect(advanceRequestService.saveDraft).toHaveBeenCalledOnceWith(advancedRequests2);
+        expect(fileService.post).toHaveBeenCalledOnceWith(fileData2[0]);
+        done();
+      });
+    });
+
+    it('should save draft advance request without the file', (done) => {
+      spyOn(advanceRequestService, 'saveDraft').and.returnValue(of(advancedRequests2));
+
+      advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(null)).subscribe((res) => {
+        expect(res).toEqual({ ...advRequestFile2, files: null });
+        expect(advanceRequestService.saveDraft).toHaveBeenCalledOnceWith(advancedRequests2);
+        done();
+      });
+    });
+  });
+
+  it('getEReq(): should get advance request', (done) => {
+    apiService.get.and.returnValue(of(singleErqRes));
+    dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
+    spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
+
+    const advID = 'areqGzKF1Tne23';
+
+    advanceRequestService.getEReq(advID).subscribe((res) => {
+      expect(res).toEqual(singleErqUnflattened);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(singleErqRes);
+      expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
       done();
+    });
+  });
+
+  it('modifyAdvanceRequestCustomFields(): should modify advance request custom fields', () => {
+    expect(advanceRequestService.modifyAdvanceRequestCustomFields(customFieldData1)).toEqual(expectedCustomField);
+  });
+
+  describe('getSortOrder(): should get the sorting order', () => {
+    it('param - creation date | direction - ascending', () => {
+      const sortingParam = SortingParam.creationDate;
+
+      const sortingDirection = SortingDirection.ascending;
+
+      //@ts-ignore
+      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual(
+        'areq_created_at.asc,areq_id.desc'
+      );
+    });
+
+    it('param - approval date | direction - descending', () => {
+      const sortingParam = SortingParam.approvalDate;
+
+      const sortingDirection = SortingDirection.descending;
+
+      //@ts-ignore
+      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual(
+        'areq_approved_at.desc,areq_id.desc'
+      );
+    });
+
+    it('param - project | direction - ascending', () => {
+      const sortingParam = SortingParam.project;
+
+      const sortingDirection = SortingDirection.ascending;
+
+      //@ts-ignore
+      expect(advanceRequestService.getSortOrder(sortingParam, sortingDirection)).toEqual(
+        'project_name.asc,areq_id.desc'
+      );
+    });
+
+    it('param - nothing specified | direction - ascending', () => {
+      const sortingDirection = SortingDirection.ascending;
+
+      //@ts-ignore
+      expect(advanceRequestService.getSortOrder({}, sortingDirection)).toEqual('areq_created_at.asc,areq_id.desc');
+    });
+  });
+
+  it('testPolicy(): should test policy violations', (done) => {
+    const date = '2023-02-23T19:37:01.207Z';
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    advanceRequestPolicyService.servicePost.and.returnValue(of(checkPolicyData));
+    timezoneService.convertToUtc.and.returnValue(new Date(date));
+
+    advanceRequestService.testPolicy(checkPolicyAdvReqParam).subscribe((res) => {
+      expect(res).toEqual(checkPolicyData);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(
+        checkPolicyAdvReqParam.created_at,
+        orgUserSettingsData.locale.offset
+      );
+      expect(advanceRequestPolicyService.servicePost).toHaveBeenCalledOnceWith(
+        '/policy_check/test',
+        checkPolicyAdvReqParam,
+        { timeout: 5000 }
+      );
+      done();
+    });
+  });
+
+  it('getTeamAdvanceRequestsCount(): should get team advance count', (done) => {
+    spyOn(advanceRequestService, 'getTeamAdvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+
+    const filters = {
+      state: [AdvancesStates.pending],
+      sortParam: undefined,
+      sortDir: undefined,
+    };
+
+    const queryParams = {
+      areq_state: ['eq.APPROVAL_PENDING'],
+      or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
+    };
+
+    advanceRequestService.getTeamAdvanceRequestsCount(queryParams, filters).subscribe((res) => {
+      expect(res).toEqual(teamAdvanceCountRes.count);
+      expect(advanceRequestService.getTeamAdvanceRequests).toHaveBeenCalledOnceWith({
+        offset: 0,
+        limit: 1,
+        queryParams,
+        filter: { state: [AdvancesStates.pending], sortParam: undefined, sortDir: undefined },
+      });
+      done();
+    });
+  });
+
+  describe('getMyAdvanceRequestsCount():', () => {
+    it('should get advance request count', (done) => {
+      spyOn(advanceRequestService, 'getMyadvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+      const queryParams = {
+        areq_advance_id: 'is.null',
+      };
+
+      advanceRequestService.getMyAdvanceRequestsCount(queryParams).subscribe((res) => {
+        expect(res).toEqual(teamAdvanceCountRes.count);
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+          offset: 0,
+          limit: 1,
+          queryParams: { ...queryParams },
+        });
+        done();
+      });
+    });
+
+    it('should get advance request count without query parmas', (done) => {
+      spyOn(advanceRequestService, 'getMyadvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+
+      advanceRequestService.getMyAdvanceRequestsCount().subscribe((res) => {
+        expect(res).toEqual(teamAdvanceCountRes.count);
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+          offset: 0,
+          limit: 1,
+          queryParams: {},
+        });
+        done();
+      });
+    });
+  });
+
+  it('getMyadvanceRequests(): should get all advance request', (done) => {
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    apiv2Service.get.and.returnValue(of(allAdvanceRequestsRes));
+
+    const param = {
+      offset: 0,
+      limit: 10,
+      queryParams: {
+        areq_advance_id: 'is.null',
+        order: 'areq_created_at.desc,areq_id.desc',
+      },
+    };
+
+    advanceRequestService.getMyadvanceRequests(param).subscribe((res) => {
+      expect(res).toEqual(allAdvanceRequestsRes);
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: {
+          offset: param.offset,
+          limit: param.limit,
+          areq_org_user_id: 'eq.' + apiEouRes.ou.id,
+          ...param.queryParams,
+        },
+      });
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('getTeamAdvanceRequests():', () => {
+    it('should get all team advance requests | APPROVAL PENDING AND APPROVED', (done) => {
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      apiv2Service.get.and.returnValue(of(allTeamAdvanceRequestsRes));
+
+      const params = {
+        offset: 0,
+        limit: 1,
+        queryParams: {
+          areq_state: ['eq.APPROVAL_PENDING'],
+          or: 'areq_created_at.desc,areq_id.desc',
+        },
+        filter: {
+          sortParam: undefined,
+          sortDir: undefined,
+          state: [AdvancesStates.pending, AdvancesStates.approved],
+        },
+      };
+
+      const defaultParams = {
+        'advance_request_approvals->ouX8dwsbLCLv->>state': ['in.(APPROVAL_PENDING,APPROVAL_DONE)'],
+      };
+
+      advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
+        expect(res).toEqual(allTeamAdvanceRequestsRes);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: params.offset,
+            limit: params.limit,
+            order: params.queryParams.or,
+            areq_approvers_ids: `cs.{${apiEouRes.ou.id}}`,
+            ...defaultParams,
+            ...params.queryParams,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get all team advance requests | APPROVAL PENDING', (done) => {
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      apiv2Service.get.and.returnValue(of(allTeamAdvanceRequestsRes));
+
+      const params = {
+        offset: 0,
+        limit: 1,
+        queryParams: {
+          areq_state: ['eq.APPROVAL_PENDING'],
+          or: 'areq_created_at.desc,areq_id.desc',
+        },
+        filter: {
+          sortParam: undefined,
+          sortDir: undefined,
+          state: [AdvancesStates.pending],
+        },
+      };
+
+      const defaultParams = {
+        'advance_request_approvals->ouX8dwsbLCLv->>state': ['eq.APPROVAL_PENDING'],
+      };
+
+      advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
+        expect(res).toEqual(allTeamAdvanceRequestsRes);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: params.offset,
+            limit: params.limit,
+            order: params.queryParams.or,
+            areq_approvers_ids: `cs.{${apiEouRes.ou.id}}`,
+            ...defaultParams,
+            ...params.queryParams,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get all team advance requests | APPROVED', (done) => {
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      apiv2Service.get.and.returnValue(of(allTeamAdvanceRequestsRes));
+
+      const params = {
+        offset: 0,
+        limit: 1,
+        queryParams: {
+          areq_state: ['eq.APPROVAL_PENDING'],
+          or: 'areq_created_at.desc,areq_id.desc',
+        },
+        filter: {
+          sortParam: undefined,
+          sortDir: undefined,
+          state: [AdvancesStates.approved],
+        },
+      };
+
+      const defaultParams = {
+        'advance_request_approvals->ouX8dwsbLCLv->>state': ['eq.APPROVAL_DONE'],
+      };
+
+      advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
+        expect(res).toEqual(allTeamAdvanceRequestsRes);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: params.offset,
+            limit: params.limit,
+            order: params.queryParams.or,
+            areq_approvers_ids: `cs.{${apiEouRes.ou.id}}`,
+            ...defaultParams,
+            ...params.queryParams,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
   });
 });

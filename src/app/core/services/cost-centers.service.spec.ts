@@ -1,22 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { SpenderPlatformV1BetaApiService } from './spender-platform-v1-beta-api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { CostCentersService } from './cost-centers.service';
 import { of } from 'rxjs';
-import { platformCostCenterSingleRes, platformCostCenterMultipleRes } from '../mock-data/platformCostCenter.data';
+import { platformCostCenterSingleRes, platformCostCenterMultipleRes } from '../mock-data/platform-cost-centers.data';
 import { costCenterApiRes1, costCenterApiRes2, costCentersData } from '../mock-data/cost-centers.data';
 
 describe('CostCentersService', () => {
   let costCentersService: CostCentersService;
-  let spenderPlatformV1BetaApiService: jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
-    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1BetaApiService', ['get']);
+    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         CostCentersService,
         {
-          provide: SpenderPlatformV1BetaApiService,
+          provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformApiServiceSpy,
         },
         {
@@ -26,9 +26,9 @@ describe('CostCentersService', () => {
       ],
     });
     costCentersService = TestBed.inject(CostCentersService);
-    spenderPlatformV1BetaApiService = TestBed.inject(
-      SpenderPlatformV1BetaApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1BetaApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
@@ -36,7 +36,7 @@ describe('CostCentersService', () => {
   });
 
   it('getActiveCostCentersCount(): should get active cost center count', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformCostCenterSingleRes));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformCostCenterSingleRes));
 
     const params = {
       params: {
@@ -48,13 +48,13 @@ describe('CostCentersService', () => {
 
     costCentersService.getActiveCostCentersCount().subscribe((res) => {
       expect(res).toEqual(platformCostCenterSingleRes.count);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/cost_centers', params);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/cost_centers', params);
       done();
     });
   });
 
   it('getCostCenters(): should get cost centers as per config', (done) => {
-    spenderPlatformV1BetaApiService.get.and.returnValue(of(platformCostCenterMultipleRes));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformCostCenterMultipleRes));
     const data = {
       params: {
         is_enabled: 'eq.' + true,
@@ -66,7 +66,7 @@ describe('CostCentersService', () => {
     spyOn(costCentersService, 'transformFrom').and.returnValue(costCentersData);
     costCentersService.getCostCenters({ offset: 0, limit: 4 }).subscribe((res) => {
       expect(res).toEqual(costCentersData);
-      expect(spenderPlatformV1BetaApiService.get).toHaveBeenCalledOnceWith('/cost_centers', data);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/cost_centers', data);
       expect(costCentersService.transformFrom).toHaveBeenCalledOnceWith(platformCostCenterMultipleRes.data);
       done();
     });

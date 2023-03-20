@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject, forkJoin, noop, Observable } from 'rxjs';
+import { BehaviorSubject, forkJoin, noop, Observable, of } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
@@ -17,25 +17,16 @@ import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expe
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-
-type Option = Partial<{
-  label: string;
-  value: any;
-}>;
-
-type OptionsData = Partial<{
-  options: Option[];
-  areSameValues: boolean;
-  name: string;
-  value: any;
-}>;
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
+import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
+import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
 
 type CustomInputs = Partial<{
   control: FormControl;
   id: string;
   mandatory: boolean;
   name: string;
-  options: Option[];
+  options: MergeExpensesOption[];
   placeholder: string;
   prefix: string;
   type: string;
@@ -43,11 +34,11 @@ type CustomInputs = Partial<{
 }>;
 
 interface CombinedOptions {
-  [key: string]: OptionsData;
+  [key: string]: MergeExpensesOptionsData;
 }
 
 interface OptionsSet {
-  [key: string]: OptionsData;
+  [key: string]: MergeExpensesOptionsData;
 }
 
 @Component({
@@ -60,51 +51,51 @@ export class MergeExpensePage implements OnInit {
 
   fg: FormGroup;
 
-  expenseOptions$: Observable<Option[]>;
+  expenseOptions$: Observable<MergeExpensesOption[]>;
 
-  amountOptionsData$: Observable<OptionsData>;
+  amountOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  dateOfSpendOptionsData$: Observable<OptionsData>;
+  dateOfSpendOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  paymentModeOptionsData$: Observable<OptionsData>;
+  paymentModeOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  projectOptionsData$: Observable<OptionsData>;
+  projectOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  billableOptionsData$: Observable<OptionsData>;
+  billableOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  vendorOptionsData$: Observable<OptionsData>;
+  vendorOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  categoryOptionsData$: Observable<OptionsData>;
+  categoryOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  taxGroupOptionsData$: Observable<OptionsData>;
+  taxGroupOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  taxAmountOptionsData$: Observable<OptionsData>;
+  taxAmountOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  constCenterOptionsData$: Observable<OptionsData>;
+  constCenterOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  purposeOptionsData$: Observable<OptionsData>;
+  purposeOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  location1OptionsData$: Observable<OptionsData>;
+  location1OptionsData$: Observable<MergeExpensesOptionsData>;
 
-  location2OptionsData$: Observable<OptionsData>;
+  location2OptionsData$: Observable<MergeExpensesOptionsData>;
 
-  onwardDateOptionsData$: Observable<OptionsData>;
+  onwardDateOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  returnDateOptionsData$: Observable<OptionsData>;
+  returnDateOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  flightJourneyTravelClassOptionsData$: Observable<OptionsData>;
+  flightJourneyTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  flightReturnTravelClassOptionsData$: Observable<OptionsData>;
+  flightReturnTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  trainTravelClassOptionsData$: Observable<OptionsData>;
+  trainTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  busTravelClassOptionsData$: Observable<OptionsData>;
+  busTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  distanceOptionsData$: Observable<OptionsData>;
+  distanceOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  distanceUnitOptionsData$: Observable<OptionsData>;
+  distanceUnitOptionsData$: Observable<MergeExpensesOptionsData>;
 
-  receiptOptions: Option[];
+  receiptOptions: MergeExpensesOption[];
 
   genericFieldsOptions$: Observable<OptionsSet>;
 
@@ -143,6 +134,8 @@ export class MergeExpensePage implements OnInit {
   touchedCategoryDepedentFields: string[];
 
   systemCategories: string[];
+
+  projectDependentFieldsMapping$: Observable<{ [projectId: number]: CustomProperty<string>[] }>;
 
   constructor(
     private router: Router,
@@ -270,7 +263,6 @@ export class MergeExpensePage implements OnInit {
     this.loadCustomFields$ = new BehaviorSubject(this.genericFieldsForm.value?.category);
 
     this.setupCustomInputs();
-    this.generateCustomInputOptions();
 
     this.loadGenericFieldsOptions();
     this.loadCategoryDependentFields();
@@ -481,9 +473,15 @@ export class MergeExpensePage implements OnInit {
       });
       sourceTxnIds = sourceTxnIds.filter((id) => id !== selectedExpense);
 
-      this.mergeExpensesService
-        .mergeExpenses(sourceTxnIds, selectedExpense, this.generateFromFg())
+      this.projectDependentFieldsMapping$
         .pipe(
+          switchMap((projectDependentFieldsMapping) =>
+            this.mergeExpensesService.mergeExpenses(
+              sourceTxnIds,
+              selectedExpense,
+              this.generateFromFg(projectDependentFieldsMapping)
+            )
+          ),
           finalize(() => {
             this.isMerging = false;
             this.trackingService.expensesMerged();
@@ -516,7 +514,7 @@ export class MergeExpensePage implements OnInit {
       .subscribe(noop);
   }
 
-  generateFromFg() {
+  generateFromFg(projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] }) {
     const sourceExpense = this.expenses.find(
       (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
     );
@@ -528,6 +526,8 @@ export class MergeExpensePage implements OnInit {
     } else if (this.fg.value.location_1) {
       locations = [this.genericFieldsForm.value.location_1];
     }
+    const dependentFieldValues = projectDependentFieldsMapping[this.genericFieldsForm.value.project] || [];
+
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
       billable: this.genericFieldsForm.value.billable,
@@ -542,7 +542,7 @@ export class MergeExpensePage implements OnInit {
       purpose: this.genericFieldsForm.value.purpose,
       txn_dt: this.genericFieldsForm.value.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
-      custom_properties: this.fg.controls.custom_inputs.value.fields,
+      custom_properties: [...this.fg.controls.custom_inputs.value.fields, ...dependentFieldValues],
       ccce_group_id: CCCMatchedExpense?.tx_corporate_credit_card_expense_group_id,
       from_dt: this.genericFieldsForm.value.from_dt,
       to_dt: this.genericFieldsForm.value.to_dt,
@@ -564,10 +564,13 @@ export class MergeExpensePage implements OnInit {
   }
 
   setupCustomInputs() {
+    const allCustomFields$ = this.customInputsService.getAll(true);
+
     this.customInputs$ = this.loadCustomFields$.pipe(
       startWith(null),
       switchMap((categoryId: string) =>
-        this.customInputsService.getAll(true).pipe(
+        allCustomFields$.pipe(
+          map((fields) => fields.filter((field) => field.type !== 'DEPENDENT_SELECT')),
           switchMap((fields) => {
             const customFields = this.customFieldsService.standardizeCustomFields(
               this.fg.controls.custom_inputs?.value?.fields || [],
@@ -586,6 +589,21 @@ export class MergeExpensePage implements OnInit {
           this.patchCustomInputsValues(customInputs);
         }
       })
+    );
+
+    const dependentFields$ = allCustomFields$.pipe(
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
+      switchMap((fields) => {
+        const customFields = this.customFieldsService.standardizeCustomFields([], fields);
+        return of(customFields);
+      })
+    );
+
+    this.projectDependentFieldsMapping$ = dependentFields$.pipe(
+      map((dependentFields) =>
+        this.mergeExpensesService.getProjectDependentFieldsMapping(this.expenses, dependentFields)
+      ),
+      shareReplay(1)
     );
   }
 
@@ -610,7 +628,7 @@ export class MergeExpensePage implements OnInit {
   }
 
   onPaymentModeChanged() {
-    this.mergeExpensesService.getCardCardTransactions(this.expenses).subscribe((txns) => {
+    this.mergeExpensesService.getCorporateCardTransactions(this.expenses).subscribe((txns) => {
       this.CCCTxns = txns;
     });
   }

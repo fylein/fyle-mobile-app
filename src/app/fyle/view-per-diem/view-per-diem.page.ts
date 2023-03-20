@@ -38,6 +38,8 @@ export class ViewPerDiemPage implements OnInit {
 
   perDiemCustomFields$: Observable<CustomField[]>;
 
+  projectDependantCustomProperties$: Observable<CustomField[]>;
+
   perDiemRate$: Observable<any>;
 
   isCriticalPolicyViolated$: Observable<boolean>;
@@ -210,6 +212,11 @@ export class ViewPerDiemPage implements OnInit {
           return customProperties;
         })
       )
+    );
+
+    this.projectDependantCustomProperties$ = this.extendedPerDiem$.pipe(
+      concatMap((extendedPerDiem) => this.customInputsService.fillDependantFieldProperties(extendedPerDiem)),
+      shareReplay(1)
     );
 
     this.perDiemRate$ = this.extendedPerDiem$.pipe(

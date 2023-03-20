@@ -35,6 +35,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import * as dayjs from 'dayjs';
+import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 type Filters = Partial<{
   state: string[];
@@ -103,9 +104,9 @@ export class MyReportsPage implements OnInit {
 
   filterPills = [];
 
-  isNewReportsFlowEnabled = false;
+  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
-  isCCCOnlyOrg = false;
+  nonReimbursableOrg$: Observable<boolean>;
 
   constructor(
     private networkService: NetworkService,
@@ -121,7 +122,8 @@ export class MyReportsPage implements OnInit {
     private apiV2Service: ApiV2Service,
     private tasksService: TasksService,
     private modalController: ModalController,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private reportStatePipe: ReportState
   ) {}
 
   get HeaderState() {
@@ -254,6 +256,21 @@ export class MyReportsPage implements OnInit {
       )
     );
 
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    this.simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+    );
+    this.nonReimbursableOrg$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.payment_mode_settings?.allowed &&
+          orgSettings.payment_mode_settings?.enabled &&
+          orgSettings.payment_mode_settings?.payment_modes_order?.length === 1 &&
+          orgSettings.payment_mode_settings?.payment_modes_order[0] ===
+            AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
+      )
+    );
+
     this.myReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
@@ -278,15 +295,6 @@ export class MyReportsPage implements OnInit {
     } else {
       this.clearFilters();
     }
-
-    this.orgSettingsService.get().subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
-      this.isCCCOnlyOrg =
-        orgSettings.payment_mode_settings?.allowed &&
-        orgSettings.payment_mode_settings?.enabled &&
-        orgSettings.payment_mode_settings?.payment_modes_order?.length === 1 &&
-        orgSettings.payment_mode_settings?.payment_modes_order[0] === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
-    });
 
     setTimeout(() => {
       this.isLoading = false;
@@ -734,13 +742,14 @@ export class MyReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
-    const reportState = new ReportState();
-    filterPills.push({
-      label: 'State',
-      type: 'state',
-      value: filter.state
-        .map((state) => reportState.transform(state, this.isNewReportsFlowEnabled))
-        .reduce((state1, state2) => `${state1}, ${state2}`),
+    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
+      filterPills.push({
+        label: 'State',
+        type: 'state',
+        value: filter.state
+          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
+          .reduce((state1, state2) => `${state1}, ${state2}`),
+      });
     });
   }
 
@@ -906,24 +915,6 @@ export class MyReportsPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string) {
-    const newReportsFlowPaymentStateFilters =
-      (!this.isCCCOnlyOrg && [
-        {
-          label: 'Processing',
-          value: 'PAYMENT_PROCESSING',
-        },
-      ]) ||
-      [];
-    const paymentStateFilters = [
-      {
-        label: 'Payment Pending',
-        value: 'PAYMENT_PENDING',
-      },
-      {
-        label: 'Payment Processing',
-        value: 'PAYMENT_PROCESSING',
-      },
-    ];
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
@@ -937,7 +928,7 @@ export class MyReportsPage implements OnInit {
                 value: 'DRAFT',
               },
               {
-                label: this.isNewReportsFlowEnabled ? 'Submitted' : 'Reported',
+                label: 'Reported',
                 value: 'APPROVER_PENDING',
               },
               {
@@ -948,9 +939,16 @@ export class MyReportsPage implements OnInit {
                 label: 'Approved',
                 value: 'APPROVED',
               },
-              ...(this.isNewReportsFlowEnabled ? newReportsFlowPaymentStateFilters : paymentStateFilters),
               {
-                label: this.isNewReportsFlowEnabled ? 'Closed' : 'Paid',
+                label: 'Payment Pending',
+                value: 'PAYMENT_PENDING',
+              },
+              {
+                label: 'Payment Processing',
+                value: 'PAYMENT_PROCESSING',
+              },
+              {
+                label: 'Paid',
                 value: 'PAID',
               },
             ],

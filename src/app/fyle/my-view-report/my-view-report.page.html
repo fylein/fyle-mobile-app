@@ -57,9 +57,11 @@
           <ion-row>
             <ion-col size="5"> </ion-col>
             <ion-col size="7">
-              <div class="view-reports--report-state-pill state-pill state-{{erpt.rp_state | reportState}}">
-                {{erpt.rp_state | reportState : isNewReportsFlowEnabled | snakeCaseToSpaceCase}}
-              </div>
+              <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings">
+                <div class="view-reports--report-state-pill state-pill state-{{erpt.rp_state | reportState}}">
+                  {{erpt.rp_state | reportState : simplifyReportsSettings.enabled | snakeCaseToSpaceCase}}
+                </div>
+              </ng-container>
             </ion-col>
           </ion-row>
 

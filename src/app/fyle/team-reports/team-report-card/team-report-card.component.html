@@ -36,7 +36,7 @@
         <ion-col size="6">
           <div class="reports-card--pill-block text-right">
             <span class="state-pill state-{{ erpt.rp_state | reportState }}">
-              {{ erpt.rp_state | reportState : isNewReportsFlowEnabled | snakeCaseToSpaceCase }}
+              {{ erpt.rp_state | reportState : simplifyReportsEnabled | snakeCaseToSpaceCase }}
             </span>
           </div>
         </ion-col>

@@ -173,6 +173,14 @@
     </ion-grid>
   </div>
 
+  <ng-container *ngIf="dependentFields?.length">
+    <ng-container *ngFor="let dependentField of dependentFields">
+      <div class="merge-expenses--internal-block" *ngIf="dependentField.value">
+        <app-fy-select-disabled [label]="dependentField.name" [value]="dependentField.value"> </app-fy-select-disabled>
+      </div>
+    </ng-container>
+  </ng-container>
+
   <div
     [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.vendor.value }"
     class="merge-expenses--internal-block"
