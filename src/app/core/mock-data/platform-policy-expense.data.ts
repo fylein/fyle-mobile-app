@@ -291,3 +291,70 @@ export const ApproverExpensePolicyStatesData: PlatformApiResponse<ExpensePolicyS
   ],
   offset: 0,
 };
+
+export const splitExpensePolicyExp: PlatformPolicyExpense = {
+  id: 'txqhb1IwrujH',
+  spent_at: new Date('2023-02-15T17:00:00.000Z'),
+  merchant: 'New new new',
+  foreign_currency: null,
+  foreign_amount: null,
+  claim_amount: 20.4,
+  purpose: 'test_term (2) (1)',
+  cost_center_id: 13793,
+  category_id: 110351,
+  project_id: 3943,
+  source_account_id: 'acc5APeygFjRd',
+  tax_amount: null,
+  tax_group_id: 'tg3iWuqWhfzB',
+  is_billable: null,
+  is_reimbursable: true,
+  distance: null,
+  distance_unit: null,
+  locations: [],
+  custom_fields: [
+    {
+      name: 'userlist',
+      value: null,
+    },
+    {
+      name: 'User List',
+      value: null,
+    },
+    {
+      name: 'test',
+      value: null,
+    },
+    {
+      name: 'category2',
+      value: null,
+    },
+    {
+      name: 'test location',
+      value: null,
+    },
+    {
+      name: 'pub create hola 1',
+      value: null,
+    },
+    {
+      name: 'test 112',
+      value: null,
+    },
+    {
+      name: '2232323',
+      value: null,
+    },
+    {
+      name: 'select all 2',
+      value: null,
+    },
+  ],
+  started_at: null,
+  ended_at: null,
+  per_diem_rate_id: null,
+  per_diem_num_days: null,
+  num_files: 1,
+  mileage_calculated_distance: null,
+  mileage_calculated_amount: null,
+  travel_classes: [],
+};

@@ -15,6 +15,7 @@ import {
   throwError,
   Subscription,
   noop,
+  Subject,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
@@ -22,7 +23,9 @@ import {
   catchError,
   concatMap,
   debounceTime,
+  delay,
   distinctUntilChanged,
+  distinctUntilKeyChanged,
   filter,
   finalize,
   map,
@@ -31,6 +34,7 @@ import {
   startWith,
   switchMap,
   take,
+  takeUntil,
   tap,
   timeout,
   withLatestFrom,
@@ -109,6 +113,10 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { StorageService } from 'src/app/core/services/storage.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -297,8 +305,6 @@ export class AddEditExpensePage implements OnInit {
 
   actionSheetOptions$: Observable<{ text: string; handler: () => void }[]>;
 
-  isExpandedView = false;
-
   billableDefaultValue: boolean;
 
   taxGroups$: Observable<TaxGroup[]>;
@@ -345,6 +351,16 @@ export class AddEditExpensePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  dependentFields = [];
+
+  isDependentFieldLoading = false;
+
+  onPageExit$: Subject<void>;
+
+  dependentFields$: Observable<ExpenseField[]>;
+
+  private _isExpandedView = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -389,8 +405,27 @@ export class AddEditExpensePage implements OnInit {
     private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private dependentFieldsService: DependentFieldsService,
+    private storageService: StorageService
   ) {}
+
+  get dependentFieldControls() {
+    return this.fg?.controls.dependent_fields as FormArray;
+  }
+
+  get isExpandedView() {
+    return this._isExpandedView;
+  }
+
+  set isExpandedView(expandedView: boolean) {
+    this._isExpandedView = expandedView;
+
+    //Change the storage only in case of add expense
+    if (this.mode === 'add') {
+      this.storageService.set('isExpandedView', expandedView);
+    }
+  }
 
   @HostListener('keydown')
   scrollInputIntoView() {
@@ -1336,20 +1371,7 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    const selectedCustomInputs$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        this.customInputsService
-          .getAll(true)
-          .pipe(
-            map((customFields) =>
-              this.customFieldsService.standardizeCustomFields(
-                [],
-                this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id)
-              )
-            )
-          )
-      )
-    );
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
     const txnReceiptsCount$ = this.etxn$.pipe(
       switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
@@ -1366,7 +1388,7 @@ export class AddEditExpensePage implements OnInit {
             category: selectedCategory$,
             report: selectedReport$,
             costCenter: selectedCostCenter$,
-            customInputs: selectedCustomInputs$,
+            customExpenseFields: customExpenseFields$,
             txnReceiptsCount: txnReceiptsCount$,
             homeCurrency: this.currencyService.getHomeCurrency(),
             orgSettings: this.orgSettingsService.get(),
@@ -1378,6 +1400,7 @@ export class AddEditExpensePage implements OnInit {
             recentCostCenters: this.recentlyUsedCostCenters$,
             recentCategories: this.recentlyUsedCategories$,
             taxGroups: this.taxGroups$,
+            txnFields: this.txnFields$.pipe(take(1)),
           })
         ),
         finalize(() => from(this.loaderService.hideLoader()))
@@ -1390,7 +1413,7 @@ export class AddEditExpensePage implements OnInit {
           category,
           report,
           costCenter,
-          customInputs,
+          customExpenseFields,
           txnReceiptsCount,
           homeCurrency,
           orgSettings,
@@ -1402,23 +1425,43 @@ export class AddEditExpensePage implements OnInit {
           recentCurrencies,
           recentCostCenters,
           taxGroups,
+          txnFields,
         }) => {
-          const customInputValues = customInputs.map((customInput) => {
-            const cpor =
-              etxn.tx.custom_properties &&
-              etxn.tx.custom_properties.find((customProp) => customProp.name === customInput.name);
-            if (customInput.type === 'DATE') {
-              return {
-                name: customInput.name,
-                value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
-              };
-            } else {
-              return {
-                name: customInput.name,
-                value: (cpor && cpor.value) || null,
-              };
-            }
-          });
+          const dependentFields: ExpenseField[] = customExpenseFields.filter(
+            (customInput) => customInput.type === 'DEPENDENT_SELECT'
+          );
+
+          if (dependentFields?.length && project) {
+            const projectField = {
+              id: txnFields.project_id?.id,
+              value: project.projectv2_name,
+            };
+            this.addDependentFieldWithValue(etxn.tx.custom_properties, dependentFields, projectField);
+          }
+
+          const customInputs = this.customFieldsService.standardizeCustomFields(
+            [],
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+          );
+
+          const customInputValues: { name: string; value: string }[] = customInputs
+            .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
+            .map((customInput) => {
+              const cpor =
+                etxn.tx.custom_properties &&
+                etxn.tx.custom_properties.find((customProp) => customProp.name === customInput.name);
+              if (customInput.type === 'DATE') {
+                return {
+                  name: customInput.name,
+                  value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
+                };
+              } else {
+                return {
+                  name: customInput.name,
+                  value: (cpor && cpor.value) || null,
+                };
+              }
+            });
 
           if (etxn.tx.amount && etxn.tx.currency) {
             this.fg.patchValue({
@@ -1784,6 +1827,9 @@ export class AddEditExpensePage implements OnInit {
 
   setupCustomFields() {
     this.initialFetch = true;
+
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
+
     this.customInputs$ = this.fg.controls.category.valueChanges.pipe(
       filter((category) => !!category),
       startWith({}),
@@ -1793,16 +1839,15 @@ export class AddEditExpensePage implements OnInit {
       ),
       switchMap((category) => {
         const formValue = this.fg.value;
-        return this.customInputsService
-          .getAll(true)
-          .pipe(
-            map((customFields) =>
-              this.customFieldsService.standardizeCustomFields(
-                formValue.custom_inputs || [],
-                this.customInputsService.filterByCategory(customFields, category && category.id)
-              )
+        return customExpenseFields$.pipe(
+          map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
+          map((customFields) =>
+            this.customFieldsService.standardizeCustomFields(
+              formValue.custom_inputs || [],
+              this.customInputsService.filterByCategory(customFields, category && category.id)
             )
-          );
+          )
+        );
       }),
       map((customFields) =>
         customFields.map((customField) => {
@@ -1839,9 +1884,13 @@ export class AddEditExpensePage implements OnInit {
       ),
       shareReplay(1)
     );
+
+    this.dependentFields$ = customExpenseFields$.pipe(
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
+    );
   }
 
-  setupTfc() {
+  setupExpenseFields() {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue) =>
@@ -2273,6 +2322,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.onPageExit$ = new Subject();
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -2314,6 +2364,7 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
+      dependent_fields: this.formBuilder.array([]),
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
@@ -2424,7 +2475,10 @@ export class AddEditExpensePage implements OnInit {
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
-    this.isExpandedView = this.mode !== 'add';
+    // If User has already clicked on See More he need not to click again and again
+    from(this.storageService.get('isExpandedView')).subscribe((expandedView) => {
+      this.isExpandedView = this.mode !== 'add' || expandedView;
+    });
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList =
@@ -2568,7 +2622,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.setupFilteredCategories(activeCategories$);
 
-    this.setupTfc();
+    this.setupExpenseFields();
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map(
@@ -2653,6 +2707,29 @@ export class AddEditExpensePage implements OnInit {
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
+
+    this.fg.controls.project.valueChanges
+      .pipe(
+        takeUntil(this.onPageExit$),
+        tap(() => {
+          this.dependentFieldControls.clear();
+          this.dependentFields = [];
+        }),
+        filter((project) => !!project),
+        switchMap((project) => {
+          this.isDependentFieldLoading = true;
+          return this.txnFields$.pipe(
+            take(1),
+            switchMap((txnFields) => this.getDependentField(txnFields.project_id.id, project.projectv2_name)),
+            finalize(() => (this.isDependentFieldLoading = false))
+          );
+        })
+      )
+      .subscribe((res) => {
+        if (res?.dependentField) {
+          this.addDependentField(res.dependentField, res.parentFieldValue);
+        }
+      });
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
@@ -2727,6 +2804,7 @@ export class AddEditExpensePage implements OnInit {
           amount = etxn.tx.user_amount;
         }
 
+        //TODO: Add depenedent fields to custom_properties array once APIs are available
         return {
           tx: {
             ...etxn.tx,
@@ -2823,10 +2901,22 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getCustomFields() {
-    return this.customInputs$.pipe(
-      take(1),
-      map((customInputs) =>
-        customInputs.map((customInput, i) => ({
+    const dependentFieldsWithValue$ = this.dependentFields$.pipe(
+      map((customFields) => {
+        const mappedDependentFields = this.fg.value.dependent_fields.map((dependentField) => ({
+          name: dependentField.label,
+          value: dependentField.value,
+        }));
+        return this.customFieldsService.standardizeCustomFields(mappedDependentFields || [], customFields);
+      })
+    );
+
+    return forkJoin({
+      customInputs: this.customInputs$.pipe(take(1)),
+      dependentFieldsWithValue: dependentFieldsWithValue$.pipe(take(1)),
+    }).pipe(
+      map(({ customInputs, dependentFieldsWithValue }) => {
+        const customInputsWithValue = customInputs.map((customInput, i) => ({
           id: customInput.id,
           mandatory: customInput.mandatory,
           name: customInput.name,
@@ -2835,8 +2925,9 @@ export class AddEditExpensePage implements OnInit {
           prefix: customInput.prefix,
           type: customInput.type,
           value: this.fg.value.custom_inputs[i].value,
-        }))
-      )
+        }));
+        return customInputsWithValue.concat(dependentFieldsWithValue);
+      })
     );
   }
 
@@ -4193,5 +4284,131 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
+    this.onPageExit$.next(null);
+    this.onPageExit$.complete();
+  }
+
+  private getDependentField(
+    parentFieldId: number,
+    parentFieldValue: string
+  ): Observable<{ dependentField: ExpenseField; parentFieldValue: string }> {
+    return this.dependentFields$.pipe(
+      switchMap((dependentCustomFields) => {
+        const dependentField = dependentCustomFields.find(
+          (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId
+        );
+        if (dependentField && parentFieldValue) {
+          return this.dependentFieldsService
+            .getOptionsForDependentField({
+              fieldId: dependentField.id,
+              parentFieldId,
+              parentFieldValue,
+              searchQuery: '',
+            })
+            .pipe(
+              map((dependentFieldOptions) =>
+                dependentFieldOptions?.length > 0 ? { dependentField, parentFieldValue } : null
+              )
+            );
+        }
+        return of(null);
+      })
+    );
+  }
+
+  private addDependentField(dependentField: ExpenseField, parentFieldValue: string, value = null): void {
+    const dependentFieldControl = this.formBuilder.group({
+      id: dependentField.id,
+      label: dependentField.field_name,
+      parent_field_id: dependentField.parent_field_id,
+      value: [value, (dependentField.is_mandatory || null) && Validators.required],
+    });
+
+    dependentFieldControl.valueChanges
+      .pipe(takeUntil(this.onPageExit$), distinctUntilKeyChanged('value'))
+      .subscribe((value) => {
+        this.onDependentFieldChanged(value);
+      });
+
+    this.dependentFields.push({
+      id: dependentField.id,
+      parentFieldId: dependentField.parent_field_id,
+      parentFieldValue,
+      field: dependentField.field_name,
+      mandatory: dependentField.is_mandatory,
+      control: dependentFieldControl,
+      placeholder: dependentField.placeholder,
+    });
+
+    this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
+  }
+
+  private removeAllDependentFields(updatedFieldIndex: number) {
+    //Remove all dependent field controls after the changed one
+    for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
+      this.dependentFieldControls.removeAt(i);
+    }
+
+    //Removing fields from UI
+    this.dependentFields = this.dependentFields.slice(0, updatedFieldIndex + 1);
+  }
+
+  private onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
+    const updatedFieldIndex = this.dependentFieldControls.value.findIndex((depField) => depField.label === data.label);
+
+    //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
+    if (updatedFieldIndex !== this.dependentFieldControls.length - 1) {
+      this.removeAllDependentFields(updatedFieldIndex);
+    }
+
+    //Create new dependent field based on this field
+    this.isDependentFieldLoading = true;
+    this.getDependentField(data.id, data.value)
+      .pipe(finalize(() => (this.isDependentFieldLoading = false)))
+      .subscribe((res) => {
+        if (res?.dependentField) {
+          this.addDependentField(res.dependentField, res.parentFieldValue);
+        }
+      });
+  }
+
+  //Recursive method to add dependent fields with value
+  private addDependentFieldWithValue(
+    txCustomProperties: CustomProperty<string>[],
+    dependentFields: ExpenseField[],
+    parentField: { id: number; value: string }
+  ) {
+    //Get dependent field for the field whose id is parentFieldId
+    const dependentField = dependentFields.find((dependentField) => dependentField.parent_field_id === parentField.id);
+
+    if (dependentField) {
+      //Get selected value for dependent field
+      const dependentFieldValue = txCustomProperties.find(
+        (customProp) => customProp.name === dependentField.field_name
+      );
+
+      if (dependentFieldValue?.value) {
+        //Add dependent field with selected value
+        this.addDependentField(dependentField, parentField.value, dependentFieldValue?.value);
+
+        //Add field which is dependent on the depenent field (if present)
+        const currentField = {
+          id: dependentField.id,
+          value: dependentFieldValue?.value,
+        };
+        this.addDependentFieldWithValue(txCustomProperties, dependentFields, currentField);
+      } else {
+        //If the dependent field does not have a value, trigger the onChange event for parent field
+        //This will add a new field(if it exists) for the selected value of parent field
+        this.isDependentFieldLoading = true;
+        this.getDependentField(parentField.id, parentField.value)
+          .pipe(finalize(() => (this.isDependentFieldLoading = false)))
+          .subscribe((res) => {
+            if (res?.dependentField) {
+              this.addDependentField(res.dependentField, res.parentFieldValue);
+            }
+          });
+      }
+    }
   }
 }

@@ -1603,6 +1603,87 @@ export const multiplePaymentModesIncPersonalAccData: ExtendedAccount[] = [
   },
 ];
 
+export const multipleAdvAccountsData: ExtendedAccount[] = [
+  {
+    acc: {
+      id: 'accWUsrRlinFb',
+      created_at: new Date('2018-08-05T06:02:11.742Z'),
+      updated_at: new Date('2022-12-09T10:16:22.082Z'),
+      name: 'Advance Account',
+      type: AccountType.ADVANCE,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 223146436,
+      tentative_balance_amount: 223146386.93,
+      category: null,
+      displayName: 'Advance (Balance: $223,146,386.93)',
+      isReimbursable: false,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: 'erertert',
+      number: 'A/2022/03/T/4',
+      id: 'adve6o3JdrDbI',
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: 'USD',
+    amount: 23213,
+  },
+  {
+    acc: {
+      id: 'accYoo40xd0C1',
+      created_at: new Date('2018-08-05T08:32:51.583Z'),
+      updated_at: new Date('2022-12-13T13:24:33.814Z'),
+      name: 'Advance Account',
+      type: AccountType.ADVANCE,
+      currency: 'USD',
+      target_balance_amount: 0,
+      current_balance_amount: 223146436,
+      tentative_balance_amount: 223146386.93,
+      category: null,
+      displayName: 'Advance (Balance: $223,146,386.93)',
+      isReimbursable: false,
+    },
+    ou: {
+      id: 'ouvyOFOSx5bh',
+      org_id: 'orrb8EW1zZsy',
+    },
+    us: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+    },
+    org: {
+      id: null,
+      domain: null,
+    },
+    advance: {
+      purpose: 'erertert',
+      number: 'A/2022/03/T/5',
+      id: 'adve6o3JdrDbj',
+    },
+    orig: {
+      currency: null,
+      amount: null,
+    },
+    currency: 'USD',
+    amount: 23213,
+  },
+];
+
 export const etxnObjData = {
   tx: {
     skip_reimbursement: false,
@@ -1638,6 +1719,27 @@ export const etxnObjWithSourceData = {
   source: {
     account_type: AccountType.PERSONAL,
     account_id: 'accZ1IWjhjLv4',
+  },
+};
+
+export const etxnObjWithAdvSourceData = {
+  tx: {
+    skip_reimbursement: true,
+    source: 'MOBILE',
+    txn_dt: new Date('2022-12-20T20:41:40.771Z'),
+    currency: 'USD',
+    amount: null,
+    orig_currency: null,
+    orig_amount: null,
+    policy_amount: null,
+    custom_properties: [],
+    num_files: 0,
+    org_user_id: 'ouvyOFOSx5bh',
+  },
+  dataUrls: [],
+  source: {
+    account_type: AccountType.ADVANCE,
+    account_id: 'accYoo40xd0C1',
   },
 };
 

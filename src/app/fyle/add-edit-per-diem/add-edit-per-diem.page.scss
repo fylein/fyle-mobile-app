@@ -506,4 +506,16 @@
     margin-top: 8px;
     display: block;
   }
+
+  &__skeleton-loader {
+    background: $off-white;
+    border-radius: 4px;
+    height: 16px;
+
+    &--title {
+      @extend .add-edit-per-diem__skeleton-loader;
+      width: 30%;
+      margin-bottom: 8px;
+    }
+  }
 }

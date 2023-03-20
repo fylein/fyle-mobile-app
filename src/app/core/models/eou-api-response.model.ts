@@ -8,6 +8,7 @@ export interface EouApiResponse {
   ou_level: number;
   ou_level_id: string;
   ou_band: string;
+  ou_rank?: number;
   ou_business_unit: string;
   ou_department_id: string;
   ou_department: string;
