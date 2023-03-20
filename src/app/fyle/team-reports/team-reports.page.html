@@ -72,17 +72,19 @@
       <app-fy-loading-screen class="reports--shimmers"></app-fy-loading-screen>
     </ng-template>
 
-    <ng-container *ngIf="!isLoading && (simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
-      <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
-        <app-team-report-card
-          [erpt]="erpt"
-          [prevDate]="list[i-1]?.rp_created_at"
-          [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
-          (gotoReport)="onReportClick($event)"
-          (deleteReport)="onDeleteReportClick($event)"
-        >
-        </app-team-report-card>
-      </div>
+    <ng-container *ngIf="!isLoading; else loading">
+      <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
+        <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
+          <app-team-report-card
+            [erpt]="erpt"
+            [prevDate]="list[i-1]?.rp_created_at"
+            [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
+            (gotoReport)="onReportClick($event)"
+            (deleteReport)="onDeleteReportClick($event)"
+          >
+          </app-team-report-card>
+        </div>
+      </ng-container>
     </ng-container>
 
     <ng-container *ngIf="isConnected$|async">
