@@ -865,6 +865,24 @@ export class TeamReportsPage implements OnInit {
                 value: 'PAID',
               },
             ],
+            optionsNewFlow: [
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
           } as FilterOptions<string>,
           {
             name: 'Submitted Date',
@@ -923,6 +941,7 @@ export class TeamReportsPage implements OnInit {
             ],
           } as FilterOptions<string>,
         ],
+        simplifyReportsEnabled$: this.simplifyReportsEnabled$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },
