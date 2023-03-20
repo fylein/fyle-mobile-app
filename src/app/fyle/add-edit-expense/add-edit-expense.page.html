@@ -462,7 +462,10 @@
             <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="taxGroupsOptions$|async as taxGroups">
                 <div *ngIf="txnFields?.tax_group_id && taxGroups?.length > 0" class="add-edit-expense--primary-block">
-                  <div class="add-edit-expense--internal-block">
+                  <div
+                    class="add-edit-expense--internal-block"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.tax_group.touched && !fg.controls.tax_group.valid}"
+                  >
                     <app-fy-select
                       [label]="(txnFields.tax_group_id.field_name || 'Tax Group')"
                       [options]="taxGroups"
@@ -704,7 +707,7 @@
                 </div>
                 <div
                   *ngIf="fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid"
-                  [ngClass]="{'add-edit-expense--travel-text-mode-error': txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-mode-error': txnFields.train_travel_class?.type === 'SELECT'}"
+                  [ngClass]="{'add-edit-expense--travel-text-error': txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-error': txnFields.train_travel_class?.type === 'SELECT'}"
                 >
                   Please select valid {{ txnFields.train_travel_class?.field_name }}.
                 </div>
@@ -745,7 +748,7 @@
                 </div>
                 <div
                   *ngIf="fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid"
-                  [ngClass]="{'add-edit-expense--travel-text-mode-error': txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-mode-error': txnFields.bus_travel_class?.type === 'SELECT'}"
+                  [ngClass]="{'add-edit-expense--travel-text-error': txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-error': txnFields.bus_travel_class?.type === 'SELECT'}"
                 >
                   Please select valid {{ txnFields.bus_travel_class?.field_name }}.
                 </div>
@@ -783,7 +786,10 @@
                     Please enter {{ txnFields.distance?.field_name }}.
                   </div>
 
-                  <div class="add-edit-expense--internal-block">
+                  <div
+                    class="add-edit-expense--internal-block"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.distance_unit.touched && !fg.controls.distance_unit.valid}"
+                  >
                     <app-fy-select
                       [label]="txnFields.distance_unit?.field_name"
                       [mandatory]="txnFields.distance_unit?.is_mandatory"
@@ -798,7 +804,7 @@
                   </div>
                   <div
                     *ngIf="fg.controls.distance_unit.touched && !fg.controls.distance_unit.valid"
-                    class="add-edit-expense--distance-error"
+                    class="add-edit-expense--distance-unit-error"
                   >
                     Please select {{ txnFields.distance_unit?.field_name }}.
                   </div>

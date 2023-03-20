@@ -294,6 +294,9 @@
     &__margin {
       margin-right: 12px;
     }
+    &__invalid {
+      margin-bottom: 0px;
+    }
   }
 
   &--split-expense-container {
@@ -623,7 +626,6 @@
     color: $red;
     line-height: 16px;
     font-size: 12px;
-    margin-top: -12px;
   }
 
   &--amount-error {
@@ -703,17 +705,18 @@
   }
 
   &--date-error,
-  &--travel-text-mode-error,
+  &--travel-text-error,
   &--distance-error {
     color: $red;
     line-height: 16px;
     font-size: 12px;
-    margin-top: -8px;
+    margin-top: 6px;
   }
-  &--travel-select-mode-error {
+
+  &--travel-select-error,
+  &--distance-unit-error {
     color: $red;
     line-height: 16px;
     font-size: 12px;
-    margin-top: -12px;
   }
 }
