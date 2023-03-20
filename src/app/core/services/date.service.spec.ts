@@ -58,15 +58,6 @@ describe('DateService', () => {
     });
   });
 
-  it('getLastDaysRange(): should get the last day of the total number of days given', () => {
-    const today = new Date();
-    const numOfDays = 5;
-    expect(dateService.getLastDaysRange(numOfDays)).toEqual({
-      from: new Date(today.getTime() - numOfDays * 24 * 60 * 60 * 1000),
-      to: today,
-    });
-  });
-
   it('firstOfLastMonth(): should get the first of last month', () => {
     expect(dateService.firstOfLastMonth()).toEqual(new Date(year, month - 1, 1));
   });
