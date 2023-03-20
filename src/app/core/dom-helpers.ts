@@ -47,3 +47,15 @@ export const getElementAttributeValue = (element: Element, attributeName: string
   element.getAttribute(attributeName);
 
 export const click = (element: HTMLElement): void => element.click();
+
+/**
+ * Finds an element in a component fixture using its tag name.
+ *
+ * @template T
+ * @param fixture - The component fixture to search in.
+ * @param tagName - The tag name of the element to find. for e.g. <p>, <h1>
+ * @returns The found element represented as an Element object.
+ *
+ */
+export const getElementByTagName = <T>(fixture: ComponentFixture<T>, tagName: string): Element =>
+  fixture.nativeElement.querySelector(tagName);
