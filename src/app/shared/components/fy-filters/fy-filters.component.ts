@@ -11,9 +11,9 @@ import { forkJoin, Observable, of } from 'rxjs';
   styleUrls: ['./fy-filters.component.scss'],
 })
 export class FyFiltersComponent implements OnInit {
-  @Input() simplifyReportsEnabled$: Observable<boolean> = of(false);
+  @Input() simplifyReportsSettings$: Observable<any> = of({ enabled: false });
 
-  @Input() isCCCOnlyOrg$: Observable<boolean> = of(false);
+  @Input() nonReimbursableOrg$: Observable<boolean> = of(false);
 
   @Input() selectedFilterValues: SelectedFilters<any>[];
 
@@ -68,11 +68,11 @@ export class FyFiltersComponent implements OnInit {
 
     const stateFilterIndex = this.filterOptions.findIndex((option) => option.name === 'State');
     forkJoin({
-      simplifyReportsEnabled: this.simplifyReportsEnabled$,
-      isCCCOnlyOrg: this.isCCCOnlyOrg$,
-    }).subscribe(({ simplifyReportsEnabled, isCCCOnlyOrg }) => {
-      if (simplifyReportsEnabled) {
-        this.filterOptions[stateFilterIndex].options = isCCCOnlyOrg
+      simplifyReportsSettings: this.simplifyReportsSettings$,
+      nonReimbursableOrg: this.nonReimbursableOrg$,
+    }).subscribe(({ simplifyReportsSettings, nonReimbursableOrg }) => {
+      if (simplifyReportsSettings.enabled) {
+        this.filterOptions[stateFilterIndex].options = nonReimbursableOrg
           ? this.filterOptions[stateFilterIndex].optionsNewFlowCCCOnly
           : this.filterOptions[stateFilterIndex].optionsNewFlow;
       }

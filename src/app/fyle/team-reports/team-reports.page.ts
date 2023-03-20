@@ -941,7 +941,7 @@ export class TeamReportsPage implements OnInit {
             ],
           } as FilterOptions<string>,
         ],
-        simplifyReportsEnabled$: this.simplifyReportsEnabled$,
+        simplifyReportsSettings$: this.simplifyReportsSettings$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

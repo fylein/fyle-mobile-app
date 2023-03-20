@@ -115,7 +115,7 @@ export class ViewTeamReportPage implements OnInit {
 
   canShowTooltip = false;
 
-  simplifyReportsEnabled = false;
+  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -213,6 +213,11 @@ export class ViewTeamReportPage implements OnInit {
           map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
         )
       )
+    );
+
+    const orgSettings$ = this.orgSettingsService.get();
+    this.simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
     );
 
     this.estatuses$.subscribe((estatuses) => {
@@ -323,7 +328,6 @@ export class ViewTeamReportPage implements OnInit {
         ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
         : true;
       this.canShowTooltip = true;
-      this.simplifyReportsEnabled = res?.orgSettings?.simplified_report_closure_settings?.enabled;
     });
 
     this.refreshApprovals$.next(null);
