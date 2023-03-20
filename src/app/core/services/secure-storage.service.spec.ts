@@ -1,16 +1,22 @@
 import { TestBed } from '@angular/core/testing';
-
 import { SecureStorageService } from './secure-storage.service';
 
-xdescribe('SecureStorageService', () => {
-  let service: SecureStorageService;
+describe('SecureStorageService', () => {
+  let secureStorageService: SecureStorageService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(SecureStorageService);
+    TestBed.configureTestingModule({
+      providers: [SecureStorageService],
+    });
+    secureStorageService = TestBed.inject(SecureStorageService);
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(secureStorageService).toBeTruthy();
+  });
+
+  it('clearAll(): should clear secure storage data', async () => {
+    const result = await secureStorageService.clearAll();
+    expect(result).toEqual({ value: true });
   });
 });
