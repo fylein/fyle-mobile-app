@@ -292,6 +292,7 @@ export class SplitExpenseService {
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
       transaction.billable = this.setUpSplitExpenseBillable(sourceTxn, splitExpense);
       transaction.tax_amount = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
+      transaction.custom_properties = splitExpense.custom_properties || sourceTxn.custom_properties;
 
       this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
