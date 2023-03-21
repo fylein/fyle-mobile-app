@@ -6,6 +6,7 @@ import { NetworkService } from './network.service';
 import { OrgUserService } from './org-user.service';
 import { of } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 describe('RefinerService', () => {
   let refinerService: RefinerService;
@@ -81,6 +82,27 @@ describe('RefinerService', () => {
         expect(res).toBeTrue();
         expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalledTimes(1);
         expect(refinerService.isNonDemoOrg).toHaveBeenCalledOnceWith('Staging Loaded');
+        done();
+      });
+    });
+
+    it('should return false for demo orgs and when switched to delegator', (done) => {
+      const demoOrgRes: ExtendedOrgUser = {
+        ...apiEouRes,
+        ou: {
+          ...apiEouRes.ou,
+          org_name: 'Fyle for Acme Corp',
+        },
+      };
+      spyOn(refinerService, 'isNonDemoOrg').and.returnValue(false);
+      const switchedToDelegator = true;
+      orgUserService.isSwitchedToDelegator.and.returnValue(Promise.resolve(switchedToDelegator));
+      const homeCurrency = 'INR';
+      const eou = demoOrgRes;
+      refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {
+        expect(res).toBeFalse();
+        expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalledTimes(1);
+        expect(refinerService.isNonDemoOrg).toHaveBeenCalledOnceWith('Fyle for Acme Corp');
         done();
       });
     });

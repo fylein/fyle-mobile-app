@@ -232,7 +232,7 @@ export class RefinerService {
     return orgName.toLowerCase().indexOf('fyle for') === -1;
   }
 
-  canStartSurvey(homeCurrency: string, eou: ExtendedOrgUser) {
+  canStartSurvey(homeCurrency: string, eou: ExtendedOrgUser): Observable<boolean> {
     const isNonDemoOrg = eou && eou.ou && eou.ou.org_name && this.isNonDemoOrg(eou.ou.org_name);
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
     return isSwitchedToDelegator$.pipe(map((isSwitchedToDelegator) => isNonDemoOrg && !isSwitchedToDelegator));
