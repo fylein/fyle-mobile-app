@@ -795,6 +795,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     );
   }
 
+  // Added this to fix the error for value being changed after it is checked in the case of rendering customInputs$
   ngAfterViewChecked() {
     this.cdRef.detectChanges();
   }
