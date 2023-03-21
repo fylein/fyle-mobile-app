@@ -69,4 +69,20 @@ describe('RefinerService', () => {
       expect(refinerService.isNonDemoOrg(orgName)).toBeFalse();
     });
   });
+
+  describe('canStartSurvey():', () => {
+    it('should return true for non-demo orgs and when not switched to delegator', (done) => {
+      spyOn(refinerService, 'isNonDemoOrg').and.returnValue(true);
+      const switchedToDelegator = false;
+      orgUserService.isSwitchedToDelegator.and.returnValue(Promise.resolve(switchedToDelegator));
+      const homeCurrency = 'INR';
+      const eou = apiEouRes;
+      refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {
+        expect(res).toBeTrue();
+        expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalledTimes(1);
+        expect(refinerService.isNonDemoOrg).toHaveBeenCalledOnceWith('Staging Loaded');
+        done();
+      });
+    });
+  });
 });
