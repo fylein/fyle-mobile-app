@@ -654,6 +654,11 @@ export class MergeExpensesService {
     }
   }
 
+  // Value can be anything: string | number | date | list | userlist
+  setFormattedDate(value: any): string {
+    return dayjs(value).format('MMM DD, YYYY');
+  }
+
   private formatCustomInputOptionsByType(combinedCustomProperties: MergeExpensesOptionsData[]) {
     const customProperty = [];
 
@@ -661,8 +666,9 @@ export class MergeExpensesService {
       const existing = customProperty.find((option) => option.name === field.name);
       if (field.value) {
         let formatedlabel;
-        if (this.dateService.isValidDate(field.value)) {
-          formatedlabel = dayjs(field.value).format('MMM DD, YYYY');
+        const isValidDate = this.dateService.isValidDate(field.value);
+        if (isValidDate) {
+          formatedlabel = this.setFormattedDate(field.value);
         } else {
           formatedlabel = field.value.toString();
         }
@@ -706,9 +712,6 @@ export class MergeExpensesService {
 
   private formatTaxGroupOption(option: MergeExpensesOption): Observable<MergeExpensesOptionsData> {
     const taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
-    const taxGroupsOptions$ = taxGroups$.pipe(
-      map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
-    );
 
     return taxGroups$.pipe(
       map((taxGroups) => {
