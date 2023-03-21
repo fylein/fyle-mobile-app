@@ -25,9 +25,9 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 export class DependentFieldsComponent implements OnInit, OnDestroy {
   @Input() expenseForm: FormGroup;
 
-  @Input() txnFields: any;
-
   @Input() dependentCustomFields: ExpenseField[];
+
+  @Input() parentFieldId: number;
 
   dependentFields = [];
 
@@ -53,7 +53,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
         filter((project) => !!project),
         switchMap((project) => {
           this.isDependentFieldLoading = true;
-          return this.getDependentField(this.txnFields.project_id.id, project.projectv2_name).pipe(
+          return this.getDependentField(this.parentFieldId, project.projectv2_name).pipe(
             finalize(() => (this.isDependentFieldLoading = false))
           );
         })
