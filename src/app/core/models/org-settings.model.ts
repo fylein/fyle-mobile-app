@@ -442,6 +442,7 @@ export interface OrgSettingsResponse {
   company_expenses_beta_settings?: CommonOrgSettings;
   trip_request_settings?: CommonOrgSettings;
   xe_provider_settings?: XeProviderSettings;
+  simplified_report_closure_settings?: CommonOrgSettings;
 }
 
 export interface UiPolicySettings {
@@ -551,4 +552,5 @@ export interface OrgSettings {
   visa_enrollment_settings?: CommonOrgSettings;
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
+  simplified_report_closure_settings?: CommonOrgSettings;
 }

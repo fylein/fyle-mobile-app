@@ -211,6 +211,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  isNewReportsFlowEnabled = false;
+
   dependentFields = [];
 
   isDependentFieldLoading = false;
@@ -770,6 +772,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -842,6 +845,10 @@ export class AddEditPerDiemPage implements OnInit {
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
     );
+
+    orgSettings$.subscribe((orgSettings) => {
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+    });
 
     this.setupNetworkWatcher();
 

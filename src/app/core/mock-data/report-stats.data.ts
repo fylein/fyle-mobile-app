@@ -17,6 +17,10 @@ export const expectedReportStats: ReportStats = {
     count: 4,
     sum: 501602.12,
   },
+  processing: {
+    count: 7,
+    sum: 5012.12,
+  },
 };
 
 export const expectedEmptyReportStats: ReportStats = {
@@ -33,6 +37,10 @@ export const expectedEmptyReportStats: ReportStats = {
     count: 0,
   },
   paymentPending: {
+    sum: 0,
+    count: 0,
+  },
+  processing: {
     sum: 0,
     count: 0,
   },
