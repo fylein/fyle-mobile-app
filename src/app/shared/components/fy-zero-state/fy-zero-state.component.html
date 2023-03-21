@@ -3,6 +3,7 @@
     class="zero-state--image"
     [ngClass]="{ 'zero-state--image__unscaled': unscaledImage }"
     [src]="image"
+    [ngStyle]="taskImageStyle"
     alt="zero"
   />
   <div *ngIf="header" [ngClass]="{ 'zero-state--header__new': useNewStyling }" class="zero-state--header">
