@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import {
   distinctUntilKeyChanged,
   filter,
@@ -23,7 +23,9 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
   styleUrls: ['./dependent-fields.component.scss'],
 })
 export class DependentFieldsComponent implements OnInit, OnDestroy {
-  @Input() expenseForm: FormGroup;
+  @Input() dependentFieldsFormArray: FormArray;
+
+  @Input() parentFormControl: FormControl;
 
   @Input() dependentCustomFields: ExpenseField[];
 
@@ -38,12 +40,12 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
   constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: FormBuilder) {}
 
   get dependentFieldControls() {
-    return this.expenseForm?.controls?.dependent_fields as FormArray;
+    return this.dependentFieldsFormArray as FormArray;
   }
 
   ngOnInit() {
     this.onPageExit$ = new Subject();
-    this.expenseForm?.controls.project.valueChanges
+    this.parentFormControl?.valueChanges
       .pipe(
         takeUntil(this.onPageExit$),
         tap(() => {

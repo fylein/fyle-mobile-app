@@ -402,12 +402,15 @@
 
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="dependentFields$|async as dependentFields">
-              <app-dependent-fields
-                #dependentFields
-                [expenseForm]="fg"
-                [dependentCustomFields]="dependentFields"
-                [parentFieldId]="txnFields?.project_id?.id"
-              ></app-dependent-fields>
+              <ng-container formArrayName="dependent_fields">
+                <app-dependent-fields
+                  #dependentFields
+                  [dependentFieldsFormArray]="fg.controls.dependent_fields"
+                  [parentFormControl]="fg.controls.project"
+                  [dependentCustomFields]="dependentFields"
+                  [parentFieldId]="txnFields?.project_id?.id"
+                ></app-dependent-fields>
+              </ng-container>
             </ng-container>
           </ng-container>
 
