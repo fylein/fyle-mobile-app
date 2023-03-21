@@ -8,7 +8,6 @@ import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { MyViewReportEtxnCardComponent } from './my-view-report-etxn-card.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { of } from 'rxjs';
 
 describe('MyViewReportEtxnCardComponent', () => {
   let component: MyViewReportEtxnCardComponent;
