@@ -108,3 +108,356 @@ export const optionsData9: MergeExpensesOptionsData = {
   ],
   areSameValues: true,
 };
+
+export const optionsData10: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Food',
+      value: '201952',
+    },
+    {
+      label: 'Hotel',
+      value: '16582',
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData11: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'GST',
+      value: 'tgXEJA6YUoZ1',
+    },
+    {
+      label: 'GST',
+      value: 'tgXEJA6YUoZ1',
+    },
+  ],
+  areSameValues: true,
+};
+
+export const optionsData12: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: '0.01',
+      value: 0.01,
+    },
+    {
+      label: '0.01',
+      value: 0.01,
+    },
+  ],
+  areSameValues: true,
+};
+
+export const optionsData13: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Cost Center 1',
+      value: 13788,
+    },
+    {
+      label: 'Cost Center 2',
+      value: 13795,
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData14: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Outing',
+      value: 'Outing',
+    },
+    {
+      label: 'Offsite',
+      value: 'Offsite',
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData15: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
+      value: {
+        actual: 'null',
+        city: 'Kalyan',
+        country: 'India',
+        display: 'Kalyan Station Road, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra, India',
+        formatted_address: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
+        latitude: 19.238037,
+        longitude: 73.1296469,
+        state: 'Maharashtra',
+      },
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData16: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'Mar 13, 2023',
+      value: new Date('2023-03-13T05:31:00.000Z'),
+    },
+    {
+      label: 'Mar 10, 2023',
+      value: new Date('2023-03-10T05:31:00.000Z'),
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData17: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'ECONOMY',
+      value: 'ECONOMY',
+    },
+    {
+      label: 'BUSINESS',
+      value: 'BUSINESS',
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData18: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'SLEEPER',
+      value: 'SLEEPER',
+    },
+    {
+      label: 'SLEEPER',
+      value: 'SLEEPER',
+    },
+  ],
+  areSameValues: true,
+};
+
+export const optionsData19: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'AC',
+      value: 'AC',
+    },
+    {
+      label: 'AC',
+      value: 'AC',
+    },
+  ],
+  areSameValues: true,
+};
+
+export const optionsData20: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: '25',
+      value: 25,
+    },
+    {
+      label: '30',
+      value: 30,
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData21: MergeExpensesOptionsData = {
+  options: [
+    {
+      label: 'KM',
+      value: 'KM',
+    },
+    {
+      label: 'MILES',
+      value: 'MILES',
+    },
+  ],
+  areSameValues: false,
+};
+
+export const optionsData22: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'userlist',
+        value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+      },
+    ],
+    areSameValues: false,
+    value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+    id: 200227,
+    name: 'userlist',
+  },
+  {
+    options: [],
+    areSameValues: false,
+    value: new Date('2021-03-10T05:31:00.000Z'),
+    id: 200229,
+    name: 'date field',
+  },
+];
+
+export const optionsData23: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'ajain+12+12+1@fyle.in,aaaaasdjskjd@sdsd.com',
+        value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+      },
+    ],
+    areSameValues: false,
+    value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+    id: 200227,
+    name: 'userlist',
+  },
+  {
+    areSameValues: false,
+    value: new Date('2021-03-10T05:31:00.000Z'),
+    id: 200229,
+    name: 'date field',
+    options: [
+      {
+        label: 'Mar 10, 2021',
+        value: new Date('2021-03-10T05:31:00.000Z'),
+      },
+    ],
+  },
+];
+
+export const optionsData24: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'ajain+12+12+1@fyle.in,aaaaasdjskjd@sdsd.com',
+        value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+      },
+    ],
+    areSameValues: false,
+    value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+    id: 200227,
+    name: 'userlist',
+  },
+  {
+    options: [],
+    areSameValues: false,
+    value: 'some value',
+    id: 200211,
+    name: 'text field',
+  },
+];
+
+export const optionsData25: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'ajain+12+12+1@fyle.in,aaaaasdjskjd@sdsd.com',
+        value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+      },
+    ],
+    areSameValues: false,
+    value: ['ajain+12+12+1@fyle.in', 'aaaaasdjskjd@sdsd.com'],
+    id: 200227,
+    name: 'userlist',
+  },
+  {
+    options: [
+      {
+        label: 'some value',
+        value: 'some value',
+      },
+    ],
+    areSameValues: false,
+    value: 'some value',
+    id: 200211,
+    name: 'text field',
+  },
+];
+
+export const optionsData26: MergeExpensesOptionsData[] = [
+  {
+    options: null,
+    areSameValues: false,
+    value: 12,
+    id: 200212,
+    name: 'numberfield',
+  },
+];
+
+export const optionsData27: MergeExpensesOptionsData[] = [
+  {
+    options: [],
+    areSameValues: false,
+    value: 'Food',
+    id: 200213,
+    name: 'customcategory',
+  },
+  {
+    options: [],
+    areSameValues: false,
+    value: 'Food',
+    id: 200213,
+    name: 'customcategory',
+  },
+];
+
+export const optionsData28: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: 'Food',
+        value: 'Food',
+      },
+      {
+        label: 'Food',
+        value: 'Food',
+      },
+    ],
+    areSameValues: false,
+    value: 'Food',
+    id: 200213,
+    name: 'customcategory',
+  },
+];
+
+export const optionsData29: MergeExpensesOptionsData[] = [
+  {
+    options: [],
+    areSameValues: false,
+    value: 16,
+    id: 200215,
+    name: 'customNumber',
+  },
+  {
+    options: [],
+    areSameValues: false,
+    value: 16,
+    id: 200215,
+    name: 'customNumber',
+  },
+];
+
+export const optionsData30: MergeExpensesOptionsData[] = [
+  {
+    options: [
+      {
+        label: '16',
+        value: 16,
+      },
+      {
+        label: '16',
+        value: 16,
+      },
+    ],
+    areSameValues: false,
+    value: 16,
+    id: 200215,
+    name: 'customNumber',
+  },
+];

@@ -80,6 +80,8 @@ export class ViewPerDiemPage implements OnInit {
 
   projectFieldName: string;
 
+  isNewReportsFlowEnabled = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
@@ -197,6 +199,7 @@ export class ViewPerDiemPage implements OnInit {
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
+        this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       });
 
     this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(

@@ -3,6 +3,8 @@ import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { AddMorePopupComponent } from './add-more-popup.component';
 import { getElementBySelector, getTextContent, getAllElementsBySelector } from 'src/app/core/dom-helpers';
+import { MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('AddMorePopupComponent', () => {
   let addMorePopupComponent: AddMorePopupComponent;
@@ -11,7 +13,7 @@ describe('AddMorePopupComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AddMorePopupComponent],
-      imports: [IonicModule.forRoot(), MatBottomSheetModule],
+      imports: [IonicModule.forRoot(), MatBottomSheetModule, MatIconModule, MatIconTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddMorePopupComponent);

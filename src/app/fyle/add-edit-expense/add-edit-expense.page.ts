@@ -351,6 +351,8 @@ export class AddEditExpensePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  isNewReportsFlowEnabled = false;
+
   dependentFields = [];
 
   isDependentFieldLoading = false;
@@ -2322,6 +2324,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -2427,6 +2430,8 @@ export class AddEditExpensePage implements OnInit {
     orgSettings$.subscribe((orgSettings) => {
       this.isCorporateCreditCardEnabled =
         orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
 
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&

@@ -5,4 +5,5 @@ export interface ReportStats {
   report: Stats;
   approved: Stats;
   paymentPending: Stats;
+  processing: Stats;
 }
