@@ -83,3 +83,80 @@ export const mergeExpensesOptionData3: MergeExpensesOption[] = [
     value: '3943',
   },
 ];
+
+export const mergeExpensesOptionData4: MergeExpensesOption[] = [
+  {
+    label: 'Food',
+    value: '201952',
+  },
+  {
+    label: 'Hotel',
+    value: '16582',
+  },
+];
+
+export const mergeExpensesOptionData5: MergeExpensesOption[] = [
+  {
+    label: 'GST',
+    value: 'tgXEJA6YUoZ1',
+  },
+  {
+    label: 'GST',
+    value: 'tgXEJA6YUoZ1',
+  },
+];
+
+export const mergeExpensesOptionData6: MergeExpensesOption[] = [
+  {
+    label: 'ECONOMY',
+    value: 'ECONOMY',
+  },
+  {
+    label: 'BUSINESS',
+    value: 'BUSINESS',
+  },
+];
+
+export const mergeExpensesOptionData7: MergeExpensesOption[] = [
+  {
+    label: 'SLEEPER',
+    value: 'SLEEPER',
+  },
+  {
+    label: 'SLEEPER',
+    value: 'SLEEPER',
+  },
+];
+
+export const mergeExpensesOptionData8: MergeExpensesOption[] = [
+  {
+    label: 'AC',
+    value: 'AC',
+  },
+  {
+    label: 'AC',
+    value: 'AC',
+  },
+];
+
+export const mergeExpensesOptionData9: MergeExpensesOption[] = [
+  {
+    label: '25',
+    value: 25,
+  },
+  {
+    label: '30',
+    value: 30,
+  },
+];
+
+export const mergeExpensesOptionData10: MergeExpensesOption[] = [
+  {
+    label: 'KM',
+    value: 'KM',
+  },
+  {
+    label: 'MILES',
+    value: 'MILES',
+  },
+];

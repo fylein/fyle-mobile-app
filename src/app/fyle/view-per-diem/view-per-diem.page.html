@@ -85,7 +85,7 @@
           [ngClass]="{'view-per-diem--card-container__state-pill--with-project': isProjectShown}"
         >
           <div class="state-pill state-{{extendedPerDiem.tx_state | expenseState}}">
-            {{ extendedPerDiem.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
+            {{ extendedPerDiem.tx_state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
       </div>

@@ -368,6 +368,6 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
     DependentFieldModalComponent,
     FySelectDisabledComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })
 export class SharedModule {}

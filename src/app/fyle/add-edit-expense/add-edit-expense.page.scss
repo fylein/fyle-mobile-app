@@ -200,6 +200,10 @@
 
   &--date {
     border-bottom: 1px solid $grey-lighter;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
   }
 
   &--date-label {
@@ -289,6 +293,9 @@
     margin-bottom: 12px;
     &__margin {
       margin-right: 12px;
+    }
+    &__invalid {
+      margin-bottom: 0px;
     }
   }
 
@@ -619,7 +626,6 @@
     color: $red;
     line-height: 16px;
     font-size: 12px;
-    margin-top: -12px;
   }
 
   &--amount-error {
@@ -696,5 +702,21 @@
       width: 30%;
       margin-bottom: 8px;
     }
+  }
+
+  &--date-error,
+  &--travel-text-error,
+  &--distance-error {
+    color: $red;
+    line-height: 16px;
+    font-size: 12px;
+    margin-top: 6px;
+  }
+
+  &--travel-select-error,
+  &--distance-unit-error {
+    color: $red;
+    line-height: 16px;
+    font-size: 12px;
   }
 }

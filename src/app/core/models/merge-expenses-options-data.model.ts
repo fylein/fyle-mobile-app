@@ -5,4 +5,5 @@ export interface MergeExpensesOptionsData {
   areSameValues?: boolean;
   name?: string;
   value?: any; // Value can be anything number, string, list, etc.
+  id?: number;
 }
