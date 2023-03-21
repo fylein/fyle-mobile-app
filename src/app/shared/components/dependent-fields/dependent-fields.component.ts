@@ -39,17 +39,13 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
 
   constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: FormBuilder) {}
 
-  get dependentFieldControls() {
-    return this.dependentFieldsFormArray as FormArray;
-  }
-
   ngOnInit() {
     this.onPageExit$ = new Subject();
     this.parentFormControl?.valueChanges
       .pipe(
         takeUntil(this.onPageExit$),
         tap(() => {
-          this.dependentFieldControls?.clear();
+          this.dependentFieldsFormArray?.clear();
           this.dependentFields = [];
         }),
         filter((project) => !!project),
@@ -160,13 +156,13 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
       placeholder: dependentField.placeholder,
     });
 
-    this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
+    this.dependentFieldsFormArray.push(dependentFieldControl, { emitEvent: false });
   }
 
   private removeAllDependentFields(updatedFieldIndex: number) {
     //Remove all dependent field controls after the changed one
     for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
-      this.dependentFieldControls.removeAt(i);
+      this.dependentFieldsFormArray.removeAt(i);
     }
 
     //Removing fields from UI
@@ -174,10 +170,12 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
   }
 
   private onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
-    const updatedFieldIndex = this.dependentFieldControls.value.findIndex((depField) => depField.label === data.label);
+    const updatedFieldIndex = this.dependentFieldsFormArray.value.findIndex(
+      (depField) => depField.label === data.label
+    );
 
     //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
-    if (updatedFieldIndex !== this.dependentFieldControls.length - 1) {
+    if (updatedFieldIndex !== this.dependentFieldsFormArray.length - 1) {
       this.removeAllDependentFields(updatedFieldIndex);
     }
 
