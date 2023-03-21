@@ -123,7 +123,7 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
-  @ViewChild('dependentFields') dependentFieldsRef: DependentFieldsComponent;
+  @ViewChild('dependentFieldsRef') dependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<any>;
 
@@ -347,6 +347,8 @@ export class AddEditExpensePage implements OnInit {
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
+
+  selectedProject: string;
 
   private _isExpandedView = false;
 
@@ -1409,21 +1411,8 @@ export class AddEditExpensePage implements OnInit {
           taxGroups,
           txnFields,
         }) => {
-          const dependentFields: ExpenseField[] = customExpenseFields.filter(
-            (customInput) => customInput.type === 'DEPENDENT_SELECT'
-          );
-
-          if (dependentFields?.length && project) {
-            const projectField = {
-              id: txnFields.project_id?.id,
-              value: project.projectv2_name,
-            };
-
-            this.dependentFieldsRef.addDependentFieldWithValue(
-              etxn.tx.custom_properties,
-              dependentFields,
-              projectField
-            );
+          if (project) {
+            this.selectedProject = project.projectv2_name;
           }
 
           const customInputs = this.customFieldsService.standardizeCustomFields(

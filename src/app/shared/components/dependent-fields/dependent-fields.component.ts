@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import {
   distinctUntilKeyChanged,
@@ -22,7 +22,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
   templateUrl: './dependent-fields.component.html',
   styleUrls: ['./dependent-fields.component.scss'],
 })
-export class DependentFieldsComponent implements OnInit, OnDestroy {
+export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   @Input() dependentFieldsFormArray: FormArray;
 
   @Input() parentFormControl: FormControl;
@@ -30,6 +30,10 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
   @Input() dependentCustomFields: ExpenseField[];
 
   @Input() parentFieldId: number;
+
+  @Input() selectedParentFieldValue: string;
+
+  @Input() txnCustomProperties: CustomProperty<string>[];
 
   dependentFields = [];
 
@@ -61,6 +65,16 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
           this.addDependentField(dependentFieldDetails.dependentField, dependentFieldDetails.parentFieldValue);
         }
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes?.selectedParentFieldValue && this.txnCustomProperties?.length) {
+      this.onPageExit$ = new Subject();
+      this.addDependentFieldWithValue(this.txnCustomProperties, this.dependentCustomFields, {
+        id: this.parentFieldId,
+        value: this.selectedParentFieldValue,
+      });
+    }
   }
 
   ngOnDestroy() {
