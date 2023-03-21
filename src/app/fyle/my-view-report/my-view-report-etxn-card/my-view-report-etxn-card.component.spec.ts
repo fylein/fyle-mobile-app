@@ -8,6 +8,7 @@ import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { MyViewReportEtxnCardComponent } from './my-view-report-etxn-card.component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { of } from 'rxjs';
 
 describe('MyViewReportEtxnCardComponent', () => {
   let component: MyViewReportEtxnCardComponent;
@@ -30,11 +31,13 @@ describe('MyViewReportEtxnCardComponent', () => {
   });
 
   it('goToTransactionClicked(): should emit event when clicked on transaction', () => {
+    component.etxnIndex = 1;
+    fixture.detectChanges();
     const goToTxnSpy = spyOn(component.goToTransaciton, 'emit');
 
     const goToTxnButton = getElementBySelector(fixture, '.etxn-card--body') as HTMLElement;
     click(goToTxnButton);
-    expect(goToTxnSpy).toHaveBeenCalledTimes(1);
+    expect(goToTxnSpy).toHaveBeenCalledOnceWith({ etxn: expenseData1, etxnIndex: 1 });
   });
 
   it('should show txn data properly', () => {
