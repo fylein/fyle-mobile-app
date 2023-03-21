@@ -29,6 +29,7 @@ import {
   startWith,
   switchMap,
   take,
+  takeUntil,
   tap,
   timeout,
   withLatestFrom,
@@ -348,7 +349,7 @@ export class AddEditExpensePage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
-  selectedProject: string;
+  selectedProject$: BehaviorSubject<ExtendedProject>;
 
   private _isExpandedView = false;
 
@@ -1412,7 +1413,7 @@ export class AddEditExpensePage implements OnInit {
           txnFields,
         }) => {
           if (project) {
-            this.selectedProject = project.projectv2_name;
+            this.selectedProject$.next(project);
           }
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
@@ -2300,6 +2301,7 @@ export class AddEditExpensePage implements OnInit {
   ionViewWillEnter() {
     this.onPageExit$ = new Subject();
     this.dependentFieldsRef?.ngOnInit();
+    this.selectedProject$ = new BehaviorSubject(null);
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -2347,6 +2349,10 @@ export class AddEditExpensePage implements OnInit {
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
     this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
+
+    this.fg.controls.project.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((project) => this.selectedProject$.next(project));
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -4241,5 +4247,6 @@ export class AddEditExpensePage implements OnInit {
     this.dependentFieldsRef.ngOnDestroy();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
+    this.selectedProject$.complete();
   }
 }

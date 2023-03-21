@@ -25,13 +25,11 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   @Input() dependentFieldsFormArray: FormArray;
 
-  @Input() parentFormControl: FormControl;
-
   @Input() dependentCustomFields: ExpenseField[];
 
   @Input() parentFieldId: number;
 
-  @Input() selectedParentFieldValue: string;
+  @Input() parentFieldValue: string;
 
   @Input() txnCustomProperties: CustomProperty<string>[];
 
@@ -45,34 +43,16 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit() {
     this.onPageExit$ = new Subject();
-    this.parentFormControl?.valueChanges
-      .pipe(
-        takeUntil(this.onPageExit$),
-        tap(() => {
-          this.dependentFieldsFormArray?.clear();
-          this.dependentFields = [];
-        }),
-        filter((project) => !!project),
-        switchMap((project) => {
-          this.isDependentFieldLoading = true;
-          return this.getDependentField(this.parentFieldId, project.projectv2_name).pipe(
-            finalize(() => (this.isDependentFieldLoading = false))
-          );
-        })
-      )
-      .subscribe((dependentFieldDetails) => {
-        if (dependentFieldDetails?.dependentField) {
-          this.addDependentField(dependentFieldDetails.dependentField, dependentFieldDetails.parentFieldValue);
-        }
-      });
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes?.selectedParentFieldValue && this.txnCustomProperties?.length) {
+    if (changes?.parentFieldValue) {
       this.onPageExit$ = new Subject();
+      this.dependentFieldsFormArray?.clear();
+      this.dependentFields = [];
       this.addDependentFieldWithValue(this.txnCustomProperties, this.dependentCustomFields, {
         id: this.parentFieldId,
-        value: this.selectedParentFieldValue,
+        value: this.parentFieldValue,
       });
     }
   }
