@@ -46,6 +46,8 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
 
   @Input() autoSubmissionReportName: string;
 
+  @Input() isNewReportsFlowEnabled = false;
+
   displayValue: string;
 
   private ngControl: NgControl;
@@ -110,6 +112,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
         subheader: this.subheader,
         enableSearch: this.enableSearch,
         autoSubmissionReportName: this.autoSubmissionReportName,
+        isNewReportsFlowEnabled: this.isNewReportsFlowEnabled,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),

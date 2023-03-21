@@ -128,6 +128,24 @@ export const apiReportStatsRes: StatsResponse = {
             },
           ],
         },
+        {
+          aggregates: [
+            {
+              function_name: 'sum(rp_amount)',
+              function_value: 5012.12,
+            },
+            {
+              function_name: 'count(rp_id)',
+              function_value: 7,
+            },
+          ],
+          key: [
+            {
+              column_name: 'rp_state',
+              column_value: 'PAYMENT_PROCESSING',
+            },
+          ],
+        },
       ],
     },
   ],

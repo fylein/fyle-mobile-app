@@ -12,6 +12,8 @@ export class MyReportsCardComponent implements OnInit {
 
   @Input() prevDate: Date;
 
+  @Input() simplifyReportsEnabled: boolean;
+
   @Output() deleteReport: EventEmitter<ExtendedReport> = new EventEmitter();
 
   @Output() gotoReport: EventEmitter<ExtendedReport> = new EventEmitter();

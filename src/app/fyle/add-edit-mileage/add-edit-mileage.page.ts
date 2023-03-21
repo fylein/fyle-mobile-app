@@ -223,6 +223,8 @@ export class AddEditMileagePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  isNewReportsFlowEnabled = false;
+
   dependentFields = [];
 
   isDependentFieldLoading = false;
@@ -884,6 +886,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
@@ -948,6 +951,10 @@ export class AddEditMileagePage implements OnInit {
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
       )
     );
+
+    orgSettings$.subscribe((orgSettings) => {
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+    });
 
     this.setupNetworkWatcher();
 
