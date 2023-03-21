@@ -1,18 +1,6 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
-import {
-  distinctUntilKeyChanged,
-  filter,
-  finalize,
-  map,
-  Observable,
-  of,
-  Subject,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs';
+import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { distinctUntilKeyChanged, finalize, map, Observable, of, Subject, takeUntil } from 'rxjs';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
@@ -58,8 +46,8 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy() {
-    this.onPageExit$.next(null);
-    this.onPageExit$.complete();
+    this.onPageExit$?.next(null);
+    this.onPageExit$?.complete();
   }
 
   //Recursive method to add dependent fields with value

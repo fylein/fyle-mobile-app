@@ -4244,7 +4244,7 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
-    this.dependentFieldsRef.ngOnDestroy();
+    this.dependentFieldsRef?.ngOnDestroy();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
     this.selectedProject$.complete();
