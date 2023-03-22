@@ -16,7 +16,7 @@ jobs:
           certificate: Android Prod Release
           environment: production
           native-config: prod
-          destinations: Fyle prod
+          destinations: Fyle - Android prod
 
   build-ios:
     runs-on: ubuntu-latest
