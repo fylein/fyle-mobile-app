@@ -29,14 +29,12 @@ describe('TimezoneService', () => {
   });
 
   describe('convertToTimezone(): ', () => {
-    it('should convert the date to UTC with the specified offset when "toUtc" is true', () => {
-      const date = new Date('2023-03-22T12:00:00.000Z');
+    it('should convert the date to the specified offset when "toUtc" is false', () => {
+      const date = new Date('2023-03-22T12:00:00.000+05:30');
       const offset = '05:30:00';
-      const toUtc = true;
-      const expectedDate = new Date('2023-03-22T12:00:00.000Z');
-
+      const toUtc = false;
+      const expectedDate = new Date('2023-03-22T12:00:00.000+05:30');
       const result = timezoneService.convertToTimezone(date, offset, toUtc);
-
       expect(result).toEqual(expectedDate);
     });
 
