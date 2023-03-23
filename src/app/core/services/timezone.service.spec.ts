@@ -43,6 +43,6 @@ describe('TimezoneService', () => {
     const offset = '05:30:00';
     spyOn(timezoneService, 'convertToTimezone').and.returnValue(date);
     timezoneService.convertToUtc(date, offset);
-    expect(timezoneService.convertToTimezone).toHaveBeenCalledWith(date, offset, true);
+    expect(timezoneService.convertToTimezone).toHaveBeenCalledOnceWith(date, offset, true);
   });
 });
