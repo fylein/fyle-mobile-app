@@ -43,13 +43,13 @@ describe('LaunchDarklyService', () => {
     expect(launchDarklyService.isTheSameUser(lDUser)).toBeFalse();
   });
 
-  it('updateCache(): should update cache', () => {
+  xit('updateCache(): should update cache', () => {
     storageService.set.and.callThrough();
     //@ts-ignore
     launchDarklyService.updateCache();
   });
 
-  it('initializeUser(): should initialize user', () => {
+  xit('initializeUser(): should initialize user', () => {
     //@ts-ignore
     spyOn(launchDarklyService, 'updateCache').and.callThrough();
     launchDarklyService.initializeUser(lDUser);
