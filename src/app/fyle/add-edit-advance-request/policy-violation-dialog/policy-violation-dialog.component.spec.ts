@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
@@ -14,7 +17,7 @@ describe('PolicyViolationDialogComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [PolicyViolationDialogComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
       providers: [{ provide: ModalController, useValue: modalController }],
     }).compileComponents();
 
