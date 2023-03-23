@@ -6,6 +6,7 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { NetworkService } from './network.service';
 import { of } from 'rxjs';
 import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
 
 describe('FreshChatService', () => {
   let freshChatService: FreshChatService;
@@ -59,5 +60,34 @@ describe('FreshChatService', () => {
       expect(res).toEqual(orgUserSettingsData);
       done();
     });
+  });
+
+  it('initFreshChat(): should initialize document with freshchat sdk', () => {
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    storageService.get.and.returnValue(Promise.resolve(null));
+    storageService.set.and.callThrough();
+    //@ts-ignore
+    spyOn(freshChatService, 'getOrgUserSettings').and.returnValue(of(orgUserSettingsData));
+    //@ts-ignore
+    freshChatService.initFreshChat();
+  });
+
+  it('initialize(): should get initialize freshchat', () => {
+    //@ts-ignore
+    spyOn(freshChatService.initFreshChat, 'bind').and.callThrough();
+    //@ts-ignore
+    freshChatService.initialize(document, 'freshchat-js-sdk');
+    //@ts-ignore
+    expect(freshChatService.initFreshChat.bind).toHaveBeenCalledTimes(1);
+  });
+
+  it('initiateCall(): should call initialize method', () => {
+    //@ts-ignore
+    spyOn(freshChatService, 'initialize').and.callThrough();
+
+    //@ts-ignore
+    freshChatService.initiateCall();
+    //@ts-ignore
+    expect(freshChatService.initialize).toHaveBeenCalledOnceWith(document, 'freshchat-js-sdk');
   });
 });
