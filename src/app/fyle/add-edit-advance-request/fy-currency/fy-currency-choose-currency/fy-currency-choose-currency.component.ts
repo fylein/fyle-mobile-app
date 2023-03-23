@@ -56,13 +56,16 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
       distinctUntilChanged(),
       switchMap((searchText) =>
         this.currencies$.pipe(
-          map((currencies) =>
-            currencies.filter(
+          map((currencies) => {
+            if (!currencies) {
+              return [];
+            }
+            return currencies.filter(
               (currency) =>
                 currency.shortCode.toLowerCase().includes(searchText.toLowerCase()) ||
                 currency.longName.toLowerCase().includes(searchText.toLowerCase())
-            )
-          )
+            );
+          })
         )
       )
     );
