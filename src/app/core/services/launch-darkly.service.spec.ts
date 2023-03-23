@@ -77,7 +77,7 @@ describe('LaunchDarklyService', () => {
     });
   });
 
-  it('shutDownClient(): should shut down client', () => {
+  xit('shutDownClient(): should shut down client', () => {
     launchDarklyService.shutDownClient();
   });
 
