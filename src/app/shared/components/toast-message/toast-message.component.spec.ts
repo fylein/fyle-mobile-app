@@ -4,6 +4,7 @@ import { MatSnackBarModule, MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/
 import { ToastMessageComponent } from './toast-message.component';
 import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('ToastMessageComponent', () => {
   let toastMessageComponent: ToastMessageComponent;
@@ -15,7 +16,7 @@ describe('ToastMessageComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ToastMessageComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatSnackBarModule],
+      imports: [IonicModule.forRoot(), MatIconModule, MatSnackBarModule, MatIconTestingModule],
       providers: [
         { provide: MAT_SNACK_BAR_DATA, useValue: {} },
         { provide: MatSnackBarRef, useValue: snackbarRefSpy },
@@ -48,7 +49,7 @@ describe('ToastMessageComponent', () => {
     toastMessageComponent.data.redirectionText = '';
     fixture.detectChanges();
     const redirectionEl = getElementBySelector(fixture, '.toast-message--redirection');
-    expect(redirectionEl).toBeFalsy();
+    expect(redirectionEl).toBeNull();
   });
 
   it('should dismiss the snackbar with action on redirection text click', () => {
