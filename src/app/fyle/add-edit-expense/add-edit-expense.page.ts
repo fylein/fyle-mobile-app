@@ -351,6 +351,8 @@ export class AddEditExpensePage implements OnInit {
 
   selectedProject$: BehaviorSubject<ExtendedProject>;
 
+  selectedCostCenter$: BehaviorSubject<CostCenter>;
+
   private _isExpandedView = false;
 
   constructor(
@@ -1416,6 +1418,10 @@ export class AddEditExpensePage implements OnInit {
             this.selectedProject$.next(project);
           }
 
+          if (costCenter) {
+            this.selectedCostCenter$.next(costCenter);
+          }
+
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
             this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
@@ -1586,6 +1592,7 @@ export class AddEditExpensePage implements OnInit {
             if (autoFillCostCenter) {
               costCenter = autoFillCostCenter.value;
               this.presetCostCenterId = autoFillCostCenter.value.id;
+              this.fg.patchValue({ costCenter });
             }
           }
 
@@ -2302,6 +2309,7 @@ export class AddEditExpensePage implements OnInit {
     this.onPageExit$ = new Subject();
     this.dependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject(null);
+    this.selectedCostCenter$ = new BehaviorSubject(null);
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -2343,7 +2351,8 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
-      dependent_fields: this.formBuilder.array([]),
+      project_dependent_fields: this.formBuilder.array([]),
+      cost_center_dependent_fields: this.formBuilder.array([]),
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
@@ -2353,6 +2362,10 @@ export class AddEditExpensePage implements OnInit {
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
       .subscribe((project) => this.selectedProject$.next(project));
+
+    this.fg.controls.costCenter.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((costCenter) => this.selectedCostCenter$.next(costCenter));
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -2863,7 +2876,11 @@ export class AddEditExpensePage implements OnInit {
   getCustomFields() {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
-        const mappedDependentFields = this.fg.value.dependent_fields.map((dependentField) => ({
+        const allDependentFields = [
+          ...this.fg.value.project_dependent_fields,
+          ...this.fg.value.cost_center_dependent_fields,
+        ];
+        const mappedDependentFields = allDependentFields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
         }));
