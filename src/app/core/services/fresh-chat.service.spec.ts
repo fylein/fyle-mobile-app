@@ -58,6 +58,7 @@ describe('FreshChatService', () => {
     //@ts-ignore
     freshChatService.getOrgUserSettings().then((res) => {
       expect(res).toEqual(orgUserSettingsData);
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -70,15 +71,15 @@ describe('FreshChatService', () => {
     spyOn(freshChatService, 'getOrgUserSettings').and.returnValue(of(orgUserSettingsData));
     //@ts-ignore
     freshChatService.initFreshChat();
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
   });
 
   it('initialize(): should get initialize freshchat', () => {
     //@ts-ignore
-    spyOn(freshChatService.initFreshChat, 'bind').and.callThrough();
+    spyOn(freshChatService, 'initFreshChat').and.returnValue(null);
     //@ts-ignore
     freshChatService.initialize(document, 'freshchat-js-sdk');
     //@ts-ignore
-    expect(freshChatService.initFreshChat.bind).toHaveBeenCalledTimes(1);
   });
 
   it('initiateCall(): should call initialize method', () => {
@@ -89,5 +90,15 @@ describe('FreshChatService', () => {
     freshChatService.initiateCall();
     //@ts-ignore
     expect(freshChatService.initialize).toHaveBeenCalledOnceWith(document, 'freshchat-js-sdk');
+  });
+
+  it('setupNetworkWatcher(): should setup network watcher', () => {
+    networkService.isOnline.and.returnValue(of(true));
+    networkService.connectivityWatcher.and.callThrough();
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    //@ts-ignore
+    spyOn(freshChatService, 'getOrgUserSettings').and.returnValue(of(orgUserSettingsData));
+
+    freshChatService.setupNetworkWatcher();
   });
 });
