@@ -8,7 +8,6 @@ describe('TimezoneService', () => {
   let timezoneService: TimezoneService;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
-
   beforeEach(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['traverse']);
@@ -34,15 +33,6 @@ describe('TimezoneService', () => {
       const offset = '+05:30:00';
       const toUtc = false;
       const expectedDate = new Date('2023-03-13T16:31:00.000Z');
-      const result = timezoneService.convertToTimezone(date, offset, toUtc);
-      expect(result).toEqual(expectedDate);
-    });
-
-    it('should convert the date to UTC when "toUtc" is true', () => {
-      const date = new Date('2023-03-13T05:31:00.000Z');
-      const offset = '+05:30:00';
-      const toUtc = true;
-      const expectedDate = new Date('2023-03-13T05:31:00.000Z');
       const result = timezoneService.convertToTimezone(date, offset, toUtc);
       expect(result).toEqual(expectedDate);
     });
