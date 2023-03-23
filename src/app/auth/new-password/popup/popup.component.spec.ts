@@ -54,8 +54,8 @@ describe('ErrorComponent', () => {
     component.router.navigate.and.returnValue(Promise.resolve(true));
     component.closeClicked();
     // @ts-ignore
-    expect(component.popoverController.dismiss).toHaveBeenCalled();
+    expect(component.popoverController.dismiss).toHaveBeenCalledTimes(1);
     // @ts-ignore
-    expect(component.router.navigate).toHaveBeenCalledWith(['/', 'auth', 'sign_in']);
+    expect(component.router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'sign_in']);
   });
 });
