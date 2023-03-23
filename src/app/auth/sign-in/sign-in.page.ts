@@ -145,12 +145,12 @@ export class SignInPage implements OnInit {
   async handleError(error) {
     let header = 'Incorrect Email or Password';
 
-    if (error.status === 400) {
+    if (error?.status === 400) {
       this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value }]);
       return;
-    } else if (error.status === 500) {
+    } else if (error?.status === 500) {
       header = 'Sorry... Something went wrong!';
-    } else if (error.status === 433) {
+    } else if (error?.status === 433) {
       header = 'Temporary Lockout';
     }
 
