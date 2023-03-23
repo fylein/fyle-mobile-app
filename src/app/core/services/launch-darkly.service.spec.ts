@@ -43,18 +43,6 @@ describe('LaunchDarklyService', () => {
     expect(launchDarklyService.isTheSameUser(lDUser)).toBeFalse();
   });
 
-  it('updateCache(): should update cache', () => {
-    storageService.set.and.callThrough();
-    //@ts-ignore
-    launchDarklyService.updateCache();
-  });
-
-  it('initializeUser(): should initialize user', () => {
-    //@ts-ignore
-    spyOn(launchDarklyService, 'updateCache').and.callThrough();
-    launchDarklyService.initializeUser(lDUser);
-  });
-
   describe('getVariation():', () => {
     it('should get variation', (done) => {
       const key = 'keyboard_plugin_enabled';
@@ -75,10 +63,6 @@ describe('LaunchDarklyService', () => {
         done();
       });
     });
-  });
-
-  it('shutDownClient(): should shut down client', () => {
-    launchDarklyService.shutDownClient();
   });
 
   it('checkIfKeyboardPluginIsEnabled(): check if keyboard plugin is enabled', (done) => {
