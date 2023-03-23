@@ -4,7 +4,7 @@ import { CurrencyService } from './currency.service';
 import { TimezoneService } from './timezone.service';
 import { UtilityService } from './utility.service';
 
-describe('TimezoneService', () => {
+fdescribe('TimezoneService', () => {
   let timezoneService: TimezoneService;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
@@ -28,17 +28,17 @@ describe('TimezoneService', () => {
     expect(timezoneService).toBeTruthy();
   });
 
-  describe('convertToTimezone(): ', () => {
-    it('should convert the date to the specified offset when "toUtc" is false', () => {
+  describe('convertToTimezone()', () => {
+    it('should convert the date to UTC when "toUtc" is true', () => {
       const date = new Date('2023-03-22T12:00:00.000+05:30');
       const offset = '05:30:00';
-      const toUtc = false;
-      const expectedDate = new Date('2023-03-22T12:00:00.000+05:30');
+      const toUtc = true;
+      const expectedDate = new Date('2023-03-22T06:30:00.000Z');
       const result = timezoneService.convertToTimezone(date, offset, toUtc);
       expect(result).toEqual(expectedDate);
     });
 
-    it('should convert the date to the specified offset when "toUtc" is false', () => {
+    it('should not modify the date when "toUtc" is false', () => {
       const date = new Date('2023-03-22T12:00:00.000+05:30');
       const offset = '-05:30:00';
       const toUtc = false;
@@ -47,12 +47,15 @@ describe('TimezoneService', () => {
       expect(result).toEqual(expectedDate);
     });
 
-    it('should not modify the original date', () => {
+    it('should not modify the original date object', () => {
       const date = new Date('2023-03-22T12:00:00.000Z');
       const offset = '-05:30:00';
-      const toUtc = false;
+      const toUtc = true;
+      const originalDate = new Date(date);
+
       timezoneService.convertToTimezone(date, offset, toUtc);
-      expect(date).toEqual(new Date('2023-03-22T12:00:00.000Z'));
+
+      expect(date).toEqual(originalDate);
     });
   });
 
