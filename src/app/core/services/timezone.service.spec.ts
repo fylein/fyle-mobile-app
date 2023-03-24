@@ -30,8 +30,10 @@ describe('TimezoneService', () => {
 
   describe('convertAllDatesToProperLocale(): ', () => {
     it('should convert all dates to proper locale', () => {
+      const date = new Date('2023-02-13T17:00:00.000Z');
+      const offset = '05:30:00';
+      spyOn(timezoneService, 'convertToUtc').and.returnValue(new Date('2023-02-13T06:30:00.000Z'));
       utilityService.traverse.and.callFake((object, callback) => {
-        const date = new Date('2023-02-13T17:00:00.000Z');
         date.setHours(12);
         date.setMinutes(0);
         date.setSeconds(0);
@@ -61,12 +63,15 @@ describe('TimezoneService', () => {
           value: '2023-02-13T17:00:00.000Z',
         },
       ];
-      const result = timezoneService.convertAllDatesToProperLocale(data, '05:30:00');
 
+      const result = timezoneService.convertAllDatesToProperLocale(data, offset);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(date, offset);
       expect(result).toEqual(new Date('2023-02-13T06:30:00.000Z'));
     });
 
     it('should return the data as it is if not a date instance', () => {
+      const offset = '05:30:00';
+      spyOn(timezoneService, 'convertToUtc').and.returnValue(new Date('2023-02-13T06:30:00.000Z'));
       const data: TxnCustomProperties[] = [
         {
           id: 206198,
@@ -85,7 +90,7 @@ describe('TimezoneService', () => {
         return callback(nonDateProp);
       });
 
-      const result = timezoneService.convertAllDatesToProperLocale(data, '05:30:00');
+      const result = timezoneService.convertAllDatesToProperLocale(data, offset);
       expect(result).toEqual('some non-date value');
     });
   });
