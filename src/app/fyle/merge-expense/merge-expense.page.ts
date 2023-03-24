@@ -516,7 +516,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   generateFromFg(projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] }) {
     const sourceExpense = this.expenses.find(
-      (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
+      (expense) => expense.source_account_type === this.genericFieldsForm?.value?.paymentMode
     );
     const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
     const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
