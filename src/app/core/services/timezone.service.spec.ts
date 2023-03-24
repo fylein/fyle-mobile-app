@@ -28,7 +28,7 @@ describe('TimezoneService', () => {
     expect(timezoneService).toBeTruthy();
   });
 
-  describe('convertToLocal(): ', () => {
+  describe('convertAllDatesToProperLocale(): ', () => {
     it('should convert all dates to proper locale', () => {
       utilityService.traverse.and.callFake((object, callback) => {
         const date = new Date('2023-02-13T17:00:00.000Z');
