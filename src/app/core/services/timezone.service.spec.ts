@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { CurrencyService } from './currency.service';
-
+import { txnCustomPropertiesData } from '../mock-data/txn-custom-properties.data';
 import { TimezoneService } from './timezone.service';
 import { UtilityService } from './utility.service';
 
@@ -41,30 +40,7 @@ describe('TimezoneService', () => {
         return callback(date);
       });
 
-      const data: TxnCustomProperties[] = [
-        {
-          id: 206198,
-          mandatory: false,
-          name: '2232323',
-          options: [],
-          placeholder: 'adsf',
-          prefix: '',
-          type: 'DATE',
-          value: null,
-        },
-        {
-          id: 211326,
-          mandatory: false,
-          name: 'select all 2',
-          options: [],
-          placeholder: 'helo date',
-          prefix: '',
-          type: 'DATE',
-          value: '2023-02-13T17:00:00.000Z',
-        },
-      ];
-
-      const result = timezoneService.convertAllDatesToProperLocale(data, offset);
+      const result = timezoneService.convertAllDatesToProperLocale(txnCustomPropertiesData, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(date, offset);
       expect(result).toEqual(new Date('2023-02-13T06:30:00.000Z'));
     });
@@ -72,26 +48,14 @@ describe('TimezoneService', () => {
     it('should return the data as it is if not a date instance', () => {
       const offset = '05:30:00';
       spyOn(timezoneService, 'convertToUtc').and.returnValue(new Date('2023-02-13T06:30:00.000Z'));
-      const data: TxnCustomProperties[] = [
-        {
-          id: 206198,
-          mandatory: false,
-          name: '2232323',
-          options: [],
-          placeholder: 'adsf',
-          prefix: '',
-          type: 'MULTI_SELECT',
-          value: 'some non-date value',
-        },
-      ];
 
       utilityService.traverse.and.callFake((object, callback) => {
-        const nonDateProp = data[0].value;
+        const nonDateProp = txnCustomPropertiesData[0].value;
         return callback(nonDateProp);
       });
 
-      const result = timezoneService.convertAllDatesToProperLocale(data, offset);
-      expect(result).toEqual('some non-date value');
+      const result = timezoneService.convertAllDatesToProperLocale(txnCustomPropertiesData, offset);
+      expect(result).toEqual(txnCustomPropertiesData[0].value);
     });
   });
 
