@@ -29,6 +29,7 @@ import {
   startWith,
   switchMap,
   take,
+  takeUntil,
   tap,
   timeout,
   withLatestFrom,
@@ -123,7 +124,7 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
-  @ViewChild('dependentFields') dependentFieldsRef: DependentFieldsComponent;
+  @ViewChild('dependentFieldsRef') dependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<any>;
 
@@ -347,6 +348,8 @@ export class AddEditExpensePage implements OnInit {
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
+
+  selectedProject$: BehaviorSubject<ExtendedProject>;
 
   private _isExpandedView = false;
 
@@ -1409,21 +1412,8 @@ export class AddEditExpensePage implements OnInit {
           taxGroups,
           txnFields,
         }) => {
-          const dependentFields: ExpenseField[] = customExpenseFields.filter(
-            (customInput) => customInput.type === 'DEPENDENT_SELECT'
-          );
-
-          if (dependentFields?.length && project) {
-            const projectField = {
-              id: txnFields.project_id?.id,
-              value: project.projectv2_name,
-            };
-
-            this.dependentFieldsRef.addDependentFieldWithValue(
-              etxn.tx.custom_properties,
-              dependentFields,
-              projectField
-            );
+          if (project) {
+            this.selectedProject$.next(project);
           }
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
@@ -2311,6 +2301,7 @@ export class AddEditExpensePage implements OnInit {
   ionViewWillEnter() {
     this.onPageExit$ = new Subject();
     this.dependentFieldsRef?.ngOnInit();
+    this.selectedProject$ = new BehaviorSubject(null);
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -2358,6 +2349,10 @@ export class AddEditExpensePage implements OnInit {
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
     this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
+
+    this.fg.controls.project.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((project) => this.selectedProject$.next(project));
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -4249,8 +4244,9 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
-    this.dependentFieldsRef.ngOnDestroy();
+    this.dependentFieldsRef?.ngOnDestroy();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
+    this.selectedProject$.complete();
   }
 }

@@ -1,18 +1,6 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import {
-  distinctUntilKeyChanged,
-  filter,
-  finalize,
-  map,
-  Observable,
-  of,
-  Subject,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { distinctUntilKeyChanged, finalize, map, Observable, of, Subject, takeUntil } from 'rxjs';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
@@ -22,12 +10,16 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
   templateUrl: './dependent-fields.component.html',
   styleUrls: ['./dependent-fields.component.scss'],
 })
-export class DependentFieldsComponent implements OnInit, OnDestroy {
-  @Input() expenseForm: FormGroup;
-
-  @Input() txnFields: any;
+export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() dependentFieldsFormArray: FormArray;
 
   @Input() dependentCustomFields: ExpenseField[];
+
+  @Input() parentFieldId: number;
+
+  @Input() parentFieldValue: string;
+
+  @Input() txnCustomProperties: CustomProperty<string>[];
 
   dependentFields = [];
 
@@ -37,37 +29,26 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
 
   constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: FormBuilder) {}
 
-  get dependentFieldControls() {
-    return this.expenseForm?.controls?.dependent_fields as FormArray;
-  }
+  ngOnInit() {}
 
-  ngOnInit() {
-    this.onPageExit$ = new Subject();
-    this.expenseForm?.controls.project.valueChanges
-      .pipe(
-        takeUntil(this.onPageExit$),
-        tap(() => {
-          this.dependentFieldControls?.clear();
-          this.dependentFields = [];
-        }),
-        filter((project) => !!project),
-        switchMap((project) => {
-          this.isDependentFieldLoading = true;
-          return this.getDependentField(this.txnFields.project_id.id, project.projectv2_name).pipe(
-            finalize(() => (this.isDependentFieldLoading = false))
-          );
-        })
-      )
-      .subscribe((dependentFieldDetails) => {
-        if (dependentFieldDetails?.dependentField) {
-          this.addDependentField(dependentFieldDetails.dependentField, dependentFieldDetails.parentFieldValue);
-        }
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes?.parentFieldId?.firstChange) {
+      this.onPageExit$ = new Subject();
+    }
+
+    if (changes?.parentFieldValue) {
+      this.dependentFieldsFormArray?.clear();
+      this.dependentFields = [];
+      this.addDependentFieldWithValue(this.txnCustomProperties, this.dependentCustomFields, {
+        id: this.parentFieldId,
+        value: this.parentFieldValue,
       });
+    }
   }
 
   ngOnDestroy() {
-    this.onPageExit$.next(null);
-    this.onPageExit$.complete();
+    this.onPageExit$?.next(null);
+    this.onPageExit$?.complete();
   }
 
   //Recursive method to add dependent fields with value
@@ -158,13 +139,13 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
       placeholder: dependentField.placeholder,
     });
 
-    this.dependentFieldControls.push(dependentFieldControl, { emitEvent: false });
+    this.dependentFieldsFormArray.push(dependentFieldControl, { emitEvent: false });
   }
 
   private removeAllDependentFields(updatedFieldIndex: number) {
     //Remove all dependent field controls after the changed one
     for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
-      this.dependentFieldControls.removeAt(i);
+      this.dependentFieldsFormArray.removeAt(i);
     }
 
     //Removing fields from UI
@@ -172,10 +153,12 @@ export class DependentFieldsComponent implements OnInit, OnDestroy {
   }
 
   private onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
-    const updatedFieldIndex = this.dependentFieldControls.value.findIndex((depField) => depField.label === data.label);
+    const updatedFieldIndex = this.dependentFieldsFormArray.value.findIndex(
+      (depField) => depField.label === data.label
+    );
 
     //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
-    if (updatedFieldIndex !== this.dependentFieldControls.length - 1) {
+    if (updatedFieldIndex !== this.dependentFieldsFormArray.length - 1) {
       this.removeAllDependentFields(updatedFieldIndex);
     }
 
