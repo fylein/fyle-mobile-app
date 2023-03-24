@@ -447,6 +447,10 @@ export class TeamReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
+
+    this.trackingService.footerHomeTabClicked({
+      page: 'Team Reports',
+    });
   }
 
   onTaskClicked() {

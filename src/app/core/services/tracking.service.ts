@@ -549,4 +549,8 @@ export class TrackingService {
   dashboardLaunchTime(properties = {}) {
     this.eventTrack('dashboard launch time', properties);
   }
+
+  footerHomeTabClicked(properties = {}) {
+    this.eventTrack('Home Tab clicked On Footer', properties);
+  }
 }
