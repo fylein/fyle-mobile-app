@@ -553,4 +553,8 @@ export class TrackingService {
   footerHomeTabClicked(properties = {}) {
     this.eventTrack('Home Tab clicked On Footer', properties);
   }
+
+  menuItemClicked(properties = {}) {
+    this.eventTrack('Menu Item Clicked', properties);
+  }
 }
