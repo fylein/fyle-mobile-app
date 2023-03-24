@@ -167,4 +167,12 @@ export class CategoriesService {
     const flightSystemCategories = ['Airlines'];
     return flightSystemCategories;
   }
+
+  getCategoryById(id: number): Observable<OrgCategory> {
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory>>(`/categories?id=eq.${id}`).pipe(
+      map((res) => this.transformFrom(res.data)),
+      map((res) => this.addDisplayName(res)),
+      map((responses) => responses.find((response) => response.id === id))
+    );
+  }
 }
