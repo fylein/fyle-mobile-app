@@ -29,13 +29,14 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
   constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: FormBuilder) {}
 
-  ngOnInit() {
-    this.onPageExit$ = new Subject();
-  }
+  ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes?.parentFieldValue) {
+    if (changes?.parentFieldId?.firstChange) {
       this.onPageExit$ = new Subject();
+    }
+
+    if (changes?.parentFieldValue) {
       this.dependentFieldsFormArray?.clear();
       this.dependentFields = [];
       this.addDependentFieldWithValue(this.txnCustomProperties, this.dependentCustomFields, {
