@@ -90,7 +90,7 @@ export class MyCreateReportPage implements OnInit {
     if (!isFirstReportCreated) {
       this.reportService.getMyReportsCount({}).subscribe(async (allReportsCount) => {
         if (allReportsCount === 0) {
-          const etxns = this.readyToReportEtxns.filter((etxn) => etxn.isSelected);
+          const etxns = this.readyToReportEtxns?.filter((etxn) => etxn.isSelected);
           const txnIds = etxns.map((etxn) => etxn.tx_id);
           const selectedTotalAmount = etxns.reduce(
             (acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount),
