@@ -2949,7 +2949,7 @@ export class TimezoneService {
     });
   }
 
-  convertToTimezone(date: Date, offset: string, toUtc: boolean) {
+  convertToTimezone(date: Date, offset: string, toUtc: boolean): Date {
     const correctedDate = cloneDeep(date);
 
     let hourOffset = +offset.split(':')[0];
