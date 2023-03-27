@@ -1,6 +1,7 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
 import { FyHeaderComponent } from './fy-header.component';
 import { HeaderState } from './header-state.enum';
@@ -9,10 +10,18 @@ describe('FyHeaderComponent', () => {
   let component: FyHeaderComponent;
   let fixture: ComponentFixture<FyHeaderComponent>;
 
+  const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['menuButtonClicked']);
+
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [FyHeaderComponent, FyMenuIconComponent],
       imports: [IonicModule.forRoot()],
+      providers: [
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyHeaderComponent);
