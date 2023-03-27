@@ -34,7 +34,7 @@ export class RouterAuthService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  checkEmailExists(email) {
+  checkEmailExists(email: string) {
     return this.routerApiService.post('/auth/basic/email_exists', {
       email,
     });
@@ -44,7 +44,7 @@ export class RouterAuthService {
     return !!(await this.tokenService.getAccessToken()) && !!(await this.tokenService.getRefreshToken());
   }
 
-  async newRefreshToken(refreshToken) {
+  async newRefreshToken(refreshToken: string) {
     await this.storageService.delete('user');
     await this.storageService.delete('role');
     await this.tokenService.setRefreshToken(refreshToken);
@@ -96,7 +96,7 @@ export class RouterAuthService {
     return data;
   }
 
-  basicSignin(email, password): Observable<AuthResponse> {
+  basicSignin(email: string, password: string): Observable<AuthResponse> {
     return this.routerApiService
       .post('/auth/basic/signin', {
         email,
@@ -105,7 +105,7 @@ export class RouterAuthService {
       .pipe(switchMap((res) => from(this.handleSignInResponse(res)).pipe(map(() => res))));
   }
 
-  googleSignin(accessToken): Observable<AuthResponse> {
+  googleSignin(accessToken: string): Observable<AuthResponse> {
     return this.routerApiService
       .post('/auth/google/signin', {
         access_token: accessToken,

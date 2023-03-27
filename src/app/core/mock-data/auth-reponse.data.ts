@@ -18,3 +18,13 @@ export const apiLogoutRes: AuthResponse = {
   redirect_url: null,
   refresh_token: null,
 };
+
+export const authResData1: AuthResponse = {
+  cluster_domain: 'https://staging.fyle.tech',
+  access_token: null,
+  signup: false,
+  org_id: 'orNVthTo2Zyo',
+  redirect_url: 'https://staging1.fyle.tech/app/accounts/#/verify?org_id=orNVthTo2Zyo',
+  refresh_token:
+    'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2Nzk5MDg3ODAsImlzcyI6IkZ5bGVBcHAiLCJvcmdfdXNlcl9pZCI6Ilwib3VYOGR3c2JMQ0x2XCIiLCJjbHVzdGVyX2RvbWFpbiI6IlwiaHR0cHM6Ly9zdGFnaW5nLmZ5bGUudGVjaFwiIiwiZXhwIjoxOTk1MjY4NzgwfQ.Ok_w8nncS6ca3_mK2PctSzMD0FluIw-PtDpn1mWn8_s',
+};
