@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-fy-menu-icon',
@@ -6,7 +7,11 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./fy-menu-icon.component.scss'],
 })
 export class FyMenuIconComponent implements OnInit {
-  constructor() {}
+  constructor(private trackingService: TrackingService) {}
 
   ngOnInit() {}
+
+  menuButtonClicked() {
+    this.trackingService.menuButtonClicked();
+  }
 }
