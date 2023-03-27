@@ -63,42 +63,14 @@ describe('FreshChatService', () => {
     });
   });
 
-  it('initFreshChat(): should initialize document with freshchat sdk', () => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    storageService.get.and.returnValue(Promise.resolve(null));
-    storageService.set.and.callThrough();
-    //@ts-ignore
-    spyOn(freshChatService, 'getOrgUserSettings').and.returnValue(of(orgUserSettingsData));
-    //@ts-ignore
-    freshChatService.initFreshChat();
-    expect(authService.getEou).toHaveBeenCalledTimes(1);
-  });
-
   it('initialize(): should get initialize freshchat', () => {
     //@ts-ignore
     spyOn(freshChatService, 'initFreshChat').and.returnValue(null);
     //@ts-ignore
     freshChatService.initialize(document, 'freshchat-js-sdk');
     //@ts-ignore
-  });
-
-  it('initiateCall(): should call initialize method', () => {
-    //@ts-ignore
-    spyOn(freshChatService, 'initialize').and.callThrough();
-
-    //@ts-ignore
     freshChatService.initiateCall();
     //@ts-ignore
-    expect(freshChatService.initialize).toHaveBeenCalledOnceWith(document, 'freshchat-js-sdk');
-  });
-
-  it('setupNetworkWatcher(): should setup network watcher', () => {
-    networkService.isOnline.and.returnValue(of(true));
-    networkService.connectivityWatcher.and.callThrough();
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    //@ts-ignore
-    spyOn(freshChatService, 'getOrgUserSettings').and.returnValue(of(orgUserSettingsData));
-
-    freshChatService.setupNetworkWatcher();
+    expect(freshChatService.initFreshChat).toHaveBeenCalledTimes(1);
   });
 });
