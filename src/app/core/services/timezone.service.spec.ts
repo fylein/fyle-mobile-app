@@ -59,13 +59,24 @@ describe('TimezoneService', () => {
     });
   });
 
-  it('convertToTimezone(): should not modify the original date object', () => {
-    const date = new Date('2023-03-22T12:00:00.000');
-    const offset = '-05:30:00';
-    const toUtc = true;
-    const originalDate = new Date(date);
-    timezoneService.convertToTimezone(date, offset, toUtc);
-    expect(date).toEqual(originalDate);
+  describe('convertToTimezone():', () => {
+    it('should convert the date to the given timezone when "toUtc" is false', () => {
+      const date = new Date('2023-03-27T06:30:00.000Z');
+      const offset = '+05:30:00';
+      const toUtc = false;
+      const expectedDate = new Date('2023-03-27T17:30:00.000Z');
+      const result = timezoneService.convertToTimezone(date, offset, toUtc);
+      expect(result).toEqual(expectedDate);
+    });
+
+    it('should not modify the original date object whaen "toUtc" is true', () => {
+      const date = new Date('2023-03-22T12:00:00.000');
+      const offset = '05:30:00';
+      const toUtc = true;
+      const originalDate = new Date(date);
+      timezoneService.convertToTimezone(date, offset, toUtc);
+      expect(date).toEqual(originalDate);
+    });
   });
 
   it('convertToUtc(): should call convertToTimezone with the correct parameters', () => {
