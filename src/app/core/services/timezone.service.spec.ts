@@ -60,11 +60,11 @@ describe('TimezoneService', () => {
   });
 
   describe('convertToTimezone():', () => {
-    it('should convert the date to the given timezone when "toUtc" is false', () => {
-      const date = new Date('2023-03-27T06:30:00.000Z');
-      const offset = '+05:30:00';
+    it('should convert the date to the given timezone when "toUtc" is false and the offset is -07:00:00', () => {
+      const date = new Date('2023-03-27T17:30:00.000Z');
+      const offset = '05:30:00';
       const toUtc = false;
-      const expectedDate = new Date('2023-03-27T17:30:00.000Z');
+      const expectedDate = new Date('2023-03-27T04:30:00.000Z');
       const result = timezoneService.convertToTimezone(date, offset, toUtc);
       expect(result).toEqual(expectedDate);
     });
