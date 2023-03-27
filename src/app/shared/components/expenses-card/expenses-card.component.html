@@ -1,4 +1,8 @@
-<div *ngIf="showDt" class="expenses-card--date" [ngClass]="{ 'expenses-card--date__from-reports': isFromReports }">
+<div
+  *ngIf="expense && showDt"
+  class="expenses-card--date"
+  [ngClass]="{ 'expenses-card--date__from-reports': isFromReports }"
+>
   <ng-container *ngIf="{ isConnected: isConnected$ | async } as data">
     <ng-container *ngIf="expense.tx_id && data.isConnected; else isOffline">
       {{ expense.tx_txn_dt || expense.tx_created_at | dateFormat }}
@@ -202,15 +206,15 @@
           <div class="expenses-card--default-view-container">
             <div class="expenses-card--currency-amount-container ion-text-right">
               <span class="expenses-card--currency">
-                {{ (expense.tx_currency | currencySymbol: 'wide') || (homeCurrency | currencySymbol: 'wide') }}
+                {{ (expense.tx_currency | currencySymbol : 'wide') || (homeCurrency | currencySymbol : 'wide') }}
               </span>
 
               <span class="expenses-card--amount">
                 <ng-container *ngIf="expense.tx_currency">
-                  {{ expense.tx_amount | humanizeCurrency: expense.tx_currency:true }}
+                  {{ expense.tx_amount | humanizeCurrency : expense.tx_currency : true }}
                 </ng-container>
                 <ng-container *ngIf="!expense.tx_currency">
-                  {{ expense.tx_amount | humanizeCurrency: homeCurrency:true }}
+                  {{ expense.tx_amount | humanizeCurrency : homeCurrency : true }}
                 </ng-container>
               </span>
               <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="fy-reimbursable"></mat-icon>
@@ -220,8 +224,8 @@
               *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
               class="expenses-card--exchange-rate ion-text-right"
             >
-              ({{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency }} at
-              {{ expense.tx_amount / expense.tx_orig_amount | currency: expense.tx_currency:'code' }})
+              ({{ expense.tx_orig_amount | humanizeCurrency : expense.tx_orig_currency }} at
+              {{ expense.tx_amount / expense.tx_orig_amount | currency : expense.tx_currency : 'code' }})
             </div>
 
             <div

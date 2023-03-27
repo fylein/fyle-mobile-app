@@ -163,9 +163,9 @@ export class CustomInputsService {
           return {
             id: customInput.id,
             name: customInput.field_name,
-            value: customProperty.value,
+            value: customProperty?.value,
             type: customInput.type,
-            displayValue: customProperty.value || '-',
+            displayValue: customProperty?.value || '-',
             mandatory: customInput.is_mandatory,
           };
         })

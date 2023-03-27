@@ -383,6 +383,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
+
+    this.trackingService.footerHomeTabClicked({
+      page: 'Personal Cards',
+    });
   }
 
   onTaskClicked() {

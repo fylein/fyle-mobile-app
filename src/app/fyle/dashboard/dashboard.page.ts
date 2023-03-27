@@ -197,6 +197,10 @@ export class DashboardPage implements OnInit {
       relativeTo: this.activatedRoute,
       queryParams,
     });
+
+    this.trackingService.footerHomeTabClicked({
+      page: 'Dashboard',
+    });
   }
 
   setupActionSheet(orgSettings) {

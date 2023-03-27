@@ -20,7 +20,7 @@ export class PopupService {
 
     await popup.present();
 
-    const { data } = await popup.onWillDismiss();
+    const { data } = await popup?.onWillDismiss();
 
     return data && data.action;
   }
