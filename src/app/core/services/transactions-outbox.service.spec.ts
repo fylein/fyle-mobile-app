@@ -92,14 +92,14 @@ describe('TransactionsOutboxService', () => {
     transactionsOutboxService.queue = ['txdzGV1TZEg3'];
     storageService.set.and.returnValue(Promise.resolve(null));
     transactionsOutboxService.saveQueue();
-    expect(storageService.set).toHaveBeenCalledWith('outbox', transactionsOutboxService.queue);
+    expect(storageService.set).toHaveBeenCalledOnceWith('outbox', transactionsOutboxService.queue);
   });
 
   it('saveDataExtractionQueue(): should save data extraction queue', () => {
     transactionsOutboxService.dataExtractionQueue = ['txdzGV1TZEg3'];
     storageService.set.and.returnValue(Promise.resolve(null));
     transactionsOutboxService.saveDataExtractionQueue();
-    expect(storageService.set).toHaveBeenCalledWith(
+    expect(storageService.set).toHaveBeenCalledOnceWith(
       'data_extraction_queue',
       transactionsOutboxService.dataExtractionQueue
     );
@@ -160,7 +160,7 @@ describe('TransactionsOutboxService', () => {
     expect(transactionsOutboxService.dataExtractionQueue.length).toEqual(0);
   });
 
-  it('addDataExtractionEntry():', async () => {
+  it('addDataExtractionEntry():', () => {
     spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.returnValue(Promise.resolve());
     transactionsOutboxService.addDataExtractionEntry(txnData2, fileObjectData1);
     expect(transactionsOutboxService.dataExtractionQueue.length).toEqual(1);
