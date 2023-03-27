@@ -23,7 +23,7 @@ export class AppVersionService {
   // not fixing since copied from somewhere
   // not human readable at the moment
   // eslint-disable-next-line complexity
-  isVersionLower(version1: string, version2) {
+  isVersionLower(version1: string, version2: string) {
     // https://gist.github.com/alexey-bass/1115557#file-compare-js
     // someone should shoot this person for writing this
     // TODO: Cleanup

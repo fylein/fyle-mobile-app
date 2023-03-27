@@ -58,12 +58,6 @@ describe('AppVersionService', () => {
     it('should check if a mobile app version is lower than other', () => {
       expect(appVersionService.isVersionLower('5.57.0', '5.56.0')).toBeFalse();
     });
-
-    it('should check if a mobile app version is lower when they are of different types', () => {
-      const version1 = '55.7.0';
-      const version2 = 55.6;
-      expect(appVersionService.isVersionLower(version1, version2)).toBeTrue();
-    });
   });
 
   it('get(): should get app version', (done) => {
@@ -71,6 +65,7 @@ describe('AppVersionService', () => {
 
     appVersionService.get('ios').subscribe((res) => {
       expect(res).toEqual(appVersionData1);
+      expect(apiService.get).toHaveBeenCalledOnceWith('/version/app/IOS');
       done();
     });
   });
