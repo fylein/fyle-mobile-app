@@ -177,16 +177,17 @@ describe('RouterAuthService', () => {
     });
   });
 
-  xit('newRefreshToken(): should set new refresh token', fakeAsync(() => {
+  it('newRefreshToken(): should set new refresh token', async () => {
     tokenService.setRefreshToken.and.returnValue(Promise.resolve(null));
-    storageService.delete.withArgs('user').and.returnValue(Promise.resolve(null));
-    storageService.delete.withArgs('role').and.returnValue(Promise.resolve(null));
+    const deleteUser = await storageService.delete('user');
+    const deleteRole = await storageService.delete('role');
 
-    tick();
-    routerAuthService.newRefreshToken(refresh_token).then(() => {
-      expect(tokenService.setRefreshToken).toHaveBeenCalledOnceWith(refresh_token);
-    });
-  }));
+    const result = await routerAuthService.newRefreshToken(refresh_token);
+    expect(result).toBeUndefined();
+    expect(deleteUser).toBeUndefined();
+    expect(deleteRole).toBeUndefined();
+    expect(tokenService.setRefreshToken).toHaveBeenCalledOnceWith(refresh_token);
+  });
 
   it('newAccessToken(): should set new access token', fakeAsync(() => {
     tokenService.setAccessToken.and.returnValue(Promise.resolve(null));
