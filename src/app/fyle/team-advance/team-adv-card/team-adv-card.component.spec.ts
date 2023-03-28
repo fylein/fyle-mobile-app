@@ -6,9 +6,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
-import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
-import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 
 describe('TeamAdvCardComponent', () => {
   let teamAdvCardComponent: TeamAdvCardComponent;
