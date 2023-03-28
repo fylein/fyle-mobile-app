@@ -1,8 +1,5 @@
-import { HttpHeaders } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { noop } from 'lodash';
-import { from } from 'rxjs';
 import { expenseList2 } from '../mock-data/expense.data';
 import { fileObjectData1 } from '../mock-data/file-object.data';
 import { txnData2 } from '../mock-data/transaction.data';
