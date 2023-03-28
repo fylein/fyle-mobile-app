@@ -783,7 +783,7 @@ export const transformedOrgCategoryById: OrgCategory[] = [
   },
 ];
 
-export const expectedOrgCategoryById: OrgCategory[] = [
+export const displayOrgCategoryById: OrgCategory[] = [
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
@@ -821,3 +821,16 @@ export const expectedOrgCategoryById: OrgCategory[] = [
     updated_at: new Date('2023-01-09T16:54:09.929Z'),
   },
 ];
+
+export const expectedOrgCategoryById: OrgCategory = {
+  code: '93',
+  created_at: new Date('2021-05-18T11:40:38.576Z'),
+  displayName: 'Business',
+  enabled: true,
+  fyle_category: null,
+  id: 141295,
+  name: 'Business',
+  org_id: 'orrjqbDbeP9p',
+  sub_category: 'Business',
+  updated_at: new Date('2022-07-01T05:51:31.800Z'),
+};

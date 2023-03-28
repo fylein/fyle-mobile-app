@@ -25,6 +25,7 @@ import {
   sortedCategories1,
   transformedOrgCategoryById,
   expectedOrgCategoryById,
+  displayOrgCategoryById,
 } from '../mock-data/org-category.data';
 
 describe('CategoriesService', () => {
@@ -155,13 +156,12 @@ describe('CategoriesService', () => {
   it('getCategoryById(): should get a category from the api based on ID', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiCategoryById));
     spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategoryById);
-    spyOn(categoriesService, 'addDisplayName').and.returnValue(expectedOrgCategoryById);
+    spyOn(categoriesService, 'addDisplayName').and.returnValue(displayOrgCategoryById);
 
-    const categoryId = 141300;
-    const [business, pager, sampCategory] = expectedOrgCategoryById;
+    const categoryId = 141295;
 
     categoriesService.getCategoryById(categoryId).subscribe((res) => {
-      expect(res).toEqual(pager);
+      expect(res).toEqual(expectedOrgCategoryById);
       expect(categoriesService.transformFrom).toHaveBeenCalledOnceWith(platformApiCategoryById.data);
       expect(categoriesService.addDisplayName).toHaveBeenCalledOnceWith(transformedOrgCategoryById);
       done();
