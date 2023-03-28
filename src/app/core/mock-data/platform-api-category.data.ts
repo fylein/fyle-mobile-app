@@ -79,3 +79,23 @@ export const platformApiAllCategories: ApiV2Response<PlatformCategory> = {
   ],
   offset: 0,
 };
+
+export const platformApiCategoryById: ApiV2Response<PlatformCategory> = {
+  count: 1,
+  data: [
+    {
+      code: '93',
+      created_at: new Date('2021-05-18T11:40:38.576068+00:00'),
+      display_name: 'Business',
+      id: 141295,
+      is_enabled: true,
+      name: 'Business',
+      org_id: 'orrjqbDbeP9p',
+      restricted_project_ids: [518, 519, 520, 589],
+      sub_category: null,
+      system_category: null,
+      updated_at: new Date('2022-07-01T05:51:31.800155+00:00'),
+    },
+  ],
+  offset: 0,
+};

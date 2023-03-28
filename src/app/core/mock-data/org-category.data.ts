@@ -743,3 +743,33 @@ export const sortedCategories1: OrgCategory[] = [
     updated_at: new Date('2022-05-05T17:47:06.951Z'),
   },
 ];
+
+export const transformedOrgCategoryById: OrgCategory[] = [
+  {
+    code: '93',
+    created_at: new Date('2021-05-18T11:40:38.576Z'),
+    displayName: 'Business',
+    enabled: true,
+    fyle_category: null,
+    id: 141295,
+    name: 'Business',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Business',
+    updated_at: new Date('2022-07-01T05:51:31.800Z'),
+  },
+];
+
+export const expectedOrgCategoryById: OrgCategory[] = [
+  {
+    code: '93',
+    created_at: new Date('2021-05-18T11:40:38.576Z'),
+    displayName: 'Business',
+    enabled: true,
+    fyle_category: null,
+    id: 141295,
+    name: 'Business',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Business',
+    updated_at: new Date('2022-07-01T05:51:31.800Z'),
+  },
+];
