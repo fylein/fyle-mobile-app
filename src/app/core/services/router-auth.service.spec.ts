@@ -319,6 +319,3 @@ describe('RouterAuthService', () => {
     });
   });
 });
-function whenStable() {
-  throw new Error('Function not implemented.');
-}
