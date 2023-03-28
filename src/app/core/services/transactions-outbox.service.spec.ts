@@ -1,6 +1,9 @@
 import { HttpHeaders } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { noop } from 'lodash';
+import { from } from 'rxjs';
+import { expenseList2 } from '../mock-data/expense.data';
 import { fileObjectData1 } from '../mock-data/file-object.data';
 import { txnData2 } from '../mock-data/transaction.data';
 import { DateService } from './date.service';
@@ -32,7 +35,7 @@ describe('TransactionsOutboxService', () => {
   beforeEach(() => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['getUTCDate']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['post']);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['post', 'matchCCCExpense']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['post']);
@@ -240,5 +243,21 @@ describe('TransactionsOutboxService', () => {
     transactionsOutboxService.deleteOfflineExpense(0);
     expect(transactionsOutboxService.saveQueue).toHaveBeenCalledTimes(1);
     expect(transactionsOutboxService.queue.length).toEqual(0);
+  });
+
+  it('deleteBulkOfflineExpenses(): should delete bulk offline expenses', () => {
+    spyOn(transactionsOutboxService, 'deleteOfflineExpense').withArgs(0).and.returnValue(null);
+    const pendingTransactions = [expenseList2[0]];
+    const deleteExpenses = [expenseList2[0]];
+    transactionsOutboxService.deleteBulkOfflineExpenses(pendingTransactions, deleteExpenses);
+    expect(transactionsOutboxService.deleteOfflineExpense).toHaveBeenCalledOnceWith(0);
+  });
+
+  describe('matchIfRequired(): ', () => {
+    it('should return null when cccId is not present', async () => {
+      const transactionId = 'txBphgnCHHeO';
+      const res = await transactionsOutboxService.matchIfRequired(transactionId, null);
+      expect(res).toBeNull();
+    });
   });
 });
