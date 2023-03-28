@@ -81,7 +81,7 @@ export const platformApiAllCategories: ApiV2Response<PlatformCategory> = {
 };
 
 export const platformApiCategoryById: ApiV2Response<PlatformCategory> = {
-  count: 1,
+  count: 3,
   data: [
     {
       code: '93',
@@ -95,6 +95,32 @@ export const platformApiCategoryById: ApiV2Response<PlatformCategory> = {
       sub_category: null,
       system_category: null,
       updated_at: new Date('2022-07-01T05:51:31.800155+00:00'),
+    },
+    {
+      code: '98',
+      created_at: new Date('2021-05-18T11:40:38.576068+00:00'),
+      display_name: 'Pager',
+      id: 141300,
+      is_enabled: true,
+      name: 'Pager',
+      org_id: 'orrjqbDbeP9p',
+      restricted_project_ids: [518, 519, 520, 589, 599],
+      sub_category: null,
+      system_category: null,
+      updated_at: new Date('2022-05-05T17:47:06.951957+00:00'),
+    },
+    {
+      code: '43',
+      created_at: new Date('2023-01-09T16:54:09.929285+00:00'),
+      display_name: 'samp category',
+      id: 226646,
+      is_enabled: true,
+      name: 'samp category',
+      org_id: 'orrjqbDbeP9p',
+      restricted_project_ids: null,
+      sub_category: null,
+      system_category: null,
+      updated_at: new Date('2023-01-09T16:54:09.929285+00:00'),
     },
   ],
   offset: 0,

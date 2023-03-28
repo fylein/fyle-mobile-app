@@ -157,10 +157,11 @@ describe('CategoriesService', () => {
     spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategoryById);
     spyOn(categoriesService, 'addDisplayName').and.returnValue(expectedOrgCategoryById);
 
-    const categoryId = 141295;
+    const categoryId = 141300;
+    const [business, pager, sampCategory] = expectedOrgCategoryById;
 
     categoriesService.getCategoryById(categoryId).subscribe((res) => {
-      expect(res).toEqual(expectedOrgCategoryById[0]);
+      expect(res).toEqual(pager);
       expect(categoriesService.transformFrom).toHaveBeenCalledOnceWith(platformApiCategoryById.data);
       expect(categoriesService.addDisplayName).toHaveBeenCalledOnceWith(transformedOrgCategoryById);
       done();
