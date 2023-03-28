@@ -6,6 +6,7 @@ import { UserEventService } from 'src/app/core/services/user-event.service';
 import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-sidemenu-content',
@@ -22,12 +23,14 @@ export class SidemenuContentComponent implements OnInit {
     private userEventService: UserEventService,
     private menuController: MenuController,
     private freshChatService: FreshChatService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit(): void {}
 
   goToRoute(sidemenuItem: Partial<SidemenuItem>) {
+    this.trackingService.menuItemClicked({ option: sidemenuItem.title });
     if (sidemenuItem.dropdownOptions?.length) {
       sidemenuItem.isDropdownOpen = !sidemenuItem.isDropdownOpen;
       return;

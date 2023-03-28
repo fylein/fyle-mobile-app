@@ -301,6 +301,10 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
+
+    this.trackingService.footerHomeTabClicked({
+      page: 'Advances',
+    });
   }
 
   onTaskClicked() {

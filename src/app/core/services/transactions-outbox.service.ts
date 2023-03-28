@@ -51,7 +51,7 @@ export class TransactionsOutboxService {
     this.restoreQueue();
   }
 
-  get singleCaptureCount() {
+  get singleCaptureCount(): number {
     return this.singleCaptureCountInSession;
   }
 
@@ -483,13 +483,13 @@ export class TransactionsOutboxService {
       );
   }
 
-  isDataExtractionPending(txnId) {
+  isDataExtractionPending(txnId: string): boolean {
     const txnIds = this.dataExtractionQueue.map((entry) => entry.transaction.id);
 
     return txnIds.indexOf(txnId) > -1;
   }
 
-  isPDF(type: string) {
+  isPDF(type: string): boolean {
     return ['application/pdf', 'pdf'].indexOf(type) > -1;
   }
 }
