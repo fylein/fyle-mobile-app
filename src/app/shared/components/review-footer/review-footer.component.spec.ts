@@ -37,15 +37,15 @@ describe('ReviewFooterComponent', () => {
     const saveAndGoToNextSpy = spyOn(reviewFooterComponent.saveAndGoToNext, 'emit');
     fixture.detectChanges();
     reviewFooterComponent.onSaveAndGoToNext();
-    expect(trackingServiceSpy.footerSaveAndNextClicked).toHaveBeenCalled();
-    expect(saveAndGoToNextSpy).toHaveBeenCalled();
+    expect(trackingServiceSpy.footerSaveAndNextClicked).toHaveBeenCalledTimes(1);
+    expect(saveAndGoToNextSpy).toHaveBeenCalledTimes(1);
   });
 
   it('onSaveAndGoToPrev(): should emit save and go to prev event when onSaveAndGoToPrev is called', () => {
     const saveAndGoToNextPrev = spyOn(reviewFooterComponent.saveAndGoToPrev, 'emit');
     reviewFooterComponent.onSaveAndGoToPrev();
-    expect(trackingServiceSpy.footerSaveAndPrevClicked).toHaveBeenCalled();
-    expect(saveAndGoToNextPrev).toHaveBeenCalled();
+    expect(trackingServiceSpy.footerSaveAndPrevClicked).toHaveBeenCalledTimes(1);
+    expect(saveAndGoToNextPrev).toHaveBeenCalledTimes(1);
   });
 
   it('should not render Save and Previous button when activeIndex is 0', () => {
