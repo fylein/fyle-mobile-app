@@ -1,10 +1,9 @@
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { BehaviorSubject, forkJoin, noop, Observable, of } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, map, reduce, shareReplay, startWith, switchMap, take, tap, toArray } from 'rxjs/operators';
-import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import * as dayjs from 'dayjs';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
@@ -46,7 +45,7 @@ interface OptionsSet {
   templateUrl: './merge-expense.page.html',
   styleUrls: ['./merge-expense.page.scss'],
 })
-export class MergeExpensePage implements OnInit {
+export class MergeExpensePage implements OnInit, AfterViewChecked {
   expenses: Expense[];
 
   fg: FormGroup;
@@ -148,7 +147,8 @@ export class MergeExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private mergeExpensesService: MergeExpensesService,
     private activatedRoute: ActivatedRoute,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   get genericFieldsForm() {
@@ -516,7 +516,7 @@ export class MergeExpensePage implements OnInit {
 
   generateFromFg(projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] }) {
     const sourceExpense = this.expenses.find(
-      (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
+      (expense) => expense.source_account_type === this.genericFieldsForm?.value?.paymentMode
     );
     const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
     const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
@@ -793,5 +793,10 @@ export class MergeExpensePage implements OnInit {
         });
       }
     );
+  }
+
+  // Added this to fix the error for value being changed after it is checked in the case of rendering customInputs$
+  ngAfterViewChecked() {
+    this.cdRef.detectChanges();
   }
 }

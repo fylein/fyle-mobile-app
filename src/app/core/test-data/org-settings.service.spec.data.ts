@@ -429,6 +429,10 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  simplified_report_closure_settings: {
+    allowed: false,
+    enabled: false,
+  },
 };
 
 export const orgSettingsPostData: OrgSettingsResponse = {
@@ -848,6 +852,10 @@ export const orgSettingsPostData: OrgSettingsResponse = {
   settlements_excel_settings: {
     allowed: true,
     cost_center_wise_split: true,
+  },
+  simplified_report_closure_settings: {
+    allowed: false,
+    enabled: false,
   },
 };
 

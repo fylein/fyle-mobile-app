@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, Subject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -21,6 +21,8 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import * as dayjs from 'dayjs';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 
 type Filters = Partial<{
   state: string[];
@@ -90,6 +92,8 @@ export class TeamReportsPage implements OnInit {
 
   teamReportsTaskCount = 0;
 
+  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -102,7 +106,9 @@ export class TeamReportsPage implements OnInit {
     private trackingService: TrackingService,
     private activatedRoute: ActivatedRoute,
     private apiV2Service: ApiV2Service,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private orgSettingsService: OrgSettingsService,
+    private reportStatePipe: ReportState
   ) {}
 
   get HeaderState() {
@@ -124,6 +130,11 @@ export class TeamReportsPage implements OnInit {
     this.tasksService.getTeamReportsTaskCount().subscribe((teamReportsTaskCount) => {
       this.teamReportsTaskCount = teamReportsTaskCount;
     });
+
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    this.simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+    );
 
     this.loadData$ = new BehaviorSubject({
       pageNumber: 1,
@@ -436,6 +447,10 @@ export class TeamReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
+
+    this.trackingService.footerHomeTabClicked({
+      page: 'Team Reports',
+    });
   }
 
   onTaskClicked() {
@@ -656,22 +671,14 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
-    filterPills.push({
-      label: 'State',
-      type: 'state',
-      value: filter.state
-        .map((state) => {
-          if (state === 'APPROVER_INQUIRY') {
-            return 'Sent Back';
-          }
-
-          if (state === 'APPROVER_PENDING') {
-            return 'Reported';
-          }
-
-          return state.replace(/_/g, ' ').toLowerCase();
-        })
-        .reduce((state1, state2) => `${state1}, ${state2}`),
+    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
+      filterPills.push({
+        label: 'State',
+        type: 'state',
+        value: filter.state
+          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
+          .reduce((state1, state2) => `${state1}, ${state2}`),
+      });
     });
   }
 
@@ -862,6 +869,24 @@ export class TeamReportsPage implements OnInit {
                 value: 'PAID',
               },
             ],
+            optionsNewFlow: [
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
           } as FilterOptions<string>,
           {
             name: 'Submitted Date',
@@ -920,6 +945,7 @@ export class TeamReportsPage implements OnInit {
             ],
           } as FilterOptions<string>,
         ],
+        simplifyReportsSettings$: this.simplifyReportsSettings$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

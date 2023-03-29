@@ -254,7 +254,7 @@
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"
-                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                     class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin"
                   >
                     <div
@@ -278,7 +278,7 @@
                   </div>
                   <div
                     *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
-                    class="add-edit-expense--error"
+                    class="add-edit-expense--date-error"
                   >
                     Please select a valid date.
                   </div>
@@ -456,7 +456,10 @@
             <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="taxGroupsOptions$|async as taxGroups">
                 <div *ngIf="txnFields?.tax_group_id && taxGroups?.length > 0" class="add-edit-expense--primary-block">
-                  <div class="add-edit-expense--internal-block">
+                  <div
+                    class="add-edit-expense--internal-block"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.tax_group.touched && !fg.controls.tax_group.valid}"
+                  >
                     <app-fy-select
                       [label]="(txnFields.tax_group_id.field_name || 'Tax Group')"
                       [options]="taxGroups"
@@ -510,6 +513,12 @@
                         >
                         </app-fy-location>
                       </div>
+                      <div
+                        *ngIf="fg.controls.location_1.touched && !fg.controls.location_1.valid"
+                        class="add-edit-expense--error"
+                      >
+                        Please select a valid city.
+                      </div>
                     </ion-col>
                     <ion-col
                       *ngIf="txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
@@ -526,6 +535,12 @@
                         >
                         </app-fy-location>
                       </div>
+                      <div
+                        *ngIf="fg.controls.location_2.touched && !fg.controls.location_2.valid"
+                        class="add-edit-expense--error"
+                      >
+                        Please select a valid city.
+                      </div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -536,7 +551,7 @@
                       *ngIf="txnFields.from_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
                         class="add-edit-expense--date add-edit-expense--internal-block"
                       >
                         <div
@@ -555,12 +570,18 @@
                           [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.from_dt?.field_name"
                         />
                       </div>
+                      <div
+                        *ngIf="fg.controls.from_dt.touched && !fg.controls.from_dt.valid"
+                        class="add-edit-expense--date-error"
+                      >
+                        Please select a valid {{txnFields.from_dt?.field_name}}.
+                      </div>
                     </ion-col>
                     <ion-col
                       *ngIf="txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--date__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
                         class="add-edit-expense--date add-edit-expense--internal-block"
                       >
                         <div
@@ -578,6 +599,12 @@
                           type="date"
                           [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.to_dt?.field_name"
                         />
+                      </div>
+                      <div
+                        *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid"
+                        class="add-edit-expense--date-error"
+                      >
+                        Please select a valid {{txnFields.to_dt?.field_name}}.
                       </div>
                     </ion-col>
                   </ion-row>
@@ -603,6 +630,12 @@
                         >
                         </app-fy-select>
                       </div>
+                      <div
+                        *ngIf="fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid"
+                        class="add-edit-expense--error"
+                      >
+                        Please select a valid class for {{ txnFields.flight_journey_travel_class?.field_name }}.
+                      </div>
                     </ion-col>
                     <ion-col
                       *ngIf="txnFields.flight_return_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
@@ -623,14 +656,20 @@
                         >
                         </app-fy-select>
                       </div>
+                      <div
+                        *ngIf="fg.controls.flight_return_travel_class.touched && !fg.controls.flight_return_travel_class.valid"
+                        class="add-edit-expense--error"
+                      >
+                        Please select a valid class for {{ txnFields.flight_return_travel_class?.field_name }}.
+                      </div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
 
                 <div
                   *ngIf="txnFields.train_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
-                  class="add-edit-expense--internal-block add-edit-expense--text"
+                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid && txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--text': txnFields.train_travel_class?.type === 'TEXT'}"
+                  class="add-edit-expense--internal-block"
                 >
                   <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'">
                     <div
@@ -660,11 +699,17 @@
                   >
                   </app-fy-select>
                 </div>
+                <div
+                  *ngIf="fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid"
+                  [ngClass]="{'add-edit-expense--travel-text-error': txnFields.train_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-error': txnFields.train_travel_class?.type === 'SELECT'}"
+                >
+                  Please select valid {{ txnFields.train_travel_class?.field_name }}.
+                </div>
 
                 <div
                   *ngIf="txnFields.bus_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
-                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
-                  class="add-edit-expense--internal-block add-edit-expense--text"
+                  [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid, 'add-edit-expense--text__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid && txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--text': txnFields.bus_travel_class?.type === 'TEXT'}"
+                  class="add-edit-expense--internal-block"
                 >
                   <div
                     *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
@@ -695,6 +740,12 @@
                   >
                   </app-fy-select>
                 </div>
+                <div
+                  *ngIf="fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid"
+                  [ngClass]="{'add-edit-expense--travel-text-error': txnFields.bus_travel_class?.type === 'TEXT', 'add-edit-expense--travel-select-error': txnFields.bus_travel_class?.type === 'SELECT'}"
+                >
+                  Please select valid {{ txnFields.bus_travel_class?.field_name }}.
+                </div>
 
                 <div
                   *ngIf="breakfastSystemCategories?.includes(fg?.value?.category?.fyle_category) && isExpandedView"
@@ -707,7 +758,7 @@
 
                 <ng-container *ngIf="txnFields.distance?.is_mandatory && fg.value?.category?.fyle_category === 'Taxi'">
                   <div
-                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
                     class="add-edit-expense--internal-block add-edit-expense--text"
                   >
                     <div
@@ -722,8 +773,17 @@
                       [placeholder]="txnFields.distance?.placeholder || 'Enter ' + txnFields.distance?.field_name"
                     ></app-fy-number>
                   </div>
+                  <div
+                    *ngIf="fg.controls.distance.touched && !fg.controls.distance.valid"
+                    class="add-edit-expense--distance-error"
+                  >
+                    Please enter {{ txnFields.distance?.field_name }}.
+                  </div>
 
-                  <div class="add-edit-expense--internal-block">
+                  <div
+                    class="add-edit-expense--internal-block"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.distance_unit.touched && !fg.controls.distance_unit.valid}"
+                  >
                     <app-fy-select
                       [label]="txnFields.distance_unit?.field_name"
                       [mandatory]="txnFields.distance_unit?.is_mandatory"
@@ -735,6 +795,12 @@
                       [placeholder]="txnFields.distance_unit?.placeholder"
                     >
                     </app-fy-select>
+                  </div>
+                  <div
+                    *ngIf="fg.controls.distance_unit.touched && !fg.controls.distance_unit.valid"
+                    class="add-edit-expense--distance-unit-error"
+                  >
+                    Please select {{ txnFields.distance_unit?.field_name }}.
                   </div>
                 </ng-container>
               </div>
@@ -971,6 +1037,7 @@
                     [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                     [autoSubmissionReportName]="autoSubmissionReportName$|async"
                     [options]="reports"
+                    [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
                     formControlName="report"
                   ></app-fy-add-to-report>
                 </div>

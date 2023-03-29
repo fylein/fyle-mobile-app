@@ -291,6 +291,10 @@ export class TeamAdvancePage implements AfterViewChecked {
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
+
+    this.trackingService.footerHomeTabClicked({
+      page: 'Team Advances',
+    });
   }
 
   onTaskClicked() {

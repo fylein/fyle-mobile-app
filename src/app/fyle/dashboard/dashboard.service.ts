@@ -107,12 +107,14 @@ export class DashboardService {
     const reportedReportStats = stateWiseAggregatesMap.APPROVER_PENDING || { sum: 0, count: 0 };
     const approvedReportStats = stateWiseAggregatesMap.APPROVED || { sum: 0, count: 0 };
     const paymentPendingReportStats = stateWiseAggregatesMap.PAYMENT_PENDING || { sum: 0, count: 0 };
+    const processingReportStats = stateWiseAggregatesMap.PAYMENT_PROCESSING || { sum: 0, count: 0 };
 
     return {
       draft: draftReportStats,
       report: reportedReportStats,
       approved: approvedReportStats,
       paymentPending: paymentPendingReportStats,
+      processing: processingReportStats,
     };
   }
 

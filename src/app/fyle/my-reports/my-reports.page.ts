@@ -31,8 +31,11 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import * as dayjs from 'dayjs';
+import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 type Filters = Partial<{
   state: string[];
@@ -101,6 +104,10 @@ export class MyReportsPage implements OnInit {
 
   filterPills = [];
 
+  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
+  nonReimbursableOrg$: Observable<boolean>;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -114,7 +121,9 @@ export class MyReportsPage implements OnInit {
     private trackingService: TrackingService,
     private apiV2Service: ApiV2Service,
     private tasksService: TasksService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private orgSettingsService: OrgSettingsService,
+    private reportStatePipe: ReportState
   ) {}
 
   get HeaderState() {
@@ -244,6 +253,21 @@ export class MyReportsPage implements OnInit {
               };
             })
           )
+      )
+    );
+
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    this.simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+    );
+    this.nonReimbursableOrg$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.payment_mode_settings?.allowed &&
+          orgSettings.payment_mode_settings?.enabled &&
+          orgSettings.payment_mode_settings?.payment_modes_order?.length === 1 &&
+          orgSettings.payment_mode_settings?.payment_modes_order[0] ===
+            AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
       )
     );
 
@@ -490,6 +514,10 @@ export class MyReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
+
+    this.trackingService.footerHomeTabClicked({
+      page: 'Reports',
+    });
   }
 
   onTaskClicked() {
@@ -718,22 +746,14 @@ export class MyReportsPage implements OnInit {
   }
 
   generateStateFilterPills(filterPills: FilterPill[], filter) {
-    filterPills.push({
-      label: 'State',
-      type: 'state',
-      value: filter.state
-        .map((state) => {
-          if (state === 'APPROVER_INQUIRY') {
-            return 'Sent Back';
-          }
-
-          if (state === 'APPROVER_PENDING') {
-            return 'Reported';
-          }
-
-          return state.replace(/_/g, ' ').toLowerCase();
-        })
-        .reduce((state1, state2) => `${state1}, ${state2}`),
+    this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
+      filterPills.push({
+        label: 'State',
+        type: 'state',
+        value: filter.state
+          .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
+          .reduce((state1, state2) => `${state1}, ${state2}`),
+      });
     });
   }
 
@@ -936,6 +956,54 @@ export class MyReportsPage implements OnInit {
                 value: 'PAID',
               },
             ],
+            optionsNewFlow: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Processing',
+                value: 'PAYMENT_PROCESSING',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
+            optionsNewFlowCCCOnly: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
           } as FilterOptions<string>,
           {
             name: 'Date',
@@ -994,6 +1062,8 @@ export class MyReportsPage implements OnInit {
             ],
           } as FilterOptions<string>,
         ],
+        simplifyReportsSettings$: this.simplifyReportsSettings$,
+        nonReimbursableOrg$: this.nonReimbursableOrg$,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },

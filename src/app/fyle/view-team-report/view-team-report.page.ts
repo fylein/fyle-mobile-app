@@ -7,7 +7,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
+import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, filter } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { NetworkService } from '../../core/services/network.service';
@@ -115,6 +115,8 @@ export class ViewTeamReportPage implements OnInit {
 
   canShowTooltip = false;
 
+  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -213,6 +215,11 @@ export class ViewTeamReportPage implements OnInit {
       )
     );
 
+    const orgSettings$ = this.orgSettingsService.get();
+    this.simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+    );
+
     this.estatuses$.subscribe((estatuses) => {
       const reversalStatus = estatuses.filter(
         (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
@@ -254,16 +261,16 @@ export class ViewTeamReportPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.erpt$.subscribe((res) => {
-      this.reportCurrencySymbol = getCurrencySymbol(res.rp_currency, 'wide');
-      this.reportName = res.rp_purpose;
+    this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt: ExtendedReport) => {
+      this.reportCurrencySymbol = getCurrencySymbol(erpt.rp_currency, 'wide');
+      this.reportName = erpt.rp_purpose;
       /**
        * if current user is remove from approver, erpt call will go again to fetch current report details
        * so checking if report details are available in erpt than continue execution
        * else redirect them to team reports
        */
-      if (res) {
-        this.isReportReported = ['APPROVER_PENDING'].indexOf(res.rp_state) > -1;
+      if (erpt) {
+        this.isReportReported = ['APPROVER_PENDING'].indexOf(erpt.rp_state) > -1;
       } else {
         this.router.navigate(['/', 'enterprise', 'team_reports']);
       }

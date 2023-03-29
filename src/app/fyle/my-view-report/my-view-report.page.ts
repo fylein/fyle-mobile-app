@@ -27,6 +27,7 @@ import { cloneDeep, isEqual } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 enum Segment {
   EXPENSES,
@@ -98,6 +99,8 @@ export class MyViewReportPage {
 
   segmentValue = Segment.EXPENSES;
 
+  simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -113,7 +116,8 @@ export class MyViewReportPage {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
-    private refinerService: RefinerService
+    private refinerService: RefinerService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get Segment() {
@@ -290,6 +294,11 @@ export class MyViewReportPage {
         })
       )
       .subscribe(noop);
+
+    const orgSettings$ = this.orgSettingsService.get();
+    this.simplifyReportsSettings$ = orgSettings$.pipe(
+      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+    );
   }
 
   updateReportName(reportName: string) {
@@ -319,7 +328,7 @@ export class MyViewReportPage {
           return editReportNamePopover;
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
-        switchMap((editReportNamePopover) => editReportNamePopover.onWillDismiss())
+        switchMap((editReportNamePopover) => editReportNamePopover?.onWillDismiss())
       )
       .subscribe((editReportNamePopoverDetails) => {
         const newReportName = editReportNamePopoverDetails?.data?.reportName;
@@ -352,7 +361,7 @@ export class MyViewReportPage {
 
     await deleteReportPopover.present();
 
-    const { data } = await deleteReportPopover.onDidDismiss();
+    const { data } = await deleteReportPopover?.onDidDismiss();
 
     if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -448,7 +457,7 @@ export class MyViewReportPage {
 
     await shareReportModal.present();
 
-    const { data } = await shareReportModal.onWillDismiss();
+    const { data } = await shareReportModal?.onWillDismiss();
 
     if (data && data.email) {
       const params = {
@@ -478,7 +487,7 @@ export class MyViewReportPage {
     });
 
     await viewInfoModal.present();
-    await viewInfoModal.onWillDismiss();
+    await viewInfoModal?.onWillDismiss();
 
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
@@ -533,7 +542,7 @@ export class MyViewReportPage {
     from(addExpensesToReportModal)
       .pipe(
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
-        switchMap((addExpensesToReportModal) => addExpensesToReportModal.onWillDismiss())
+        switchMap((addExpensesToReportModal) => addExpensesToReportModal?.onWillDismiss())
       )
       .subscribe((addExpensesToReportModalDetails) => {
         const selectedTxnIds = addExpensesToReportModalDetails?.data?.selectedTxnIds;

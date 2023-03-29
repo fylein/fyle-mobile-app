@@ -220,6 +220,8 @@ export class AddEditMileagePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  isNewReportsFlowEnabled = false;
+
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
@@ -872,6 +874,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.dependentFieldsRef?.ngOnInit();
 
@@ -937,6 +940,10 @@ export class AddEditMileagePage implements OnInit {
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
       )
     );
+
+    orgSettings$.subscribe((orgSettings) => {
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+    });
 
     this.setupNetworkWatcher();
 

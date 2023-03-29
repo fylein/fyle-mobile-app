@@ -26,6 +26,8 @@ export class FyZeroStateComponent implements OnInit, AfterViewInit {
 
   @Input() useNewStyling = false;
 
+  @Input() taskImageStyle: object;
+
   @Output() linkClicked = new EventEmitter();
 
   constructor() {}

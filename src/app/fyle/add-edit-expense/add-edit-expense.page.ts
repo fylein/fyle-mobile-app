@@ -345,6 +345,8 @@ export class AddEditExpensePage implements OnInit {
 
   hardwareBackButtonAction: Subscription;
 
+  isNewReportsFlowEnabled = false;
+
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
@@ -1524,18 +1526,20 @@ export class AddEditExpensePage implements OnInit {
               project = autoFillProject;
               this.presetProjectId = project.project_id;
 
-              // Check if the recent categories are allowed for the project auto-filled
-              const isAllowedRecentCategories = recentCategories.map((category) =>
-                project.project_org_category_ids.includes(category.value.id)
-              );
+              if (recentCategories?.length) {
+                // Check if the recent categories are allowed for the project auto-filled
+                const isAllowedRecentCategories = recentCategories.map((category) =>
+                  project.project_org_category_ids.includes(category.value.id)
+                );
 
-              // Set the updated allowed recent categories
-              this.recentCategories = recentCategories.filter((category) =>
-                project.project_org_category_ids.includes(category.value.id)
-              );
+                // Set the updated allowed recent categories
+                this.recentCategories = recentCategories.filter((category) =>
+                  project.project_org_category_ids.includes(category.value.id)
+                );
 
-              // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
-              canAutofillCategory = isAllowedRecentCategories[0];
+                // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
+                canAutofillCategory = isAllowedRecentCategories[0];
+              }
 
               // Set the project preset value to the formGroup to trigger filtering of all allowed categories
               this.fg.patchValue({ project });
@@ -2299,6 +2303,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.dependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject(null);
@@ -2410,6 +2415,8 @@ export class AddEditExpensePage implements OnInit {
     orgSettings$.subscribe((orgSettings) => {
       this.isCorporateCreditCardEnabled =
         orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
 
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&

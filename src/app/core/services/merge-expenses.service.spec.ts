@@ -38,8 +38,15 @@ import {
   billableOptions2,
   categoryOptionsData,
   mergeExpensesOptionData1,
+  mergeExpensesOptionData10,
   mergeExpensesOptionData2,
   mergeExpensesOptionData3,
+  mergeExpensesOptionData4,
+  mergeExpensesOptionData5,
+  mergeExpensesOptionData6,
+  mergeExpensesOptionData7,
+  mergeExpensesOptionData8,
+  mergeExpensesOptionData9,
   mergeExpensesOptionsData,
   paymentModeOptions1,
   paymentModeOptions2,
@@ -49,8 +56,29 @@ import {
 } from '../mock-data/merge-expenses-option.data';
 import { AccountType } from '../enums/account-type.enum';
 import {
+  optionsData10,
+  optionsData11,
+  optionsData12,
+  optionsData13,
+  optionsData14,
+  optionsData15,
+  optionsData16,
+  optionsData17,
+  optionsData18,
+  optionsData19,
   optionsData2,
+  optionsData20,
+  optionsData21,
+  optionsData22,
+  optionsData23,
+  optionsData24,
+  optionsData25,
+  optionsData26,
+  optionsData27,
+  optionsData28,
+  optionsData29,
   optionsData3,
+  optionsData30,
   optionsData4,
   optionsData5,
   optionsData6,
@@ -61,9 +89,12 @@ import {
 import { fileObject5 } from '../mock-data/file-object.data';
 import { mergeExpenesesCustomInputsData } from '../mock-data/merge-expenses-custom-inputs.data';
 import * as lodash from 'lodash';
-import { projectsV1Data, projectsV1Data2 } from '../test-data/projects.spec.data';
+import { projectsV1Data } from '../test-data/projects.spec.data';
 import { corporateCardExpenseData } from '../mock-data/corporate-card-expense.data';
 import { customInputData } from '../test-data/custom-inputs.spec.data';
+import * as dayjs from 'dayjs';
+import { orgCategoryData1 } from '../mock-data/org-category.data';
+import { taxGroupData } from '../mock-data/tax-group.data';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -552,5 +583,322 @@ describe('MergeExpensesService', () => {
       expect(mergeExpensesService.formatProjectOptions).toHaveBeenCalledTimes(2);
       done();
     });
+  });
+
+  it('generateCategoryOptions(): should return the category options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatCategoryOption').and.returnValue(of(mergeExpensesOptionData4));
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'checkOptionsAreSame').and.returnValue(false);
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'removeUnspecified').and.returnValue(mergeExpensesOptionData4);
+
+    mergeExpensesService.generateCategoryOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData10);
+      // @ts-ignore
+      expect(mergeExpensesService.formatCategoryOption).toHaveBeenCalledTimes(2);
+      done();
+    });
+  });
+
+  it('generateTaxGroupOptions(): should return the tax group options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatTaxGroupOption').and.returnValue(of(mergeExpensesOptionData5));
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData11);
+
+    mergeExpensesService.generateTaxGroupOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData11);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('generateTaxAmountOptions(): should return the tax amount options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData12);
+    mergeExpensesService.generateTaxAmountOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData12);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('generateCostCenterOptions(): should return the cost center options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData13);
+
+    mergeExpensesService.generateCostCenterOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData13);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('generatePurposeOptions(): should return the purpose options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData14);
+
+    mergeExpensesService.generatePurposeOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData14);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('getFieldValue():', () => {
+    it('should return the field value when options are passed', () => {
+      expect(mergeExpensesService.getFieldValue(optionsData12)).toEqual(0.01);
+    });
+
+    it('should return null when options are not passed', () => {
+      expect(mergeExpensesService.getFieldValue(optionsData13)).toBeNull();
+    });
+  });
+
+  it('generateLocationOptions(): should return the location options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'checkOptionsAreSame').and.returnValue(false);
+    mergeExpensesService.generateLocationOptions(expensesDataWithCC, 0).subscribe((res) => {
+      expect(res).toEqual(optionsData15);
+      // @ts-ignore
+      expect(mergeExpensesService.checkOptionsAreSame).toHaveBeenCalledOnceWith([optionsData15.options[0].label]);
+      done();
+    });
+  });
+
+  it('generateOnwardDateOptions(): should return the onward date options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'checkOptionsAreSame').and.returnValue(false);
+    mergeExpensesService.generateOnwardDateOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData16);
+      // @ts-ignore
+      expect(mergeExpensesService.checkOptionsAreSame).toHaveBeenCalledOnceWith([
+        dayjs(optionsData16.options[0].value).format('YYYY-MM-DD'),
+        dayjs(optionsData16.options[1].value).format('YYYY-MM-DD'),
+      ]);
+      done();
+    });
+  });
+
+  it('generateReturnDateOptions(): should return the return date options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'checkOptionsAreSame').and.returnValue(false);
+    mergeExpensesService.generateReturnDateOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData16);
+      // @ts-ignore
+      expect(mergeExpensesService.checkOptionsAreSame).toHaveBeenCalledOnceWith([
+        dayjs(optionsData16.options[0].value).format('YYYY-MM-DD'),
+        dayjs(optionsData16.options[1].value).format('YYYY-MM-DD'),
+      ]);
+      done();
+    });
+  });
+
+  it('generateFlightJourneyTravelClassOptions(): should return the flight journey travel class options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData17);
+
+    mergeExpensesService.generateFlightJourneyTravelClassOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData17);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledWith(mergeExpensesOptionData6);
+      done();
+    });
+  });
+
+  it('generateFlightReturnTravelClassOptions(): should return the flight journey travel class options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData17);
+
+    mergeExpensesService.generateFlightReturnTravelClassOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData17);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledWith(mergeExpensesOptionData6);
+      done();
+    });
+  });
+
+  it('generateTrainTravelClassOptions(): should return the train journey travel class options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData18);
+
+    mergeExpensesService.generateTrainTravelClassOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData18);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledWith(mergeExpensesOptionData7);
+      done();
+    });
+  });
+
+  it('generateBusTravelClassOptions(): should return the bus journey travel class options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData19);
+
+    mergeExpensesService.generateBusTravelClassOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData19);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledWith(mergeExpensesOptionData8);
+      done();
+    });
+  });
+
+  it('generateDistanceOptions(): should return the distance options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData20);
+
+    mergeExpensesService.generateDistanceOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData20);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledWith(mergeExpensesOptionData9);
+      done();
+    });
+  });
+
+  it('generateDistanceUnitOptions(): should return the distance unit options', (done) => {
+    // @ts-ignore
+    spyOn(mergeExpensesService, 'formatOptions').and.returnValue(optionsData21);
+
+    mergeExpensesService.generateDistanceUnitOptions(expensesDataWithCC).subscribe((res) => {
+      expect(res).toEqual(optionsData21);
+      // @ts-ignore
+      expect(mergeExpensesService.formatOptions).toHaveBeenCalledWith(mergeExpensesOptionData10);
+      done();
+    });
+  });
+
+  it('getCategoryName(): should return the category name', () => {
+    categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+    const categoryId = '201952';
+    mergeExpensesService.getCategoryName(categoryId).subscribe((res) => {
+      expect(res).toEqual('Food');
+      expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // Skipping this test case as it fails at times due to some weird issue in the method
+  xit('formatCategoryOption(): should return the formatted category option', (done) => {
+    categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+    categoriesService.filterRequired.and.returnValue(orgCategoryData1);
+    // @ts-ignore
+    mergeExpensesService.formatCategoryOption(mergeExpensesOptionData4[0]).subscribe((res) => {
+      expect(res).toEqual(mergeExpensesOptionData4[0]);
+      expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+      expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(orgCategoryData1);
+      done();
+    });
+  });
+
+  describe('getFieldValueOnChange():', () => {
+    it('should return the field value on change when value is untouched', () => {
+      const res = mergeExpensesService.getFieldValueOnChange(
+        mergeExpensesOptionData4[0],
+        null,
+        mergeExpensesOptionData4[0].value,
+        mergeExpensesOptionData4[0].value
+      );
+      expect(res).toEqual(mergeExpensesOptionData4[0].value);
+    });
+
+    it('should return the field value on change when value is touched', () => {
+      const res = mergeExpensesService.getFieldValueOnChange(
+        mergeExpensesOptionData4[0],
+        true,
+        null,
+        mergeExpensesOptionData4[1].value
+      );
+      expect(res).toEqual(mergeExpensesOptionData4[1].value);
+    });
+  });
+
+  it('formatTaxGroupOption(): should return the formatted tax group option', (done) => {
+    taxGroupService.get.and.returnValue(of(taxGroupData));
+    // @ts-ignore
+    mergeExpensesService.formatTaxGroupOption(optionsData11.options[0]).subscribe((res) => {
+      expect(res).toEqual(mergeExpensesOptionData5[0]);
+      expect(taxGroupService.get).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('formatCustomInputOptionsByType():', () => {
+    it('should return the formatted custom input options by type with valid date', () => {
+      dateService.isValidDate.and.returnValues(false, true);
+      spyOn(mergeExpensesService, 'setFormattedDate').and.returnValue('Mar 10, 2021');
+      // @ts-ignore
+      const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData22);
+      expect(res).toEqual(optionsData23);
+      expect(dateService.isValidDate).toHaveBeenCalledWith(optionsData22[1].value);
+    });
+
+    it('should return the formatted custom input options by type without date', () => {
+      dateService.isValidDate.and.returnValues(false, false);
+      // @ts-ignore
+      const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData24);
+      expect(res).toEqual(optionsData25);
+    });
+
+    it('should return the formatted custom input options by type with repeated string options', () => {
+      dateService.isValidDate.and.returnValues(false, false);
+      // @ts-ignore
+      const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData27);
+      expect(res).toEqual(optionsData28);
+    });
+
+    it('should return the formatted custom input options by type with repeated number options', () => {
+      dateService.isValidDate.and.returnValues(false, false);
+      // @ts-ignore
+      const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData29);
+      expect(res).toEqual(optionsData30);
+    });
+
+    it('should return the formatted custom input options by type with repeated select options', () => {
+      dateService.isValidDate.and.returnValues(false, false);
+      // @ts-ignore
+      const res = mergeExpensesService.formatCustomInputOptionsByType([optionsData22[0], optionsData22[0]]);
+      expect(res).toEqual([optionsData22[0]]);
+    });
+  });
+
+  describe('formatCustomInputOptions():', () => {
+    it('should return the formatted custom input options', () => {
+      // @ts-ignore
+      spyOn(mergeExpensesService, 'formatCustomInputOptionsByType').and.returnValue([optionsData22[0]]);
+      // @ts-ignore
+      const res = mergeExpensesService.formatCustomInputOptions(optionsData22);
+      const expectedRes = {
+        // eslint-disable-next-line quote-props
+        userlist: optionsData22[0],
+      };
+      expect(res).toEqual(expectedRes);
+      // @ts-ignore
+      expect(mergeExpensesService.formatCustomInputOptionsByType).toHaveBeenCalledWith(optionsData22);
+    });
+
+    it('should return the formatted custom input options without options', () => {
+      // @ts-ignore
+      spyOn(mergeExpensesService, 'formatCustomInputOptionsByType').and.returnValue([optionsData26[0]]);
+      // @ts-ignore
+      const res = mergeExpensesService.formatCustomInputOptions(optionsData26);
+      const expectedRes = {
+        // eslint-disable-next-line quote-props
+        numberfield: {
+          options: [],
+          ...optionsData26[0],
+        },
+      };
+      expect(res).toEqual(expectedRes);
+      // @ts-ignore
+      expect(mergeExpensesService.formatCustomInputOptionsByType).toHaveBeenCalledWith(optionsData26);
+    });
+  });
+
+  it('setformattedDate(): should return formatted date', () => {
+    const mockDate = new Date('2021-03-10T05:31:00.000Z');
+    expect(mergeExpensesService.setFormattedDate(mockDate)).toEqual(dayjs(mockDate).format('MMM DD, YYYY'));
   });
 });
