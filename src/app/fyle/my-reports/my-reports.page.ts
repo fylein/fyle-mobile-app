@@ -22,7 +22,7 @@ import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
@@ -466,7 +466,7 @@ export class MyReportsPage implements OnInit {
   async onDeleteReportClick(erpt: ExtendedReport) {
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
       const cannotDeleteReportPopOver = await this.popoverController.create({
-        component: PopupAlertComponentComponent,
+        component: PopupAlertComponent,
         componentProps: {
           title: 'Cannot Delete Report',
           message: `${capitalize(replace(erpt.rp_state, '_', ' '))} report cannot be deleted.`,

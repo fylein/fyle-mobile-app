@@ -19,7 +19,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { AppVersionService } from 'src/app/core/services/app-version.service';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
@@ -225,7 +225,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             action: 'close',
           },
         },
-        component: PopupAlertComponentComponent,
+        component: PopupAlertComponent,
         cssClass: 'pop-up-in-center',
         backdropDismiss: false,
       });

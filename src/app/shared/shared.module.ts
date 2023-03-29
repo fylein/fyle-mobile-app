@@ -72,7 +72,7 @@ import { ReviewFooterComponent } from './components/review-footer/review-footer.
 import { NavigationFooterComponent } from './components/navigation-footer/navigation-footer.component';
 import { FyConnectionComponent } from './components/fy-connection/fy-connection.component';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from './components/popup-alert/popup-alert.component';
 import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
 import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
 import { ToastMessageComponent } from './components/toast-message/toast-message.component';
@@ -188,7 +188,7 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
     NavigationFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
-    PopupAlertComponentComponent,
+    PopupAlertComponent,
     CreateNewReportComponent,
     ExpensesCardComponent,
     ToastMessageComponent,
@@ -320,7 +320,7 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
     NavigationFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
-    PopupAlertComponentComponent,
+    PopupAlertComponent,
     CreateNewReportComponent,
     ExpensesCardComponent,
     ToastMessageComponent,

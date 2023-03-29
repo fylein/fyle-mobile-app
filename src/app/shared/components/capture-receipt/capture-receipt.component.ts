@@ -17,7 +17,7 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -347,7 +347,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   showLimitReachedPopover() {
     const limitReachedPopover = this.popoverController.create({
-      component: PopupAlertComponentComponent,
+      component: PopupAlertComponent,
       componentProps: {
         title: 'Limit Reached',
         message:
@@ -406,7 +406,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
 
     return this.popoverController.create({
-      component: PopupAlertComponentComponent,
+      component: PopupAlertComponent,
       componentProps: {
         title,
         message,

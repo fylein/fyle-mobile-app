@@ -91,7 +91,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -454,7 +454,7 @@ export class AddEditExpensePage implements OnInit {
       this.presetCategoryId || this.presetProjectId || this.presetCostCenterId || this.presetCurrency;
     if (this.fg.touched || this.activatedRoute.snapshot.params.dataUrl || isAutofilled) {
       const unsavedChangesPopOver = await this.popoverController.create({
-        component: PopupAlertComponentComponent,
+        component: PopupAlertComponent,
         componentProps: {
           title: 'Unsaved Changes',
           message: 'You have unsaved information that will be lost if you discard this expense.',

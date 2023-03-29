@@ -9,7 +9,7 @@ import { Expense } from '../../../../core/models/expense.model';
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import * as dayjs from 'dayjs';
 
 @Component({
@@ -90,7 +90,7 @@ export class ViewCommentComponent implements OnInit {
   async closeCommentModal() {
     if (this.newComment) {
       const unsavedChangesPopOver = await this.popoverController.create({
-        component: PopupAlertComponentComponent,
+        component: PopupAlertComponent,
         componentProps: {
           title: 'Discard Message',
           message: 'Are you sure you want to discard the message?',
