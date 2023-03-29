@@ -43,7 +43,6 @@ describe('ReviewFooterComponent', () => {
 
   it('onSaveAndGoToPrev(): should emit save and go to prev event when onSaveAndGoToPrev is called', () => {
     const saveAndGoToNextPrev = spyOn(reviewFooterComponent.saveAndGoToPrev, 'emit');
-    fixture.detectChanges();
     reviewFooterComponent.onSaveAndGoToPrev();
     expect(trackingServiceSpy.footerSaveAndPrevClicked).toHaveBeenCalled();
     expect(saveAndGoToNextPrev).toHaveBeenCalled();
@@ -69,16 +68,24 @@ describe('ReviewFooterComponent', () => {
     reviewFooterComponent.activeIndex = 1;
     reviewFooterComponent.reviewList = apiExpenseRes;
     fixture.detectChanges();
-    const saveAndPrevButton = getElementBySelector(fixture, '.fy-footer-cta--tertiary-secondary') as HTMLElement;
-    expect(saveAndPrevButton).not.toBeNull();
-    expect(getTextContent(saveAndPrevButton)).toContain('Save and Previous');
+    reviewFooterComponent.saveAndPrevLoader = false;
+    const saveAndPrevButton1 = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLButtonElement;
+    expect(saveAndPrevButton1.disabled).toBeFalse();
+    fixture.detectChanges();
+    const saveAndPrevButton2 = getElementBySelector(fixture, '.fy-footer-cta--tertiary-secondary') as HTMLElement;
+    expect(saveAndPrevButton2).not.toBeNull();
+    expect(getTextContent(saveAndPrevButton2)).toContain('Save and Previous');
   });
 
   it('should render Save button when reviewList is empty or activeIndex is the last item', () => {
     reviewFooterComponent.activeIndex = 1;
     reviewFooterComponent.reviewList = expensesWithDependentFields;
+    reviewFooterComponent.saveAndNextLoader = false;
     fixture.detectChanges();
-    const saveAndNextButton = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLElement;
-    expect(getTextContent(saveAndNextButton)).toContain('Save');
+    const saveAndNextButton1 = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLButtonElement;
+    expect(saveAndNextButton1.disabled).toBeFalse();
+    fixture.detectChanges();
+    const saveAndNextButton2 = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLElement;
+    expect(getTextContent(saveAndNextButton2)).toContain('Save');
   });
 });
