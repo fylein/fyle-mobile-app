@@ -46,7 +46,7 @@ export class ProjectsService {
     this.addActiveFilter(active, params);
 
     // `orgCategoryIds` can be optional
-    this.addOrgCategoryIdsFilter(orgCategoryIds || [], params);
+    this.addOrgCategoryIdsFilter(orgCategoryIds, params);
 
     // `projectIds` can be optional
     this.addProjectIdsFilter(projectIds, params);
