@@ -3,10 +3,9 @@ import { MatRippleModule } from '@angular/material/core';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FormsModule } from '@angular/forms';
-//import { MatFormFieldModule } from '@angular/material/form-field';
 import { ShareReportComponent } from './share-report.component';
 
-fdescribe('ShareReportComponent', () => {
+describe('ShareReportComponent', () => {
   let component: ShareReportComponent;
   let fixture: ComponentFixture<ShareReportComponent>;
   let popoverControllerSpy: PopoverController;
@@ -37,5 +36,36 @@ fdescribe('ShareReportComponent', () => {
     expect(getTextContent(shareReportTitle)).toContain('Share Report');
     const shareReportDesc = getAllElementsBySelector(fixture, '.share-report--details');
     expect(getTextContent(shareReportDesc[0])).toContain('Share report via email.');
+  });
+
+  it('should dismiss the popover when cancel is clicked', async () => {
+    await component.cancel();
+    expect(popoverControllerSpy.dismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('should dismiss the popover with email when there is a valid email input', async () => {
+    component.email = 'johnD@fyle.in';
+    const emailInput = { valid: true, control: { markAllAsTouched: () => {} } };
+    await component.shareReport(emailInput);
+    expect(popoverControllerSpy.dismiss).toHaveBeenCalledOnceWith({ email: 'johnD@fyle.in' });
+  });
+
+  it('should mark all controls as touched when there is an invalid email input', async () => {
+    const emailInput = { valid: false, control: { markAllAsTouched: () => {} } };
+    spyOn(emailInput.control, 'markAllAsTouched').and.callThrough();
+    await component.shareReport(emailInput);
+    expect(emailInput.control.markAllAsTouched).toHaveBeenCalledTimes(1);
+  });
+
+  it('should disable the "Pull Back" button when email is empty', () => {
+    const pullBackBtn = getElementBySelector(fixture, '.share-report--primary-cta button') as HTMLButtonElement;
+    expect(pullBackBtn.disabled).toBeTrue();
+  });
+
+  it('should enable the "Pull Back" button when email is not empty', () => {
+    const pullBackBtn = getElementBySelector(fixture, '.share-report--primary-cta button') as HTMLButtonElement;
+    component.email = 'test@example.com';
+    fixture.detectChanges();
+    expect(pullBackBtn.disabled).toBeFalse();
   });
 });
