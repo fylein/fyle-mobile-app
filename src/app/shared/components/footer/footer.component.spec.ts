@@ -121,7 +121,6 @@ describe('FooterComponent', () => {
     it('should display the task count in the pill when there are tasks', () => {
       const mockConnectionState = ConnectionMessageStatus.onlineMessageShown;
       const mockTaskCount = 2;
-      const button = getElementBySelector(fixture, '.fy-footer--button');
       footerComponent.connectionState$ = of(mockConnectionState);
       footerComponent.taskCount = mockTaskCount;
       fixture.detectChanges();
