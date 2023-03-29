@@ -4,11 +4,13 @@ import { IonicModule, PopoverController } from '@ionic/angular';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FormsModule } from '@angular/forms';
 import { ShareReportComponent } from './share-report.component';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('ShareReportComponent', () => {
   let component: ShareReportComponent;
   let fixture: ComponentFixture<ShareReportComponent>;
   let popoverControllerSpy: PopoverController;
+
   beforeEach(waitForAsync(() => {
     popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     TestBed.configureTestingModule({
@@ -20,6 +22,7 @@ describe('ShareReportComponent', () => {
           useValue: popoverControllerSpy,
         },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ShareReportComponent);
