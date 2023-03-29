@@ -61,6 +61,14 @@ describe('FyPolicyViolationInfoComponent', () => {
     expect(component.openPolicyViolationDetails).toHaveBeenCalledTimes(1);
   });
 
+  it('should not show the container if there are no policy violations', () => {
+    component.policyDetails = null;
+    component.showPolicyInfo = false;
+    fixture.detectChanges();
+
+    expect(getElementBySelector(fixture, '.policy-violation-info--container')).toBeNull();
+  });
+
   describe('openPolicyViolationDetails():', () => {
     it('should open critical policy violation details', async () => {
       component.criticalPolicyViolated = true;
