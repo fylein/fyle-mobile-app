@@ -1212,7 +1212,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  setupFormInit(allCategories$: Observable<any>) {
+  setupFormInit() {
     const selectedProject$ = this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -1240,30 +1240,15 @@ export class AddEditExpensePage implements OnInit {
     );
 
     const selectedCategory$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.org_category_id,
-          allCategories$.pipe(
-            map((categories) =>
-              categories
-                .filter((category) => {
-                  if (!category.fyle_category) {
-                    return true;
-                  } else {
-                    return (
-                      ['activity', 'mileage', 'per diem', 'unspecified'].indexOf(
-                        category.fyle_category.toLowerCase()
-                      ) === -1
-                    );
-                  }
-                })
-                .find((category) => category.id === etxn.tx.org_category_id)
-            )
-          ),
-          of(null)
-        )
-      )
+      switchMap((etxn) => {
+        if (etxn.tx.org_category_id) {
+          return this.categoriesService.getCategoryById(etxn.tx.org_category_id);
+        } else {
+          return of(null);
+        }
+      })
     );
+
     const selectedReport$ = forkJoin({
       autoSubmissionReportName: this.autoSubmissionReportName$,
       etxn: this.etxn$,
@@ -2403,7 +2388,6 @@ export class AddEditExpensePage implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get();
     this.orgUserSettings$ = this.orgUserSettingsService.get();
-    const allCategories$ = this.categoriesService.getAll();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.accountsService.getEMyAccounts();
 
@@ -2660,7 +2644,7 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    this.setupFormInit(allCategories$);
+    this.setupFormInit();
 
     this.setupCustomFields();
 
