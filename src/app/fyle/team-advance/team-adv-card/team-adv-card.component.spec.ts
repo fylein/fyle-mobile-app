@@ -42,7 +42,7 @@ describe('TeamAdvCardComponent', () => {
     expect(teamAdvCardComponent).toBeTruthy();
   });
 
-  describe('OnInit', () => {
+  describe('OnInit():', () => {
     it('should set showDate to false when advanceRequest was created on the same day as prevDate', () => {
       teamAdvCardComponent.prevDate = new Date('2023-05-16T06:22:47.058Z');
       fixture.detectChanges();
@@ -60,6 +60,6 @@ describe('TeamAdvCardComponent', () => {
   it('should emit an event when onGoToAdvances() is called', () => {
     spyOn(teamAdvCardComponent.gotoAdvance, 'emit');
     teamAdvCardComponent.onGoToAdvances();
-    expect(teamAdvCardComponent.gotoAdvance.emit).toHaveBeenCalledWith(teamAdvCardComponent.advanceRequest);
+    expect(teamAdvCardComponent.gotoAdvance.emit).toHaveBeenCalledOnceWith(teamAdvCardComponent.advanceRequest);
   });
 });
