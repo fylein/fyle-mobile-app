@@ -5,11 +5,8 @@ import { ModalController } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
-import {
-  individualExpPolicyStateData1,
-  individualExpPolicyStateData2,
-} from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { individualExpPolicyStateData1 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
