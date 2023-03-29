@@ -1,10 +1,11 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { IonButton, IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReviewFooterComponent } from './review-footer.component';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { expensesWithDependentFields } from 'src/app/core/mock-data/dependent-field-expenses.data';
-import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('ReviewFooterComponent', () => {
   let reviewFooterComponent: ReviewFooterComponent;
@@ -21,6 +22,7 @@ describe('ReviewFooterComponent', () => {
       declarations: [ReviewFooterComponent],
       imports: [IonicModule.forRoot()],
       providers: [{ provide: TrackingService, useValue: trackingServiceSpy }],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReviewFooterComponent);
@@ -70,6 +72,7 @@ describe('ReviewFooterComponent', () => {
     fixture.detectChanges();
     reviewFooterComponent.saveAndPrevLoader = false;
     const saveAndPrevButton1 = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLButtonElement;
+    click(saveAndPrevButton1);
     expect(saveAndPrevButton1.disabled).toBeFalse();
     fixture.detectChanges();
     const saveAndPrevButton2 = getElementBySelector(fixture, '.fy-footer-cta--tertiary-secondary') as HTMLElement;
@@ -83,6 +86,7 @@ describe('ReviewFooterComponent', () => {
     reviewFooterComponent.saveAndNextLoader = false;
     fixture.detectChanges();
     const saveAndNextButton1 = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLButtonElement;
+    click(saveAndNextButton1);
     expect(saveAndNextButton1.disabled).toBeFalse();
     fixture.detectChanges();
     const saveAndNextButton2 = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLElement;
