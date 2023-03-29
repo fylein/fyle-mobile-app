@@ -47,7 +47,7 @@ describe('SendEmailComponent', () => {
     const sendEmailSpy = spyOn(component.sendEmail, 'emit');
     component.fg.controls.email.setValue('test@test.com');
     component.onClickSend();
-    expect(sendEmailSpy).toHaveBeenCalledWith('test@test.com');
+    expect(sendEmailSpy).toHaveBeenCalledOnceWith('test@test.com');
   });
 
   it('should not emit the email address if invalid', () => {
