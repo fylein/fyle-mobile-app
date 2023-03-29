@@ -64,20 +64,22 @@ describe('FooterComponent', () => {
   describe('goToHome():', () => {
     it('should emit homeClicked event on clicking home icon', () => {
       fixture.detectChanges();
-      spyOn(footerComponent.homeClicked, 'emit');
+      const homeClickedSpy = spyOn(footerComponent.homeClicked, 'emit');
       footerComponent.goToHome();
-      expect(footerComponent.homeClicked.emit).toHaveBeenCalledTimes(1);
+      expect(homeClickedSpy).toHaveBeenCalledTimes(1);
       expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Home', Url: routerSpy.url });
     });
 
     it('should navigate to the home page with tasks state if the active state is not HOME', () => {
       footerComponent.activeState = FooterState.TASKS;
+      fixture.detectChanges();
       footerComponent.goToHome();
       expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Home', Url: routerSpy.url });
     });
 
     it('should not navigate if the active state is already HOME', () => {
       footerComponent.activeState = FooterState.HOME;
+      fixture.detectChanges();
       footerComponent.goToHome();
       expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Home', Url: routerSpy.url });
     });
@@ -85,9 +87,9 @@ describe('FooterComponent', () => {
 
   it('goToCameraMode(): should emit cameraClicked event on clicking camera icon', () => {
     fixture.detectChanges();
-    spyOn(footerComponent.cameraClicked, 'emit');
+    const cameraModeSpy = spyOn(footerComponent.cameraClicked, 'emit');
     footerComponent.goToCameraMode();
-    expect(footerComponent.cameraClicked.emit).toHaveBeenCalledTimes(1);
+    expect(cameraModeSpy).toHaveBeenCalledTimes(1);
     expect(trackingServiceSpy.footerButtonClicked).toHaveBeenCalledOnceWith({ Action: 'Camera', Url: routerSpy.url });
   });
 
@@ -96,6 +98,7 @@ describe('FooterComponent', () => {
       const connectionState = ConnectionMessageStatus.onlineMessageShown;
 
       footerComponent.activeState = FooterState.TASKS;
+      fixture.detectChanges();
       footerComponent.taskCount = 3;
       footerComponent.goToTasks(connectionState);
 
@@ -109,12 +112,13 @@ describe('FooterComponent', () => {
       const connectionState = ConnectionMessageStatus.disconnected;
 
       footerComponent.activeState = FooterState.TASKS;
+      fixture.detectChanges();
       footerComponent.taskCount = 0;
       footerComponent.goToTasks(connectionState);
       expect(trackingServiceSpy.footerButtonClicked).not.toHaveBeenCalled();
     });
 
-    it('should display the task count in the pill when there are tasks', fakeAsync(() => {
+    it('should display the task count in the pill when there are tasks', () => {
       const mockConnectionState = ConnectionMessageStatus.onlineMessageShown;
       const mockTaskCount = 2;
       const button = getElementBySelector(fixture, '.fy-footer--button');
@@ -124,6 +128,6 @@ describe('FooterComponent', () => {
       const pill = getElementBySelector(fixture, '.fy-footer--icon-pill');
       expect(pill).toBeTruthy();
       expect(getTextContent(pill)).toEqual(`${mockTaskCount}`);
-    }));
+    });
   });
 });
