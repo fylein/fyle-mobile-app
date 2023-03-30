@@ -47,6 +47,7 @@ export class IconModule {
     'duplicate.svg',
     'entertainment.svg',
     'expense.svg',
+    'expense-rule.svg',
     'error.svg',
     'edit.svg',
     'error-filled.svg',

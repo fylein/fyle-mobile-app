@@ -61,6 +61,12 @@ export class StatusService {
           icon: 'circle',
         };
         break;
+      case lowerCaseComment.indexOf('expense rule') > -1:
+        statusCategory = {
+          category: 'Expense Rule Applied',
+          icon: 'expense-rule',
+        };
+        break;
       case lowerCaseComment.indexOf('created') > -1:
         statusCategory = {
           category: type + ' Created',
