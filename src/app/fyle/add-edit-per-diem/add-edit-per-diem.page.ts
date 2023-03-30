@@ -64,7 +64,7 @@ import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -311,7 +311,7 @@ export class AddEditPerDiemPage implements OnInit {
     const isAutofilled = this.presetProjectId || this.presetCostCenterId;
     if (this.fg.touched || isAutofilled) {
       const unsavedChangesPopOver = await this.popoverController.create({
-        component: PopupAlertComponentComponent,
+        component: PopupAlertComponent,
         componentProps: {
           title: 'Unsaved Changes',
           message: 'You have unsaved information that will be lost if you discard this expense.',

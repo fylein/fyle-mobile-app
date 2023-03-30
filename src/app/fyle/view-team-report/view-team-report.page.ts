@@ -24,7 +24,7 @@ import { getCurrencySymbol } from '@angular/common';
 import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Approver } from 'src/app/core/models/v1/approver.model';
@@ -402,7 +402,7 @@ export class ViewTeamReportPage implements OnInit {
             action: 'cancel',
           },
         },
-        component: PopupAlertComponentComponent,
+        component: PopupAlertComponent,
         cssClass: 'pop-up-in-center',
       });
 
