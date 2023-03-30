@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { SendEmailComponent } from 'src/app/shared/components/send-email/send-email.component';
 import { ResetPasswordPage } from './reset-password.page';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { Router, Routes } from '@angular/router';
+import { Router, RouterModule, Routes } from '@angular/router';
 import { Location } from '@angular/common';
 import { appRoutes } from 'src/app/app-routing.module';
 import { fyleRoutes } from 'src/app/fyle/fyle-routing.module';
@@ -28,7 +28,7 @@ describe('ResetPasswordPage', () => {
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['sendResetPassword']);
     TestBed.configureTestingModule({
       declarations: [ResetPasswordPage, SendEmailComponent],
-      imports: [IonicModule.forRoot(), RouterTestingModule.withRoutes(routes), FormsModule, ReactiveFormsModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
       providers: [
         {
           provide: RouterAuthService,
@@ -55,5 +55,16 @@ describe('ResetPasswordPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('handleError():', () => {
+    it('should navigate to disabled auth', () => {
+      component.handleError({
+        status: 422,
+        message: 'Error message',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'disabled']);
+    });
   });
 });
