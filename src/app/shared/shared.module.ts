@@ -132,9 +132,8 @@ import { VirtualSelectComponent } from './components/virtual-select/virtual-sele
 import { VirtualSelectModalComponent } from './components/virtual-select/virtual-select-modal/virtual-select-modal.component';
 import { AutoSubmissionInfoCardComponent } from '../fyle/dashboard/tasks/auto-submission-info-card/auto-submission-info-card.component';
 import { CameraPreviewComponent } from './components/capture-receipt/camera-preview/camera-preview.component';
-import { DependentFieldsComponent } from './components/dependent-fields/dependent-fields.component';
-import { DependentFieldComponent } from './components/dependent-fields/dependent-field/dependent-field.component';
-import { DependentFieldModalComponent } from './components/dependent-fields/dependent-field/dependent-field-modal/dependent-field-modal.component';
+import { DependentFieldComponent } from './components/dependent-field/dependent-field.component';
+import { DependentFieldModalComponent } from './components/dependent-field/dependent-field-modal/dependent-field-modal.component';
 import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-select-disabled.component';
 
 @NgModule({
@@ -246,7 +245,6 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
     VirtualSelectModalComponent,
     AutoSubmissionInfoCardComponent,
     CameraPreviewComponent,
-    DependentFieldsComponent,
     DependentFieldComponent,
     DependentFieldModalComponent,
     FySelectDisabledComponent,
@@ -366,7 +364,6 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
     VirtualSelectComponent,
     AutoSubmissionInfoCardComponent,
     CameraPreviewComponent,
-    DependentFieldsComponent,
     DependentFieldComponent,
     DependentFieldModalComponent,
     FySelectDisabledComponent,
