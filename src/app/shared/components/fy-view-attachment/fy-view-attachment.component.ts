@@ -6,7 +6,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { from, of } from 'rxjs';
 import { switchMap, finalize } from 'rxjs/operators';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 
@@ -88,7 +88,7 @@ export class FyViewAttachmentComponent implements OnInit {
   async deleteAttachment() {
     const activeIndex = await this.imageSlides.swiperRef.activeIndex;
     const deletePopover = await this.popoverController.create({
-      component: PopupAlertComponentComponent,
+      component: PopupAlertComponent,
       componentProps: {
         title: 'Remove Receipt',
         message: 'Are you sure you want to remove this receipt?',

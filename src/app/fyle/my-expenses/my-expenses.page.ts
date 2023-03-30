@@ -41,7 +41,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ReportService } from 'src/app/core/services/report.service';
 import { cloneDeep, isEqual } from 'lodash';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExtendedReport } from 'src/app/core/models/report.model';
@@ -950,7 +950,7 @@ export class MyExpensesPage implements OnInit {
 
   async openCriticalPolicyViolationPopOver(config: { title: string; message: string; reportType: string }) {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
-      component: PopupAlertComponentComponent,
+      component: PopupAlertComponent,
       componentProps: {
         title: config.title,
         message: config.message,

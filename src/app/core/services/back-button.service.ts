@@ -3,7 +3,7 @@ import { App } from '@capacitor/app';
 import { PopoverController } from '@ionic/angular';
 import { from, noop } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +25,7 @@ export class BackButtonService {
           action: 'cancel',
         },
       },
-      component: PopupAlertComponentComponent,
+      component: PopupAlertComponent,
       cssClass: 'pop-up-in-center',
     });
 

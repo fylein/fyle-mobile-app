@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { PopoverController } from '@ionic/angular';
-import { PopupAlertComponentComponent } from '../../popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from } from 'rxjs';
@@ -75,7 +75,7 @@ export class BankAccountCardComponent implements OnInit {
 
   async confirmPopup() {
     const deleteCardPopOver = await this.popoverController.create({
-      component: PopupAlertComponentComponent,
+      component: PopupAlertComponent,
       componentProps: {
         title: 'Delete Card',
         message: `Are you sure want to delete this card <b> (${this.accountDetails.bank_name} ${this.accountDetails.account_number}) </b>?`,

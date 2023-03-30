@@ -2,7 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CategoriesService } from './categories.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { platformApiCategoryRes, platformApiAllCategories } from '../mock-data/platform-api-category.data';
+import {
+  platformApiCategoryRes,
+  platformApiAllCategories,
+  platformApiCategoryById,
+} from '../mock-data/platform-api-category.data';
 import { of } from 'rxjs';
 import {
   sortedCategory,
@@ -19,6 +23,9 @@ import {
   expectedTransformedCategories,
   unsortedCategories1,
   sortedCategories1,
+  transformedOrgCategoryById,
+  expectedOrgCategoryById,
+  displayOrgCategoryById,
 } from '../mock-data/org-category.data';
 
 describe('CategoriesService', () => {
@@ -144,5 +151,20 @@ describe('CategoriesService', () => {
 
   it('getFlightSystemCategories(): should get flight system categories', () => {
     expect(categoriesService.getFlightSystemCategories()).toEqual(['Airlines']);
+  });
+
+  it('getCategoryById(): should get a category from the api based on ID', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformApiCategoryById));
+    spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategoryById);
+    spyOn(categoriesService, 'addDisplayName').and.returnValue(displayOrgCategoryById);
+
+    const categoryId = 141295;
+
+    categoriesService.getCategoryById(categoryId).subscribe((res) => {
+      expect(res).toEqual(expectedOrgCategoryById);
+      expect(categoriesService.transformFrom).toHaveBeenCalledOnceWith(platformApiCategoryById.data);
+      expect(categoriesService.addDisplayName).toHaveBeenCalledOnceWith(transformedOrgCategoryById);
+      done();
+    });
   });
 });

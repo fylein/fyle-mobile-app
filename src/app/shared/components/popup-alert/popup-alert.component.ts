@@ -2,11 +2,11 @@ import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { Expense } from 'src/app/core/models/expense.model';
 @Component({
-  selector: 'app-popup-alert-component',
-  templateUrl: './popup-alert-component.component.html',
-  styleUrls: ['./popup-alert-component.component.scss'],
+  selector: 'app-popup-alert',
+  templateUrl: './popup-alert.component.html',
+  styleUrls: ['./popup-alert.component.scss'],
 })
-export class PopupAlertComponentComponent implements OnInit {
+export class PopupAlertComponent implements OnInit {
   @Input() title: string;
 
   @Input() message: string;
