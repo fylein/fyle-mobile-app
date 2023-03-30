@@ -355,32 +355,16 @@
                     </div>
                   </ng-container>
 
-                  <div *ngIf="dependentFields?.length">
-                    <ng-container formArrayName="dependent_fields">
-                      <div *ngFor="let dependentField of dependentFields" class="add-edit-per-diem--internal-block">
-                        <div [formGroup]="dependentField.control">
-                          <app-dependent-field
-                            [label]="dependentField.field"
-                            [mandatory]="dependentField.mandatory"
-                            [valid]="!(dependentField?.control?.touched && !dependentField?.control?.valid)"
-                            [fieldId]="dependentField.id"
-                            [parentFieldId]="dependentField.parentFieldId"
-                            [parentFieldValue]="dependentField.parentFieldValue"
-                            formControlName="value"
-                          >
-                          </app-dependent-field>
-                        </div>
-                      </div>
+                  <ng-container *ngIf="txnFields$|async as txnFields">
+                    <ng-container *ngIf="dependentFields$|async as dependentFields">
+                      <app-dependent-fields
+                        #dependentFields
+                        [expenseForm]="fg"
+                        [txnFields]="txnFields"
+                        [dependentCustomFields]="dependentFields"
+                      ></app-dependent-fields>
                     </ng-container>
-                  </div>
-
-                  <div class="add-edit-per-diem--primary-block" *ngIf="isDependentFieldLoading">
-                    <ion-skeleton-text
-                      class="add-edit-per-diem__skeleton-loader--title"
-                      [animated]="true"
-                    ></ion-skeleton-text>
-                    <ion-skeleton-text class="add-edit-per-diem__skeleton-loader" [animated]="true"></ion-skeleton-text>
-                  </div>
+                  </ng-container>
 
                   <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
                     <ng-container *ngIf="filteredCategories$|async as subCategories">

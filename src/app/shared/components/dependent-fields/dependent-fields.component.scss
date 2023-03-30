@@ -1,0 +1,30 @@
+@import '../../../../theme/colors.scss';
+@import '../../../../theme/forms.scss';
+
+.dependent-fields {
+  &--primary-block {
+    margin: 16px 0;
+  }
+
+  &--internal-block {
+    padding: 6px 0;
+    background: #fff;
+    line-height: 1;
+    margin-bottom: 12px;
+    &__margin {
+      margin-right: 12px;
+    }
+  }
+
+  &__skeleton-loader {
+    background: $off-white;
+    border-radius: 4px;
+    height: 16px;
+
+    &--title {
+      @extend .dependent-fields__skeleton-loader;
+      width: 30%;
+      margin-bottom: 8px;
+    }
+  }
+}
