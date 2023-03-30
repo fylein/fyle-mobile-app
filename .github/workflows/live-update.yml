@@ -6,7 +6,7 @@ jobs:
   web-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Build Android with Appflow
+      - name: Build Live Update
         uses: ionic-team/appflow-build@v1
 
         with:
