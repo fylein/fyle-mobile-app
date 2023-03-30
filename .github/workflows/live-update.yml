@@ -1,12 +1,12 @@
-name: Live Update
+name: Deploy Live Update
 
 on:
   workflow_dispatch
 jobs:
-  web-build:
+  staging-live-update:
     runs-on: ubuntu-latest
     steps:
-      - name: Build Live Update
+      - name: Deploy live update to staging
         uses: ionic-team/appflow-build@v1
 
         with:
@@ -16,11 +16,7 @@ jobs:
           build-stack: Linux - 2022.07
           environment: staging
           destinations: Staging
-
-  send-to-slack:
-    needs: [web-build]
-    runs-on: ubuntu-latest
-    steps:
+        
       - name: Get branch name
         id: get-branch
         uses: xom9ikk/split@v1
@@ -33,5 +29,40 @@ jobs:
         id: notify
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          slack-channel: C029QPGHSQL
+          slack-channel: C017C400V37
           slack-text: Live update released for branch "${{ steps.get-branch.outputs._1 }}" on Staging.
+
+  prod-live-update:
+    runs-on: ubuntu-latest
+    environment: Production
+    needs: staging-live-update
+    steps:
+      - name: Deploy live update to production
+        uses: ionic-team/appflow-build@v1
+
+        with:
+          token: ${{ secrets.APPFLOW_TOKEN }}
+          app-id: 32316914
+          platform: Web
+          build-stack: Linux - 2022.07
+          environment: production
+          destinations: Production
+
+      - name: Get branch name
+        id: get-branch
+        uses: xom9ikk/split@v1
+        with:
+          string: ${{ github.ref }}
+          separator: refs/heads/
+
+      - name: Send Message to Slack
+        uses: archive/github-actions-slack@v2.0.1
+        id: notify
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-channel: C017C400V37
+          slack-text: Live update released for branch "${{ steps.get-branch.outputs._1 }}" on Production.
+
+
+
+    
