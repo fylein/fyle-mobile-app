@@ -32,20 +32,3 @@ export const sidemenuItemData2: SidemenuItem = {
   route: [],
   openLiveChat: false,
 };
-
-export const sidemenuItemData3: SidemenuItem = {
-  title: 'Live Chat',
-  isVisible: true,
-  icon: 'fy-chat-2',
-  openLiveChat: true,
-  disabled: false,
-  route: [],
-  isDropdownOpen: false,
-  dropdownOptions: [
-    {
-      title: 'Team Advances',
-      isVisible: true,
-      route: ['/', 'enterprise', 'team_advance'],
-    },
-  ],
-};
