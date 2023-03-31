@@ -2822,11 +2822,11 @@ export class AddEditExpensePage implements OnInit {
 
     transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
     if (!transactionCopy.org_category_id) {
-      return this.categoriesService.getAll().pipe(
-        map((categories: OrgCategory[]) => {
-          const unspecifiedCategory = categories.find(
-            (category) => category?.fyle_category?.toLowerCase() === 'unspecified'
-          );
+      const categoryName = 'Unspecified';
+      return this.categoriesService.getCategoryByName(categoryName).pipe(
+        map((category: OrgCategory) => {
+          console.log(category);
+          const unspecifiedCategory = category;
           transactionCopy.org_category_id = unspecifiedCategory.id;
           return transactionCopy;
         }),
