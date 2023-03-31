@@ -653,6 +653,22 @@ export const apiCommentsResponse: ExtendedStatus[] = [
     isSelfComment: false,
     isOthersComment: true,
   },
+  {
+    st_id: 'st3xjYhJBfIu',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment: 'expense rule',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp39MrwyOm9n',
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+  },
 ];
 
 export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
@@ -1254,6 +1270,26 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     st: {
       category: 'Report Submitted',
       icon: 'list',
+    },
+  },
+  {
+    st_id: 'st3xjYhJBfIu',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment: 'expense rule',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp39MrwyOm9n',
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    st: {
+      category: 'Expense Rule Applied',
+      icon: 'expense-rule',
     },
   },
 ];
