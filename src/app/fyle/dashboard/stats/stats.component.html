@@ -6,7 +6,7 @@
           <div class="stats--header">EXPENSE REPORTS</div>
         </ion-col>
       </ion-row>
-      <ng-container *ngIf="isConnected$ | async; else offlineMessage">
+      <ng-container *ngIf="isConnected$ | async">
         <ng-container *ngIf="reportStatsData$ | async as reportStatsData; else reportStatsLoading">
           <ion-row>
             <ion-col
