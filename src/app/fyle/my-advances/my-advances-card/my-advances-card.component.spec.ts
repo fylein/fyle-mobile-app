@@ -63,12 +63,11 @@ describe('MyAdvancesCardComponent', () => {
   });
 
   it('should emit advance when click on the card', () => {
-    spyOn(component, 'onAdvanceClick');
+    const onAdvanceClickSpy = spyOn(component, 'onAdvanceClick');
 
     const advanceCard = getElementBySelector(fixture, '.advance-card') as HTMLElement;
     click(advanceCard);
-
-    expect(component.onAdvanceClick).toHaveBeenCalledTimes(1);
+    expect(onAdvanceClickSpy).toHaveBeenCalledTimes(1);
   });
 
   it('onAdvanceClick():should emit event when click on advance', () => {
