@@ -38,7 +38,7 @@ describe('ShareReportComponent', () => {
   it('should dismiss the modal and return the email value when the email input field is valid', async () => {
     component.email = 'johnD@fyle.in';
     component.shareReport({ value: 'johnD@fyle.in', valid: true, control: { markAllAsTouched: () => {} } });
-    expect(modalController.dismiss).toHaveBeenCalledWith({ email: 'johnD@fyle.in' });
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ email: 'johnD@fyle.in' });
   });
 
   it('should do nothing when the email input field is empty or invalid', async () => {
@@ -66,7 +66,7 @@ describe('ShareReportComponent', () => {
 
     fixture.detectChanges();
     await component.shareReport(emailInput);
-    expect(modalController.dismiss).toHaveBeenCalledWith({ email: 'johnD@fyle.in' });
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ email: 'johnD@fyle.in' });
   });
 
   it('should set focus on email input field', fakeAsync(() => {
@@ -104,6 +104,6 @@ describe('ShareReportComponent', () => {
 
     spyOn(emailInput.control, 'markAllAsTouched').and.callThrough();
     await component.shareReport(emailInput);
-    expect(emailInput.control.markAllAsTouched).toHaveBeenCalled();
+    expect(emailInput.control.markAllAsTouched).toHaveBeenCalledTimes(1);
   });
 });
