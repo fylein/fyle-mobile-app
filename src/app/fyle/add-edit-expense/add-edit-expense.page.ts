@@ -2825,7 +2825,6 @@ export class AddEditExpensePage implements OnInit {
       const categoryName = 'Unspecified';
       return this.categoriesService.getCategoryByName(categoryName).pipe(
         map((category: OrgCategory) => {
-          console.log(category);
           const unspecifiedCategory = category;
           transactionCopy.org_category_id = unspecifiedCategory.id;
           return transactionCopy;
