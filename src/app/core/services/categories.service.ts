@@ -39,7 +39,7 @@ export class CategoriesService {
   getCategoryByName(name: string): Observable<OrgCategory> {
     const data = {
       params: {
-        name: 'ilike.%' + name + '%',
+        name: 'ilike.' + name,
       },
     };
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory>>(`/categories`, data).pipe(
