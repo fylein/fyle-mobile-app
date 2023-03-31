@@ -3,11 +3,10 @@ import { IonicModule } from '@ionic/angular';
 import { RouterTestingModule } from '@angular/router/testing';
 import { RouterModule } from '@angular/router';
 import { SidemenuContentItemComponent } from './sidemenu-content-item.component';
-import { dropdownOptionsRes } from 'src/app/core/mock-data/dropdown-options.data';
 import { sidemenuItemData1, sidemenuItemData2 } from 'src/app/core/mock-data/sidemenu-item.data';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-xdescribe('SidemenuContentItemComponent', () => {
+describe('SidemenuContentItemComponent', () => {
   let sidemenuContentItemComponent: SidemenuContentItemComponent;
   let fixture: ComponentFixture<SidemenuContentItemComponent>;
 
@@ -19,7 +18,7 @@ xdescribe('SidemenuContentItemComponent', () => {
 
     fixture = TestBed.createComponent(SidemenuContentItemComponent);
     sidemenuContentItemComponent = fixture.componentInstance;
-    sidemenuContentItemComponent.sidemenuItem = dropdownOptionsRes[0];
+    sidemenuContentItemComponent.sidemenuItem = sidemenuItemData1;
     fixture.detectChanges();
   }));
 
@@ -27,23 +26,25 @@ xdescribe('SidemenuContentItemComponent', () => {
     expect(sidemenuContentItemComponent).toBeTruthy();
   });
 
-  it('should set isRoute to true if dropdownOptions is empty and openLiveChat is not present', () => {
-    sidemenuContentItemComponent.sidemenuItem = sidemenuItemData2;
+  it('should set isRoute to false if dropdownOptions is empty and openLiveChat is not present', () => {
+    sidemenuContentItemComponent.sidemenuItem = sidemenuItemData1;
+    fixture.detectChanges();
     sidemenuContentItemComponent.ngOnInit();
-    expect(sidemenuContentItemComponent.isRoute).toBeTrue();
+    expect(sidemenuContentItemComponent.isRoute).toBeFalse();
   });
 
   it('should set dropdownHeight to 0 if dropdownOptions is empty', () => {
     sidemenuContentItemComponent.sidemenuItem = sidemenuItemData1;
+    fixture.detectChanges();
     sidemenuContentItemComponent.ngOnInit();
     expect(sidemenuContentItemComponent.dropdownHeight).toBe(0);
   });
 
-  it('should emit redirect event when goToRoute is called', () => {
-    const sidemenuItem = sidemenuItemData1;
-    spyOn(sidemenuContentItemComponent.redirect, 'emit');
-    sidemenuContentItemComponent.goToRoute(sidemenuItem);
-    expect(sidemenuContentItemComponent.redirect.emit).toHaveBeenCalledWith(sidemenuItem);
+  it('should set appropriate dropdown height is dropdownOptions are present', () => {
+    sidemenuContentItemComponent.sidemenuItem = sidemenuItemData2;
+    fixture.detectChanges();
+    sidemenuContentItemComponent.ngOnInit();
+    expect(sidemenuContentItemComponent.dropdownHeight).toBe(100);
   });
 
   it('should have the correct title displayed', () => {
@@ -51,5 +52,13 @@ xdescribe('SidemenuContentItemComponent', () => {
     fixture.detectChanges();
     const labelElement = getElementBySelector(fixture, '.sidemenu-item__label-container__label');
     expect(getTextContent(labelElement)).toEqual(sidemenuContentItemComponent.sidemenuItem.title);
+  });
+
+  it('goToRoute(): should emit redirect event', () => {
+    const sidemenuItem = sidemenuItemData2;
+    const contentItemSpy = spyOn(sidemenuContentItemComponent.redirect, 'emit');
+    fixture.detectChanges();
+    sidemenuContentItemComponent.goToRoute(sidemenuItem);
+    expect(contentItemSpy).toHaveBeenCalledOnceWith(sidemenuItem);
   });
 });

@@ -12,6 +12,28 @@ export const sidemenuItemData1: SidemenuItem = {
 };
 
 export const sidemenuItemData2: SidemenuItem = {
+  title: 'Teams',
+  isVisible: true,
+  icon: 'teams',
+  isDropdownOpen: false,
+  disabled: false,
+  dropdownOptions: [
+    {
+      title: 'Team Reports',
+      isVisible: true,
+      route: ['/', 'enterprise', 'team_reports'],
+    },
+    {
+      title: 'Team Advances',
+      isVisible: true,
+      route: ['/', 'enterprise', 'team_advance'],
+    },
+  ],
+  route: [],
+  openLiveChat: false,
+};
+
+export const sidemenuItemData3: SidemenuItem = {
   title: 'Live Chat',
   isVisible: true,
   icon: 'fy-chat-2',
@@ -19,5 +41,11 @@ export const sidemenuItemData2: SidemenuItem = {
   disabled: false,
   route: [],
   isDropdownOpen: false,
-  dropdownOptions: [],
+  dropdownOptions: [
+    {
+      title: 'Team Advances',
+      isVisible: true,
+      route: ['/', 'enterprise', 'team_advance'],
+    },
+  ],
 };
