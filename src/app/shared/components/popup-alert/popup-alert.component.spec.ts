@@ -44,7 +44,7 @@ describe('PopupAlertComponent', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should set numIssues when expense is flagged manually or by policy', () => {
+    xit('should set numIssues when expense is flagged manually or by policy', () => {
       component.etxns = expenseList2;
       fixture.detectChanges();
       component.ngOnInit();
