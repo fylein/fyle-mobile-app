@@ -3,7 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { from, Subscription } from 'rxjs';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
@@ -103,7 +103,7 @@ export class ReceiptPreviewComponent implements OnInit {
       message = 'Not a good picture? No worries. Discard and click again.';
     }
     const closePopOver = await this.popoverController.create({
-      component: PopupAlertComponentComponent,
+      component: PopupAlertComponent,
       componentProps: {
         title: 'Discard Receipt',
         message,
@@ -184,7 +184,7 @@ export class ReceiptPreviewComponent implements OnInit {
   async deleteReceipt() {
     const activeIndex = await this.swiper.swiperRef.activeIndex;
     const deletePopOver = await this.popoverController.create({
-      component: PopupAlertComponentComponent,
+      component: PopupAlertComponent,
       componentProps: {
         title: 'Remove Receipt',
         message: 'Are you sure you want to remove this receipt?',

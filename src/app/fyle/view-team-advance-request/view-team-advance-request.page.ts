@@ -20,7 +20,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
@@ -257,7 +257,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
     const advanceAmount = this.humanizeCurrency.transform(areq.areq_amount, areq.areq_currency, false);
     const showApprover = await this.popoverController.create({
-      component: PopupAlertComponentComponent,
+      component: PopupAlertComponent,
       cssClass: 'pop-up-in-center',
       componentProps: {
         title: 'Review Advance',

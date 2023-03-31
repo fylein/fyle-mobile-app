@@ -72,7 +72,7 @@ import { ReviewFooterComponent } from './components/review-footer/review-footer.
 import { NavigationFooterComponent } from './components/navigation-footer/navigation-footer.component';
 import { FyConnectionComponent } from './components/fy-connection/fy-connection.component';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
+import { PopupAlertComponent } from './components/popup-alert/popup-alert.component';
 import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
 import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
 import { ToastMessageComponent } from './components/toast-message/toast-message.component';
@@ -132,8 +132,9 @@ import { VirtualSelectComponent } from './components/virtual-select/virtual-sele
 import { VirtualSelectModalComponent } from './components/virtual-select/virtual-select-modal/virtual-select-modal.component';
 import { AutoSubmissionInfoCardComponent } from '../fyle/dashboard/tasks/auto-submission-info-card/auto-submission-info-card.component';
 import { CameraPreviewComponent } from './components/capture-receipt/camera-preview/camera-preview.component';
-import { DependentFieldComponent } from './components/dependent-field/dependent-field.component';
-import { DependentFieldModalComponent } from './components/dependent-field/dependent-field-modal/dependent-field-modal.component';
+import { DependentFieldsComponent } from './components/dependent-fields/dependent-fields.component';
+import { DependentFieldComponent } from './components/dependent-fields/dependent-field/dependent-field.component';
+import { DependentFieldModalComponent } from './components/dependent-fields/dependent-field/dependent-field-modal/dependent-field-modal.component';
 import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-select-disabled.component';
 
 @NgModule({
@@ -188,7 +189,7 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
     NavigationFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
-    PopupAlertComponentComponent,
+    PopupAlertComponent,
     CreateNewReportComponent,
     ExpensesCardComponent,
     ToastMessageComponent,
@@ -245,6 +246,7 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
     VirtualSelectModalComponent,
     AutoSubmissionInfoCardComponent,
     CameraPreviewComponent,
+    DependentFieldsComponent,
     DependentFieldComponent,
     DependentFieldModalComponent,
     FySelectDisabledComponent,
@@ -320,7 +322,7 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
     NavigationFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
-    PopupAlertComponentComponent,
+    PopupAlertComponent,
     CreateNewReportComponent,
     ExpensesCardComponent,
     ToastMessageComponent,
@@ -364,6 +366,7 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
     VirtualSelectComponent,
     AutoSubmissionInfoCardComponent,
     CameraPreviewComponent,
+    DependentFieldsComponent,
     DependentFieldComponent,
     DependentFieldModalComponent,
     FySelectDisabledComponent,
