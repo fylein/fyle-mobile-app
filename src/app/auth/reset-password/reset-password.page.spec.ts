@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
-import { SendEmailComponent } from 'src/app/shared/components/send-email/send-email.component';
 import { ResetPasswordPage } from './reset-password.page';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { Router, RouterModule, Routes } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Location } from '@angular/common';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PageState } from 'src/app/core/models/page-state.enum';
 import { of, throwError } from 'rxjs';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 describe('ResetPasswordPage', () => {
   let component: ResetPasswordPage;
@@ -17,12 +17,36 @@ describe('ResetPasswordPage', () => {
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let location: jasmine.SpyObj<Location>;
 
+  @Component({
+    selector: 'app-send-email',
+    template: '<div></div>',
+  })
+  class MockSendEmailComponent {
+    @Input() title: string;
+
+    @Input() content: string;
+
+    @Input() subcontent: string;
+
+    @Input() ctaText: string;
+
+    @Input() successTitle: string;
+
+    @Input() successContent: string;
+
+    @Input() sendEmailPageState: PageState;
+
+    @Input() isLoading: boolean;
+
+    @Output() sendEmail = new EventEmitter<string>();
+  }
+
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const locationSpy = jasmine.createSpyObj('Location', ['path']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['sendResetPassword']);
     TestBed.configureTestingModule({
-      declarations: [ResetPasswordPage],
+      declarations: [ResetPasswordPage, MockSendEmailComponent],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
       providers: [
         {
