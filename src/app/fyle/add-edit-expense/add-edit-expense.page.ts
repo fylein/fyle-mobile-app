@@ -1686,8 +1686,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setCategoryFromVendor(defaultCategory) {
-    this.getActiveCategories().subscribe((categories) => {
-      const category = categories.find((innerCategory) => innerCategory.fyle_category === defaultCategory);
+    this.categoriesService.getCategoryByName(defaultCategory).subscribe((category) => {
       this.fg.controls.category.patchValue(category);
     });
   }
