@@ -248,7 +248,7 @@
             <div class="view-expense--label">Card Transaction</div>
             <div class="view-expense--value">
               <ng-container *ngIf="matchingCCCTransaction$ | async as matchingCCCTransaction; else NoMatchingTxn">
-                {{ (matchingCCCTransaction.vendor || matchingCCCTransaction.description) | ellipsis:20}}
+                {{ (matchingCCCTransaction.description || matchingCCCTransaction.vendor) | ellipsis:20}}
               </ng-container>
               <ng-template #NoMatchingTxn> No matching card transaction </ng-template>
             </div>
