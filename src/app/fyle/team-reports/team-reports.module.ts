@@ -10,7 +10,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { TeamReportsSortFilterComponent } from './team-reports-sort-filter/team-reports-sort-filter.component';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -32,6 +31,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatNativeDateModule,
     MatDatepickerModule,
   ],
-  declarations: [TeamReportsPage, TeamReportCardComponent, TeamReportsSortFilterComponent],
+  declarations: [TeamReportsPage, TeamReportCardComponent],
 })
 export class TeamReportsPageModule {}
