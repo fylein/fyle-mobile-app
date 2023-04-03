@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
-import { click, getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
+import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 
 import { FyFilterPillsComponent } from './fy-filter-pills.component';
