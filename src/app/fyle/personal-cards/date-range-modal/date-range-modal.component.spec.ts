@@ -42,14 +42,14 @@ describe('DateRangeModalComponent', () => {
   });
 
   it('should dismiss the modal with custom range dates', () => {
-    const startDate = (component.dateRangeStart.nativeElement.value = '2022-01-01');
-    const endDate = (component.dateRangeEnd.nativeElement.value = '2022-01-15');
+    component.dateRangeStart.nativeElement.value = '2022-01-01';
+    component.dateRangeEnd.nativeElement.value = '2022-01-15';
     fixture.detectChanges();
     component.datePicked();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
       range: 'Custom Range',
-      startDate,
-      endDate,
+      startDate: '2022-01-01',
+      endDate: '2022-01-15',
     });
   });
 
