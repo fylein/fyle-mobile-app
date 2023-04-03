@@ -2166,45 +2166,40 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
-          return forkJoin({
-            allCategories: this.categoriesService.getAll(),
-          }).pipe(
-            switchMap(({ allCategories }) => {
-              if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
-                etxn.tx.amount = etxn.tx.extracted_data.amount;
-              }
+          if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
+            etxn.tx.amount = etxn.tx.extracted_data.amount;
+          }
 
-              if (etxn.tx.extracted_data.currency && !etxn.tx.currency) {
-                etxn.tx.currency = etxn.tx.extracted_data.currency;
-              }
+          if (etxn.tx.extracted_data.currency && !etxn.tx.currency) {
+            etxn.tx.currency = etxn.tx.extracted_data.currency;
+          }
 
-              if (etxn.tx.extracted_data.date) {
-                etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.date));
-              }
+          if (etxn.tx.extracted_data.date) {
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.date));
+          }
 
-              if (etxn.tx.extracted_data.invoice_dt) {
-                etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
-              }
+          if (etxn.tx.extracted_data.invoice_dt) {
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
+          }
 
-              if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
-                etxn.tx.vendor = etxn.tx.extracted_data.vendor;
-              }
+          if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
+            etxn.tx.vendor = etxn.tx.extracted_data.vendor;
+          }
 
-              if (
-                etxn.tx.extracted_data.category &&
-                etxn.tx.fyle_category &&
-                etxn.tx.fyle_category.toLowerCase() === 'unspecified'
-              ) {
-                const categoryName = etxn.tx.extracted_data.category || 'unspecified';
-                const category = allCategories.find(
-                  (innerCategory) =>
-                    innerCategory.name && innerCategory.name.toLowerCase() === categoryName.toLowerCase()
-                );
-                etxn.tx.org_category_id = category && category.id;
-              }
-              return of(etxn);
-            })
-          );
+          if (
+            etxn.tx.extracted_data.category &&
+            etxn.tx.fyle_category &&
+            etxn.tx.fyle_category.toLowerCase() === 'unspecified'
+          ) {
+            const categoryName = etxn.tx.extracted_data.category || 'unspecified';
+            return this.categoriesService.getCategoryByName(categoryName).pipe(
+              map((selectedCategory) => {
+                etxn.tx.org_category_id = selectedCategory && selectedCategory.id;
+                return etxn;
+              })
+            );
+          }
+          return of(etxn);
         }
         return of(etxn);
       }),
