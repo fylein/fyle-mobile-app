@@ -35,6 +35,20 @@ export class CategoriesService {
     );
   }
 
+  @Cacheable()
+  getCategoryByName(name: string): Observable<OrgCategory> {
+    const data = {
+      params: {
+        name: 'ilike.' + name,
+      },
+    };
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory>>(`/categories`, data).pipe(
+      map((res) => this.transformFrom(res.data)),
+      map((res) => this.addDisplayName(res)),
+      map((responses) => responses[0])
+    );
+  }
+
   getActiveCategoriesCount(): Observable<number> {
     const data = {
       params: {

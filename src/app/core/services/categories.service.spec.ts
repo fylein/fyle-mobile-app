@@ -6,6 +6,7 @@ import {
   platformApiCategoryRes,
   platformApiAllCategories,
   platformApiCategoryById,
+  platformApiCategoriesByName,
 } from '../mock-data/platform-api-category.data';
 import { of } from 'rxjs';
 import {
@@ -26,6 +27,9 @@ import {
   transformedOrgCategoryById,
   expectedOrgCategoryById,
   displayOrgCategoryById,
+  transformedOrgCategoriesByName,
+  displayOrgCategoriesByName,
+  expectedOrgCategoryByName,
 } from '../mock-data/org-category.data';
 
 describe('CategoriesService', () => {
@@ -164,6 +168,21 @@ describe('CategoriesService', () => {
       expect(res).toEqual(expectedOrgCategoryById);
       expect(categoriesService.transformFrom).toHaveBeenCalledOnceWith(platformApiCategoryById.data);
       expect(categoriesService.addDisplayName).toHaveBeenCalledOnceWith(transformedOrgCategoryById);
+      done();
+    });
+  });
+
+  it('getCategoryByName(): should get a category from the api based on name', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformApiCategoriesByName));
+    spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategoriesByName);
+    spyOn(categoriesService, 'addDisplayName').and.returnValue(displayOrgCategoriesByName);
+
+    const categoryName = 'Business';
+
+    categoriesService.getCategoryByName(categoryName).subscribe((res) => {
+      expect(res).toEqual(expectedOrgCategoryByName);
+      expect(categoriesService.transformFrom).toHaveBeenCalledOnceWith(platformApiCategoriesByName.data);
+      expect(categoriesService.addDisplayName).toHaveBeenCalledOnceWith(transformedOrgCategoriesByName);
       done();
     });
   });
