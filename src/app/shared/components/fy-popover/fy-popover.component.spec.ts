@@ -35,14 +35,16 @@ describe('FyPopoverComponent', () => {
   });
 
   it('dismiss(): should dismiss the popover', () => {
+    popoverController.dismiss.and.returnValue(Promise.resolve(true));
     component.dismiss();
-    expect(popoverController.dismiss).toHaveBeenCalled();
+    expect(popoverController.dismiss).toHaveBeenCalledTimes(1);
   });
 
   it('submit(): should submit the form', () => {
+    popoverController.dismiss.and.returnValue(Promise.resolve(true));
     component.formValue = 'Test comment';
     component.submit();
-    expect(popoverController.dismiss).toHaveBeenCalledWith({ comment: 'Test comment' });
+    expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ comment: 'Test comment' });
   });
 
   it('should disable the submit button when form value is empty', () => {
