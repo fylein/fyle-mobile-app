@@ -9,6 +9,7 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { of } from 'rxjs';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
+import { ViewCommentComponent } from './view-comment/view-comment.component';
 
 fdescribe('CommentsHistoryComponent', () => {
   let component: CommentsHistoryComponent;
@@ -49,14 +50,14 @@ fdescribe('CommentsHistoryComponent', () => {
 
   describe('ngOnInit():', () => {
     it('should set number of comments correctly when there are comments and refresh the comments', () => {
-      const mockComments = getEstatusApiResponse;
+      const mockComments = getEstatusApiResponse.slice(0, 3);
       statusService.find.and.returnValue(of(mockComments));
       component.ngOnInit();
       fixture.detectChanges();
       component.refreshComments$.next(null);
       fixture.detectChanges();
       component.noOfComments$.subscribe((count) => {
-        expect(count).toEqual(3);
+        expect(count).toEqual(mockComments.length);
         expect(statusService.find).toHaveBeenCalledWith(component.objectType, component.objectId);
       });
     });
@@ -65,9 +66,49 @@ fdescribe('CommentsHistoryComponent', () => {
       const mockComments = [];
       statusService.find.and.returnValue(of(mockComments));
       component.ngOnInit();
+      component.refreshComments$.next(null);
+      fixture.detectChanges();
       component.noOfComments$.subscribe((count) => {
-        expect(count).toBe(0);
+        expect(count).toBe(mockComments.length);
+        expect(statusService.find).toHaveBeenCalledWith(component.objectType, component.objectId);
       });
+    });
+  });
+
+  describe('presentModal', () => {
+    const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+    it('should create a modal with the correct component and properties and add comment when data is updated', async () => {
+      modalController.create.and.returnValue(Promise.resolve(modalSpy));
+      modalSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { updated: true } } as any));
+      await component.presentModal();
+      component.refreshComments$.next(null);
+      expect(modalController.create).toHaveBeenCalledWith({
+        component: ViewCommentComponent,
+        componentProps: {
+          objectType: component.objectType,
+          objectId: component.objectId,
+        },
+        ...modalPropertiesService.getModalDefaultProperties(),
+      });
+      expect(trackingService.addComment).toHaveBeenCalledTimes(1);
+      expect(modalPropertiesService.getModalDefaultProperties).toHaveBeenCalledTimes(2);
+    });
+
+    it('should call trackingService.viewComment when data is not updated', async () => {
+      modalController.create.and.returnValue(Promise.resolve(modalSpy));
+      modalSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { updated: false } } as any));
+      await component.presentModal();
+      expect(modalController.create).toHaveBeenCalledWith({
+        component: ViewCommentComponent,
+        componentProps: {
+          objectType: component.objectType,
+          objectId: component.objectId,
+        },
+        ...modalPropertiesService.getModalDefaultProperties(),
+      });
+      // expect(component.refreshComments$.next).toHaveBeenCalledWith(null);
+      expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
+      expect(modalPropertiesService.getModalDefaultProperties).toHaveBeenCalledTimes(2);
     });
   });
 });
