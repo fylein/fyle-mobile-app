@@ -15,7 +15,6 @@ import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { ReportsCardComponent } from 'src/app/shared/components/reports-card/reports-card.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -34,6 +33,6 @@ import { ReportsCardComponent } from 'src/app/shared/components/reports-card/rep
     MatIconModule,
     SharedModule,
   ],
-  declarations: [MyReportsPage, ReportsCardComponent],
+  declarations: [MyReportsPage],
 })
 export class MyReportsPageModule {}
