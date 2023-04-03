@@ -11,7 +11,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { TeamReportsSearchFilterComponent } from './team-reports-search-filter/team-reports-search-filter.component';
-import { TeamReportsSortFilterComponent } from './team-reports-sort-filter/team-reports-sort-filter.component';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -33,11 +32,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatNativeDateModule,
     MatDatepickerModule,
   ],
-  declarations: [
-    TeamReportsPage,
-    TeamReportCardComponent,
-    TeamReportsSortFilterComponent,
-    TeamReportsSearchFilterComponent,
-  ],
+  declarations: [TeamReportsPage, TeamReportCardComponent, TeamReportsSearchFilterComponent],
 })
 export class TeamReportsPageModule {}
