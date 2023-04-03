@@ -7,7 +7,6 @@ import { IonicModule } from '@ionic/angular';
 import { MyReportsPageRoutingModule } from './my-reports-routing.module';
 
 import { MyReportsPage } from './my-reports.page';
-import { MyReportsCardComponent } from './my-reports-card/my-reports-card.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +15,7 @@ import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { ReportsCardComponent } from 'src/app/shared/components/reports-card/reports-card.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -34,6 +34,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     MatIconModule,
     SharedModule,
   ],
-  declarations: [MyReportsPage, MyReportsCardComponent],
+  declarations: [MyReportsPage, ReportsCardComponent],
 })
 export class MyReportsPageModule {}
