@@ -12,6 +12,7 @@
         <ion-col size="10" class="text-center">Add to Report</ion-col>
         <ion-col size="1" class="report-list--header--row-icon-container">
           <ion-icon
+            data-testid="addIcon"
             (click)="onClickCreateReportTask()"
             src="../../../../assets/svg/plus.svg"
             class="report-list--header--row-icon"
@@ -24,7 +25,7 @@
 <div class="fy-modal">
   <div *ngIf="data.openReports.length; else zeroState" class="report-list--container">
     <div class="report-list--list" *ngFor="let report of data.openReports; index as i">
-      <div mat-ripple (click)="addTransactionToReport(report)">
+      <div data-testid="report" mat-ripple (click)="addTransactionToReport(report)">
         <div *ngIf="i > 0" class="report-list--divider"></div>
         <ion-grid class="ion-no-padding">
           <ion-row>
