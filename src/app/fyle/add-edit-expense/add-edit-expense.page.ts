@@ -1760,9 +1760,8 @@ export class AddEditExpensePage implements OnInit {
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
-        categories: this.categoriesService.getAll(),
       }).pipe(
-        map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn, categories }) => {
+        map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn }) => {
           const isAutofillsEnabled =
             orgSettings.org_expense_form_autofills &&
             orgSettings.org_expense_form_autofills.allowed &&
@@ -1781,7 +1780,7 @@ export class AddEditExpensePage implements OnInit {
               recentValue: recentValues,
               recentCategories,
               etxn,
-              category: categories && categories?.length > 0 && categories[0],
+              category: null,
             });
           } else {
             return null;
