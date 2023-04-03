@@ -161,6 +161,14 @@
                 </div>
               </ion-col>
             </ion-row>
+            <ng-container *ngIf="selectedCCCTransaction?.description">
+              <ion-row>
+                <ion-col>
+                  <div class="add-edit-expense--card-container__label">Card Transaction</div>
+                  <div class="add-edit-expense--card-container__value">{{ selectedCCCTransaction.description }}</div>
+                </ion-col>
+              </ion-row>
+            </ng-container>
           </ion-grid>
         </ng-container>
 
