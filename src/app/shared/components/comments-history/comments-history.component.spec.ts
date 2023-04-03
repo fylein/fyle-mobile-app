@@ -11,7 +11,7 @@ import { of } from 'rxjs';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { ViewCommentComponent } from './view-comment/view-comment.component';
 
-fdescribe('CommentsHistoryComponent', () => {
+describe('CommentsHistoryComponent', () => {
   let component: CommentsHistoryComponent;
   let fixture: ComponentFixture<CommentsHistoryComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -70,7 +70,7 @@ fdescribe('CommentsHistoryComponent', () => {
       fixture.detectChanges();
       component.noOfComments$.subscribe((count) => {
         expect(count).toBe(mockComments.length);
-        expect(statusService.find).toHaveBeenCalledWith(component.objectType, component.objectId);
+        expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
       });
     });
   });
@@ -82,7 +82,7 @@ fdescribe('CommentsHistoryComponent', () => {
       modalSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { updated: true } } as any));
       await component.presentModal();
       component.refreshComments$.next(null);
-      expect(modalController.create).toHaveBeenCalledWith({
+      expect(modalController.create).toHaveBeenCalledOnceWith({
         component: ViewCommentComponent,
         componentProps: {
           objectType: component.objectType,
@@ -98,7 +98,7 @@ fdescribe('CommentsHistoryComponent', () => {
       modalController.create.and.returnValue(Promise.resolve(modalSpy));
       modalSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { updated: false } } as any));
       await component.presentModal();
-      expect(modalController.create).toHaveBeenCalledWith({
+      expect(modalController.create).toHaveBeenCalledOnceWith({
         component: ViewCommentComponent,
         componentProps: {
           objectType: component.objectType,
@@ -106,7 +106,6 @@ fdescribe('CommentsHistoryComponent', () => {
         },
         ...modalPropertiesService.getModalDefaultProperties(),
       });
-      // expect(component.refreshComments$.next).toHaveBeenCalledWith(null);
       expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
       expect(modalPropertiesService.getModalDefaultProperties).toHaveBeenCalledTimes(2);
     });
