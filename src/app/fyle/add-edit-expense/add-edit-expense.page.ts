@@ -1699,9 +1699,32 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
-      categories: this.categoriesService.getAll(),
     }).pipe(
-      map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn, categories }) => {
+      switchMap(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn }) => {
+        const isExpenseDraft = etxn.tx.state === 'DRAFT';
+        const isExpenseCategoryUnspecified = etxn.tx?.fyle_category?.toLowerCase() === 'unspecified';
+        if (this.initialFetch && etxn.tx.org_category_id && !isExpenseDraft && !isExpenseCategoryUnspecified) {
+          return this.categoriesService.getCategoryById(etxn.tx.org_category_id).pipe(
+            map((selectedCategory) => ({
+              orgUserSettings,
+              orgSettings,
+              recentValues,
+              recentCategories,
+              etxn,
+              selectedCategory,
+            }))
+          );
+        }
+        return of({
+          orgUserSettings,
+          orgSettings,
+          recentValues,
+          recentCategories,
+          etxn,
+          selectedCategory: null,
+        });
+      }),
+      map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn, selectedCategory }) => {
         const isAutofillsEnabled =
           orgSettings.org_expense_form_autofills &&
           orgSettings.org_expense_form_autofills.allowed &&
@@ -1709,14 +1732,10 @@ export class AddEditExpensePage implements OnInit {
           orgUserSettings.expense_form_autofills &&
           orgUserSettings.expense_form_autofills.allowed &&
           orgUserSettings.expense_form_autofills.enabled;
-        const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
+        const isCategoryExtracted = etxn.tx?.extracted_data?.category;
         if (this.initialFetch) {
           if (etxn.tx.org_category_id) {
-            if (
-              etxn.tx.state === 'DRAFT' &&
-              etxn.tx.fyle_category &&
-              etxn.tx.fyle_category.toLowerCase() === 'unspecified'
-            ) {
+            if (etxn.tx.state === 'DRAFT' && etxn.tx.fyle_category?.toLowerCase() === 'unspecified') {
               return this.getAutofillCategory({
                 isAutofillsEnabled,
                 recentValue: recentValues,
@@ -1725,13 +1744,12 @@ export class AddEditExpensePage implements OnInit {
                 category,
               });
             } else {
-              return categories.find((innerCategory) => innerCategory.id === etxn.tx.org_category_id);
+              return selectedCategory;
             }
           } else if (
             etxn.tx.state === 'DRAFT' &&
             !isCategoryExtracted &&
-            (!etxn.tx.org_category_id ||
-              (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))
+            (!etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified')
           ) {
             return this.getAutofillCategory({
               isAutofillsEnabled,
