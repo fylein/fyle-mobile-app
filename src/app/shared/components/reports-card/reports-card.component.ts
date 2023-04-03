@@ -1,13 +1,13 @@
+import { getCurrencySymbol } from '@angular/common';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { getCurrencySymbol } from '@angular/common';
 
 @Component({
-  selector: 'app-team-report-card',
-  templateUrl: './team-report-card.component.html',
-  styleUrls: ['./team-report-card.component.scss'],
+  selector: 'app-reports-card',
+  templateUrl: './reports-card.component.html',
+  styleUrls: ['./reports-card.component.scss'],
 })
-export class TeamReportCardComponent implements OnInit {
+export class ReportsCardComponent implements OnInit {
   @Input() erpt: ExtendedReport;
 
   @Input() prevDate: Date;

@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TeamReportsPageRoutingModule } from './team-reports-routing.module';
 import { TeamReportsPage } from './team-reports.page';
-import { TeamReportCardComponent } from './team-report-card/team-report-card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { ReportsCardComponent } from 'src/app/shared/components/reports-card/reports-card.component';
 
 @NgModule({
   imports: [
@@ -31,6 +31,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatNativeDateModule,
     MatDatepickerModule,
   ],
-  declarations: [TeamReportsPage, TeamReportCardComponent],
+  declarations: [TeamReportsPage, ReportsCardComponent],
 })
 export class TeamReportsPageModule {}
