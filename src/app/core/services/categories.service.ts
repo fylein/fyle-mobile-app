@@ -45,7 +45,7 @@ export class CategoriesService {
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory>>(`/categories`, data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.addDisplayName(res)),
-      map((responses) => responses.find((response) => response.name === name))
+      map((responses) => responses[0])
     );
   }
 
