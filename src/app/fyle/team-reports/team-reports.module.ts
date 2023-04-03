@@ -12,7 +12,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { ReportsCardComponent } from 'src/app/shared/components/reports-card/reports-card.component';
 
 @NgModule({
   imports: [
@@ -31,6 +30,6 @@ import { ReportsCardComponent } from 'src/app/shared/components/reports-card/rep
     MatNativeDateModule,
     MatDatepickerModule,
   ],
-  declarations: [TeamReportsPage, ReportsCardComponent],
+  declarations: [TeamReportsPage],
 })
 export class TeamReportsPageModule {}
