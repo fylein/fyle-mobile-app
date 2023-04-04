@@ -53,7 +53,7 @@ describe('PreferenceSettingComponent', () => {
     expect(component.preferenceChanged.emit).toHaveBeenCalledOnceWith({ key: 'instaFyle', isEnabled: true });
   });
 
-  it('openCurrencyModal(): should open currency modal', fakeAsync(() => {
+  it('openCurrencyModal(): should open the currency modal', fakeAsync(() => {
     const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
     const selectedCurrency: Currency = { shortCode: 'ARS', longName: 'Argentine Peso' };
     modalController.create.and.returnValue(Promise.resolve(modalSpy));
