@@ -94,7 +94,7 @@ describe('ExpenseCardLiteComponent', () => {
     expect(icon).toBeTruthy();
   });
 
-  it('should display Unspecified if purpose is not present', () => {
+  it('should display "Unspecified" if purpose is not present', () => {
     fixture.detectChanges();
     const purpose = getElementBySelector(fixture, '.expenses-card--category');
     expect(getTextContent(purpose)).toEqual('Unspecified');
