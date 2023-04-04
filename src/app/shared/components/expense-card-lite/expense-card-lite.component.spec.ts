@@ -19,6 +19,7 @@ describe('ExpenseCardLiteComponent', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['getFilesWithThumbnail', 'downloadThumbnailUrl']);
     fileServiceSpy.getFilesWithThumbnail.and.returnValue(of(fileObjectData1));
     fileServiceSpy.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData));
+
     TestBed.configureTestingModule({
       declarations: [ExpenseCardLiteComponent, CurrencySymbolPipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
@@ -53,6 +54,7 @@ describe('ExpenseCardLiteComponent', () => {
       fileService.getFilesWithThumbnail.and.returnValue(of(fileObjectData1));
       fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData));
       expenseCardLiteComponent.getReceipt();
+
       expect(fileService.getFilesWithThumbnail).toHaveBeenCalledWith(expenseCardLiteComponent.expense.id);
       expect(fileService.getFilesWithThumbnail).toHaveBeenCalledTimes(2);
       expect(fileService.downloadThumbnailUrl).toHaveBeenCalledWith(fileObjectData1[0].id);
@@ -63,6 +65,7 @@ describe('ExpenseCardLiteComponent', () => {
     it('should set receiptThumbnail to null if there are no thumbnail files', () => {
       fixture.detectChanges();
       fileService.getFilesWithThumbnail.and.returnValue(of([]));
+
       expenseCardLiteComponent.getReceipt();
       expect(fileService.getFilesWithThumbnail).toHaveBeenCalledWith(expenseCardLiteComponent.expense.id);
       expect(fileService.getFilesWithThumbnail).toHaveBeenCalledTimes(2);
