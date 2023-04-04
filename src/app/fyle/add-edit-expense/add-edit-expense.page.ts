@@ -1687,7 +1687,10 @@ export class AddEditExpensePage implements OnInit {
 
   setCategoryFromVendor(defaultCategory) {
     this.categoriesService.getCategoryByName(defaultCategory).subscribe((category) => {
-      this.fg.controls.category.patchValue(category);
+      if (category) {
+        this.trackingService.setCategoryFromVendor(category);
+        this.fg.controls.category.patchValue(category);
+      }
     });
   }
 
