@@ -75,14 +75,14 @@
     <ng-container *ngIf="!isLoading; else loading">
       <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
         <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
-          <app-report-card
+          <app-reports-card
             [erpt]="erpt"
             [prevDate]="list[i-1]?.rp_created_at"
             [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
             (gotoReport)="onReportClick($event)"
             (deleteReport)="onDeleteReportClick($event)"
           >
-          </app-report-card>
+          </app-reports-card>
         </div>
       </ng-container>
     </ng-container>
