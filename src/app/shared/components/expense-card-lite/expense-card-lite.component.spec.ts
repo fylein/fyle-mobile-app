@@ -30,10 +30,10 @@ describe('ExpenseCardLiteComponent', () => {
         },
       ],
     }).compileComponents();
+    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
 
     fixture = TestBed.createComponent(ExpenseCardLiteComponent);
     expenseCardLiteComponent = fixture.componentInstance;
-    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     expenseCardLiteComponent.expense = expenseData1;
     fixture.detectChanges();
   }));
@@ -74,9 +74,7 @@ describe('ExpenseCardLiteComponent', () => {
   });
 
   it('should display the thumbnail when available', () => {
-    expenseCardLiteComponent.receiptThumbnail = 'mock-thumbnail-url';
     fixture.detectChanges();
-
     const element = fixture.nativeElement;
     const thumbnailContainer = element.querySelector('.expenses-card--receipt-thumbnail-container');
     const backgroundImage = thumbnailContainer.style.backgroundImage;
