@@ -18,7 +18,7 @@ import { of } from 'rxjs';
 import { etxncData } from 'src/app/core/mock-data/expense.data';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-fdescribe('SuggestedDuplicatesComponent', () => {
+describe('SuggestedDuplicatesComponent', () => {
   let component: SuggestedDuplicatesComponent;
   let fixture: ComponentFixture<SuggestedDuplicatesComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
