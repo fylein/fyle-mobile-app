@@ -36,6 +36,10 @@ describe('DelegatedAccMessageComponent', () => {
   });
 
   it("should display delegatee's name", () => {
-    expect(getTextContent(getElementBySelector(fixture, '.delegated-acc'))).toEqual(`You're now managing 's account`);
+    component.delegateeName = 'Abhishek Jain';
+    fixture.detectChanges();
+    expect(getTextContent(getElementBySelector(fixture, '.delegated-acc'))).toEqual(
+      `You're now managing Abhishek Jain's account`
+    );
   });
 });
