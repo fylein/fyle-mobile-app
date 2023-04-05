@@ -67,7 +67,7 @@ describe('TasksCardComponent', () => {
     expect(component.showReportAutoSubmissionInfo).toBeTrue();
   });
 
-  xit('should set homeCurrency$ and currencySymbol$ on ngOnInit', fakeAsync(() => {
+  it('should set homeCurrency$ and currencySymbol$ on ngOnInit', fakeAsync(() => {
     currencyService.getHomeCurrency.and.returnValue(of('INR'));
     fixture.detectChanges();
     component.ngOnInit();
