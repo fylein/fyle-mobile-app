@@ -3,19 +3,7 @@
 
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  concat,
-  forkJoin,
-  from,
-  iif,
-  Observable,
-  of,
-  Subject,
-  Subscription,
-  throwError,
-} from 'rxjs';
+import { combineLatest, concat, forkJoin, from, iif, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -27,7 +15,6 @@ import {
   startWith,
   switchMap,
   take,
-  takeUntil,
   tap,
 } from 'rxjs/operators';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
@@ -210,8 +197,6 @@ export class AddEditPerDiemPage implements OnInit {
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
-
-  selectedProject$: BehaviorSubject<ExtendedProject>;
 
   private _isExpandedView = false;
 
@@ -759,7 +744,6 @@ export class AddEditPerDiemPage implements OnInit {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.dependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject(null);
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -810,10 +794,6 @@ export class AddEditPerDiemPage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       this.mode = 'edit';
     }
-
-    this.fg.controls.project.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project) => this.selectedProject$.next(project));
 
     // If User has already clicked on See More he need not to click again and again
     from(this.storageService.get('isExpandedViewPerDiem')).subscribe((expandedView) => {
@@ -1362,8 +1342,20 @@ export class AddEditPerDiemPage implements OnInit {
           recentProjects,
           recentCostCenters,
         }) => {
-          if (project) {
-            this.selectedProject$.next(project);
+          const dependentFields: ExpenseField[] = customExpenseFields.filter(
+            (customInput) => customInput.type === 'DEPENDENT_SELECT'
+          );
+
+          if (dependentFields?.length && project) {
+            const projectField = {
+              id: txnFields.project_id?.id,
+              value: project.projectv2_name,
+            };
+            this.dependentFieldsRef.addDependentFieldWithValue(
+              etxn.tx.custom_properties,
+              dependentFields,
+              projectField
+            );
           }
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
