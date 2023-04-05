@@ -10,6 +10,9 @@ import { BankAccountCardComponent } from './bank-account-card.component';
 import { apiLinkedAccRes, deletePersonalCardRes } from 'src/app/core/mock-data/personal-cards.data';
 import { of } from 'rxjs';
 import { ToastMessageComponent } from '../../toast-message/toast-message.component';
+import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
+import { DeleteButtonComponent } from './delete-button/delete-button-component';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 describe('BankAccountCardComponent', () => {
   let component: BankAccountCardComponent;
@@ -75,12 +78,27 @@ describe('BankAccountCardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('presentPopover(): should present popover', () => {
+  it('presentPopover(): should present popover', async () => {
+    spyOn(component, 'confirmPopup').and.callThrough();
     popoverController.create.and.returnValue(
       new Promise((resolve) => {
-        const deleteCardPopOverSpy = jasmine.createSpyObj('deleteCardPopOver', []);
+        const deleteCardPopOverSpy = jasmine.createSpyObj('deleteCardPopOver', ['present', 'onDidDismiss']);
+
+        deleteCardPopOverSpy.onDidDismiss.and.returnValue(
+          new Promise((resInt) => {
+            resInt('delete');
+          })
+        );
+        resolve(deleteCardPopOverSpy);
       })
     );
+
+    component.presentPopover(new Event('event'));
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: DeleteButtonComponent,
+      cssClass: 'delete-button-class',
+      event: new Event('event'),
+    });
   });
 
   it('deleteAccount(): should delete account', fakeAsync(() => {
@@ -123,5 +141,36 @@ describe('BankAccountCardComponent', () => {
     );
 
     component.confirmPopup();
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Delete Card',
+        message: `Are you sure want to delete this card <b> (${component.accountDetails.bank_name} ${component.accountDetails.account_number}) </b>?`,
+        primaryCta: {
+          text: 'Delete',
+          action: 'delete',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+  });
+
+  it('should present popover if clicked on', () => {
+    spyOn(component, 'presentPopover');
+
+    const actionIcon = getElementBySelector(fixture, '.personal-card--action-icon') as HTMLElement;
+    click(actionIcon);
+
+    expect(component.presentPopover).toHaveBeenCalledOnceWith(new PointerEvent(''));
+  });
+
+  it('should display information correctly', () => {
+    expect(getTextContent(getElementBySelector(fixture, '.personal-card--bank-name'))).toEqual('Dag Site yodlee');
+    expect(getTextContent(getElementBySelector(fixture, '.personal-card--account-info__type'))).toEqual('CREDIT');
+    expect(getTextContent(getElementBySelector(fixture, '.personal-card--account-info__mask'))).toEqual('xxxx9806');
   });
 });
