@@ -4,19 +4,7 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import {
-  BehaviorSubject,
-  combineLatest,
-  concat,
-  forkJoin,
-  from,
-  iif,
-  Observable,
-  of,
-  Subject,
-  Subscription,
-  throwError,
-} from 'rxjs';
+import { combineLatest, concat, forkJoin, from, iif, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -27,7 +15,6 @@ import {
   startWith,
   switchMap,
   take,
-  takeUntil,
   tap,
 } from 'rxjs/operators';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
@@ -238,8 +225,6 @@ export class AddEditMileagePage implements OnInit {
   onPageExit$: Subject<void>;
 
   dependentFields$: Observable<ExpenseField[]>;
-
-  selectedProject$: BehaviorSubject<ExtendedProject>;
 
   private _isExpandedView = false;
 
@@ -892,7 +877,6 @@ export class AddEditMileagePage implements OnInit {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.dependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject(null);
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -926,10 +910,6 @@ export class AddEditMileagePage implements OnInit {
     const today = new Date();
     this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
     this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
-
-    this.fg.controls.project.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project) => this.selectedProject$.next(project));
 
     this.fg.reset();
     this.title = 'Add Mileage';
@@ -1418,8 +1398,20 @@ export class AddEditMileagePage implements OnInit {
           recentProjects,
           recentCostCenters,
         }) => {
-          if (project) {
-            this.selectedProject$.next(project);
+          const dependentFields: ExpenseField[] = customExpenseFields.filter(
+            (customInput) => customInput.type === 'DEPENDENT_SELECT'
+          );
+
+          if (dependentFields?.length && project) {
+            const projectField = {
+              id: txnFields.project_id?.id,
+              value: project.projectv2_name,
+            };
+            this.dependentFieldsRef.addDependentFieldWithValue(
+              etxn.tx.custom_properties,
+              dependentFields,
+              projectField
+            );
           }
 
           const customInputs = this.customFieldsService.standardizeCustomFields(

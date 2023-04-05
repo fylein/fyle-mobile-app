@@ -39,10 +39,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     if (changes?.parentFieldValue) {
       this.dependentFieldsFormArray?.clear();
       this.dependentFields = [];
-
-      //In edit expense, if the parent field value is changed, we don't need the existing values of dependent fields
-      const customProperties = changes?.parentFieldValue.firstChange ? this.txnCustomProperties : [];
-      this.addDependentFieldWithValue(customProperties, this.dependentCustomFields, {
+      this.addDependentFieldWithValue(this.txnCustomProperties, this.dependentCustomFields, {
         id: this.parentFieldId,
         value: this.parentFieldValue,
       });
