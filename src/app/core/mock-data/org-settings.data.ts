@@ -1,7 +1,7 @@
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import { OrgSettings } from '../models/org-settings.model';
 
-export const orgSettingsParams: OrgSettings = {
+export const orgSettingsRes: OrgSettings = {
   org_id: 'orrjqbDbeP9p',
   mileage: {
     allowed: true,

@@ -25,7 +25,7 @@ import {
 } from '../mock-data/approver.data';
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
-import { orgSettingsParams } from '../mock-data/org-settings.data';
+import { orgSettingsRes } from '../mock-data/org-settings.data';
 import { apiReportActions } from '../mock-data/report-actions.data';
 import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
 import {
@@ -684,12 +684,12 @@ describe('ReportService', () => {
   describe('getReportPermissions()', () => {
     it('should get report permissions', (done) => {
       permissionsService.allowedActions.and.returnValue(of(reportAllowedActionsResponse));
-      reportService.getReportPermissions(orgSettingsParams).subscribe((res) => {
+      reportService.getReportPermissions(orgSettingsRes).subscribe((res) => {
         expect(res).toEqual(reportAllowedActionsResponse);
         expect(permissionsService.allowedActions).toHaveBeenCalledOnceWith(
           'reports',
           ['approve', 'create', 'delete'],
-          orgSettingsParams
+          orgSettingsRes
         );
         done();
       });

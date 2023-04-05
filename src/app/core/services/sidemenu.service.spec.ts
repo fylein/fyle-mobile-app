@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { orgSettingsParams, orgSettingsParams2 } from '../mock-data/org-settings.data';
+import { orgSettingsRes, orgSettingsParams2 } from '../mock-data/org-settings.data';
 import { sidemenuAllowedActions } from '../mock-data/sidemenu-allowed-actions.data';
 import { OrgSettingsService } from './org-settings.service';
 import { PermissionsService } from './permissions.service';
@@ -38,18 +38,18 @@ describe('SidemenuService', () => {
   });
 
   it('getAllowedActions(): should return allowed actions', (done) => {
-    orgSettingsService.get.and.returnValue(of(orgSettingsParams));
+    orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     reportService.getReportPermissions.and.returnValue(of(sidemenuAllowedActions.allowedReportsActions));
     permissionsService.allowedActions.and.returnValue(of(sidemenuAllowedActions.allowedAdvancesActions));
 
     sideMenuService.getAllowedActions().subscribe((res) => {
       expect(res).toEqual(sidemenuAllowedActions);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(reportService.getReportPermissions).toHaveBeenCalledOnceWith(orgSettingsParams);
+      expect(reportService.getReportPermissions).toHaveBeenCalledOnceWith(orgSettingsRes);
       expect(permissionsService.allowedActions).toHaveBeenCalledOnceWith(
         'advances',
         ['approve', 'create', 'delete'],
-        orgSettingsParams
+        orgSettingsRes
       );
       done();
     });

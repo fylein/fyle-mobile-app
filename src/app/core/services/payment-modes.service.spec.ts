@@ -11,7 +11,7 @@ import {
   orgUserSettingsWoPaymentModes,
   orgUserSettingsWoPayModesCompany,
 } from '../mock-data/org-user-settings.data';
-import { orgSettingsParams, orgSettingsParamWoCCC } from '../mock-data/org-settings.data';
+import { orgSettingsRes, orgSettingsParamWoCCC } from '../mock-data/org-settings.data';
 import { multiplePaymentModesData } from '../test-data/accounts.service.spec.data';
 import { AccountType } from '../enums/account-type.enum';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -95,7 +95,7 @@ describe('PaymentModesService', () => {
       );
 
       paymentModesService
-        .getDefaultAccount(orgSettingsParams, multiplePaymentModesData, orgUserSettingsData)
+        .getDefaultAccount(orgSettingsRes, multiplePaymentModesData, orgUserSettingsData)
         .subscribe((res) => {
           expect(res).toBeUndefined();
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -120,7 +120,7 @@ describe('PaymentModesService', () => {
       );
 
       paymentModesService
-        .getDefaultAccount(orgSettingsParams, multiplePaymentModesData, orgUserSettingsWoPaymentModes)
+        .getDefaultAccount(orgSettingsRes, multiplePaymentModesData, orgUserSettingsWoPaymentModes)
         .subscribe((res) => {
           expect(res).toBeUndefined();
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -140,7 +140,7 @@ describe('PaymentModesService', () => {
       spyOn(paymentModesService, 'checkIfPaymentModeConfigurationsIsEnabled').and.returnValue(of(false));
 
       paymentModesService
-        .getDefaultAccount(orgSettingsParams, multiplePaymentModesData, orgUserSettingsWoPayModesCompany)
+        .getDefaultAccount(orgSettingsRes, multiplePaymentModesData, orgUserSettingsWoPayModesCompany)
         .subscribe((res) => {
           expect(res).toBeUndefined();
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
