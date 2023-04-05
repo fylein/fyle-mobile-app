@@ -74,13 +74,15 @@ describe('PreferenceSettingComponent', () => {
   }));
 
   it('should render the correct title and content', () => {
-    component.title = 'Default Currency';
-    component.content = 'Select the default currency to be used for creating expenses';
+    const title = 'Default Currency';
+    const content = 'Select the default currency to be used for creating expenses';
+    component.title = title;
+    component.content = content;
     fixture.detectChanges();
     const titleElement = getElementBySelector(fixture, '.preference-setting__card__title');
     const contentElement = getElementBySelector(fixture, '.preference-setting__card__content');
-    expect(getTextContent(titleElement)).toContain('Default Currency');
-    expect(getTextContent(contentElement)).toContain('Select the default currency to be used for creating expenses');
+    expect(getTextContent(titleElement)).toContain(title);
+    expect(getTextContent(contentElement)).toContain(content);
   });
 
   it('should display input field and icon when key is defaultCurrency and isEnabled is true', () => {
