@@ -14,7 +14,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
-import { orgSettingsParams } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 describe('SetupAccountPreferencesPage', () => {
@@ -95,7 +95,7 @@ describe('SetupAccountPreferencesPage', () => {
     networkService.isOnline.and.returnValue(of(true));
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
-    orgSettingsService.get.and.returnValue(of(orgSettingsParams));
+    orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     fixture.detectChanges();
   }));
   it('should create', () => {
@@ -108,8 +108,8 @@ describe('SetupAccountPreferencesPage', () => {
     );
   });
 
-  it('continueEnterprise', () => {
-    orgSettingsService.post.and.returnValue(of(orgSettingsParams));
+  it('continueEnterprise', async () => {
+    orgSettingsService.post.and.returnValue(of(orgSettingsRes));
     spyOn(component, 'markActiveAndRedirect').and.returnValue(null);
     trackingService.updateSegmentProfile.and.callThrough();
 
@@ -121,11 +121,8 @@ describe('SetupAccountPreferencesPage', () => {
     });
     fixture.detectChanges();
 
-    let orgSettings;
-    component.orgSettings$.subscribe((res) => (orgSettings = res));
-
     component.continueEnterprise();
-    expect(orgSettingsService.post).toHaveBeenCalledOnceWith(orgSettings);
+    expect(orgSettingsService.post).toHaveBeenCalledOnceWith(orgSettingsRes);
     expect(component.markActiveAndRedirect).toHaveBeenCalledTimes(1);
     expect(trackingService.updateSegmentProfile).toHaveBeenCalledOnceWith({
       'Enable Mileage': component.fg.controls.mileage.value,
