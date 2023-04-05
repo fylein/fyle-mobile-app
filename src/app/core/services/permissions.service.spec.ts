@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { PermissionsService } from './permissions.service';
 import { AuthService } from './auth.service';
 import { of } from 'rxjs';
-import { orgSettingsParams } from '../mock-data/org-settings.data';
+import { orgSettingsRes } from '../mock-data/org-settings.data';
 import { reportAllowedActionsResponse } from '../mock-data/allowed-actions.data';
 
 describe('PermissionsService', () => {
@@ -49,7 +49,7 @@ describe('PermissionsService', () => {
         .withArgs(actions, { allowedRouteAccess: true, approve: true, create: false, delete: false }, 'owner', resource)
         .and.callThrough();
 
-      permissionsService.allowedActions(resource, actions, orgSettingsParams).subscribe((res) => {
+      permissionsService.allowedActions(resource, actions, orgSettingsRes).subscribe((res) => {
         expect(res).toEqual({ allowedRouteAccess: true, approve: true, create: false, delete: false });
         expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
           actions,
@@ -83,7 +83,7 @@ describe('PermissionsService', () => {
       authService.getRoles.and.returnValue(of(roles));
       spyOn(permissionsService, 'allowedAccess').and.returnValue(true);
 
-      permissionsService.allowedActions(resource, actions, orgSettingsParams).subscribe((res) => {
+      permissionsService.allowedActions(resource, actions, orgSettingsRes).subscribe((res) => {
         expect(res).toBeNull();
         expect(authService.getRoles).toHaveBeenCalledTimes(1);
         done();
@@ -99,7 +99,7 @@ describe('PermissionsService', () => {
       spyOn(permissionsService, 'allowedAccess').and.returnValue(true);
       spyOn(permissionsService, 'setAllowedActions').and.returnValues(null, null);
 
-      permissionsService.allowedActions(resource, actions, orgSettingsParams).subscribe({
+      permissionsService.allowedActions(resource, actions, orgSettingsRes).subscribe({
         next: (res) => {
           expect(res).toBeNull();
           expect(authService.getRoles).toHaveBeenCalledTimes(1);
@@ -124,13 +124,13 @@ describe('PermissionsService', () => {
 
   describe('allowedAccess():', () => {
     it('should return resource actions', () => {
-      expect(permissionsService.allowedAccess('advances', orgSettingsParams)).toBeTrue();
+      expect(permissionsService.allowedAccess('advances', orgSettingsRes)).toBeTrue();
     });
 
     it('should return resource actions when advance_requests in not present', () => {
       expect(
         permissionsService.allowedAccess('advances', {
-          ...orgSettingsParams,
+          ...orgSettingsRes,
           advance_requests: {
             allowed: false,
             enabled: false,
