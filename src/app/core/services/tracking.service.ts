@@ -561,4 +561,8 @@ export class TrackingService {
   menuItemClicked(properties = {}) {
     this.eventTrack('Menu Item Clicked', properties);
   }
+
+  setCategoryFromVendor(properties = {}) {
+    this.eventTrack('Category Updated By Vendor', properties);
+  }
 }
