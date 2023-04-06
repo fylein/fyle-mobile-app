@@ -25,36 +25,72 @@ describe('MyProfilePage', () => {
   let fixture: ComponentFixture<MyProfilePage>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
-  let userEventService: UserEventService;
-  let secureStorageService: SecureStorageService;
-  let storageService: StorageService;
-  let deviceService: DeviceService;
-  let loaderService: LoaderService;
-  let tokenService: TokenService;
-  let trackingService: TrackingService;
-  let orgService: OrgService;
+  let userEventService: jasmine.SpyObj<UserEventService>;
+  let secureStorageService: jasmine.SpyObj<SecureStorageService>;
+  let storageService: jasmine.SpyObj<StorageService>;
+  let deviceService: jasmine.SpyObj<DeviceService>;
+  let loaderService: jasmine.SpyObj<LoaderService>;
+  let tokenService: jasmine.SpyObj<TokenService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
+  let orgService: jasmine.SpyObj<OrgService>;
   let networkService: jasmine.SpyObj<NetworkService>;
-  let orgSettingsService: OrgSettingsService;
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
+    const secureStorageServiceSpy = jasmine.createSpyObj('SecureStorageService', ['clearAll']);
+    const storageServiceSpy = jasmine.createSpyObj('StorageService', ['clearAll']);
+    const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
+    const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['onSettingsToggle']);
+    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
+    const orgSettingServiceSpy = jasmine.createSpyObj('OrgSettingService', ['get']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule, HttpClientTestingModule],
       providers: [
-        UserEventService,
-        StorageService,
-        DeviceService,
-        LoaderService,
-        TokenService,
-        TrackingService,
-        OrgService,
-        OrgSettingsService,
-        SecureStorageService,
+        {
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
+        },
+        {
+          provide: StorageService,
+          useValue: storageServiceSpy,
+        },
+        {
+          provide: DeviceService,
+          useValue: deviceServiceSpy,
+        },
+        {
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
+        },
+        {
+          provide: TokenService,
+          useValue: tokenServiceSpy,
+        },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+        {
+          provide: OrgService,
+          useValue: orgServiceSpy,
+        },
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingServiceSpy,
+        },
+        {
+          provide: SecureStorageService,
+          useValue: secureStorageServiceSpy,
+        },
         {
           provide: AuthService,
           useValue: authServiceSpy,
@@ -74,14 +110,14 @@ describe('MyProfilePage', () => {
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
-    storageService = TestBed.inject(StorageService);
-    userEventService = TestBed.inject(UserEventService);
-    deviceService = TestBed.inject(DeviceService);
-    loaderService = TestBed.inject(LoaderService);
-    tokenService = TestBed.inject(TokenService);
-    orgService = TestBed.inject(OrgService);
+    storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
+    userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
+    deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
+    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
+    orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService);
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     fixture.detectChanges();
   }));
 
