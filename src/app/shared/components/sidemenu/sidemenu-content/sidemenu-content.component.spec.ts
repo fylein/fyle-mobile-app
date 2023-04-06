@@ -15,7 +15,7 @@ import {
 } from 'src/app/core/mock-data/sidemenu-item.data';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 
-fdescribe('SidemenuContentComponent', () => {
+describe('SidemenuContentComponent', () => {
   let component: SidemenuContentComponent;
   let fixture: ComponentFixture<SidemenuContentComponent>;
   let router: jasmine.SpyObj<Router>;
