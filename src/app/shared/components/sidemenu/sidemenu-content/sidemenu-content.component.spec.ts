@@ -66,33 +66,55 @@ describe('SidemenuContentComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call trackingService.menuItemClicked with correct argument', () => {
-    component.goToRoute(sidemenuItemData1);
-    fixture.detectChanges();
-    expect(trackingService.menuItemClicked).toHaveBeenCalledOnceWith({ option: sidemenuItemData1.title });
-  });
+  describe('goToRoute():', () => {
+    it('should call trackingService.menuItemClicked with correct argument', () => {
+      component.goToRoute(sidemenuItemData1);
+      fixture.detectChanges();
+      expect(trackingService.menuItemClicked).toHaveBeenCalledOnceWith({ option: sidemenuItemData1.title });
+    });
 
-  it('should toggle isDropdownOpen property when sidemenu item has dropdown options', () => {
-    component.goToRoute(sidemenuItemData2);
-    fixture.detectChanges();
-    expect(sidemenuItemData2.isDropdownOpen).toBe(true); // initial click should open dropdown
-    component.goToRoute(sidemenuItemData2);
-    fixture.detectChanges();
-    expect(sidemenuItemData2.isDropdownOpen).toBe(false); // second click should close dropdown
-  });
+    it('should toggle isDropdownOpen property when sidemenu item has dropdown options', () => {
+      component.goToRoute(sidemenuItemData2);
+      fixture.detectChanges();
+      expect(sidemenuItemData2.isDropdownOpen).toBe(true); // initial click should open dropdown
+      component.goToRoute(sidemenuItemData2);
+      fixture.detectChanges();
+      expect(sidemenuItemData2.isDropdownOpen).toBe(false); // second click should close dropdown
+    });
 
-  it('should close the menucontroller when sidemenu item does not have dropdown options', () => {
-    component.goToRoute(sidemenuItemData1);
-    expect(sidemenuItemData2.isDropdownOpen).toBe(false);
-    expect(menuController.close).toHaveBeenCalledTimes(1);
-  });
+    it('should close the menucontroller when sidemenu item does not have dropdown options', () => {
+      component.goToRoute(sidemenuItemData1);
+      expect(sidemenuItemData2.isDropdownOpen).toBe(false);
+      expect(menuController.close).toHaveBeenCalledTimes(1);
+    });
 
-  it('should clear cache and navigate to the switch_org route', () => {
-    const globalCacheSpy = spyOn(globalCacheBusterNotifier, 'next');
-    component.goToRoute(sidemenuItemData4);
-    fixture.detectChanges();
-    expect(userEventService.clearCache).toHaveBeenCalledTimes(1);
-    expect(globalCacheSpy).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith(sidemenuItemData4.route);
+    it('should clear cache and navigate to the switch_org route', () => {
+      const globalCacheSpy = spyOn(globalCacheBusterNotifier, 'next');
+      component.goToRoute(sidemenuItemData4);
+      fixture.detectChanges();
+      expect(userEventService.clearCache).toHaveBeenCalledTimes(1);
+      expect(globalCacheSpy).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(sidemenuItemData4.route);
+    });
+
+    it('should show a loader when fcWidget is not initialized and set a callback when widget is loaded', () => {
+      (window as any).fcWidget = {
+        isInitialized: () => false,
+        on: jasmine.createSpy('on'),
+      };
+
+      component.goToRoute(sidemenuItemData3);
+      (window as any).fcWidget.on.calls.argsFor(0)[1]();
+      fixture.detectChanges();
+      expect(freshChatService.openLiveChatSupport).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call open live chat when sidemenu item has openLiveChat property and fcWidget is initialized', () => {
+      (window as any).fcWidget = { isInitialized: () => true };
+      fixture.detectChanges();
+      component.goToRoute(sidemenuItemData3);
+      expect(freshChatService.openLiveChatSupport).toHaveBeenCalledTimes(1);
+    });
   });
 });
