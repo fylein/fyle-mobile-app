@@ -1,4 +1,3 @@
-import { partial } from 'lodash';
 import { SidemenuItem } from '../models/sidemenu-item.model';
 
 export const sidemenuItemData1: SidemenuItem = {
