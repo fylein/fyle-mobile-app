@@ -124,7 +124,9 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
-  @ViewChild('dependentFieldsRef') dependentFieldsRef: DependentFieldsComponent;
+  @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
+
+  @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<any>;
 
@@ -2294,7 +2296,8 @@ export class AddEditExpensePage implements OnInit {
   ionViewWillEnter() {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
-    this.dependentFieldsRef?.ngOnInit();
+    this.projectDependentFieldsRef?.ngOnInit();
+    this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject(null);
     this.selectedCostCenter$ = new BehaviorSubject(null);
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
@@ -4247,7 +4250,8 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
-    this.dependentFieldsRef?.ngOnDestroy();
+    this.projectDependentFieldsRef?.ngOnDestroy();
+    this.costCenterDependentFieldsRef?.ngOnDestroy();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
     this.selectedProject$.complete();

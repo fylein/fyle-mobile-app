@@ -414,7 +414,7 @@
                 <ng-container *ngIf="selectedProject$|async as selectedProject">
                   <ng-container formArrayName="project_dependent_fields">
                     <app-dependent-fields
-                      #dependentFieldsRef
+                      #projectDependentFieldsRef
                       [dependentFieldsFormArray]="fg.controls.project_dependent_fields"
                       [dependentCustomFields]="dependentFields"
                       [parentFieldId]="txnFields?.project_id?.id"
@@ -880,7 +880,7 @@
                 <ng-container *ngIf="selectedCostCenter$|async as selectedCostCenter">
                   <ng-container formArrayName="cost_center_dependent_fields">
                     <app-dependent-fields
-                      #dependentFieldsRef
+                      #costCenterDependentFieldsRef
                       [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
                       [dependentCustomFields]="dependentFields"
                       [parentFieldId]="txnFields?.cost_center_id?.id"
