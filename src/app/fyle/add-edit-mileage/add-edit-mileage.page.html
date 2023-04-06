@@ -406,18 +406,20 @@
               </ng-container>
 
               <ng-container *ngIf="txnFields$|async as txnFields">
-                <ng-container *ngIf="dependentFields$|async as dependentFields">
-                  <ng-container *ngIf="etxn$|async as etxn">
-                    <ng-container *ngIf="selectedCostCenter$|async as selectedCostCenter">
-                      <ng-container formArrayName="cost_center_dependent_fields">
-                        <app-dependent-fields
-                          #costCenterDependentFieldsRef
-                          [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
-                          [dependentCustomFields]="dependentFields"
-                          [parentFieldId]="txnFields?.cost_center_id?.id"
-                          [parentFieldValue]="selectedCostCenter?.name"
-                          [txnCustomProperties]="etxn.tx.custom_properties"
-                        ></app-dependent-fields>
+                <ng-container *ngIf="txnFields.cost_center_id?.is_mandatory || isExpandedView">
+                  <ng-container *ngIf="dependentFields$|async as dependentFields">
+                    <ng-container *ngIf="etxn$|async as etxn">
+                      <ng-container *ngIf="selectedCostCenter$|async as selectedCostCenter">
+                        <ng-container formArrayName="cost_center_dependent_fields">
+                          <app-dependent-fields
+                            #costCenterDependentFieldsRef
+                            [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
+                            [dependentCustomFields]="dependentFields"
+                            [parentFieldId]="txnFields?.cost_center_id?.id"
+                            [parentFieldValue]="selectedCostCenter?.name"
+                            [txnCustomProperties]="etxn.tx.custom_properties"
+                          ></app-dependent-fields>
+                        </ng-container>
                       </ng-container>
                     </ng-container>
                   </ng-container>
