@@ -12,7 +12,9 @@ jobs:
         with:
           ref: master
       - name: Get Release Branch Name
-        run: echo "release_branch=mobile_release_$(date +%Y_%m_%d)" >> $GITHUB_ENV
+        run: |
+          echo "release_branch=mobile_release_$(date +%Y_%m_%d)" >> $GITHUB_ENV
+          echo "last_release_branch=mobile_release_$(date -d 'last friday' +%Y_%m_%d)" >> $GITHUB_ENV
       - name: Check if release branch exists
         run: |
           if git ls-remote --exit-code --heads origin ${{env.release_branch}}; then
@@ -36,5 +38,5 @@ jobs:
           # Send message to #mobile_app slack channel
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C017C400V37
-          slack-text: "$message \n Check diff here: https://github.com/fylein/fyle-mobile-app/compare/master...${{env.release_branch}}"
+          slack-text: "${{env.message}} \nCheck diff here: https://github.com/fylein/fyle-mobile-app/compare/${{env.last_release_branch}}...${{env.release_branch}}"
 
