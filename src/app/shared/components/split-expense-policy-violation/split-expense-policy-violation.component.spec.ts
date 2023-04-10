@@ -2,7 +2,10 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { SplitExpensePolicyViolationComponent } from './split-expense-policy-violation.component';
-import { formattedTxn1, formattedTxn2 } from 'src/app/core/mock-data/formatted-policy-violation.data';
+import {
+  formattedPolicyViolation1,
+  formattedPolicyViolation2,
+} from 'src/app/core/mock-data/formatted-policy-violation.data';
 import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { of } from 'rxjs';
@@ -39,8 +42,8 @@ describe('SplitExpensePolicyViolationComponent', () => {
     splitExpenseService = TestBed.inject(SplitExpenseService) as jasmine.SpyObj<SplitExpenseService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     component.policyViolations = {
-      id1: formattedTxn1,
-      id2: formattedTxn2,
+      id1: formattedPolicyViolation1,
+      id2: formattedPolicyViolation2,
     };
     comments = component.form.controls.comments as FormArray;
     fixture.detectChanges();
