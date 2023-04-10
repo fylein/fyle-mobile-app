@@ -28,15 +28,15 @@ export class ViewDependentFieldsComponent implements OnInit {
       .getDependentFieldsForBaseField(this.parentFieldId)
       .pipe(
         map((dependentExpenseFields) =>
-          dependentExpenseFields.map((dependentExpenseField) => {
+          dependentExpenseFields.reduce((dependentCustomProperties, dependentExpenseField) => {
             const dependentFieldValue = this.customProperties.find(
               (customProperty) => customProperty.name === dependentExpenseField.field_name
             );
-            return {
-              name: dependentFieldValue.name,
-              value: dependentFieldValue.value || '-',
-            };
-          })
+            if (dependentFieldValue) {
+              dependentFieldValue.value = dependentFieldValue.value || '-';
+              return [...dependentCustomProperties, dependentFieldValue];
+            }
+          }, [])
         ),
         shareReplay(1)
       );

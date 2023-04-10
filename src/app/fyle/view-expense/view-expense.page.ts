@@ -29,7 +29,6 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 
 @Component({
@@ -140,8 +139,7 @@ export class ViewExpensePage implements OnInit {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService,
-    private dependentFieldsService: DependentFieldsService
+    private categoriesService: CategoriesService
   ) {}
 
   get ExpenseView() {
@@ -248,24 +246,12 @@ export class ViewExpensePage implements OnInit {
       this.reportId = res.tx_report_id;
     });
 
-    // this.projectDependantCustomProperties$ = this.etxnWithoutCustomProperties$.pipe(
-    //   concatMap((etxn) => this.customInputsService.fillDependantFieldProperties(etxn)),
-    //   shareReplay(1)
-    // );
-
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap((etxn) =>
         this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)
       ),
       shareReplay(1)
     );
-
-    // this.dependentCustomProperties$ = this.etxnWithoutCustomProperties$.pipe(
-    //   concatMap((etxn) =>
-    //     this.dependentFieldsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)
-    //   ),
-    //   shareReplay(1)
-    // );
 
     this.etxn$ = this.etxnWithoutCustomProperties$.pipe(
       finalize(() => this.loaderService.hideLoader()),
@@ -312,16 +298,9 @@ export class ViewExpensePage implements OnInit {
 
     this.txnFields$ = this.expenseFieldsService.getAllMap();
 
-    // const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
-
-    // this.dependentFields$ = customExpenseFields$.pipe(
-    //   map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
-    // );
-
     forkJoin([this.txnFields$, this.etxn$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, etxn]) => {
-          console.log('expenseFieldsMap', expenseFieldsMap);
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown = this.orgSettings?.projects?.enabled && (etxn.tx_project_name || isProjectMandatory);
