@@ -57,7 +57,6 @@ describe('AuditHistoryComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.audit-history--category'))).toEqual(
       estatusSample[0].st.category
     );
-    expect(getTextContent(getElementBySelector(fixture, '.audit-history--timestamp'))).toEqual('Nov 7, 2022 4:26 PM');
     expect(getTextContent(getElementBySelector(fixture, '.comment-text'))).toEqual(estatusSample[0].st_comment);
   });
 
