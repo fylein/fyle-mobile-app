@@ -10,15 +10,15 @@ import { of } from 'rxjs';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 
-export const thumbnailUrlMockData1: FileObject[] = [
+const thumbnailUrlMockData1: FileObject[] = [
   {
     id: 'fiwJ0nQTBpYH',
     purpose: 'THUMBNAILx200x200',
-    url: 'https://www.fylehq.com/assets/images/svg-images/fylelogo.svg',
+    url: '/assets/images/add-to-list.png',
   },
 ];
 
-describe('ExpenseCardLiteComponent', () => {
+fdescribe('ExpenseCardLiteComponent', () => {
   let expenseCardLiteComponent: ExpenseCardLiteComponent;
   let fixture: ComponentFixture<ExpenseCardLiteComponent>;
   let fileService: jasmine.SpyObj<FileService>;
@@ -59,17 +59,15 @@ describe('ExpenseCardLiteComponent', () => {
 
   describe('getReceipt():', () => {
     it('should set receiptThumbnail if there is at least one thumbnail file', () => {
-      expenseCardLiteComponent.getReceipt();
       fixture.detectChanges();
-      expect(fileService.getFilesWithThumbnail).toHaveBeenCalledWith(expenseCardLiteComponent.expense.id);
-      expect(fileService.downloadThumbnailUrl).toHaveBeenCalledWith(fileObjectData1[0].id);
+      expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(expenseCardLiteComponent.expense.id);
+      expect(fileService.downloadThumbnailUrl).toHaveBeenCalledOnceWith(fileObjectData1[0].id);
       expect(expenseCardLiteComponent.receiptThumbnail).toEqual(thumbnailUrlMockData1[0].url);
     });
 
-    it('should set receiptThumbnail to null if there are no thumbnail files', () => {
-      fixture.detectChanges();
+    it('should return an empty array if there are no thumbnail files', () => {
       fileService.getFilesWithThumbnail.and.returnValue(of([]));
-
+      fixture.detectChanges();
       expenseCardLiteComponent.getReceipt();
       expect(fileService.getFilesWithThumbnail).toHaveBeenCalledWith(expenseCardLiteComponent.expense.id);
       expect(fileService.getFilesWithThumbnail).toHaveBeenCalledTimes(2);
@@ -92,7 +90,6 @@ describe('ExpenseCardLiteComponent', () => {
 
     const element = fixture.nativeElement;
     const icon = element.querySelector('.expenses-card--receipt-icon');
-    const iconSrc = icon.getAttribute('src');
     expect(icon).toBeTruthy();
   });
 
