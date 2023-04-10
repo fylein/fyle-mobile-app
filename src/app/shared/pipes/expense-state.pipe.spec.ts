@@ -11,8 +11,8 @@ describe('ExpenseStatePipe', () => {
     expect(pipe.transform('DRAFT')).toBe('incomplete');
   });
 
-  it('transforms "COMPLETE" state to "unreported"', () => {
-    expect(pipe.transform('COMPLETE')).toBe('unreported');
+  it('transforms "COMPLETE" state to "complete"', () => {
+    expect(pipe.transform('COMPLETE')).toBe('complete');
   });
 
   it('transforms "APPROVER_PENDING" state to "reported"', () => {

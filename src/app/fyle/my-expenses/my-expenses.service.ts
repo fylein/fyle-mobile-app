@@ -211,7 +211,7 @@ export class MyExpensesService {
           if (state === 'DRAFT') {
             return 'Incomplete';
           } else if (state === 'READY_TO_REPORT') {
-            return 'Unreported';
+            return 'Complete';
           } else {
             return state.replace(/_/g, ' ').toLowerCase();
           }
@@ -264,7 +264,7 @@ export class MyExpensesService {
         optionType: FilterOptionType.multiselect,
         options: [
           {
-            label: 'Unreported',
+            label: 'Complete',
             value: 'READY_TO_REPORT',
           },
           {
