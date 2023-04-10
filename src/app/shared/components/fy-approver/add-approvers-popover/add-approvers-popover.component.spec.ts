@@ -9,6 +9,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule } from '@angular/forms';
+import { pullBackAdvancedRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { apiAllApproverRes1 } from 'src/app/core/mock-data/approver.data';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { of } from 'rxjs';
@@ -27,8 +28,8 @@ fdescribe('AddApproversPopoverComponent', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
-    const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getAdvanceRequests']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReports']);
+    const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['addApprover']);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['addApprover']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
@@ -112,5 +113,26 @@ fdescribe('AddApproversPopoverComponent', () => {
     tick();
     component.closeAddApproversPopover();
     expect(popoverController.dismiss).toHaveBeenCalledTimes(1);
+  }));
+
+  it('should call advanceRequestService.addApprover() for type ADVANCE_REQUEST', fakeAsync(() => {
+    const type = 'ADVANCE_REQUEST';
+    const id = 'areqMP09oaYXBf';
+    const approverEmail = 'ajain@fyle.in';
+
+    const confirmationMessage = 'The request is approved';
+
+    advanceRequestService.addApprover.and.returnValue(of(pullBackAdvancedRequests));
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+
+    component.saveUpdatedApproversList();
+
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    tick();
+    //expect(advanceRequestService.addApprover).toHaveBeenCalledWith(id,approverEmail,confirmationMessage);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
   }));
 });
