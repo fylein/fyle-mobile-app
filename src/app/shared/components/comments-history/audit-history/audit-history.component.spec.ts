@@ -7,11 +7,11 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { StatusesDiffComponent } from './statuses-diff/statuses-diff.component';
 import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
-import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
+import { estatusSample } from 'src/app/core/test-data/status.service.spec.data';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-describe('AuditHistoryComponent', () => {
+fdescribe('AuditHistoryComponent', () => {
   let component: AuditHistoryComponent;
   let fixture: ComponentFixture<AuditHistoryComponent>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
@@ -32,28 +32,33 @@ describe('AuditHistoryComponent', () => {
     component = fixture.componentInstance;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     expenseFieldsService.getAllEnabled.and.returnValue(of(transformedResponse2));
-    component.estatuses = estatusData1;
+    component.estatuses = estatusSample;
     spyOn(component, 'hasDetails').and.callThrough();
     spyOn(component, 'getAndUpdateProjectName').and.callThrough();
     spyOn(component, 'setReimbursable').and.callThrough();
     fixture.detectChanges();
-
-    expect(component.hasDetails).toHaveBeenCalledTimes(1);
-    expect(component.setReimbursable).toHaveBeenCalledTimes(1);
-    expect(component.getAndUpdateProjectName).toHaveBeenCalledTimes(1);
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    expect(component.hasDetails).toHaveBeenCalledTimes(1);
+    expect(component.setReimbursable).toHaveBeenCalledTimes(1);
+    expect(component.getAndUpdateProjectName).toHaveBeenCalledTimes(1);
   });
 
   it('should display estatuses correctly', () => {
     const eStatusCards = getAllElementsBySelector(fixture, '.audit-history--block');
-    expect(eStatusCards.length).toEqual(estatusData1.length);
+    expect(eStatusCards.length).toEqual(estatusSample.length);
+    console.log(estatusSample[0].st);
     expect(getTextContent(getElementBySelector(fixture, '.audit-history--category'))).toEqual(
-      estatusData1[0].st.category
+      estatusSample[0].st.category
     );
-    expect(getTextContent(getElementBySelector(fixture, '.audit-history--timestamp'))).toEqual('Sep 23, 2022 9:03 PM');
-    expect(getTextContent(getElementBySelector(fixture, '.comment-text'))).toEqual(estatusData1[0].st_comment);
+    expect(getTextContent(getElementBySelector(fixture, '.audit-history--timestamp'))).toEqual('Nov 7, 2022 4:26 PM');
+    expect(getTextContent(getElementBySelector(fixture, '.comment-text'))).toEqual(estatusSample[0].st_comment);
+  });
+
+  it('should show details if any statement diff exists', () => {
+    const detailsContent = getAllElementsBySelector(fixture, 'app-statuses-diff');
+    expect(detailsContent.length).toEqual(13);
   });
 });
