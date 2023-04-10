@@ -18,7 +18,7 @@ const thumbnailUrlMockData1: FileObject[] = [
   },
 ];
 
-fdescribe('ExpenseCardLiteComponent', () => {
+describe('ExpenseCardLiteComponent', () => {
   let expenseCardLiteComponent: ExpenseCardLiteComponent;
   let fixture: ComponentFixture<ExpenseCardLiteComponent>;
   let fileService: jasmine.SpyObj<FileService>;
