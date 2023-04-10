@@ -30,6 +30,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
+import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -119,7 +120,9 @@ export class ViewExpensePage implements OnInit {
 
   txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
-  customProperties: Observable<CustomProperty<string>[]>;
+  projectDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+
+  costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
 
   constructor(
     private loaderService: LoaderService,
@@ -139,7 +142,8 @@ export class ViewExpensePage implements OnInit {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private dependentFieldsService: DependentFieldsService
   ) {}
 
   get ExpenseView() {
@@ -258,6 +262,35 @@ export class ViewExpensePage implements OnInit {
       shareReplay(1)
     );
 
+    this.txnFields$ = this.expenseFieldsService.getAllMap();
+
+    this.projectDependentCustomProperties$ = forkJoin({
+      etxn: this.etxn$.pipe(take(1)),
+      txnFields: this.txnFields$.pipe(take(1)),
+    }).pipe(
+      filter(({ etxn, txnFields }) => etxn.tx_custom_properties && txnFields.project_id?.length > 0),
+      switchMap(({ etxn, txnFields }) =>
+        this.dependentFieldsService.getDependentFieldValuesForBaseField(
+          etxn.tx_custom_properties,
+          txnFields.project_id[0]?.id
+        )
+      )
+    );
+
+    this.costCenterDependentCustomProperties$ = forkJoin({
+      etxn: this.etxn$.pipe(take(1)),
+      txnFields: this.txnFields$.pipe(take(1)),
+    }).pipe(
+      filter(({ etxn, txnFields }) => etxn.tx_custom_properties && txnFields.cost_center_id?.length > 0),
+      switchMap(({ etxn, txnFields }) =>
+        this.dependentFieldsService.getDependentFieldValuesForBaseField(
+          etxn.tx_custom_properties,
+          txnFields.cost_center_id[0]?.id
+        )
+      ),
+      shareReplay(1)
+    );
+
     this.etxn$.subscribe((etxn) => {
       this.isExpenseFlagged = etxn.tx_manual_flag;
 
@@ -295,8 +328,6 @@ export class ViewExpensePage implements OnInit {
       this.foreignCurrencySymbol = getCurrencySymbol(etxn.tx_orig_currency, 'wide');
       this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
     });
-
-    this.txnFields$ = this.expenseFieldsService.getAllMap();
 
     forkJoin([this.txnFields$, this.etxn$.pipe(take(1))])
       .pipe(

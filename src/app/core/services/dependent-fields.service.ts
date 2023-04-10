@@ -6,8 +6,9 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { CustomInputsService } from './custom-inputs.service';
-import { switchMap } from 'rxjs/operators';
+import { shareReplay, switchMap } from 'rxjs/operators';
 import { ExpenseField } from '../models/v1/expense-field.model';
+import { CustomProperty } from '../models/custom-properties.model';
 
 @Injectable({
   providedIn: 'root',
@@ -51,10 +52,30 @@ export class DependentFieldsService {
       .pipe(map((res) => res.data));
   }
 
-  //This method returns array of dependent field names based on id of base field - Project, Cost center, etc.
-  getDependentFieldsForBaseField(parentFieldId: number): Observable<ExpenseField[]> {
+  //This method returns array of dependent field values based on id of base field
+  getDependentFieldValuesForBaseField(
+    txnCustomProperties: CustomProperty<string>[],
+    parentFieldId: number
+  ): Observable<CustomProperty<string>[]> {
+    return this.getDependentFieldsForBaseField(parentFieldId).pipe(
+      map((dependentExpenseFields) =>
+        dependentExpenseFields.reduce((dependentCustomProperties, dependentExpenseField) => {
+          const dependentFieldValue = txnCustomProperties.find(
+            (customProperty) => customProperty.name === dependentExpenseField.field_name
+          );
+          if (dependentFieldValue) {
+            dependentFieldValue.value = dependentFieldValue.value || '-';
+            return [...dependentCustomProperties, dependentFieldValue];
+          }
+        }, [])
+      ),
+      shareReplay(1)
+    );
+  }
+
+  //This method returns array of dependent fields based on id of base field - Project, Cost center, etc.
+  private getDependentFieldsForBaseField(parentFieldId: number): Observable<ExpenseField[]> {
     return this.customInputsService.getAll(true).pipe(
-      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
       switchMap((expenseFields) => {
         const dependentExpenseFields = [];
         while (parentFieldId) {

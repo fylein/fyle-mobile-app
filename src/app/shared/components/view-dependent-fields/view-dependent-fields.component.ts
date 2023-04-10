@@ -1,9 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-import { CustomField } from 'src/app/core/models/custom_field.model';
-import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 
 @Component({
   selector: 'app-view-dependent-fields',
@@ -11,34 +7,13 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
   styleUrls: ['./view-dependent-fields.component.scss'],
 })
 export class ViewDependentFieldsComponent implements OnInit {
-  @Input() parentFieldId: number;
-
   @Input() parentFieldName: string;
 
   @Input() parentFieldValue: string;
 
-  @Input() customProperties: CustomField[];
+  @Input() dependentCustomProperties: CustomProperty<string>[];
 
-  dependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  constructor() {}
 
-  constructor(private dependentFieldsService: DependentFieldsService) {}
-
-  ngOnInit() {
-    this.dependentCustomProperties$ = this.dependentFieldsService
-      .getDependentFieldsForBaseField(this.parentFieldId)
-      .pipe(
-        map((dependentExpenseFields) =>
-          dependentExpenseFields.reduce((dependentCustomProperties, dependentExpenseField) => {
-            const dependentFieldValue = this.customProperties.find(
-              (customProperty) => customProperty.name === dependentExpenseField.field_name
-            );
-            if (dependentFieldValue) {
-              dependentFieldValue.value = dependentFieldValue.value || '-';
-              return [...dependentCustomProperties, dependentFieldValue];
-            }
-          }, [])
-        ),
-        shareReplay(1)
-      );
-  }
+  ngOnInit() {}
 }
