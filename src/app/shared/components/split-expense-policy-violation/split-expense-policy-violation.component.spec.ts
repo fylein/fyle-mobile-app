@@ -7,7 +7,7 @@ import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { of } from 'rxjs';
 
-fdescribe('SplitExpensePolicyViolationComponent', () => {
+describe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
