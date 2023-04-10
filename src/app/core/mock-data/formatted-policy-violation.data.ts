@@ -1,6 +1,6 @@
 import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 
-export const formattedTxn1: FormattedPolicyViolation = {
+export const formattedPolicyViolation1: FormattedPolicyViolation = {
   rules: [
     'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit when expense amount in category 1 / chumma returns/1 / sd/1 / sub 123/aniruddha test / aniruddha sub/Food/Food / Travelling - Inland/Snacks/Stuff/te knklw/TEst Cateogory / 12 exceeds: INR 1000 and are fyled from  Paid by Employee payment mode(s). ',
   ],
@@ -44,7 +44,7 @@ export const formattedTxn1: FormattedPolicyViolation = {
   isExpanded: false,
 };
 
-export const formattedTxn2: FormattedPolicyViolation = {
+export const formattedPolicyViolation2: FormattedPolicyViolation = {
   rules: [
     'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit when expense amount in category 1 / chumma returns/1 / sd/1 / sub 123/aniruddha test / aniruddha sub/Food/Food / Travelling - Inland/Snacks/Stuff/te knklw/TEst Cateogory / 12 exceeds: INR 1000 and are fyled from  Paid by Employee payment mode(s). ',
   ],
@@ -101,11 +101,11 @@ export const formattedTxn2: FormattedPolicyViolation = {
 };
 
 export const formattedTxnViolations = {
-  txc2KIogxUAy: formattedTxn1,
-  txgfkvuYteta: formattedTxn2,
+  txc2KIogxUAy: formattedPolicyViolation1,
+  txgfkvuYteta: formattedPolicyViolation2,
 };
 
 export const formattedTxnViolations2 = {
-  txc2KIogxUAy: { ...formattedTxn1, isCriticalPolicyViolation: false },
-  txgfkvuYteta: { ...formattedTxn2, isCriticalPolicyViolation: false },
+  txc2KIogxUAy: { ...formattedPolicyViolation1, isCriticalPolicyViolation: false },
+  txgfkvuYteta: { ...formattedPolicyViolation2, isCriticalPolicyViolation: false },
 };
