@@ -611,42 +611,11 @@
       </ng-container>
 
       <ng-container *ngIf="projectDependantCustomProperties$|async as projectDependantCustomProperties">
-        <ng-container *ngIf="projectDependantCustomProperties?.length > 0">
-          <div class="view-expense--divider"></div>
-          <ion-grid *ngIf="isProjectShown" class="view-expense--grid">
-            <ion-row>
-              <ion-col class="view-expense--icon-container">
-                <div class="view-expense--icon-container__background">
-                  <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-expense--content-container">
-                <div class="view-expense--label">Project</div>
-                <div class="view-expense--value">
-                  {{ projectFieldName | titlecase }}: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-          <ng-container *ngFor="let customProperty of projectDependantCustomProperties">
-            <ion-grid class="view-expense--grid">
-              <ion-row>
-                <ion-col class="view-expense--icon-container">
-                  <div class="view-expense--icon-container__background">
-                    <ion-icon
-                      class="view-expense--icon-container__icon-lg"
-                      src="../../../assets/svg/list.svg"
-                    ></ion-icon>
-                  </div>
-                </ion-col>
-                <ion-col class="view-expense--content-container">
-                  <div class="view-expense--label">{{ customProperty.name }}</div>
-                  <div class="view-expense--value">{{ customProperty.displayValue }}</div>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          </ng-container>
-        </ng-container>
+        <app-view-dependent-fields
+          [parentFieldName]="projectFieldName"
+          [parentFieldValue]="etxn.tx_project_name"
+          [customProperties]="projectDependantCustomProperties"
+        ></app-view-dependent-fields>
       </ng-container>
 
       <ng-container *ngIf="customProperties$|async as customProperties">

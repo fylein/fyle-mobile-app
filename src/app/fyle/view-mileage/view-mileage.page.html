@@ -414,40 +414,11 @@
     </ion-grid>
 
     <ng-container *ngIf="projectDependantCustomProperties$|async as projectDependantCustomProperties">
-      <ng-container *ngIf="projectDependantCustomProperties?.length > 0">
-        <div class="view-mileage--divider"></div>
-        <ion-grid *ngIf="isProjectShown" class="view-mileage--grid">
-          <ion-row>
-            <ion-col class="view-mileage--icon-container">
-              <div class="view-mileage--icon-container__background">
-                <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-              </div>
-            </ion-col>
-            <ion-col class="view-mileage--content-container">
-              <div class="view-mileage--label">Project</div>
-              <div class="view-mileage--value">
-                {{ projectFieldName | titlecase }}: {{ extendedMileage.tx_project_name ? extendedMileage.tx_project_name
-                : 'Unspecified' }}
-              </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-        <ng-container *ngFor="let customProperty of projectDependantCustomProperties">
-          <ion-grid class="view-mileage--grid">
-            <ion-row>
-              <ion-col class="view-mileage--icon-container">
-                <div class="view-mileage--icon-container__background">
-                  <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">{{ customProperty.name }}</div>
-                <div class="view-mileage--value">{{ customProperty.displayValue }}</div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ng-container>
-      </ng-container>
+      <app-view-dependent-fields
+        [parentFieldName]="projectFieldName"
+        [parentFieldValue]="extendedMileage.tx_project_name"
+        [customProperties]="projectDependantCustomProperties"
+      ></app-view-dependent-fields>
     </ng-container>
 
     <ng-container *ngIf="mileageCustomFields$|async as customProperties">

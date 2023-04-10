@@ -302,43 +302,11 @@
     </ion-grid>
 
     <ng-container *ngIf="projectDependantCustomProperties$|async as projectDependantCustomProperties">
-      <ng-container *ngIf="projectDependantCustomProperties?.length > 0">
-        <div class="view-per-diem--divider"></div>
-        <ion-grid *ngIf="isProjectShown" class="view-per-diem--grid">
-          <ion-row>
-            <ion-col class="view-per-diem--icon-container">
-              <div class="view-per-diem--icon-container__background">
-                <ion-icon class="view-per-diem--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-              </div>
-            </ion-col>
-            <ion-col class="view-per-diem--content-container">
-              <div class="view-per-diem--label">Project</div>
-              <div class="view-per-diem--value">
-                {{ projectFieldName | titlecase }}: {{ extendedPerDiem.tx_project_name ? extendedPerDiem.tx_project_name
-                : 'Unspecified' }}
-              </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-        <ng-container *ngFor="let customProperty of projectDependantCustomProperties">
-          <ion-grid class="view-per-diem--grid">
-            <ion-row>
-              <ion-col class="view-per-diem--icon-container">
-                <div class="view-per-diem--icon-container__background">
-                  <ion-icon
-                    class="view-per-diem--icon-container__icon-lg"
-                    src="../../../assets/svg/list.svg"
-                  ></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-per-diem--content-container">
-                <div class="view-per-diem--label">{{ customProperty.name }}</div>
-                <div class="view-per-diem--value">{{ customProperty.displayValue }}</div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ng-container>
-      </ng-container>
+      <app-view-dependent-fields
+        [parentFieldName]="projectFieldName"
+        [parentFieldValue]="extendedPerDiem.tx_project_name"
+        [customProperties]="projectDependantCustomProperties"
+      ></app-view-dependent-fields>
     </ng-container>
 
     <ng-container *ngIf="perDiemCustomFields$|async as customProperties">
