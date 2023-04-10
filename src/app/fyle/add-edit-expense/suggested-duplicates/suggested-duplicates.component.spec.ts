@@ -140,11 +140,20 @@ describe('SuggestedDuplicatesComponent', () => {
     expect(modalControllerDismissSpy).toHaveBeenCalledOnceWith({ action: 'dismissed' });
   });
 
-  it('should display the correct header information and number of expense cards', () => {
+  it('should display the correct header information', () => {
+    const expectedHeader = '3 expenses for $100.50';
+    component.duplicateExpenses = [
+      { tx_amount: 100.5, tx_currency: 'USD' },
+      { tx_amount: 100.5, tx_currency: 'USD' },
+      { tx_amount: 100.5, tx_currency: 'USD' },
+    ];
+
     const headerEl = getElementBySelector(fixture, '.suggested-duplicates--header');
     fixture.detectChanges();
-    expect(getTextContent(headerEl)).toContain('3 expenses for');
+    expect(getTextContent(headerEl)).toEqual(expectedHeader);
+  });
 
+  it('should display correct number of expense cards', () => {
     const expenseCardEls = getAllElementsBySelector(fixture, 'app-expense-card');
     fixture.detectChanges();
     expect(expenseCardEls.length).toBe(component.duplicateExpenses.length);
