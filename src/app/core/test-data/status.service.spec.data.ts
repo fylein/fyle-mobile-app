@@ -1631,3 +1631,29 @@ export const estatusSample = [
     has_details: true,
   },
 ];
+
+export const eStatusWithProjectName = [
+  {
+    st_id: 'sty8xyVwn2sK',
+    st_created_at: new Date('2022-11-07T10:58:24.975Z'),
+    st_org_user_id: 'oudmNnyXjIgs',
+    st_comment: 'Reason for adding kavya.hl@fyle.in as an approver: fdv',
+    st_diff: {
+      'project name': 'Project',
+    },
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp9SScv0ZTNv',
+    st_advance_request_id: null,
+    us_full_name: 'Abhishek Jain',
+    us_email: 'ajain@fyle.in',
+    isBotComment: false,
+    isSelfComment: true,
+    isOthersComment: false,
+    show_dt: true,
+    st: {
+      category: 'Others',
+      icon: 'circle',
+    },
+  },
+];

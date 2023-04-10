@@ -229,7 +229,6 @@ export class StatusService {
       return status;
     });
 
-    console.log(modifiedStatuses);
     return modifiedStatuses;
   }
 

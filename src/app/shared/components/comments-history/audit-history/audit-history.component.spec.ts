@@ -7,11 +7,11 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { StatusesDiffComponent } from './statuses-diff/statuses-diff.component';
 import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
-import { estatusSample } from 'src/app/core/test-data/status.service.spec.data';
+import { eStatusWithProjectName, estatusSample } from 'src/app/core/test-data/status.service.spec.data';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-fdescribe('AuditHistoryComponent', () => {
+describe('AuditHistoryComponent', () => {
   let component: AuditHistoryComponent;
   let fixture: ComponentFixture<AuditHistoryComponent>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
@@ -49,7 +49,6 @@ fdescribe('AuditHistoryComponent', () => {
   it('should display estatuses correctly', () => {
     const eStatusCards = getAllElementsBySelector(fixture, '.audit-history--block');
     expect(eStatusCards.length).toEqual(estatusSample.length);
-    console.log(estatusSample[0].st);
     expect(getTextContent(getElementBySelector(fixture, '.audit-history--category'))).toEqual(
       estatusSample[0].st.category
     );
@@ -60,5 +59,25 @@ fdescribe('AuditHistoryComponent', () => {
   it('should show details if any statement diff exists', () => {
     const detailsContent = getAllElementsBySelector(fixture, 'app-statuses-diff');
     expect(detailsContent.length).toEqual(13);
+  });
+
+  it('updateProjectNameKey(): should update project name', () => {
+    component.estatuses = eStatusWithProjectName;
+    fixture.detectChanges();
+
+    component.updateProjectNameKey();
+    expect(component.estatuses[0].st_diff).toEqual({ Purpose: 'Project' });
+  });
+
+  it('getAndUpdateProjectName(): should get and update project name', (done) => {
+    spyOn(component, 'updateProjectNameKey');
+    expenseFieldsService.getAllEnabled.and.returnValue(of(transformedResponse2));
+    fixture.detectChanges();
+
+    component.getAndUpdateProjectName();
+
+    expect(component.projectFieldName).toEqual(transformedResponse2[0].field_name);
+    expect(component.updateProjectNameKey).toHaveBeenCalledTimes(1);
+    done();
   });
 });
