@@ -116,12 +116,10 @@ fdescribe('AddApproversPopoverComponent', () => {
   }));
 
   it('should call advanceRequestService.addApprover() for type ADVANCE_REQUEST', fakeAsync(() => {
-    const type = 'ADVANCE_REQUEST';
-    const id = 'areqMP09oaYXBf';
-    const approverEmail = 'ajain@fyle.in';
-
-    const confirmationMessage = 'The request is approved';
-
+    component.type = 'ADVANCE_REQUEST';
+    component.id = 'areqMP09oaYXBf';
+    component.confirmationMessage = 'The request is approved';
+    component.selectedApproversList = [{ email: 'john.doe@example.com' }];
     advanceRequestService.addApprover.and.returnValue(of(pullBackAdvancedRequests));
     loaderService.showLoader.and.returnValue(Promise.resolve());
     loaderService.hideLoader.and.returnValue(Promise.resolve());
@@ -131,7 +129,11 @@ fdescribe('AddApproversPopoverComponent', () => {
 
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     tick();
-    //expect(advanceRequestService.addApprover).toHaveBeenCalledWith(id,approverEmail,confirmationMessage);
+    expect(advanceRequestService.addApprover).toHaveBeenCalledWith(
+      'areqMP09oaYXBf',
+      'john.doe@example.com',
+      'The request is approved'
+    );
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
   }));
