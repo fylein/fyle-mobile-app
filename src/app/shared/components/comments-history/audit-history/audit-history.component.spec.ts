@@ -33,7 +33,14 @@ describe('AuditHistoryComponent', () => {
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     expenseFieldsService.getAllEnabled.and.returnValue(of(transformedResponse2));
     component.estatuses = estatusData1;
+    spyOn(component, 'hasDetails').and.callThrough();
+    spyOn(component, 'getAndUpdateProjectName').and.callThrough();
+    spyOn(component, 'setReimbursable').and.callThrough();
     fixture.detectChanges();
+
+    expect(component.hasDetails).toHaveBeenCalledTimes(1);
+    expect(component.setReimbursable).toHaveBeenCalledTimes(1);
+    expect(component.getAndUpdateProjectName).toHaveBeenCalledTimes(1);
   }));
 
   it('should create', () => {
