@@ -1,23 +1,7 @@
-<ng-container *ngIf="customProperties?.length > 0">
-  <div class="view-expense--divider"></div>
+<ng-container *ngIf="dependentCustomProperties$ | async as dependentCustomProperties">
+  <ng-container *ngIf="dependentCustomProperties?.length > 0">
+    <div class="view-expense--divider"></div>
 
-  <ion-grid class="view-expense--grid">
-    <ion-row>
-      <ion-col class="view-expense--icon-container">
-        <div class="view-expense--icon-container__background">
-          <ion-icon class="view-expense--icon-container__icon-lg" src="../../../../assets/svg/list.svg"></ion-icon>
-        </div>
-      </ion-col>
-      <ion-col class="view-expense--content-container">
-        <div class="view-expense--label">{{ parentFieldName | titlecase }}</div>
-        <div class="view-expense--value">
-          {{ parentFieldValue || 'Unspecified' }}
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
-  <ng-container *ngFor="let customProperty of customProperties">
     <ion-grid class="view-expense--grid">
       <ion-row>
         <ion-col class="view-expense--icon-container">
@@ -26,10 +10,28 @@
           </div>
         </ion-col>
         <ion-col class="view-expense--content-container">
-          <div class="view-expense--label">{{ customProperty.name }}</div>
-          <div class="view-expense--value">{{ customProperty.displayValue }}</div>
+          <div class="view-expense--label">{{ parentFieldName | titlecase }}</div>
+          <div class="view-expense--value">
+            {{ parentFieldValue || 'Unspecified' }}
+          </div>
         </ion-col>
       </ion-row>
     </ion-grid>
+
+    <ng-container *ngFor="let customProperty of dependentCustomProperties">
+      <ion-grid class="view-expense--grid">
+        <ion-row>
+          <ion-col class="view-expense--icon-container">
+            <div class="view-expense--icon-container__background">
+              <ion-icon class="view-expense--icon-container__icon-lg" src="../../../../assets/svg/list.svg"></ion-icon>
+            </div>
+          </ion-col>
+          <ion-col class="view-expense--content-container">
+            <div class="view-expense--label">{{ customProperty.name }}</div>
+            <div class="view-expense--value">{{ customProperty.value }}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-container>
   </ng-container>
 </ng-container>

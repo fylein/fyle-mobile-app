@@ -610,12 +610,15 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="projectDependantCustomProperties$|async as projectDependantCustomProperties">
-        <app-view-dependent-fields
-          [parentFieldName]="projectFieldName"
-          [parentFieldValue]="etxn.tx_project_name"
-          [customProperties]="projectDependantCustomProperties"
-        ></app-view-dependent-fields>
+      <ng-container *ngIf="txnFields$ | async as txnFields">
+        <ng-container *ngIf="txnFields?.project_id?.length">
+          <app-view-dependent-fields
+            [parentFieldId]="txnFields.project_id[0]?.id"
+            [parentFieldName]="projectFieldName"
+            [parentFieldValue]="etxn.tx_project_name"
+            [customProperties]="etxn.tx_custom_properties"
+          ></app-view-dependent-fields>
+        </ng-container>
       </ng-container>
 
       <ng-container *ngIf="customProperties$|async as customProperties">
