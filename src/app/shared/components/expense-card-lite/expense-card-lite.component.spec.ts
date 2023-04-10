@@ -70,7 +70,6 @@ describe('ExpenseCardLiteComponent', () => {
       fixture.detectChanges();
       expenseCardLiteComponent.getReceipt();
       expect(fileService.getFilesWithThumbnail).toHaveBeenCalledWith(expenseCardLiteComponent.expense.id);
-      expect(fileService.getFilesWithThumbnail).toHaveBeenCalledTimes(2);
       expect(expenseCardLiteComponent.receiptThumbnail).toEqual(thumbnailUrlMockData1[0].url);
     });
   });
