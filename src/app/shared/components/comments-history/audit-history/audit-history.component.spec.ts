@@ -7,7 +7,11 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { StatusesDiffComponent } from './statuses-diff/statuses-diff.component';
 import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
-import { eStatusWithProjectName, estatusSample } from 'src/app/core/test-data/status.service.spec.data';
+import {
+  eStatusWithProjectName,
+  eStatusWithReimbursible,
+  estatusSample,
+} from 'src/app/core/test-data/status.service.spec.data';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
@@ -79,5 +83,14 @@ describe('AuditHistoryComponent', () => {
     expect(component.projectFieldName).toEqual(transformedResponse2[0].field_name);
     expect(component.updateProjectNameKey).toHaveBeenCalledTimes(1);
     done();
+  });
+
+  it('setReimbursable(): should set re-imbursable', () => {
+    component.estatuses = eStatusWithReimbursible;
+    fixture.detectChanges();
+
+    component.setReimbursable();
+    expect(component.estatuses[0].st_diff['non-reimbursable']).toBeUndefined();
+    expect(component.estatuses[0].st_diff.reimbursable).toEqual('No');
   });
 });

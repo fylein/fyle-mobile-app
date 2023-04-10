@@ -1657,3 +1657,41 @@ export const eStatusWithProjectName = [
     },
   },
 ];
+
+export const eStatusWithReimbursible = [
+  {
+    st_id: 'stJ0lgtMHZW9',
+    st_created_at: '2023-04-10T09:13:26.285Z',
+    st_org_user_id: 'SYSTEM',
+    st_comment: 'Abhishek Jain (ajain@fyle.in) merged another expense into this expense.',
+    st_diff: {
+      'cost-center name': 'Swapna',
+      'transaction date': 'Tuesday, March 21, 2023',
+      billable: false,
+      'expense number': 'E/2023/03/T/4',
+      tettest: 'null',
+      'sub-category': 'Software',
+      'breakfast provided': false,
+      'user entered amount': 1234567,
+      'select type field': '',
+      'userlist test': '[]',
+      currency: 'INR',
+      category: 'Software',
+      'non-reimbursable': 'Yes',
+    },
+    st_state: null,
+    st_transaction_id: 'txiJZFL5UzYe',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    st: {
+      category: 'Expense merged',
+      icon: 'fy-merge',
+    },
+    has_details: true,
+  },
+];
