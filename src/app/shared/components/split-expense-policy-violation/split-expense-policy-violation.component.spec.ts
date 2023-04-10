@@ -7,13 +7,12 @@ import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { of } from 'rxjs';
 
-describe('SplitExpensePolicyViolationComponent', () => {
+fdescribe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let splitExpenseService: jasmine.SpyObj<SplitExpenseService>;
   let comments: FormArray;
-  const mockComments = { id1: 'comment1', id2: 'comment2' };
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -84,7 +83,10 @@ describe('SplitExpensePolicyViolationComponent', () => {
 
     component.continue();
 
-    expect(splitExpenseService.postCommentsFromUsers).toHaveBeenCalledOnceWith(['id1', 'id2'], mockComments);
+    expect(splitExpenseService.postCommentsFromUsers).toHaveBeenCalledOnceWith(['id1', 'id2'], {
+      id1: 'comment1',
+      id2: 'comment2',
+    });
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
 });
