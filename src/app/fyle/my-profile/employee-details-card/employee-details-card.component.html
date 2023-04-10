@@ -39,7 +39,7 @@
               <ion-col size="5.5" *ngIf="eou.ou.employee_id && eou.ou.employee_id.length">
                 <div class="employee-details-card__label">Employee Id</div>
                 <div
-                  data-testid="employee_id"
+                  data-testid="employeeId"
                   #employeeIdRef="matTooltip"
                   (click)="showTooltip(employeeIdRef)"
                   [matTooltip]="eou.ou.employee_id"

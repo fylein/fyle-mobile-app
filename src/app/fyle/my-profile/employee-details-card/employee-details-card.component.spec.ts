@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { PopoverController } from '@ionic/angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -134,7 +134,7 @@ describe('EmployeeDetailsCardComponent', () => {
     fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.employee-details-card__icon-container__text'))).toEqual('AJ');
     expect(getTextContent(getElementBySelector(fixture, '.employee-details-card__header'))).toEqual('Abhishek Jain');
-    expect(getTextContent(getElementBySelector(fixture, '[data-testid="employee_id"]'))).toEqual('test_employee');
+    expect(getTextContent(getElementBySelector(fixture, '[data-testid="employeeId"]'))).toEqual('test_employee');
   });
 
   it('should show update mobile number popup when clicked', () => {
@@ -147,9 +147,20 @@ describe('EmployeeDetailsCardComponent', () => {
 
   it('should show tooltip when clicked on', () => {
     spyOn(component, 'showTooltip');
-    const toolTipCard = getElementBySelector(fixture, '[data-testid="employee_id"]') as HTMLElement;
+    component.eou.ou.employee_id = 'test_employee';
+    fixture.detectChanges();
+    const toolTipCard = getElementBySelector(fixture, '[data-testid="employeeId"]') as HTMLElement;
     click(toolTipCard);
 
     expect(component.showTooltip).toHaveBeenCalledTimes(1);
   });
+
+  it('showTooltip(): should show tooltip', fakeAsync(() => {
+    const matToolTipSpy = jasmine.createSpyObj('MatTooltip', ['show', 'hide']);
+    component.showTooltip(matToolTipSpy);
+    expect(matToolTipSpy.show).toHaveBeenCalledTimes(1);
+    expect(matToolTipSpy.hide).not.toHaveBeenCalled();
+    tick(3000);
+    expect(matToolTipSpy.hide).toHaveBeenCalledTimes(1);
+  }));
 });
