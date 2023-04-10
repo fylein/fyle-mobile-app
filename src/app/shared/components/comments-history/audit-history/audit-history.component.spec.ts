@@ -9,6 +9,7 @@ import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import {
   eStatusWithProjectName,
+  eStatusWithProjectName2,
   eStatusWithReimbursible,
   estatusSample,
 } from 'src/app/core/test-data/status.service.spec.data';
@@ -70,7 +71,17 @@ describe('AuditHistoryComponent', () => {
     fixture.detectChanges();
 
     component.updateProjectNameKey();
+
     expect(component.estatuses[0].st_diff).toEqual({ Purpose: 'Project' });
+  });
+
+  it('updateProjectNameKey(): should update project name if it already exists', () => {
+    component.estatuses = eStatusWithProjectName2;
+    fixture.detectChanges();
+
+    component.updateProjectNameKey();
+
+    expect(component.projectFieldName).toEqual('project name (Purpose)');
   });
 
   it('getAndUpdateProjectName(): should get and update project name', (done) => {
