@@ -488,7 +488,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
             this.mergeExpensesService.mergeExpenses(
               sourceTxnIds,
               selectedExpense,
-              this.generateFromFg(projectDependentFieldsMapping, costCenterDependentFieldsMapping)
+              this.generateFromFg({ ...projectDependentFieldsMapping, ...costCenterDependentFieldsMapping })
             )
           ),
           finalize(() => {
@@ -523,10 +523,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       .subscribe(noop);
   }
 
-  generateFromFg(
-    projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] },
-    costCenterDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] }
-  ) {
+  generateFromFg(dependentFieldsMapping: { [id: number]: CustomProperty<string>[] }) {
     const sourceExpense = this.expenses.find(
       (expense) => expense.source_account_type === this.genericFieldsForm?.value?.paymentMode
     );
@@ -538,9 +535,8 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     } else if (this.fg.value.location_1) {
       locations = [this.genericFieldsForm.value.location_1];
     }
-    const projectDependantFieldValues = projectDependentFieldsMapping[this.genericFieldsForm.value.project] || [];
-    const costCenterDependentFieldValues =
-      costCenterDependentFieldsMapping[this.genericFieldsForm.value.costCenter] || [];
+    const projectDependantFieldValues = dependentFieldsMapping[this.genericFieldsForm.value.project] || [];
+    const costCenterDependentFieldValues = dependentFieldsMapping[this.genericFieldsForm.value.costCenter] || [];
 
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
