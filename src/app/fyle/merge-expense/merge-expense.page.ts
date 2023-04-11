@@ -1,5 +1,5 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { BehaviorSubject, forkJoin, noop, Observable, of } from 'rxjs';
+import { BehaviorSubject, forkJoin, noop, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -138,7 +138,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   projectDependentFieldsMapping$: Observable<{ [projectId: number]: CustomProperty<string>[] }>;
 
-  costCenterDependentFieldsMapping$: Observable<{ [projectId: number]: CustomProperty<string>[] }>;
+  costCenterDependentFieldsMapping$: Observable<{ [costCenterId: number]: CustomProperty<string>[] }>;
 
   constructor(
     private router: Router,
@@ -609,32 +609,29 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       })
     );
 
+    this.projectDependentFieldsMapping$ = this.getDependentFieldsMapping('PROJECT');
+    this.costCenterDependentFieldsMapping$ = this.getDependentFieldsMapping('COST_CENTER');
+  }
+
+  getDependentFieldsMapping(parentField: 'PROJECT' | 'COST_CENTER') {
     const expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
-    this.projectDependentFieldsMapping$ = expenseFields$.pipe(
-      switchMap((expenseFields) =>
-        this.dependantFieldsService.getDependentFieldsForBaseField(expenseFields.project_id[0].id)
-      ),
+    return expenseFields$.pipe(
+      switchMap((expenseFields) => {
+        let parentFieldId: number;
+        if (parentField === 'PROJECT') {
+          parentFieldId = expenseFields.project_id[0].id;
+        } else if (parentField === 'COST_CENTER') {
+          parentFieldId = expenseFields.cost_center_id[0].id;
+        }
+        return this.dependantFieldsService.getDependentFieldsForBaseField(parentFieldId);
+      }),
       map((fields) => {
         const customFields = this.customFieldsService.standardizeCustomFields([], fields);
         return customFields;
       }),
       map((dependentFields) =>
-        this.mergeExpensesService.getProjectDependentFieldsMapping(this.expenses, dependentFields)
-      ),
-      shareReplay(1)
-    );
-
-    this.costCenterDependentFieldsMapping$ = expenseFields$.pipe(
-      switchMap((expenseFields) =>
-        this.dependantFieldsService.getDependentFieldsForBaseField(expenseFields.cost_center_id[0].id)
-      ),
-      map((fields) => {
-        const customFields = this.customFieldsService.standardizeCustomFields([], fields);
-        return customFields;
-      }),
-      map((dependentFields) =>
-        this.mergeExpensesService.getProjectDependentFieldsMapping(this.expenses, dependentFields)
+        this.mergeExpensesService.getDependentFieldsMapping(this.expenses, dependentFields, parentField)
       ),
       shareReplay(1)
     );
