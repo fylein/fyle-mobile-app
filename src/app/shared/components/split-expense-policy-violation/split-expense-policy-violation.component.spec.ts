@@ -9,6 +9,7 @@ import {
 import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { of } from 'rxjs';
+import { cloneDeep } from 'lodash';
 
 describe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
@@ -42,8 +43,8 @@ describe('SplitExpensePolicyViolationComponent', () => {
     splitExpenseService = TestBed.inject(SplitExpenseService) as jasmine.SpyObj<SplitExpenseService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     component.policyViolations = {
-      id1: formattedPolicyViolation1,
-      id2: formattedPolicyViolation2,
+      id1: cloneDeep(formattedPolicyViolation1),
+      id2: cloneDeep(formattedPolicyViolation2),
     };
     comments = component.form.controls.comments as FormArray;
     fixture.detectChanges();
