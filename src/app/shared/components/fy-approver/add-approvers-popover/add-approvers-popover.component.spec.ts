@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule } from '@angular/forms';
 import { pullBackAdvancedRequests } from 'src/app/core/mock-data/advance-requests.data';
-import { apiAllApproverRes1 } from 'src/app/core/mock-data/approver.data';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { of } from 'rxjs';
 
@@ -115,12 +114,12 @@ describe('AddApproversPopoverComponent', () => {
     expect(popoverController.dismiss).toHaveBeenCalledTimes(1);
   }));
 
-  it('should call advanceRequestService.addApprover() for type ADVANCE_REQUEST', fakeAsync(() => {
+  it('should call advanceRequestService.addApprover() for type ADVANCE REQUEST', fakeAsync(() => {
     fixture.detectChanges();
     component.type = 'ADVANCE_REQUEST';
     component.id = 'areqMP09oaYXBf';
     component.confirmationMessage = 'The request is approved';
-    component.selectedApproversList = [{ email: 'john.doe@example.com' }];
+    component.selectedApproversList = [{ email: 'john.doe@fyle.in' }];
     advanceRequestService.addApprover.and.returnValue(of(pullBackAdvancedRequests));
     loaderService.showLoader.and.returnValue(Promise.resolve());
     loaderService.hideLoader.and.returnValue(Promise.resolve());
@@ -130,9 +129,9 @@ describe('AddApproversPopoverComponent', () => {
 
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     tick();
-    expect(advanceRequestService.addApprover).toHaveBeenCalledWith(
+    expect(advanceRequestService.addApprover).toHaveBeenCalledOnceWith(
       'areqMP09oaYXBf',
-      'john.doe@example.com',
+      'john.doe@fyle.in',
       'The request is approved'
     );
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -154,8 +153,25 @@ describe('AddApproversPopoverComponent', () => {
 
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     tick();
-    expect(reportService.addApprover).toHaveBeenCalledWith('repP09oaYXAf', 'ajain@fyle.in', 'The request is approved');
+    expect(reportService.addApprover).toHaveBeenCalledOnceWith(
+      'repP09oaYXAf',
+      'ajain@fyle.in',
+      'The request is approved'
+    );
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
   }));
+
+  it('should have the "Add Approvers" title in the header', () => {
+    const title = getElementBySelector(fixture, '.add-approvers-popover--toolbar__title');
+    expect(getTextContent(title)).toContain('Add Approvers');
+  });
+
+  it('should display the "+n more" chip when there are more than 3 selected approvers', () => {
+    component.selectedApproversList = ['ajain@fyle.in', 'aiyush.dhar@fyle.in', 'chetan.m@fyle.in', 'john.d@fyle.in'];
+    fixture.detectChanges();
+    const moreChip = getElementBySelector(fixture, '.add-approvers-popover--input-container__chip');
+    expect(moreChip).toBeTruthy();
+    expect(getTextContent(moreChip)).toContain('+1 more');
+  });
 });
