@@ -14,7 +14,7 @@ import { apiAllApproverRes1 } from 'src/app/core/mock-data/approver.data';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { of } from 'rxjs';
 
-fdescribe('AddApproversPopoverComponent', () => {
+describe('AddApproversPopoverComponent', () => {
   let component: AddApproversPopoverComponent;
   let fixture: ComponentFixture<AddApproversPopoverComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -116,6 +116,7 @@ fdescribe('AddApproversPopoverComponent', () => {
   }));
 
   it('should call advanceRequestService.addApprover() for type ADVANCE_REQUEST', fakeAsync(() => {
+    fixture.detectChanges();
     component.type = 'ADVANCE_REQUEST';
     component.id = 'areqMP09oaYXBf';
     component.confirmationMessage = 'The request is approved';
@@ -134,6 +135,26 @@ fdescribe('AddApproversPopoverComponent', () => {
       'john.doe@example.com',
       'The request is approved'
     );
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
+  }));
+
+  it('should call reportService.addApprover() for other request types', fakeAsync(() => {
+    fixture.detectChanges();
+    component.type = 'report';
+    component.id = 'repP09oaYXAf';
+    component.confirmationMessage = 'The request is approved';
+    component.selectedApproversList = [{ email: 'ajain@fyle.in' }];
+    reportService.addApprover.and.returnValue(of(null));
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    popoverController.dismiss.and.returnValue(Promise.resolve(true));
+
+    component.saveUpdatedApproversList();
+
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    tick();
+    expect(reportService.addApprover).toHaveBeenCalledWith('repP09oaYXAf', 'ajain@fyle.in', 'The request is approved');
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ reload: true });
   }));
