@@ -9,6 +9,7 @@ import { CustomInputsService } from './custom-inputs.service';
 import { shareReplay, switchMap } from 'rxjs/operators';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { CustomProperty } from '../models/custom-properties.model';
+import { CustomInput } from '../models/custom-input.model';
 
 @Injectable({
   providedIn: 'root',
@@ -54,9 +55,9 @@ export class DependentFieldsService {
 
   //This method returns array of dependent field values based on id of base field
   getDependentFieldValuesForBaseField(
-    txnCustomProperties: CustomProperty<string>[],
+    txnCustomProperties: CustomProperty<string>[] | CustomInput[],
     parentFieldId: number
-  ): Observable<CustomProperty<string>[]> {
+  ): Observable<CustomProperty<string>[] | CustomInput[]> {
     return this.getDependentFieldsForBaseField(parentFieldId).pipe(
       map((dependentExpenseFields) =>
         dependentExpenseFields.reduce((dependentCustomProperties, dependentExpenseField) => {
