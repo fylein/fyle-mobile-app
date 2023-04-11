@@ -75,9 +75,9 @@ export class DependentFieldsService {
   }
 
   //This method returns array of dependent fields based on id of base field - Project, Cost center, etc.
-  private getDependentFieldsForBaseField(parentFieldId: number): Observable<ExpenseField[]> {
+  getDependentFieldsForBaseField(parentFieldId: number): Observable<ExpenseField[]> {
     return this.customInputsService.getAll(true).pipe(
-      switchMap((expenseFields) => {
+      map((expenseFields) => {
         const dependentExpenseFields = [];
         while (parentFieldId) {
           const nextDependentField = expenseFields.find(
@@ -88,7 +88,7 @@ export class DependentFieldsService {
           }
           parentFieldId = nextDependentField?.id;
         }
-        return of(dependentExpenseFields);
+        return dependentExpenseFields;
       })
     );
   }

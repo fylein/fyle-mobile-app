@@ -19,6 +19,8 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
+import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 type CustomInputs = Partial<{
   control: FormControl;
@@ -136,6 +138,8 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   projectDependentFieldsMapping$: Observable<{ [projectId: number]: CustomProperty<string>[] }>;
 
+  costCenterDependentFieldsMapping$: Observable<{ [projectId: number]: CustomProperty<string>[] }>;
+
   constructor(
     private router: Router,
     private categoriesService: CategoriesService,
@@ -148,6 +152,8 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     private mergeExpensesService: MergeExpensesService,
     private activatedRoute: ActivatedRoute,
     private trackingService: TrackingService,
+    private expenseFieldsService: ExpenseFieldsService,
+    private dependantFieldsService: DependentFieldsService,
     private cdRef: ChangeDetectorRef
   ) {}
 
@@ -473,13 +479,16 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       });
       sourceTxnIds = sourceTxnIds.filter((id) => id !== selectedExpense);
 
-      this.projectDependentFieldsMapping$
+      forkJoin({
+        projectDependentFieldsMapping: this.projectDependentFieldsMapping$,
+        costCenterDependentFieldsMapping: this.costCenterDependentFieldsMapping$,
+      })
         .pipe(
-          switchMap((projectDependentFieldsMapping) =>
+          switchMap(({ projectDependentFieldsMapping, costCenterDependentFieldsMapping }) =>
             this.mergeExpensesService.mergeExpenses(
               sourceTxnIds,
               selectedExpense,
-              this.generateFromFg(projectDependentFieldsMapping)
+              this.generateFromFg(projectDependentFieldsMapping, costCenterDependentFieldsMapping)
             )
           ),
           finalize(() => {
@@ -514,7 +523,10 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       .subscribe(noop);
   }
 
-  generateFromFg(projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] }) {
+  generateFromFg(
+    projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] },
+    costCenterDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] }
+  ) {
     const sourceExpense = this.expenses.find(
       (expense) => expense.source_account_type === this.genericFieldsForm?.value?.paymentMode
     );
@@ -526,7 +538,9 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     } else if (this.fg.value.location_1) {
       locations = [this.genericFieldsForm.value.location_1];
     }
-    const dependentFieldValues = projectDependentFieldsMapping[this.genericFieldsForm.value.project] || [];
+    const projectDependantFieldValues = projectDependentFieldsMapping[this.genericFieldsForm.value.project] || [];
+    const costCenterDependentFieldValues =
+      costCenterDependentFieldsMapping[this.genericFieldsForm.value.costCenter] || [];
 
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
@@ -542,7 +556,11 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       purpose: this.genericFieldsForm.value.purpose,
       txn_dt: this.genericFieldsForm.value.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
-      custom_properties: [...this.fg.controls.custom_inputs.value.fields, ...dependentFieldValues],
+      custom_properties: [
+        ...this.fg.controls.custom_inputs.value.fields,
+        ...projectDependantFieldValues,
+        ...costCenterDependentFieldValues,
+      ],
       ccce_group_id: CCCMatchedExpense?.tx_corporate_credit_card_expense_group_id,
       from_dt: this.genericFieldsForm.value.from_dt,
       to_dt: this.genericFieldsForm.value.to_dt,
@@ -591,15 +609,30 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       })
     );
 
-    const dependentFields$ = allCustomFields$.pipe(
-      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
-      switchMap((fields) => {
+    const expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
+
+    this.projectDependentFieldsMapping$ = expenseFields$.pipe(
+      switchMap((expenseFields) =>
+        this.dependantFieldsService.getDependentFieldsForBaseField(expenseFields.project_id[0].id)
+      ),
+      map((fields) => {
         const customFields = this.customFieldsService.standardizeCustomFields([], fields);
-        return of(customFields);
-      })
+        return customFields;
+      }),
+      map((dependentFields) =>
+        this.mergeExpensesService.getProjectDependentFieldsMapping(this.expenses, dependentFields)
+      ),
+      shareReplay(1)
     );
 
-    this.projectDependentFieldsMapping$ = dependentFields$.pipe(
+    this.costCenterDependentFieldsMapping$ = expenseFields$.pipe(
+      switchMap((expenseFields) =>
+        this.dependantFieldsService.getDependentFieldsForBaseField(expenseFields.cost_center_id[0].id)
+      ),
+      map((fields) => {
+        const customFields = this.customFieldsService.standardizeCustomFields([], fields);
+        return customFields;
+      }),
       map((dependentFields) =>
         this.mergeExpensesService.getProjectDependentFieldsMapping(this.expenses, dependentFields)
       ),

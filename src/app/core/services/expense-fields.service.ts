@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
-import { map, reduce, switchMap } from 'rxjs/operators';
+import { map, reduce, switchMap, tap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
@@ -127,7 +127,8 @@ export class ExpenseFieldsService {
           expenseFieldMap[expenseField.column_name] = expenseFieldsList;
         });
         return expenseFieldMap;
-      })
+      }),
+      tap(console.log)
     );
   }
 
