@@ -83,7 +83,7 @@ export class SplitExpensePage implements OnInit {
 
   categoryList: OrgCategory[];
 
-  projectDependentFields$: Observable<CustomInput[]>;
+  dependentCustomProperties$: Observable<CustomInput[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -217,15 +217,19 @@ export class SplitExpensePage implements OnInit {
       this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
     this.transaction.to_dt = this.transaction?.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
 
-    return forkJoin({
-      projectDependentFields: this.projectDependentFields$,
-    }).pipe(
-      map(({ projectDependentFields }) => {
-        //If expense is split by projects and the selected project is not same as the original expense, then remove dependent fields from source expense.
+    return this.dependentCustomProperties$.pipe(
+      map((dependentCustomProperties) => {
         let txnCustomProperties = this.transaction.custom_properties;
-        if (this.splitType === 'projects' && splitExpenseValue.project?.project_id !== this.transaction.project_id) {
+
+        const isDifferentProject =
+          this.splitType === 'projects' && splitExpenseValue.project?.project_id !== this.transaction.project_id;
+        const isDifferentCostCenter =
+          this.splitType === 'cost centers' && splitExpenseValue.cost_center?.id !== this.transaction.cost_center_id;
+
+        //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
+        if (isDifferentProject || isDifferentCostCenter) {
           txnCustomProperties = this.transaction.custom_properties.filter(
-            (customProperty) => !projectDependentFields.includes(customProperty)
+            (customProperty) => !dependentCustomProperties.includes(customProperty)
           );
         }
 
@@ -501,13 +505,21 @@ export class SplitExpensePage implements OnInit {
 
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
 
-    //Remove project dependent fields if split type is project.
+    let parentFieldId: number;
     if (this.splitType === 'projects') {
-      this.projectDependentFields$ = this.dependentFieldsService.getDependentFieldValuesForBaseField(
-        this.transaction.custom_properties,
-        this.txnFields.project_id.id
-      ) as Observable<CustomInput[]>;
+      parentFieldId = this.txnFields.project_id.id;
+    } else if (this.splitType === 'cost centers') {
+      parentFieldId = this.txnFields.cost_center_id.id;
     }
+
+    this.dependentCustomProperties$ = iif(
+      () => !!parentFieldId,
+      this.dependentFieldsService.getDependentFieldValuesForBaseField(
+        this.transaction.custom_properties,
+        parentFieldId
+      ) as Observable<CustomInput[]>,
+      of(null)
+    );
 
     if (this.splitType === 'cost centers') {
       const orgSettings$ = this.orgSettingsService.get();
