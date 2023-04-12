@@ -13,12 +13,7 @@ import { isEqual } from 'lodash';
 import { getCurrencySymbol } from '@angular/common';
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-
-type Option = {
-  label: string;
-  value: UnflattenedReport;
-  selected?: boolean;
-};
+import { Option } from 'src/app/core/models/option.model';
 
 @Component({
   selector: 'app-add-to-report-modal',
