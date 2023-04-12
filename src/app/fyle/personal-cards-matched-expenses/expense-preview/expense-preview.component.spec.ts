@@ -73,20 +73,21 @@ describe('ExpensePreviewComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  describe('onInit():', () => {
+    it('should set isIos to true if the platform is iOS', () => {
+      platform.is.and.returnValue(true);
+      component.ngOnInit();
+      expect(component.isIos).toBe(true);
+    });
 
-  it('should set isIos to true if the platform is iOS', () => {
-    platform.is.and.returnValue(true);
-    component.ngOnInit();
-    expect(component.isIos).toBe(true);
+    it('should set isIos to false if the platform is not iOS', () => {
+      platform.is.and.returnValue(false);
+      component.ngOnInit();
+      expect(component.isIos).toBe(false);
+    });
   });
 
-  it('should set isIos to false if the platform is not iOS', () => {
-    platform.is.and.returnValue(false);
-    component.ngOnInit();
-    expect(component.isIos).toBe(false);
-  });
-
-  it('should call getExpenseDetails() of PersonalCardsService with expenseId and assign result to expenseDetails$', (done) => {
+  it('ionViewWillEnter(): should get personal card expense details', (done) => {
     personalCardsService.getExpenseDetails.and.returnValue(of(etxncData.data[0]));
     component.ionViewWillEnter();
 
@@ -109,7 +110,7 @@ describe('ExpensePreviewComponent', () => {
     expect(modalControllerDismissSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('closeModal(): should dismiss the model', () => {
+  it('closeModal(): should dismiss the modal', () => {
     const modalControllerDismissSpy = modalController.dismiss.and.returnValue(Promise.resolve(true));
     component.closeModal();
     expect(modalControllerDismissSpy).toHaveBeenCalledTimes(1);
@@ -134,7 +135,7 @@ describe('ExpensePreviewComponent', () => {
     expect(trackingService.oldExpensematchedFromPersonalCard).toHaveBeenCalledTimes(1);
   });
 
-  it('unmatchExpense():should unmatch the expenses', () => {
+  it('unmatchExpense(): should unmatch the expenses', () => {
     component.unMatching = true;
     personalCardsService.unmatchExpense.and.returnValue(of(null));
     component.expenseId = 'tx2ZttMRItRx';
