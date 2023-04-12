@@ -262,7 +262,7 @@ export class ViewExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.txnFields$ = this.expenseFieldsService.getAllMap();
+    this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     this.projectDependentCustomProperties$ = forkJoin({
       etxn: this.etxn$.pipe(take(1)),
