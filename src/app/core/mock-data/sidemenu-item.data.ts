@@ -32,3 +32,27 @@ export const sidemenuItemData2: SidemenuItem = {
   route: [],
   openLiveChat: false,
 };
+
+export const sidemenuItemData3: Partial<SidemenuItem> = {
+  title: 'Live Chat',
+  isVisible: true,
+  icon: 'fy-chat-2',
+  openLiveChat: true,
+  disabled: false,
+};
+
+export const sidemenuItemData4: Partial<SidemenuItem> = {
+  title: 'Switch Organization',
+  isVisible: true,
+  icon: 'swap',
+  route: [
+    '/',
+    'auth',
+    'switch_org',
+    {
+      choose: true,
+      navigate_back: true,
+    },
+  ],
+  disabled: false,
+};
