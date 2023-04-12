@@ -5,7 +5,7 @@
       <div class="report-list--title text-center">Add To Report</div>
     </ion-title>
     <ion-buttons slot="start">
-      <ion-button (click)="onDoneClick()">
+      <ion-button data-testid="close_icon" (click)="onDoneClick()">
         <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
       </ion-button>
     </ion-buttons>
@@ -28,7 +28,7 @@
         <ion-grid class="ion-no-padding report-list--default-container">
           <ion-row>
             <ion-col class="ion-no-padding report-list--purpose-count-container">
-              <div class="report-list--purpose">{{ autoSubmissionReportName }}</div>
+              <div data-testid="auto_submit_report" class="report-list--purpose">{{ autoSubmissionReportName }}</div>
             </ion-col>
             <ion-col size="1" class="ion-no-padding report-list--selected">
               <ion-icon
@@ -43,7 +43,7 @@
     </ng-container>
 
     <div class="report-list--list" *ngFor="let option of options">
-      <div mat-ripple (click)="onElementSelect(option)">
+      <div data-testid="reports" mat-ripple (click)="onElementSelect(option)">
         <div class="report-list--divider"></div>
         <ion-grid class="ion-no-padding">
           <ion-row>
