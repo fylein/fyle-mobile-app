@@ -1,4 +1,4 @@
-import { CustomInput } from '../models/merge-expense-custom-input.model';
+import { CustomInput } from '../models/custom-input.model';
 
 export const dependentFields: CustomInput[] = [
   {
