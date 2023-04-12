@@ -368,7 +368,7 @@ export class MergeExpensesService {
       filter((expense) => expense.tx_cost_center_name !== null),
       map((expense) => ({
         label: expense.tx_cost_center_name.toString(),
-        value: expense.tx_cost_center_name,
+        value: expense.tx_cost_center_id,
       })),
       reduce((acc, curr) => {
         acc.push(curr);
@@ -582,13 +582,14 @@ export class MergeExpensesService {
       .filter((element) => element !== undefined);
   }
 
-  getProjectDependentFieldsMapping(
+  getDependentFieldsMapping(
     expenses: Expense[],
-    dependentFields: TxnCustomProperties[]
+    dependentFields: TxnCustomProperties[],
+    parentField: 'PROJECT' | 'COST_CENTER'
   ): {
     [projectId: number]: CustomProperty<string>[];
   } {
-    const projectDependentFieldsMapping = {};
+    const dependentFieldsMapping = {};
     expenses.forEach((expense) => {
       const txDependentFields: CustomProperty<string>[] = dependentFields
         ?.map((dependentField: TxnCustomProperties) =>
@@ -598,15 +599,22 @@ export class MergeExpensesService {
         )
         .filter((txDependentField) => !!txDependentField);
 
-      const dependentFieldsForProject = projectDependentFieldsMapping[expense.tx_project_id];
+      let parentFieldValueId: number;
+      if (parentField === 'PROJECT') {
+        parentFieldValueId = expense.tx_project_id;
+      } else if (parentField === 'COST_CENTER') {
+        parentFieldValueId = expense.tx_cost_center_id;
+      }
+
+      const dependentFieldsWithValue = dependentFieldsMapping[parentFieldValueId];
 
       //If both the expenses have same project id but first one does not have any dependent field
       //then use the dependent fields from the second expense, else use fields from first expense
-      if (!dependentFieldsForProject || dependentFieldsForProject.length === 0) {
-        projectDependentFieldsMapping[expense.tx_project_id] = txDependentFields || [];
+      if (!dependentFieldsWithValue || dependentFieldsWithValue.length === 0) {
+        dependentFieldsMapping[parentFieldValueId] = txDependentFields || [];
       }
     });
-    return projectDependentFieldsMapping;
+    return dependentFieldsMapping;
   }
 
   formatCustomInputOptions(combinedCustomProperties: MergeExpensesOptionsData[]) {
