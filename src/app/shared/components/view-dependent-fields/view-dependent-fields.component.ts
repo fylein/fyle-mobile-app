@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { CustomField } from 'src/app/core/models/custom_field.model';
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 
 @Component({
   selector: 'app-view-dependent-fields',
@@ -7,13 +7,21 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
   styleUrls: ['./view-dependent-fields.component.scss'],
 })
 export class ViewDependentFieldsComponent implements OnInit {
+  @Input() parentFieldType: 'PROJECT' | 'COST_CENTER';
+
   @Input() parentFieldName: string;
 
   @Input() parentFieldValue: string;
 
-  @Input() customProperties: CustomField[];
+  @Input() costCenterCode: string;
+
+  @Input() dependentCustomProperties: CustomProperty<string>[];
+
+  parentFieldIcon: string;
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.parentFieldIcon = this.parentFieldType === 'PROJECT' ? 'list' : 'building';
+  }
 }
