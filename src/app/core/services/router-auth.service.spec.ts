@@ -14,8 +14,9 @@ import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { of } from 'rxjs';
 import { apiAuthRes, authResData1 } from '../mock-data/auth-reponse.data';
+import { ExpenseAggregationService } from './expense-aggregation.service';
 
-describe('RouterAuthService', () => {
+fdescribe('RouterAuthService', () => {
   let routerAuthService: RouterAuthService;
   let routerApiService: jasmine.SpyObj<RouterApiService>;
   let storageService: jasmine.SpyObj<StorageService>;
@@ -56,6 +57,7 @@ describe('RouterAuthService', () => {
     const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', ['setRoot']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['setRoot']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['setRoot']);
+    const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['setRoot']);
     TestBed.configureTestingModule({
       providers: [
         RouterAuthService,
@@ -106,6 +108,10 @@ describe('RouterAuthService', () => {
         {
           provide: ApproverPlatformApiService,
           useValue: approverPlatformApiServiceSpy,
+        },
+        {
+          provide: ExpenseAggregationService,
+          useValue: expenseAggregationServiceSpy,
         },
       ],
     });
