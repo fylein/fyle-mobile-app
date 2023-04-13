@@ -16,7 +16,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { FreshChatService } from './core/services/fresh-chat.service';
 import { DeepLinkService } from './core/services/deep-link.service';
-import { PushNotificationService } from './core/services/push-notification.service';
+// import { PushNotificationService } from './core/services/push-notification.service';
 import { TrackingService } from './core/services/tracking.service';
 import { LoginInfoService } from './core/services/login-info.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
@@ -66,7 +66,7 @@ export class AppComponent implements OnInit {
     private freshChatService: FreshChatService,
     private zone: NgZone,
     private deepLinkService: DeepLinkService,
-    private pushNotificationService: PushNotificationService,
+    // private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private navController: NavController,
@@ -173,7 +173,7 @@ export class AppComponent implements OnInit {
           this.sidemenuRef.showSideMenuOffline();
         }
 
-        this.pushNotificationService.initPush();
+        // this.pushNotificationService.initPush();
       }
 
       const markOptions: PerformanceMarkOptions = {
