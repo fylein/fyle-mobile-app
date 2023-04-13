@@ -157,21 +157,21 @@ describe('MergeExpensesService', () => {
     expect(mergeExpensesService).toBeTruthy();
   });
 
-  describe('getProjectDependentFieldsMapping(): ', () => {
+  describe('getDependentFieldsMapping(): ', () => {
     it('should return the correct project dependent fields mapping when projects are different', () => {
       expect(
-        mergeExpensesService.getProjectDependentFieldsMapping(expensesWithDependentFields, dependentFields)
+        mergeExpensesService.getDependentFieldsMapping(expensesWithDependentFields, dependentFields, 'PROJECT')
       ).toEqual(projectDependentFieldsMapping);
     });
 
     it('should return the correct project dependent fields mapping when projects are same', () => {
-      expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithSameProject, dependentFields)).toEqual(
-        projectDependentFieldsMappingForSameProject
-      );
+      expect(
+        mergeExpensesService.getDependentFieldsMapping(expensesWithSameProject, dependentFields, 'PROJECT')
+      ).toEqual(projectDependentFieldsMappingForSameProject);
     });
 
     it('should return empty array when there are no dependent fields', () => {
-      expect(mergeExpensesService.getProjectDependentFieldsMapping(expensesWithSameProject, null)).toEqual(
+      expect(mergeExpensesService.getDependentFieldsMapping(expensesWithSameProject, null, 'PROJECT')).toEqual(
         projectDependentFieldsMappingForNoDependentFields
       );
     });
