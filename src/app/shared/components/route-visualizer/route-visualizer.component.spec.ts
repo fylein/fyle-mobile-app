@@ -10,6 +10,7 @@ import {
   mileageLocationData2,
   mileageLocationData3,
 } from 'src/app/core/mock-data/mileage-location.data';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 // eslint-disable-next-line prefer-const
 let positionData1: Position = {
@@ -48,6 +49,7 @@ describe('RouteVisualizerComponent', () => {
           useValue: gmapsServiceSpy,
         },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RouteVisualizerComponent);
@@ -74,9 +76,9 @@ describe('RouteVisualizerComponent', () => {
   it('should show empty map when any one of the lat on lng is missing', () => {
     component.mileageLocations = mileageLocationData2;
     gmapsService.getDirections.and.returnValue(of(null));
+    component.ngOnChanges();
     fixture.detectChanges();
 
-    component.ngOnChanges();
     expect(gmapsService.getDirections).not.toHaveBeenCalled();
     expect(component.showEmptyMap).toBeTrue();
   });
@@ -84,9 +86,9 @@ describe('RouteVisualizerComponent', () => {
   it('should empty map when list of location is empty', () => {
     component.mileageLocations = [];
     gmapsService.getDirections.and.returnValue(of(null));
+    component.ngOnChanges();
     fixture.detectChanges();
 
-    component.ngOnChanges();
     expect(gmapsService.getDirections).not.toHaveBeenCalled();
     expect(component.showEmptyMap).toBeTrue();
   });
@@ -94,9 +96,9 @@ describe('RouteVisualizerComponent', () => {
   it('should show route for multiple locations', () => {
     component.mileageLocations = mileageLocationData3;
     gmapsService.getDirections.and.returnValue(of(null));
+    component.ngOnChanges();
     fixture.detectChanges();
 
-    component.ngOnChanges();
     expect(gmapsService.getDirections).toHaveBeenCalledOnceWith(component.origin, component.destination, [
       {
         location: {
