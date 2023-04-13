@@ -587,7 +587,7 @@ export class MergeExpensesService {
     dependentFields: TxnCustomProperties[],
     parentField: 'PROJECT' | 'COST_CENTER'
   ): {
-    [projectId: number]: CustomProperty<string>[];
+    [fieldId: number]: CustomProperty<string>[];
   } {
     const dependentFieldsMapping = {};
     expenses.forEach((expense) => {
