@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -13,7 +13,7 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuComponent } from './sidemenu.component';
-import { of } from 'rxjs';
+import { of, take } from 'rxjs';
 import { IonContent } from '@ionic/angular';
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -21,7 +21,8 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.component';
 import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
 import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
+import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 
 fdescribe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -92,6 +93,7 @@ fdescribe('SidemenuComponent', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
 
+    networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(SidemenuComponent);
     component = fixture.componentInstance;
     component.eou = apiEouRes;
@@ -102,15 +104,32 @@ fdescribe('SidemenuComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('setupNetworkWatcher', () => {
-    const emitterSpy = jasmine.createSpyObj('EventEmitter', ['asObservable']);
-    emitterSpy.asObservable.and.returnValue(of(true));
+  it('setupNetworkWatcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
+    const eventEmitterMock = new EventEmitter<boolean>();
+    networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
+
     component.setupNetworkWatcher();
-    expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
-    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-  });
-  // xit("showSideMenuOffline", () => { });
+    component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
+      expect(connectionStatus).toEqual(true);
+    });
+    eventEmitterMock.emit(false);
+    tick(500);
+    component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
+      expect(connectionStatus).toEqual(false);
+    });
+  }));
+
+  fit('showSideMenuOffline', fakeAsync(() => {
+    deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+    component.showSideMenuOffline();
+    tick(500);
+    fixture.detectChanges();
+
+    expect(component.appVersion).toEqual(extendedDeviceInfoMockData.appVersion);
+    expect(component.activeOrg).toEqual({ name: apiEouRes.ou.org_name });
+  }));
+
   // xit("showSideMenuOnline", () => { });
   // xit("getCardOptions", () => { });
   // xit("getTeamOptions", () => { });

@@ -74,18 +74,13 @@ export class SidemenuComponent implements OnInit {
   }
 
   setupNetworkWatcher() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       shareReplay(1)
     );
   }
 
   showSideMenuOffline() {
-    const isLoggedIn = this.routerAuthService.isLoggedIn();
-    if (!isLoggedIn) {
-      return 0;
-    }
     this.deviceService
       .getDeviceInfo()
       .pipe(shareReplay(1))
