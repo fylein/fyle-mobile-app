@@ -141,6 +141,8 @@
                           [isDistanceMandatory]="txnFields?.distance?.is_mandatory"
                           [mileageConfig]="mileageConfig"
                           [unit]="etxn.tx.distance_unit || mileageConfig.unit"
+                          [touchedInParent]="fg.controls.route.touched"
+                          [validInParent]="fg.controls.route.valid"
                         ></app-route-selector>
                       </ng-container>
                     </ng-container>
