@@ -1,12 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import {
+  customExpenseFields,
+  dependentExpenseFields,
+  dependentFieldValues,
   dependentFieldValuesApiParams,
   dependentFieldValuesApiResponse,
   dependentFieldValuesApiResponseForSearchQuery,
   dependentFieldValuesMethodParams,
   dependentFieldValuesWithSearchQueryApiParams,
   dependentFieldValuesWithSearchQueryMethodParams,
+  txnCustomProperties,
 } from '../test-data/dependent-fields.service.spec.data';
 
 import { DependentFieldsService } from './dependent-fields.service';
@@ -72,6 +76,31 @@ describe('DependentFieldsService', () => {
       );
       expect(res).toEqual(dependentFieldValuesApiResponseForSearchQuery.data);
       done();
+    });
+  });
+
+  describe('getDependentFieldsForBaseField(): ', () => {
+    it('should return the dependent expense fields for the parent field', () => {
+      const parentFieldId = 219175;
+      customInputsService.getAll.and.returnValue(of(customExpenseFields));
+
+      dependentFieldsService.getDependentFieldsForBaseField(parentFieldId).subscribe((res) => {
+        expect(res).toEqual(dependentExpenseFields);
+      });
+    });
+  });
+
+  describe('getDependentFieldValuesForBaseField(): ', () => {
+    it('should return the dependent field values for parent field and txn custom properties', () => {
+      const parentFieldId = 219175;
+      customInputsService.getAll.and.returnValue(of(customExpenseFields));
+      spyOn(dependentFieldsService, 'getDependentFieldsForBaseField').and.returnValue(of(dependentExpenseFields));
+
+      dependentFieldsService
+        .getDependentFieldValuesForBaseField(txnCustomProperties, parentFieldId)
+        .subscribe((res) => {
+          expect(res).toEqual(dependentFieldValues);
+        });
     });
   });
 });
