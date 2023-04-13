@@ -11,13 +11,16 @@ import {
 
 import { DependentFieldsService } from './dependent-fields.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { CustomInputsService } from './custom-inputs.service';
 
 describe('DependentFieldsService', () => {
   let dependentFieldsService: DependentFieldsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let customInputsService: jasmine.SpyObj<CustomInputsService>;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -26,6 +29,10 @@ describe('DependentFieldsService', () => {
           provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1ApiServiceSpy,
         },
+        {
+          provide: CustomInputsService,
+          useValue: customInputsServiceSpy,
+        },
       ],
     });
 
@@ -33,6 +40,7 @@ describe('DependentFieldsService', () => {
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
   });
 
   it('should be created', () => {
