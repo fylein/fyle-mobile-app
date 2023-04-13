@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { AppVersionService } from './app-version.service';
 import { ApiService } from './api.service';
 import { RouterApiService } from './router-api.service';
@@ -141,16 +141,15 @@ describe('AppVersionService', () => {
     });
   });
 
-  it("getUserAppVersionDetails(): should get user's app version details", (done) => {
+  it("getUserAppVersionDetails(): should get user's app version details", fakeAsync(() => {
     spyOn(appVersionService, 'isSupported').and.returnValue(of({ supported: true }));
     loginInfoService.getLastLoggedInVersion.and.returnValue(of('5.50.0'));
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
 
-    appVersionService.getUserAppVersionDetails(extendedDeviceInfoMockData).subscribe(() => {
-      expect(appVersionService.isSupported).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
-      expect(loginInfoService.getLastLoggedInVersion).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-    });
-    done();
-  });
+    tick();
+    appVersionService.getUserAppVersionDetails(extendedDeviceInfoMockData);
+    expect(appVersionService.isSupported).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
+    expect(loginInfoService.getLastLoggedInVersion).toHaveBeenCalledTimes(1);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+  }));
 });
