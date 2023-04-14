@@ -1,4 +1,4 @@
-import { Component, DoCheck, Injector, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, DoCheck, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -6,7 +6,6 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
-  NgControl,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
   Validators,
@@ -48,6 +47,10 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   @Input() isConnected;
 
+  @Input() touchedInParent = false;
+
+  @Input() validInParent = true;
+
   @Input() recentlyUsedMileageLocations: {
     recent_start_locations?: string[];
     recent_end_locations?: string[];
@@ -64,9 +67,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     roundTrip: [],
   });
 
-  private ngControl: NgControl;
-
-  constructor(private fb: FormBuilder, private modalController: ModalController, private injector: Injector) {}
+  constructor(private fb: FormBuilder, private modalController: ModalController) {}
 
   get mileageLocations() {
     return this.form.controls.mileageLocations as FormArray;
@@ -75,7 +76,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   onTouched = () => {};
 
   ngDoCheck() {
-    if (this.ngControl.touched) {
+    if (this.touchedInParent) {
       this.form.markAllAsTouched();
     }
   }
@@ -180,8 +181,6 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-
     this.form.controls.roundTrip.valueChanges.subscribe((roundTrip) => {
       if (!this.skipRoundTripUpdate) {
         if (this.formInitialized) {

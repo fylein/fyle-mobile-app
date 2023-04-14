@@ -6,10 +6,9 @@
     [formControl]="fc"
     [placeholder]="placeholder || ''"
     (blur)="(onBlur)"
-    type="text"
-    pattern="[0-9]*"
-    decimal="true"
-    decimal-char="."
+    type="number"
+    inputmode="decimal"
+    (keyup)="handleChange($event)"
   />
 </ng-container>
 
