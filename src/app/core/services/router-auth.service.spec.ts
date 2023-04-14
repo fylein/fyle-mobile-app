@@ -9,7 +9,7 @@ import { ApiV2Service } from './api-v2.service';
 import { LocationService } from './location.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
-// import { PushNotificationService } from './push-notification.service';
+import { PushNotificationService } from './push-notification.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { of } from 'rxjs';
@@ -27,7 +27,7 @@ describe('RouterAuthService', () => {
   let locationService: jasmine.SpyObj<LocationService>;
   let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
   let vendorService: jasmine.SpyObj<VendorService>;
-  // let pushNotificationService: jasmine.SpyObj<PushNotificationService>;
+  let pushNotificationService: jasmine.SpyObj<PushNotificationService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
@@ -55,7 +55,7 @@ describe('RouterAuthService', () => {
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['setRoot']);
     const transactionOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['setRoot']);
     const vendorServiceSpy = jasmine.createSpyObj('VendorService', ['setRoot']);
-    // const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', ['setRoot']);
+    const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', ['setRoot']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['setRoot']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['setRoot']);
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['setRoot']);
@@ -98,10 +98,10 @@ describe('RouterAuthService', () => {
           provide: VendorService,
           useValue: vendorServiceSpy,
         },
-        // {
-        //   provide: PushNotificationService,
-        //   useValue: pushNotificationServiceSpy,
-        // },
+        {
+          provide: PushNotificationService,
+          useValue: pushNotificationServiceSpy,
+        },
         {
           provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1ApiServiceSpy,
@@ -128,7 +128,7 @@ describe('RouterAuthService', () => {
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     vendorService = TestBed.inject(VendorService) as jasmine.SpyObj<VendorService>;
-    // pushNotificationService = TestBed.inject(PushNotificationService) as jasmine.SpyObj<PushNotificationService>;
+    pushNotificationService = TestBed.inject(PushNotificationService) as jasmine.SpyObj<PushNotificationService>;
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
@@ -165,7 +165,7 @@ describe('RouterAuthService', () => {
       expect(transactionOutboxService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(vendorService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(approverPlatformApiService.setRoot).toHaveBeenCalledOnceWith(domain);
-      // expect(pushNotificationService.setRoot).toHaveBeenCalledOnceWith(domain);
+      expect(pushNotificationService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(spenderPlatformV1ApiService.setRoot).toHaveBeenCalledWith(domain);
       expect(spenderPlatformV1ApiService.setRoot).toHaveBeenCalledTimes(2);
       expect(tokenService.setClusterDomain).toHaveBeenCalledOnceWith(domain);

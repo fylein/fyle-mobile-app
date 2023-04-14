@@ -10,7 +10,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-// import { PushNotificationService } from 'src/app/core/services/push-notification.service';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
@@ -46,7 +46,7 @@ export class SignInPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     public googleAuthService: GoogleAuthService,
     private inAppBrowser: InAppBrowser,
-    // private pushNotificationService: PushNotificationService,
+    private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private deviceService: DeviceService,
     private loginInfoService: LoginInfoService
@@ -77,7 +77,7 @@ export class SignInPage implements OnInit {
           })
         )
         .subscribe(() => {
-          // this.pushNotificationService.initPush();
+          this.pushNotificationService.initPush();
           this.fg.reset();
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         });
@@ -190,7 +190,7 @@ export class SignInPage implements OnInit {
         )
         .subscribe({
           next: () => {
-            // this.pushNotificationService.initPush();
+            this.pushNotificationService.initPush();
             this.fg.reset();
             this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
           },
@@ -238,7 +238,7 @@ export class SignInPage implements OnInit {
       )
       .subscribe({
         next: () => {
-          // this.pushNotificationService.initPush();
+          this.pushNotificationService.initPush();
           this.fg.reset();
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         },
