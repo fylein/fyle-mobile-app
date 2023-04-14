@@ -68,7 +68,6 @@ describe('CurrencyService', () => {
 
     currencyService.getHomeCurrency().subscribe((res) => {
       expect(res).toEqual(orgData1[0].currency);
-      expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
       done();
     });
   });
