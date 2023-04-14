@@ -333,10 +333,10 @@
               <ng-container *ngIf="dependentFields$|async as dependentFields">
                 <ng-container *ngIf="etxn$|async as etxn">
                   <ng-container *ngIf="selectedProject$|async as selectedProject">
-                    <ng-container formArrayName="dependent_fields">
+                    <ng-container formArrayName="project_dependent_fields">
                       <app-dependent-fields
-                        #dependentFieldsRef
-                        [dependentFieldsFormArray]="fg.controls.dependent_fields"
+                        #projectDependentFieldsRef
+                        [dependentFieldsFormArray]="fg.controls.project_dependent_fields"
                         [dependentCustomFields]="dependentFields"
                         [parentFieldId]="txnFields?.project_id?.id"
                         [parentFieldValue]="selectedProject?.projectv2_name"
@@ -401,6 +401,23 @@
                     >
                       Please select a Cost Center.
                     </div>
+
+                    <ng-container *ngIf="dependentFields$|async as dependentFields">
+                      <ng-container *ngIf="etxn$|async as etxn">
+                        <ng-container *ngIf="selectedCostCenter$|async as selectedCostCenter">
+                          <ng-container formArrayName="cost_center_dependent_fields">
+                            <app-dependent-fields
+                              #costCenterDependentFieldsRef
+                              [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
+                              [dependentCustomFields]="dependentFields"
+                              [parentFieldId]="txnFields?.cost_center_id?.id"
+                              [parentFieldValue]="selectedCostCenter?.name"
+                              [txnCustomProperties]="etxn.tx.custom_properties"
+                            ></app-dependent-fields>
+                          </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </ng-container>
                   </ng-container>
                 </ng-container>
               </ng-container>
