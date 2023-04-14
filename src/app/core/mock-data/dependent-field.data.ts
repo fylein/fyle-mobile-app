@@ -1,6 +1,6 @@
 import { CustomInput } from '../models/custom-input.model';
 
-export const dependentFields: CustomInput[] = [
+export const projectDependentFields: CustomInput[] = [
   {
     id: 218227,
     prefix: '',
@@ -55,5 +55,19 @@ export const dependentFields: CustomInput[] = [
     mandatory: false,
     options: ['CF5.1', 'CF5.2', 'CF5.3', 'CF5.4', 'CF5.5'],
     parent_field_id: 218230,
+  },
+];
+
+export const costCenterDependentFields: CustomInput[] = [
+  {
+    id: 221308,
+    prefix: '',
+    name: 'Dependent Field Of Cost Center',
+    value: null,
+    placeholder: 'Select value',
+    type: 'DEPENDENT_SELECT',
+    mandatory: false,
+    options: [],
+    parent_field_id: 221283,
   },
 ];
