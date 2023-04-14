@@ -14,7 +14,6 @@ import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
-import { IonContent } from '@ionic/angular';
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
@@ -22,7 +21,14 @@ import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.co
 import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
 import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
+
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
+import { sidemenuItemData2, sidemenuItemData4, sidemenuItemData5 } from 'src/app/core/mock-data/sidemenu-item.data';
+import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { cloneDeep } from 'lodash';
+import { sidemenuAllowedActions } from 'src/app/core/mock-data/sidemenu-allowed-actions.data';
 
 fdescribe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -94,9 +100,17 @@ fdescribe('SidemenuComponent', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
+
     fixture = TestBed.createComponent(SidemenuComponent);
     component = fixture.componentInstance;
     component.eou = apiEouRes;
+
+    Object.freeze(orgSettingsRes);
+    Object.freeze(orgUserSettingsData);
+
+    component.orgSettings = cloneDeep(orgSettingsRes);
+    component.orgUserSettings = cloneDeep(orgUserSettingsData);
+
     fixture.detectChanges();
   }));
 
@@ -104,7 +118,7 @@ fdescribe('SidemenuComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('setupNetworkWatcher', fakeAsync(() => {
+  it('setupNetworkWatcher(): should setup the network watcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
     const eventEmitterMock = new EventEmitter<boolean>();
     networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
@@ -120,7 +134,7 @@ fdescribe('SidemenuComponent', () => {
     });
   }));
 
-  it('showSideMenuOffline', fakeAsync(() => {
+  it('showSideMenuOffline(): should show the sidemenu when offline', fakeAsync(() => {
     deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
     component.showSideMenuOffline();
     tick(500);
@@ -130,13 +144,68 @@ fdescribe('SidemenuComponent', () => {
     expect(component.activeOrg).toEqual({ name: apiEouRes.ou.org_name });
   }));
 
-  xit('showSideMenuOnline', () => {});
-  // xit("getCardOptions", () => { });
-  // xit("getTeamOptions", () => { });
-  // xit("getPrimarySidemenuOptions", () => { });
+  it('getPrimarySidemenuOptionsOffline(): should get the primary sidemenu options when offline', () => {
+    const primaryMenuOptions = component.getPrimarySidemenuOptionsOffline();
+    fixture.detectChanges();
+
+    expect(primaryMenuOptions.length).toBe(3);
+    primaryMenuOptions.forEach((option, index) => {
+      expect(option.title).toBe(sidemenuItemData5[index].title);
+      expect(option.icon).toBe(sidemenuItemData5[index].icon);
+      expect(option.route).toEqual(sidemenuItemData5[index].route);
+    });
+  });
+
+  // describe('setupSideMenu()', () => {
+  //   it("should get all the sidemenu options when online", () => {
+  //     component.setupSideMenu(true, orgData1, true);
+  //   });
+  // });
+
+  it('getCardOptions: should get card options', () => {
+    component.orgSettings = {
+      ...orgSettingsRes,
+      org_personal_cards_settings: {
+        allowed: true,
+        enabled: true,
+      },
+    };
+
+    const cardOpt = component.getCardOptions();
+    fixture.detectChanges();
+    expect(cardOpt).toEqual([
+      {
+        title: 'Personal Cards',
+        isVisible:
+          component.orgSettings.org_personal_cards_settings.enabled &&
+          component.orgSettings.org_personal_cards_settings.allowed &&
+          component.orgUserSettings.personal_cards_settings.enabled,
+        route: ['/', 'enterprise', 'personal_cards'],
+      },
+    ]);
+  });
+
+  it('getTeamOptions: should get team options', () => {
+    component.allowedActions = sidemenuAllowedActions;
+    const teamOpt = component.getTeamOptions();
+    fixture.detectChanges();
+    expect(teamOpt.length).toBe(2);
+    expect(teamOpt).toEqual([
+      {
+        title: 'Team Reports',
+        isVisible:
+          component.allowedActions.allowedReportsActions && component.allowedActions.allowedReportsActions.approve,
+        route: ['/', 'enterprise', 'team_reports'],
+      },
+      {
+        title: 'Team Advances',
+        isVisible:
+          component.allowedActions.allowedAdvancesActions && component.allowedActions.allowedAdvancesActions.approve,
+        route: ['/', 'enterprise', 'team_advance'],
+      },
+    ]);
+  });
   // xit("updateSidemenuOption", () => { });
-  // xit("getPrimarySidemenuOptionsOffline", () => { });
   // xit("getSecondarySidemenuOptions", () => { });
   // xit("goToProfile", () => { });
-  // xit("setupSideMenu", () => { });
 });
