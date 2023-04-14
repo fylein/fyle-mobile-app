@@ -2,60 +2,30 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { RouteSelectorComponent } from './route-selector.component';
-import { Injector } from '@angular/core';
+import { Injector, NO_ERRORS_SCHEMA, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, NgControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { MileageLocation } from '../route-visualizer/mileage-locations';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 import { expenseFieldsMapResponse3 } from 'src/app/core/mock-data/expense-fields-map.data';
+import { mileageLocationData1, mileageLocationData4 } from '../../../core/mock-data/mileage-location.data';
+import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { MatIconModule } from '@angular/material/icon';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-export const mileageLocationData1: MileageLocation[] = [
-  {
-    city: 'Kolkata',
-    state: 'West Bengal',
-    country: 'India',
-    display: 'Kolkata',
-    formatted_address: 'Moore Avenue',
-    latitude: 22.4860708,
-    longitude: 88.3506995,
-  },
-  {
-    city: 'Kolkata',
-    state: 'West Bengal',
-    country: 'India',
-    display: 'Kolkata',
-    formatted_address: 'Bhawanipur',
-    latitude: 22.532432,
-    longitude: 88.3445775,
-  },
-];
-
-export const mileageLocationData2: MileageLocation[] = [
-  {
-    city: 'Kolkata',
-    state: 'West Bengal',
-    country: 'India',
-    display: 'Kolkata',
-    formatted_address: 'Moore Avenue',
-    latitude: 22.4860708,
-    longitude: 88.3506995,
-  },
-];
-
-fdescribe('RouteSelectorComponent', () => {
+describe('RouteSelectorComponent', () => {
   let component: RouteSelectorComponent;
   let fixture: ComponentFixture<RouteSelectorComponent>;
   let fb: jasmine.SpyObj<FormBuilder>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let injector: jasmine.SpyObj<Injector>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
     TestBed.configureTestingModule({
       declarations: [RouteSelectorComponent],
-      imports: [IonicModule.forRoot(), MatCheckboxModule, ReactiveFormsModule],
+      imports: [IonicModule.forRoot(), MatCheckboxModule, ReactiveFormsModule, MatIconTestingModule, MatIconModule],
       providers: [
         NgControl,
         FormBuilder,
@@ -68,15 +38,16 @@ fdescribe('RouteSelectorComponent', () => {
           useValue: injectorSpy,
         },
       ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(RouteSelectorComponent);
     component = fixture.componentInstance;
     fb = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    injector = TestBed.inject(Injector) as jasmine.SpyObj<Injector>;
     component.mileageConfig = orgSettingsRes.mileage;
     component.skipRoundTripUpdate = false;
     component.formInitialized = true;
+    component.onChangeSub = of(null).subscribe();
     component.form = fb.group({
       mileageLocations: new FormArray([]),
       distance: [, Validators.required],
@@ -105,9 +76,18 @@ fdescribe('RouteSelectorComponent', () => {
       roundTrip: true,
     });
     expect(component.mileageLocations.length).toEqual(mileageLocationData1.length);
+    expect(component.form.controls.distance.value).toEqual('20.00');
+    expect(component.form.controls.roundTrip.value).toEqual(true);
   });
 
-  it('registerOnTouched(): should register changed value', async () => {
+  it('writeValue(): should write value to the form group', () => {
+    component.writeValue({
+      mileageLocations: mileageLocationData4,
+    });
+    expect(component.mileageLocations.length).toEqual(2);
+  });
+
+  it('registerOnChange(): should register changed value', async () => {
     const changeTestCallback = jasmine.createSpyObj('changeTested', ['test']);
     component.registerOnChange(changeTestCallback.test);
 
@@ -183,8 +163,76 @@ fdescribe('RouteSelectorComponent', () => {
     expect(component.form.controls.mileageLocations.hasValidator(Validators.required)).toBeTrue();
   });
 
+  it('ngDoCheck(): should check if parent is touched', () => {
+    component.touchedInParent = true;
+    component.ngDoCheck();
+    fixture.detectChanges();
+
+    expect(component.form.controls.distance.touched).toBeTrue();
+    expect(component.form.controls.mileageLocations.touched).toBeTrue();
+    expect(component.form.controls.roundTrip.touched).toBeTrue();
+  });
+
+  it('ngOnChanges(): should call config change methods if input changes', () => {
+    spyOn(component, 'onMileageConfigChange');
+    spyOn(component, 'onTxnFieldsChange');
+
+    const changes: SimpleChanges = {
+      mileageConfig: {
+        firstChange: false,
+        isFirstChange: () => false,
+        previousValue: orgSettingsRes.mileage,
+        currentValue: {},
+      },
+      txnFields: {
+        firstChange: false,
+        isFirstChange: () => false,
+        previousValue: orgSettingsRes.mileage,
+        currentValue: {},
+      },
+    };
+
+    component.ngOnChanges(changes);
+    expect(component.onMileageConfigChange).toHaveBeenCalledTimes(1);
+    expect(component.onTxnFieldsChange).toHaveBeenCalledTimes(1);
+  });
+
+  describe('validate():', () => {
+    it('should return null of the form is valid', () => {
+      const result = component.validate(component.mileageConfig);
+      expect(result).toBeNull();
+    });
+
+    it('should validate form control', () => {
+      component.form.controls.distance.setValue(null);
+      const result = component.validate(component.mileageConfig);
+      expect(result).toEqual({
+        required: true,
+      });
+    });
+  });
+
   it('onTxnFieldsChange():', () => {
+    spyOn(component, 'ngOnChanges');
     component.txnFields = expenseFieldsMapResponse3;
     component.onTxnFieldsChange();
+
+    expect(component.form.controls.distance.hasValidator(Validators.required)).toBeFalse();
+    expect(component.form.controls.mileageLocations.hasValidator(Validators.required)).toBeFalse();
+  });
+
+  it('should show mandatory symbol if location is required', () => {
+    component.mileageConfig.location_mandatory = true;
+    fixture.detectChanges();
+
+    expect(getTextContent(getElementBySelector(fixture, '.route-selector--mandatory'))).toEqual('*');
+  });
+
+  it('should open modal if clicked on location', () => {
+    spyOn(component, 'openModal');
+
+    const locationCard = getElementBySelector(fixture, '.route-selector--input') as HTMLElement;
+    click(locationCard);
+    expect(component.openModal).toHaveBeenCalledTimes(1);
   });
 });
