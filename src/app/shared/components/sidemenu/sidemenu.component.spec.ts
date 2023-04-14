@@ -120,7 +120,7 @@ fdescribe('SidemenuComponent', () => {
     });
   }));
 
-  fit('showSideMenuOffline', fakeAsync(() => {
+  it('showSideMenuOffline', fakeAsync(() => {
     deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
     component.showSideMenuOffline();
     tick(500);
@@ -130,7 +130,7 @@ fdescribe('SidemenuComponent', () => {
     expect(component.activeOrg).toEqual({ name: apiEouRes.ou.org_name });
   }));
 
-  // xit("showSideMenuOnline", () => { });
+  xit('showSideMenuOnline', () => {});
   // xit("getCardOptions", () => { });
   // xit("getTeamOptions", () => { });
   // xit("getPrimarySidemenuOptions", () => { });
