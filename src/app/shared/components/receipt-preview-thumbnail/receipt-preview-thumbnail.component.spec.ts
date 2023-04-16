@@ -4,7 +4,7 @@ import { ReceiptPreviewThumbnailComponent } from './receipt-preview-thumbnail.co
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
 
-fdescribe('ReceiptPreviewThumbnailComponent', () => {
+describe('ReceiptPreviewThumbnailComponent', () => {
   let component: ReceiptPreviewThumbnailComponent;
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
