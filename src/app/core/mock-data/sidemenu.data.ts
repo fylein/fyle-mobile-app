@@ -105,3 +105,40 @@ export const updateSidemenuOptionRes = [
     ],
   },
 ];
+
+export const getPrimarySidemenuOptionsRes1: Partial<SidemenuItem>[] = [
+  {
+    title: 'Dashboard',
+    isVisible: true,
+    icon: 'fy-dashboard-new',
+    route: ['/', 'enterprise', 'my_dashboard'],
+  },
+  {
+    title: 'Expenses',
+    isVisible: true,
+    icon: 'expense',
+    route: ['/', 'enterprise', 'my_expenses'],
+  },
+  {
+    title: 'Reports',
+    isVisible: true,
+    icon: 'fy-report',
+    route: ['/', 'enterprise', 'my_reports'],
+    disabled: false,
+  },
+  {
+    title: 'Advances',
+    isVisible: true,
+    icon: 'advances',
+    route: ['/', 'enterprise', 'my_advances'],
+    disabled: false,
+  },
+
+  {
+    title: 'Team Reports',
+    isVisible: true,
+    route: ['/', 'enterprise', 'team_reports'],
+    icon: 'teams',
+    disabled: false,
+  },
+];

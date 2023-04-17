@@ -27,15 +27,15 @@ import { sidemenuItemData1, sidemenuItemData2, sidemenuItemData4 } from 'src/app
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, slice } from 'lodash';
 import { sidemenuAllowedActions } from 'src/app/core/mock-data/sidemenu-allowed-actions.data';
 import {
   sidemenuData1,
   PrimaryOptionsRes,
   UpdatedOptionsRes,
   updateSidemenuOptionRes,
+  getPrimarySidemenuOptionsRes1,
 } from 'src/app/core/mock-data/sidemenu.data';
-import { modalController } from '@ionic/core';
 
 fdescribe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -117,7 +117,6 @@ fdescribe('SidemenuComponent', () => {
 
     component.orgSettings = cloneDeep(orgSettingsRes);
     component.orgUserSettings = cloneDeep(orgUserSettingsData);
-
     fixture.detectChanges();
   }));
 
@@ -162,12 +161,6 @@ fdescribe('SidemenuComponent', () => {
       expect(option.route).toEqual(sidemenuData1[index].route);
     });
   });
-
-  // describe('setupSideMenu()', () => {
-  //   it("should get all the sidemenu options when online", () => {
-  //     component.setupSideMenu(true, orgData1, true);
-  //   });
-  // });
 
   it('getCardOptions: should get card options', () => {
     component.orgSettings = {
@@ -219,14 +212,65 @@ fdescribe('SidemenuComponent', () => {
     expect(updSidemenuOpt).toEqual(updateSidemenuOptionRes);
   });
 
-  // it('getPrimarySidemenuOptions():should get the primary sidemenu options',()=>{
-  //   const cardOptSpy = spyOn(component,'getCardOptions');
-  //   const teamOptSpy = spyOn(component,'getTeamOptions');
-  //   const primarySidemenuOpt = component.getPrimarySidemenuOptions(true);
-  //   fixture.detectChanges();
-  //   expect(primarySidemenuOpt.length).toBe(3);
-  //   expect(cardOptSpy).toHaveBeenCalled();
-  //   expect(teamOptSpy).toHaveBeenCalled();
-  //   expect(primarySidemenuOpt).toEqual(updateSidemenuOptionRes);
-  // });
+  describe('getPrimarySidemenuOptions():', () => {
+    it('should get the primary sidemenu options', () => {
+      const resData = PrimaryOptionsRes.filter((option) => option.title !== 'Personal Cards');
+      const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
+      const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
+      const result = component.getPrimarySidemenuOptions(true);
+      expect(result.length).toBe(4);
+      result.forEach((option, index) => {
+        expect(option.title).toBe(resData[index].title);
+        expect(option.icon).toBe(resData[index].icon);
+        expect(option.route).toEqual(resData[index].route);
+        expect(option.icon).toEqual(resData[index].icon);
+      });
+      expect(cardOptSpy).toHaveBeenCalledTimes(1);
+      expect(teamOptSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should show the card option if there is at least one card option available', () => {
+      const resData = slice(PrimaryOptionsRes, 0, 5);
+      const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
+      const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([
+        {
+          title: 'Personal Cards',
+          isVisible: true,
+          route: ['/', 'enterprise', 'personal_cards'],
+        },
+      ]);
+      const result = component.getPrimarySidemenuOptions(true);
+      expect(result.length).toBe(5);
+      result.forEach((option, index) => {
+        expect(option.title).toBe(resData[index].title);
+        expect(option.icon).toBe(resData[index].icon);
+        expect(option.route).toEqual(resData[index].route);
+        expect(option.icon).toEqual(resData[index].icon);
+      });
+      expect(cardOptSpy).toHaveBeenCalledTimes(1);
+      expect(teamOptSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should show the team option if there is at least one team option available', () => {
+      const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
+      const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([
+        {
+          title: 'Team Reports',
+          isVisible: true,
+          route: ['/', 'enterprise', 'team_reports'],
+        },
+      ]);
+      const result = component.getPrimarySidemenuOptions(true);
+      console.log(result);
+      expect(result.length).toBe(5);
+      result.forEach((option, index) => {
+        expect(option.title).toBe(getPrimarySidemenuOptionsRes1[index].title);
+        expect(option.icon).toBe(getPrimarySidemenuOptionsRes1[index].icon);
+        expect(option.route).toEqual(getPrimarySidemenuOptionsRes1[index].route);
+        expect(option.icon).toEqual(getPrimarySidemenuOptionsRes1[index].icon);
+      });
+      expect(cardOptSpy).toHaveBeenCalledTimes(1);
+      expect(teamOptSpy).toHaveBeenCalledTimes(1);
+    });
+  });
 });
