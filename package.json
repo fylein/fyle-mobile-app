@@ -65,11 +65,9 @@
     "@types/hammerjs": "^2.0.41",
     "capacitor-native-settings": "^4.0.3",
     "capacitor-secure-storage-plugin": "^0.8.1",
-    "cordova-plugin-decimal-key": "^1.2.2",
     "cordova-plugin-googleplus": "^8.5.2",
     "cordova-plugin-inappbrowser": "^5.0.0",
     "cordova-plugin-ionic": "^5.5.3",
-    "cordova-plugin-ios-decimal-keyboard": "^1.0.1",
     "cordova-plugin-native-spinner": "^1.1.4",
     "cordova-plugin-smartlook": "github:smartlook/cordova-smartlook",
     "cordova-plugin-telerik-imagepicker": "^2.3.6",
@@ -142,9 +140,5 @@
   },
   "lint-staged": {
     "*.{ts,scss,html}": "prettier --write"
-  },
-  "engines": {
-    "npm": ">=8.0.0 <9.0.0",
-    "node": ">=16.0.0 <17.0.0"
   }
 }
