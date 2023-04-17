@@ -327,4 +327,20 @@ fdescribe('SidemenuComponent', () => {
       expect(getPrimarySidemenuOptionsOfflineSpy).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('goToProfile():', () => {
+    it('should navigate to my profile page and close the menu when isTrusted is true', () => {
+      const event = { isTrusted: true };
+      component.goToProfile(event as Event);
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_profile']);
+      expect(menuController.close).toHaveBeenCalled();
+    });
+
+    it('should navigate to my profile page and close the menu when isTrusted is false', () => {
+      const event = { isTrusted: false };
+      component.goToProfile(event as Event);
+      expect(router.navigate).not.toHaveBeenCalledWith(['/', 'enterprise', 'my_profile']);
+      expect(menuController.close).not.toHaveBeenCalled();
+    });
+  });
 });
