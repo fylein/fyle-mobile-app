@@ -3,17 +3,17 @@ import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { RouteSelectorModalComponent } from './route-selector-modal.component';
-import { FormArray, FormBuilder, FormsModule, NgControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { mileageLocationData1 } from 'src/app/core/mock-data/mileage-location.data';
+import { mileageLocationData1, mileageLocationData2 } from 'src/app/core/mock-data/mileage-location.data';
 import { FyLocationComponent } from '../../fy-location/fy-location.component';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { of } from 'rxjs';
 
-fdescribe('RouteSelectorModalComponent', () => {
+describe('RouteSelectorModalComponent', () => {
   let component: RouteSelectorModalComponent;
   let fixture: ComponentFixture<RouteSelectorModalComponent>;
   let fb: jasmine.SpyObj<FormBuilder>;
@@ -35,7 +35,6 @@ fdescribe('RouteSelectorModalComponent', () => {
       ],
       providers: [
         FormBuilder,
-        NgControl,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -72,6 +71,18 @@ fdescribe('RouteSelectorModalComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should set distance if roundTrip is null', () => {
+    component.value = {
+      distance: 10,
+      roundTrip: null,
+    };
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.mileageLocations.length).toEqual(4);
+    expect(component.distance).toEqual('0.02');
+  });
+
   it('add form control to mileage locations if empty', () => {
     component.value = {
       distance: 10,
@@ -82,6 +93,56 @@ fdescribe('RouteSelectorModalComponent', () => {
 
     expect(component.mileageLocations.length).toEqual(4);
     expect(component.distance).toEqual('0.08');
+  });
+
+  it('should reset distance if mileageLocations is changed and distance is null', () => {
+    mileageService.getDistance.and.returnValue(of(null));
+    component.value = {
+      mileageLocations: mileageLocationData2,
+      distance: null,
+      roundTrip: 10,
+    };
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.mileageLocations.length).toEqual(4);
+    expect(component.distance).toEqual(null);
+    expect(mileageService.getDistance).toHaveBeenCalledTimes(2);
+  });
+
+  it('should reset distance if mileageLocations is changed if distance is 0', () => {
+    mileageService.getDistance.and.returnValue(of(0));
+    component.value = {
+      mileageLocations: [mileageLocationData1[0]],
+      distance: null,
+      roundTrip: 10,
+    };
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.mileageLocations.length).toEqual(3);
+    expect(component.distance).toEqual('0.00');
+    expect(mileageService.getDistance).toHaveBeenCalledTimes(1);
+  });
+
+  it('should reset distance if mileageLocations is changed if distance is received but round trip is false', () => {
+    mileageService.getDistance.and.returnValue(of(10));
+    component.value = {
+      mileageLocations: mileageLocationData2,
+      distance: null,
+      roundTrip: null,
+    };
+    component.unit = 'MILES';
+    component.form.controls.roundTrip.setValue(false);
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.mileageLocations.length).toEqual(4);
+    expect(component.distance).toEqual('0.01');
+    expect(mileageService.getDistance).toHaveBeenCalledTimes(2);
   });
 
   it('addMileageLocation(): should add mileage location', () => {
