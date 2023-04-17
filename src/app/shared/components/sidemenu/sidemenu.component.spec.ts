@@ -36,6 +36,7 @@ import {
   updateSidemenuOptionRes,
   getPrimarySidemenuOptionsRes1,
   getSecondarySidemenuOptionsRes1,
+  setSideMenuRes,
 } from 'src/app/core/mock-data/sidemenu.data';
 
 fdescribe('SidemenuComponent', () => {
@@ -298,6 +299,32 @@ fdescribe('SidemenuComponent', () => {
         expect(option.route).toEqual(resData[index].route);
         expect(option.icon).toEqual(resData[index].icon);
       });
+    });
+  });
+
+  describe('setupSideMenu()', () => {
+    it('should setup the side menu', () => {
+      const getPrimarySidemenuOptionsSpy = spyOn(component, 'getPrimarySidemenuOptions').and.returnValue(
+        getPrimarySidemenuOptionsRes1
+      );
+      const getSecondarySidemenuOptionsSpy = spyOn(component, 'getSecondarySidemenuOptions').and.returnValue(
+        getSecondarySidemenuOptionsRes1
+      );
+      const resData = setSideMenuRes;
+      component.setupSideMenu(true, orgData1, true);
+      expect(component.filteredSidemenuList).toEqual(resData);
+      expect(getPrimarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(true);
+      expect(getSecondarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(orgData1, true, true);
+    });
+
+    it('should only get the primary options when there is no internet connection', () => {
+      const getPrimarySidemenuOptionsOfflineSpy = spyOn(component, 'getPrimarySidemenuOptionsOffline').and.returnValue(
+        sidemenuData1
+      );
+      const resData = sidemenuData1;
+      component.setupSideMenu(false, orgData1, false);
+      expect(component.filteredSidemenuList).toEqual(resData);
+      expect(getPrimarySidemenuOptionsOfflineSpy).toHaveBeenCalledTimes(1);
     });
   });
 });
