@@ -23,12 +23,19 @@ import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.compo
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
-import { sidemenuItemData2, sidemenuItemData4, sidemenuItemData5 } from 'src/app/core/mock-data/sidemenu-item.data';
+import { sidemenuItemData1, sidemenuItemData2, sidemenuItemData4 } from 'src/app/core/mock-data/sidemenu-item.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { cloneDeep } from 'lodash';
 import { sidemenuAllowedActions } from 'src/app/core/mock-data/sidemenu-allowed-actions.data';
+import {
+  sidemenuData1,
+  PrimaryOptionsRes,
+  UpdatedOptionsRes,
+  updateSidemenuOptionRes,
+} from 'src/app/core/mock-data/sidemenu.data';
+import { modalController } from '@ionic/core';
 
 fdescribe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -150,9 +157,9 @@ fdescribe('SidemenuComponent', () => {
 
     expect(primaryMenuOptions.length).toBe(3);
     primaryMenuOptions.forEach((option, index) => {
-      expect(option.title).toBe(sidemenuItemData5[index].title);
-      expect(option.icon).toBe(sidemenuItemData5[index].icon);
-      expect(option.route).toEqual(sidemenuItemData5[index].route);
+      expect(option.title).toBe(sidemenuData1[index].title);
+      expect(option.icon).toBe(sidemenuData1[index].icon);
+      expect(option.route).toEqual(sidemenuData1[index].route);
     });
   });
 
@@ -205,7 +212,21 @@ fdescribe('SidemenuComponent', () => {
       },
     ]);
   });
-  // xit("updateSidemenuOption", () => { });
-  // xit("getSecondarySidemenuOptions", () => { });
-  // xit("goToProfile", () => { });
+
+  it('updateSidemenuOption(): should update the sidemenu option', () => {
+    const updSidemenuOpt = component.updateSidemenuOption(PrimaryOptionsRes, 'Cards', UpdatedOptionsRes);
+    fixture.detectChanges();
+    expect(updSidemenuOpt).toEqual(updateSidemenuOptionRes);
+  });
+
+  // it('getPrimarySidemenuOptions():should get the primary sidemenu options',()=>{
+  //   const cardOptSpy = spyOn(component,'getCardOptions');
+  //   const teamOptSpy = spyOn(component,'getTeamOptions');
+  //   const primarySidemenuOpt = component.getPrimarySidemenuOptions(true);
+  //   fixture.detectChanges();
+  //   expect(primarySidemenuOpt.length).toBe(3);
+  //   expect(cardOptSpy).toHaveBeenCalled();
+  //   expect(teamOptSpy).toHaveBeenCalled();
+  //   expect(primarySidemenuOpt).toEqual(updateSidemenuOptionRes);
+  // });
 });
