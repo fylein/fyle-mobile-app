@@ -244,6 +244,44 @@ fdescribe('FyViewAttachmentComponent', () => {
     expect(fileService.delete).toHaveBeenCalledOnceWith('1');
   }));
 
+  it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion and dismiss the modal', fakeAsync(() => {
+    component.imageSlides = {
+      swiperRef: {
+        activeIndex: 0,
+      },
+    } as any;
+
+    component.attachments = [
+      {
+        id: '1',
+        type: 'pdf',
+        url: 'http://example.com/attachment1.pdf',
+      },
+    ];
+
+    popoverController.create.and.returnValue(
+      Promise.resolve({
+        present: () => Promise.resolve(),
+        onWillDismiss: () =>
+          Promise.resolve({
+            data: {
+              action: 'remove',
+            },
+          }),
+      }) as any
+    );
+
+    fileService.delete.and.returnValue(of(null));
+    spyOn(component, 'goToPrevSlide');
+    spyOn(component, 'goToNextSlide');
+    component.deleteAttachment();
+    tick(1000);
+
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ attachments: component.attachments });
+    expect(component.attachments.length).toBe(0);
+    expect(fileService.delete).toHaveBeenCalledOnceWith('1');
+  }));
+
   it('deleteAttachment(): should not make api calls for attachments which have not been persisted yet', fakeAsync(() => {
     component.attachments = [
       {
