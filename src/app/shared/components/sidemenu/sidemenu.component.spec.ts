@@ -35,6 +35,7 @@ import {
   UpdatedOptionsRes,
   updateSidemenuOptionRes,
   getPrimarySidemenuOptionsRes1,
+  getSecondarySidemenuOptionsRes1,
 } from 'src/app/core/mock-data/sidemenu.data';
 
 fdescribe('SidemenuComponent', () => {
@@ -252,6 +253,7 @@ fdescribe('SidemenuComponent', () => {
     });
 
     it('should show the team option if there is at least one team option available', () => {
+      const resData = getPrimarySidemenuOptionsRes1;
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([
         {
@@ -261,16 +263,41 @@ fdescribe('SidemenuComponent', () => {
         },
       ]);
       const result = component.getPrimarySidemenuOptions(true);
-      console.log(result);
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
-        expect(option.title).toBe(getPrimarySidemenuOptionsRes1[index].title);
-        expect(option.icon).toBe(getPrimarySidemenuOptionsRes1[index].icon);
-        expect(option.route).toEqual(getPrimarySidemenuOptionsRes1[index].route);
-        expect(option.icon).toEqual(getPrimarySidemenuOptionsRes1[index].icon);
+        expect(option.title).toBe(resData[index].title);
+        expect(option.icon).toBe(resData[index].icon);
+        expect(option.route).toEqual(resData[index].route);
+        expect(option.icon).toEqual(resData[index].icon);
       });
       expect(cardOptSpy).toHaveBeenCalledTimes(1);
       expect(teamOptSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getSecondarySidemenuOptions():', () => {
+    it('should get the secondary options', () => {
+      const resData = getSecondarySidemenuOptionsRes1;
+      const result = component.getSecondarySidemenuOptions(orgData1, true, true);
+      expect(result.length).toBe(4);
+      result.forEach((option, index) => {
+        expect(option.title).toBe(resData[index].title);
+        expect(option.icon).toBe(resData[index].icon);
+        expect(option.route).toEqual(resData[index].route);
+        expect(option.icon).toEqual(resData[index].icon);
+      });
+    });
+
+    it('should not show the Delegated Accounts option when there is no delegatee', () => {
+      const resData = getSecondarySidemenuOptionsRes1.filter((option) => option.title !== 'Delegated Accounts');
+      const result = component.getSecondarySidemenuOptions(orgData1, false, true);
+      expect(result.length).toBe(3);
+      result.forEach((option, index) => {
+        expect(option.title).toBe(resData[index].title);
+        expect(option.icon).toBe(resData[index].icon);
+        expect(option.route).toEqual(resData[index].route);
+        expect(option.icon).toEqual(resData[index].icon);
+      });
     });
   });
 });

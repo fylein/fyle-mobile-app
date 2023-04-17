@@ -142,3 +142,33 @@ export const getPrimarySidemenuOptionsRes1: Partial<SidemenuItem>[] = [
     disabled: false,
   },
 ];
+
+export const getSecondarySidemenuOptionsRes1: Partial<SidemenuItem>[] = [
+  {
+    title: 'Delegated Accounts',
+    isVisible: true,
+    icon: 'delegate-switch',
+    route: ['/', 'enterprise', 'delegated_accounts'],
+    disabled: false,
+  },
+  {
+    title: 'Settings',
+    isVisible: true,
+    icon: 'fy-settings',
+    route: ['/', 'enterprise', 'my_profile'],
+  },
+  {
+    title: 'Live Chat',
+    isVisible: true,
+    icon: 'fy-chat-2',
+    openLiveChat: true,
+    disabled: false,
+  },
+  {
+    title: 'Help',
+    isVisible: true,
+    icon: 'help',
+    route: ['/', 'enterprise', 'help'],
+    disabled: false,
+  },
+];
