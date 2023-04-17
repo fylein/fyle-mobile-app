@@ -106,19 +106,17 @@ describe('RouteSelectorComponent', () => {
     expect(changeTestCallback.test).toHaveBeenCalledOnceWith({ mileageLocations: [], distance: 10, roundTrip: 10 });
   });
 
-  it('registerOnTouched(): should registered onTouched property', () => {
-    spyOn(component.form, 'markAllAsTouched');
+  it('registerOnTouched(): should registered onTouched property', async () => {
+    const onTouchTested = jasmine.createSpyObj('touchedTested', ['touchedTested']);
 
-    const touchFn = () => {
-      component.form.markAllAsTouched();
-    };
+    component.registerOnTouched(onTouchTested.touchTested);
 
-    const input = getElementBySelector(fixture, '.route-selector--input') as HTMLInputElement;
-    input.dispatchEvent(new InputEvent('blur'));
+    expect(onTouchTested.touchedTested).not.toHaveBeenCalled();
 
-    component.registerOnTouched(touchFn);
+    const input = getElementBySelector(fixture, '.route-selector--input');
+    input.dispatchEvent(new Event('blur'));
+
     fixture.whenStable();
-    expect(component.form.markAllAsTouched).not.toHaveBeenCalled();
   });
 
   describe('setDisabledState():', () => {
