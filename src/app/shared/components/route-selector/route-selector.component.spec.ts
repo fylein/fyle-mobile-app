@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { RouteSelectorComponent } from './route-selector.component';
 import { Injector, NO_ERRORS_SCHEMA, SimpleChanges } from '@angular/core';
-import { FormArray, FormBuilder, NgControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
@@ -14,7 +14,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-describe('RouteSelectorComponent', () => {
+fdescribe('RouteSelectorComponent', () => {
   let component: RouteSelectorComponent;
   let fixture: ComponentFixture<RouteSelectorComponent>;
   let fb: jasmine.SpyObj<FormBuilder>;
@@ -27,7 +27,6 @@ describe('RouteSelectorComponent', () => {
       declarations: [RouteSelectorComponent],
       imports: [IonicModule.forRoot(), MatCheckboxModule, ReactiveFormsModule, MatIconTestingModule, MatIconModule],
       providers: [
-        NgControl,
         FormBuilder,
         {
           provide: ModalController,
@@ -62,11 +61,20 @@ describe('RouteSelectorComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('customDistanceValidator(): should validate distance form control', () => {
-    component.form.controls.distance.setValue(10);
-    fixture.detectChanges();
-    const result = component.customDistanceValidator(component.form.controls.distance);
-    expect(result).toBeNull();
+  describe('customDistanceValidator(): ', () => {
+    it('should validate distance form control', () => {
+      component.form.controls.distance.setValue(10);
+      fixture.detectChanges();
+      const result = component.customDistanceValidator(component.form.controls.distance);
+      expect(result).toBeNull();
+    });
+
+    it('should return invalid distance if value not present', () => {
+      component.form.controls.distance.setValue(0);
+      fixture.detectChanges();
+      const result = component.customDistanceValidator(component.form.controls.distance);
+      expect(result).toEqual({ invalidDistance: true });
+    });
   });
 
   it('writeValue(): should write value to the form group', () => {
@@ -95,18 +103,22 @@ describe('RouteSelectorComponent', () => {
 
     fixture.whenStable();
 
-    expect(changeTestCallback.test).toHaveBeenCalled();
+    expect(changeTestCallback.test).toHaveBeenCalledOnceWith({ mileageLocations: [], distance: 10, roundTrip: 10 });
   });
 
   it('registerOnTouched(): should registered onTouched property', () => {
+    spyOn(component.form, 'markAllAsTouched');
+
     const touchFn = () => {
-      component.form.markAsDirty();
+      component.form.markAllAsTouched();
     };
+
+    const input = getElementBySelector(fixture, '.route-selector--input') as HTMLInputElement;
+    input.dispatchEvent(new InputEvent('blur'));
+
     component.registerOnTouched(touchFn);
-
     fixture.whenStable();
-
-    expect(component.onTouched).toEqual(touchFn);
+    expect(component.form.markAllAsTouched).not.toHaveBeenCalled();
   });
 
   describe('setDisabledState():', () => {
