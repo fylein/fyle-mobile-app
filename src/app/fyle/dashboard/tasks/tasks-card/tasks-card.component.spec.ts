@@ -30,7 +30,7 @@ describe('TasksCardComponent', () => {
     component.task = {
       amount: '142.26K',
       count: 13,
-      header: 'Unreported',
+      header: 'Complete',
       subheader: '13 expenses  worth ₹142.26K  can be added to a report',
       icon: TaskIcon.REPORT,
       ctas: [
@@ -85,7 +85,7 @@ describe('TasksCardComponent', () => {
 
   it('should display the correct header and subheader for the first task', () => {
     const taskHeader = getElementBySelector(fixture, '.task--header');
-    expect(getTextContent(taskHeader)).toContain('Unreported');
+    expect(getTextContent(taskHeader)).toContain('Complete');
 
     const taskSubheader = getElementBySelector(fixture, '.task--subheader');
     expect(getTextContent(taskSubheader)).toContain('13 expenses  worth ₹142.26K  can be added to a report');

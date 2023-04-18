@@ -218,7 +218,7 @@ export class TasksComponent implements OnInit {
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Unreported',
+                label: 'Complete',
                 value: 'UNREPORTED',
               },
               {

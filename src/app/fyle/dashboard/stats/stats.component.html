@@ -138,7 +138,7 @@
           <app-stat-badge
             [currency]="homeCurrency$ | async"
             [currencySymbol]="currencySymbol$ | async"
-            [name]="'Unreported'"
+            [name]="'Complete'"
             [expenseState]="'COMPLETE'"
             [count]="(unreportedExpensesStats$ | async)?.count"
             [value]="(unreportedExpensesStats$ | async)?.sum"
