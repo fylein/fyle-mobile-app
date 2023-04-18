@@ -14,18 +14,15 @@ import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatMenuContent } from '@angular/material/menu';
+import { MatMenu, MatMenuModule } from '@angular/material/menu';
+import { MAT_MENU_CONTENT } from '@angular/material/menu';
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-
-import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.component';
 import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
 import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
-import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
 
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
-import { sidemenuItemData1, sidemenuItemData2, sidemenuItemData4 } from 'src/app/core/mock-data/sidemenu-item.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { currentEouRes, eouListWithDisabledUser } from 'src/app/core/test-data/org-user.service.spec.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -58,6 +55,19 @@ fdescribe('SidemenuComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
 
+  @Component({
+    selector: 'app-sidemenu',
+    template: '<ion-menu></ion-menu>',
+  })
+  class MockIonMenuComponent {
+    @Input() side: string;
+
+    @Input() class: string;
+
+    @Input() contentId: string;
+
+    @Input() swipeGesture: boolean;
+  }
   beforeEach(waitForAsync(() => {
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
@@ -95,7 +105,7 @@ fdescribe('SidemenuComponent', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
@@ -113,6 +123,7 @@ fdescribe('SidemenuComponent', () => {
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
 
+    spyOn(document, 'getElementById').and.returnValue(document.createElement('div'));
     fixture = TestBed.createComponent(SidemenuComponent);
     component = fixture.componentInstance;
     component.eou = apiEouRes;
@@ -334,6 +345,7 @@ fdescribe('SidemenuComponent', () => {
           ],
         },
       ];
+
       const result = component.getPrimarySidemenuOptions(true);
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
@@ -344,7 +356,6 @@ fdescribe('SidemenuComponent', () => {
       });
     });
   });
-
   describe('getSecondarySidemenuOptions():', () => {
     it('should get the secondary options', () => {
       const resData = getSecondarySidemenuOptionsRes1;
@@ -468,6 +479,34 @@ fdescribe('SidemenuComponent', () => {
       component.showSideMenuOnline();
       tick(500);
       expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should return true when there is internet connection and the user is logged in', fakeAsync(() => {
+      routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
+      orgService.getOrgs.and.returnValue(of(orgData1));
+      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      orgSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      orgUserService.findDelegatedAccounts.and.returnValue(of([currentEouRes]));
+      deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+
+      sidemenuService.getAllowedActions.and.returnValue(of(sidemenuAllowedActions));
+
+      const status = 'DISABLED';
+      const eousFiltered = eouListWithDisabledUser.filter((eou) => status.indexOf(eou.ou.status) === -1);
+      orgUserService.excludeByStatus.and.returnValue(eousFiltered);
+
+      component.showSideMenuOnline();
+      tick(500);
+      expect(routerAuthService.isLoggedIn).toHaveBeenCalled();
+      expect(orgService.getOrgs).toHaveBeenCalled();
+      expect(orgService.getCurrentOrg).toHaveBeenCalled();
+      expect(orgSettingsService.get).toHaveBeenCalled();
+      expect(orgUserSettingsService.get).toHaveBeenCalled();
+      expect(orgUserService.findDelegatedAccounts).toHaveBeenCalled();
+      expect(orgUserService.excludeByStatus).toHaveBeenCalled();
+      expect(deviceService.getDeviceInfo).toHaveBeenCalled();
+      expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalled();
+      expect(sidemenuService.getAllowedActions).toHaveBeenCalled();
     }));
   });
 });
