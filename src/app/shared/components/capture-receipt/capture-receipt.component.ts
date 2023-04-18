@@ -12,7 +12,6 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
-import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
@@ -65,7 +64,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private transactionsOutboxService: TransactionsOutboxService,
     private imagePicker: ImagePicker,
     private networkService: NetworkService,
-    private currencyService: CurrencyService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private orgService: OrgService,
