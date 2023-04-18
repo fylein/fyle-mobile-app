@@ -200,7 +200,7 @@ export class TasksService {
     }
 
     if (filters.unreportedExpenses) {
-      expensePills.push('Unreported');
+      expensePills.push('Complete');
     }
 
     if (filters.potentialDuplicates) {
@@ -745,7 +745,7 @@ export class TasksService {
       const task = {
         amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
         count: aggregate.totalCount,
-        header: `Unreported`,
+        header: 'Complete',
         subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
           aggregate.totalAmount,
           homeCurrency
