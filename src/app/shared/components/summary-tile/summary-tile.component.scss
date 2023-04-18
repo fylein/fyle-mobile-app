@@ -94,7 +94,7 @@ $advance_paid_color: darken(#5cb85c, 15%);
     &__reported {
       color: $reported-color;
     }
-    &__unreported {
+    &__complete {
       color: $fyled-color;
     }
     &_sent_back {

@@ -101,7 +101,7 @@ $rejected-color: #d50000;
 $states: (
   'draft': $highlight-black,
   'incomplete': #da1e28,
-  'unreported': $fyled-color,
+  'complete': $fyled-color,
   'reported': #2196f3,
   'inquiry': #da1e28,
   'sent_back': #da1e28,
@@ -126,7 +126,7 @@ $states: (
 $fdl-state-bg-map: (
   'draft': #ebedef,
   'incomplete': #fce9ea,
-  'unreported': #f4edff,
+  'complete': #f4edff,
   'reported': #eef1fe,
   'sent_back': #fce9ea,
   'approved': #e7f3f4,
@@ -148,7 +148,7 @@ $fdl-state-bg-map: (
 $fdl-state-color-map: (
   'draft': #34495e,
   'incomplete': #da1e28,
-  'unreported': #8e46ff,
+  'complete': #8e46ff,
   'reported': #556ef2,
   'sent_back': #da1e28,
   'approved': #077e8c,
@@ -170,7 +170,7 @@ $fdl-state-color-map: (
 $fdl-state-border-color-map: (
   'draft': #c6ccd2,
   'incomplete': #f5c0c3,
-  'unreported': #dbc5ff,
+  'complete': #dbc5ff,
   'reported': #d9def8,
   'sent_back': #f5c0c3,
   'approved': #c9e1e4,

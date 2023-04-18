@@ -12,7 +12,6 @@ export class ReportState implements PipeTransform {
     const states = {
       DRAFT: 'draft',
       DRAFT_INQUIRY: 'incomplete',
-      COMPLETE: 'unreported',
       APPROVER_PENDING: simplifyReportsEnabled ? 'submitted' : 'reported',
       SUBMITTED: 'reported',
       APPROVER_INQUIRY: 'sent_back',
