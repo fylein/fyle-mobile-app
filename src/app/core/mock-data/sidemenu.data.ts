@@ -173,7 +173,7 @@ export const getSecondarySidemenuOptionsRes1 = [
   },
 ];
 
-export const setSideMenuRes = [
+export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Dashboard',
     isVisible: true,
