@@ -14,6 +14,8 @@ import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuContent } from '@angular/material/menu';
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
@@ -25,6 +27,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { sidemenuItemData1, sidemenuItemData2, sidemenuItemData4 } from 'src/app/core/mock-data/sidemenu-item.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { currentEouRes, eouListWithDisabledUser } from 'src/app/core/test-data/org-user.service.spec.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { cloneDeep, slice } from 'lodash';
@@ -77,7 +80,7 @@ fdescribe('SidemenuComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [SidemenuComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), MatMenuModule],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
@@ -116,9 +119,15 @@ fdescribe('SidemenuComponent', () => {
 
     Object.freeze(orgSettingsRes);
     Object.freeze(orgUserSettingsData);
+    Object.freeze(orgData1);
 
     component.orgSettings = cloneDeep(orgSettingsRes);
     component.orgUserSettings = cloneDeep(orgUserSettingsData);
+    component.allowedActions = sidemenuAllowedActions;
+    component.activeOrg = { name: apiEouRes.ou.org_name };
+    component.appVersion = extendedDeviceInfoMockData.appVersion;
+    component.isConnected$ = of(true);
+    component.isSwitchedToDelegator = false;
     fixture.detectChanges();
   }));
 
@@ -274,6 +283,66 @@ fdescribe('SidemenuComponent', () => {
       expect(cardOptSpy).toHaveBeenCalledTimes(1);
       expect(teamOptSpy).toHaveBeenCalledTimes(1);
     });
+
+    it('should show Advances option when advance request is enabled', () => {
+      orgSettingsRes.advances.enabled = false;
+      orgSettingsRes.advance_requests.enabled = true;
+      const resData = [
+        {
+          title: 'Dashboard',
+          isVisible: true,
+          icon: 'fy-dashboard-new',
+          route: ['/', 'enterprise', 'my_dashboard'],
+        },
+        {
+          title: 'Expenses',
+          isVisible: true,
+          icon: 'expense',
+          route: ['/', 'enterprise', 'my_expenses'],
+        },
+        {
+          title: 'Reports',
+          isVisible: true,
+          icon: 'fy-report',
+          route: ['/', 'enterprise', 'my_reports'],
+          disabled: false,
+        },
+        {
+          title: 'Advances',
+          isVisible: orgSettingsRes.advance_requests.enabled,
+          icon: 'advances',
+          route: ['/', 'enterprise', 'my_advances'],
+          disabled: false,
+        },
+        {
+          title: 'Teams',
+          isVisible: true,
+          icon: 'teams',
+          isDropdownOpen: false,
+          disabled: false,
+          dropdownOptions: [
+            {
+              title: 'Team Reports',
+              isVisible: true,
+              route: ['/', 'enterprise', 'team_reports'],
+            },
+            {
+              title: 'Team Advances',
+              isVisible: true,
+              route: ['/', 'enterprise', 'team_advance'],
+            },
+          ],
+        },
+      ];
+      const result = component.getPrimarySidemenuOptions(true);
+      expect(result.length).toBe(5);
+      result.forEach((option, index) => {
+        expect(option.title).toBe(resData[index].title);
+        expect(option.icon).toBe(resData[index].icon);
+        expect(option.route).toEqual(resData[index].route);
+        expect(option.icon).toEqual(resData[index].icon);
+      });
+    });
   });
 
   describe('getSecondarySidemenuOptions():', () => {
@@ -293,6 +362,55 @@ fdescribe('SidemenuComponent', () => {
       const resData = getSecondarySidemenuOptionsRes1.filter((option) => option.title !== 'Delegated Accounts');
       const result = component.getSecondarySidemenuOptions(orgData1, false, true);
       expect(result.length).toBe(3);
+      result.forEach((option, index) => {
+        expect(option.title).toBe(resData[index].title);
+        expect(option.icon).toBe(resData[index].icon);
+        expect(option.route).toEqual(resData[index].route);
+        expect(option.icon).toEqual(resData[index].icon);
+      });
+    });
+
+    it('should show Switch Organization option if not switched to delegator', () => {
+      const orgData2 = [...orgData1, ...orgData1];
+      component.isSwitchedToDelegator = false;
+      const resData = [
+        {
+          title: 'Delegated Accounts',
+          isVisible: true,
+          icon: 'delegate-switch',
+          route: ['/', 'enterprise', 'delegated_accounts'],
+          disabled: false,
+        },
+        {
+          title: 'Switch Organization',
+          isVisible: orgData2.length > 1 && !component.isSwitchedToDelegator,
+          icon: 'swap',
+          route: ['/', 'auth', 'switch_org', { choose: true, navigate_back: true }],
+          disabled: false,
+        },
+        {
+          title: 'Settings',
+          isVisible: true,
+          icon: 'fy-settings',
+          route: ['/', 'enterprise', 'my_profile'],
+        },
+        {
+          title: 'Live Chat',
+          isVisible: true,
+          icon: 'fy-chat-2',
+          openLiveChat: true,
+          disabled: false,
+        },
+        {
+          title: 'Help',
+          isVisible: true,
+          icon: 'help',
+          route: ['/', 'enterprise', 'help'],
+          disabled: false,
+        },
+      ];
+      const result = component.getSecondarySidemenuOptions(orgData2, true, true);
+      expect(result.length).toBe(5);
       result.forEach((option, index) => {
         expect(option.title).toBe(resData[index].title);
         expect(option.icon).toBe(resData[index].icon);
@@ -342,5 +460,14 @@ fdescribe('SidemenuComponent', () => {
       expect(router.navigate).not.toHaveBeenCalledWith(['/', 'enterprise', 'my_profile']);
       expect(menuController.close).not.toHaveBeenCalled();
     });
+  });
+
+  describe('showSideMenuOnline', () => {
+    it('should return false when there is internet connection and the user is not logged in', fakeAsync(() => {
+      routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(false));
+      component.showSideMenuOnline();
+      tick(500);
+      expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(1);
+    }));
   });
 });
