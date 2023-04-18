@@ -65,7 +65,7 @@ export const UpdatedOptionsRes: Partial<SidemenuItem> = {
   disabled: false,
 };
 
-export const PrimaryOptionsRes2 = [
+export const PrimaryOptionsRes2: Partial<SidemenuItem>[] = [
   {
     title: 'Teams',
     isVisible: true,

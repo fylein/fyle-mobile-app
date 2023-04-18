@@ -14,20 +14,15 @@ import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
-import { MatMenu, MatMenuModule } from '@angular/material/menu';
-import { MAT_MENU_CONTENT } from '@angular/material/menu';
-
+import { MatMenuModule } from '@angular/material/menu';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
-import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
-
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { currentEouRes, eouListWithDisabledUser } from 'src/app/core/test-data/org-user.service.spec.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { cloneDeep, slice } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { sidemenuAllowedActions } from 'src/app/core/mock-data/sidemenu-allowed-actions.data';
 import {
   sidemenuData1,
@@ -39,7 +34,7 @@ import {
   setSideMenuRes,
 } from 'src/app/core/mock-data/sidemenu.data';
 
-fdescribe('SidemenuComponent', () => {
+describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
   let fixture: ComponentFixture<SidemenuComponent>;
   let deviceService: jasmine.SpyObj<DeviceService>;
@@ -369,6 +364,7 @@ fdescribe('SidemenuComponent', () => {
       });
     });
   });
+
   describe('getSecondarySidemenuOptions():', () => {
     it('should get the secondary options', () => {
       const resData = getSecondarySidemenuOptionsRes1;
