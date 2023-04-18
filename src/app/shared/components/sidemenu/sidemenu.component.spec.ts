@@ -482,12 +482,16 @@ fdescribe('SidemenuComponent', () => {
     }));
 
     it('should return true when there is internet connection and the user is logged in', fakeAsync(() => {
+      component.isConnected$ = of(true);
       routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
       orgService.getOrgs.and.returnValue(of(orgData1));
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
       orgSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       orgUserService.findDelegatedAccounts.and.returnValue(of([currentEouRes]));
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+      orgUserService.isSwitchedToDelegator.and.returnValue(Promise.resolve(false));
+      orgUserService.getCurrent.and.returnValue(of(currentEouRes));
 
       sidemenuService.getAllowedActions.and.returnValue(of(sidemenuAllowedActions));
 
