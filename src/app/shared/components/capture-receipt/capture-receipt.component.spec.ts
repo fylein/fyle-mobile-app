@@ -51,6 +51,10 @@ xdescribe('CaptureReceiptComponent', () => {
       'incrementSingleCaptureCount',
       'singleCaptureCount',
     ]);
+    const imagePickerSpy = jasmine.createSpyObj('ImagePicker', ['hasReadPermission', 'getPictures']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', []);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', []);
     TestBed.configureTestingModule({
       declarations: [CaptureReceiptComponent],
       imports: [IonicModule.forRoot()],
