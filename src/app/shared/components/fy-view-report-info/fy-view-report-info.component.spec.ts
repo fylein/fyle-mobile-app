@@ -283,4 +283,18 @@ fdescribe('FyViewReportInfoComponent', () => {
       segment: 'amount',
     });
   });
+
+  it('onSwipeEmployee(): should call trackingService and click button on swipe event with direction 4', () => {
+    const app = fixture.nativeElement;
+    const btnSpy = spyOn(app.getElementsByClassName('view-info--segment-block-container__btn')[1], 'click');
+
+    component.onSwipeEmployee({ direction: 4 });
+    expect(component.isSwipe).toBeTrue();
+    expect(trackingService.viewReportInfo).toHaveBeenCalledOnceWith({
+      view: component.view,
+      action: 'swipe',
+      segment: 'employee',
+    });
+    expect(btnSpy).toHaveBeenCalledTimes(1);
+  });
 });
