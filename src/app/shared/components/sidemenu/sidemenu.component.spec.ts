@@ -31,9 +31,9 @@ import { cloneDeep, slice } from 'lodash';
 import { sidemenuAllowedActions } from 'src/app/core/mock-data/sidemenu-allowed-actions.data';
 import {
   sidemenuData1,
-  PrimaryOptionsRes,
+  PrimaryOptionsRes1,
   UpdatedOptionsRes,
-  updateSidemenuOptionRes,
+  PrimaryOptionsRes2,
   getPrimarySidemenuOptionsRes1,
   getSecondarySidemenuOptionsRes1,
   setSideMenuRes,
@@ -240,14 +240,16 @@ fdescribe('SidemenuComponent', () => {
   });
 
   it('updateSidemenuOption(): should update the sidemenu option', () => {
-    const updSidemenuOpt = component.updateSidemenuOption(PrimaryOptionsRes, 'Cards', UpdatedOptionsRes);
+    const primOpt = PrimaryOptionsRes1.concat(PrimaryOptionsRes2);
+    const updSidemenuOpt = component.updateSidemenuOption(primOpt, 'Cards', UpdatedOptionsRes);
     fixture.detectChanges();
-    expect(updSidemenuOpt).toEqual(updateSidemenuOptionRes);
+    expect(updSidemenuOpt).toEqual(PrimaryOptionsRes2);
   });
 
   describe('getPrimarySidemenuOptions():', () => {
     it('should get the primary sidemenu options', () => {
-      const resData = PrimaryOptionsRes.filter((option) => option.title !== 'Personal Cards');
+      const primOpt = PrimaryOptionsRes1.concat(PrimaryOptionsRes2);
+      const resData = primOpt.filter((option) => option.title !== 'Personal Cards');
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
       const result = component.getPrimarySidemenuOptions(true);
@@ -263,7 +265,7 @@ fdescribe('SidemenuComponent', () => {
     });
 
     it('should show the card option if there is at least one card option available', () => {
-      const resData = slice(PrimaryOptionsRes, 0, 5);
+      const resData = PrimaryOptionsRes1;
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([
         {

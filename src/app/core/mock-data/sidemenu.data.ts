@@ -21,7 +21,7 @@ export const sidemenuData1 = [
   },
 ];
 
-export const PrimaryOptionsRes: Partial<SidemenuItem>[] = [
+export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
   {
     title: 'Dashboard',
     isVisible: true,
@@ -55,25 +55,6 @@ export const PrimaryOptionsRes: Partial<SidemenuItem>[] = [
     route: ['/', 'enterprise', 'my_advances'],
     disabled: false,
   },
-  {
-    title: 'Teams',
-    isVisible: true,
-    icon: 'teams',
-    isDropdownOpen: false,
-    disabled: false,
-    dropdownOptions: [
-      {
-        title: 'Team Reports',
-        isVisible: true,
-        route: ['/', 'enterprise', 'team_reports'],
-      },
-      {
-        title: 'Team Advances',
-        isVisible: true,
-        route: ['/', 'enterprise', 'team_advance'],
-      },
-    ],
-  },
 ];
 
 export const UpdatedOptionsRes: Partial<SidemenuItem> = {
@@ -84,7 +65,7 @@ export const UpdatedOptionsRes: Partial<SidemenuItem> = {
   disabled: false,
 };
 
-export const updateSidemenuOptionRes = [
+export const PrimaryOptionsRes2 = [
   {
     title: 'Teams',
     isVisible: true,
