@@ -162,19 +162,29 @@ fdescribe('SidemenuComponent', () => {
     });
   }));
 
-  it('showSideMenuOffline(): should show the sidemenu when offline', fakeAsync(() => {
-    deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
-    component.showSideMenuOffline();
-    tick(500);
-    fixture.detectChanges();
-
-    if (component.appVersion) {
+  describe('showSideMenuOffline():', () => {
+    it('should show the sidemenu when offline', fakeAsync(() => {
+      const setupSidemenuSpy = spyOn(component, 'setupSideMenu');
+      deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+      component.showSideMenuOffline();
+      tick(500);
+      fixture.detectChanges();
       expect(component.appVersion).toEqual(extendedDeviceInfoMockData.appVersion);
-    } else {
+      expect(component.activeOrg).toEqual({ name: apiEouRes.ou.org_name });
+      expect(setupSidemenuSpy).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show the sidemenu when offline along with app version', fakeAsync(() => {
+      const setupSidemenuSpy = spyOn(component, 'setupSideMenu');
+      deviceService.getDeviceInfo.and.returnValue(of(null));
+      component.showSideMenuOffline();
+      tick(500);
+      fixture.detectChanges();
       expect(component.appVersion).toEqual('1.2.3');
-    }
-    expect(component.activeOrg).toEqual({ name: apiEouRes.ou.org_name });
-  }));
+      expect(component.activeOrg).toEqual({ name: apiEouRes.ou.org_name });
+      expect(setupSidemenuSpy).toHaveBeenCalledTimes(1);
+    }));
+  });
 
   it('getPrimarySidemenuOptionsOffline(): should get the primary sidemenu options when offline', () => {
     const primaryMenuOptions = component.getPrimarySidemenuOptionsOffline();
