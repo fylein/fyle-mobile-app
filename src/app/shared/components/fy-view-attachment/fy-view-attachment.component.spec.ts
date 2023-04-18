@@ -8,7 +8,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
 
-fdescribe('FyViewAttachmentComponent', () => {
+describe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
   let fixture: ComponentFixture<FyViewAttachmentComponent>;
   let domSantizer: jasmine.SpyObj<DomSanitizer>;
