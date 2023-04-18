@@ -17,8 +17,9 @@ import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { currencySummaryData } from 'src/app/core/mock-data/currency-summary.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';
+import { cloneDeep } from 'lodash';
 
-fdescribe('FyViewReportInfoComponent', () => {
+describe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
   let fixture: ComponentFixture<FyViewReportInfoComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -98,11 +99,6 @@ fdescribe('FyViewReportInfoComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('ngOnInit(): should do nothing', () => {
-    spyOn(component, 'ngOnInit');
-    component.ngOnInit();
   });
 
   it('ionViewWillEnter(): should update report details and currency and set Reimbursable according to paymentModeData', () => {
@@ -351,4 +347,84 @@ fdescribe('FyViewReportInfoComponent', () => {
     expect(orgUserSettingsService.getAllowedCostCentersByOuId).not.toHaveBeenCalledOnceWith(reportParam.ou_id);
     expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
   }));
+
+  it('getCCCAdvanceSummary(): should update amountComponentWiseDetails', () => {
+    const paymentModeSummaryMock = {
+      ccc: {
+        name: 'example',
+        key: 'key123',
+        amount: 4600,
+        count: 200,
+      },
+      advance: {
+        name: 'example',
+        key: 'key123',
+        amount: 4700,
+        count: 200,
+      },
+    };
+    component.amountComponentWiseDetails = {
+      'Total Amount': reportParam.rp_amount,
+      Reimbursable: 0,
+    };
+    component.getCCCAdvanceSummary(paymentModeSummaryMock, orgSettingsRes);
+    expect(component.amountComponentWiseDetails.CCC).toBe(4600);
+    expect(component.amountComponentWiseDetails.Advance).toBe(4700);
+  });
+
+  it('getCCCAdvanceSummary(): should update amountComponentWiseDetails if paymentModeWiseData dont have amount in ccc', () => {
+    const paymentModeSummaryMock = {
+      advance: {
+        name: 'example',
+        key: 'key123',
+        amount: 4700,
+        count: 200,
+      },
+    };
+    component.amountComponentWiseDetails = {
+      'Total Amount': reportParam.rp_amount,
+      Reimbursable: 0,
+    };
+    component.getCCCAdvanceSummary(paymentModeSummaryMock, orgSettingsRes);
+    expect(component.amountComponentWiseDetails.CCC).toBe(0);
+    expect(component.amountComponentWiseDetails.Advance).toBe(4700);
+  });
+
+  it('getCCCAdvanceSummary(): should update amountComponentWiseDetails if paymentModeWiseData dont have amount in advance', () => {
+    const paymentModeSummaryMock = {};
+    component.amountComponentWiseDetails = {
+      'Total Amount': reportParam.rp_amount,
+      Reimbursable: 0,
+    };
+    component.getCCCAdvanceSummary(paymentModeSummaryMock, orgSettingsRes);
+    expect(component.amountComponentWiseDetails.CCC).toBe(0);
+    expect(component.amountComponentWiseDetails.Advance).toBe(0);
+  });
+
+  it('getCCCAdvanceSummary(): should not set Advance property of amountComponentWiseDetails if isAdvanceEnabled and isAdvanceRequestEnabled are both false', () => {
+    const paymentModeSummaryMock = {
+      ccc: {
+        name: 'example',
+        key: 'key123',
+        amount: 4600,
+        count: 200,
+      },
+      advance: {
+        name: 'example',
+        key: 'key123',
+        amount: 4700,
+        count: 200,
+      },
+    };
+    component.amountComponentWiseDetails = {
+      'Total Amount': reportParam.rp_amount,
+      Reimbursable: 0,
+    };
+    const orgSettingsRes2 = cloneDeep(orgSettingsRes);
+    orgSettingsRes2.advances.enabled = false;
+    orgSettingsRes2.advance_requests.enabled = false;
+    component.getCCCAdvanceSummary(paymentModeSummaryMock, orgSettingsRes2);
+    expect(component.amountComponentWiseDetails.CCC).toBe(4600);
+    expect(component.amountComponentWiseDetails.Advance).toBeUndefined();
+  });
 });
