@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 
 import { FyViewReportInfoComponent } from './fy-view-report-info.component';
 import { reportParam } from 'src/app/core/mock-data/report.data';
@@ -15,6 +15,8 @@ import { DatePipe, KeyValue } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { currencySummaryData } from 'src/app/core/mock-data/currency-summary.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';
 
 fdescribe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
@@ -32,9 +34,12 @@ fdescribe('FyViewReportInfoComponent', () => {
       'getPaymentModeWiseSummary',
       'getCurrenyWiseSummary',
     ]);
-    const mockOrgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const mockOrgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
+      'get',
+      'getAllowedCostCentersByOuId',
+    ]);
     const mockTrackingServiceSpy = jasmine.createSpyObj('TrackingService', ['viewReportInfo']);
-    const mockAuthServiceSpy = jasmine.createSpyObj('AuthService', ['getUserDetails']);
+    const mockAuthServiceSpy = jasmine.createSpyObj('AuthService', ['getUserDetails', 'getEou']);
     const mockOrgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const mockModalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
 
@@ -297,4 +302,53 @@ fdescribe('FyViewReportInfoComponent', () => {
     });
     expect(btnSpy).toHaveBeenCalledTimes(1);
   });
+
+  it('createEmployeeDetails(): should update employee details', fakeAsync(() => {
+    const expectedEmployeeDetails = {
+      'Employee ID': reportParam.ou_employee_id,
+      Organization: reportParam.ou_org_name,
+      Department: reportParam.ou_department,
+      'Sub Department': reportParam.ou_sub_department,
+      Location: reportParam.ou_location,
+      Level: reportParam.ou_level,
+      'Employee Title': reportParam.ou_title,
+      'Business Unit': reportParam.ou_business_unit,
+      Mobile: reportParam.ou_mobile,
+    };
+
+    const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
+
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    orgUserSettingsService.getAllowedCostCentersByOuId.and.returnValue(of(costCentersData));
+    component.createEmployeeDetails(reportParam);
+    expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
+    tick(1000);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(orgUserSettingsService.getAllowedCostCentersByOuId).toHaveBeenCalledOnceWith(reportParam.ou_id);
+    expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
+  }));
+
+  it('createEmployeeDetails(): should update employee details but not update the cost centers when API throw an error', fakeAsync(() => {
+    const expectedEmployeeDetails = {
+      'Employee ID': reportParam.ou_employee_id,
+      Organization: reportParam.ou_org_name,
+      Department: reportParam.ou_department,
+      'Sub Department': reportParam.ou_sub_department,
+      Location: reportParam.ou_location,
+      Level: reportParam.ou_level,
+      'Employee Title': reportParam.ou_title,
+      'Business Unit': reportParam.ou_business_unit,
+      Mobile: reportParam.ou_mobile,
+    };
+
+    const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
+
+    authService.getEou.and.throwError('An Error Occured');
+    component.createEmployeeDetails(reportParam);
+    expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
+    tick(1000);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(orgUserSettingsService.getAllowedCostCentersByOuId).not.toHaveBeenCalledOnceWith(reportParam.ou_id);
+    expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
+  }));
 });
