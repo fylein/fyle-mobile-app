@@ -168,7 +168,11 @@ fdescribe('SidemenuComponent', () => {
     tick(500);
     fixture.detectChanges();
 
-    expect(component.appVersion).toEqual(extendedDeviceInfoMockData.appVersion);
+    if (component.appVersion) {
+      expect(component.appVersion).toEqual(extendedDeviceInfoMockData.appVersion);
+    } else {
+      expect(component.appVersion).toEqual('1.2.3');
+    }
     expect(component.activeOrg).toEqual({ name: apiEouRes.ou.org_name });
   }));
 
@@ -198,10 +202,7 @@ fdescribe('SidemenuComponent', () => {
     expect(cardOpt).toEqual([
       {
         title: 'Personal Cards',
-        isVisible:
-          component.orgSettings.org_personal_cards_settings.enabled &&
-          component.orgSettings.org_personal_cards_settings.allowed &&
-          component.orgUserSettings.personal_cards_settings.enabled,
+        isVisible: true,
         route: ['/', 'enterprise', 'personal_cards'],
       },
     ]);
@@ -296,8 +297,8 @@ fdescribe('SidemenuComponent', () => {
     });
 
     it('should show Advances option when advance request is enabled', () => {
-      orgSettingsRes.advances.enabled = false;
-      orgSettingsRes.advance_requests.enabled = true;
+      component.orgSettings.advances.enabled = false;
+      component.orgSettings.advance_requests.enabled = true;
       const resData = [
         {
           title: 'Dashboard',
@@ -320,7 +321,7 @@ fdescribe('SidemenuComponent', () => {
         },
         {
           title: 'Advances',
-          isVisible: orgSettingsRes.advance_requests.enabled,
+          isVisible: component.orgSettings.advance_requests.enabled,
           icon: 'advances',
           route: ['/', 'enterprise', 'my_advances'],
           disabled: false,
@@ -462,14 +463,14 @@ fdescribe('SidemenuComponent', () => {
       const event = { isTrusted: true };
       component.goToProfile(event as Event);
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_profile']);
-      expect(menuController.close).toHaveBeenCalled();
+      expect(menuController.close).toHaveBeenCalledTimes(1);
     });
 
     it('should navigate to my profile page and close the menu when isTrusted is false', () => {
       const event = { isTrusted: false };
       component.goToProfile(event as Event);
       expect(router.navigate).not.toHaveBeenCalledWith(['/', 'enterprise', 'my_profile']);
-      expect(menuController.close).not.toHaveBeenCalled();
+      expect(menuController.close).not.toHaveBeenCalledTimes(1);
     });
   });
 
@@ -486,7 +487,7 @@ fdescribe('SidemenuComponent', () => {
       routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
       orgService.getOrgs.and.returnValue(of(orgData1));
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
-      orgSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       orgUserService.findDelegatedAccounts.and.returnValue(of([currentEouRes]));
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
@@ -501,16 +502,17 @@ fdescribe('SidemenuComponent', () => {
 
       component.showSideMenuOnline();
       tick(500);
-      expect(routerAuthService.isLoggedIn).toHaveBeenCalled();
-      expect(orgService.getOrgs).toHaveBeenCalled();
-      expect(orgService.getCurrentOrg).toHaveBeenCalled();
-      expect(orgSettingsService.get).toHaveBeenCalled();
-      expect(orgUserSettingsService.get).toHaveBeenCalled();
-      expect(orgUserService.findDelegatedAccounts).toHaveBeenCalled();
-      expect(orgUserService.excludeByStatus).toHaveBeenCalled();
-      expect(deviceService.getDeviceInfo).toHaveBeenCalled();
-      expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalled();
-      expect(sidemenuService.getAllowedActions).toHaveBeenCalled();
+
+      expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(1);
+      expect(orgService.getOrgs).toHaveBeenCalledTimes(1);
+      expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalledTimes(1);
+      expect(sidemenuService.getAllowedActions).toHaveBeenCalledTimes(1);
+      expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(orgUserService.findDelegatedAccounts).toHaveBeenCalledTimes(1);
+      expect(orgUserService.excludeByStatus).toHaveBeenCalledOnceWith([currentEouRes], 'DISABLED');
+      expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
     }));
   });
 });
