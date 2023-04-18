@@ -13,6 +13,7 @@ import { of } from 'rxjs';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { By } from '@angular/platform-browser';
 
 describe('RouteSelectorComponent', () => {
   let component: RouteSelectorComponent;
@@ -109,14 +110,15 @@ describe('RouteSelectorComponent', () => {
   it('registerOnTouched(): should registered onTouched property', async () => {
     const onTouchTested = jasmine.createSpyObj('touchedTested', ['touchedTested']);
 
-    component.registerOnTouched(onTouchTested.touchTested);
-
     expect(onTouchTested.touchedTested).not.toHaveBeenCalled();
 
-    const input = getElementBySelector(fixture, '.route-selector--input');
-    input.dispatchEvent(new Event('blur'));
+    component.registerOnTouched(onTouchTested.touchedTested);
 
-    fixture.whenStable();
+    const input = fixture.debugElement.query(By.css('.route-selector--input'));
+    input.triggerEventHandler('blur', null);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   describe('setDisabledState():', () => {
