@@ -98,7 +98,7 @@ describe('TasksService', () => {
   const unreportedExpenseTaskSample = {
     amount: '142.26K',
     count: 13,
-    header: 'Complete',
+    header: 'Complete expenses',
     subheader: '13 expenses  worth ₹142.26K  can be added to a report',
     icon: TaskIcon.REPORT,
     ctas: [
@@ -775,7 +775,7 @@ describe('TasksService', () => {
         'Report sent back!',
         'Incomplete expenses',
         'Unsubmitted reports',
-        'Complete',
+        'Complete expenses',
         'Reports to be approved',
         'Advances sent back!',
       ]);
