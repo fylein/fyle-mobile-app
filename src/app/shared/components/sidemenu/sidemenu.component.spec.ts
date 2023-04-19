@@ -248,6 +248,7 @@ describe('SidemenuComponent', () => {
       const cardOptSpy = spyOn(component, 'getCardOptions').and.returnValue([]);
       const teamOptSpy = spyOn(component, 'getTeamOptions').and.returnValue([]);
       const result = component.getPrimarySidemenuOptions(true);
+      fixture.detectChanges();
       expect(result.length).toBe(4);
       result.forEach((option, index) => {
         expect(option.title).toBe(resData[index].title);
@@ -270,6 +271,7 @@ describe('SidemenuComponent', () => {
         },
       ]);
       const result = component.getPrimarySidemenuOptions(true);
+      fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
         expect(option.title).toBe(resData[index].title);
@@ -292,6 +294,7 @@ describe('SidemenuComponent', () => {
         },
       ]);
       const result = component.getPrimarySidemenuOptions(true);
+      fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
         expect(option.title).toBe(resData[index].title);
@@ -355,6 +358,7 @@ describe('SidemenuComponent', () => {
       ];
 
       const result = component.getPrimarySidemenuOptions(true);
+      fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
         expect(option.title).toBe(resData[index].title);
@@ -369,6 +373,7 @@ describe('SidemenuComponent', () => {
     it('should get the secondary options', () => {
       const resData = getSecondarySidemenuOptionsRes1;
       const result = component.getSecondarySidemenuOptions(orgData1, true, true);
+      fixture.detectChanges();
       expect(result.length).toBe(4);
       result.forEach((option, index) => {
         expect(option.title).toBe(resData[index].title);
@@ -381,6 +386,7 @@ describe('SidemenuComponent', () => {
     it('should not show the Delegated Accounts option when there is no delegatee', () => {
       const resData = getSecondarySidemenuOptionsRes1.filter((option) => option.title !== 'Delegated Accounts');
       const result = component.getSecondarySidemenuOptions(orgData1, false, true);
+      fixture.detectChanges();
       expect(result.length).toBe(3);
       result.forEach((option, index) => {
         expect(option.title).toBe(resData[index].title);
@@ -430,6 +436,7 @@ describe('SidemenuComponent', () => {
         },
       ];
       const result = component.getSecondarySidemenuOptions(orgData2, true, true);
+      fixture.detectChanges();
       expect(result.length).toBe(5);
       result.forEach((option, index) => {
         expect(option.title).toBe(resData[index].title);
@@ -450,6 +457,7 @@ describe('SidemenuComponent', () => {
       );
       const resData = setSideMenuRes;
       component.setupSideMenu(true, orgData1, true);
+      fixture.detectChanges();
       expect(component.filteredSidemenuList).toEqual(resData);
       expect(getPrimarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(true);
       expect(getSecondarySidemenuOptionsSpy).toHaveBeenCalledOnceWith(orgData1, true, true);
@@ -461,6 +469,7 @@ describe('SidemenuComponent', () => {
       );
       const resData = sidemenuData1;
       component.setupSideMenu(false, orgData1, false);
+      fixture.detectChanges();
       expect(component.filteredSidemenuList).toEqual(resData);
       expect(getPrimarySidemenuOptionsOfflineSpy).toHaveBeenCalledTimes(1);
     });
@@ -470,6 +479,7 @@ describe('SidemenuComponent', () => {
     it('should navigate to my profile page and close the menu when isTrusted is true', () => {
       const event = { isTrusted: true };
       component.goToProfile(event as Event);
+      fixture.detectChanges();
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_profile']);
       expect(menuController.close).toHaveBeenCalledTimes(1);
     });
@@ -477,6 +487,7 @@ describe('SidemenuComponent', () => {
     it('should navigate to my profile page and close the menu when isTrusted is false', () => {
       const event = { isTrusted: false };
       component.goToProfile(event as Event);
+      fixture.detectChanges();
       expect(router.navigate).not.toHaveBeenCalledWith(['/', 'enterprise', 'my_profile']);
       expect(menuController.close).not.toHaveBeenCalledTimes(1);
     });
@@ -510,7 +521,6 @@ describe('SidemenuComponent', () => {
 
       component.showSideMenuOnline();
       tick(500);
-
       expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(1);
       expect(orgService.getOrgs).toHaveBeenCalledTimes(1);
       expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalledTimes(1);
