@@ -1954,34 +1954,38 @@ export class AddEditExpensePage implements OnInit {
       projectFormControl.updateValueAndValidity();
     });
 
+    this.costCenters$.subscribe((costCenters) => {
+      const costCenterControl = this.fg.controls.costCenter;
+      costCenterControl.clearValidators();
+      costCenterControl.setValidators(costCenters?.length > 0 ? Validators.required : null);
+      costCenterControl.updateValueAndValidity();
+    });
+
     this.txnFields$
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         switchMap((txnFields) =>
           forkJoin({
             isConnected: this.isConnected$.pipe(take(1)),
-            costCenters: this.costCenters$,
             taxGroups: this.taxGroups$,
             filteredCategories: this.filteredCategories$.pipe(take(1)),
           }).pipe(
-            map(({ isConnected, costCenters, taxGroups, filteredCategories }) => ({
+            map(({ isConnected, taxGroups, filteredCategories }) => ({
               isConnected,
               txnFields,
-              costCenters,
               taxGroups,
               filteredCategories,
             }))
           )
         )
       )
-      .subscribe(({ isConnected, txnFields, costCenters, taxGroups, filteredCategories }) => {
+      .subscribe(({ isConnected, txnFields, taxGroups, filteredCategories }) => {
         const keyToControlMap: {
           [id: string]: AbstractControl;
         } = {
           purpose: this.fg.controls.purpose,
           txn_dt: this.fg.controls.dateOfSpend,
           vendor_id: this.fg.controls.vendor_id,
-          cost_center_id: this.fg.controls.costCenter,
           from_dt: this.fg.controls.from_dt,
           to_dt: this.fg.controls.to_dt,
           location1: this.fg.controls.location_1,
@@ -2005,6 +2009,7 @@ export class AddEditExpensePage implements OnInit {
         // setup validations
         const txnFieldsCopy = cloneDeep(txnFields);
         delete txnFieldsCopy.project_id;
+        delete txnFieldsCopy.cost_center_id;
         for (const txnFieldKey of Object.keys(txnFieldsCopy)) {
           const control = keyToControlMap[txnFieldKey];
           if (txnFieldsCopy[txnFieldKey].is_mandatory) {
@@ -2047,8 +2052,6 @@ export class AddEditExpensePage implements OnInit {
               control.setValidators(
                 isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
               );
-            } else if (txnFieldKey === 'cost_center_id') {
-              control.setValidators(isConnected && costCenters && costCenters.length > 0 ? Validators.required : null);
             } else if (txnFieldKey === 'tax_group_id') {
               control.setValidators(isConnected && taxGroups && taxGroups.length > 0 ? Validators.required : null);
             } else if (txnFieldKey === 'org_category_id') {

@@ -473,20 +473,6 @@ describe('CaptureReceiptComponent', () => {
   });
 
   it('showReceiptPreview(): should show receipt preview', (done) => {
-    // spyOn(component, 'createReceiptPreviewModal').and.returnValue(
-    //   new Promise((resolve) => {
-    //     const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
-    //     modalSpy.onWillDismiss.and.returnValue(
-    //       new Promise((resIn) => {
-    //         resIn({
-    //           data: {},
-    //         });
-    //       })
-    //     );
-    //     resolve(modalSpy);
-    //   })
-    // );
-
     spyOn(component, 'createReceiptPreviewModal').and.returnValue(
       Promise.resolve({
         data: {
