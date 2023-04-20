@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick, waitForAsync } from '@angular/core/testing';
 import {
   FormBuilder,
   FormControl,
@@ -62,7 +62,6 @@ fdescribe('FyCurrencyComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
-    component.homeCurrency = 'USD';
     component.txnDt = new Date();
     component.recentlyUsed = [];
     component.expanded = true;
@@ -74,5 +73,39 @@ fdescribe('FyCurrencyComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit(): should update the form', () => {});
+  it('ngOnInit(): should update the form', fakeAsync(() => {
+    currencyService.getExchangeRate.and.returnValue(of(1.5));
+    component.homeCurrency = 'USD';
+    component.fg.controls.currency.setValue('EUR');
+    component.fg.controls.amount.setValue(null);
+    component.fg.controls.homeCurrencyAmount.setValue(null);
+    component.ngOnInit();
+    component.fg.controls.currency.setValue('GBP');
+    flushMicrotasks();
+    expect(currencyService.getExchangeRate).toHaveBeenCalledWith('GBP', 'USD', component.txnDt);
+    expect(component.exchangeRate).toEqual(1.5);
+  }));
+
+  it('ngOnInit(): should update the form with new date if txnDt is undefined', fakeAsync(() => {
+    currencyService.getExchangeRate.and.returnValue(of(1.5));
+    component.homeCurrency = 'USD';
+    component.txnDt = undefined;
+    component.fg.controls.currency.setValue('EUR');
+    component.fg.controls.amount.setValue(null);
+    component.fg.controls.homeCurrencyAmount.setValue(null);
+    component.ngOnInit();
+    component.fg.controls.currency.setValue('GBP');
+    flushMicrotasks();
+    expect(currencyService.getExchangeRate).toHaveBeenCalledWith('GBP', 'USD', new Date());
+    expect(component.exchangeRate).toEqual(1.5);
+  }));
+
+  it('should not call getExchangeRate if formValue does not meet certain conditions', () => {
+    component.homeCurrency = 'USD';
+    component.fg.controls.currency.setValue('USD');
+    component.fg.controls.amount.setValue(100);
+    component.fg.controls.homeCurrencyAmount.setValue(null);
+    component.ngOnInit();
+    expect(currencyService.getExchangeRate).not.toHaveBeenCalled();
+  });
 });
