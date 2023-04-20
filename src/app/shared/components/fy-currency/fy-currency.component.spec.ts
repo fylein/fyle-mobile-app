@@ -14,7 +14,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { FyCurrencyComponent } from './fy-currency.component';
-import { CUSTOM_ELEMENTS_SCHEMA, forwardRef } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, SimpleChange, SimpleChanges, forwardRef } from '@angular/core';
 import { FyNumberComponent } from '../fy-number/fy-number.component';
 
 fdescribe('FyCurrencyComponent', () => {
@@ -108,4 +108,91 @@ fdescribe('FyCurrencyComponent', () => {
     component.ngOnInit();
     expect(currencyService.getExchangeRate).not.toHaveBeenCalled();
   });
+
+  it('should update exchangeRate if currency is not equal to homeCurrency', fakeAsync(() => {
+    component.homeCurrency = 'USD';
+    component.fg.controls.currency.setValue('USD');
+    component.fg.controls.amount.setValue(100);
+    component.fg.controls.homeCurrencyAmount.setValue(300);
+    spyOn(component, 'ngOnInit');
+    component.ngOnInit();
+    component.fg.controls.currency.setValue('GBP');
+    flushMicrotasks();
+    expect(currencyService.getExchangeRate).not.toHaveBeenCalled();
+    expect(component.value).toEqual({
+      amount: 300,
+      currency: 'USD',
+      orig_amount: 100,
+      orig_currency: 'GBP',
+    });
+    expect(component.exchangeRate).toBe(3);
+  }));
+
+  it('ngOnChanges(): should update the exchange rate and inner value if txnDt changes', fakeAsync(() => {
+    const previousTxnDt = new Date('2022-01-01');
+    const currentTxnDt = new Date('2022-02-01');
+    const exchangeRate = 1.5;
+    currencyService.getExchangeRate.and.returnValue(of(exchangeRate));
+
+    component.fg = new FormGroup({
+      currency: new FormControl('EUR'),
+      amount: new FormControl(null),
+      homeCurrencyAmount: new FormControl(null),
+    });
+    component.homeCurrency = 'USD';
+    //@ts-ignore
+    component.innerValue = {
+      currency: 'EUR',
+      orig_currency: 'EUR',
+      amount: null,
+      orig_amount: null,
+    };
+    component.txnDt = previousTxnDt;
+
+    component.ngOnChanges({
+      txnDt: new SimpleChange(previousTxnDt, currentTxnDt, false),
+    });
+
+    flushMicrotasks();
+
+    expect(currencyService.getExchangeRate).toHaveBeenCalledWith('EUR', 'USD', previousTxnDt);
+    expect(component.exchangeRate).toEqual(exchangeRate);
+    //@ts-ignore
+    expect(component.innerValue.amount).toEqual(null);
+  }));
+
+  it('ngOnChanges(): should update the exchange rate and inner value even if txnDt is undefined', fakeAsync(() => {
+    const previousTxnDt = new Date('2022-01-01');
+    const currentTxnDt = new Date('2022-02-01');
+    const exchangeRate = 1.5;
+    currencyService.getExchangeRate.and.returnValue(of(exchangeRate));
+
+    component.fg = new FormGroup({
+      currency: new FormControl('EUR'),
+      amount: new FormControl(300),
+      homeCurrencyAmount: new FormControl(300),
+    });
+    component.homeCurrency = 'USD';
+    //@ts-ignore
+    component.innerValue = {
+      currency: 'EUR',
+      orig_currency: 'EUR',
+      amount: 100,
+      orig_amount: 200,
+    };
+    component.txnDt = undefined;
+
+    component.ngOnChanges({
+      txnDt: new SimpleChange(previousTxnDt, currentTxnDt, false),
+    });
+
+    flushMicrotasks();
+
+    expect(currencyService.getExchangeRate).toHaveBeenCalledWith('EUR', 'USD', new Date());
+    expect(component.exchangeRate).toEqual(exchangeRate);
+    //@ts-ignore
+    expect(component.innerValue.amount).toEqual(300);
+    expect(component.fg.value.amount).toBe(200);
+    expect(component.fg.value.homeCurrencyAmount).toBe(300);
+  }));
 });
