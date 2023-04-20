@@ -19,10 +19,11 @@ export class NetworkService {
     return from(Network.getStatus()).pipe(map((networkStatus) => networkStatus.connected));
   }
 
-  connectivityWatcher(emitter: EventEmitter<boolean>) {
+  connectivityWatcher(emitter: EventEmitter<boolean>): EventEmitter<boolean> {
     Network.addListener('networkStatusChange', (event) => {
       emitter.emit(event.connected);
     });
+    return emitter;
   }
 
   setupNetworkWatcher() {
