@@ -66,7 +66,7 @@ import { FyProjectSelectModalComponent } from './components/fy-select-project/fy
 import { FySelectProjectComponent } from './components/fy-select-project/fy-select-project.component';
 import { ExpenseState } from './pipes/expense-state.pipe';
 import { FooterComponent } from './components/footer/footer.component';
-import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/fy-alert-info.component';
+import { FyAlertInfoComponent } from './components/fy-alert-info/fy-alert-info.component';
 import { MatRippleModule } from '@angular/material/core';
 import { ReviewFooterComponent } from './components/review-footer/review-footer.component';
 import { NavigationFooterComponent } from './components/navigation-footer/navigation-footer.component';
