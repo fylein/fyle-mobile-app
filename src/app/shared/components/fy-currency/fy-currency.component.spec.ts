@@ -15,6 +15,7 @@ import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { FyCurrencyComponent } from './fy-currency.component';
 import { CUSTOM_ELEMENTS_SCHEMA, forwardRef } from '@angular/core';
+import { FyNumberComponent } from '../fy-number/fy-number.component';
 
 fdescribe('FyCurrencyComponent', () => {
   let component: FyCurrencyComponent;
@@ -30,7 +31,12 @@ fdescribe('FyCurrencyComponent', () => {
     const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
 
     TestBed.configureTestingModule({
-      declarations: [FyCurrencyComponent, FyCurrencyChooseCurrencyComponent, FyCurrencyExchangeRateComponent],
+      declarations: [
+        FyCurrencyComponent,
+        FyCurrencyChooseCurrencyComponent,
+        FyCurrencyExchangeRateComponent,
+        FyNumberComponent,
+      ],
       imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
       providers: [
         {
