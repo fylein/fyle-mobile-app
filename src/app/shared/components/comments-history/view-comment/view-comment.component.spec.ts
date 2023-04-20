@@ -20,6 +20,7 @@ import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 
 import { of } from 'rxjs';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
+import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 
 fdescribe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
@@ -207,4 +208,19 @@ fdescribe('ViewCommentComponent', () => {
       segment: 'history',
     });
   });
+
+  it('openViewExpense(): should show th expenses', fakeAsync(() => {
+    component.matchedExpense = expenseData1;
+    component.openViewExpense();
+    tick(1000);
+    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'view_expense',
+      {
+        id: component.matchedExpense.tx_id,
+      },
+    ]);
+  }));
 });
