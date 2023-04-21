@@ -9,18 +9,19 @@ import { TrackingService } from '../../../../core/services/tracking.service';
 import { ViewCommentComponent } from './view-comment.component';
 import { ElementRef } from '@angular/core';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
+import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
+import { of } from 'rxjs';
+
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import {
+  apiCommentsResponse,
   getEstatusApiResponse,
   updateReponseWithFlattenedEStatus,
 } from 'src/app/core/test-data/status.service.spec.data';
-import { MatIconModule } from '@angular/material/icon';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
-
-import { of } from 'rxjs';
-import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 
 fdescribe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
@@ -65,15 +66,18 @@ fdescribe('ViewCommentComponent', () => {
     }).compileComponents();
 
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    statusService.find.and.returnValue(of(getEstatusApiResponse));
+    statusService.find.and.returnValue(of(apiCommentsResponse));
     statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+    transactionService.getTransactionByExpenseNumber.and.returnValue(of(expenseData1));
 
     fixture = TestBed.createComponent(ViewCommentComponent);
     component = fixture.componentInstance;
-    component.estatuses$ = of(getEstatusApiResponse);
+    component.estatuses$ = of(apiCommentsResponse);
     component.objectType = 'transactions';
     component.objectId = 'tx1oTNwgRdRq';
     component.newComment = 'This is a new comment';
+    component.expenseNumber = 'E/2022/11/T/62';
+    component.matchedExpense = expenseData1;
     fixture.detectChanges();
   }));
 
@@ -122,6 +126,7 @@ fdescribe('ViewCommentComponent', () => {
       expect(popOverSpy.onWillDismiss).toHaveBeenCalled();
       expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
       expect(modalController.dismiss).toHaveBeenCalled();
+      tick(1000);
     }));
 
     it('should close the comment modal if no changes have been made and comment added', () => {
@@ -223,4 +228,48 @@ fdescribe('ViewCommentComponent', () => {
       },
     ]);
   }));
+
+  it('should set estatuses$ and totalCommentsCount$ properties correctly', () => {
+    const totalCommentsCount = 0;
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    statusService.find.and.returnValue(of(apiCommentsResponse));
+    statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+    component.ngOnInit();
+
+    expect(component.estatuses$).toBeDefined();
+    component.estatuses$.subscribe((res) => {
+      expect(res[0].isBotComment).toBeTrue();
+      expect(res[0].isSelfComment).toBeFalse();
+      expect(res[0].isOthersComment).toBeTrue();
+    });
+    expect(component.totalCommentsCount$).toBeDefined();
+    component.totalCommentsCount$.subscribe((res) => {
+      expect(res).toBe(totalCommentsCount);
+      console.log(res);
+    });
+    expect(authService.getEou).toHaveBeenCalled();
+    expect(statusService.find).toHaveBeenCalledWith(component.objectType, component.objectId);
+    expect(statusService.createStatusMap).toHaveBeenCalledWith(component.systemComments, component.type);
+  });
+
+  it('should set type correctly for a given objectType', () => {
+    component.objectType = 'Expenses';
+    component.ngOnInit();
+    expect(component.type).toEqual('Expense');
+  });
+
+  it('should set reversal comment, expense number, and matched expense if reversal status exists', () => {
+    statusService.find.and.returnValue(of(apiCommentsResponse));
+    component.estatuses$ = of(apiCommentsResponse);
+    statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.reversalComment).toEqual('created');
+    console.log(component.reversalComment);
+    console.log(component.expenseNumber);
+    expect(transactionService.getTransactionByExpenseNumber).toHaveBeenCalledOnceWith(component.expenseNumber);
+    expect(component.matchedExpense).toEqual(expenseData1);
+    console.log(component.matchedExpense);
+  });
 });
