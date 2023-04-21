@@ -18,7 +18,6 @@ jobs:
           app-id: 32316914
           platform: Android
           build-type: debug
-          build-stack: Linux - 2022.07
           environment: staging
           native-config: staging
           upload-artifact: Android
@@ -46,7 +45,6 @@ jobs:
           app-id: 32316914
           platform: iOS
           build-type: development
-          build-stack: macOS - 2022.09
           certificate: Fyle signing
           environment: staging
           native-config: prod
