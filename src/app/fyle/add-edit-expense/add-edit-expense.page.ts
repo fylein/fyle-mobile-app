@@ -1969,6 +1969,13 @@ export class AddEditExpensePage implements OnInit {
       }
     });
 
+    this.costCenters$.subscribe((costCenters) => {
+      const costCenterControl = this.fg.controls.costCenter;
+      costCenterControl.clearValidators();
+      costCenterControl.setValidators(costCenters?.length > 0 ? Validators.required : null);
+      costCenterControl.updateValueAndValidity();
+    });
+
     this.txnFields$
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
