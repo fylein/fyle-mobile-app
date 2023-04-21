@@ -38,15 +38,6 @@ module.exports = function (ctx) {
       '/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraPreview.java',
   };
 
-  // Adding GIT_COMMIT_SHA for sentry
-  var mainPath = path.resolve(process.cwd(), 'src/main.ts');
-  var mainPathContent = fs.readFileSync(mainPath).toString();
-  fs.writeFileSync(
-    mainPath,
-    mainPathContent.replace(/please-replace-your-git-commit-version/g, process.env.CI_GIT_COMMIT_SHA),
-    'utf8'
-  );
-
   // Commenting Manifest.permission.RECORD_AUDIO on CameraPreview.java
   var cameraPreviewPath = path.resolve(process.cwd(), FILE_PATHS['android.cameraPreview']);
   var cameraPreviewContents = fs.readFileSync(cameraPreviewPath).toString();
