@@ -17,7 +17,7 @@ import { FyCurrencyComponent } from './fy-currency.component';
 import { CUSTOM_ELEMENTS_SCHEMA, SimpleChange, SimpleChanges, forwardRef } from '@angular/core';
 import { FyNumberComponent } from '../fy-number/fy-number.component';
 
-fdescribe('FyCurrencyComponent', () => {
+describe('FyCurrencyComponent', () => {
   let component: FyCurrencyComponent;
   let fixture: ComponentFixture<FyCurrencyComponent>;
   let fb: FormBuilder;
@@ -26,7 +26,7 @@ fdescribe('FyCurrencyComponent', () => {
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
 
   beforeEach(waitForAsync(() => {
-    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss', 'create']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getExchangeRate']);
     const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
 
@@ -194,5 +194,311 @@ fdescribe('FyCurrencyComponent', () => {
     expect(component.innerValue.amount).toEqual(300);
     expect(component.fg.value.amount).toBe(200);
     expect(component.fg.value.homeCurrencyAmount).toBe(300);
+  }));
+
+  it('should convert inner value to form value correctly', () => {
+    component.homeCurrency = 'USD';
+
+    // Test case 1: inner value with different currency
+    const innerValue1 = {
+      orig_amount: 100,
+      orig_currency: 'EUR',
+      amount: 120,
+      currency: 'GBP',
+    };
+    const formValue1 = component.convertInnerValueToFormValue(innerValue1);
+    expect(formValue1.amount).toBe(100);
+    expect(formValue1.currency).toBe('EUR');
+    expect(formValue1.homeCurrencyAmount).toBe(120);
+
+    // Test case 2: inner value with same currency
+    const innerValue2 = {
+      amount: 50,
+      currency: 'USD',
+    };
+    const formValue2 = component.convertInnerValueToFormValue(innerValue2);
+    expect(formValue2.amount).toBe(50);
+    expect(formValue2.currency).toBe('USD');
+    expect(formValue2.homeCurrencyAmount).toBeNull();
+
+    // Test case 3: null inner value
+    const innerValue3 = null;
+    const formValue3 = component.convertInnerValueToFormValue(innerValue3);
+    expect(formValue3.amount).toBeNull();
+    expect(formValue3.currency).toBe('USD');
+    expect(formValue3.homeCurrencyAmount).toBeNull();
+  });
+
+  it('onBlur(): should call onTouchedCallback', () => {
+    //@ts-ignore
+    spyOn(component, 'onTouchedCallback');
+    component.onBlur();
+    //@ts-ignore
+    expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it('writeValue(): should patch form value with inner value', () => {
+    spyOn(component.fg, 'patchValue');
+    const mockInnerValue = {
+      amount: 100,
+      currency: 'USD',
+      orig_amount: 80,
+      orig_currency: 'EUR',
+    };
+    component.writeValue(mockInnerValue);
+    //@ts-ignore
+    expect(component.innerValue).toEqual(mockInnerValue);
+    expect(component.fg.patchValue).toHaveBeenCalledWith({
+      amount: 80,
+      currency: 'EUR',
+      homeCurrencyAmount: 100,
+    });
+  });
+
+  it('registerOnChange(): should set onChangeCallback function', () => {
+    const mockCallback = () => {};
+    component.registerOnChange(mockCallback);
+    //@ts-ignore
+    expect(component.onChangeCallback).toEqual(mockCallback);
+  });
+
+  it('registerOnTouched(): should set onTouchedCallback function', () => {
+    const mockCallback = () => {};
+    component.registerOnTouched(mockCallback);
+    //@ts-ignore
+    expect(component.onTouchedCallback).toEqual(mockCallback);
+  });
+
+  it('should set exchange Rate correctly', fakeAsync(() => {
+    component.fg = new FormGroup({
+      currency: new FormControl('USD'),
+      amount: new FormControl(50),
+      homeCurrencyAmount: new FormControl(50),
+    });
+    component.homeCurrency = 'EUR';
+    component.value = {
+      currency: 'EUR',
+      orig_amount: 20,
+      orig_currency: 'USD',
+      amount: 100,
+    };
+    component.txnDt = new Date();
+    fixture.detectChanges();
+    modalController.create.and.returnValue(
+      Promise.resolve({
+        present: () => {},
+        onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+      } as any)
+    );
+    component.setExchangeRate('USD');
+    tick(1000);
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: FyCurrencyExchangeRateComponent,
+      componentProps: {
+        amount: 20,
+        currentCurrency: 'EUR',
+        newCurrency: 'USD',
+        txnDt: component.txnDt,
+        exchangeRate: 5,
+      },
+      mode: 'ios',
+      ...modalPropertiesService.getModalDefaultProperties('fy-modal stack-modal'),
+    });
+    expect(component.fg.value).toEqual({
+      currency: 'USD',
+      amount: 100,
+      homeCurrencyAmount: 500,
+    });
+  }));
+
+  it('should set exchange Rate correctly', fakeAsync(() => {
+    component.fg = new FormGroup({
+      currency: new FormControl('USD'),
+      amount: new FormControl(50),
+      homeCurrencyAmount: new FormControl(50),
+    });
+    component.homeCurrency = 'EUR';
+    component.value = {
+      currency: 'EUR',
+      orig_amount: 20,
+      orig_currency: 'USD',
+      amount: 100,
+    };
+    component.txnDt = new Date();
+    fixture.detectChanges();
+    modalController.create.and.returnValue(
+      Promise.resolve({
+        present: () => {},
+        onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+      } as any)
+    );
+    component.setExchangeRate();
+    tick(1000);
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: FyCurrencyExchangeRateComponent,
+      componentProps: {
+        amount: 20,
+        currentCurrency: 'EUR',
+        newCurrency: 'USD',
+        txnDt: component.txnDt,
+        exchangeRate: 5,
+      },
+      mode: 'ios',
+      ...modalPropertiesService.getModalDefaultProperties('fy-modal stack-modal'),
+    });
+    expect(component.fg.value).toEqual({
+      currency: 'USD',
+      amount: 100,
+      homeCurrencyAmount: 500,
+    });
+    expect(component.value).toEqual({
+      currency: 'EUR',
+      orig_amount: 100,
+      orig_currency: 'USD',
+      amount: 500,
+    });
+  }));
+
+  it('should set exchange Rate correctly', fakeAsync(() => {
+    component.fg = new FormGroup({
+      currency: new FormControl('USD'),
+      amount: new FormControl(50),
+      homeCurrencyAmount: new FormControl(50),
+    });
+    component.homeCurrency = 'EUR';
+    component.value = {
+      currency: 'EUR',
+      orig_amount: 20,
+      orig_currency: 'USD',
+      amount: 100,
+    };
+    component.txnDt = new Date();
+    fixture.detectChanges();
+    modalController.create.and.returnValue(
+      Promise.resolve({
+        present: () => {},
+        onWillDismiss: () => Promise.resolve({ data: { amount: 100, homeCurrencyAmount: 500 } }),
+      } as any)
+    );
+    component.setExchangeRate('EUR');
+    tick(1000);
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: FyCurrencyExchangeRateComponent,
+      componentProps: {
+        amount: 20,
+        currentCurrency: 'EUR',
+        newCurrency: 'EUR',
+        txnDt: component.txnDt,
+        exchangeRate: null,
+      },
+      mode: 'ios',
+      ...modalPropertiesService.getModalDefaultProperties('fy-modal stack-modal'),
+    });
+    expect(component.fg.value).toEqual({
+      currency: 'EUR',
+      amount: 100,
+      homeCurrencyAmount: 500,
+    });
+  }));
+
+  it('should open the currency modal and should set ExchangeRate without passing currency Code', fakeAsync(() => {
+    component.fg = new FormGroup({
+      currency: new FormControl('USD'),
+      amount: new FormControl(50),
+      homeCurrencyAmount: new FormControl(50),
+    });
+    spyOn(component, 'setExchangeRate');
+    modalController.create.and.returnValue(
+      Promise.resolve({
+        present: () => {},
+        onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
+      } as any)
+    );
+    component.homeCurrency = 'EUR';
+    component.value = {
+      currency: 'EUR',
+      orig_amount: 20,
+      orig_currency: 'USD',
+      amount: 100,
+    };
+    component.openCurrencyModal();
+    tick(1000);
+
+    expect(modalController.create).toHaveBeenCalledWith({
+      component: FyCurrencyChooseCurrencyComponent,
+      componentProps: {
+        currentSelection: component.fg.controls.currency.value,
+        recentlyUsed: component.recentlyUsed,
+      },
+      mode: 'ios',
+      ...modalPropertiesService.getModalDefaultProperties(),
+    });
+
+    expect(component.fg.controls.currency.value).toBe('USD');
+    expect(component.setExchangeRate).toHaveBeenCalled();
+  }));
+
+  it('should open the currency modal and should set exchange Rate', fakeAsync(() => {
+    component.fg = new FormGroup({
+      currency: new FormControl('USD'),
+      amount: new FormControl(50),
+      homeCurrencyAmount: new FormControl(50),
+    });
+    spyOn(component, 'setExchangeRate');
+    modalController.create.and.returnValue(
+      Promise.resolve({
+        present: () => {},
+        onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
+      } as any)
+    );
+    component.homeCurrency = 'EUR';
+    component.value = {
+      currency: 'EUR',
+      orig_amount: 20,
+      orig_currency: 'EUR',
+      amount: 100,
+    };
+    component.openCurrencyModal();
+    tick(1000);
+
+    expect(modalController.create).toHaveBeenCalledWith({
+      component: FyCurrencyChooseCurrencyComponent,
+      componentProps: {
+        currentSelection: component.fg.controls.currency.value,
+        recentlyUsed: component.recentlyUsed,
+      },
+      mode: 'ios',
+      ...modalPropertiesService.getModalDefaultProperties(),
+    });
+    expect(component.setExchangeRate).toHaveBeenCalledOnceWith('USD');
+  }));
+
+  it('should open the currency modal and should set form currency value', fakeAsync(() => {
+    component.fg = new FormGroup({
+      currency: new FormControl('USD'),
+      amount: new FormControl(50),
+      homeCurrencyAmount: new FormControl(50),
+    });
+    spyOn(component, 'setExchangeRate');
+    modalController.create.and.returnValue(
+      Promise.resolve({
+        present: () => {},
+        onWillDismiss: () => Promise.resolve({ data: { currency: { shortCode: 'USD' } } }),
+      } as any)
+    );
+    component.homeCurrency = 'USD';
+    component.openCurrencyModal();
+    tick(1000);
+
+    expect(modalController.create).toHaveBeenCalledWith({
+      component: FyCurrencyChooseCurrencyComponent,
+      componentProps: {
+        currentSelection: component.fg.controls.currency.value,
+        recentlyUsed: component.recentlyUsed,
+      },
+      mode: 'ios',
+      ...modalPropertiesService.getModalDefaultProperties(),
+    });
+    expect(component.fg.value.currency).toEqual('USD');
   }));
 });
