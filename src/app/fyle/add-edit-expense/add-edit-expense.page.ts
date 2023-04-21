@@ -1939,28 +1939,6 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    forkJoin({
-      orgSettings: this.orgSettingsService.get(),
-      isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-      individualProjectIds: this.individualProjectIds$,
-    }).subscribe(({ orgSettings, isIndividualProjectsEnabled, individualProjectIds }) => {
-      const projectFormControl = this.fg.controls.project;
-      projectFormControl.clearValidators();
-      projectFormControl.setValidators(
-        orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
-          ? null
-          : Validators.required
-      );
-      projectFormControl.updateValueAndValidity();
-    });
-
-    this.costCenters$.subscribe((costCenters) => {
-      const costCenterControl = this.fg.controls.costCenter;
-      costCenterControl.clearValidators();
-      costCenterControl.setValidators(costCenters?.length > 0 ? Validators.required : null);
-      costCenterControl.updateValueAndValidity();
-    });
-
     this.txnFields$
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
@@ -1969,103 +1947,139 @@ export class AddEditExpensePage implements OnInit {
             isConnected: this.isConnected$.pipe(take(1)),
             taxGroups: this.taxGroups$,
             filteredCategories: this.filteredCategories$.pipe(take(1)),
+            orgSettings: this.orgSettingsService.get(),
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+            individualProjectIds: this.individualProjectIds$,
+            costCenters: this.costCenters$,
           }).pipe(
-            map(({ isConnected, taxGroups, filteredCategories }) => ({
-              isConnected,
-              txnFields,
-              taxGroups,
-              filteredCategories,
-            }))
+            map(
+              ({
+                isConnected,
+                taxGroups,
+                filteredCategories,
+                orgSettings,
+                isIndividualProjectsEnabled,
+                individualProjectIds,
+                costCenters,
+              }) => ({
+                isConnected,
+                txnFields,
+                taxGroups,
+                filteredCategories,
+                orgSettings,
+                isIndividualProjectsEnabled,
+                individualProjectIds,
+                costCenters,
+              })
+            )
           )
         )
       )
-      .subscribe(({ isConnected, txnFields, taxGroups, filteredCategories }) => {
-        const keyToControlMap: {
-          [id: string]: AbstractControl;
-        } = {
-          purpose: this.fg.controls.purpose,
-          txn_dt: this.fg.controls.dateOfSpend,
-          vendor_id: this.fg.controls.vendor_id,
-          from_dt: this.fg.controls.from_dt,
-          to_dt: this.fg.controls.to_dt,
-          location1: this.fg.controls.location_1,
-          location2: this.fg.controls.location_2,
-          distance: this.fg.controls.distance,
-          distance_unit: this.fg.controls.distance_unit,
-          flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
-          flight_return_travel_class: this.fg.controls.flight_return_travel_class,
-          train_travel_class: this.fg.controls.train_travel_class,
-          bus_travel_class: this.fg.controls.bus_travel_class,
-          billable: this.fg.controls.billable,
-          tax_group_id: this.fg.controls.tax_group,
-          org_category_id: this.fg.controls.category,
-        };
+      .subscribe(
+        ({
+          isConnected,
+          txnFields,
+          taxGroups,
+          filteredCategories,
+          orgSettings,
+          isIndividualProjectsEnabled,
+          individualProjectIds,
+          costCenters,
+        }) => {
+          const keyToControlMap: {
+            [id: string]: AbstractControl;
+          } = {
+            purpose: this.fg.controls.purpose,
+            txn_dt: this.fg.controls.dateOfSpend,
+            vendor_id: this.fg.controls.vendor_id,
+            from_dt: this.fg.controls.from_dt,
+            to_dt: this.fg.controls.to_dt,
+            location1: this.fg.controls.location_1,
+            location2: this.fg.controls.location_2,
+            distance: this.fg.controls.distance,
+            distance_unit: this.fg.controls.distance_unit,
+            flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
+            flight_return_travel_class: this.fg.controls.flight_return_travel_class,
+            train_travel_class: this.fg.controls.train_travel_class,
+            bus_travel_class: this.fg.controls.bus_travel_class,
+            billable: this.fg.controls.billable,
+            tax_group_id: this.fg.controls.tax_group,
+            org_category_id: this.fg.controls.category,
+            project_id: this.fg.controls.project,
+            cost_center_id: this.fg.controls.costCenter,
+          };
 
-        for (const control of Object.values(keyToControlMap)) {
-          control.clearValidators();
-          control.updateValueAndValidity();
-        }
-
-        // setup validations
-        const txnFieldsCopy = cloneDeep(txnFields);
-        delete txnFieldsCopy.project_id;
-        delete txnFieldsCopy.cost_center_id;
-        for (const txnFieldKey of Object.keys(txnFieldsCopy)) {
-          const control = keyToControlMap[txnFieldKey];
-          if (txnFieldsCopy[txnFieldKey].is_mandatory) {
-            if (txnFieldKey === 'vendor_id') {
-              if (isConnected) {
-                control.setValidators(Validators.compose([Validators.required, this.merchantValidator]));
-              } else {
-                control.setValidators(Validators.compose([this.merchantValidator]));
-              }
-            } else if (
-              [
-                'location1',
-                'location2',
-                'from_dt',
-                'to_dt',
-                'flight_journey_travel_class',
-                'flight_return_travel_class',
-                'train_travel_class',
-                'bus_travel_class',
-              ].includes(txnFieldKey)
-            ) {
-              if (
-                this.fg.value.category &&
-                this.fg.value.category.fyle_category &&
-                this.systemCategories?.includes(this.fg.value.category.fyle_category) &&
-                isConnected
-              ) {
-                control.setValidators(Validators.required);
-              }
-            } else if (['distance', 'distance_unit'].includes(txnFieldKey)) {
-              if (
-                this.fg.value.category &&
-                this.fg.value.category.fyle_category &&
-                ['Taxi'].includes(this.fg.value.category.fyle_category) &&
-                isConnected
-              ) {
-                control.setValidators(Validators.required);
-              }
-            } else if (txnFieldKey === 'txn_dt') {
-              control.setValidators(
-                isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
-              );
-            } else if (txnFieldKey === 'tax_group_id') {
-              control.setValidators(isConnected && taxGroups && taxGroups.length > 0 ? Validators.required : null);
-            } else if (txnFieldKey === 'org_category_id') {
-              control.setValidators(
-                isConnected && filteredCategories && filteredCategories.length > 0 ? Validators.required : null
-              );
-            } else {
-              control.setValidators(isConnected ? Validators.required : null);
-            }
+          for (const control of Object.values(keyToControlMap)) {
+            control.clearValidators();
+            control.updateValueAndValidity();
           }
-          control.updateValueAndValidity();
+
+          // setup validations
+          for (const txnFieldKey of Object.keys(txnFields)) {
+            const control = keyToControlMap[txnFieldKey];
+            if (txnFields[txnFieldKey].is_mandatory) {
+              if (txnFieldKey === 'vendor_id') {
+                if (isConnected) {
+                  control.setValidators(Validators.compose([Validators.required, this.merchantValidator]));
+                } else {
+                  control.setValidators(Validators.compose([this.merchantValidator]));
+                }
+              } else if (
+                [
+                  'location1',
+                  'location2',
+                  'from_dt',
+                  'to_dt',
+                  'flight_journey_travel_class',
+                  'flight_return_travel_class',
+                  'train_travel_class',
+                  'bus_travel_class',
+                ].includes(txnFieldKey)
+              ) {
+                if (
+                  this.fg.value.category &&
+                  this.fg.value.category.fyle_category &&
+                  this.systemCategories?.includes(this.fg.value.category.fyle_category) &&
+                  isConnected
+                ) {
+                  control.setValidators(Validators.required);
+                }
+              } else if (['distance', 'distance_unit'].includes(txnFieldKey)) {
+                if (
+                  this.fg.value.category &&
+                  this.fg.value.category.fyle_category &&
+                  ['Taxi'].includes(this.fg.value.category.fyle_category) &&
+                  isConnected
+                ) {
+                  control.setValidators(Validators.required);
+                }
+              } else if (txnFieldKey === 'txn_dt') {
+                control.setValidators(
+                  isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
+                );
+              } else if (txnFieldKey === 'cost_center_id') {
+                control.setValidators(isConnected && costCenters?.length > 0 ? Validators.required : null);
+              } else if (txnFieldKey === 'tax_group_id') {
+                control.setValidators(isConnected && taxGroups && taxGroups.length > 0 ? Validators.required : null);
+              } else if (txnFieldKey === 'project_id') {
+                control.setValidators(
+                  orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+                    ? null
+                    : Validators.required
+                );
+              } else if (txnFieldKey === 'org_category_id') {
+                control.setValidators(
+                  isConnected && filteredCategories && filteredCategories.length > 0 ? Validators.required : null
+                );
+              } else {
+                control.setValidators(isConnected ? Validators.required : null);
+              }
+            }
+            control.updateValueAndValidity();
+          }
+          this.fg.updateValueAndValidity();
         }
-        this.fg.updateValueAndValidity();
-      });
+      );
 
     this.etxn$
       .pipe(
