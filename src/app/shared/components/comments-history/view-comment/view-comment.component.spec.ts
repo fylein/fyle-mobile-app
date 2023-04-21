@@ -23,7 +23,7 @@ import {
   updateReponseWithFlattenedEStatus,
 } from 'src/app/core/test-data/status.service.spec.data';
 
-fdescribe('ViewCommentComponent', () => {
+describe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
   let fixture: ComponentFixture<ViewCommentComponent>;
   let statusService: jasmine.SpyObj<StatusService>;
@@ -106,7 +106,7 @@ fdescribe('ViewCommentComponent', () => {
       popoverController.create.and.returnValue(Promise.resolve(popOverSpy));
       popOverSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { action: 'discard' } }));
       component.closeCommentModal();
-      tick(1000);
+      tick(500);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
@@ -126,7 +126,6 @@ fdescribe('ViewCommentComponent', () => {
       expect(popOverSpy.onWillDismiss).toHaveBeenCalled();
       expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
       expect(modalController.dismiss).toHaveBeenCalled();
-      tick(1000);
     }));
 
     it('should close the comment modal if no changes have been made and comment added', () => {
@@ -229,47 +228,51 @@ fdescribe('ViewCommentComponent', () => {
     ]);
   }));
 
-  it('should set estatuses$ and totalCommentsCount$ properties correctly', () => {
-    const totalCommentsCount = 0;
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    statusService.find.and.returnValue(of(apiCommentsResponse));
-    statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
-    component.ngOnInit();
+  describe('onInit():', () => {
+    it('should set estatuses$ and totalCommentsCount$ properties correctly', () => {
+      const updatedApiCommentsResponse = apiCommentsResponse.map((comment) => ({
+        ...comment,
+        us_full_name: 'Dummy Name',
+        st_org_user_id: 'POLICY',
+      }));
 
-    expect(component.estatuses$).toBeDefined();
-    component.estatuses$.subscribe((res) => {
-      expect(res[0].isBotComment).toBeTrue();
-      expect(res[0].isSelfComment).toBeFalse();
-      expect(res[0].isOthersComment).toBeTrue();
+      const totalCommentsCount = 31;
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      statusService.find.and.returnValue(of(updatedApiCommentsResponse));
+      statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+      component.ngOnInit();
+
+      expect(component.estatuses$).toBeDefined();
+      component.estatuses$.subscribe((res) => {
+        expect(res[0].isBotComment).toBeTrue();
+        expect(res[0].isSelfComment).toBeFalse();
+        expect(res[0].isOthersComment).toBeTrue();
+      });
+      expect(component.totalCommentsCount$).toBeDefined();
+      component.totalCommentsCount$.subscribe((res) => {
+        expect(res).toBe(totalCommentsCount);
+      });
+      expect(authService.getEou).toHaveBeenCalled();
+      expect(statusService.find).toHaveBeenCalledWith(component.objectType, component.objectId);
+      expect(statusService.createStatusMap).toHaveBeenCalledWith(component.systemComments, component.type);
     });
-    expect(component.totalCommentsCount$).toBeDefined();
-    component.totalCommentsCount$.subscribe((res) => {
-      expect(res).toBe(totalCommentsCount);
-      console.log(res);
+
+    it('should set type correctly for a given objectType', () => {
+      component.objectType = 'Expenses';
+      component.ngOnInit();
+      expect(component.type).toEqual('Expense');
     });
-    expect(authService.getEou).toHaveBeenCalled();
-    expect(statusService.find).toHaveBeenCalledWith(component.objectType, component.objectId);
-    expect(statusService.createStatusMap).toHaveBeenCalledWith(component.systemComments, component.type);
-  });
 
-  it('should set type correctly for a given objectType', () => {
-    component.objectType = 'Expenses';
-    component.ngOnInit();
-    expect(component.type).toEqual('Expense');
-  });
+    it('should set reversal comment, expense number, and matched expense if reversal status exists', () => {
+      statusService.find.and.returnValue(of(apiCommentsResponse));
+      component.estatuses$ = of(apiCommentsResponse);
+      statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+      component.ngOnInit();
+      fixture.detectChanges();
 
-  it('should set reversal comment, expense number, and matched expense if reversal status exists', () => {
-    statusService.find.and.returnValue(of(apiCommentsResponse));
-    component.estatuses$ = of(apiCommentsResponse);
-    statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    expect(component.reversalComment).toEqual('created');
-    console.log(component.reversalComment);
-    console.log(component.expenseNumber);
-    expect(transactionService.getTransactionByExpenseNumber).toHaveBeenCalledOnceWith(component.expenseNumber);
-    expect(component.matchedExpense).toEqual(expenseData1);
-    console.log(component.matchedExpense);
+      expect(component.reversalComment).toEqual('created');
+      expect(transactionService.getTransactionByExpenseNumber).toHaveBeenCalledOnceWith(component.expenseNumber);
+      expect(component.matchedExpense).toEqual(expenseData1);
+    });
   });
 });
