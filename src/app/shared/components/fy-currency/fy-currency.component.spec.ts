@@ -501,4 +501,10 @@ describe('FyCurrencyComponent', () => {
     });
     expect(component.fg.value.currency).toEqual('USD');
   }));
+
+  it('getValid(): should return true if touchedInParent is true', () => {
+    component.touchedInParent = true;
+    fixture.detectChanges();
+    expect(component.valid).toBe(true);
+  });
 });
