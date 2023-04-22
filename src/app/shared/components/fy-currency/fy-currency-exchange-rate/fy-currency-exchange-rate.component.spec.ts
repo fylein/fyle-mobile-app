@@ -17,7 +17,7 @@ import { FyNumberComponent } from '../../fy-number/fy-number.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.component';
 
-fdescribe('FyCurrencyExchangeRateComponent', () => {
+describe('FyCurrencyExchangeRateComponent', () => {
   let component: FyCurrencyExchangeRateComponent;
   let fixture: ComponentFixture<FyCurrencyExchangeRateComponent>;
   let fb: FormBuilder;
