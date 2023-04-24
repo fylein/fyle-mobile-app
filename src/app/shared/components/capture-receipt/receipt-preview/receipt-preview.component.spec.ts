@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+//@ts-nocheck
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
@@ -12,11 +13,12 @@ import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
 import { Component, Input } from '@angular/core';
+import { Subscription, of } from 'rxjs';
 
-fdescribe('ReceiptPreviewComponent', () => {
+describe('ReceiptPreviewComponent', () => {
   let component: ReceiptPreviewComponent;
   let fixture: ComponentFixture<ReceiptPreviewComponent>;
-  let platform: jasmine.SpyObj<Platform>;
+  let platform: Platform;
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let matBottomSheet: jasmine.SpyObj<MatBottomSheet>;
@@ -54,7 +56,6 @@ fdescribe('ReceiptPreviewComponent', () => {
   ];
 
   beforeEach(waitForAsync(() => {
-    const platformSpy = jasmine.createSpyObj('Platform', ['subscribeWithPriority']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'dismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matBottomSheetSpy = jasmine.createSpyObj('MatBottomSheet', ['open']);
@@ -70,10 +71,7 @@ fdescribe('ReceiptPreviewComponent', () => {
       declarations: [ReceiptPreviewComponent, SwiperStubComponent],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, PinchZoomModule],
       providers: [
-        {
-          provide: Platform,
-          useValue: platformSpy,
-        },
+        Platform,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -100,7 +98,7 @@ fdescribe('ReceiptPreviewComponent', () => {
     fixture = TestBed.createComponent(ReceiptPreviewComponent);
     component = fixture.componentInstance;
 
-    platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
+    platform = TestBed.inject(Platform);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     matBottomSheet = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
@@ -143,9 +141,21 @@ fdescribe('ReceiptPreviewComponent', () => {
     });
   });
 
-  xit('ionViewWillEnter', () => {});
+  it('ionViewWillEnter(): should detet back button click', () => {
+    spyOn(platform.backButton, 'subscribeWithPriority').and.callThrough();
+    spyOn(component.swiper.swiperRef, 'update').and.callThrough();
 
-  xit('ionViewWillLeave', () => {});
+    component.ionViewWillEnter();
+    expect(component.swiper.swiperRef.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('ionViewWillLeave(): should unsubscribe when component is destroyed', () => {
+    component.hardwareBackButtonAction = new Subscription();
+    spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+
+    component.ionViewWillLeave();
+    expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+  });
 
   it('saveReceipt(): should save receipt', () => {
     modalController.dismiss.and.returnValue(Promise.resolve(null));
@@ -157,8 +167,9 @@ fdescribe('ReceiptPreviewComponent', () => {
   });
 
   describe('closeModal():', () => {
-    it('should close modal and retake image if discard is selected on existing image', () => {
-      spyOn(component, 'retake').and.callThrough();
+    it('should close modal and retake image if discard is selected on existing image', async () => {
+      spyOn(component, 'retake').and.returnValue(null);
+      component.base64ImagesWithSource = images;
       popoverController.create.and.returnValue(
         new Promise((resolve) => {
           const closePopOverSpy = jasmine.createSpyObj('closePopOver', ['present', 'onWillDismiss']);
@@ -174,10 +185,12 @@ fdescribe('ReceiptPreviewComponent', () => {
           resolve(closePopOverSpy);
         })
       );
+      fixture.detectChanges();
 
       const message = `Are you sure you want to discard the ${component.base64ImagesWithSource.length} receipts you just captured?`;
 
-      component.closeModal();
+      await component.closeModal();
+      expect(component.retake).toHaveBeenCalledTimes(1);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
@@ -197,8 +210,7 @@ fdescribe('ReceiptPreviewComponent', () => {
       });
     });
 
-    it('should close modal and retake image if discard if no previous image exist', () => {
-      spyOn(component, 'retake').and.callThrough();
+    it('should close modal and retake image if discard if no previous image exist', async () => {
       component.base64ImagesWithSource = [];
       popoverController.create.and.returnValue(
         new Promise((resolve) => {
@@ -214,9 +226,11 @@ fdescribe('ReceiptPreviewComponent', () => {
         })
       );
 
+      fixture.detectChanges();
+
       const message = 'Not a good picture? No worries. Discard and click again.';
 
-      component.closeModal();
+      await component.closeModal();
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: PopupAlertComponent,
         componentProps: {
@@ -238,13 +252,19 @@ fdescribe('ReceiptPreviewComponent', () => {
   });
 
   describe('galleryUpload(): ', () => {
-    it('should update the images list if upload from gallery is successful', (done) => {
+    it('should update the images list if upload from gallery is successful', async () => {
       imagePicker.hasReadPermission.and.returnValue(Promise.resolve(true));
       imagePicker.getPictures.and.returnValue(Promise.resolve(['encodedcontent1']));
 
-      component.galleryUpload();
+      const options = {
+        maximumImagesCount: 10,
+        outputType: 1,
+        quality: 70,
+      };
+
+      await component.galleryUpload();
       expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
-      done();
+      expect(imagePicker.getPictures).toHaveBeenCalledOnceWith(options);
     });
   });
 
@@ -258,43 +278,86 @@ fdescribe('ReceiptPreviewComponent', () => {
     });
   });
 
-  it('deleteReceipt(): should delete receipt', () => {
-    component.base64ImagesWithSource = images;
-    fixture.detectChanges();
-    popoverController.create.and.returnValue(
-      new Promise((resolve) => {
-        const closePopOverSpy = jasmine.createSpyObj('deletePopOver', ['present', 'onWillDismiss']);
-        closePopOverSpy.onWillDismiss.and.returnValue(
-          new Promise((resIn) => {
-            resIn({
-              data: {
-                action: 'remove',
-              },
-            });
-          })
-        );
-        resolve(closePopOverSpy);
-      })
-    );
+  describe('deleteReceipt():', () => {
+    it('should delete receipt', async () => {
+      component.base64ImagesWithSource = images;
+      fixture.detectChanges();
+      popoverController.create.and.returnValue(
+        new Promise((resolve) => {
+          const closePopOverSpy = jasmine.createSpyObj('deletePopOver', ['present', 'onWillDismiss']);
+          closePopOverSpy.onWillDismiss.and.returnValue(
+            new Promise((resIn) => {
+              resIn({
+                data: {
+                  action: 'remove',
+                },
+              });
+            })
+          );
+          resolve(closePopOverSpy);
+        })
+      );
 
-    component.deleteReceipt();
-    // expect(popoverController.create).toHaveBeenCalledOnceWith({
-    //   component: PopupAlertComponent,
-    //   componentProps: {
-    //     title: 'Remove Receipt',
-    //     message: 'Are you sure you want to remove this receipt?',
-    //     primaryCta: {
-    //       text: 'Remove',
-    //       action: 'remove',
-    //       type: 'alert',
-    //     },
-    //     secondaryCta: {
-    //       text: 'Cancel',
-    //       action: 'cancel',
-    //     },
-    //   },
-    //   cssClass: 'pop-up-in-center',
-    // });
+      await component.deleteReceipt();
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Remove Receipt',
+          message: 'Are you sure you want to remove this receipt?',
+          primaryCta: {
+            text: 'Remove',
+            action: 'remove',
+            type: 'alert',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+    });
+
+    it('should retake images if there are no existing images to delete', async () => {
+      component.base64ImagesWithSource = [];
+      spyOn(component, 'retake').and.returnValue(null);
+      fixture.detectChanges();
+      popoverController.create.and.returnValue(
+        new Promise((resolve) => {
+          const closePopOverSpy = jasmine.createSpyObj('deletePopOver', ['present', 'onWillDismiss']);
+          closePopOverSpy.onWillDismiss.and.returnValue(
+            new Promise((resIn) => {
+              resIn({
+                data: {
+                  action: 'remove',
+                },
+              });
+            })
+          );
+          resolve(closePopOverSpy);
+        })
+      );
+
+      await component.deleteReceipt();
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Remove Receipt',
+          message: 'Are you sure you want to remove this receipt?',
+          primaryCta: {
+            text: 'Remove',
+            action: 'remove',
+            type: 'alert',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(component.retake).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('retake(): should clear the images taken and dismiss the modal', () => {
@@ -310,20 +373,45 @@ fdescribe('ReceiptPreviewComponent', () => {
     spyOn(component.swiper.swiperRef, 'slideNext').and.callThrough();
     spyOn(component.swiper.swiperRef, 'update').and.callThrough();
 
-    component.goToNextSlide();
+    await component.goToNextSlide();
     expect(component.swiper.swiperRef.slideNext).toHaveBeenCalledTimes(1);
+    expect(component.swiper.swiperRef.update).toHaveBeenCalledTimes(1);
   });
 
   it('goToPrevSlide(): should to the to previous slide', async () => {
     spyOn(component.swiper.swiperRef, 'slidePrev').and.callThrough();
     spyOn(component.swiper.swiperRef, 'update').and.callThrough();
 
-    component.goToPrevSlide();
+    await component.goToPrevSlide();
     expect(component.swiper.swiperRef.slidePrev).toHaveBeenCalledTimes(1);
+    expect(component.swiper.swiperRef.update).toHaveBeenCalledTimes(1);
   });
 
   it('ionSlideDidChange(): should detect slide change and update active index', () => {
     component.ionSlideDidChange();
     expect(component.activeIndex).toEqual(0);
+  });
+
+  it('addMore(): should add more receipts', async () => {
+    matBottomSheet.open.and.returnValue({
+      afterDismissed: () =>
+        of({
+          mode: 'camera',
+        }),
+    });
+    spyOn(component, 'captureReceipts').and.returnValue(null);
+
+    await component.addMore();
+    expect(component.captureReceipts).toHaveBeenCalledTimes(1);
+  });
+
+  it('addMore(): should add more receipts', async () => {
+    matBottomSheet.open.and.returnValue({
+      afterDismissed: () => of({}),
+    });
+    spyOn(component, 'galleryUpload').and.returnValue(null);
+
+    await component.addMore();
+    expect(component.galleryUpload).toHaveBeenCalledTimes(1);
   });
 });
