@@ -3,12 +3,7 @@ import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-
-interface DependentFieldOption {
-  label: string;
-  value: string;
-  selected: boolean;
-}
+import { DependentFieldOption } from 'src/app/core/models/dependent-field-option.model';
 
 @Component({
   selector: 'app-dependent-field-modal',
@@ -87,7 +82,7 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss(option);
   }
 
-  private getFinalDependentFieldValues(dependentFieldOptions: DependentFieldOption[], currentSelection: string) {
+  getFinalDependentFieldValues(dependentFieldOptions: DependentFieldOption[], currentSelection: string) {
     const nullOption = { label: 'None', value: null, selected: currentSelection === null };
 
     if (!currentSelection) {
