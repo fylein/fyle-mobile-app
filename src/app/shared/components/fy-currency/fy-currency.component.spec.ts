@@ -1,12 +1,5 @@
-import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick, waitForAsync } from '@angular/core/testing';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { of } from 'rxjs';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -14,7 +7,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { FyCurrencyComponent } from './fy-currency.component';
-import { CUSTOM_ELEMENTS_SCHEMA, SimpleChange, SimpleChanges, forwardRef } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, SimpleChange } from '@angular/core';
 import { FyNumberComponent } from '../fy-number/fy-number.component';
 
 describe('FyCurrencyComponent', () => {
@@ -81,7 +74,7 @@ describe('FyCurrencyComponent', () => {
     component.fg.controls.homeCurrencyAmount.setValue(null);
     component.ngOnInit();
     component.fg.controls.currency.setValue('GBP');
-    flushMicrotasks();
+    tick(1000);
     expect(currencyService.getExchangeRate).toHaveBeenCalledWith('GBP', 'USD', component.txnDt);
     expect(component.exchangeRate).toEqual(1.5);
   }));
@@ -95,7 +88,7 @@ describe('FyCurrencyComponent', () => {
     component.fg.controls.homeCurrencyAmount.setValue(null);
     component.ngOnInit();
     component.fg.controls.currency.setValue('GBP');
-    flushMicrotasks();
+    tick();
     expect(currencyService.getExchangeRate).toHaveBeenCalledWith('GBP', 'USD', new Date());
     expect(component.exchangeRate).toEqual(1.5);
   }));
@@ -117,7 +110,7 @@ describe('FyCurrencyComponent', () => {
     spyOn(component, 'ngOnInit');
     component.ngOnInit();
     component.fg.controls.currency.setValue('GBP');
-    flushMicrotasks();
+    tick(1000);
     expect(currencyService.getExchangeRate).not.toHaveBeenCalled();
     expect(component.value).toEqual({
       amount: 300,
@@ -140,7 +133,6 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(null),
     });
     component.homeCurrency = 'USD';
-    //@ts-ignore
     component.innerValue = {
       currency: 'EUR',
       orig_currency: 'EUR',
@@ -148,16 +140,14 @@ describe('FyCurrencyComponent', () => {
       orig_amount: null,
     };
     component.txnDt = previousTxnDt;
-
     component.ngOnChanges({
       txnDt: new SimpleChange(previousTxnDt, currentTxnDt, false),
     });
 
-    flushMicrotasks();
+    tick();
 
     expect(currencyService.getExchangeRate).toHaveBeenCalledWith('EUR', 'USD', previousTxnDt);
     expect(component.exchangeRate).toEqual(exchangeRate);
-    //@ts-ignore
     expect(component.innerValue.amount).toEqual(null);
   }));
 
@@ -173,7 +163,6 @@ describe('FyCurrencyComponent', () => {
       homeCurrencyAmount: new FormControl(300),
     });
     component.homeCurrency = 'USD';
-    //@ts-ignore
     component.innerValue = {
       currency: 'EUR',
       orig_currency: 'EUR',
@@ -181,16 +170,14 @@ describe('FyCurrencyComponent', () => {
       orig_amount: 200,
     };
     component.txnDt = undefined;
-
     component.ngOnChanges({
       txnDt: new SimpleChange(previousTxnDt, currentTxnDt, false),
     });
 
-    flushMicrotasks();
+    tick();
 
     expect(currencyService.getExchangeRate).toHaveBeenCalledWith('EUR', 'USD', new Date());
     expect(component.exchangeRate).toEqual(exchangeRate);
-    //@ts-ignore
     expect(component.innerValue.amount).toEqual(300);
     expect(component.fg.value.amount).toBe(200);
     expect(component.fg.value.homeCurrencyAmount).toBe(300);
@@ -230,10 +217,8 @@ describe('FyCurrencyComponent', () => {
   });
 
   it('onBlur(): should call onTouchedCallback', () => {
-    //@ts-ignore
     spyOn(component, 'onTouchedCallback');
     component.onBlur();
-    //@ts-ignore
     expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
   });
 
@@ -246,7 +231,6 @@ describe('FyCurrencyComponent', () => {
       orig_currency: 'EUR',
     };
     component.writeValue(mockInnerValue);
-    //@ts-ignore
     expect(component.innerValue).toEqual(mockInnerValue);
     expect(component.fg.patchValue).toHaveBeenCalledWith({
       amount: 80,
@@ -258,14 +242,12 @@ describe('FyCurrencyComponent', () => {
   it('registerOnChange(): should set onChangeCallback function', () => {
     const mockCallback = () => {};
     component.registerOnChange(mockCallback);
-    //@ts-ignore
     expect(component.onChangeCallback).toEqual(mockCallback);
   });
 
   it('registerOnTouched(): should set onTouchedCallback function', () => {
     const mockCallback = () => {};
     component.registerOnTouched(mockCallback);
-    //@ts-ignore
     expect(component.onTouchedCallback).toEqual(mockCallback);
   });
 
@@ -291,7 +273,7 @@ describe('FyCurrencyComponent', () => {
       } as any)
     );
     component.setExchangeRate('USD');
-    tick(1000);
+    tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: FyCurrencyExchangeRateComponent,
       componentProps: {
@@ -333,7 +315,7 @@ describe('FyCurrencyComponent', () => {
       } as any)
     );
     component.setExchangeRate();
-    tick(1000);
+    tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: FyCurrencyExchangeRateComponent,
       componentProps: {
@@ -381,7 +363,7 @@ describe('FyCurrencyComponent', () => {
       } as any)
     );
     component.setExchangeRate('EUR');
-    tick(1000);
+    tick();
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: FyCurrencyExchangeRateComponent,
       componentProps: {

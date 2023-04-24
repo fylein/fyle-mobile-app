@@ -39,16 +39,16 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   fg: FormGroup;
 
-  private innerValue: {
+  innerValue: {
     amount: number;
     currency: string;
     orig_amount: number;
     orig_currency: string;
   };
 
-  private onTouchedCallback: () => void = noop;
+  onTouchedCallback: () => void = noop;
 
-  private onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (_: any) => void = noop;
 
   constructor(
     private fb: FormBuilder,
