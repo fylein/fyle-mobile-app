@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -11,13 +11,16 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { CreateNewReportComponent } from './create-new-report.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-
+import { ExpensesCardComponent } from '../expenses-card/expenses-card.component';
 import { of } from 'rxjs';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
-import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
+import { apiExpenseRes, expenseData1, splitExpData, expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Expense } from 'src/app/core/models/expense.model';
+import { reportUnflattenedData, reportUnflattenedData2 } from 'src/app/core/mock-data/report-v1.data';
 
 fdescribe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
@@ -64,6 +67,7 @@ fdescribe('CreateNewReportComponent', () => {
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -78,6 +82,7 @@ fdescribe('CreateNewReportComponent', () => {
 
     fixture = TestBed.createComponent(CreateNewReportComponent);
     component = fixture.componentInstance;
+    component.selectedElements = apiExpenseRes;
     component.selectedExpensesToReport = apiExpenseRes;
 
     fixture.detectChanges();
@@ -87,10 +92,154 @@ fdescribe('CreateNewReportComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('getReportTitle', () => {});
-  xit('ionViewWillEnter', () => {});
-  xit('selectExpense', () => {});
-  xit('toggleSelectAll', () => {});
-  xit('closeEvent', () => {});
-  xit('ctaClickedEvent', () => {});
+  describe('getReportTitle', () => {
+    it('should get the report title', () => {
+      const reportName = '#1:  Jul 2021';
+      component.selectedElements = apiExpenseRes;
+      reportService.getReportPurpose.and.returnValue(of(reportName));
+      component.getReportTitle();
+      fixture.detectChanges();
+      expect(component.reportTitle).toEqual(reportName);
+      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['tx3nHShG60zq'] });
+    });
+  });
+
+  it('ionViewWillEnter: should call getReportTitle method', () => {
+    spyOn(component, 'getReportTitle');
+    component.ionViewWillEnter();
+    expect(component.getReportTitle).toHaveBeenCalledTimes(1);
+  });
+
+  it('closeEvent(): should dismiss the model ', () => {
+    component.closeEvent();
+    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
+  });
+
+  describe('toggleSelectAll():', () => {
+    it('should set report title when reportTitleInput is not dirty and txnIds length is greater than 0', () => {
+      const reportTitleSpy = spyOn(component, 'getReportTitle');
+      component.toggleSelectAll(true);
+      expect(component.selectedElements).toEqual(component.selectedExpensesToReport);
+      expect(reportTitleSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should deselect all the expenses to be added in the report when false is passed', () => {
+      const reportTitleSpy = spyOn(component, 'getReportTitle');
+      component.selectedExpensesToReport = [];
+      component.toggleSelectAll(false);
+      expect(component.selectedElements).toEqual(component.selectedExpensesToReport);
+      expect(reportTitleSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  xdescribe('selectExpense():', () => {
+    it('should add the expense to the array when if it is not already present ', () => {
+      const reportTitleSpy = spyOn(component, 'getReportTitle');
+      const newExpense = expenseData1;
+      component.selectExpense(newExpense);
+      fixture.detectChanges();
+      expect(component.selectedElements.length).toBe(component.selectedExpensesToReport.length);
+      expect(component.selectedElements).toContain(newExpense);
+      expect(reportTitleSpy).toHaveBeenCalledTimes(1);
+      expect(component.isSelectedAll).toBeTrue();
+    });
+
+    it('should remove an expense from the selectedElements array', () => {
+      component.selectedElements = expenseList2;
+      component.selectedExpensesToReport = expenseList2;
+      const reportTitleSpy = spyOn(component, 'getReportTitle');
+      const existingExpense: Expense = component.selectedElements[0];
+      component.selectExpense(existingExpense);
+      fixture.detectChanges();
+      expect(component.selectedElements).not.toContain(existingExpense);
+      expect(component.selectedElements.length).toBe(1);
+      expect(reportTitleSpy).toHaveBeenCalledTimes(1);
+      expect(component.isSelectedAll).toBeFalse();
+    });
+  });
+
+  describe('ctaClickedEvent', () => {
+    it('should display error and exit if the report title is not present', () => {
+      component.reportTitle = '';
+      component.ctaClickedEvent('create_draft_report');
+      expect(component.showReportNameError).toBeTrue();
+    });
+
+    it('shoud create a new draft report with the title and add transactions', fakeAsync(() => {
+      component.reportTitle = '#3 : Mar 2023';
+      const reportID = 'rp5eUkeNm9wB';
+      const tnxs = ['tx3nHShG60zq'];
+      const reportParam = {
+        purpose: '#3 : Mar 2023',
+        source: 'MOBILE',
+      };
+      const Expense_Count = tnxs.length;
+      const Report_Value = 0;
+      const report = reportUnflattenedData2;
+      reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
+      component.ctaClickedEvent('create_draft_report');
+      fixture.detectChanges();
+      tick(500);
+      expect(component.saveDraftReportLoader).toBeFalse();
+      expect(component.showReportNameError).toBeFalse();
+      expect(trackingService.createReport).toHaveBeenCalledOnceWith({ Expense_Count, Report_Value });
+      expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportParam);
+      expect(reportService.addTransactions).toHaveBeenCalledOnceWith(reportID, tnxs);
+      expect(component.saveDraftReportLoader).toBeFalse();
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({
+        report,
+        message: 'Expenses added to a new report',
+      });
+    }));
+
+    it('shoud create a new draft report with the title and return the report of no transactions ids are present', fakeAsync(() => {
+      component.selectedElements = [];
+      component.reportTitle = '#3 : Mar 2023';
+      const tnxs = [];
+      const reportParam = {
+        purpose: '#3 : Mar 2023',
+        source: 'MOBILE',
+      };
+      const Expense_Count = tnxs.length;
+      const Report_Value = 0;
+      const report = reportUnflattenedData2;
+      reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
+      component.ctaClickedEvent('create_draft_report');
+      fixture.detectChanges();
+      tick(500);
+      expect(component.saveDraftReportLoader).toBeFalse();
+      expect(component.showReportNameError).toBeFalse();
+      expect(trackingService.createReport).toHaveBeenCalledOnceWith({ Expense_Count, Report_Value });
+      expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportParam);
+      expect(component.saveDraftReportLoader).toBeFalse();
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({
+        report,
+        message: 'Expenses added to a new report',
+      });
+    }));
+
+    it('shoud create a new report with the title and submit the report', fakeAsync(() => {
+      component.reportTitle = '#3 : Mar 2023';
+      const reportPurpose = {
+        purpose: '#3 : Mar 2023',
+        source: 'MOBILE',
+      };
+
+      const txnIds = ['tx3nHShG60zq'];
+      const report = reportUnflattenedData2;
+      reportService.create.and.returnValue(of(reportUnflattenedData2));
+      component.ctaClickedEvent('submit_report');
+      fixture.detectChanges();
+      tick(500);
+      expect(component.submitReportLoader).toBeFalse();
+      expect(component.showReportNameError).toBeFalse();
+      expect(reportService.create).toHaveBeenCalledOnceWith(reportPurpose, txnIds);
+      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Newly Created Report' });
+      expect(component.submitReportLoader).toBeFalse();
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({
+        report,
+        message: 'Expenses submitted for approval',
+      });
+    }));
+  });
 });
