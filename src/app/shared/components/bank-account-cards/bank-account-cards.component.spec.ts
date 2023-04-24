@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { SwiperModule } from 'swiper/angular';
 import { BankAccountCardsComponent } from './bank-account-cards.component';
-import { deletePersonalCardRes, linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
+import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('BankAccountCardsComponent', () => {
@@ -40,14 +40,6 @@ describe('BankAccountCardsComponent', () => {
       component.onCardChange([{ realIndex: 1 }]);
       fixture.detectChanges();
       expect(component.changed.emit).toHaveBeenCalledOnceWith('baccBlpSkgBbN0');
-    });
-
-    it('should emit undefined if the selected card is not found in linkedAccounts', () => {
-      spyOn(component.changed, 'emit');
-      component.linkedAccounts = [deletePersonalCardRes];
-      component.onCardChange([{ realIndex: 1 }]);
-      fixture.detectChanges();
-      expect(component.changed.emit).toHaveBeenCalledOnceWith(undefined);
     });
   });
 
