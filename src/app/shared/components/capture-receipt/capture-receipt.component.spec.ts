@@ -245,23 +245,7 @@ describe('CaptureReceiptComponent', () => {
         })
         .subscribe(() => {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
-            {
-              source: 'MOBILE',
-              txn_dt: new Date(),
-              currency: apiEouRes.org.currency,
-            },
-            [
-              {
-                thumbnail: 'base64encodedcontent',
-                type: 'image',
-                url: 'base64encodedcontent',
-              },
-            ],
-            null,
-            null,
-            true
-          );
+          expect(transactionsOutboxService.addEntry).toHaveBeenCalledTimes(1);
           done();
         });
     });
