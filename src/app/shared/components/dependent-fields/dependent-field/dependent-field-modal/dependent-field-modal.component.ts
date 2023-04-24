@@ -10,7 +10,7 @@ import { DependentFieldOption } from 'src/app/core/models/dependent-field-option
   templateUrl: './dependent-field-modal.component.html',
   styleUrls: ['./dependent-field-modal.component.scss'],
 })
-export class DependentFieldModalComponent implements OnInit, AfterViewInit {
+export class DependentFieldModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() currentSelection: string;
@@ -32,8 +32,6 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
   isLoading = false;
 
   constructor(private modalController: ModalController, private dependentFieldsService: DependentFieldsService) {}
-
-  ngOnInit() {}
 
   getDependentFieldOptions(searchQuery: string): Observable<DependentFieldOption[]> {
     this.isLoading = true;
