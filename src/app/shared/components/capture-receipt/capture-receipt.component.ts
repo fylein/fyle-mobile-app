@@ -56,6 +56,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   bulkModeToastMessageRef: MatSnackBarRef<ToastMessageComponent>;
 
+  nativeSettings = NativeSettings;
+
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -430,7 +432,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       )
       .subscribe(({ data }) => {
         if (data?.action === 'OPEN_SETTINGS') {
-          NativeSettings.open({
+          this.nativeSettings.open({
             optionAndroid: AndroidSettings.ApplicationDetails,
             optionIOS: IOSSettings.App,
           });
