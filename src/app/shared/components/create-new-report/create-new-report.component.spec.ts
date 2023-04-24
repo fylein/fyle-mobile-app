@@ -133,29 +133,31 @@ fdescribe('CreateNewReportComponent', () => {
   });
 
   xdescribe('selectExpense()', () => {
-    it('should add the expense to the array when if it is not already present ', () => {
+    it('should add the expense to the array when if it is not already present ', fakeAsync(() => {
       const reportTitleSpy = spyOn(component, 'getReportTitle');
       const newExpense = expenseData1;
       component.selectExpense(newExpense);
+      tick(500);
       fixture.detectChanges();
       expect(component.selectedElements.length).toBe(component.selectedExpensesToReport.length);
       expect(component.selectedElements).toContain(newExpense);
       expect(reportTitleSpy).toHaveBeenCalledTimes(1);
       expect(component.isSelectedAll).toBeTrue();
-    });
+    }));
 
-    it('should remove an expense from the selectedElements array', () => {
+    it('should remove an expense from the selectedElements array', fakeAsync(() => {
       component.selectedElements = expenseList2;
       component.selectedExpensesToReport = expenseList2;
       const reportTitleSpy = spyOn(component, 'getReportTitle');
       const existingExpense: Expense = component.selectedElements[0];
       component.selectExpense(existingExpense);
+      tick(500);
       fixture.detectChanges();
       expect(component.selectedElements).not.toContain(existingExpense);
       expect(component.selectedElements.length).toBe(1);
       expect(reportTitleSpy).toHaveBeenCalledTimes(1);
       expect(component.isSelectedAll).toBeFalse();
-    });
+    }));
   });
 
   describe('ctaClickedEvent', () => {
