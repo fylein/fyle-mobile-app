@@ -79,7 +79,7 @@ fdescribe('CreateNewReportComponent', () => {
 
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
-
+    reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
     fixture = TestBed.createComponent(CreateNewReportComponent);
     component = fixture.componentInstance;
     component.selectedElements = apiExpenseRes;
@@ -132,7 +132,7 @@ fdescribe('CreateNewReportComponent', () => {
     });
   });
 
-  xdescribe('selectExpense():', () => {
+  xdescribe('selectExpense()', () => {
     it('should add the expense to the array when if it is not already present ', () => {
       const reportTitleSpy = spyOn(component, 'getReportTitle');
       const newExpense = expenseData1;
@@ -177,6 +177,7 @@ fdescribe('CreateNewReportComponent', () => {
       const Report_Value = 0;
       const report = reportUnflattenedData2;
       reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
+      reportService.addTransactions.and.returnValue(of(reportUnflattenedData2));
       component.ctaClickedEvent('create_draft_report');
       fixture.detectChanges();
       tick(500);
