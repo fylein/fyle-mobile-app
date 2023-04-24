@@ -119,15 +119,13 @@ describe('ReceiptPreviewComponent', () => {
       new Promise((resolve) => {
         const cropReceiptModalSpy = jasmine.createSpyObj('cropReceiptModal', ['present', 'onWillDismiss']) as any;
         cropReceiptModalSpy.onWillDismiss.and.returnValue(
-          new Promise((resInt) => {
-            resInt({
-              data: {
-                base64ImageWithSource: images[0],
-              },
-            });
-            resolve(cropReceiptModalSpy);
+          Promise.resolve({
+            data: {
+              base64ImageWithSource: images[0],
+            },
           })
         );
+        resolve(cropReceiptModalSpy);
       })
     );
     trackingService.cropReceipt.and.returnValue(null);
@@ -174,12 +172,10 @@ describe('ReceiptPreviewComponent', () => {
         new Promise((resolve) => {
           const closePopOverSpy = jasmine.createSpyObj('closePopOver', ['present', 'onWillDismiss']);
           closePopOverSpy.onWillDismiss.and.returnValue(
-            new Promise((resIn) => {
-              resIn({
-                data: {
-                  action: 'discard',
-                },
-              });
+            Promise.resolve({
+              data: {
+                action: 'discard',
+              },
             })
           );
           resolve(closePopOverSpy);
@@ -216,10 +212,8 @@ describe('ReceiptPreviewComponent', () => {
         new Promise((resolve) => {
           const closePopOverSpy = jasmine.createSpyObj('closePopOver', ['present', 'onWillDismiss']);
           closePopOverSpy.onWillDismiss.and.returnValue(
-            new Promise((resIn) => {
-              resIn({
-                data: {},
-              });
+            Promise.resolve({
+              data: {},
             })
           );
           resolve(closePopOverSpy);
@@ -286,12 +280,10 @@ describe('ReceiptPreviewComponent', () => {
         new Promise((resolve) => {
           const closePopOverSpy = jasmine.createSpyObj('deletePopOver', ['present', 'onWillDismiss']);
           closePopOverSpy.onWillDismiss.and.returnValue(
-            new Promise((resIn) => {
-              resIn({
-                data: {
-                  action: 'remove',
-                },
-              });
+            Promise.resolve({
+              data: {
+                action: 'remove',
+              },
             })
           );
           resolve(closePopOverSpy);
@@ -326,12 +318,10 @@ describe('ReceiptPreviewComponent', () => {
         new Promise((resolve) => {
           const closePopOverSpy = jasmine.createSpyObj('deletePopOver', ['present', 'onWillDismiss']);
           closePopOverSpy.onWillDismiss.and.returnValue(
-            new Promise((resIn) => {
-              resIn({
-                data: {
-                  action: 'remove',
-                },
-              });
+            Promise.resolve({
+              data: {
+                action: 'remove',
+              },
             })
           );
           resolve(closePopOverSpy);
@@ -392,26 +382,28 @@ describe('ReceiptPreviewComponent', () => {
     expect(component.activeIndex).toEqual(0);
   });
 
-  it('addMore(): should add more receipts', async () => {
-    matBottomSheet.open.and.returnValue({
-      afterDismissed: () =>
-        of({
-          mode: 'camera',
-        }),
+  describe('addMore(): ', () => {
+    it('should add more receipts if the mode is camera', async () => {
+      matBottomSheet.open.and.returnValue({
+        afterDismissed: () =>
+          of({
+            mode: 'camera',
+          }),
+      });
+      spyOn(component, 'captureReceipts').and.returnValue(null);
+
+      await component.addMore();
+      expect(component.captureReceipts).toHaveBeenCalledTimes(1);
     });
-    spyOn(component, 'captureReceipts').and.returnValue(null);
 
-    await component.addMore();
-    expect(component.captureReceipts).toHaveBeenCalledTimes(1);
-  });
+    it('should open gallery if the mode is not specified', async () => {
+      matBottomSheet.open.and.returnValue({
+        afterDismissed: () => of({}),
+      });
+      spyOn(component, 'galleryUpload').and.returnValue(null);
 
-  it('addMore(): should add more receipts', async () => {
-    matBottomSheet.open.and.returnValue({
-      afterDismissed: () => of({}),
+      await component.addMore();
+      expect(component.galleryUpload).toHaveBeenCalledTimes(1);
     });
-    spyOn(component, 'galleryUpload').and.returnValue(null);
-
-    await component.addMore();
-    expect(component.galleryUpload).toHaveBeenCalledTimes(1);
   });
 });
