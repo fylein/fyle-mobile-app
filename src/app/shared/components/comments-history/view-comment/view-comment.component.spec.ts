@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -229,7 +229,7 @@ describe('ViewCommentComponent', () => {
   }));
 
   describe('onInit():', () => {
-    it('should set estatuses$ and totalCommentsCount$ properties correctly', () => {
+    it('should set estatuses$ and totalCommentsCount$ properties correctly', fakeAsync(() => {
       const updatedApiCommentsResponse = apiCommentsResponse.map((comment) => ({
         ...comment,
         us_full_name: 'Dummy Name',
@@ -241,7 +241,7 @@ describe('ViewCommentComponent', () => {
       statusService.find.and.returnValue(of(updatedApiCommentsResponse));
       statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
       component.ngOnInit();
-
+      tick(500);
       expect(component.estatuses$).toBeDefined();
       component.estatuses$.subscribe((res) => {
         expect(res[0].isBotComment).toBeTrue();
@@ -252,10 +252,11 @@ describe('ViewCommentComponent', () => {
       component.totalCommentsCount$.subscribe((res) => {
         expect(res).toBe(totalCommentsCount);
       });
+      tick(500);
       expect(authService.getEou).toHaveBeenCalled();
       expect(statusService.find).toHaveBeenCalledWith(component.objectType, component.objectId);
       expect(statusService.createStatusMap).toHaveBeenCalledWith(component.systemComments, component.type);
-    });
+    }));
 
     it('should set type correctly for a given objectType', () => {
       component.objectType = 'Expenses';
