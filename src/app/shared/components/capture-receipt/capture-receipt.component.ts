@@ -58,6 +58,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   nativeSettings = NativeSettings;
 
+  cameraPreviewPlugin = CameraPreview;
+
+  camera = Camera;
+
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -370,7 +374,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         quality: 70,
       };
 
-      from(CameraPreview.capture(cameraPreviewPictureOptions)).subscribe((receiptData) => {
+      from(this.cameraPreviewPlugin.capture(cameraPreviewPictureOptions)).subscribe((receiptData) => {
         const base64PictureData = 'data:image/jpeg;base64,' + receiptData.value;
         this.lastCapturedReceipt = base64PictureData;
         if (!this.isBulkMode) {
@@ -462,7 +466,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     checkPermission$
       .pipe(
         filter((permission) => !permission),
-        switchMap(() => from(Camera.requestPermissions({ permissions: ['photos'] })))
+        switchMap(() => from(this.camera.requestPermissions({ permissions: ['photos'] })))
       )
       .subscribe((permissions) => {
         if (permissions?.photos === 'denied') {
@@ -499,7 +503,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     if (this.isModal) {
       this.stopCamera();
     }
-    this.bulkModeToastMessageRef?.dismiss();
+    this.bulkModeToastMessageRef?.dismiss?.();
   }
 
   setUpAndStartCamera() {

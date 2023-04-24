@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -32,7 +32,8 @@ class MatSnackBarStub {
     };
   }
 }
-fdescribe('CaptureReceiptComponent', () => {
+
+describe('CaptureReceiptComponent', () => {
   let component: CaptureReceiptComponent;
   let fixture: ComponentFixture<CaptureReceiptComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -230,7 +231,7 @@ fdescribe('CaptureReceiptComponent', () => {
     });
   });
 
-  xdescribe('addExpenseToQueue():', () => {
+  describe('addExpenseToQueue():', () => {
     it('should add entry to expense queue', (done) => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       transactionsOutboxService.addEntry.and.returnValue(Promise.resolve(null));
@@ -363,6 +364,7 @@ fdescribe('CaptureReceiptComponent', () => {
     loaderService.showLoader.and.callThrough();
     loaderService.hideLoader.and.callThrough();
     spyOn(component, 'addMultipleExpensesToQueue').and.returnValue(of(null));
+    component.isModal = true;
     fixture.detectChanges();
 
     component.onSingleCaptureOffline();
@@ -420,13 +422,7 @@ fdescribe('CaptureReceiptComponent', () => {
     });
   });
 
-  xit('addPerformanceTrackers(): should add performance tracker', () => {
-    orgService.getOrgs.and.returnValue(of(orgData1));
-
-    component.addPerformanceTrackers();
-  });
-
-  describe('openReceiptPreviewModal():', async () => {
+  describe('openReceiptPreviewModal():', () => {
     it('should navigate to expenses page if images clicked and saved succesfully ', () => {
       spyOn(component, 'addMultipleExpensesToQueue').and.callThrough();
       spyOn(component, 'showReceiptPreview').and.returnValue(
@@ -443,7 +439,7 @@ fdescribe('CaptureReceiptComponent', () => {
       expect(component.showReceiptPreview).toHaveBeenCalledTimes(1);
     });
 
-    it('should open receipt modal if number of images is 0', async () => {
+    it('should open receipt modal if number of images is 0', () => {
       spyOn(component, 'showReceiptPreview').and.returnValue(
         of({
           base64ImagesWithSource: [],
@@ -476,8 +472,8 @@ fdescribe('CaptureReceiptComponent', () => {
         data: {
           base64ImagesWithSource: images,
         },
-        onWillDismiss: () => Promise.resolve(),
-        present: () => {},
+        onWillDismiss: () => Promise.resolve(true),
+        present: () => Promise.resolve(true),
       } as any)
     );
 
@@ -519,13 +515,56 @@ fdescribe('CaptureReceiptComponent', () => {
     });
   });
 
-  xit('onCaptureReceipt', () => {
-    component.onCaptureReceipt();
+  describe('onCaptureReceipt(): ', () => {
+    it('should capture receipt if bulk mode is disabled', fakeAsync(() => {
+      spyOn(component, 'onSingleCapture').and.returnValue(null);
+      spyOn(component, 'stopCamera').and.returnValue(null);
+      component.cameraPreviewPlugin = jasmine.createSpyObj('CameraPreview', {
+        capture: of({
+          value: 'value',
+        }),
+      });
+      const len = component.base64ImagesWithSource.length;
+      fixture.detectChanges();
+
+      tick(10000);
+      component.onCaptureReceipt();
+      expect(component.onSingleCapture).toHaveBeenCalledTimes(1);
+      expect(component.stopCamera).toHaveBeenCalledTimes(1);
+      expect(component.base64ImagesWithSource.length).toEqual(len + 1);
+    }));
+
+    it('should capture multiple receipts if bulk mode is enabled', fakeAsync(() => {
+      component.isBulkMode = true;
+      spyOn(component, 'onBulkCapture').and.returnValue(null);
+      component.cameraPreviewPlugin = jasmine.createSpyObj('CameraPreview', {
+        capture: of({
+          value: 'value',
+        }),
+      });
+      const len = component.base64ImagesWithSource.length;
+      fixture.detectChanges();
+
+      tick(10000);
+      component.onCaptureReceipt();
+      expect(component.onBulkCapture).toHaveBeenCalledTimes(1);
+      expect(component.base64ImagesWithSource.length).toEqual(len + 1);
+    }));
+
+    it('should show limit reached popover if number of receipts => 20', fakeAsync(() => {
+      component.noOfReceipts = 20;
+      spyOn(component, 'showLimitReachedPopover').and.returnValue(of(null));
+      fixture.detectChanges();
+
+      tick(10000);
+      component.onCaptureReceipt();
+      expect(component.showLimitReachedPopover).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('setupPermissionDeniedPopover():', () => {
     it('should setup permission denied popover for camera', () => {
-      popoverController.create.and.callThrough();
+      popoverController.create.and.returnValue(null);
 
       component.setupPermissionDeniedPopover('CAMERA');
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -575,31 +614,27 @@ fdescribe('CaptureReceiptComponent', () => {
   it('showPermissionDeniedPopover(): should show permission denied popvoer', fakeAsync(() => {
     spyOn(component, 'onDismissCameraPreview').and.returnValue(null);
     component.nativeSettings = jasmine.createSpyObj('NativeSettings', ['open']);
-    spyOn(component, 'setupPermissionDeniedPopover').and.returnValue(
-      new Promise((resolve) => {
-        const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-        popoverSpy.onWillDismiss.and.returnValue(
-          new Promise((resIn) => {
-            resIn({
-              data: {
-                action: 'OPEN_SETTINGS',
-              },
-            });
-          })
-        );
-        resolve(popoverSpy);
+    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+    popoverSpy.onWillDismiss.and.returnValue(
+      Promise.resolve({
+        data: {
+          action: 'OPEN_SETTINGS',
+        },
       })
     );
+    spyOn(component, 'setupPermissionDeniedPopover').and.returnValue(Promise.resolve(popoverSpy));
 
     component.showPermissionDeniedPopover('CAMERA');
+    tick(1000);
     expect(component.setupPermissionDeniedPopover).toHaveBeenCalledOnceWith('CAMERA');
     expect(component.nativeSettings.open).toHaveBeenCalledTimes(1);
   }));
 
   describe('onGalleryUpload():', () => {
-    it('should upload images to gallery if permission graneted', async () => {
+    it('should upload images to gallery if permission graneted', () => {
       imagePicker.hasReadPermission.and.returnValue(Promise.resolve(true));
       imagePicker.getPictures.and.returnValue(Promise.resolve(['encodedcontent1', 'encodedcontent2']));
+      fixture.detectChanges();
 
       component.onGalleryUpload();
       expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
@@ -607,39 +642,48 @@ fdescribe('CaptureReceiptComponent', () => {
     });
   });
 
-  xit('setUpAndStartCamera(): should setup and start camera', () => {
+  it('setUpAndStartCamera(): should setup and start camera', () => {
     spyOn(component.cameraPreview, 'setUpAndStartCamera').and.returnValue(null);
-    spyOnProperty(transactionsOutboxService, 'singleCaptureCount').and.returnValue(3);
+    spyOn(component, 'showBulkModeToastMessage').and.returnValue(null);
+    Object.defineProperty(transactionsOutboxService, 'singleCaptureCount', { value: 3 });
 
     component.setUpAndStartCamera();
     expect(component.cameraPreview.setUpAndStartCamera).toHaveBeenCalledTimes(1);
+    expect(component.showBulkModeToastMessage).toHaveBeenCalledTimes(1);
+    expect(component.isBulkModePromptShown).toEqual(true);
   });
 
   describe('onSingleCapture(): ', () => {
-    it('should show preview and save a single captured image if online', () => {
+    it('should show preview and save a single captured image if online', async () => {
       spyOn(component, 'setUpAndStartCamera').and.returnValue(null);
+      spyOn(component, 'addPerformanceTrackers').and.returnValue(null);
+      modalController.dismiss.and.callThrough();
+      component.base64ImagesWithSource = images;
+      component.isModal = true;
       spyOn(component, 'createReceiptPreviewModal').and.returnValue(
         new Promise((resolve) => {
-          const popOverSpy = jasmine.createSpyObj('receiptPreviewModal', ['present', 'onWillDismiss']);
+          const popOverSpy = jasmine.createSpyObj('receiptPreviewModal', ['present', 'onWillDismiss', 'onDidDismiss']);
           popOverSpy.onWillDismiss.and.returnValue(
-            new Promise((resInt) => {
-              resInt({
-                data: {
-                  base64ImagesWithSource: images,
-                },
-              });
+            Promise.resolve({
+              data: {
+                base64ImagesWithSource: images,
+              },
             })
           );
+          popOverSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: 'value' }));
           resolve(popOverSpy);
         })
       );
+      fixture.detectChanges();
 
-      component.onSingleCapture();
+      await component.onSingleCapture();
       expect(component.createReceiptPreviewModal).toHaveBeenCalledOnceWith('single');
     });
 
     it('should start camera if there is no image data', async () => {
       spyOn(component, 'setUpAndStartCamera').and.returnValue(null);
+      spyOn(component, 'addPerformanceTrackers').and.returnValue(null);
+      component.isModal = false;
       spyOn(component, 'createReceiptPreviewModal').and.returnValue(
         new Promise((resolve) => {
           const popOverSpy = jasmine.createSpyObj('receiptPreviewModal', ['present', 'onWillDismiss']);
