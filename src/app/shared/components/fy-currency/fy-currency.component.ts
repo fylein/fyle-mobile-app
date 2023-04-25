@@ -1,6 +1,6 @@
-import { Component, OnInit, forwardRef, Input, Injector, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges } from '@angular/core';
 
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup } from '@angular/forms';
 import { noop, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
@@ -31,34 +31,35 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   @Input() expanded: boolean;
 
+  @Input() touchedInParent = false;
+
+  @Input() validInParent = true;
+
   exchangeRate = 1;
 
   fg: FormGroup;
 
-  private ngControl: NgControl;
-
-  private innerValue: {
+  innerValue: {
     amount: number;
     currency: string;
     orig_amount: number;
     orig_currency: string;
   };
 
-  private onTouchedCallback: () => void = noop;
+  onTouchedCallback: () => void = noop;
 
-  private onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (_: any) => void = noop;
 
   constructor(
     private fb: FormBuilder,
     private modalController: ModalController,
     private currencyService: CurrencyService,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector
+    private modalProperties: ModalPropertiesService
   ) {}
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
+    if (this.touchedInParent) {
+      return this.validInParent;
     } else {
       return true;
     }
@@ -79,8 +80,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   }
 
   ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-
     this.fg = this.fb.group({
       currency: [], // currency which is currently shown
       amount: [], // amount which is currently shown
