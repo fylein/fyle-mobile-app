@@ -7,7 +7,7 @@
       </div>
     </ion-title>
     <ion-buttons slot="start">
-      <ion-button (click)="onDoneClick()">
+      <ion-button data-testid="doneRef" (click)="onDoneClick()">
         <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
       </ion-button>
     </ion-buttons>
@@ -23,6 +23,7 @@
     >
       <mat-chip-list #chipList aria-label="Multi select">
         <mat-chip
+          data-testid="chips"
           *ngFor="let item of currentSelections"
           [selectable]="selectable"
           [removable]="removable"
