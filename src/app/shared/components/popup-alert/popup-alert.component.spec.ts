@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { expenseList2 } from 'src/app/core/mock-data/expense.data';
-import { FyAlertInfoComponent } from '../fy-alert-info.component.html/fy-alert-info.component';
+import { FyAlertInfoComponent } from '../fy-alert-info/fy-alert-info.component';
 import { PopupAlertComponent } from './popup-alert.component';
 
 describe('PopupAlertComponent', () => {
