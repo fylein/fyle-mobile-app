@@ -15,7 +15,7 @@ import { SwiperComponent } from 'swiper/angular';
 import { Component, Input } from '@angular/core';
 import { Subscription, of } from 'rxjs';
 
-fdescribe('ReceiptPreviewComponent', () => {
+describe('ReceiptPreviewComponent', () => {
   let component: ReceiptPreviewComponent;
   let fixture: ComponentFixture<ReceiptPreviewComponent>;
   let platform: Platform;
