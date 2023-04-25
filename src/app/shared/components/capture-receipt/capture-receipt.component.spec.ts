@@ -105,8 +105,6 @@ describe('CaptureReceiptComponent', () => {
     const performanceSpy = jasmine.createSpyObj('peformance', ['getEntriesByName', 'mark', 'measure']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
-    const cameraPreviewSpy = jasmine.createSpyObj('CameraPreviewComponent', ['setUpAndStartCamera', 'stopCamera']);
-
     TestBed.configureTestingModule({
       declarations: [CaptureReceiptComponent, CameraPreviewStubComponent],
       imports: [IonicModule.forRoot(), RouterTestingModule],
