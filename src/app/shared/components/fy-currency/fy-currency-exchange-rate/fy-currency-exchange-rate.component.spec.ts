@@ -103,10 +103,11 @@ describe('FyCurrencyExchangeRateComponent', () => {
     component.txnDt = undefined;
     fixture.detectChanges();
     spyOn(component, 'toFixed');
+    const mockDate = new Date();
     component.ngOnInit();
-    tick();
+    tick(1000);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-    expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith('EUR', 'USD', new Date());
+    expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith('EUR', 'USD', mockDate);
     expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(114.99999999999999, 'USD');
     expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(150, 'USD');
     expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(150, 'USD');
@@ -126,7 +127,7 @@ describe('FyCurrencyExchangeRateComponent', () => {
     fixture.detectChanges();
     spyOn(component, 'toFixed');
     component.ngOnInit();
-    tick();
+    tick(1000);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith('EUR', 'USD', component.txnDt);
     expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(114.99999999999999, 'USD');
@@ -144,7 +145,7 @@ describe('FyCurrencyExchangeRateComponent', () => {
     spyOn(component, 'toFixed');
     spyOn(component, 'ngOnInit');
     component.ngOnInit();
-    tick();
+    tick(1000);
     component.fg.controls.newCurrencyAmount.setValue(2);
     component.fg.controls.exchangeRate.setValue(0);
     fixture.detectChanges();
