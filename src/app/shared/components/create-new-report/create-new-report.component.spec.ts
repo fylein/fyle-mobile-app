@@ -17,12 +17,18 @@ import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
-import { apiExpenseRes, expenseData1, splitExpData, expenseList2 } from 'src/app/core/mock-data/expense.data';
+import {
+  apiExpenseRes,
+  expenseData1,
+  splitExpData,
+  expenseList2,
+  expenseList,
+} from 'src/app/core/mock-data/expense.data';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
 import { reportUnflattenedData, reportUnflattenedData2 } from 'src/app/core/mock-data/report-v1.data';
 
-fdescribe('CreateNewReportComponent', () => {
+describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
   let fixture: ComponentFixture<CreateNewReportComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -102,6 +108,16 @@ fdescribe('CreateNewReportComponent', () => {
       expect(component.reportTitle).toEqual(reportName);
       expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['tx3nHShG60zq'] });
     });
+
+    it('should not get the report title when the element is not in the selectedElements array', () => {
+      const reportName = '#1:  Jul 2021';
+      component.selectedElements = expenseList;
+      reportService.getReportPurpose.and.returnValue(of(reportName));
+      component.getReportTitle();
+      fixture.detectChanges();
+      expect(component.reportTitle).toEqual(reportName);
+      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['txBphgnCHHeO'] });
+    });
   });
 
   it('ionViewWillEnter: should call getReportTitle method', () => {
@@ -132,10 +148,11 @@ fdescribe('CreateNewReportComponent', () => {
     });
   });
 
-  xdescribe('selectExpense()', () => {
+  describe('selectExpense()', () => {
     it('should add the expense to the array when if it is not already present ', fakeAsync(() => {
       const reportTitleSpy = spyOn(component, 'getReportTitle');
-      const newExpense = expenseData1;
+      component.selectedElements = [];
+      const newExpense = apiExpenseRes[0];
       component.selectExpense(newExpense);
       tick(500);
       fixture.detectChanges();
