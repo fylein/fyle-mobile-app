@@ -13,7 +13,7 @@ import { customExpensefields } from 'src/app/core/mock-data/expense-field.data';
 import { customPropertiesData } from 'src/app/core/mock-data/custom-property.data';
 import { employeesParamsRes, employeesRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { of } from 'rxjs';
-import { selectedOptionRes } from 'src/app/core/mock-data/employee.data';
+import { selectedOptionRes, filteredOptionsRes, filteredDataRes } from 'src/app/core/mock-data/employee.data';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -217,8 +217,35 @@ fdescribe('FyUserlistModalComponent', () => {
     expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
   });
 
+  it('getNewlyAddedUsers', (done) => {
+    component.currentSelectionsCopy = component.currentSelections;
+    component.getNewlyAddedUsers(filteredOptionsRes).subscribe((res) => {
+      fixture.detectChanges();
+      expect(res).toEqual(filteredDataRes);
+      done();
+    });
+  });
+
+  it('should process newly processed items', () => {
+    const searchText = 'test@test.com';
+    const newItem = {
+      isNew: true,
+      us_email: searchText,
+    };
+    component.filteredOptions$ = of([
+      { us_email: 'example@test.com' },
+      { us_email: 'sample@test.com' },
+      { us_email: searchText },
+    ]);
+
+    const result$ = component.processNewlyAddedItems(searchText);
+
+    result$.subscribe((result) => {
+      expect(result[0]).toEqual(jasmine.objectContaining({ is_selected: true }));
+      expect(result[0]).not.toEqual(jasmine.objectContaining({ isNew: true }));
+    });
+  });
+
   xit('getUsersList', () => {});
   xit('filterSearchedEmployees', () => {});
-  xit('getNewlyAddedUsers', () => {});
-  xit('processNewlyAddedItems', () => {});
 });
