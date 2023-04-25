@@ -172,7 +172,7 @@ fdescribe('ReceiptPreviewComponent', () => {
           },
         })
       );
-      popoverController.create.and.returnValue(closePopOverSpy);
+      popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();
 
       const message = `Are you sure you want to discard the ${component.base64ImagesWithSource.length} receipts you just captured?`;
@@ -206,7 +206,7 @@ fdescribe('ReceiptPreviewComponent', () => {
           data: {},
         })
       );
-      popoverController.create.and.returnValue(closePopOverSpy);
+      popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
 
       fixture.detectChanges();
 
@@ -271,7 +271,7 @@ fdescribe('ReceiptPreviewComponent', () => {
           },
         })
       );
-      popoverController.create.and.returnValue(closePopOverSpy);
+      popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();
 
       await component.deleteReceipt();
@@ -305,7 +305,7 @@ fdescribe('ReceiptPreviewComponent', () => {
           },
         })
       );
-      popoverController.create.and.returnValue(closePopOverSpy);
+      popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();
 
       await component.deleteReceipt();
