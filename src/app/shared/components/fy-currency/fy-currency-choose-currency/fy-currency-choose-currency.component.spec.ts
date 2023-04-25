@@ -46,8 +46,6 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
     recentLocalStorageItemsService = TestBed.inject(
       RecentLocalStorageItemsService
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
-    // component.currentSelection = 'USD';
-    // component.recentlyUsed = [{label: 'United States', value: 'USD'}];
   }));
 
   it('should create the component', () => {
