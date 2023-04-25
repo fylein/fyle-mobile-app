@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,18 +16,21 @@ import {
   dependentFieldOptionsWithSelectionNotInList,
   dependentFieldOptionsWithoutSelection,
 } from 'src/app/core/mock-data/dependent-field-option.data';
+import { FyZeroStateComponent } from '../../../fy-zero-state/fy-zero-state.component';
+import { FyHighlightTextComponent } from '../../../fy-highlight-text/fy-highlight-text.component';
 
 fdescribe('DependentFieldModalComponent', () => {
   let component: DependentFieldModalComponent;
   let fixture: ComponentFixture<DependentFieldModalComponent>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
+  let modalController: jasmine.SpyObj<ModalController>;
 
-  const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+  const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
   const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [DependentFieldModalComponent],
+      declarations: [DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
@@ -53,6 +56,7 @@ fdescribe('DependentFieldModalComponent', () => {
       .then(() => {
         fixture = TestBed.createComponent(DependentFieldModalComponent);
         component = fixture.componentInstance;
+        modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
         spyOn(component, 'getDependentFieldOptions').and.returnValue(of([]));
       });
   }));
@@ -80,4 +84,19 @@ fdescribe('DependentFieldModalComponent', () => {
       dependentFieldOptionsWithSelectionNotInList
     );
   });
+
+  it('onDoneClick(): should dismiss modal', fakeAsync(() => {
+    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    component.onDoneClick();
+    tick();
+    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
+  }));
+
+  it('onElementSelect(): should dismiss modal with selected option', fakeAsync(() => {
+    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    component.onElementSelect(dependentFieldOptions[0]);
+    tick();
+    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
+    expect(modalController.dismiss).toHaveBeenCalledWith(dependentFieldOptions[0]);
+  }));
 });
