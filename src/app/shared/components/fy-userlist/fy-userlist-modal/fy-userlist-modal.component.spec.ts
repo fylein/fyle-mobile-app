@@ -13,15 +13,10 @@ import { customExpensefields } from 'src/app/core/mock-data/expense-field.data';
 import { customPropertiesData } from 'src/app/core/mock-data/custom-property.data';
 import { employeesParamsRes, employeesRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { of } from 'rxjs';
+import { selectedOptionRes } from 'src/app/core/mock-data/employee.data';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
-
-const params = {
-  order: 'us_full_name.asc,us_email.asc,ou_id',
-  us_email: 'in.(ajain@fyle.in)',
-  or: '(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS")',
-  and: '(or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"),or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))',
-};
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 fdescribe('FyUserlistModalComponent', () => {
   let component: FyUserlistModalComponent;
@@ -96,6 +91,7 @@ fdescribe('FyUserlistModalComponent', () => {
     };
 
     const selectedItemDict = component.getSelectedItemDict();
+    fixture.detectChanges();
     expect(selectedItemDict).toEqual(selectedItem);
   });
 
@@ -103,6 +99,7 @@ fdescribe('FyUserlistModalComponent', () => {
     const input = getElementBySelector(fixture, '.selection-modal--form-input') as HTMLInputElement;
 
     component.clearValue();
+    fixture.detectChanges();
     expect(component.value).toEqual('');
     expect(input.value).toEqual('');
   });
@@ -116,19 +113,112 @@ fdescribe('FyUserlistModalComponent', () => {
       input: inputElement,
     };
     component.addChip(event);
+    fixture.detectChanges();
     expect(chipInput.clear).toHaveBeenCalledTimes(1);
   });
 
-  xit('removeChip', () => {});
-  xit('clearValue', () => {});
-  xit('getDefaultUsersList', () => {});
-  xit('getSearchedUsersList', () => {});
+  describe('onSelect():', () => {
+    it('add the employee email address to the list of currently selected email addresses', () => {
+      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(
+        of(component.currentSelections)
+      );
+      component.onSelect(selectedOptionRes, { checked: true });
+      fixture.detectChanges();
+      expect(component.currentSelections).toContain('ajain+12+12+1@fyle.in');
+      expect(getSelectedItemDictSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('remove the email address from the list of currently selected email addresses', () => {
+      const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(
+        of(component.currentSelections)
+      );
+      component.onSelect(selectedOptionRes, { checked: false });
+      fixture.detectChanges();
+      expect(component.currentSelections).not.toContain('ajain+12+12+1@fyle.in');
+      expect(getSelectedItemDictSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('onDoneClick: should dismiss the model', () => {
+    component.onDoneClick();
+    expect(modalController.dismiss).toHaveBeenCalled();
+  });
+
+  it('useSelected(): should dismiss the modal with only current selection marked as selected', () => {
+    component.useSelected();
+    fixture.detectChanges();
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selected: component.currentSelections });
+  });
+
+  it('onAddNew(): should add new email address', () => {
+    const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(
+      of(component.currentSelections)
+    );
+    const clearValueSpy = spyOn(component, 'clearValue');
+    component.value = 'aditi.saini@fyle.in';
+    component.onAddNew();
+    fixture.detectChanges();
+    expect(component.currentSelections).toContain('aditi.saini@fyle.in');
+    expect(getSelectedItemDictSpy).toHaveBeenCalledTimes(1);
+    expect(clearValueSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('removeChip', () => {
+    const onSelectSpy = spyOn(component, 'onSelect');
+    const item = 'ajain121212@fyle.in';
+    const updatedItem = {
+      us_email: item,
+      is_selected: false,
+    };
+    const event = {
+      checked: false,
+    };
+
+    component.removeChip(item);
+    fixture.detectChanges();
+    expect(onSelectSpy).toHaveBeenCalledOnceWith(updatedItem, event);
+  });
+
+  describe('getDefaultUsersList():', () => {
+    it('should get default users list', () => {
+      const params = {
+        order: 'us_full_name.asc,us_email.asc,ou_id',
+        us_email:
+          'in.(ajain+12+12+1@fyle.in,ajain+12121212@fyle.in,aaaaaaa@aaaabbbb.com,aaaaasdjskjd@sdsd.com,kawaljeet.ravi22@gmail.com,abcdefg@somemail.com)',
+      };
+
+      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+      component.getDefaultUsersList();
+      fixture.detectChanges();
+      expect(component.currentSelections).toEqual(component.currentSelections);
+      expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+    });
+
+    it('should get default users list with empty params', () => {
+      component.currentSelections = [];
+      const params = { limit: 20, order: 'us_full_name.asc,us_email.asc,ou_id' };
+      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+      component.getDefaultUsersList();
+      fixture.detectChanges();
+      expect(component.currentSelections).toEqual([]);
+      expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+    });
+  });
+
+  it('getSearchedUsersList', () => {
+    const params: any = {
+      limit: 20,
+      order: 'us_full_name.asc,us_email.asc,ou_id',
+      or: '(us_email.ilike.*ajain+12+12+1@fyle.in*,us_full_name.ilike.*ajain+12+12+1@fyle.in*)',
+    };
+    orgUserService.getEmployeesBySearch.and.returnValue(of([selectedOptionRes]));
+    component.getSearchedUsersList('ajain+12+12+1@fyle.in');
+    fixture.detectChanges();
+    expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+  });
+
   xit('getUsersList', () => {});
   xit('filterSearchedEmployees', () => {});
   xit('getNewlyAddedUsers', () => {});
   xit('processNewlyAddedItems', () => {});
-  xit('onDoneClick', () => {});
-  xit('onSelect', () => {});
-  xit('useSelected', () => {});
-  xit('onAddNew', () => {});
 });
