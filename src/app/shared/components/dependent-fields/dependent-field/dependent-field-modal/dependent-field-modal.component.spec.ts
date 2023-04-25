@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -75,6 +75,20 @@ fdescribe('DependentFieldModalComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('ngAfterViewInit(): should set filteredOptions$', fakeAsync(() => {
+    const searchQuery = 'value 3';
+    component.searchBarRef.nativeElement.value = searchQuery;
+    spyOn(component, 'getDependentFieldOptions').and.returnValue(of(dependentFieldOptionsWithoutSelection));
+    component.ngAfterViewInit();
+    component.searchBarRef.nativeElement.dispatchEvent(new Event('keyup'));
+    tick();
+
+    component.filteredOptions$.subscribe((result) => {
+      expect(result).toEqual(dependentFieldOptionsWithoutSelection);
+      expect(component.searchBarRef.nativeElement.value).toEqual(searchQuery);
+    });
+  }));
 
   it('getDependentFieldOptions(): should return dependent field options based on search query', (done) => {
     const searchQuery = '';

@@ -65,7 +65,7 @@ export class DependentFieldModalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+      map((event: any) => event.target.value),
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchString) => this.getDependentFieldOptions(searchString))
