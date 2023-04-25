@@ -19,9 +19,12 @@ import {
 import { FyZeroStateComponent } from '../../../fy-zero-state/fy-zero-state.component';
 import { FyHighlightTextComponent } from '../../../fy-highlight-text/fy-highlight-text.component';
 import { dependentFieldValues } from 'src/app/core/mock-data/dependent-field-value.data';
+import { DebugElement } from '@angular/core';
+import { By } from '@angular/platform-browser';
 
 fdescribe('DependentFieldModalComponent', () => {
   let component: DependentFieldModalComponent;
+  let modalElement: DebugElement;
   let fixture: ComponentFixture<DependentFieldModalComponent>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -57,6 +60,7 @@ fdescribe('DependentFieldModalComponent', () => {
       .then(() => {
         fixture = TestBed.createComponent(DependentFieldModalComponent);
         component = fixture.componentInstance;
+        modalElement = fixture.debugElement;
         modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
         dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
 
@@ -64,6 +68,7 @@ fdescribe('DependentFieldModalComponent', () => {
         component.parentFieldId = 221284;
         component.parentFieldValue = 'Project 1';
         component.currentSelection = 'Other Dep. Value 1';
+        component.searchBarRef = modalElement.query(By.css('.dependent-field-modal__search-input'));
       });
   }));
 
@@ -121,6 +126,13 @@ fdescribe('DependentFieldModalComponent', () => {
     expect(component.getFinalDependentFieldValues(dependentFieldOptions, selectedOption)).toEqual(
       dependentFieldOptionsWithSelectionNotInList
     );
+  });
+
+  it('clearValue(): Should clear the searchbar', () => {
+    component.value = 'Dependent field 3';
+    component.clearValue();
+    expect(component.value).toEqual('');
+    expect(component.searchBarRef.nativeElement.value).toEqual('');
   });
 
   it('onDoneClick(): should dismiss modal', fakeAsync(() => {
