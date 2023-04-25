@@ -12,7 +12,6 @@ jobs:
           app-id: 32316914
           platform: Android
           build-type: release
-          build-stack: Linux - 2022.07
           certificate: Android Prod Release
           environment: production
           native-config: prod
@@ -28,7 +27,6 @@ jobs:
           app-id: 32316914
           platform: iOS
           build-type: App Store
-          build-stack: macOS - 2022.09
           certificate: iOS Prod Release
           environment: production
           native-config: prod
@@ -50,6 +48,6 @@ jobs:
         id: notify
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          slack-channel: C029QPGHSQL
-          slack-text: Prod application released for internal testing \n Branch - "${{ steps.get-branch.outputs._1 }}"
+          slack-channel: C017C400V37
+          slack-text: Prod application released for internal testing \nBranch - `${{ steps.get-branch.outputs._1 }}`
 

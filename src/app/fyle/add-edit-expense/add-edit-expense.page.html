@@ -218,6 +218,8 @@
                   [recentlyUsed]="recentCurrencies"
                   [txnDt]="fg?.controls?.dateOfSpend?.value"
                   [expanded]="attachedReceiptsCount === 0"
+                  [touchedInParent]="fg?.controls?.currencyObj?.touched"
+                  [validInParent]="fg?.controls?.currencyObj?.valid"
                 >
                 </app-currency>
                 <div
