@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +17,8 @@ import { selectedOptionRes, filteredOptionsRes, filteredDataRes } from 'src/app/
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { Employee } from 'src/app/core/models/spender/employee.model';
+import { By } from '@angular/platform-browser';
 
 fdescribe('FyUserlistModalComponent', () => {
   let component: FyUserlistModalComponent;
@@ -212,7 +214,7 @@ fdescribe('FyUserlistModalComponent', () => {
       or: '(us_email.ilike.*ajain+12+12+1@fyle.in*,us_full_name.ilike.*ajain+12+12+1@fyle.in*)',
     };
     orgUserService.getEmployeesBySearch.and.returnValue(of([selectedOptionRes]));
-    component.getSearchedUsersList('ajain+12+12+1@fyle.in');
+    component.getSearchedUsersList('ajain+12+12+1@fyle.in').subscribe((res) => {});
     fixture.detectChanges();
     expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
   });
@@ -226,26 +228,59 @@ fdescribe('FyUserlistModalComponent', () => {
     });
   });
 
-  it('should process newly processed items', () => {
-    const searchText = 'test@test.com';
-    const newItem = {
-      isNew: true,
-      us_email: searchText,
-    };
-    component.filteredOptions$ = of([
-      { us_email: 'example@test.com' },
-      { us_email: 'sample@test.com' },
-      { us_email: searchText },
-    ]);
+  describe('processNewlyAddedItems():', () => {
+    it('should process newly processed items', fakeAsync(() => {
+      const result = [
+        {
+          isNew: true,
+          us_email: 'john.doe@fyle.in',
+        },
+      ];
 
-    const result$ = component.processNewlyAddedItems(searchText);
+      const searchText = 'john.doe@fyle.in';
+      component.filteredOptions$ = of(filteredOptionsRes);
+      const getNewlyAddedUsersSpy = spyOn(component, 'getNewlyAddedUsers').and.returnValue(of(filteredDataRes));
+      component.processNewlyAddedItems(searchText).subscribe((res) => {
+        fixture.detectChanges();
+        expect(res).toEqual(result);
+        expect(getNewlyAddedUsersSpy).toHaveBeenCalledOnceWith(filteredOptionsRes);
+      });
+      tick(500);
+    }));
 
-    result$.subscribe((result) => {
-      expect(result[0]).toEqual(jasmine.objectContaining({ is_selected: true }));
-      expect(result[0]).not.toEqual(jasmine.objectContaining({ isNew: true }));
-    });
+    it('should return the array as it is when search text is not provided', fakeAsync(() => {
+      const result = filteredDataRes;
+      const searchText = '';
+      component.filteredOptions$ = of(filteredOptionsRes);
+      const getNewlyAddedUsersSpy = spyOn(component, 'getNewlyAddedUsers').and.returnValue(of(filteredDataRes));
+      component.processNewlyAddedItems(searchText).subscribe((res) => {
+        fixture.detectChanges();
+        expect(res).toEqual(result);
+        expect(getNewlyAddedUsersSpy).toHaveBeenCalledOnceWith(filteredOptionsRes);
+      });
+      tick(500);
+    }));
   });
 
-  xit('getUsersList', () => {});
-  xit('filterSearchedEmployees', () => {});
+  it('ngAfterViewInit(): should call processNewlyAddedItems() if allowCustomValues is true', fakeAsync(() => {
+    component.allowCustomValues = true;
+    const processNewlyAddedItemsSpy = spyOn(component, 'processNewlyAddedItems').and.returnValue(of(filteredDataRes));
+    component.ngAfterViewInit();
+    fixture.detectChanges();
+    const result: Partial<Employee>[] = [
+      {
+        is_selected: true,
+        us_email: 'john.doe@fyle.in',
+      },
+    ];
+
+    component.newlyAddedItems$ = of(result);
+
+    const searchBarInput = fixture.debugElement.query(By.css('input')).nativeElement;
+    searchBarInput.value = 'john.doe@fyle.in';
+    searchBarInput.dispatchEvent(new Event('keyup'));
+    tick(400);
+    expect(component.newlyAddedItems$).toBeDefined();
+    expect(processNewlyAddedItemsSpy).toHaveBeenCalledWith(searchBarInput.value);
+  }));
 });

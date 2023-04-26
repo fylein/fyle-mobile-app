@@ -11,7 +11,7 @@ export const selectedOptionRes: Partial<Employee> = {
   is_selected: false,
 };
 
-export const filteredOptionsRes = [
+export const filteredOptionsRes: Partial<Employee>[] = [
   {
     ou_id: 'oubQzXeZbwbS',
     ou_org_id: 'orNVthTo2Zyo',
@@ -74,7 +74,7 @@ export const filteredOptionsRes = [
   },
 ];
 
-export const filteredDataRes = [
+export const filteredDataRes: Partial<Employee>[] = [
   {
     us_email: 'ajain+12121212@fyle.in',
     is_selected: true,
