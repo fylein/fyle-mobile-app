@@ -1,5 +1,5 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -33,27 +33,25 @@ export class FyUserlistComponent implements OnInit {
 
   @Input() placeholder: string;
 
+  @Input() touchedInParent: boolean;
+
+  @Input() validInParent: boolean;
+
   eouc$: Observable<Employee[]>;
 
   displayValue;
 
   private innerValue;
 
-  private ngControl: NgControl;
-
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
 
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector
-  ) {}
+  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
+    if (this.touchedInParent) {
+      return this.validInParent;
     } else {
       return true;
     }
@@ -76,9 +74,7 @@ export class FyUserlistComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-  }
+  ngOnInit() {}
 
   async openModal() {
     const currencyModal = await this.modalController.create({
