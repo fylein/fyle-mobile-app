@@ -4,7 +4,7 @@ import { Camera } from '@capacitor/camera';
 import { from } from 'rxjs';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 
-enum CameraState {
+export enum CameraState {
   STARTING,
   RUNNING,
   STOPPING,
@@ -53,6 +53,10 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   isIos = true;
 
+  cameraPreview = CameraPreview;
+
+  camera = Camera;
+
   constructor(@Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web') {}
 
   get CameraState() {
@@ -64,7 +68,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     if (this.devicePlatform === 'web') {
       this.startCameraPreview();
     } else {
-      from(Camera.requestPermissions()).subscribe((permissions) => {
+      from(this.camera.requestPermissions()).subscribe((permissions) => {
         if (permissions?.camera === 'denied') {
           this.permissionDenied.emit('CAMERA');
         } else if (permissions?.camera === 'prompt-with-rationale') {
@@ -92,7 +96,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         disableAudio: true,
       };
 
-      from(CameraPreview.start(cameraPreviewOptions)).subscribe((_) => {
+      from(this.cameraPreview.start(cameraPreviewOptions)).subscribe((_) => {
         this.cameraState = CameraState.RUNNING;
         this.getFlashModes();
       });
@@ -103,17 +107,17 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     //Stop camera only if it is in RUNNING state
     if (this.cameraState === CameraState.RUNNING) {
       this.cameraState = CameraState.STOPPING;
-      from(CameraPreview.stop()).subscribe((_) => (this.cameraState = CameraState.STOPPED));
+      from(this.cameraPreview.stop()).subscribe((_) => (this.cameraState = CameraState.STOPPED));
     }
   }
 
   getFlashModes() {
     if (this.devicePlatform !== 'web') {
-      from(CameraPreview.getSupportedFlashModes()).subscribe((flashModes) => {
+      from(this.cameraPreview.getSupportedFlashModes()).subscribe((flashModes) => {
         const requiredFlashModesPresent = flashModes.result?.includes('on') && flashModes.result?.includes('off');
         if (requiredFlashModesPresent) {
           this.flashMode = this.flashMode || 'off';
-          CameraPreview.setFlashMode({ flashMode: this.flashMode });
+          this.cameraPreview.setFlashMode({ flashMode: this.flashMode });
         }
       });
     }
@@ -126,7 +130,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         nextActiveFlashMode = 'off';
       }
 
-      CameraPreview.setFlashMode({ flashMode: nextActiveFlashMode });
+      this.cameraPreview.setFlashMode({ flashMode: nextActiveFlashMode });
       this.flashMode = nextActiveFlashMode;
       this.toggleFlashMode.emit(this.flashMode);
     }
