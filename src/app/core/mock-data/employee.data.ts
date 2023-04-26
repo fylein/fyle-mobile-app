@@ -96,3 +96,36 @@ export const filteredDataRes: Partial<Employee>[] = [
     is_selected: true,
   },
 ];
+
+export const searchedUserListRes: Partial<Employee>[] = [
+  {
+    ou_id: 'oubQzXeZbwbS',
+    ou_org_id: 'orNVthTo2Zyo',
+    ou_roles: '["FYLER","APPROVER","HOD","HOP"]',
+    ou_status: '"ACTIVE"',
+    us_email: 'ajain+12+12+1@fyle.in',
+    us_full_name: 'AA23',
+    us_id: 'usTdvbcxOqjs',
+    is_selected: true,
+  },
+  {
+    ou_id: 'ouXYHXfr4w0b',
+    ou_org_id: 'orNVthTo2Zyo',
+    ou_roles: '["FYLER","APPROVER","HOP"]',
+    ou_status: '"PENDING_DETAILS"',
+    us_email: 'aaaaaaa@aaaabbbb.com',
+    us_full_name: 'AAA',
+    us_id: 'usBBavu872gu',
+    is_selected: true,
+  },
+  {
+    ou_id: 'ouX8dwsbLCLv',
+    ou_org_id: 'orNVthTo2Zyo',
+    ou_roles: '["FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","AUDITOR","HOP","HOD","OWNER"]',
+    ou_status: '"ACTIVE"',
+    us_email: 'ajain@fyle.in',
+    us_full_name: 'Abhishek Jain',
+    us_id: 'usvKA4X8Ugcr',
+    is_selected: false,
+  },
+];
