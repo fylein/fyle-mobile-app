@@ -8,7 +8,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule } from '@angular/forms';
 import { FyUserlistModalComponent } from '../fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
 
-fdescribe('FyUserlistComponent', () => {
+describe('FyUserlistComponent', () => {
   let component: FyUserlistComponent;
   let fixture: ComponentFixture<FyUserlistComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
