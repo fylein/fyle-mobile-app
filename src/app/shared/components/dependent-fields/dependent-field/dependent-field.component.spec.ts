@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -41,6 +41,13 @@ fdescribe('DependentFieldComponent', () => {
         component = fixture.componentInstance;
         componentElement = fixture.debugElement;
 
+        component.displayValue = 'Other Dep. Value 1';
+        component.placeholder = 'Select value';
+        component.label = 'Dependent Field Of Project';
+        component.fieldId = 221309;
+        component.parentFieldId = 221284;
+        component.parentFieldValue = 'Project 1';
+
         modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
         modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
 
@@ -52,7 +59,54 @@ fdescribe('DependentFieldComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('openModal', () => {});
+  it('openModal(): should open the modal and update displayValue with the selected option', fakeAsync(() => {
+    component.displayValue = 'Cost code 1';
+
+    const defaultModalProperties = {
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      canDismiss: true,
+      backdropDismiss: true,
+      animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
+    };
+
+    const { displayValue, placeholder, label, fieldId, parentFieldId, parentFieldValue } = component;
+    const expectedModalProperties = {
+      component: DependentFieldModalComponent,
+      componentProps: {
+        currentSelection: displayValue,
+        placeholder,
+        label,
+        fieldId,
+        parentFieldId,
+        parentFieldValue,
+      },
+      mode: 'ios' as any,
+      ...defaultModalProperties,
+    };
+
+    const selectedValue = 'Cost code 100';
+
+    const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
+    spyOn(component, 'onChangeCallback');
+
+    modalController.create.and.returnValue(Promise.resolve(modalSpy));
+    modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { value: selectedValue } }));
+    modalProperties.getModalDefaultProperties.and.returnValue(defaultModalProperties);
+
+    component.openModal();
+    tick();
+
+    fixture.detectChanges();
+    expect(modalController.create).toHaveBeenCalledOnceWith(expectedModalProperties);
+    expect(modalSpy.present).toHaveBeenCalledTimes(1);
+    expect(modalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+    expect(component.displayValue).toEqual(selectedValue);
+    expect(component.onChangeCallback).toHaveBeenCalledOnceWith(selectedValue);
+  }));
 
   it('onBlur(): component should be touched', () => {
     spyOn(component, 'onTouchedCallback');
