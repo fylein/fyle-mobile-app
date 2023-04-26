@@ -29,10 +29,10 @@ fdescribe('DependentFieldModalComponent', () => {
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let modalController: jasmine.SpyObj<ModalController>;
 
-  const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-  const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
-
   beforeEach(waitForAsync(() => {
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
+    const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
+
     TestBed.configureTestingModule({
       declarations: [DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent],
       imports: [
@@ -152,19 +152,14 @@ fdescribe('DependentFieldModalComponent', () => {
   it('onDoneClick(): should dismiss modal', fakeAsync(() => {
     modalController.dismiss.and.returnValue(Promise.resolve(true));
     component.onDoneClick();
-    tick();
-
-    //TODO: Replace this assertion with toHaveBeenCalledTimes(1)
-    expect(modalController.dismiss).toHaveBeenCalled();
+    tick(500);
+    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   }));
 
   it('onElementSelect(): should dismiss modal with selected option', fakeAsync(() => {
     modalController.dismiss.and.returnValue(Promise.resolve(true));
     component.onElementSelect(dependentFieldOptions[0]);
-    tick();
-
-    //TODO: Replace this assertion with toHaveBeenCalledTimes(1)
-    expect(modalController.dismiss).toHaveBeenCalled();
-    expect(modalController.dismiss).toHaveBeenCalledWith(dependentFieldOptions[0]);
+    tick(500);
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith(dependentFieldOptions[0]);
   }));
 });

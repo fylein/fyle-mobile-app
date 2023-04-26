@@ -4,6 +4,7 @@ import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/
 import { ModalController } from '@ionic/angular';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldOption } from 'src/app/core/models/dependent-field-option.model';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-dependent-field-modal',
@@ -87,13 +88,14 @@ export class DependentFieldModalComponent implements AfterViewInit {
       return [nullOption, ...dependentFieldOptions];
     }
 
-    let selectedOption = dependentFieldOptions.find(
+    const dependentFieldOptionsCopy = cloneDeep(dependentFieldOptions);
+    let selectedOption = dependentFieldOptionsCopy.find(
       (dependentFieldOption) => dependentFieldOption.value === currentSelection
     );
 
     if (selectedOption) {
       selectedOption.selected = true;
-      return [nullOption, ...dependentFieldOptions];
+      return [nullOption, ...dependentFieldOptionsCopy];
     } else {
       selectedOption = {
         label: currentSelection,
