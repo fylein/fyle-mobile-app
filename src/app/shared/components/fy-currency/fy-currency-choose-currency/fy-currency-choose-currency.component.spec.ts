@@ -78,7 +78,7 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
 
     fixture.detectChanges();
     component.ngOnInit();
-    tick();
+    tick(1000);
     expect(loaderService.showLoader).toHaveBeenCalled();
     expect(currencyService.getAll).toHaveBeenCalled();
     expect(loaderService.hideLoader).toHaveBeenCalled();
@@ -93,7 +93,7 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
 
     fixture.detectChanges();
     component.ngOnInit();
-    tick();
+    tick(1000);
     expect(loaderService.showLoader).toHaveBeenCalled();
     expect(currencyService.getAll).toHaveBeenCalled();
     expect(loaderService.hideLoader).toHaveBeenCalled();
