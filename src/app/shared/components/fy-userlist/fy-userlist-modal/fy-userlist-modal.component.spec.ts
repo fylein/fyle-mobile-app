@@ -9,18 +9,20 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { FyUserlistModalComponent } from './fy-userlist-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
-import { customExpensefields } from 'src/app/core/mock-data/expense-field.data';
-import { customPropertiesData } from 'src/app/core/mock-data/custom-property.data';
 import { employeesParamsRes, employeesRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { of } from 'rxjs';
-import { selectedOptionRes, filteredOptionsRes, filteredDataRes } from 'src/app/core/mock-data/employee.data';
+import {
+  selectedOptionRes,
+  filteredOptionsRes,
+  filteredDataRes,
+  searchedUserListRes,
+} from 'src/app/core/mock-data/employee.data';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { By } from '@angular/platform-browser';
 
-fdescribe('FyUserlistModalComponent', () => {
+describe('FyUserlistModalComponent', () => {
   let component: FyUserlistModalComponent;
   let fixture: ComponentFixture<FyUserlistModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -76,7 +78,7 @@ fdescribe('FyUserlistModalComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('getSeparatorKeysCodes: should get the number of separator keycodes', () => {
+  it('getSeparatorKeysCodes(): should get the number of separator keycodes', () => {
     const keyCodeData = [13, 188];
     const separatorKeysCodes = component.getSeparatorKeysCodes();
     expect(separatorKeysCodes).toEqual(keyCodeData);
@@ -165,7 +167,7 @@ fdescribe('FyUserlistModalComponent', () => {
     expect(clearValueSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('removeChip', () => {
+  it('removeChip(): should remove the selected item', () => {
     const onSelectSpy = spyOn(component, 'onSelect');
     const item = 'ajain121212@fyle.in';
     const updatedItem = {
@@ -182,7 +184,7 @@ fdescribe('FyUserlistModalComponent', () => {
   });
 
   describe('getDefaultUsersList():', () => {
-    it('should get default users list', () => {
+    it('should get default users list', (done) => {
       const params = {
         order: 'us_full_name.asc,us_email.asc,ou_id',
         us_email:
@@ -190,10 +192,13 @@ fdescribe('FyUserlistModalComponent', () => {
       };
 
       orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
-      component.getDefaultUsersList();
-      fixture.detectChanges();
-      expect(component.currentSelections).toEqual(component.currentSelections);
-      expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+      component.getDefaultUsersList().subscribe((res) => {
+        fixture.detectChanges();
+        expect(res).toEqual(searchedUserListRes);
+        expect(component.currentSelections).toEqual(component.currentSelections);
+        expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+        done();
+      });
     });
 
     it('should get default users list with empty params', () => {
@@ -207,16 +212,18 @@ fdescribe('FyUserlistModalComponent', () => {
     });
   });
 
-  it('getSearchedUsersList', () => {
+  it('getSearchedUsersList(): should get the searched user list', () => {
     const params: any = {
       limit: 20,
       order: 'us_full_name.asc,us_email.asc,ou_id',
       or: '(us_email.ilike.*ajain+12+12+1@fyle.in*,us_full_name.ilike.*ajain+12+12+1@fyle.in*)',
     };
-    orgUserService.getEmployeesBySearch.and.returnValue(of([selectedOptionRes]));
-    component.getSearchedUsersList('ajain+12+12+1@fyle.in').subscribe((res) => {});
-    fixture.detectChanges();
-    expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+    component.getSearchedUsersList('ajain+12+12+1@fyle.in').subscribe((res) => {
+      fixture.detectChanges();
+      expect(res).toEqual(searchedUserListRes);
+      expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
+    });
   });
 
   it('getNewlyAddedUsers', (done) => {
@@ -244,8 +251,8 @@ fdescribe('FyUserlistModalComponent', () => {
         fixture.detectChanges();
         expect(res).toEqual(result);
         expect(getNewlyAddedUsersSpy).toHaveBeenCalledOnceWith(filteredOptionsRes);
+        tick(500);
       });
-      tick(500);
     }));
 
     it('should return the array as it is when search text is not provided', fakeAsync(() => {
@@ -257,8 +264,8 @@ fdescribe('FyUserlistModalComponent', () => {
         fixture.detectChanges();
         expect(res).toEqual(result);
         expect(getNewlyAddedUsersSpy).toHaveBeenCalledOnceWith(filteredOptionsRes);
+        tick(500);
       });
-      tick(500);
     }));
   });
 
@@ -283,4 +290,32 @@ fdescribe('FyUserlistModalComponent', () => {
     expect(component.newlyAddedItems$).toBeDefined();
     expect(processNewlyAddedItemsSpy).toHaveBeenCalledWith(searchBarInput.value);
   }));
+
+  describe('getUsersList():', () => {
+    it('should return searched user list if searchText is provided', fakeAsync(() => {
+      const searchText = 'ajain';
+      const getSearchedUsersListSpy = spyOn(component, 'getSearchedUsersList').and.returnValue(of(searchedUserListRes));
+      const result$ = component.getUsersList(searchText);
+      fixture.detectChanges();
+      expect(component.isLoading).toBeTrue();
+      expect(getSearchedUsersListSpy).toHaveBeenCalledOnceWith(searchText);
+      result$.subscribe((res) => {
+        expect(res).toEqual(searchedUserListRes);
+        tick(500);
+      });
+    }));
+
+    it('should return default users list if searchText is not provided', fakeAsync(() => {
+      const getDefaultUserListSpy = spyOn(component, 'getDefaultUsersList').and.returnValue(of(searchedUserListRes));
+      const result$ = component.getUsersList('');
+      fixture.detectChanges();
+      result$.subscribe((res) => {
+        expect(component.isLoading).toBeTrue();
+        expect(res).toEqual(searchedUserListRes);
+        expect(getDefaultUserListSpy).toHaveBeenCalledTimes(1);
+        tick(500);
+      });
+      expect(component.isLoading).toBeFalse();
+    }));
+  });
 });
