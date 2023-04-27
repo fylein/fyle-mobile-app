@@ -1940,33 +1940,25 @@ export class AddEditExpensePage implements OnInit {
     );
 
     forkJoin({
-      txnFields: this.txnFields$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
       isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
       individualProjectIds: this.individualProjectIds$,
-    }).subscribe(({ orgSettings, isIndividualProjectsEnabled, individualProjectIds, txnFields }) => {
+    }).subscribe(({ orgSettings, isIndividualProjectsEnabled, individualProjectIds }) => {
       const projectFormControl = this.fg.controls.project;
       projectFormControl.clearValidators();
-      if (txnFields?.project_id?.is_mandatory) {
-        projectFormControl.setValidators(
-          orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
-            ? null
-            : Validators.required
-        );
-        projectFormControl.updateValueAndValidity();
-      }
+      projectFormControl.setValidators(
+        orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+          ? null
+          : Validators.required
+      );
+      projectFormControl.updateValueAndValidity();
     });
 
-    forkJoin({
-      costCenters: this.costCenters$,
-      txnFields: this.txnFields$.pipe(take(1)),
-    }).subscribe(({ costCenters, txnFields }) => {
+    this.costCenters$.subscribe((costCenters) => {
       const costCenterControl = this.fg.controls.costCenter;
       costCenterControl.clearValidators();
-      if (txnFields?.cost_center_id?.is_mandatory) {
-        costCenterControl.setValidators(costCenters?.length > 0 ? Validators.required : null);
-        costCenterControl.updateValueAndValidity();
-      }
+      costCenterControl.setValidators(costCenters?.length > 0 ? Validators.required : null);
+      costCenterControl.updateValueAndValidity();
     });
 
     this.txnFields$
