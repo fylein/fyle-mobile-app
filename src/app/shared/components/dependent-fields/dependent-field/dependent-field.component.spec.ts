@@ -10,7 +10,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-fdescribe('DependentFieldComponent', () => {
+describe('DependentFieldComponent', () => {
   let component: DependentFieldComponent;
   let fixture: ComponentFixture<DependentFieldComponent>;
   let componentElement: DebugElement;
