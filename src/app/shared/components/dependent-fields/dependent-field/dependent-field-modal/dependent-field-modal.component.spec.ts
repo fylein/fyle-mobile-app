@@ -22,7 +22,7 @@ import { dependentFieldValues } from 'src/app/core/mock-data/dependent-field-val
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
-fdescribe('DependentFieldModalComponent', () => {
+describe('DependentFieldModalComponent', () => {
   let component: DependentFieldModalComponent;
   let modalElement: DebugElement;
   let fixture: ComponentFixture<DependentFieldModalComponent>;

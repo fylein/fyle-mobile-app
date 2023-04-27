@@ -8,7 +8,7 @@ import { By } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 fdescribe('DependentFieldComponent', () => {
   let component: DependentFieldComponent;
@@ -17,10 +17,9 @@ fdescribe('DependentFieldComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
 
-  const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
-  const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-
   beforeEach(waitForAsync(() => {
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     TestBed.configureTestingModule({
       declarations: [DependentFieldComponent, DependentFieldModalComponent],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
@@ -38,6 +37,7 @@ fdescribe('DependentFieldComponent', () => {
       .compileComponents()
       .then(() => {
         fixture = TestBed.createComponent(DependentFieldComponent);
+        fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
         component = fixture.componentInstance;
         componentElement = fixture.debugElement;
 
@@ -123,7 +123,15 @@ fdescribe('DependentFieldComponent', () => {
     expect(component.displayValue).toEqual(dependentFieldValue);
   });
 
-  xit('registerOnChange', () => {});
+  it('registerOnChange', fakeAsync(() => {
+    const callbackFn = jasmine.createSpy('callbackFn');
+    component.registerOnChange(callbackFn);
+    expect(component.onChangeCallback).toEqual(callbackFn);
+  }));
 
-  xit('registerOnTouched', () => {});
+  it('registerOnTouched', () => {
+    const callbackFn = jasmine.createSpy('callbackFn');
+    component.registerOnTouched(callbackFn);
+    expect(component.onTouchedCallback).toEqual(callbackFn);
+  });
 });
