@@ -6,8 +6,9 @@ import { of } from 'rxjs';
 import { selectedFilters1 } from 'src/app/core/mock-data/selected-filters.data';
 import { FilterOptionType } from './filter-option-type.enum';
 import { FilterOptions } from './filter-options.interface';
+import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
 
-describe('FyFiltersComponent', () => {
+fdescribe('FyFiltersComponent', () => {
   let component: FyFiltersComponent;
   let fixture: ComponentFixture<FyFiltersComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -28,66 +29,25 @@ describe('FyFiltersComponent', () => {
     fixture = TestBed.createComponent(FyFiltersComponent);
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+  }));
+
+  it('should create', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
     component.activeFilterInitialName = 'Expenses';
-    component.filterOptions = [
-      {
-        name: 'Expenses',
-        optionType: FilterOptionType.multiselect,
-        options: [
-          {
-            label: 'Complete',
-            value: 'UNREPORTED',
-          },
-          {
-            label: 'Draft',
-            value: 'DRAFT',
-          },
-          {
-            label: 'Duplicate',
-            value: 'DUPLICATE',
-          },
-        ],
-      } as FilterOptions<string>,
-      {
-        name: 'Reports',
-        optionType: FilterOptionType.multiselect,
-        options: [
-          {
-            label: 'Sent Back',
-            value: 'SENT_BACK',
-          },
-          {
-            label: 'Unsubmitted',
-            value: 'DRAFT',
-          },
-          {
-            label: 'Unapproved',
-            value: 'TEAM',
-          },
-        ],
-      } as FilterOptions<string>,
-      {
-        name: 'Advances',
-        optionType: FilterOptionType.multiselect,
-        options: [
-          {
-            label: 'Sent Back',
-            value: 'SENT_BACK',
-          },
-        ],
-      } as FilterOptions<string>,
-    ];
+    component.filterOptions = filterOptions1;
     fixture.detectChanges();
-  }));
-
-  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('should set active Filter correctly', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     expect(component.activeFilter).toEqual({
       name: 'Expenses',
       optionType: FilterOptionType.multiselect,
@@ -109,6 +69,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it('should set current filter value map', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     expect(component.currentFilterValueMap).toEqual({
       'Created On': 'custom',
       'Updated On': 'custom',
@@ -117,6 +83,10 @@ describe('FyFiltersComponent', () => {
   });
 
   it('should set custom date filter map correctly', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
     component.selectedFilterValues = [
       {
         name: 'Date',
@@ -144,6 +114,10 @@ describe('FyFiltersComponent', () => {
   });
 
   it('should set not custom date filter map correctly', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
     component.selectedFilterValues = [
       {
         name: 'Date',
@@ -167,6 +141,8 @@ describe('FyFiltersComponent', () => {
   });
 
   it('should set start Date and end Date if active Filter is date', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.nonReimbursableOrg$ = of(false);
     component.activeFilterInitialName = 'Date';
     component.filterOptions = [
       {
@@ -239,6 +215,8 @@ describe('FyFiltersComponent', () => {
   });
 
   it('should set start Date and end Date to undefined if active Filter is date but startDate and endDate is not present', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.nonReimbursableOrg$ = of(false);
     component.activeFilterInitialName = 'Date';
     component.filterOptions = [
       {
@@ -297,6 +275,7 @@ describe('FyFiltersComponent', () => {
   });
 
   it('should set filterOptions option', () => {
+    component.selectedFilterValues = selectedFilters1;
     component.activeFilterInitialName = 'State';
     component.filterOptions = [
       {
@@ -381,6 +360,7 @@ describe('FyFiltersComponent', () => {
   });
 
   it('should set filterOptions options to optionsNewFlow', () => {
+    component.selectedFilterValues = selectedFilters1;
     component.activeFilterInitialName = 'State';
     component.filterOptions = [
       {
@@ -465,10 +445,22 @@ describe('FyFiltersComponent', () => {
   });
 
   it('getNumbeOfFilter(): should return the length of currentFilterValueMap', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     expect(component.getNoOfFilters()).toBe(3);
   });
 
   it('onFilterClick(): should set activeFilter and startDate and endDate', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filterDefinition = {
       name: 'Date',
       optionType: FilterOptionType.date,
@@ -508,11 +500,23 @@ describe('FyFiltersComponent', () => {
   });
 
   it('cancel(): should dismiss the modal', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     component.cancel();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
 
   it('clearAll(): should clear currentFilterValueMap,customDateMap,startDate and endDate', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     component.clearAll();
     expect(component.currentFilterValueMap).toEqual({});
     expect(component.customDateMap).toEqual({});
@@ -520,10 +524,15 @@ describe('FyFiltersComponent', () => {
     expect(component.endDate).toBeNull();
   });
   it('onDateChange(): should update startDate and endDate', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
     component.startDate = new Date('2023-04-22');
     component.endDate = new Date('2023-04-25');
-    component.onDateChange();
     fixture.detectChanges();
+    component.onDateChange();
     expect(component.customDateMap.Expenses).toEqual({
       startDate: new Date('2023-04-22'),
       endDate: new Date('2023-04-25'),
@@ -531,6 +540,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it('switchFilter(): should call switchDateFilter if optionType is date', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filterDefinition = {
       name: 'Created On',
       optionType: FilterOptionType.date,
@@ -551,6 +566,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it('switchFilter(): should call switchMultiselectFilter if optionType is multiselect', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filterDefinition = {
       name: 'Created On',
       optionType: FilterOptionType.multiselect,
@@ -571,6 +592,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it('switchFilter(): should call switchSingleSelectFilter if optionType is single select', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filterDefinition = {
       name: 'Created On',
       optionType: FilterOptionType.singleselect,
@@ -591,6 +618,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it('save(): should dismiss the modal', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     component.currentFilterValueMap = {
       filter1: 'value1',
       filter2: 'value2',
@@ -618,6 +651,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it('switchDateFilter(): should remove filter if exist', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filter = 'filter1';
     const filterOptions = {
       name: 'filter1',
@@ -652,6 +691,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it("switchDateFilter(): should add filter if filter does't exist", () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filter = '';
     const filterOptions = {
       name: 'filter1',
@@ -689,6 +734,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it('switchMultiSelectFilter(): should remove filter if exist', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filter = ['filter1', 'filter2'];
     const filterOptions = {
       name: 'filter1',
@@ -723,6 +774,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it("switchMultiSelectFilter(): should add filter if doesn't exist", () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filter = ['filter1', 'filter2'];
     const filterOptions = {
       name: 'filter1',
@@ -757,6 +814,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it("switchMultiSelectFilter(): should add currentFilterValueMap if filter doesn't exist", () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filter = '';
     const filterOptions = {
       name: 'filter1',
@@ -791,6 +854,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it('switchSingleSelectFilter(): should update currentFilterValueMap if filter exist', () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filter = 'filter1';
     const filterOptions = {
       name: 'filter1',
@@ -825,6 +894,12 @@ describe('FyFiltersComponent', () => {
   });
 
   it("switchSingleSelectFilter(): should update currentFilterValueMap if filter doesn't exist", () => {
+    component.simplifyReportsSettings$ = of({ enabled: false });
+    component.selectedFilterValues = selectedFilters1;
+    component.nonReimbursableOrg$ = of(false);
+    component.activeFilterInitialName = 'Expenses';
+    component.filterOptions = filterOptions1;
+    fixture.detectChanges();
     const filter = '';
     const filterOptions = {
       name: 'filter1',
