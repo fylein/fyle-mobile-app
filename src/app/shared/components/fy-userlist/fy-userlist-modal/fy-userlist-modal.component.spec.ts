@@ -251,8 +251,8 @@ describe('FyUserlistModalComponent', () => {
         fixture.detectChanges();
         expect(res).toEqual(result);
         expect(getNewlyAddedUsersSpy).toHaveBeenCalledOnceWith(filteredOptionsRes);
-        tick(500);
       });
+      tick(500);
     }));
 
     it('should return the array as it is when search text is not provided', fakeAsync(() => {
@@ -264,8 +264,8 @@ describe('FyUserlistModalComponent', () => {
         fixture.detectChanges();
         expect(res).toEqual(result);
         expect(getNewlyAddedUsersSpy).toHaveBeenCalledOnceWith(filteredOptionsRes);
-        tick(500);
       });
+      tick(500);
     }));
   });
 
@@ -301,8 +301,8 @@ describe('FyUserlistModalComponent', () => {
       expect(getSearchedUsersListSpy).toHaveBeenCalledOnceWith(searchText);
       result$.subscribe((res) => {
         expect(res).toEqual(searchedUserListRes);
-        tick(500);
       });
+      tick(500);
     }));
 
     it('should return default users list if searchText is not provided', fakeAsync(() => {
@@ -313,8 +313,8 @@ describe('FyUserlistModalComponent', () => {
         expect(component.isLoading).toBeTrue();
         expect(res).toEqual(searchedUserListRes);
         expect(getDefaultUserListSpy).toHaveBeenCalledTimes(1);
-        tick(500);
       });
+      tick(500);
       expect(component.isLoading).toBeFalse();
     }));
   });
