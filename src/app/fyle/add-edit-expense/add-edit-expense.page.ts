@@ -1931,18 +1931,21 @@ export class AddEditExpensePage implements OnInit {
     );
 
     forkJoin({
+      txnFields: this.txnFields$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
       isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
       individualProjectIds: this.individualProjectIds$,
-    }).subscribe(({ orgSettings, isIndividualProjectsEnabled, individualProjectIds }) => {
+    }).subscribe(({ orgSettings, isIndividualProjectsEnabled, individualProjectIds, txnFields }) => {
       const projectFormControl = this.fg.controls.project;
       projectFormControl.clearValidators();
-      projectFormControl.setValidators(
-        orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
-          ? null
-          : Validators.required
-      );
-      projectFormControl.updateValueAndValidity();
+      if (txnFields?.project_id?.is_mandatory) {
+        projectFormControl.setValidators(
+          orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+            ? null
+            : Validators.required
+        );
+        projectFormControl.updateValueAndValidity();
+      }
     });
 
     this.txnFields$
