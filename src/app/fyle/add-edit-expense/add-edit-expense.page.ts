@@ -124,9 +124,7 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
-  @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
-
-  @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
+  @ViewChild('dependentFieldsRef') dependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<any>;
 
@@ -354,8 +352,6 @@ export class AddEditExpensePage implements OnInit {
   dependentFields$: Observable<ExpenseField[]>;
 
   selectedProject$: BehaviorSubject<ExtendedProject>;
-
-  selectedCostCenter$: BehaviorSubject<CostCenter>;
 
   private _isExpandedView = false;
 
@@ -1407,10 +1403,6 @@ export class AddEditExpensePage implements OnInit {
             this.selectedProject$.next(project);
           }
 
-          if (costCenter) {
-            this.selectedCostCenter$.next(costCenter);
-          }
-
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
             this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
@@ -1583,7 +1575,6 @@ export class AddEditExpensePage implements OnInit {
             if (autoFillCostCenter) {
               costCenter = autoFillCostCenter.value;
               this.presetCostCenterId = autoFillCostCenter.value.id;
-              this.fg.patchValue({ costCenter });
             }
           }
 
@@ -2296,10 +2287,8 @@ export class AddEditExpensePage implements OnInit {
   ionViewWillEnter() {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
-    this.projectDependentFieldsRef?.ngOnInit();
-    this.costCenterDependentFieldsRef?.ngOnInit();
+    this.dependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject(null);
-    this.selectedCostCenter$ = new BehaviorSubject(null);
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -2341,8 +2330,7 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
-      project_dependent_fields: this.formBuilder.array([]),
-      cost_center_dependent_fields: this.formBuilder.array([]),
+      dependent_fields: this.formBuilder.array([]),
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
@@ -2352,10 +2340,6 @@ export class AddEditExpensePage implements OnInit {
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
       .subscribe((project) => this.selectedProject$.next(project));
-
-    this.fg.controls.costCenter.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter) => this.selectedCostCenter$.next(costCenter));
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -2865,11 +2849,7 @@ export class AddEditExpensePage implements OnInit {
   getCustomFields() {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
-        const allDependentFields = [
-          ...this.fg.value.project_dependent_fields,
-          ...this.fg.value.cost_center_dependent_fields,
-        ];
-        const mappedDependentFields = allDependentFields.map((dependentField) => ({
+        const mappedDependentFields = this.fg.value.dependent_fields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
         }));
@@ -4250,8 +4230,7 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
-    this.projectDependentFieldsRef?.ngOnDestroy();
-    this.costCenterDependentFieldsRef?.ngOnDestroy();
+    this.dependentFieldsRef?.ngOnDestroy();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
     this.selectedProject$.complete();
