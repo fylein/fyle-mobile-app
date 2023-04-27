@@ -23,9 +23,6 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -40,6 +37,8 @@ export class ViewMileagePage implements OnInit {
   orgSettings: any;
 
   mileageCustomFields$: Observable<CustomField[]>;
+
+  projectDependantCustomProperties$: Observable<CustomField[]>;
 
   isCriticalPolicyViolated$: Observable<boolean>;
 
@@ -87,12 +86,6 @@ export class ViewMileagePage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
-  txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
-
-  projectDependentCustomProperties$: Observable<CustomProperty<string>[]>;
-
-  costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -108,8 +101,7 @@ export class ViewMileagePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get ExpenseView() {
@@ -266,39 +258,6 @@ export class ViewMileagePage implements OnInit {
       shareReplay(1)
     );
 
-    this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
-
-    this.projectDependentCustomProperties$ = forkJoin({
-      extendedMileage: this.extendedMileage$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
-    }).pipe(
-      filter(
-        ({ extendedMileage, txnFields }) => extendedMileage.tx_custom_properties && txnFields.project_id?.length > 0
-      ),
-      switchMap(({ extendedMileage, txnFields }) =>
-        this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedMileage.tx_custom_properties,
-          txnFields.project_id[0]?.id
-        )
-      )
-    );
-
-    this.costCenterDependentCustomProperties$ = forkJoin({
-      extendedMileage: this.extendedMileage$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
-    }).pipe(
-      filter(
-        ({ extendedMileage, txnFields }) => extendedMileage.tx_custom_properties && txnFields.cost_center_id?.length > 0
-      ),
-      switchMap(({ extendedMileage, txnFields }) =>
-        this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedMileage.tx_custom_properties,
-          txnFields.cost_center_id[0]?.id
-        )
-      ),
-      shareReplay(1)
-    );
-
     this.extendedMileage$.subscribe((extendedMileage) => {
       this.reportId = extendedMileage.tx_report_id;
 
@@ -325,7 +284,7 @@ export class ViewMileagePage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(extendedMileage.tx_currency, 'wide');
     });
 
-    forkJoin([this.txnFields$, this.extendedMileage$.pipe(take(1))])
+    forkJoin([this.expenseFieldsService.getAllMap(), this.extendedMileage$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, extendedMileage]) => {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
@@ -354,6 +313,11 @@ export class ViewMileagePage implements OnInit {
           return customProperties;
         })
       )
+    );
+
+    this.projectDependantCustomProperties$ = this.extendedMileage$.pipe(
+      concatMap((extendedMileage) => this.customInputsService.fillDependantFieldProperties(extendedMileage)),
+      shareReplay(1)
     );
 
     this.view = this.activatedRoute.snapshot.params.view;
