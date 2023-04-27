@@ -25,7 +25,7 @@ import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { FileObject } from 'src/app/core/models/file-obj.model';
-import { fileObjectAdv, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
+import { fileObject5, fileObjectAdv, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
@@ -74,6 +74,7 @@ fdescribe('ExpensesCardComponent', () => {
       'getAttachmentType',
       'post',
     ]);
+
     fileServiceSpy.getFilesWithThumbnail.and.returnValue(of(fileObjectData1));
     fileServiceSpy.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -154,30 +155,63 @@ fdescribe('ExpensesCardComponent', () => {
     component.expense = expenseData1;
     component.isConnected$ = of(true);
     component.isSycing$ = of(true);
-    component.attachments = 'pdf';
     component.isPerDiem = true;
     component.receiptThumbnail = 'assets/svg/pdf.svg';
-
+    component.isSelectionModeEnabled = false;
+    component.etxnIndex = 1;
     fixture.detectChanges();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  // xit("onGoToTransaction", () => { });
-  // xit("getReceipt", () => { });
-  // xit("checkIfScanIsCompleted", () => { });
-  // xit("pollDataExtractionStatus", () => { });
-  // xit("handleScanStatus", () => { });
-  // xit("canShowPaymentModeIcon", () => { });
-  // xit("setOtherData", () => { });
-  // xit("onSetMultiselectMode", () => { });
-  // xit("onTapTransaction", () => { });
-  // xit("canAddAttachment", () => { });
-  // xit("addAttachments", () => { });
-  // xit("setThumbnail", () => { });
-  // xit("matchReceiptWithEtxn", () => { });
-  // xit("attachReceipt", () => { });
-  // xit("setupNetworkWatcher", () => { });
-  // xit("dismiss", () => { });
+
+  it('should emit an event when onGoToTransaction is called', () => {
+    spyOn(component.goToTransaction, 'emit');
+    component.onGoToTransaction();
+    expect(component.goToTransaction.emit).toHaveBeenCalledWith({
+      etxn: component.expense,
+      etxnIndex: component.etxnIndex,
+    });
+  });
+
+  it('should not emit an event when isSelectionModeEnabled is true', () => {
+    component.isSelectionModeEnabled = true;
+    spyOn(component.goToTransaction, 'emit');
+    component.onGoToTransaction();
+    expect(component.goToTransaction.emit).not.toHaveBeenCalled();
+  });
+
+  it('should set the thumbnail', () => {
+    const fileObjid = fileObject5[0].id;
+    const attachmentType = 'pdf';
+    fileService.downloadUrl.and.returnValue(of('mock-url'));
+    component.setThumbnail(fileObjid, attachmentType);
+    expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
+    expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
+  });
+
+  it('should set the receipt thumbnail to download url when the attatchment tyoe is not pdf', () => {
+    const fileObjid = fileObject5[0].id;
+    const attachmentType = 'png';
+    fileService.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
+    component.setThumbnail(fileObjid, attachmentType);
+    expect(component.receiptThumbnail).toEqual(thumbnailUrlMockData1[0].url);
+    expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
+  });
 });
+// xit("getReceipt", () => { });
+// xit("checkIfScanIsCompleted", () => { });
+// xit("pollDataExtractionStatus", () => { });
+// xit("handleScanStatus", () => { });
+// xit("canShowPaymentModeIcon", () => { });
+// xit("setOtherData", () => { });
+// xit("onSetMultiselectMode", () => { });
+// xit("onTapTransaction", () => { });
+// xit("canAddAttachment", () => { });
+// xit("addAttachments", () => { });
+// xit("setThumbnail", () => { });
+// xit("matchReceiptWithEtxn", () => { });
+// xit("attachReceipt", () => { });
+// xit("setupNetworkWatcher", () => { });
+// xit("dismiss", () => { });
