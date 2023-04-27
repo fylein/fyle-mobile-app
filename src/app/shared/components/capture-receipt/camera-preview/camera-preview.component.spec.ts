@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { IonicModule } from '@ionic/angular';
 import { CameraPreviewComponent } from './camera-preview.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
-import { CameraState } from './camera-preview.component';
+import { CameraState } from 'src/app/core/enums/camera-state.enum';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { SimpleChange } from '@angular/core';
@@ -45,7 +45,7 @@ describe('CameraPreviewComponent', () => {
       fixture.detectChanges();
 
       component.setUpAndStartCamera();
-      tick();
+      tick(1000);
       expect(component.startCameraPreview).toHaveBeenCalledTimes(1);
       expect(component.camera.requestPermissions).toHaveBeenCalledTimes(1);
     }));

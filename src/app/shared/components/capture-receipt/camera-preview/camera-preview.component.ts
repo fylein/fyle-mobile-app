@@ -3,13 +3,7 @@ import { CameraPreview, CameraPreviewOptions } from '@capacitor-community/camera
 import { Camera } from '@capacitor/camera';
 import { from } from 'rxjs';
 import { DEVICE_PLATFORM } from 'src/app/constants';
-
-export enum CameraState {
-  STARTING,
-  RUNNING,
-  STOPPING,
-  STOPPED,
-}
+import { CameraState } from 'src/app/core/enums/camera-state.enum';
 
 @Component({
   selector: 'app-camera-preview',
