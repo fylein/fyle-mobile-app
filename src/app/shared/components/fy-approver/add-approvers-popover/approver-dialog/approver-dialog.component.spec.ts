@@ -11,9 +11,9 @@ import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { click, getElementBySelector } from 'src/app/core/dom-helpers';
+import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-fdescribe('ApproverDialogComponent', () => {
+describe('ApproverDialogComponent', () => {
   let component: ApproverDialogComponent;
   let fixture: ComponentFixture<ApproverDialogComponent>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -342,5 +342,33 @@ fdescribe('ApproverDialogComponent', () => {
     click(saveCTA);
 
     expect(component.saveUpdatedApproveList).toHaveBeenCalledTimes(1);
+  });
+
+  it('should display selected approvers list', () => {
+    component.selectedApproversList = approvers;
+    fixture.detectChanges();
+
+    expect(getTextContent(getElementBySelector(fixture, '.selection-modal--selected-count'))).toEqual(
+      `${component.selectedApproversList.length} selected`
+    );
+  });
+
+  it('should display header information correctly', () => {
+    component.selectedApproversList = approvers;
+    fixture.detectChanges();
+
+    expect(getTextContent(getElementBySelector(fixture, '.selection-modal--approver-details__title'))).toEqual('AA23');
+    expect(getTextContent(getElementBySelector(fixture, '.selection-modal--approver-details__content'))).toEqual(
+      'ajain+12+12+1@fyle.in'
+    );
+  });
+
+  it('should display approver name', () => {
+    component.selectedApproversList = approvers;
+    fixture.detectChanges();
+
+    spyOn(component, 'removeApprover');
+    const approverCards = getAllElementsBySelector(fixture, '[data-testid="approvers"]');
+    expect(getTextContent(approverCards[0])).toEqual('Abhishek Jain cancel');
   });
 });

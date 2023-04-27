@@ -22,6 +22,7 @@
       <mat-chip-list #chipList aria-label="Multi select">
         <mat-chip
           *ngFor="let approver of selectedApproversList"
+          data-testid="approvers"
           [selectable]="selectable"
           [removable]="removable"
           (removed)="removeApprover(approver)"
