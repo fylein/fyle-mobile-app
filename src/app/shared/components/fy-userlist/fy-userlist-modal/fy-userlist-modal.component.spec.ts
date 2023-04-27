@@ -212,7 +212,7 @@ describe('FyUserlistModalComponent', () => {
     });
   });
 
-  it('getSearchedUsersList(): should get the searched user list', () => {
+  it('getSearchedUsersList(): should get the searched user list', fakeAsync(() => {
     const params: any = {
       limit: 20,
       order: 'us_full_name.asc,us_email.asc,ou_id',
@@ -224,7 +224,8 @@ describe('FyUserlistModalComponent', () => {
       expect(res).toEqual(searchedUserListRes);
       expect(orgUserService.getEmployeesBySearch).toHaveBeenCalledWith(params);
     });
-  });
+    tick(500);
+  }));
 
   it('getNewlyAddedUsers', (done) => {
     component.currentSelectionsCopy = component.currentSelections;
