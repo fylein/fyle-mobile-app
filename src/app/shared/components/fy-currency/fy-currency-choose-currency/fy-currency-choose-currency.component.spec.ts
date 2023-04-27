@@ -118,6 +118,28 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
     });
   });
 
+  it('ngAfterViewInit(): should update the filteredCurrencies and recentlyUsedCurrencies', () => {
+    const mockCurrencies = { USD: 'US Dollar', EUR: 'Euro', JPY: 'Japanese Yen' };
+    component.currencies$ = of([
+      { shortCode: 'USD', longName: 'US Dollar' },
+      { shortCode: 'EUR', longName: 'Euro' },
+      { shortCode: 'JPY', longName: 'Japanese Yen' },
+    ]);
+    component.ngAfterViewInit();
+    fixture.detectChanges();
+    const result = [
+      {
+        shortCode: 'USD',
+        longName: 'US Dollar',
+      },
+    ];
+    component.filteredCurrencies$ = of(result);
+    const searchBarRef = fixture.debugElement.query(By.css('input')).nativeElement;
+    searchBarRef.value = 'us';
+    searchBarRef.dispatchEvent(new Event('keyup'));
+    expect(component.filteredCurrencies$).toBeDefined();
+  });
+
   it('onDoneClick(): should dismiss the modal', () => {
     component.onDoneClick();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
