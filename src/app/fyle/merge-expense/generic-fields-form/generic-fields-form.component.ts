@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, TemplateRef } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import {
@@ -64,9 +64,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Input() disableFormElements: boolean;
 
-  @Input() projectDependentFieldsMapping: { [id: number]: CustomProperty<string>[] };
-
-  @Input() costCenterDependentFieldsMapping: { [id: number]: CustomProperty<string>[] };
+  @Input() projectDependentFieldsMapping: { [projectId: number]: CustomProperty<string>[] };
 
   @Output() fieldsTouched = new EventEmitter<string[]>();
 
@@ -80,9 +78,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   onChangeSub: Subscription;
 
-  projectDependentFields: CustomProperty<string>[] = [];
-
-  costCenterDependentFields: CustomProperty<string>[] = [];
+  dependentFields: CustomProperty<string>[] = [];
 
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 
@@ -109,13 +105,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
     this.genericFieldsFormGroup.controls.project.valueChanges
       .pipe(filter((projectId) => !!projectId))
       .subscribe((projectId) => {
-        this.projectDependentFields = this.projectDependentFieldsMapping[projectId];
-      });
-
-    this.genericFieldsFormGroup.controls.costCenter.valueChanges
-      .pipe(filter((costCenterId) => !!costCenterId))
-      .subscribe((costCenterId) => {
-        this.costCenterDependentFields = this.costCenterDependentFieldsMapping[costCenterId];
+        this.dependentFields = this.projectDependentFieldsMapping[projectId];
       });
 
     this.genericFieldsFormGroup.controls.paymentMode.valueChanges.subscribe((paymentMode) => {

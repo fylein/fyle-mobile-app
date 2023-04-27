@@ -137,7 +137,6 @@ import { DependentFieldComponent } from './components/dependent-fields/dependent
 import { DependentFieldModalComponent } from './components/dependent-fields/dependent-field/dependent-field-modal/dependent-field-modal.component';
 import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-select-disabled.component';
 import { ReportsCardComponent } from './components/reports-card/reports-card.component';
-import { ViewDependentFieldsComponent } from './components/view-dependent-fields/view-dependent-fields.component';
 
 @NgModule({
   declarations: [
@@ -253,7 +252,6 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     DependentFieldModalComponent,
     FySelectDisabledComponent,
     ReportsCardComponent,
-    ViewDependentFieldsComponent,
   ],
   imports: [
     CommonModule,
@@ -375,7 +373,6 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     DependentFieldModalComponent,
     FySelectDisabledComponent,
     ReportsCardComponent,
-    ViewDependentFieldsComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

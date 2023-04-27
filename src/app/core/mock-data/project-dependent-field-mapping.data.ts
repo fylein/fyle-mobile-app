@@ -1,10 +1,10 @@
 import { CustomProperty } from '../models/custom-properties.model';
 
-interface dependentFieldMapping {
-  [fieldId: number]: CustomProperty<string>[];
+interface ProjectDependentFieldMapping {
+  [projectId: number]: CustomProperty<string>[];
 }
 
-export const dependentFieldsMappingForProject: dependentFieldMapping = {
+export const projectDependentFieldsMapping: ProjectDependentFieldMapping = {
   316908: [
     {
       name: 'CF1',
@@ -35,7 +35,7 @@ export const dependentFieldsMappingForProject: dependentFieldMapping = {
   ],
 };
 
-export const dependentFieldsMappingForSameProject: dependentFieldMapping = {
+export const projectDependentFieldsMappingForSameProject: ProjectDependentFieldMapping = {
   316992: [
     {
       name: 'CF1',
@@ -52,21 +52,6 @@ export const dependentFieldsMappingForSameProject: dependentFieldMapping = {
   ],
 };
 
-export const dependentFieldsMappingForNoDependentFields: dependentFieldMapping = {
+export const projectDependentFieldsMappingForNoDependentFields: ProjectDependentFieldMapping = {
   316992: [],
-};
-
-export const dependentFieldsMappingForCostCenter: dependentFieldMapping = {
-  16743: [
-    {
-      name: 'Dependent Field Of Cost Center',
-      value: 'Dep. Value 1',
-    },
-  ],
-  16744: [
-    {
-      name: 'Dependent Field Of Cost Center',
-      value: 'Dep. Value 3',
-    },
-  ],
 };

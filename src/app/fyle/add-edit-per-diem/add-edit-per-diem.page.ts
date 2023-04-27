@@ -93,9 +93,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
-
-  @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
+  @ViewChild('dependentFields') dependentFieldsRef: DependentFieldsComponent;
 
   title: string;
 
@@ -214,8 +212,6 @@ export class AddEditPerDiemPage implements OnInit {
   dependentFields$: Observable<ExpenseField[]>;
 
   selectedProject$: BehaviorSubject<ExtendedProject>;
-
-  selectedCostCenter$: BehaviorSubject<CostCenter>;
 
   private _isExpandedView = false;
 
@@ -762,10 +758,8 @@ export class AddEditPerDiemPage implements OnInit {
   ionViewWillEnter() {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
-    this.projectDependentFieldsRef?.ngOnInit();
-    this.costCenterDependentFieldsRef?.ngOnInit();
+    this.dependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject(null);
-    this.selectedCostCenter$ = new BehaviorSubject(null);
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -804,8 +798,7 @@ export class AddEditPerDiemPage implements OnInit {
       duplicate_detection_reason: [],
       billable: [],
       costCenter: [],
-      project_dependent_fields: this.fb.array([]),
-      cost_center_dependent_fields: this.fb.array([]),
+      dependent_fields: this.fb.array([]),
     });
 
     this.title = 'Add Expense';
@@ -821,10 +814,6 @@ export class AddEditPerDiemPage implements OnInit {
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
       .subscribe((project) => this.selectedProject$.next(project));
-
-    this.fg.controls.costCenter.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter) => this.selectedCostCenter$.next(costCenter));
 
     // If User has already clicked on See More he need not to click again and again
     from(this.storageService.get('isExpandedViewPerDiem')).subscribe((expandedView) => {
@@ -1377,10 +1366,6 @@ export class AddEditPerDiemPage implements OnInit {
             this.selectedProject$.next(project);
           }
 
-          if (costCenter) {
-            this.selectedCostCenter$.next(costCenter);
-          }
-
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
             this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
@@ -1471,7 +1456,6 @@ export class AddEditPerDiemPage implements OnInit {
             if (autoFillCostCenter) {
               costCenter = autoFillCostCenter.value;
               this.presetCostCenterId = autoFillCostCenter.value.id;
-              this.fg.patchValue({ costCenter });
             }
           }
 
@@ -1583,11 +1567,7 @@ export class AddEditPerDiemPage implements OnInit {
   getCustomFields() {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
-        const allDependentFields = [
-          ...this.fg.value.project_dependent_fields,
-          ...this.fg.value.cost_center_dependent_fields,
-        ];
-        const mappedDependentFields = allDependentFields.map((dependentField) => ({
+        const mappedDependentFields = this.fg.value.dependent_fields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
         }));
@@ -2252,8 +2232,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
-    this.projectDependentFieldsRef?.ngOnDestroy();
-    this.costCenterDependentFieldsRef?.ngOnDestroy();
+    this.dependentFieldsRef.ngOnDestroy();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
   }
