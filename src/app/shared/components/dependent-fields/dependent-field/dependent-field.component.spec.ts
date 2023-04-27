@@ -98,7 +98,7 @@ describe('DependentFieldComponent', () => {
     modalProperties.getModalDefaultProperties.and.returnValue(defaultModalProperties);
 
     component.openModal();
-    tick();
+    tick(500);
 
     fixture.detectChanges();
     expect(modalController.create).toHaveBeenCalledOnceWith(expectedModalProperties);
