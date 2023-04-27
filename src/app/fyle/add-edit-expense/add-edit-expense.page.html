@@ -520,6 +520,8 @@
                           [mandatory]="txnFields.location1?.is_mandatory"
                           formControlName="location_1"
                           [placeholder]="txnFields.location1?.placeholder"
+                          [touchedInParent]="fg.controls.location_1.touched"
+                          [validInParent]="fg.controls.location_1.valid"
                         >
                         </app-fy-location>
                       </div>
@@ -542,6 +544,8 @@
                           [mandatory]="txnFields.location2?.is_mandatory"
                           formControlName="location_2"
                           [placeholder]="txnFields.location2?.placeholder"
+                          [touchedInParent]="fg.controls.location_2.touched"
+                          [validInParent]="fg.controls.location_2.valid"
                         >
                         </app-fy-location>
                       </div>
@@ -983,6 +987,8 @@
                       [mandatory]="customInput.mandatory"
                       formControlName="value"
                       [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [touchedInParent]="customInput.control.controls.value.touched"
+                      [validInParent]="customInput.control.controls.value.valid"
                     >
                     </app-fy-location>
                   </div>
