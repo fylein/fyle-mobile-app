@@ -34,25 +34,23 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   @Input() placeholder: string;
 
+  @Input() touchedInParent: boolean;
+
+  @Input() validInParent: boolean;
+
   displayValue;
 
-  private ngControl: NgControl;
+  innerValue;
 
-  private innerValue;
+  onTouchedCallback: () => void = noop;
 
-  private onTouchedCallback: () => void = noop;
+  onChangeCallback: (_: any) => void = noop;
 
-  private onChangeCallback: (_: any) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector
-  ) {}
+  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
+    if (this.touchedInParent) {
+      return this.validInParent;
     } else {
       return true;
     }
@@ -76,9 +74,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-  }
+  ngOnInit() {}
 
   async openModal() {
     if (!this.disabled) {

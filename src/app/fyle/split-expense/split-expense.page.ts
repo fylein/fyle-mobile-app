@@ -26,8 +26,7 @@ import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -83,7 +82,7 @@ export class SplitExpensePage implements OnInit {
 
   categoryList: OrgCategory[];
 
-  dependentCustomProperties$: Observable<CustomInput[]>;
+  projectDependentFields: ExpenseField[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -105,8 +104,7 @@ export class SplitExpensePage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   ngOnInit() {}
@@ -217,36 +215,24 @@ export class SplitExpensePage implements OnInit {
       this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
     this.transaction.to_dt = this.transaction?.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
 
-    return this.dependentCustomProperties$.pipe(
-      map((dependentCustomProperties) => {
-        let txnCustomProperties = this.transaction.custom_properties;
+    //If expense is split by projects and the selected project is same as the original expense, then add dependent fields from source expense.
+    let txnCustomProperties = this.transaction.custom_properties;
+    if (this.splitType === 'projects' && splitExpenseValue.project?.project_id === this.transaction.project_id) {
+      txnCustomProperties = this.transaction.custom_properties.concat(this.projectDependentFields);
+    }
 
-        const isDifferentProject =
-          this.splitType === 'projects' && splitExpenseValue.project?.project_id !== this.transaction.project_id;
-        const isDifferentCostCenter =
-          this.splitType === 'cost centers' && splitExpenseValue.cost_center?.id !== this.transaction.cost_center_id;
-
-        //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
-        if (isDifferentProject || isDifferentCostCenter) {
-          txnCustomProperties = this.transaction.custom_properties.filter(
-            (customProperty) => !dependentCustomProperties.includes(customProperty)
-          );
-        }
-
-        return {
-          ...this.transaction,
-          org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
-          project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
-          cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
-          currency: splitExpenseValue.currency,
-          amount: splitExpenseValue.amount,
-          source: 'MOBILE',
-          billable: this.setUpSplitExpenseBillable(splitExpenseValue),
-          tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
-          custom_properties: txnCustomProperties,
-        };
-      })
-    );
+    return {
+      ...this.transaction,
+      org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
+      project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
+      cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
+      currency: splitExpenseValue.currency,
+      amount: splitExpenseValue.amount,
+      source: 'MOBILE',
+      billable: this.setUpSplitExpenseBillable(splitExpenseValue),
+      tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
+      custom_properties: txnCustomProperties,
+    };
   }
 
   uploadNewFiles(files) {
@@ -431,17 +417,16 @@ export class SplitExpensePage implements OnInit {
         }
 
         this.saveSplitExpenseLoading = true;
+        const generatedSplitEtxn = [];
+        this.splitExpensesFormArray.value.forEach((splitExpenseValue) => {
+          generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
+        });
 
-        const generatedSplitEtxn$ = this.splitExpensesFormArray.value.map((splitExpenseValue) =>
-          this.generateSplitEtxnFromFg(splitExpenseValue)
-        );
+        const uploadFiles$ = this.uploadFiles(this.fileUrls);
 
-        forkJoin({
-          generatedSplitEtxn: forkJoin(generatedSplitEtxn$),
-          files: this.uploadFiles(this.fileUrls),
-        })
+        uploadFiles$
           .pipe(
-            concatMap(({ generatedSplitEtxn }) => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
+            concatMap(() => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
             concatMap((res) => {
               const observables: { [id: string]: Observable<any> } = {};
               if (this.transaction.id) {
@@ -505,21 +490,16 @@ export class SplitExpensePage implements OnInit {
 
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
 
-    let parentFieldId: number;
+    //Remove project dependent fields if split type is project.
     if (this.splitType === 'projects') {
-      parentFieldId = this.txnFields.project_id.id;
-    } else if (this.splitType === 'cost centers') {
-      parentFieldId = this.txnFields.cost_center_id.id;
-    }
+      this.projectDependentFields = this.transaction.custom_properties.filter(
+        (customProperty) => customProperty.type === 'DEPENDENT_SELECT'
+      );
 
-    this.dependentCustomProperties$ = iif(
-      () => !!parentFieldId,
-      this.dependentFieldsService.getDependentFieldValuesForBaseField(
-        this.transaction.custom_properties,
-        parentFieldId
-      ) as Observable<CustomInput[]>,
-      of(null)
-    );
+      this.transaction.custom_properties = this.transaction.custom_properties.filter(
+        (customProperty) => customProperty.type !== 'DEPENDENT_SELECT'
+      );
+    }
 
     if (this.splitType === 'cost centers') {
       const orgSettings$ = this.orgSettingsService.get();
