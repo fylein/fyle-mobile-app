@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { FyNumberComponent } from './fy-number.component';
-import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { of } from 'rxjs';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
@@ -99,43 +99,21 @@ describe('FyNumberComponent', () => {
     });
   });
 
-  describe('handleChange():', () => {
-    it('should set commaClicked to true when the Comma key is pressed', () => {
-      fixture.detectChanges();
-      const inputElement = fixture.debugElement.query(By.css('.fy-number--input')).nativeElement;
+  it('handleChange(): should patch value with period as decimal separator if the last input was a comma or else keep it as it is', () => {
+    component.handleChange({ target: { value: '12' }, code: 'Digit1' } as any);
+    component.fc.setValue(12);
+    expect(component.fc.value).toBe(12);
+    expect(component.commaClicked).toBeFalse();
+    expect(component.inputWithoutDecimal).toBe('12');
 
-      const event = new KeyboardEvent('keyup', {
-        code: 'Comma',
-        key: ',',
-      });
-
-      spyOnProperty(event, 'target').and.returnValue(inputElement);
-      spyOn(inputElement, 'value').and.returnValue('1');
-      component.commaClicked = false;
-
-      component.handleChange(event);
-
-      expect(component.commaClicked).toBe(true);
-    });
-
-    it('should patch value with period as decimal separator if the last input was a comma', () => {
-      fixture.detectChanges();
-      const inputElement = fixture.debugElement.query(By.css('.fy-number--input')).nativeElement;
-
-      const event = new KeyboardEvent('keyup', {
-        code: 'Digit2',
-        key: '2',
-      });
-
-      spyOnProperty(event, 'target').and.returnValue(inputElement);
-      spyOn(inputElement, 'value').and.returnValue('1');
-      component.commaClicked = true;
-      spyOn(component.fc, 'patchValue');
-
-      component.handleChange(event);
-
-      expect(component.commaClicked).toBe(false);
-      expect(component.inputWithoutDecimal).toBe('');
-    });
+    component.handleChange({ target: { value: '12,' }, code: 'Comma' } as any);
+    expect(component.commaClicked).toBeTrue();
+    expect(component.inputWithoutDecimal).toBe('12');
+    //target value will the appended with a period
+    component.handleChange({ target: { value: '12.5' }, code: 'Digit5' } as any);
+    expect(component.commaClicked).toBeFalse();
+    expect(component.inputWithoutDecimal).toBe('12.5');
+    component.fc.setValue(12.5);
+    expect(component.fc.value).toBe(12.5);
   });
 });
