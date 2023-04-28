@@ -62,7 +62,7 @@ describe('CameraPreviewComponent', () => {
       fixture.detectChanges();
 
       component.setUpAndStartCamera();
-      tick();
+      tick(1000);
       expect(component.permissionDenied.emit).toHaveBeenCalledTimes(1);
       expect(component.camera.requestPermissions).toHaveBeenCalledTimes(1);
     }));
@@ -76,7 +76,7 @@ describe('CameraPreviewComponent', () => {
     fixture.detectChanges();
 
     component.startCameraPreview();
-    tick();
+    tick(1000);
     expect(component.getFlashModes).toHaveBeenCalledTimes(1);
     expect(component.cameraPreview.start).toHaveBeenCalledOnceWith({
       position: 'rear',
@@ -96,7 +96,7 @@ describe('CameraPreviewComponent', () => {
     fixture.detectChanges();
 
     component.stopCamera();
-    tick();
+    tick(1000);
     expect(component.cameraPreview.stop).toHaveBeenCalledTimes(1);
   }));
 
