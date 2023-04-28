@@ -7,6 +7,8 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { By } from '@angular/platform-browser';
 
 describe('FyMultiselectComponent', () => {
   let component: FyMultiselectComponent;
@@ -88,33 +90,59 @@ describe('FyMultiselectComponent', () => {
   });
 
   it('onBlur(): should call a function when onBlur fires', () => {
-    //@ts-ignore
     spyOn(component, 'onTouchedCallback');
 
-    component.onBlur();
-    //@ts-ignore
+    const inputElement = fixture.debugElement.query(By.css('.fy-select--input'));
+    inputElement.nativeElement.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+
     expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
   });
 
-  xit('writeValue', () => {});
+  describe('writeValue():', () => {
+    it('should overwrite value', () => {
+      //@ts-ignore
+      component.innerValue = ['value2'];
+      fixture.detectChanges();
+
+      component.writeValue(['value']);
+      //@ts-ignore
+      expect(component.innerValue).toEqual(['value']);
+    });
+  });
 
   it('registerOnChange():', () => {
+    const callbackFn = jasmine.createSpy('callbackFn');
     //@ts-ignore
     spyOn(component, 'onChangeCallback').and.callThrough();
-    const fn = () => {};
 
-    component.registerOnChange(fn);
+    component.registerOnChange(callbackFn);
     //@ts-ignore
-    expect(component.onChangeCallback).toEqual(fn);
+    expect(component.onChangeCallback).toEqual(callbackFn);
   });
 
   it('registerOnTouched():', () => {
+    const callbackFn = jasmine.createSpy('callbackFn');
     //@ts-ignore
     spyOn(component, 'onTouchedCallback').and.callThrough();
-    const fn = () => {};
 
-    component.registerOnTouched(fn);
+    component.registerOnTouched(callbackFn);
     //@ts-ignore
-    expect(component.onTouchedCallback).toEqual(fn);
+    expect(component.onTouchedCallback).toEqual(callbackFn);
+  });
+
+  it('should show label', () => {
+    component.label = 'Label';
+    fixture.detectChanges();
+
+    expect(getTextContent(getElementBySelector(fixture, '[data-testid="label"]'))).toEqual('Label');
+  });
+
+  it('should open modal when clicked on', () => {
+    spyOn(component, 'openModal');
+    const input = getElementBySelector(fixture, '.fy-select--input') as HTMLElement;
+
+    click(input);
+    expect(component.openModal).toHaveBeenCalledTimes(1);
   });
 });
