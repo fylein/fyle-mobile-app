@@ -12,7 +12,7 @@ import { Observable, from, noop, fromEvent, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { concatMap, map, finalize, shareReplay, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { concatMap, map, finalize, shareReplay, startWith, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { RecentLocalStorageItemsService } from '../../../../core/services/recent-local-storage-items.service';
 import { Currency } from 'src/app/core/models/currency.model';
 
@@ -91,7 +91,8 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
             )
           )
         )
-      )
+      ),
+      shareReplay(1)
     );
 
     this.recentlyUsedCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
@@ -109,8 +110,10 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
             )
           )
         )
-      )
+      ),
+      shareReplay(1)
     );
+
     this.cdr.detectChanges();
   }
 

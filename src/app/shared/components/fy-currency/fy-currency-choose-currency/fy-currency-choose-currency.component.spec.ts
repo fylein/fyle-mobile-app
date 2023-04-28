@@ -1,14 +1,13 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency.component';
 import { ModalController } from '@ionic/angular';
-import { BehaviorSubject, Subject, fromEvent, of } from 'rxjs';
+import { BehaviorSubject, Subject, fromEvent, of, take } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { CUSTOM_ELEMENTS_SCHEMA, ElementRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import * as rxjs from 'rxjs';
 
 fdescribe('FyCurrencyChooseCurrencyComponent', () => {
   let component: FyCurrencyChooseCurrencyComponent;
@@ -116,21 +115,25 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
     });
   });
 
-  fit('ngAfterViewInit():', fakeAsync(() => {
+  it('ngAfterViewInit():', fakeAsync(() => {
     const mockCurrencies = [
       { shortCode: 'USD', longName: 'US Dollar' },
       { shortCode: 'INR', longName: 'Indian National Rupees' },
     ];
     component.currencies$ = of(mockCurrencies);
+    const dummyHtmlInputElement = document.createElement('input');
     component.searchBarRef = {
-      nativeElement: jasmine.createSpyObj('nativeElment', ['dispatchEvent']),
+      nativeElement: dummyHtmlInputElement,
     };
-    component.searchBarRef.nativeElement.value = 'us';
-    component.searchBarRef.nativeElement.dispatchEvent(new Event('keyup'));
-    spyOnProperty(rxjs, 'fromEvent').and.returnValue(() => of({ srcElement: { value: 'us' } }));
     component.ngAfterViewInit();
-    component.filteredCurrencies$.subscribe((currencies) => {
+    component.filteredCurrencies$.pipe(take(1)).subscribe((currencies) => {
       expect(currencies).toEqual(mockCurrencies);
+    });
+    tick(500);
+    dummyHtmlInputElement.value = 'US';
+    dummyHtmlInputElement.dispatchEvent(new Event('keyup'));
+    component.filteredCurrencies$.pipe(take(1)).subscribe((currencies) => {
+      expect(currencies).toEqual([{ shortCode: 'USD', longName: 'US Dollar' }]);
     });
     tick(500);
   }));
