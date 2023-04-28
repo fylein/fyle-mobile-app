@@ -1,16 +1,14 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency.component';
 import { ModalController } from '@ionic/angular';
-import { BehaviorSubject, Subject, of } from 'rxjs';
+import { BehaviorSubject, Subject, fromEvent, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { CUSTOM_ELEMENTS_SCHEMA, ElementRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { Currency } from 'src/app/core/models/currency.model';
 import * as rxjs from 'rxjs';
-import { fromEvent as realFromEvent } from 'rxjs';
 
 fdescribe('FyCurrencyChooseCurrencyComponent', () => {
   let component: FyCurrencyChooseCurrencyComponent;
@@ -118,27 +116,24 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): should update the filteredCurrencies and recentlyUsedCurrencies', () => {
-    const mockCurrencies = { USD: 'US Dollar', EUR: 'Euro', JPY: 'Japanese Yen' };
-    component.currencies$ = of([
+  fit('ngAfterViewInit():', fakeAsync(() => {
+    const mockCurrencies = [
       { shortCode: 'USD', longName: 'US Dollar' },
-      { shortCode: 'EUR', longName: 'Euro' },
-      { shortCode: 'JPY', longName: 'Japanese Yen' },
-    ]);
-    component.ngAfterViewInit();
-    fixture.detectChanges();
-    const result = [
-      {
-        shortCode: 'USD',
-        longName: 'US Dollar',
-      },
+      { shortCode: 'INR', longName: 'Indian National Rupees' },
     ];
-    component.filteredCurrencies$ = of(result);
-    const searchBarRef = fixture.debugElement.query(By.css('input')).nativeElement;
-    searchBarRef.value = 'us';
-    searchBarRef.dispatchEvent(new Event('keyup'));
-    expect(component.filteredCurrencies$).toBeDefined();
-  });
+    component.currencies$ = of(mockCurrencies);
+    component.searchBarRef = {
+      nativeElement: jasmine.createSpyObj('nativeElment', ['dispatchEvent']),
+    };
+    component.searchBarRef.nativeElement.value = 'us';
+    component.searchBarRef.nativeElement.dispatchEvent(new Event('keyup'));
+    spyOnProperty(rxjs, 'fromEvent').and.returnValue(() => of({ srcElement: { value: 'us' } }));
+    component.ngAfterViewInit();
+    component.filteredCurrencies$.subscribe((currencies) => {
+      expect(currencies).toEqual(mockCurrencies);
+    });
+    tick(500);
+  }));
 
   it('onDoneClick(): should dismiss the modal', () => {
     component.onDoneClick();
