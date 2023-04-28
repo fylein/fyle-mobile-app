@@ -1968,6 +1968,10 @@ export class AddEditExpensePage implements OnInit {
         if (txnFields?.cost_center_id?.is_mandatory) {
           costCenterControl.setValidators(costCenters?.length > 0 ? Validators.required : null);
         }
+        //If cost center field is not present in txnFields, then clear its value
+        else if (txnFields.cost_center_id === undefined) {
+          costCenterControl.setValue(null);
+        }
         costCenterControl.updateValueAndValidity();
       });
 
