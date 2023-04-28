@@ -25,8 +25,8 @@
   <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
     <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="fy-info"></mat-icon>
     <div class="fy-currency--exchange-rate-message">
-      <strong>{{ value.amount | currency: value.currency:'code' }}</strong>
-      at {{ exchangeRate | number: '1.0-6' }} {{ value.currency }} / {{ value.orig_currency }}
+      <strong>{{ value.amount | currency : value.currency : 'code' }}</strong>
+      at {{ exchangeRate | number : '1.0-6' }} {{ value.currency }} / {{ value.orig_currency }}
     </div>
     <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">Modify</button>
   </div>

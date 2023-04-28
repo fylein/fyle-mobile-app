@@ -1,9 +1,8 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
-import { FySelectModalComponent } from '../fy-select/fy-select-modal/fy-select-modal.component';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -34,25 +33,23 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
   @Input() placeholder: string;
 
+  @Input() touchedInParent: boolean;
+
+  @Input() validInParent: boolean;
+
   displayValue;
 
   private innerValue;
-
-  private ngControl: NgControl;
 
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
 
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector
-  ) {}
+  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
+    if (this.touchedInParent) {
+      return this.validInParent;
     } else {
       return true;
     }
@@ -78,9 +75,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-  }
+  ngOnInit() {}
 
   async openModal() {
     const selectionModal = await this.modalController.create({
