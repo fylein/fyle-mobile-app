@@ -94,7 +94,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private getDependentField(
+  getDependentField(
     parentFieldId: number,
     parentFieldValue: string
   ): Observable<{ dependentField: ExpenseField; parentFieldValue: string }> {
