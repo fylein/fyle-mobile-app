@@ -41,11 +41,13 @@ export class FyUserlistComponent implements OnInit {
 
   displayValue;
 
-  private innerValue;
 
-  private onTouchedCallback: () => void = noop;
+  innerValue;
 
-  private onChangeCallback: (_: any) => void = noop;
+  onTouchedCallback: () => void = noop;
+
+
+  onChangeCallback: (_: any) => void = noop;
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
@@ -88,7 +90,6 @@ export class FyUserlistComponent implements OnInit {
     });
 
     await currencyModal.present();
-
     const { data } = await currencyModal.onWillDismiss();
 
     if (data) {

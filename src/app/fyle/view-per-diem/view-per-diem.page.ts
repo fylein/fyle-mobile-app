@@ -23,9 +23,6 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -40,6 +37,8 @@ export class ViewPerDiemPage implements OnInit {
   orgSettings: any;
 
   perDiemCustomFields$: Observable<CustomField[]>;
+
+  projectDependantCustomProperties$: Observable<CustomField[]>;
 
   perDiemRate$: Observable<any>;
 
@@ -83,12 +82,6 @@ export class ViewPerDiemPage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
-  txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
-
-  projectDependentCustomProperties$: Observable<CustomProperty<string>[]>;
-
-  costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
@@ -104,8 +97,7 @@ export class ViewPerDiemPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get ExpenseView() {
@@ -174,39 +166,6 @@ export class ViewPerDiemPage implements OnInit {
       shareReplay(1)
     );
 
-    this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
-
-    this.projectDependentCustomProperties$ = forkJoin({
-      extendedPerDiem: this.extendedPerDiem$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
-    }).pipe(
-      filter(
-        ({ extendedPerDiem, txnFields }) => extendedPerDiem.tx_custom_properties && txnFields.project_id?.length > 0
-      ),
-      switchMap(({ extendedPerDiem, txnFields }) =>
-        this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedPerDiem.tx_custom_properties,
-          txnFields.project_id[0]?.id
-        )
-      )
-    );
-
-    this.costCenterDependentCustomProperties$ = forkJoin({
-      extendedPerDiem: this.extendedPerDiem$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
-    }).pipe(
-      filter(
-        ({ extendedPerDiem, txnFields }) => extendedPerDiem.tx_custom_properties && txnFields.cost_center_id?.length > 0
-      ),
-      switchMap(({ extendedPerDiem, txnFields }) =>
-        this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedPerDiem.tx_custom_properties,
-          txnFields.cost_center_id[0]?.id
-        )
-      ),
-      shareReplay(1)
-    );
-
     this.extendedPerDiem$.subscribe((extendedPerDiem) => {
       this.reportId = extendedPerDiem.tx_report_id;
 
@@ -224,7 +183,7 @@ export class ViewPerDiemPage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(extendedPerDiem.tx_currency, 'wide');
     });
 
-    forkJoin([this.txnFields$, this.extendedPerDiem$.pipe(take(1))])
+    forkJoin([this.expenseFieldsService.getAllMap(), this.extendedPerDiem$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, extendedPerDiem]) => {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
@@ -253,6 +212,11 @@ export class ViewPerDiemPage implements OnInit {
           return customProperties;
         })
       )
+    );
+
+    this.projectDependantCustomProperties$ = this.extendedPerDiem$.pipe(
+      concatMap((extendedPerDiem) => this.customInputsService.fillDependantFieldProperties(extendedPerDiem)),
+      shareReplay(1)
     );
 
     this.perDiemRate$ = this.extendedPerDiem$.pipe(
