@@ -97,7 +97,8 @@ describe('DependentFieldComponent', () => {
     modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { value: selectedValue } }));
     modalProperties.getModalDefaultProperties.and.returnValue(defaultModalProperties);
 
-    component.openModal();
+    const inputElement = componentElement.query(By.css('.dependent-field__input'));
+    inputElement.nativeElement.click();
     tick(500);
 
     fixture.detectChanges();
