@@ -173,11 +173,10 @@
     </ion-grid>
   </div>
 
-  <ng-container *ngIf="projectDependentFields?.length">
-    <ng-container *ngFor="let projectDependentField of projectDependentFields">
-      <div class="merge-expenses--internal-block" *ngIf="projectDependentField.value">
-        <app-fy-select-disabled [label]="projectDependentField.name" [value]="projectDependentField.value">
-        </app-fy-select-disabled>
+  <ng-container *ngIf="dependentFields?.length">
+    <ng-container *ngFor="let dependentField of dependentFields">
+      <div class="merge-expenses--internal-block" *ngIf="dependentField.value">
+        <app-fy-select-disabled [label]="dependentField.name" [value]="dependentField.value"> </app-fy-select-disabled>
       </div>
     </ng-container>
   </ng-container>
@@ -277,15 +276,6 @@
     >
     </app-fy-select>
   </div>
-
-  <ng-container *ngIf="costCenterDependentFields?.length">
-    <ng-container *ngFor="let costCenterDependentField of costCenterDependentFields">
-      <div class="merge-expenses--internal-block" *ngIf="costCenterDependentField.value">
-        <app-fy-select-disabled [label]="costCenterDependentField.name" [value]="costCenterDependentField.value">
-        </app-fy-select-disabled>
-      </div>
-    </ng-container>
-  </ng-container>
 
   <div
     [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.purpose.value }"
