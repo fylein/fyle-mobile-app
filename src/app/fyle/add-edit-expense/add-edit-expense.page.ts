@@ -1957,17 +1957,19 @@ export class AddEditExpensePage implements OnInit {
       }
     });
 
-    forkJoin({
+    combineLatest({
+      txnFields: this.txnFields$,
       costCenters: this.costCenters$,
-      txnFields: this.txnFields$.pipe(take(1)),
-    }).subscribe(({ costCenters, txnFields }) => {
-      const costCenterControl = this.fg.controls.costCenter;
-      costCenterControl.clearValidators();
-      if (txnFields?.cost_center_id?.is_mandatory) {
-        costCenterControl.setValidators(costCenters?.length > 0 ? Validators.required : null);
+    })
+      .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
+      .subscribe(({ costCenters, txnFields }) => {
+        const costCenterControl = this.fg.controls.costCenter;
+        costCenterControl.clearValidators();
+        if (txnFields?.cost_center_id?.is_mandatory) {
+          costCenterControl.setValidators(costCenters?.length > 0 ? Validators.required : null);
+        }
         costCenterControl.updateValueAndValidity();
-      }
-    });
+      });
 
     this.txnFields$
       .pipe(
