@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -25,10 +25,12 @@ import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { FileObject } from 'src/app/core/models/file-obj.model';
-import { fileObject5, fileObjectAdv, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
+import { fileObject5, fileObjectAdv, fileObjectData, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
+import { cloneDeep } from 'lodash';
+import * as dayjs from 'dayjs';
 
 const thumbnailUrlMockData1: FileObject[] = [
   {
@@ -149,10 +151,12 @@ fdescribe('ExpensesCardComponent', () => {
     fixture = TestBed.createComponent(ExpensesCardComponent);
     component = fixture.componentInstance;
 
+    Object.freeze(expenseData1);
+
     component.receiptIcon = 'assets/svg/pdf.svg';
     component.isOutboxExpense = true;
     component.selectedElements = apiExpenseRes;
-    component.expense = expenseData1;
+    component.expense = cloneDeep(expenseData1);
     component.isConnected$ = of(true);
     component.isSycing$ = of(true);
     component.isPerDiem = true;
@@ -182,36 +186,194 @@ fdescribe('ExpensesCardComponent', () => {
     expect(component.goToTransaction.emit).not.toHaveBeenCalled();
   });
 
-  it('should set the thumbnail', () => {
-    const fileObjid = fileObject5[0].id;
-    const attachmentType = 'pdf';
-    fileService.downloadUrl.and.returnValue(of('mock-url'));
-    component.setThumbnail(fileObjid, attachmentType);
-    expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
-    expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
+  describe('setThumbnail():', () => {
+    it('should set the thumbnail', fakeAsync(() => {
+      const fileObjid = fileObjectData.id;
+      const attachmentType = 'pdf';
+      fileService.downloadUrl.and.returnValue(of('mock-url'));
+      component.setThumbnail(fileObjid, attachmentType);
+      fixture.detectChanges();
+      tick(500);
+      expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
+      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
+    }));
+
+    it('should set the receipt thumbnail to download url when the attatchment tyoe is not pdf', fakeAsync(() => {
+      const fileObjid = fileObjectData.id;
+      const attachmentType = 'png';
+      fileService.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
+      component.setThumbnail(fileObjid, attachmentType);
+      fixture.detectChanges();
+      tick(500);
+      expect(component.receiptThumbnail).toEqual(thumbnailUrlMockData1[0].url);
+      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
+    }));
   });
 
-  it('should set the receipt thumbnail to download url when the attatchment tyoe is not pdf', () => {
-    const fileObjid = fileObject5[0].id;
-    const attachmentType = 'png';
-    fileService.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
-    component.setThumbnail(fileObjid, attachmentType);
-    expect(component.receiptThumbnail).toEqual(thumbnailUrlMockData1[0].url);
-    expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
+  it('matchReceiptWithEtxn(): match the receipt with the transactions', () => {
+    component.matchReceiptWithEtxn(fileObjectData);
+    expect(component.expense.tx_file_ids).toContain(fileObjectData.id);
+    expect(fileObjectData.transaction_id).toBe(component.expense.tx_id);
+  });
+
+  // describe("attachReceipt(): ", () => {
+  //   it('should attatch the receipt to the thumbnail when receipt is not a pdf',fakeAsync(()=>{
+  //     fileService.getAttachmentType.and.returnValue('image');
+  //     transactionOutboxService.fileUpload.and.returnValue(Promise.resolve(null));
+  //     fileService.post.and.returnValue(of(fileObjectData));
+
+  //     spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
+  //     spyOn(component, 'setThumbnail').and.callThrough();
+  //     const dataUrl = 'assets/card.png';
+  //     component.attachReceipt({ dataUrl, type: 'image/png', actionSource: 'gallery_upload' });
+  //     tick(500);
+  //     expect(component.attachmentUploadInProgress).toBeTrue();
+  //     expect(component.inlineReceiptDataUrl).toBe(dataUrl);
+  //     expect(transactionOutboxService.fileUpload).toHaveBeenCalledWith(dataUrl, 'png');
+  //     expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObjectData);
+  //     expect(fileService.post).toHaveBeenCalledWith(fileObjectData);
+  //     tick(500);
+  //     expect(component.attachmentUploadInProgress).toBeFalse();
+  //     expect(component.setThumbnail).toHaveBeenCalledWith(fileObjectData.id, 'png');
+  //   }));
+  // });
+
+  //  describe("attachReceipt(): ", () => {
+  //     it('should attach the receipt to the thumbnail when receipt is not a pdf', fakeAsync(() => {
+  //       // Arrange
+  //       const dataUrl = '/assets/images/add-to-list.png';
+  //       const attachmentType = 'png';
+
+  //       // Stub out dependencies
+  //       fileService.getAttachmentType.and.returnValue(attachmentType);
+  //       transactionOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObjectData));
+  //       fileService.post.and.returnValue(of(fileObjectData));
+
+  //       // Spy on methods
+  //       spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
+  //       spyOn(component, 'setThumbnail').and.callThrough();
+
+  //       // Act
+  //       component.attachReceipt({ dataUrl, type: 'image/png', actionSource: 'upload' });
+  //       tick(500);
+
+  //       // Assert
+  //       expect(component.attachmentUploadInProgress).toBeTrue();
+  //       expect(component.inlineReceiptDataUrl).toBe(dataUrl);
+  //       expect(transactionOutboxService.fileUpload).toHaveBeenCalledWith(dataUrl, attachmentType);
+  //       expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObjectData);
+  //       expect(fileService.post).toHaveBeenCalledWith(fileObjectData);
+  //       expect(component.setThumbnail).toHaveBeenCalledWith(fileObjectData.id, attachmentType);
+  //       console.log('sas');
+  //       console.log(component.setThumbnail);
+  //       expect(component.attachmentUploadInProgress).toBeFalse();
+  //       tick(500);
+  //     }));
+  //   });
+
+  it('should emit the dismissed event with the expense object when called', () => {
+    const emitSpy = spyOn(component.dismissed, 'emit');
+
+    const event = {
+      stopPropagation: jasmine.createSpy('stopPropagation'),
+      preventDefault: jasmine.createSpy('preventDefault'),
+    };
+
+    component.dismiss(event);
+    expect(event.stopPropagation).toHaveBeenCalled();
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+  });
+
+  it('onSetMultiselectMode(): should emit the multiselect mode event if the selection mode is enabled', () => {
+    const emitSpy = spyOn(component.setMultiselectMode, 'emit');
+    component.isSelectionModeEnabled = false;
+    component.onSetMultiselectMode();
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+  });
+
+  it('onTapTransaction(): should emit the selected card card click event when the selection mode is enabled ', () => {
+    const emitSpy = spyOn(component.cardClickedForSelection, 'emit');
+    component.isSelectionModeEnabled = true;
+    component.onTapTransaction();
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+  });
+
+  describe('canAddAttchment():', () => {
+    it('should return true when none of the conditions are met', () => {
+      component.isFromViewReports = false;
+      component.isMileageExpense = false;
+      component.expense.tx_file_ids = null;
+      component.isFromPotentialDuplicates = false;
+      component.isSelectionModeEnabled = false;
+      const result = component.canAddAttachment();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false when isFromViewReports is true', () => {
+      component.isFromViewReports = true;
+      component.isMileageExpense = false;
+      component.expense.tx_file_ids = null;
+      component.isFromPotentialDuplicates = false;
+      component.isSelectionModeEnabled = false;
+      const result = component.canAddAttachment();
+      expect(result).toBeFalse();
+    });
+  });
+
+  it('checkIfScanIsCompleted(): should check of scan is complete and return true if all the conditions are met', () => {
+    component.expense = {
+      ...expenseData1,
+      tx_amount: 100,
+      tx_extracted_data: {
+        amount: 84.12,
+        currency: 'USD',
+        category: 'Professional Services',
+        date: null,
+        vendor: null,
+        invoice_dt: null,
+      },
+    };
+    const result = component.checkIfScanIsCompleted();
+    fixture.detectChanges();
+    expect(result).toBe(true);
+  });
+
+  describe('pollDataExtractionStatus', () => {
+    it('should call the callback when data extraction is not pending', fakeAsync(() => {
+      transactionOutboxService.isDataExtractionPending.and.returnValue(false);
+      const callbackSpy = jasmine.createSpy('callback');
+      component.pollDataExtractionStatus(callbackSpy);
+      tick(5000);
+      expect(callbackSpy).toHaveBeenCalled();
+    }));
+
+    it('should keep polling when data extraction is pending', fakeAsync(() => {
+      const callbackSpy = jasmine.createSpy('callback');
+
+      transactionOutboxService.isDataExtractionPending.and.returnValue(true);
+
+      component.pollDataExtractionStatus(callbackSpy);
+      tick(1000); // wait for the initial setTimeout call
+
+      expect(transactionOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(1);
+      expect(callbackSpy).not.toHaveBeenCalled();
+
+      // simulate data extraction not pending
+      transactionOutboxService.isDataExtractionPending.and.returnValue(false);
+      tick(5000); // wait for the next setTimeout call
+
+      expect(transactionOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(2);
+      expect(callbackSpy).toHaveBeenCalledTimes(1);
+    }));
   });
 });
+
 // xit("getReceipt", () => { });
 // xit("checkIfScanIsCompleted", () => { });
-// xit("pollDataExtractionStatus", () => { });
 // xit("handleScanStatus", () => { });
 // xit("canShowPaymentModeIcon", () => { });
 // xit("setOtherData", () => { });
-// xit("onSetMultiselectMode", () => { });
-// xit("onTapTransaction", () => { });
-// xit("canAddAttachment", () => { });
 // xit("addAttachments", () => { });
-// xit("setThumbnail", () => { });
-// xit("matchReceiptWithEtxn", () => { });
-// xit("attachReceipt", () => { });
 // xit("setupNetworkWatcher", () => { });
 // xit("dismiss", () => { });
