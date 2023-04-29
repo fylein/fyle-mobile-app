@@ -26,6 +26,8 @@
                   (click)="openModal()"
                   [disabled]="true"
                   [hideSuffix]="true"
+                  [touchedInParent]="mileageLocations.controls[0].touched"
+                  [validInParent]="mileageLocations.controls[0].valid"
                 >
                 </app-fy-location>
                 <div
@@ -65,6 +67,8 @@
                   [mandatory]="mileageConfig.location_mandatory"
                   [disabled]="true"
                   [hideSuffix]="true"
+                  [touchedInParent]="mileageLocations.controls[mileageLocations.controls.length - 1].touched"
+                  [validInParent]="mileageLocations.controls[mileageLocations.controls.length - 1].valid"
                 >
                 </app-fy-location>
               </div>

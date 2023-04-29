@@ -500,6 +500,8 @@
                           [mandatory]="customInput.mandatory"
                           formControlName="value"
                           [placeholder]="customInput.placeholder | ellipsis: 30"
+                          [touchedInParent]="customInput.control.controls.value.touched"
+                          [validInParent]="customInput.control.controls.value.valid"
                         >
                         </app-fy-location>
                       </div>
@@ -525,6 +527,8 @@
                           [subheader]="customInput.name"
                           formControlName="value"
                           [placeholder]="customInput.placeholder | ellipsis: 30"
+                          [touchedInParent]="customInput.control.controls.value.touched"
+                          [validInParent]="customInput.control.controls.value.valid"
                         >
                         </app-fy-multiselect>
                       </div>
