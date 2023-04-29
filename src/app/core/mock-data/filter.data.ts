@@ -32,48 +32,52 @@ export const filterData1: Filter = {
 
 export const filterOptions1 = [
   {
-    name: 'Expenses',
+    name: 'Type',
     optionType: FilterOptionType.multiselect,
     options: [
       {
         label: 'Complete',
-        value: 'UNREPORTED',
+        value: 'COMPLETE',
       },
       {
-        label: 'Draft',
-        value: 'DRAFT',
+        label: 'Policy Violated',
+        value: 'POLICY_VIOLATED',
       },
       {
-        label: 'Duplicate',
-        value: 'DUPLICATE',
-      },
-    ],
-  } as FilterOptions<string>,
-  {
-    name: 'Reports',
-    optionType: FilterOptionType.multiselect,
-    options: [
-      {
-        label: 'Sent Back',
-        value: 'SENT_BACK',
-      },
-      {
-        label: 'Unsubmitted',
-        value: 'DRAFT',
-      },
-      {
-        label: 'Unapproved',
-        value: 'TEAM',
+        label: 'Incomplete',
+        value: 'INCOMPLETE',
       },
     ],
   } as FilterOptions<string>,
   {
-    name: 'Advances',
+    name: 'Receipts Attached',
+    optionType: FilterOptionType.singleselect,
+    options: [
+      {
+        label: 'Yes',
+        value: 'true',
+      },
+      {
+        label: 'No',
+        value: 'false',
+      },
+    ],
+  } as FilterOptions<string>,
+  {
+    name: 'Expense Type',
     optionType: FilterOptionType.multiselect,
     options: [
       {
-        label: 'Sent Back',
-        value: 'SENT_BACK',
+        label: 'Mileage',
+        value: 'MILEAGE',
+      },
+      {
+        label: 'Per Diem',
+        value: 'PER_DIEM',
+      },
+      {
+        label: 'Regular Expenses',
+        value: 'REGULAR_EXPENSES',
       },
     ],
   } as FilterOptions<string>,
