@@ -8,7 +8,7 @@ import { FilterOptionType } from './filter-option-type.enum';
 import { FilterOptions } from './filter-options.interface';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
 
-fdescribe('FyFiltersComponent', () => {
+describe('FyFiltersComponent', () => {
   let component: FyFiltersComponent;
   let fixture: ComponentFixture<FyFiltersComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
