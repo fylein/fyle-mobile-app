@@ -55,11 +55,11 @@ export const filterOptions1 = [
     options: [
       {
         label: 'Yes',
-        value: 'true',
+        value: 'yes',
       },
       {
         label: 'No',
-        value: 'false',
+        value: 'no',
       },
     ],
   } as FilterOptions<string>,
