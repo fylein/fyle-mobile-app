@@ -75,6 +75,8 @@ export class ViewExpensePage implements OnInit {
 
   isExpenseFlagged: boolean;
 
+  isSplitExpense: boolean;
+
   exchangeRate: number;
 
   paymentMode: string;
@@ -261,6 +263,8 @@ export class ViewExpensePage implements OnInit {
 
     this.etxn$.subscribe((etxn) => {
       this.isExpenseFlagged = etxn.tx_manual_flag;
+
+      this.isSplitExpense = etxn.tx_split_group_id !== etxn.tx_id;
 
       if (etxn.tx_amount && etxn.tx_orig_amount) {
         this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;

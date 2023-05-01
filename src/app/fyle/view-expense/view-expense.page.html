@@ -57,6 +57,10 @@
         </span>
       </div>
 
+      <div *ngIf="isSplitExpense">
+        <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
+      </div>
+
       <div class="d-flex view-expense--card-container">
         <div class="view-expense--card-container__block">
           <div class="view-expense--card-container__category">{{ etxn.tx_categoryDisplayName || 'Unspecified' }}</div>
