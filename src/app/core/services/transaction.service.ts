@@ -709,6 +709,21 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
+  generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.splitExpense) {
+      if (filters.splitExpense === 'YES') {
+        newQueryParamsCopy.tx_is_split_expense = 'eq.true';
+      }
+
+      if (filters.splitExpense === 'NO') {
+        newQueryParamsCopy.tx_is_split_expense = 'eq.false';
+      }
+    }
+
+    return newQueryParamsCopy;
+  }
+
   generateDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
     let newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date) {

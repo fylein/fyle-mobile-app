@@ -58,6 +58,12 @@ export class MyExpensesService {
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
+    const splitExpenseFilter = selectedFilters.find((filter) => filter.name === 'Split Expense');
+
+    if (splitExpenseFilter) {
+      generatedFilters.splitExpense = splitExpenseFilter.value;
+    }
+
     return generatedFilters;
   }
 
@@ -189,6 +195,14 @@ export class MyExpensesService {
       label: 'Receipts Attached',
       type: 'receiptsAttached',
       value: filter.receiptsAttached.toLowerCase(),
+    });
+  }
+
+  generateSplitExpenseFilterPills(filterPills: FilterPill[], filter) {
+    filterPills.push({
+      label: 'Split Expense',
+      type: 'splitExpense',
+      value: filter.splitExpense.toLowerCase(),
     });
   }
 
@@ -369,6 +383,20 @@ export class MyExpensesService {
           },
         ],
       } as FilterOptions<string>,
+      {
+        name: 'Split Expense',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Yes',
+            value: 'YES',
+          },
+          {
+            label: 'No',
+            value: 'NO',
+          },
+        ],
+      } as FilterOptions<string>,
     ];
   }
 
@@ -416,6 +444,13 @@ export class MyExpensesService {
 
     if (filter.sortParam && filter.sortDir) {
       this.addSortToGeneratedFilters(filter, generatedFilters);
+    }
+
+    if (filter.splitExpense) {
+      generatedFilters.push({
+        name: 'Split Expense',
+        value: filter.splitExpense,
+      });
     }
 
     return generatedFilters;
