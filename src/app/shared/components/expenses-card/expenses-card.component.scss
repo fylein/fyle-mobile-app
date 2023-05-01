@@ -175,23 +175,10 @@
     text-overflow: ellipsis;
   }
 
-  &--icons {
-    display: flex;
-    align-items: center;
-
-    &__policy-violated-icon {
-      margin-left: 4px;
-      width: 16px;
-      height: 16px;
-      color: $red;
-      font-size: 16px;
-    }
-
-    &__split-icon {
-      margin-left: 4px;
-      width: 16px;
-      height: 16px;
-    }
+  &--policy-violated-icon {
+    margin-left: 10px;
+    color: $red;
+    font-size: 20px;
   }
 
   &--edit-text {
