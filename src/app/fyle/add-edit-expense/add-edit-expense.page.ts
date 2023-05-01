@@ -309,6 +309,8 @@ export class AddEditExpensePage implements OnInit {
 
   canRemoveFromReport = false;
 
+  isSplitExpense: boolean;
+
   isCccExpense: boolean;
 
   cardNumber: string;
@@ -2648,6 +2650,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.etxn$.subscribe((etxn) => {
+      this.isSplitExpense = etxn?.tx?.split_group_id !== etxn?.tx?.id;
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
