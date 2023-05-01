@@ -100,7 +100,7 @@
             </ng-container>
           </ng-container>
 
-          <div *ngIf="isSplitExpense">
+          <div *ngIf="isSplitExpense" class="add-edit-expense--alert-split">
             <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
           </div>
 
