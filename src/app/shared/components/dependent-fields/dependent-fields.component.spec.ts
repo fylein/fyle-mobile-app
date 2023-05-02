@@ -18,7 +18,7 @@ import { Subject, of } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
-fdescribe('DependentFieldsComponent', () => {
+describe('DependentFieldsComponent', () => {
   let component: DependentFieldsComponent;
   let fixture: ComponentFixture<DependentFieldsComponent>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
@@ -204,7 +204,63 @@ fdescribe('DependentFieldsComponent', () => {
     });
   });
 
-  xit('addDependentField', () => {});
+  describe('removeAllDependentFields(): ', () => {
+    let initialDependentFieldsFormArray: FormArray;
+    let initialDependentFields = [];
+    beforeEach(() => {
+      component.dependentFieldsFormArray = new FormArray([]);
+      component.dependentFields = [];
+      const parentFieldValues = ['Project 1', 'Cost Code 1'];
 
-  xit('removeAllDependentFields', () => {});
+      initialDependentFieldsFormArray = new FormArray([]);
+      initialDependentFields = [];
+
+      //Create formArray and object array with two dependent fields
+      for (let i = 0; i < 2; i++) {
+        const dependentFieldControl = new FormGroup({
+          id: new FormControl(dependentCustomFields[i].id),
+          label: new FormControl(dependentCustomFields[i].field_name),
+          parent_field_id: new FormControl(dependentCustomFields[i].parent_field_id),
+          value: new FormControl(null, (dependentCustomFields[i].is_mandatory || null) && Validators.required),
+        });
+
+        const dependentField = {
+          id: dependentCustomFields[i].id,
+          parentFieldId: dependentCustomFields[i].parent_field_id,
+          parentFieldValue: parentFieldValues[i],
+          field: dependentCustomFields[i].field_name,
+          mandatory: dependentCustomFields[i].is_mandatory,
+          control: dependentFieldControl,
+          placeholder: dependentCustomFields[i].placeholder,
+        };
+
+        component.dependentFieldsFormArray.push(dependentFieldControl);
+        component.dependentFields.push(dependentField);
+
+        initialDependentFieldsFormArray.push(dependentFieldControl);
+        initialDependentFields.push(dependentField);
+      }
+    });
+
+    it('should remove all dependent fields after the updated field', () => {
+      component.removeAllDependentFields(0);
+      expect(component.dependentFieldsFormArray.length).toEqual(1);
+      expect(component.dependentFieldsFormArray.at(0)).toEqual(initialDependentFieldsFormArray.at(0));
+
+      expect(component.dependentFields.length).toEqual(1);
+      expect(component.dependentFields[0]).toEqual(initialDependentFields[0]);
+    });
+
+    it('should not remove any field if last dependent field is updated', () => {
+      component.removeAllDependentFields(1);
+      expect(component.dependentFieldsFormArray.length).toEqual(2);
+      expect(component.dependentFieldsFormArray.at(0)).toEqual(initialDependentFieldsFormArray.at(0));
+      expect(component.dependentFieldsFormArray.at(1)).toEqual(initialDependentFieldsFormArray.at(1));
+
+      expect(component.dependentFields.length).toEqual(2);
+      expect(component.dependentFields).toEqual(initialDependentFields);
+    });
+  });
+
+  xit('addDependentFieldWithValue(): ', () => {});
 });
