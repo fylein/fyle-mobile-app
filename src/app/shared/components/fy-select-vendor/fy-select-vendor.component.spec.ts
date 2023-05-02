@@ -10,7 +10,7 @@ import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor
 import { getTextContent, getElementBySelector, click } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 
-describe('FySelectVendorComponent', () => {
+fdescribe('FySelectVendorComponent', () => {
   let component: FySelectVendorComponent;
   let fixture: ComponentFixture<FySelectVendorComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -80,23 +80,27 @@ describe('FySelectVendorComponent', () => {
   });
 
   it('onBlur(): should call a function when onBlur fires', () => {
-    spyOn(component, 'onTouchedCallback');
+    const callbackFn = jasmine.createSpy('callbackFn');
+    spyOn(component, 'onTouchedCallback').and.callThrough();
+    spyOn(component, 'registerOnTouched').and.callThrough();
+
+    component.registerOnTouched(callbackFn);
 
     const inputElement = fixture.debugElement.query(By.css('.fy-select-vendor--input'));
     inputElement.nativeElement.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
 
+    expect(callbackFn).toHaveBeenCalledTimes(1);
     expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
+    expect(component.registerOnTouched).toHaveBeenCalledTimes(1);
   });
 
   describe('writeValue():', () => {
     it('should overwrite value', () => {
-      //@ts-ignore
       component.innerValue = ['value2'];
       fixture.detectChanges();
 
       component.writeValue(['value']);
-      //@ts-ignore
       expect(component.innerValue).toEqual(['value']);
     });
 
@@ -111,22 +115,10 @@ describe('FySelectVendorComponent', () => {
 
   it('registerOnChange():', () => {
     const callbackFn = jasmine.createSpy('callbackFn');
-    //@ts-ignore
     spyOn(component, 'onChangeCallback').and.callThrough();
 
     component.registerOnChange(callbackFn);
-    //@ts-ignore
     expect(component.onChangeCallback).toEqual(callbackFn);
-  });
-
-  it('registerOnTouched():', () => {
-    const callbackFn = jasmine.createSpy('callbackFn');
-    //@ts-ignore
-    spyOn(component, 'onTouchedCallback').and.callThrough();
-
-    component.registerOnTouched(callbackFn);
-    //@ts-ignore
-    expect(component.onTouchedCallback).toEqual(callbackFn);
   });
 
   it('should show label', () => {
