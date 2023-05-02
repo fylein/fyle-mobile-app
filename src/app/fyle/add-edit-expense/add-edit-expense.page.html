@@ -833,6 +833,8 @@
                 [mandatory]="txnFields?.vendor_id?.is_mandatory"
                 formControlName="vendor_id"
                 [placeholder]="txnFields.vendor_id?.placeholder"
+                [touchedInParent]="fg.controls.vendor_id.touched"
+                [validInParent]="fg.controls.vendor_id.valid"
               >
               </app-fy-select-vendor>
               <app-virtual-select
