@@ -91,10 +91,10 @@ describe('FyLocationModalComponent', () => {
     component.recentLocations = ['location1', 'location2'];
     fixture.detectChanges();
     const recentlyUsedItems = component.getRecentlyUsedItems();
-    tick(1000);
     recentlyUsedItems.subscribe((res) => {
       expect(res).toEqual([{ display: 'location1' }, { display: 'location2' }]);
     });
+    tick(1000);
   }));
 
   it('getRecentlyUsedItems(): should return array of display if recentLocations is undefined but cacheName is defined', fakeAsync(() => {
@@ -102,23 +102,23 @@ describe('FyLocationModalComponent', () => {
     recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(['display1', 'display2']));
     component.cacheName = ['display1', 'display2'];
     fixture.detectChanges();
-    tick(1000);
     const recentlyUsedItems = component.getRecentlyUsedItems();
     expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith(component.cacheName);
     recentlyUsedItems.subscribe((res) => {
       expect(res).toEqual([{ display: 'display1' }, { display: 'display2' }]);
     });
+    tick(1000);
   }));
 
   it('getRecentlyUsedItems(): should return empty array if recentLocations is undefined and cacheName is undefined', fakeAsync(() => {
     component.recentLocations = undefined;
     component.cacheName = undefined;
     fixture.detectChanges();
-    tick(1000);
     const recentlyUsedItems = component.getRecentlyUsedItems();
     recentlyUsedItems.subscribe((res) => {
       expect(res).toEqual([]);
     });
+    tick(1000);
   }));
 
   it('ngAfterViewInit(): should call getRecentlyUsedItems and set recentItemsFilteredList$ on ngAfterViewInit', fakeAsync(() => {
@@ -150,10 +150,10 @@ describe('FyLocationModalComponent', () => {
 
     expect(getRecentlyUsedItemsSpy).toHaveBeenCalledTimes(1);
     expect(component.recentItemsFilteredList$).toBeTruthy();
-    tick(1000);
     component.recentItemsFilteredList$.subscribe((list) => {
       expect(list).toEqual(mockRecentItemsFilteredList);
     });
+    tick(1000);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
     expect(component.checkPermissionStatus).toHaveBeenCalledTimes(1);
@@ -194,10 +194,10 @@ describe('FyLocationModalComponent', () => {
 
     expect(getRecentlyUsedItemsSpy).toHaveBeenCalledTimes(1);
     expect(component.recentItemsFilteredList$).toBeTruthy();
-    tick(1000);
     component.recentItemsFilteredList$.subscribe((list) => {
       expect(list).toEqual(mockRecentItemsFilteredList);
     });
+    tick(1000);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
     expect(component.checkPermissionStatus).toHaveBeenCalledTimes(1);
@@ -238,10 +238,10 @@ describe('FyLocationModalComponent', () => {
 
     expect(getRecentlyUsedItemsSpy).toHaveBeenCalledTimes(1);
     expect(component.recentItemsFilteredList$).toBeTruthy();
-    tick(1000);
     component.recentItemsFilteredList$.subscribe((list) => {
       expect(list).toEqual(mockRecentItemsFilteredList);
     });
+    tick(1000);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
     expect(component.checkPermissionStatus).toHaveBeenCalledTimes(1);
@@ -280,10 +280,10 @@ describe('FyLocationModalComponent', () => {
 
     expect(getRecentlyUsedItemsSpy).toHaveBeenCalledTimes(1);
     expect(component.recentItemsFilteredList$).toBeTruthy();
-    tick(1000);
     component.recentItemsFilteredList$.subscribe((list) => {
       expect(list).toEqual(mockRecentItemsFilteredList);
     });
+    tick(1000);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
     expect(component.checkPermissionStatus).toHaveBeenCalledTimes(1);
@@ -317,10 +317,10 @@ describe('FyLocationModalComponent', () => {
 
     expect(getRecentlyUsedItemsSpy).toHaveBeenCalledTimes(1);
     expect(component.recentItemsFilteredList$).toBeTruthy();
-    tick(1000);
     component.recentItemsFilteredList$.subscribe((list) => {
       expect(list).toEqual(mockRecentItemsFilteredList);
     });
+    tick(1000);
     expect(authService.getEou).not.toHaveBeenCalled();
     expect(locationService.getCurrentLocation).not.toHaveBeenCalled();
     expect(component.checkPermissionStatus).not.toHaveBeenCalled();
