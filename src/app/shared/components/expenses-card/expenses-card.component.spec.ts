@@ -19,7 +19,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { of } from 'rxjs';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1, expenseList, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
@@ -79,6 +79,7 @@ fdescribe('ExpensesCardComponent', () => {
 
     fileServiceSpy.getFilesWithThumbnail.and.returnValue(of(fileObjectData1));
     fileServiceSpy.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
+    fileServiceSpy.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const transactionOutboxServiceSpy = jasmine.createSpyObj([
@@ -212,64 +213,50 @@ fdescribe('ExpensesCardComponent', () => {
 
   it('matchReceiptWithEtxn(): match the receipt with the transactions', () => {
     component.matchReceiptWithEtxn(fileObjectData);
+    expect(component.expense.tx_file_ids).toBeDefined();
     expect(component.expense.tx_file_ids).toContain(fileObjectData.id);
     expect(fileObjectData.transaction_id).toBe(component.expense.tx_id);
   });
 
-  // describe("attachReceipt(): ", () => {
-  //   it('should attatch the receipt to the thumbnail when receipt is not a pdf',fakeAsync(()=>{
-  //     fileService.getAttachmentType.and.returnValue('image');
-  //     transactionOutboxService.fileUpload.and.returnValue(Promise.resolve(null));
-  //     fileService.post.and.returnValue(of(fileObjectData));
+  describe('attachReceipt(): ', () => {
+    it('should attach the receipt to the thumbnail when receipt is not a pdf', fakeAsync(() => {
+      const fileObj: FileObject = {
+        name: '000.jpeg',
+        receipt_coordinates: {
+          x: 100,
+          y: 200,
+          width: 300,
+          height: 400,
+        },
+        id: 'fiHPZUiichAS',
+        purpose: '',
+      };
 
-  //     spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
-  //     spyOn(component, 'setThumbnail').and.callThrough();
-  //     const dataUrl = 'assets/card.png';
-  //     component.attachReceipt({ dataUrl, type: 'image/png', actionSource: 'gallery_upload' });
-  //     tick(500);
-  //     expect(component.attachmentUploadInProgress).toBeTrue();
-  //     expect(component.inlineReceiptDataUrl).toBe(dataUrl);
-  //     expect(transactionOutboxService.fileUpload).toHaveBeenCalledWith(dataUrl, 'png');
-  //     expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObjectData);
-  //     expect(fileService.post).toHaveBeenCalledWith(fileObjectData);
-  //     tick(500);
-  //     expect(component.attachmentUploadInProgress).toBeFalse();
-  //     expect(component.setThumbnail).toHaveBeenCalledWith(fileObjectData.id, 'png');
-  //   }));
-  // });
+      const dataUrl = '/assets/images/add-to-list.png';
+      const attachmentType = 'png';
 
-  //  describe("attachReceipt(): ", () => {
-  //     it('should attach the receipt to the thumbnail when receipt is not a pdf', fakeAsync(() => {
-  //       // Arrange
-  //       const dataUrl = '/assets/images/add-to-list.png';
-  //       const attachmentType = 'png';
+      fileService.getAttachmentType.and.returnValue(attachmentType);
+      transactionOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+      fileService.post.and.returnValue(of(fileObjectData));
 
-  //       // Stub out dependencies
-  //       fileService.getAttachmentType.and.returnValue(attachmentType);
-  //       transactionOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObjectData));
-  //       fileService.post.and.returnValue(of(fileObjectData));
+      spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
+      spyOn(component, 'setThumbnail').and.callThrough();
 
-  //       // Spy on methods
-  //       spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
-  //       spyOn(component, 'setThumbnail').and.callThrough();
+      component.attachReceipt({ dataUrl, type: 'image/png', actionSource: 'upload' });
+      tick(500);
 
-  //       // Act
-  //       component.attachReceipt({ dataUrl, type: 'image/png', actionSource: 'upload' });
-  //       tick(500);
-
-  //       // Assert
-  //       expect(component.attachmentUploadInProgress).toBeTrue();
-  //       expect(component.inlineReceiptDataUrl).toBe(dataUrl);
-  //       expect(transactionOutboxService.fileUpload).toHaveBeenCalledWith(dataUrl, attachmentType);
-  //       expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObjectData);
-  //       expect(fileService.post).toHaveBeenCalledWith(fileObjectData);
-  //       expect(component.setThumbnail).toHaveBeenCalledWith(fileObjectData.id, attachmentType);
-  //       console.log('sas');
-  //       console.log(component.setThumbnail);
-  //       expect(component.attachmentUploadInProgress).toBeFalse();
-  //       tick(500);
-  //     }));
-  //   });
+      //expect(component.attachmentUploadInProgress).toBeTrue();
+      expect(component.inlineReceiptDataUrl).toBe(dataUrl);
+      expect(transactionOutboxService.fileUpload).toHaveBeenCalledWith(dataUrl, attachmentType);
+      expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObj);
+      expect(fileService.post).toHaveBeenCalledWith(fileObj);
+      expect(component.setThumbnail).toHaveBeenCalledWith(fileObjectData.id, attachmentType);
+      console.log('sas');
+      console.log(component.setThumbnail);
+      expect(component.attachmentUploadInProgress).toBeFalse();
+      tick(500);
+    }));
+  });
 
   it('should emit the dismissed event with the expense object when called', () => {
     const emitSpy = spyOn(component.dismissed, 'emit');
@@ -321,25 +308,83 @@ fdescribe('ExpensesCardComponent', () => {
     });
   });
 
-  it('checkIfScanIsCompleted(): should check of scan is complete and return true if all the conditions are met', () => {
-    component.expense = {
-      ...expenseData1,
-      tx_amount: 100,
-      tx_extracted_data: {
-        amount: 84.12,
-        currency: 'USD',
-        category: 'Professional Services',
-        date: null,
-        vendor: null,
-        invoice_dt: null,
-      },
-    };
-    const result = component.checkIfScanIsCompleted();
-    fixture.detectChanges();
-    expect(result).toBe(true);
+  describe('checkIfScanIsCompleted():', () => {
+    it('should check of scan is complete and return true if the transaction amount is present and if the user has manually entered the data', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: 100,
+        tx_extracted_data: {
+          amount: 84.12,
+          currency: 'USD',
+          category: 'Professional Services',
+          date: null,
+          vendor: null,
+          invoice_dt: null,
+        },
+      };
+      const result = component.checkIfScanIsCompleted();
+      fixture.detectChanges();
+      expect(result).toBe(true);
+    });
+
+    it('should check of scan is complete and return true if the transaction user amount is present and if the user has manually entered the data', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: null,
+        tx_extracted_data: {
+          amount: 84.12,
+          currency: 'USD',
+          category: 'Professional Services',
+          date: null,
+          vendor: null,
+          invoice_dt: null,
+        },
+      };
+      const result = component.checkIfScanIsCompleted();
+      fixture.detectChanges();
+      expect(result).toBe(true);
+    });
+
+    it('should check of scan is complete and return true if the required extracted data is present', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: null,
+        tx_user_amount: null,
+        tx_extracted_data: {
+          amount: 84.12,
+          currency: 'USD',
+          category: 'Professional Services',
+          date: null,
+          vendor: null,
+          invoice_dt: null,
+        },
+      };
+      const result = component.checkIfScanIsCompleted();
+      fixture.detectChanges();
+      expect(result).toBe(true);
+    });
+
+    it('should check of scan is complete and return true if the scan has expired', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: null,
+        tx_user_amount: null,
+        tx_extracted_data: {
+          amount: null,
+          currency: 'USD',
+          category: 'Professional Services',
+          date: null,
+          vendor: null,
+          invoice_dt: null,
+        },
+      };
+      const result = component.checkIfScanIsCompleted();
+      fixture.detectChanges();
+      expect(result).toBe(true);
+    });
   });
 
-  describe('pollDataExtractionStatus', () => {
+  describe('pollDataExtractionStatus():', () => {
     it('should call the callback when data extraction is not pending', fakeAsync(() => {
       transactionOutboxService.isDataExtractionPending.and.returnValue(false);
       const callbackSpy = jasmine.createSpy('callback');
@@ -367,13 +412,106 @@ fdescribe('ExpensesCardComponent', () => {
       expect(callbackSpy).toHaveBeenCalledTimes(1);
     }));
   });
+
+  describe('setOtherData():', () => {
+    it('should set icon to fy-matched if the source account type is corporate credit card', () => {
+      component.expense = {
+        ...expenseData1,
+        source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+        tx_corporate_credit_card_expense_group_id: 'cccet1B17R8gWZ',
+      };
+
+      component.setOtherData();
+      fixture.detectChanges();
+      expect(component.paymentModeIcon).toEqual('fy-matched');
+    });
+
+    it('should set icon to fy-unmatched if the source account type is corporate credit card but expense group id is not present', () => {
+      component.expense = {
+        ...expenseData1,
+        source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      };
+
+      component.setOtherData();
+      fixture.detectChanges();
+      expect(component.paymentModeIcon).toEqual('fy-unmatched');
+    });
+
+    it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {
+      component.setOtherData();
+      fixture.detectChanges();
+      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+    });
+
+    it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_skip_reimbursement: true,
+      };
+      component.setOtherData();
+      fixture.detectChanges();
+      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+    });
+  });
+
+  describe('getScanningReceiptCard():', () => {
+    it('should return false for the fyle category if it is per diem', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_fyle_category: 'per diem',
+      };
+      const result = component.getScanningReceiptCard(component.expense);
+      fixture.detectChanges();
+      expect(result).toBeFalse();
+    });
+
+    it('should return false for the fyle category if it is mileage', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_fyle_category: 'mileage',
+      };
+      const result = component.getScanningReceiptCard(component.expense);
+      fixture.detectChanges();
+      expect(result).toBeFalse();
+    });
+
+    it('should return true when transaction amount ,currency,extracted data and transcribed data is not present', () => {
+      const expData = {
+        ...expenseData1,
+        tx_fyle_category: null,
+        tx_amount: null,
+        tx_currency: null,
+        tx_extracted_data: null,
+        tx_transcribed_data: null,
+      };
+      const result = component.getScanningReceiptCard(expData);
+      fixture.detectChanges();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if none of the conditions meet', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: 100,
+        tx_extracted_data: {
+          amount: 84.12,
+          currency: 'USD',
+          category: 'Professional Services',
+          date: null,
+          vendor: null,
+          invoice_dt: null,
+        },
+      };
+      const result = component.getScanningReceiptCard(component.expense);
+      fixture.detectChanges();
+      expect(result).toBeFalse();
+    });
+  });
 });
 
 // xit("getReceipt", () => { });
-// xit("checkIfScanIsCompleted", () => { });
 // xit("handleScanStatus", () => { });
 // xit("canShowPaymentModeIcon", () => { });
-// xit("setOtherData", () => { });
 // xit("addAttachments", () => { });
 // xit("setupNetworkWatcher", () => { });
 // xit("dismiss", () => { });
