@@ -90,8 +90,6 @@ fdescribe('FyMultiselectComponent', () => {
   });
 
   it('onBlur(): should call a function when onBlur fires and registerOnTouched to trigger', () => {
-    spyOn(component, 'onTouchedCallback');
-    spyOn(component, 'registerOnTouched').and.callThrough();
     const callbackFn = jasmine.createSpy('callbackFn');
     component.registerOnTouched(callbackFn);
 
@@ -99,7 +97,6 @@ fdescribe('FyMultiselectComponent', () => {
     inputElement.nativeElement.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
 
-    expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
     expect(callbackFn).toHaveBeenCalledTimes(1);
   });
 
@@ -113,18 +110,27 @@ fdescribe('FyMultiselectComponent', () => {
     });
   });
 
-  xit('registerOnChange():', () => {
+  it('registerOnChange(): should check if callback is triggered when value changes', async () => {
     const callbackFn = jasmine.createSpy('callbackFn');
-    spyOn(component, 'registerOnChange').and.callThrough();
-    spyOn(component, 'onChangeCallback');
+
     component.registerOnChange(callbackFn);
-    const inputElement = fixture.debugElement.query(By.css('.fy-select--input'));
-    inputElement.nativeElement.dispatchEvent(new Event('input'));
-    inputElement.nativeElement.value = 'value';
 
-    fixture.detectChanges();
+    const selectionModalSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
+    selectionModalSpy.onWillDismiss.and.returnValue(
+      Promise.resolve({
+        data: {
+          selected: ['value'],
+        },
+      })
+    );
 
-    expect(component.onChangeCallback).toHaveBeenCalledTimes(1);
+    modalProperties.getModalDefaultProperties.and.callThrough();
+    modalController.create.and.returnValue(Promise.resolve(selectionModalSpy));
+
+    await component.openModal();
+    await fixture.detectChanges();
+
+    expect(callbackFn).toHaveBeenCalledTimes(1);
   });
 
   it('should show label', () => {
