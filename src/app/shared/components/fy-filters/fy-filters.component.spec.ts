@@ -10,7 +10,7 @@ import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-fdescribe('FyFiltersComponent', () => {
+describe('FyFiltersComponent', () => {
   let component: FyFiltersComponent;
   let fixture: ComponentFixture<FyFiltersComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
