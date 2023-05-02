@@ -59,7 +59,7 @@ export const expensesWithDependentFields: Expense[] = [
     tx_category: null,
     tx_corporate_credit_card_expense_group_id: null,
     tx_cost_center_code: '123',
-    tx_cost_center_id: 15818,
+    tx_cost_center_id: 16744,
     tx_cost_center_name: '2qw3e',
     tx_created_at: new Date('2023-02-13T09:02:30.979559'),
     tx_creator_id: 'ou7tV5isTkRl',
@@ -76,6 +76,10 @@ export const expensesWithDependentFields: Expense[] = [
       {
         name: 'CF3',
         value: null,
+      },
+      {
+        name: 'Dependent Field Of Cost Center',
+        value: 'Dep. Value 3',
       },
     ],
     tx_decimal_column1: null,
@@ -278,7 +282,7 @@ export const expensesWithDependentFields: Expense[] = [
     tx_category: null,
     tx_corporate_credit_card_expense_group_id: null,
     tx_cost_center_code: '123',
-    tx_cost_center_id: 15818,
+    tx_cost_center_id: 16743,
     tx_cost_center_name: '2qw3e',
     tx_created_at: new Date('2023-02-13T09:00:51.904058'),
     tx_creator_id: 'ou7tV5isTkRl',
@@ -295,6 +299,10 @@ export const expensesWithDependentFields: Expense[] = [
       {
         name: 'CF3',
         value: 'CF3.3',
+      },
+      {
+        name: 'Dependent Field Of Cost Center',
+        value: 'Dep. Value 1',
       },
     ],
     tx_decimal_column1: null,
