@@ -262,5 +262,99 @@ describe('DependentFieldsComponent', () => {
     });
   });
 
-  xit('addDependentFieldWithValue(): ', () => {});
+  xdescribe('addDependentFieldWithValue(): ', () => {});
+
+  fdescribe('onDependentFieldChanged(): ', () => {
+    beforeEach(() => {
+      component.dependentFieldsFormArray = new FormArray([]);
+
+      for (let i = 0; i < 2; i++) {
+        const dependentFieldControl = new FormGroup({
+          id: new FormControl(dependentCustomFields[i].id),
+          label: new FormControl(dependentCustomFields[i].field_name),
+          parent_field_id: new FormControl(dependentCustomFields[i].parent_field_id),
+          value: new FormControl(null, (dependentCustomFields[i].is_mandatory || null) && Validators.required),
+        });
+        component.dependentFieldsFormArray.push(dependentFieldControl);
+      }
+
+      spyOn(component, 'removeAllDependentFields').and.returnValue(null);
+      spyOn(component, 'addDependentField').and.returnValue(null);
+    });
+
+    it('should create a new dependent field when a value is selected for parent for the first time', () => {
+      const data = {
+        id: 219199,
+        label: 'Cost Code',
+        parent_field_id: 219175,
+        value: 'Cost Code 1',
+      };
+
+      const dependentFieldDetails = {
+        dependentField: dependentCustomFields[1],
+        parentFieldValue: data.value,
+      };
+
+      component.dependentFieldsFormArray.removeAt(1);
+      spyOn(component, 'getDependentField').and.returnValue(of(dependentFieldDetails));
+
+      component.onDependentFieldChanged(data);
+      fixture.detectChanges();
+
+      expect(component.removeAllDependentFields).not.toHaveBeenCalled();
+      expect(component.getDependentField).toHaveBeenCalledOnceWith(data.id, data.value);
+
+      component.getDependentField(data.id, data.value).subscribe((result) => {
+        expect(component.isDependentFieldLoading).toBeFalse();
+        expect(result).toEqual(dependentFieldDetails);
+        expect(component.addDependentField).toHaveBeenCalledOnceWith(result.dependentField, result.parentFieldValue);
+      });
+    });
+
+    it('should not add a new dependent field for the last field in the chain', () => {
+      const data = {
+        id: 219200,
+        label: 'Cost Area',
+        parent_field_id: 219199,
+        value: 'Cost Area 2',
+      };
+
+      spyOn(component, 'getDependentField').and.returnValue(of(null));
+
+      component.onDependentFieldChanged(data);
+      fixture.detectChanges();
+
+      expect(component.removeAllDependentFields).not.toHaveBeenCalled();
+      expect(component.getDependentField).toHaveBeenCalledOnceWith(data.id, data.value);
+
+      component.getDependentField(data.id, data.value).subscribe((result) => {
+        expect(component.isDependentFieldLoading).toBeFalse();
+        expect(result).toEqual(null);
+        expect(component.addDependentField).not.toHaveBeenCalled();
+      });
+    });
+
+    it('should remove the child dependent fields and show new child when value of parent field is changed', () => {
+      const data = {
+        id: 219199,
+        label: 'Cost Code',
+        parent_field_id: 219175,
+        value: 'Cost Code 2',
+      };
+
+      spyOn(component, 'getDependentField').and.returnValue(of(null));
+
+      component.onDependentFieldChanged(data);
+      fixture.detectChanges();
+
+      expect(component.removeAllDependentFields).toHaveBeenCalledOnceWith(0);
+      expect(component.getDependentField).toHaveBeenCalledOnceWith(data.id, data.value);
+
+      component.getDependentField(data.id, data.value).subscribe((result) => {
+        expect(component.isDependentFieldLoading).toBeFalse();
+        expect(result).toEqual(null);
+        expect(component.addDependentField).not.toHaveBeenCalled();
+      });
+    });
+  });
 });
