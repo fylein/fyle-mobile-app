@@ -81,4 +81,22 @@ export const filterOptions1 = [
       },
     ],
   } as FilterOptions<string>,
+  {
+    name: 'Created On',
+    optionType: FilterOptionType.date,
+    options: [
+      {
+        label: 'All',
+        value: 'ALL',
+      },
+      {
+        label: 'This Week',
+        value: 'THIS_WEEK',
+      },
+      {
+        label: 'This Month',
+        value: 'THIS_MONTH',
+      },
+    ],
+  } as FilterOptions<string>,
 ];

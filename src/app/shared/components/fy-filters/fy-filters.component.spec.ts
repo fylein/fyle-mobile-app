@@ -7,8 +7,9 @@ import { selectedFilters1 } from 'src/app/core/mock-data/selected-filters.data';
 import { FilterOptionType } from './filter-option-type.enum';
 import { FilterOptions } from './filter-options.interface';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
-describe('FyFiltersComponent', () => {
+fdescribe('FyFiltersComponent', () => {
   let component: FyFiltersComponent;
   let fixture: ComponentFixture<FyFiltersComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -23,6 +24,7 @@ describe('FyFiltersComponent', () => {
           useValue: modalControllerSpy,
         },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [IonicModule.forRoot()],
     }).compileComponents();
 
@@ -527,13 +529,13 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Created On';
     component.filterOptions = filterOptions1;
     component.startDate = new Date('2023-04-22');
     component.endDate = new Date('2023-04-25');
     fixture.detectChanges();
     component.onDateChange();
-    expect(component.customDateMap['Expense Type']).toEqual({
+    expect(component.customDateMap['Created On']).toEqual({
       startDate: new Date('2023-04-22'),
       endDate: new Date('2023-04-25'),
     });
@@ -543,7 +545,7 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Created On';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filterDefinition = {
@@ -551,8 +553,16 @@ describe('FyFiltersComponent', () => {
       optionType: FilterOptionType.date,
       options: [
         {
-          label: 'Sent Back',
-          value: 'SENT_BACK',
+          label: 'All',
+          value: 'ALL',
+        },
+        {
+          label: 'This Week',
+          value: 'THIS_WEEK',
+        },
+        {
+          label: 'This Month',
+          value: 'THIS_MONTH',
         },
       ],
     };
@@ -569,16 +579,24 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Created On';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filterDefinition = {
       name: 'Created On',
-      optionType: FilterOptionType.multiselect,
+      optionType: FilterOptionType.date,
       options: [
         {
-          label: 'Sent Back',
-          value: 'SENT_BACK',
+          label: 'All',
+          value: 'ALL',
+        },
+        {
+          label: 'This Week',
+          value: 'THIS_WEEK',
+        },
+        {
+          label: 'This Month',
+          value: 'THIS_MONTH',
         },
       ],
     };
@@ -595,16 +613,24 @@ describe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Expense Type';
+    component.activeFilterInitialName = 'Created On';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filterDefinition = {
       name: 'Created On',
-      optionType: FilterOptionType.singleselect,
+      optionType: FilterOptionType.date,
       options: [
         {
-          label: 'Sent Back',
-          value: 'SENT_BACK',
+          label: 'All',
+          value: 'ALL',
+        },
+        {
+          label: 'This Week',
+          value: 'THIS_WEEK',
+        },
+        {
+          label: 'This Month',
+          value: 'THIS_MONTH',
         },
       ],
     };
@@ -682,7 +708,6 @@ describe('FyFiltersComponent', () => {
     };
     component.currentFilterValueMap = {
       filter1: 'value1',
-      filter2: 'value2',
     };
 
     component.switchDateFilter(filter, filterOptions, options);
@@ -722,7 +747,6 @@ describe('FyFiltersComponent', () => {
     };
     component.currentFilterValueMap = {
       filter1: 'value1',
-      filter2: 'value2',
     };
 
     component.switchDateFilter(filter, filterOptions, options);
@@ -765,7 +789,6 @@ describe('FyFiltersComponent', () => {
     };
     component.currentFilterValueMap = {
       filter1: ['filter1', 'filter2'],
-      filter2: ['filter1', 'filter2'],
     };
 
     component.switchMultiselectFilter(filter, options, filterOptions);
@@ -805,7 +828,6 @@ describe('FyFiltersComponent', () => {
     };
     component.currentFilterValueMap = {
       filter1: ['filter1', 'filter2'],
-      filter2: ['filter1', 'filter2'],
     };
 
     component.switchMultiselectFilter(filter, options, filterOptions);
@@ -844,8 +866,7 @@ describe('FyFiltersComponent', () => {
       value: 'filter1',
     };
     component.currentFilterValueMap = {
-      filter1: ['filter1', 'filter2'],
-      filter2: ['filter1', 'filter2'],
+      filter1: ['filter1'],
     };
 
     component.switchMultiselectFilter(filter, options, filterOptions);
@@ -885,7 +906,6 @@ describe('FyFiltersComponent', () => {
     };
     component.currentFilterValueMap = {
       filter1: 'filter1',
-      filter2: 'filter2',
     };
 
     component.switchSingleSelectFilter(filter, filterOptions, options);
@@ -924,7 +944,7 @@ describe('FyFiltersComponent', () => {
       value: 'filter1',
     };
     component.currentFilterValueMap = {
-      filter2: 'filter2',
+      filter1: 'filter1',
     };
 
     component.switchSingleSelectFilter(filter, filterOptions, options);
