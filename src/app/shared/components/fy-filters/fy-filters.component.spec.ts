@@ -7,7 +7,8 @@ import { selectedFilters1 } from 'src/app/core/mock-data/selected-filters.data';
 import { FilterOptionType } from './filter-option-type.enum';
 import { FilterOptions } from './filter-options.interface';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 fdescribe('FyFiltersComponent', () => {
   let component: FyFiltersComponent;
@@ -24,8 +25,8 @@ fdescribe('FyFiltersComponent', () => {
           useValue: modalControllerSpy,
         },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-      imports: [IonicModule.forRoot()],
+      schemas: [NO_ERRORS_SCHEMA],
+      imports: [IonicModule.forRoot(), FormsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyFiltersComponent);
@@ -81,6 +82,8 @@ fdescribe('FyFiltersComponent', () => {
       'Created On': 'custom',
       'Updated On': 'custom',
       'Transactions Type': 'Debit',
+      Type: 'custom',
+      'Receipts Attached': 'custom',
     });
   });
 
@@ -149,19 +152,19 @@ fdescribe('FyFiltersComponent', () => {
     component.filterOptions = [
       {
         name: 'Date',
-        optionType: FilterOptionType.multiselect,
+        optionType: FilterOptionType.date,
         options: [
           {
-            label: 'Complete',
-            value: 'UNREPORTED',
+            label: 'All',
+            value: 'ALL',
           },
           {
-            label: 'Draft',
-            value: 'DRAFT',
+            label: 'This Week',
+            value: 'THIS_WEEK',
           },
           {
-            label: 'Duplicate',
-            value: 'DUPLICATE',
+            label: 'This Month',
+            value: 'THIS_MONTH',
           },
         ],
       } as FilterOptions<string>,
@@ -223,19 +226,19 @@ fdescribe('FyFiltersComponent', () => {
     component.filterOptions = [
       {
         name: 'Date',
-        optionType: FilterOptionType.multiselect,
+        optionType: FilterOptionType.date,
         options: [
           {
-            label: 'Complete',
-            value: 'UNREPORTED',
+            label: 'All',
+            value: 'ALL',
           },
           {
-            label: 'Draft',
-            value: 'DRAFT',
+            label: 'This Week',
+            value: 'THIS_WEEK',
           },
           {
-            label: 'Duplicate',
-            value: 'DUPLICATE',
+            label: 'This Month',
+            value: 'THIS_MONTH',
           },
         ],
       } as FilterOptions<string>,
@@ -276,7 +279,7 @@ fdescribe('FyFiltersComponent', () => {
     expect(component.endDate).toEqual(undefined);
   });
 
-  it('should set filterOptions option', () => {
+  it('should set filterOptions options to optionsNewFlowCCCOnly', () => {
     component.selectedFilterValues = selectedFilters1;
     component.activeFilterInitialName = 'State';
     component.filterOptions = [
@@ -453,7 +456,7 @@ fdescribe('FyFiltersComponent', () => {
     component.activeFilterInitialName = 'Expense Type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
-    expect(component.getNoOfFilters()).toBe(3);
+    expect(component.getNoOfFilters()).toBe(5);
   });
 
   it('onFilterClick(): should set activeFilter and startDate and endDate', () => {
@@ -468,8 +471,16 @@ fdescribe('FyFiltersComponent', () => {
       optionType: FilterOptionType.date,
       options: [
         {
-          label: 'Sent Back',
-          value: 'SENT_BACK',
+          label: 'All',
+          value: 'ALL',
+        },
+        {
+          label: 'This Week',
+          value: 'THIS_WEEK',
+        },
+        {
+          label: 'This Month',
+          value: 'THIS_MONTH',
         },
       ],
     };
@@ -519,6 +530,16 @@ fdescribe('FyFiltersComponent', () => {
     component.activeFilterInitialName = 'Expense Type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
+    expect(component.currentFilterValueMap).toEqual({
+      'Created On': 'custom',
+      'Updated On': 'custom',
+      'Transactions Type': 'Debit',
+      Type: 'custom',
+      'Receipts Attached': 'custom',
+    });
+    expect(component.customDateMap).toEqual({});
+    expect(component.startDate).toEqual(undefined);
+    expect(component.endDate).toEqual(undefined);
     component.clearAll();
     expect(component.currentFilterValueMap).toEqual({});
     expect(component.customDateMap).toEqual({});
@@ -579,24 +600,24 @@ fdescribe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Created On';
+    component.activeFilterInitialName = 'Type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filterDefinition = {
-      name: 'Created On',
-      optionType: FilterOptionType.date,
+      name: 'Type',
+      optionType: FilterOptionType.multiselect,
       options: [
         {
-          label: 'All',
-          value: 'ALL',
+          label: 'Complete',
+          value: 'COMPLETE',
         },
         {
-          label: 'This Week',
-          value: 'THIS_WEEK',
+          label: 'Policy Violated',
+          value: 'POLICY_VIOLATED',
         },
         {
-          label: 'This Month',
-          value: 'THIS_MONTH',
+          label: 'Incomplete',
+          value: 'INCOMPLETE',
         },
       ],
     };
@@ -613,24 +634,20 @@ fdescribe('FyFiltersComponent', () => {
     component.simplifyReportsSettings$ = of({ enabled: false });
     component.selectedFilterValues = selectedFilters1;
     component.nonReimbursableOrg$ = of(false);
-    component.activeFilterInitialName = 'Created On';
+    component.activeFilterInitialName = 'Receipts Attached';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     const filterDefinition = {
-      name: 'Created On',
-      optionType: FilterOptionType.date,
+      name: 'Receipts Attached',
+      optionType: FilterOptionType.singleselect,
       options: [
         {
-          label: 'All',
-          value: 'ALL',
+          label: 'Yes',
+          value: 'yes',
         },
         {
-          label: 'This Week',
-          value: 'THIS_WEEK',
-        },
-        {
-          label: 'This Month',
-          value: 'THIS_MONTH',
+          label: 'No',
+          value: 'no',
         },
       ],
     };
