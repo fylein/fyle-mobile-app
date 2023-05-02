@@ -118,7 +118,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     return of(null);
   }
 
-  private addDependentField(dependentField: ExpenseField, parentFieldValue: string, value = null): void {
+  addDependentField(dependentField: ExpenseField, parentFieldValue: string, value = null): void {
     const dependentFieldControl = this.formBuilder.group({
       id: dependentField.id,
       label: dependentField.field_name,
@@ -145,7 +145,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     this.dependentFieldsFormArray.push(dependentFieldControl, { emitEvent: false });
   }
 
-  private removeAllDependentFields(updatedFieldIndex: number) {
+  removeAllDependentFields(updatedFieldIndex: number) {
     //Remove all dependent field controls after the changed one
     for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
       this.dependentFieldsFormArray.removeAt(i);
@@ -155,7 +155,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     this.dependentFields = this.dependentFields.slice(0, updatedFieldIndex + 1);
   }
 
-  private onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
+  onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
     const updatedFieldIndex = this.dependentFieldsFormArray.value.findIndex(
       (depField) => depField.label === data.label
     );

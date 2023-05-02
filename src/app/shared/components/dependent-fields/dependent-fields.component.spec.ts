@@ -60,11 +60,14 @@ fdescribe('DependentFieldsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('addDependentFieldWithValue(): ', () => {
-    it('should add a new non-mandatory dependent field', () => {
-      const parentFieldValue = 'Project 1';
+  describe('addDependentField(): ', () => {
+    let parentFieldValue: string;
+    let dependentFieldControl: FormGroup;
 
-      const dependentFieldControl = new FormGroup({
+    beforeEach(() => {
+      parentFieldValue = 'Project 1';
+
+      dependentFieldControl = new FormGroup({
         id: new FormControl(dependentCustomFields[0].id),
         label: new FormControl(dependentCustomFields[0].field_name),
         parent_field_id: new FormControl(dependentCustomFields[0].parent_field_id),
@@ -72,7 +75,9 @@ fdescribe('DependentFieldsComponent', () => {
       });
 
       formBuilder.group.and.returnValue(dependentFieldControl);
+    });
 
+    it('should add a new field and call onDependentFieldChanged() whenever the field changes', (done) => {
       const dependentField = {
         id: dependentCustomFields[0].id,
         parentFieldId: dependentCustomFields[0].parent_field_id,
@@ -83,48 +88,63 @@ fdescribe('DependentFieldsComponent', () => {
         placeholder: dependentCustomFields[0].placeholder,
       };
 
+      const dependentFieldValue = {
+        id: dependentCustomFields[0].id,
+        label: dependentCustomFields[0].field_name,
+        parent_field_id: dependentCustomFields[0].parent_field_id,
+        value: 'Some new value',
+      };
+
+      spyOn(component, 'onDependentFieldChanged').and.returnValue(null);
       component.addDependentField(dependentCustomFields[0], parentFieldValue);
       fixture.detectChanges();
 
+      const dependentFieldFg = component.dependentFieldsFormArray.at(
+        component.dependentFieldsFormArray.length - 1
+      ) as FormGroup;
+
       //This field should be the last field in dependentFields and formArray
       expect(component.dependentFields[component.dependentFields.length - 1]).toEqual(dependentField);
-      expect(component.dependentFieldsFormArray.at(component.dependentFieldsFormArray.length - 1)).toEqual(
-        dependentFieldControl
-      );
+      expect(dependentFieldFg).toEqual(dependentFieldControl);
+
+      dependentFieldFg.valueChanges.subscribe((result) => {
+        expect(result).toEqual(dependentFieldValue);
+        expect(component.onDependentFieldChanged).toHaveBeenCalledOnceWith(result);
+        done();
+      });
+
+      dependentFieldFg.patchValue(dependentFieldValue);
+      fixture.detectChanges();
+    });
+
+    it('should add a new non-mandatory dependent field', () => {
+      component.addDependentField(dependentCustomFields[0], parentFieldValue);
+      fixture.detectChanges();
 
       //The formControl should not have any validators
       expect(dependentFieldControl.controls.value.hasValidator(null)).toBeTrue();
-
-      // spyOn(component, 'onDependentFieldChanged').and.returnValue(null);
-      // expect(component.onDependentFieldChanged).toHaveBeenCalledOnceWith({
-      //   id: 32,
-      //   label: 'string',
-      //   parent_field_id: 13313,
-      //   value: '1313',
-      // });
     });
 
     it('should add a new mandatory dependent field', () => {
-      const parentFieldValue = 'Project 1';
       const mandatoryDependentField = {
         ...dependentCustomFields[0],
         is_mandatory: true,
       };
 
-      const dependentFieldControl = new FormGroup({
+      const mandatoryDependentFieldControl = new FormGroup({
         id: new FormControl(mandatoryDependentField.id),
         label: new FormControl(mandatoryDependentField.field_name),
         parent_field_id: new FormControl(mandatoryDependentField.parent_field_id),
         value: new FormControl(null, (mandatoryDependentField.is_mandatory || null) && Validators.required),
       });
 
-      formBuilder.group.and.returnValue(dependentFieldControl);
+      formBuilder.group.and.returnValue(mandatoryDependentFieldControl);
 
       component.addDependentField(mandatoryDependentField, parentFieldValue);
       fixture.detectChanges();
 
       //Dependent field should be marked as mandatory
-      expect(dependentFieldControl.controls.value.hasValidator(Validators.required)).toBeTrue();
+      expect(mandatoryDependentFieldControl.controls.value.hasValidator(Validators.required)).toBeTrue();
     });
   });
 
