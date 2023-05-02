@@ -10,7 +10,7 @@ import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor
 import { getTextContent, getElementBySelector, click } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 
-fdescribe('FySelectVendorComponent', () => {
+describe('FySelectVendorComponent', () => {
   let component: FySelectVendorComponent;
   let fixture: ComponentFixture<FySelectVendorComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -79,11 +79,8 @@ fdescribe('FySelectVendorComponent', () => {
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
   });
 
-  it('onBlur(): should call a function when onBlur fires', () => {
+  it('onBlur(): should call a function when onBlur fires and trigger on touched callback', () => {
     const callbackFn = jasmine.createSpy('callbackFn');
-    spyOn(component, 'onTouchedCallback').and.callThrough();
-    spyOn(component, 'registerOnTouched').and.callThrough();
-
     component.registerOnTouched(callbackFn);
 
     const inputElement = fixture.debugElement.query(By.css('.fy-select-vendor--input'));
@@ -91,8 +88,6 @@ fdescribe('FySelectVendorComponent', () => {
     fixture.detectChanges();
 
     expect(callbackFn).toHaveBeenCalledTimes(1);
-    expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
-    expect(component.registerOnTouched).toHaveBeenCalledTimes(1);
   });
 
   describe('writeValue():', () => {
@@ -113,12 +108,26 @@ fdescribe('FySelectVendorComponent', () => {
     });
   });
 
-  it('registerOnChange():', () => {
+  it('registerOnChange():should trigger on change callback when value changes', async () => {
     const callbackFn = jasmine.createSpy('callbackFn');
-    spyOn(component, 'onChangeCallback').and.callThrough();
-
     component.registerOnChange(callbackFn);
-    expect(component.onChangeCallback).toEqual(callbackFn);
+
+    const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+    currencyModalSpy.onWillDismiss.and.returnValue(
+      Promise.resolve({
+        data: {
+          value: 'value',
+        },
+      })
+    );
+
+    modalProperties.getModalDefaultProperties.and.callThrough();
+    modalController.create.and.returnValue(Promise.resolve(currencyModalSpy));
+
+    await component.openModal();
+    await fixture.detectChanges();
+
+    expect(callbackFn).toHaveBeenCalledTimes(1);
   });
 
   it('should show label', () => {
