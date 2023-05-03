@@ -200,6 +200,8 @@
                     [options]="customInput.options"
                     formControlName="value"
                     [placeholder]="customInput.placeholder | ellipsis: 30"
+                    [touchedInParent]="fg.controls.custom_field_values['controls'][i].touched"
+                    [validInParent]="fg.controls.custom_field_values['controls'][i].valid"
                   >
                   </app-fy-multiselect>
                 </div>
@@ -210,6 +212,8 @@
                     [mandatory]="customInput.mandatory"
                     formControlName="value"
                     [placeholder]="customInput.placeholder | ellipsis: 30"
+                    [touchedInParent]="fg.controls.custom_field_values['controls'][i].touched"
+                    [validInParent]="fg.controls.custom_field_values['controls'][i].valid"
                   >
                   </app-fy-userlist>
                 </div>

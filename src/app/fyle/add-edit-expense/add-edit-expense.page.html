@@ -414,10 +414,10 @@
             <ng-container *ngIf="dependentFields$|async as dependentFields">
               <ng-container *ngIf="etxn$|async as etxn">
                 <ng-container *ngIf="selectedProject$|async as selectedProject">
-                  <ng-container formArrayName="dependent_fields">
+                  <ng-container formArrayName="project_dependent_fields">
                     <app-dependent-fields
-                      #dependentFieldsRef
-                      [dependentFieldsFormArray]="fg.controls.dependent_fields"
+                      #projectDependentFieldsRef
+                      [dependentFieldsFormArray]="fg.controls.project_dependent_fields"
                       [dependentCustomFields]="dependentFields"
                       [parentFieldId]="txnFields?.project_id?.id"
                       [parentFieldValue]="selectedProject?.projectv2_name"
@@ -833,6 +833,8 @@
                 [mandatory]="txnFields?.vendor_id?.is_mandatory"
                 formControlName="vendor_id"
                 [placeholder]="txnFields.vendor_id?.placeholder"
+                [touchedInParent]="fg.controls.vendor_id.touched"
+                [validInParent]="fg.controls.vendor_id.valid"
               >
               </app-fy-select-vendor>
               <app-virtual-select
@@ -877,6 +879,23 @@
                     Please select {{ txnFields.cost_center_id?.field_name }}
                   </div>
                 </div>
+
+                <ng-container *ngIf="dependentFields$|async as dependentFields">
+                  <ng-container *ngIf="etxn$|async as etxn">
+                    <ng-container *ngIf="selectedCostCenter$|async as selectedCostCenter">
+                      <ng-container formArrayName="cost_center_dependent_fields">
+                        <app-dependent-fields
+                          #costCenterDependentFieldsRef
+                          [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
+                          [dependentCustomFields]="dependentFields"
+                          [parentFieldId]="txnFields?.cost_center_id?.id"
+                          [parentFieldValue]="selectedCostCenter?.name"
+                          [txnCustomProperties]="etxn.tx.custom_properties"
+                        ></app-dependent-fields>
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
               </ng-container>
             </ng-container>
           </ng-container>
@@ -1015,6 +1034,8 @@
                       [subheader]="customInput.name"
                       formControlName="value"
                       [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [touchedInParent]="customInput.control.controls.value.touched"
+                      [validInParent]="customInput.control.controls.value.valid"
                     >
                     </app-fy-multiselect>
                   </div>
@@ -1026,6 +1047,8 @@
                       [allowCustomValues]="true"
                       formControlName="value"
                       [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [touchedInParent]="customInput.control.controls.value.touched"
+                      [validInParent]="customInput.control.controls.value.valid"
                     >
                     </app-fy-userlist>
                   </div>

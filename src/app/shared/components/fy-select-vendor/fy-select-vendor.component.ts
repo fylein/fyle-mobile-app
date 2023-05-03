@@ -1,5 +1,5 @@
 import { Component, OnInit, forwardRef, Input, OnDestroy, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl, NgControl } from '@angular/forms';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor-modal.component';
@@ -26,25 +26,23 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
 
   @Input() placeholder: string;
 
+  @Input() touchedInParent: boolean;
+
+  @Input() validInParent: boolean;
+
   displayValue;
 
   private innerValue;
-
-  private ngControl: NgControl;
 
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
 
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector
-  ) {}
+  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
+    if (this.touchedInParent) {
+      return this.validInParent;
     } else {
       return true;
     }
@@ -68,9 +66,7 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-  }
+  ngOnInit() {}
 
   ngOnDestroy() {}
 
