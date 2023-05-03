@@ -13,6 +13,7 @@ import { of } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { click, getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
 
 describe('FySelectVendorModalComponent', () => {
   let component: FySelectVendorModalComponent;
@@ -223,4 +224,35 @@ describe('FySelectVendorModalComponent', () => {
       expect(component.isLoading).toBeFalse();
     });
   }));
+
+  it('should close modal when clicked on', () => {
+    spyOn(component, 'onDoneClick');
+
+    const closeButton = getElementBySelector(fixture, '.fy-icon-close') as HTMLElement;
+    click(closeButton);
+
+    expect(component.onDoneClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('should clear value when clicked on', () => {
+    component.value = 'value';
+    spyOn(component, 'clearValue');
+    fixture.detectChanges();
+
+    const clearButton = getElementBySelector(fixture, '[data-testid="clear"]') as HTMLElement;
+    click(clearButton);
+
+    expect(component.clearValue).toHaveBeenCalledTimes(1);
+  });
+
+  it('should add a new entry when selected', () => {
+    spyOn(component, 'onNewSelect');
+    component.value = 'value1';
+    fixture.detectChanges();
+
+    const addNewButton = getElementBySelector(fixture, '.selection-modal--list-element') as HTMLElement;
+    click(addNewButton);
+
+    expect(component.onNewSelect).toHaveBeenCalledTimes(1);
+  });
 });
