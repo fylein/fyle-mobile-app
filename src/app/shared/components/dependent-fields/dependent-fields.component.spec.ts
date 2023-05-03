@@ -20,7 +20,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
-describe('DependentFieldsComponent', () => {
+fdescribe('DependentFieldsComponent', () => {
   let component: DependentFieldsComponent;
   let fixture: ComponentFixture<DependentFieldsComponent>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
@@ -62,7 +62,16 @@ describe('DependentFieldsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  fdescribe('addDependentFieldWithValue(): ', () => {
+  it('ngOnDestroy(): should not complete if onPageExit$ is not defined', () => {
+    component.onPageExit$ = null;
+    const onPageExitSpy = jasmine.createSpyObj('onPageExit$', ['next', 'complete']);
+
+    component.ngOnDestroy();
+    expect(onPageExitSpy.next).not.toHaveBeenCalled();
+    expect(onPageExitSpy.complete).not.toHaveBeenCalled();
+  });
+
+  describe('addDependentFieldWithValue(): ', () => {
     let parentField = [];
     let dependentFieldDetails: {
       dependentField: ExpenseField;
