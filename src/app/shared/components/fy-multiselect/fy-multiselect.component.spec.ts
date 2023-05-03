@@ -10,7 +10,7 @@ import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multisele
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 
-fdescribe('FyMultiselectComponent', () => {
+describe('FyMultiselectComponent', () => {
   let component: FyMultiselectComponent;
   let fixture: ComponentFixture<FyMultiselectComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
