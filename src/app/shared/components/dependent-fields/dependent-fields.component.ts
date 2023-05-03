@@ -71,12 +71,12 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
       if (dependentFieldValue?.value) {
         //Add dependent field with selected value
-        this.addDependentField(dependentField, parentField.value, dependentFieldValue?.value);
+        this.addDependentField(dependentField, parentField.value, dependentFieldValue.value);
 
         //Add field which is dependent on the depenent field (if present)
         const currentField = {
           id: dependentField.id,
-          value: dependentFieldValue?.value,
+          value: dependentFieldValue.value,
         };
         this.addDependentFieldWithValue(txCustomProperties, dependentFields, currentField);
       } else {

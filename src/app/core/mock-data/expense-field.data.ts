@@ -807,7 +807,7 @@ export const transformedResponse2 = [
   },
 ];
 
-export const dependentCustomFields = [
+export const dependentCustomFields: ExpenseField[] = [
   {
     id: 219199,
     code: null,

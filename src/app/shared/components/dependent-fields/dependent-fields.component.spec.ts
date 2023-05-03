@@ -17,6 +17,7 @@ import { dependentFieldOptionsForCostCode } from 'src/app/core/mock-data/depende
 import { Subject, of } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
 
 describe('DependentFieldsComponent', () => {
   let component: DependentFieldsComponent;
@@ -47,17 +48,65 @@ describe('DependentFieldsComponent', () => {
 
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     formBuilder = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
-    component.dependentCustomFields = dependentCustomFields;
 
+    component.dependentCustomFields = dependentCustomFields;
     component.dependentFieldsFormArray = new FormArray([]);
     component.parentFieldId = 219175;
     component.parentFieldValue = 'Project 1';
-    component.txnCustomProperties = [];
+    component.txnCustomProperties = dependentCustomProperties;
     component.onPageExit$ = new Subject();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  fdescribe('addDependentFieldWithValue(): ', () => {
+    it('should add a dependent field with its value', () => {
+      const parentField = [
+        {
+          id: 219175,
+          value: 'Project 1',
+        },
+        {
+          id: 219199,
+          value: 'Cost Code 1',
+        },
+      ];
+
+      const dependentFieldDetails = {
+        dependentField: dependentCustomFields[1],
+        parentFieldValue: 'Cost Code 1',
+      };
+
+      const addDependentFieldSpy = spyOn(component, 'addDependentField').and.returnValues(null);
+      const getDependentFieldSpy = spyOn(component, 'getDependentField').and.returnValues(
+        of(dependentFieldDetails),
+        of(null)
+      );
+
+      const addDependentFieldWithValueSpy = spyOn(component, 'addDependentFieldWithValue').and.callThrough();
+      component.addDependentFieldWithValue(
+        component.txnCustomProperties,
+        component.dependentCustomFields,
+        parentField[0]
+      );
+
+      expect(addDependentFieldSpy).toHaveBeenCalledTimes(2);
+      expect(addDependentFieldSpy.calls.allArgs()).toEqual([
+        [component.dependentCustomFields[0], parentField[0].value, dependentCustomProperties[1].value],
+        [component.dependentCustomFields[1], parentField[1].value],
+      ]);
+
+      expect(getDependentFieldSpy).toHaveBeenCalledTimes(1);
+      expect(getDependentFieldSpy.calls.allArgs()).toEqual([[parentField[1].id, parentField[1].value]]);
+
+      expect(component.addDependentFieldWithValue).toHaveBeenCalledTimes(2);
+      expect(addDependentFieldWithValueSpy.calls.allArgs()).toEqual([
+        [component.txnCustomProperties, component.dependentCustomFields, parentField[0]],
+        [component.txnCustomProperties, component.dependentCustomFields, parentField[1]],
+      ]);
+    });
   });
 
   describe('addDependentField(): ', () => {
@@ -262,9 +311,7 @@ describe('DependentFieldsComponent', () => {
     });
   });
 
-  xdescribe('addDependentFieldWithValue(): ', () => {});
-
-  fdescribe('onDependentFieldChanged(): ', () => {
+  describe('onDependentFieldChanged(): ', () => {
     beforeEach(() => {
       component.dependentFieldsFormArray = new FormArray([]);
 
