@@ -19,8 +19,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { SimpleChange } from '@angular/core';
 
-fdescribe('DependentFieldsComponent', () => {
+describe('DependentFieldsComponent', () => {
   let component: DependentFieldsComponent;
   let fixture: ComponentFixture<DependentFieldsComponent>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
@@ -69,6 +70,70 @@ fdescribe('DependentFieldsComponent', () => {
     component.ngOnDestroy();
     expect(onPageExitSpy.next).not.toHaveBeenCalled();
     expect(onPageExitSpy.complete).not.toHaveBeenCalled();
+  });
+
+  describe('ngOnChanges(): ', () => {
+    let changes: {
+      parentFieldId: SimpleChange;
+      parentFieldValue: SimpleChange;
+    };
+    beforeEach(() => {
+      changes = {
+        parentFieldId: {
+          currentValue: 219175,
+          firstChange: true,
+          previousValue: undefined,
+          isFirstChange: () => true,
+        },
+        parentFieldValue: {
+          currentValue: 'Project 1',
+          firstChange: true,
+          previousValue: undefined,
+          isFirstChange: () => true,
+        },
+      };
+      component.onPageExit$ = null;
+
+      spyOn(component, 'addDependentFieldWithValue').and.stub();
+    });
+
+    it('should initialize onPageExit$ and add dependent field when it is the first change', () => {
+      component.ngOnChanges(changes);
+      expect(component.onPageExit$).toEqual(new Subject());
+
+      expect(component.dependentFieldsFormArray.length).toEqual(0);
+      expect(component.dependentFields.length).toEqual(0);
+
+      expect(component.addDependentFieldWithValue).toHaveBeenCalledOnceWith(
+        component.txnCustomProperties,
+        component.dependentCustomFields,
+        {
+          id: changes.parentFieldId.currentValue,
+          value: changes.parentFieldValue.currentValue,
+        }
+      );
+    });
+
+    it('should pass transaction fields as empty for subsequent changes in base field', () => {
+      component.dependentFieldsFormArray = null;
+      changes.parentFieldValue.firstChange = false;
+
+      component.ngOnChanges(changes);
+      expect(component.addDependentFieldWithValue).toHaveBeenCalledOnceWith([], component.dependentCustomFields, {
+        id: changes.parentFieldId.currentValue,
+        value: changes.parentFieldValue.currentValue,
+      });
+    });
+
+    it('should not do anything if changes is null or empty object', () => {
+      component.ngOnChanges({});
+      expect(component.addDependentFieldWithValue).not.toHaveBeenCalled();
+      expect(component.onPageExit$).toBeNull();
+
+      component.ngOnChanges(null);
+      expect(component.addDependentFieldWithValue).not.toHaveBeenCalled();
+      expect(component.onPageExit$).toBeNull();
+    });
   });
 
   describe('addDependentFieldWithValue(): ', () => {
