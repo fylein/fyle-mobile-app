@@ -93,6 +93,9 @@ describe('DependentFieldComponent', () => {
     const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
     spyOn(component, 'onChangeCallback');
 
+    const callbackFn = jasmine.createSpy('callbackFn');
+    component.registerOnChange(callbackFn);
+
     modalController.create.and.returnValue(Promise.resolve(modalSpy));
     modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { value: selectedValue } }));
     modalProperties.getModalDefaultProperties.and.returnValue(defaultModalProperties);
@@ -100,21 +103,26 @@ describe('DependentFieldComponent', () => {
     const inputElement = componentElement.query(By.css('.dependent-field__input'));
     inputElement.nativeElement.click();
     tick(500);
-
     fixture.detectChanges();
+
     expect(modalController.create).toHaveBeenCalledOnceWith(expectedModalProperties);
     expect(modalSpy.present).toHaveBeenCalledTimes(1);
     expect(modalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
     expect(component.displayValue).toEqual(selectedValue);
     expect(component.onChangeCallback).toHaveBeenCalledOnceWith(selectedValue);
+    expect(callbackFn).toHaveBeenCalledOnceWith(selectedValue);
   }));
 
   it('onBlur(): component should be touched', () => {
-    spyOn(component, 'onTouchedCallback');
+    const callbackFn = jasmine.createSpy('callbackFn');
+    component.registerOnTouched(callbackFn);
+
     const inputElement = componentElement.query(By.css('.dependent-field__input'));
     inputElement.nativeElement.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
+
     expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
+    expect(callbackFn).toHaveBeenCalledTimes(1);
     expect(inputElement.nativeElement.classList.contains('ng-touched')).toBe(true);
   });
 
@@ -122,17 +130,5 @@ describe('DependentFieldComponent', () => {
     const dependentFieldValue = 'Dep Field 1';
     component.writeValue(dependentFieldValue);
     expect(component.displayValue).toEqual(dependentFieldValue);
-  });
-
-  it('registerOnChange', fakeAsync(() => {
-    const callbackFn = jasmine.createSpy('callbackFn');
-    component.registerOnChange(callbackFn);
-    expect(component.onChangeCallback).toEqual(callbackFn);
-  }));
-
-  it('registerOnTouched', () => {
-    const callbackFn = jasmine.createSpy('callbackFn');
-    component.registerOnTouched(callbackFn);
-    expect(component.onTouchedCallback).toEqual(callbackFn);
   });
 });
