@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { VendorService } from 'src/app/core/services/vendor.service';
@@ -10,12 +10,11 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { of } from 'rxjs';
-import { MatFormField, MatFormFieldControl, MatFormFieldModule } from '@angular/material/form-field';
-import { CdkScrollableModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-fdescribe('FySelectVendorModalComponent', () => {
+describe('FySelectVendorModalComponent', () => {
   let component: FySelectVendorModalComponent;
   let fixture: ComponentFixture<FySelectVendorModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -141,8 +140,7 @@ fdescribe('FySelectVendorModalComponent', () => {
 
     vendorService.get.and.returnValue(of(vendors));
     recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(vendorsList));
-    spyOn(component, 'getRecentlyUsedVendors').and.returnValue(of(vendorsList));
-    utilityService.searchArrayStream.and.callThrough();
+    utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
     component.filteredOptions$ = of(vendorsList);
 
     component.currentSelection = vendorsList;
@@ -154,13 +152,75 @@ fdescribe('FySelectVendorModalComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('clearValue', () => {});
+  it('clearValue(): ', () => {
+    component.value = 'value';
+    const dummyHtmlInputElement = document.createElement('input');
+    component.searchBarRef = {
+      nativeElement: dummyHtmlInputElement,
+    };
+    fixture.detectChanges();
 
-  xit('getRecentlyUsedVendors', () => {});
+    component.clearValue();
+    expect(component.value).toEqual('');
+    expect(component.searchBarRef.nativeElement.value).toEqual('');
+  });
 
-  xit('onDoneClick', () => {});
+  it('getRecentlyUsedVendors(): should get recently used vendors', (done) => {
+    recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(vendorsList));
 
-  xit('onElementSelect', () => {});
+    component.getRecentlyUsedVendors().subscribe((res) => {
+      expect(recentLocalStorageItemsService.get).toHaveBeenCalledWith('recentVendorList');
+      done();
+    });
+  });
 
-  xit('onNewSelect', () => {});
+  it('onDoneClick(): should dismiss the modal when clicking on done CTA', () => {
+    modalController.dismiss.and.returnValue(Promise.resolve(true));
+
+    component.onDoneClick();
+    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('onElementSelect(): should dismiss modal with the selected vendor', () => {
+    recentLocalStorageItemsService.post.and.callThrough();
+    modalController.dismiss.and.returnValue(Promise.resolve(true));
+
+    component.onElementSelect(vendorsList[0]);
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith(vendorsList[0]);
+    expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith('recentVendorList', vendorsList[0], 'label');
+  });
+
+  it('onNewSelect(): should dismiss the modal with new option selected', () => {
+    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    recentLocalStorageItemsService.post.and.callThrough();
+    component.value = 'value  ';
+    fixture.detectChanges();
+
+    component.onNewSelect();
+    const newOption = {
+      label: component.value,
+      value: { display_name: component.value },
+    };
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith(newOption);
+    expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith('recentVendorList', newOption, 'label');
+  });
+
+  it('ngAfterViewInit(): should get vendors if search text is available', fakeAsync(() => {
+    vendorService.get.and.returnValue(of(vendors));
+    const dummyHtmlInputElement = document.createElement('input');
+    component.searchBarRef = {
+      nativeElement: dummyHtmlInputElement,
+    };
+
+    component.ngAfterViewInit();
+
+    dummyHtmlInputElement.value = 'US';
+    dummyHtmlInputElement.dispatchEvent(new Event('keyup'));
+
+    tick(500);
+    component.filteredOptions$.subscribe(() => {
+      expect(vendorService.get).toHaveBeenCalledOnceWith('US');
+      expect(component.isLoading).toBeFalse();
+    });
+  }));
 });
