@@ -30,6 +30,7 @@ describe('DependentFieldsComponent', () => {
   beforeEach(waitForAsync(() => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
     const formBuilderSpy = jasmine.createSpyObj('FormBuilder', ['group']);
+
     TestBed.configureTestingModule({
       declarations: [DependentFieldsComponent, DependentFieldComponent],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, MatIconModule, MatIconTestingModule],
@@ -63,7 +64,7 @@ describe('DependentFieldsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnDestroy(): should not complete if onPageExit$ is not defined', () => {
+  it('ngOnDestroy(): should not call complete if onPageExit$ is not defined', () => {
     component.onPageExit$ = null;
     const onPageExitSpy = jasmine.createSpyObj('onPageExit$', ['next', 'complete']);
 
@@ -114,7 +115,7 @@ describe('DependentFieldsComponent', () => {
       );
     });
 
-    it('should pass transaction fields as empty for subsequent changes in base field', () => {
+    it('should remove dependent fields for changes in base field', () => {
       component.dependentFieldsFormArray = null;
       changes.parentFieldValue.firstChange = false;
 
