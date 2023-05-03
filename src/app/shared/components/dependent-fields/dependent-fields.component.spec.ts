@@ -18,6 +18,7 @@ import { Subject, of } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
 describe('DependentFieldsComponent', () => {
   let component: DependentFieldsComponent;
@@ -62,8 +63,13 @@ describe('DependentFieldsComponent', () => {
   });
 
   fdescribe('addDependentFieldWithValue(): ', () => {
-    it('should add a dependent field with its value', () => {
-      const parentField = [
+    let parentField = [];
+    let dependentFieldDetails: {
+      dependentField: ExpenseField;
+      parentFieldValue: string;
+    };
+    beforeEach(() => {
+      parentField = [
         {
           id: 219175,
           value: 'Project 1',
@@ -74,11 +80,13 @@ describe('DependentFieldsComponent', () => {
         },
       ];
 
-      const dependentFieldDetails = {
+      dependentFieldDetails = {
         dependentField: dependentCustomFields[1],
-        parentFieldValue: 'Cost Code 1',
+        parentFieldValue: parentField[1].value,
       };
+    });
 
+    it('should add a dependent field with its value', () => {
       const addDependentFieldSpy = spyOn(component, 'addDependentField').and.returnValues(null);
       const getDependentFieldSpy = spyOn(component, 'getDependentField').and.returnValues(
         of(dependentFieldDetails),
@@ -106,6 +114,33 @@ describe('DependentFieldsComponent', () => {
         [component.txnCustomProperties, component.dependentCustomFields, parentField[0]],
         [component.txnCustomProperties, component.dependentCustomFields, parentField[1]],
       ]);
+    });
+
+    it('should show dependent field without selected value if it doesnt have a value in transaction object', () => {
+      spyOn(component, 'addDependentField').and.returnValue(null);
+      spyOn(component, 'getDependentField').and.returnValue(of(dependentFieldDetails));
+
+      component.addDependentFieldWithValue(
+        component.txnCustomProperties,
+        component.dependentCustomFields,
+        parentField[1]
+      );
+
+      expect(component.getDependentField).toHaveBeenCalledOnceWith(parentField[1].id, parentField[1].value);
+      expect(component.addDependentField).toHaveBeenCalledOnceWith(
+        component.dependentCustomFields[1],
+        parentField[1].value
+      );
+    });
+
+    it('should not add a new dependent field if it does not have any valid value for selected parent value', () => {
+      spyOn(component, 'addDependentField').and.returnValue(null);
+      spyOn(component, 'getDependentField').and.returnValue(of(null));
+
+      component.addDependentFieldWithValue([], component.dependentCustomFields, parentField[0]);
+
+      expect(component.getDependentField).toHaveBeenCalledOnceWith(parentField[0].id, parentField[0].value);
+      expect(component.addDependentField).not.toHaveBeenCalled();
     });
   });
 
