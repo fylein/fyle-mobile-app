@@ -588,8 +588,8 @@ describe('FyFiltersComponent', () => {
       ],
     };
     const option = {
-      label: 'example',
-      value: 10,
+      label: 'All',
+      value: 'ALL',
     };
     spyOn(component, 'switchDateFilter');
     component.switchFilter(filterDefinition, option);
@@ -622,8 +622,8 @@ describe('FyFiltersComponent', () => {
       ],
     };
     const option = {
-      label: 'example',
-      value: 10,
+      label: 'Complete',
+      value: 'COMPLETE',
     };
     spyOn(component, 'switchMultiselectFilter');
     component.switchFilter(filterDefinition, option);
@@ -652,8 +652,8 @@ describe('FyFiltersComponent', () => {
       ],
     };
     const option = {
-      label: 'example',
-      value: 10,
+      label: 'Yes',
+      value: 'yes',
     };
     spyOn(component, 'switchSingleSelectFilter');
     component.switchFilter(filterDefinition, option);
@@ -668,8 +668,8 @@ describe('FyFiltersComponent', () => {
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
     component.currentFilterValueMap = {
-      filter1: 'value1',
-      filter2: 'value2',
+      filter1: 'yes',
+      filter2: 'ALL',
     };
     component.customDateMap = {
       filter1: new Date('2023-03-22'),
@@ -679,12 +679,12 @@ describe('FyFiltersComponent', () => {
     const expectedFilters = [
       {
         name: 'filter1',
-        value: 'value1',
+        value: 'yes',
         associatedData: new Date('2023-03-22'),
       },
       {
         name: 'filter2',
-        value: 'value2',
+        value: 'ALL',
         associatedData: new Date('2023-03-20'),
       },
     ];
@@ -700,14 +700,14 @@ describe('FyFiltersComponent', () => {
     component.activeFilterInitialName = 'Expense Type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
-    const filter = 'filter1';
+    const filter = 'State';
     const filterOptions = {
-      name: 'filter1',
+      name: 'State',
       optionType: FilterOptionType.multiselect,
       options: [
         {
           label: 'Complete',
-          value: 'UNREPORTED',
+          value: 'COMPLETE',
         },
         {
           label: 'Draft',
@@ -720,16 +720,16 @@ describe('FyFiltersComponent', () => {
       ],
     };
     const options = {
-      label: 'label1',
-      value: 'value1',
+      label: 'Draft',
+      value: 'DRAFT',
     };
     component.currentFilterValueMap = {
-      filter1: 'value1',
+      State: 'DRAFT',
     };
 
     component.switchDateFilter(filter, filterOptions, options);
 
-    expect(component.currentFilterValueMap.filter1).toBeNull();
+    expect(component.currentFilterValueMap.State).toBeNull();
   });
 
   it("switchDateFilter(): should add filter if filter does't exist", () => {
@@ -741,35 +741,35 @@ describe('FyFiltersComponent', () => {
     fixture.detectChanges();
     const filter = '';
     const filterOptions = {
-      name: 'filter1',
+      name: 'Expense Type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
-          label: 'Complete',
-          value: 'UNREPORTED',
+          label: 'Mileage',
+          value: 'MILEAGE',
         },
         {
-          label: 'Draft',
-          value: 'DRAFT',
+          label: 'Per Diem',
+          value: 'PER_DIEM',
         },
         {
-          label: 'Duplicate',
-          value: 'DUPLICATE',
+          label: 'Regular Expenses',
+          value: 'REGULAR_EXPENSES',
         },
       ],
     };
     const options = {
-      label: 'label1',
-      value: 'value1',
+      label: 'Mileage',
+      value: 'MILEAGE',
     };
     component.currentFilterValueMap = {
-      filter1: 'value1',
+      'Expense Type': 'MILEAGE',
     };
 
     component.switchDateFilter(filter, filterOptions, options);
 
-    expect(component.currentFilterValueMap.filter1).toEqual('value1');
-    expect(component.customDateMap.filter1).toBeNull();
+    expect(component.currentFilterValueMap['Expense Type']).toEqual('MILEAGE');
+    expect(component.customDateMap['Expense Type']).toBeNull();
     expect(component.startDate).toBeNull();
     expect(component.endDate).toBeNull();
   });
@@ -781,36 +781,36 @@ describe('FyFiltersComponent', () => {
     component.activeFilterInitialName = 'Expense Type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
-    const filter = ['filter1', 'filter2'];
+    const filter = ['MILEAGE'];
     const filterOptions = {
-      name: 'filter1',
+      name: 'Expense Type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
-          label: 'Complete',
-          value: 'UNREPORTED',
+          label: 'Mileage',
+          value: 'MILEAGE',
         },
         {
-          label: 'Draft',
-          value: 'DRAFT',
+          label: 'Per Diem',
+          value: 'PER_DIEM',
         },
         {
-          label: 'Duplicate',
-          value: 'DUPLICATE',
+          label: 'Regular Expenses',
+          value: 'REGULAR_EXPENSES',
         },
       ],
     };
     const options = {
-      label: 'label1',
-      value: 'filter1',
+      label: 'Mileage',
+      value: 'MILEAGE',
     };
     component.currentFilterValueMap = {
-      filter1: ['filter1', 'filter2'],
+      'Expense Type': ['MILEAGE'],
     };
 
     component.switchMultiselectFilter(filter, options, filterOptions);
 
-    expect(component.currentFilterValueMap.filter1).toEqual(['filter2']);
+    expect(component.currentFilterValueMap['Expense Type']).toEqual([]);
   });
 
   it("switchMultiSelectFilter(): should add filter if doesn't exist", () => {
@@ -820,36 +820,36 @@ describe('FyFiltersComponent', () => {
     component.activeFilterInitialName = 'Expense Type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
-    const filter = ['filter1', 'filter2'];
+    const filter = ['REGULAR_EXPENSES'];
     const filterOptions = {
-      name: 'filter1',
+      name: 'Expense Type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
-          label: 'Complete',
-          value: 'UNREPORTED',
+          label: 'Mileage',
+          value: 'MILEAGE',
         },
         {
-          label: 'Draft',
-          value: 'DRAFT',
+          label: 'Per Diem',
+          value: 'PER_DIEM',
         },
         {
-          label: 'Duplicate',
-          value: 'DUPLICATE',
+          label: 'Regular Expenses',
+          value: 'REGULAR_EXPENSES',
         },
       ],
     };
     const options = {
-      label: 'label1',
-      value: 'filter3',
+      label: 'Per Diem',
+      value: 'PER_DIEM',
     };
     component.currentFilterValueMap = {
-      filter1: ['filter1', 'filter2'],
+      'Expense Type': ['REGULAR_EXPENSES'],
     };
 
     component.switchMultiselectFilter(filter, options, filterOptions);
 
-    expect(component.currentFilterValueMap.filter1).toEqual(['filter1', 'filter2', 'filter3']);
+    expect(component.currentFilterValueMap['Expense Type']).toEqual(['REGULAR_EXPENSES', 'PER_DIEM']);
   });
 
   it("switchMultiSelectFilter(): should add currentFilterValueMap if filter doesn't exist", () => {
@@ -861,34 +861,31 @@ describe('FyFiltersComponent', () => {
     fixture.detectChanges();
     const filter = '';
     const filterOptions = {
-      name: 'filter1',
+      name: 'Expense Type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
-          label: 'Complete',
-          value: 'UNREPORTED',
+          label: 'Mileage',
+          value: 'MILEAGE',
         },
         {
-          label: 'Draft',
-          value: 'DRAFT',
+          label: 'Per Diem',
+          value: 'PER_DIEM',
         },
         {
-          label: 'Duplicate',
-          value: 'DUPLICATE',
+          label: 'Regular Expenses',
+          value: 'REGULAR_EXPENSES',
         },
       ],
     };
     const options = {
-      label: 'label1',
-      value: 'filter1',
-    };
-    component.currentFilterValueMap = {
-      filter1: ['filter1'],
+      label: 'MILEAGE',
+      value: 'MILEAGE',
     };
 
     component.switchMultiselectFilter(filter, options, filterOptions);
 
-    expect(component.currentFilterValueMap.filter1).toEqual(['filter1']);
+    expect(component.currentFilterValueMap['Expense Type']).toEqual(['MILEAGE']);
   });
 
   it('switchSingleSelectFilter(): should update currentFilterValueMap if filter exist', () => {
@@ -898,36 +895,36 @@ describe('FyFiltersComponent', () => {
     component.activeFilterInitialName = 'Expense Type';
     component.filterOptions = filterOptions1;
     fixture.detectChanges();
-    const filter = 'filter1';
+    const filter = 'Expense Type';
     const filterOptions = {
-      name: 'filter1',
+      name: 'Expense Type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
-          label: 'Complete',
-          value: 'UNREPORTED',
+          label: 'Mileage',
+          value: 'MILEAGE',
         },
         {
-          label: 'Draft',
-          value: 'DRAFT',
+          label: 'Per Diem',
+          value: 'PER_DIEM',
         },
         {
-          label: 'Duplicate',
-          value: 'DUPLICATE',
+          label: 'Regular Expenses',
+          value: 'REGULAR_EXPENSES',
         },
       ],
     };
     const options = {
-      label: 'label1',
-      value: 'filter1',
+      label: 'Per Diem',
+      value: 'PER_DIEM',
     };
     component.currentFilterValueMap = {
-      filter1: 'filter1',
+      'Expense Type': 'PER_DIEM',
     };
 
     component.switchSingleSelectFilter(filter, filterOptions, options);
 
-    expect(component.currentFilterValueMap.filter1).toBeNull();
+    expect(component.currentFilterValueMap['Expense Type']).toBeNull();
   });
 
   it("switchSingleSelectFilter(): should update currentFilterValueMap if filter doesn't exist", () => {
@@ -939,33 +936,30 @@ describe('FyFiltersComponent', () => {
     fixture.detectChanges();
     const filter = '';
     const filterOptions = {
-      name: 'filter1',
+      name: 'Expense Type',
       optionType: FilterOptionType.multiselect,
       options: [
         {
-          label: 'Complete',
-          value: 'UNREPORTED',
+          label: 'Mileage',
+          value: 'MILEAGE',
         },
         {
-          label: 'Draft',
-          value: 'DRAFT',
+          label: 'Per Diem',
+          value: 'PER_DIEM',
         },
         {
-          label: 'Duplicate',
-          value: 'DUPLICATE',
+          label: 'Regular Expenses',
+          value: 'REGULAR_EXPENSES',
         },
       ],
     };
     const options = {
-      label: 'label1',
-      value: 'filter1',
-    };
-    component.currentFilterValueMap = {
-      filter1: 'filter1',
+      label: 'Per Diem',
+      value: 'PER_DIEM',
     };
 
     component.switchSingleSelectFilter(filter, filterOptions, options);
 
-    expect(component.currentFilterValueMap.filter1).toEqual('filter1');
+    expect(component.currentFilterValueMap['Expense Type']).toEqual('PER_DIEM');
   });
 });
