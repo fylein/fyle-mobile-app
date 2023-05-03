@@ -260,7 +260,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   formatGeocodeResponse(geocodeResponse: MapGeocoderResponse) {
-    const currentLocation = geocodeResponse?.results && geocodeResponse?.results.length && geocodeResponse?.results[0];
+    const currentLocation = geocodeResponse?.results?.length && geocodeResponse?.results[0];
     if (!currentLocation) {
       return;
     }
