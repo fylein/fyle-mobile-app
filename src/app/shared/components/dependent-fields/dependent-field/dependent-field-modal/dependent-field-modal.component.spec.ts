@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
+import { of, skip, take } from 'rxjs';
 import {
   dependentFieldOptions,
   dependentFieldOptionsWithSelection,
@@ -76,19 +76,35 @@ fdescribe('DependentFieldModalComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngAfterViewInit(): should set filteredOptions$', fakeAsync(() => {
-    const searchQuery = 'value 3';
-    component.searchBarRef.nativeElement.value = searchQuery;
-    spyOn(component, 'getDependentFieldOptions').and.returnValue(of(dependentFieldOptionsWithoutSelection));
-    component.ngAfterViewInit();
-    component.searchBarRef.nativeElement.dispatchEvent(new Event('keyup'));
-    tick();
+  it('ngAfterViewInit(): should set filteredOptions$', (done) => {
+    const userEnteredValue = ['cost', 'cost code 3'];
 
-    component.filteredOptions$.subscribe((result) => {
+    spyOn(component, 'getDependentFieldOptions').and.returnValues(
+      of(dependentFieldOptionsWithoutSelection),
+      of(dependentFieldOptionsWithoutSelection),
+      of(dependentFieldOptionsWithoutSelection.slice(0, 2))
+    );
+    component.ngAfterViewInit();
+
+    component.searchBarRef.nativeElement.value = userEnteredValue[0];
+    component.searchBarRef.nativeElement.dispatchEvent(new KeyboardEvent('keyup'));
+
+    //Compare result for the first value emitted by the observable
+    component.filteredOptions$.pipe(take(1)).subscribe((result) => {
       expect(result).toEqual(dependentFieldOptionsWithoutSelection);
-      expect(component.searchBarRef.nativeElement.value).toEqual(searchQuery);
     });
-  }));
+
+    //Compare result for the second value emitted by the observable
+    component.filteredOptions$.pipe(skip(1), take(1)).subscribe((result) => {
+      expect(result).toEqual(dependentFieldOptionsWithoutSelection.slice(0, 2));
+      done();
+    });
+
+    setTimeout(() => {
+      component.searchBarRef.nativeElement.value = userEnteredValue[1];
+      component.searchBarRef.nativeElement.dispatchEvent(new KeyboardEvent('keyup'));
+    }, 500);
+  });
 
   it('getDependentFieldOptions(): should return dependent field options based on search query', (done) => {
     const searchQuery = '';
