@@ -19,7 +19,7 @@ fdescribe('FySelectVendorModalComponent', () => {
   let component: FySelectVendorModalComponent;
   let fixture: ComponentFixture<FySelectVendorModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let cdr: ChangeDetectorRef;
+  let cdr: jasmine.SpyObj<ChangeDetectorRef>;
   let vendorService: jasmine.SpyObj<VendorService>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
@@ -91,6 +91,7 @@ fdescribe('FySelectVendorModalComponent', () => {
     const vendorServiceSpy = jasmine.createSpyObj('VendorService', ['get']);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
+    const changeDetectionRefSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
 
     TestBed.configureTestingModule({
       declarations: [FySelectVendorModalComponent],
@@ -104,7 +105,10 @@ fdescribe('FySelectVendorModalComponent', () => {
         BrowserAnimationsModule,
       ],
       providers: [
-        ChangeDetectorRef,
+        {
+          provide: ChangeDetectorRef,
+          useValue: changeDetectionRefSpy,
+        },
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -133,10 +137,12 @@ fdescribe('FySelectVendorModalComponent', () => {
       RecentLocalStorageItemsService
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
-    cdr = TestBed.inject(ChangeDetectorRef);
+    cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
 
     vendorService.get.and.returnValue(of(vendors));
     recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(vendorsList));
+    spyOn(component, 'getRecentlyUsedVendors').and.returnValue(of(vendorsList));
+    utilityService.searchArrayStream.and.callThrough();
     component.filteredOptions$ = of(vendorsList);
 
     component.currentSelection = vendorsList;
