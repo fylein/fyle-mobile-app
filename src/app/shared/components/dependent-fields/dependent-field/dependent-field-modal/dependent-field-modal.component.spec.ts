@@ -22,7 +22,7 @@ import { dependentFieldValues } from 'src/app/core/mock-data/dependent-field-val
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
-fdescribe('DependentFieldModalComponent', () => {
+describe('DependentFieldModalComponent', () => {
   let component: DependentFieldModalComponent;
   let modalElement: DebugElement;
   let fixture: ComponentFixture<DependentFieldModalComponent>;
@@ -138,7 +138,7 @@ fdescribe('DependentFieldModalComponent', () => {
     });
   });
 
-  it('getFinalDependentFieldValues(): should returns values with None option if no value is selected', () => {
+  it('getFinalDependentFieldValues(): should return values with None option if no value is selected', () => {
     expect(component.getFinalDependentFieldValues(dependentFieldOptions, null)).toEqual(
       dependentFieldOptionsWithoutSelection
     );
