@@ -26,7 +26,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   @Input() currentSelection: string;
 
-  @Input() recentlyUsed: { label: string; value: string }[];
+  @Input() recentlyUsed: { shortCode: string; longName: string }[];
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 

@@ -5,11 +5,10 @@ import { BehaviorSubject, Subject, fromEvent, of, take } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
-import { CUSTOM_ELEMENTS_SCHEMA, ElementRef } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { By } from '@angular/platform-browser';
 
-fdescribe('FyCurrencyChooseCurrencyComponent', () => {
+describe('FyCurrencyChooseCurrencyComponent', () => {
   let component: FyCurrencyChooseCurrencyComponent;
   let fixture: ComponentFixture<FyCurrencyChooseCurrencyComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -99,8 +98,8 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
 
   it('should return recently used items if present, or an empty array if not', () => {
     const mockRecentlyUsed = [
-      { label: 'USD - US Dollar', value: 'USD' },
-      { label: 'EUR - Euro', value: 'EUR' },
+      { shortCode: 'USD', longName: ' US Dollar' },
+      { shortCode: 'EUR', longName: 'Euro' },
     ];
     component.recentlyUsed = mockRecentlyUsed;
 
@@ -115,7 +114,7 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
     });
   });
 
-  it('ngAfterViewInit():', fakeAsync(() => {
+  it('ngAfterViewInit(): should update filteredCurrencies$ and recentlyUsedCurrencies$', fakeAsync(() => {
     const mockCurrencies = [
       { shortCode: 'USD', longName: 'US Dollar' },
       { shortCode: 'INR', longName: 'Indian National Rupees' },
@@ -125,8 +124,12 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
     component.searchBarRef = {
       nativeElement: dummyHtmlInputElement,
     };
+    spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(mockCurrencies));
     component.ngAfterViewInit();
     component.filteredCurrencies$.pipe(take(1)).subscribe((currencies) => {
+      expect(currencies).toEqual(mockCurrencies);
+    });
+    component.recentlyUsedCurrencies$.pipe(take(1)).subscribe((currencies) => {
       expect(currencies).toEqual(mockCurrencies);
     });
     tick(500);
@@ -135,6 +138,10 @@ fdescribe('FyCurrencyChooseCurrencyComponent', () => {
     component.filteredCurrencies$.pipe(take(1)).subscribe((currencies) => {
       expect(currencies).toEqual([{ shortCode: 'USD', longName: 'US Dollar' }]);
     });
+    component.recentlyUsedCurrencies$.pipe(take(1)).subscribe((currencies) => {
+      expect(currencies).toEqual([{ shortCode: 'USD', longName: 'US Dollar' }]);
+    });
+    expect(component.getRecentlyUsedItems).toHaveBeenCalledTimes(2);
     tick(500);
   }));
 
