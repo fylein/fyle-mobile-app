@@ -421,7 +421,7 @@
                       [dependentCustomFields]="dependentFields"
                       [parentFieldId]="txnFields?.project_id?.id"
                       [parentFieldValue]="selectedProject?.projectv2_name"
-                      [txnCustomProperties]="etxn.tx.custom_properties"
+                      [txnCustomProperties]="etxn.tx.custom_properties || []"
                     ></app-dependent-fields>
                   </ng-container>
                 </ng-container>
@@ -890,7 +890,7 @@
                           [dependentCustomFields]="dependentFields"
                           [parentFieldId]="txnFields?.cost_center_id?.id"
                           [parentFieldValue]="selectedCostCenter?.name"
-                          [txnCustomProperties]="etxn.tx.custom_properties"
+                          [txnCustomProperties]="etxn.tx.custom_properties || []"
                         ></app-dependent-fields>
                       </ng-container>
                     </ng-container>
