@@ -25,7 +25,13 @@ import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { FileObject } from 'src/app/core/models/file-obj.model';
-import { fileObject5, fileObjectAdv, fileObjectData, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
+import {
+  fileObject5,
+  fileObjectAdv,
+  fileObjectAdv1,
+  fileObjectData,
+  fileObjectData1,
+} from 'src/app/core/mock-data/file-object.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
@@ -506,12 +512,117 @@ fdescribe('ExpensesCardComponent', () => {
       fixture.detectChanges();
       expect(result).toBeFalse();
     });
+
+    describe('getReceipt', () => {
+      it('should get the receipts when th file ids are present and the length of the thumbnail files array is greater that 0', fakeAsync(() => {
+        const mockDownloadUrl = {
+          url: 'mock-url',
+        };
+        fileService.getFilesWithThumbnail.and.returnValue(of([fileObjectData]));
+        fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
+        // fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+        component.expense = {
+          ...expenseData1,
+          tx_file_ids: ['fiGLwwPtYD8X'],
+        };
+        component.getReceipt();
+        fixture.detectChanges();
+        tick(500);
+        expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
+        expect(fileService.downloadThumbnailUrl).toHaveBeenCalledOnceWith('fiHPZUiichAS');
+      }));
+
+      it('should get the receipts when the file ids are present and there are no thumbnail files and set the icon to fy-expense when type is not pdf', fakeAsync(() => {
+        const mockDownloadUrl = {
+          url: 'mock-url',
+        };
+        fileService.getFilesWithThumbnail.and.returnValue(of([]));
+        fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
+        fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+        fileService.getReceiptDetails.and.returnValue('mock-url');
+
+        component.expense = {
+          ...expenseData1,
+          tx_file_ids: ['fiGLwwPtYD8X'],
+        };
+        component.getReceipt();
+        fixture.detectChanges();
+        tick(500);
+        expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
+        // expect(fileService.downloadThumbnailUrl).toHaveBeenCalledOnceWith('fiHPZUiichAS');
+        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiGLwwPtYD8X');
+        expect(fileService.getReceiptDetails).toHaveBeenCalledOnceWith('mock-url');
+        expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
+      }));
+
+      it('should get the receipts when the file ids are present and there are no thumbnail files and set the icon to fy-pdf when type is pdf', fakeAsync(() => {
+        const mockDownloadUrl = {
+          url: 'mock-url',
+        };
+
+        const thumbnailUrlMockRes = {
+          ...thumbnailUrlMockData1,
+          url: '/assets/mock-url.pdf',
+        };
+        fileService.getFilesWithThumbnail.and.returnValue(of([]));
+        fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockRes));
+        fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+        fileService.getReceiptDetails.and.returnValue('pdf');
+
+        component.expense = {
+          ...expenseData1,
+          tx_file_ids: ['fiGLwwPtYD8Y'],
+        };
+        component.getReceipt();
+        fixture.detectChanges();
+        tick(500);
+        expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
+        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiGLwwPtYD8Y');
+        expect(fileService.getReceiptDetails).toHaveBeenCalledOnceWith('mock-url');
+        expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
+      }));
+
+      it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
+        component.expense = {
+          ...expenseData1,
+          tx_fyle_category: 'mileage',
+        };
+        component.getReceipt();
+        fixture.detectChanges();
+        expect(component.receiptIcon).toEqual('assets/svg/fy-mileage.svg');
+      });
+
+      it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
+        component.expense = {
+          ...expenseData1,
+          tx_fyle_category: 'per diem',
+        };
+        component.getReceipt();
+        fixture.detectChanges();
+        expect(component.receiptIcon).toEqual('assets/svg/fy-calendar.svg');
+      });
+
+      it('should set the receipt icon to add-receipt when there are no file ids', () => {
+        component.expense = {
+          ...expenseData1,
+          tx_file_ids: null,
+        };
+        component.getReceipt();
+        fixture.detectChanges();
+        expect(component.receiptIcon).toEqual('assets/svg/add-receipt.svg');
+      });
+
+      it('should set the receipt icon to add-receipt when there are no file ids', () => {
+        component.isFromReports = true;
+        component.isFromPotentialDuplicates = true;
+        component.expense = {
+          ...expenseData1,
+          tx_file_ids: null,
+        };
+        component.getReceipt();
+        fixture.detectChanges();
+        expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
+      });
+    });
   });
 });
-
-// xit("getReceipt", () => { });
-// xit("handleScanStatus", () => { });
-// xit("canShowPaymentModeIcon", () => { });
-// xit("addAttachments", () => { });
-// xit("setupNetworkWatcher", () => { });
-// xit("dismiss", () => { });
