@@ -163,7 +163,20 @@ describe('ReceiptPreviewComponent', () => {
   describe('closeModal():', () => {
     it('should close modal and retake image if discard is selected on existing image', async () => {
       spyOn(component, 'retake').and.returnValue(null);
-      component.base64ImagesWithSource = images;
+      component.base64ImagesWithSource = [
+        {
+          source: '2023-02-23/orNVthTo2Zyo/receipts/fi1w2IE6JeqS.001.jpeg',
+          base64Image: 'base64encodedcontent1',
+        },
+        {
+          source: '2023-02-23/orNVthTo2Zyo/receipts/fi1w2IE6JeqS.002.jpeg',
+          base64Image: 'base64encodedcontent2',
+        },
+        {
+          source: '2023-02-23/orNVthTo2Zyo/receipts/fi1w2IE6JeqS.003.jpeg',
+          base64Image: 'base64encodedcontent3',
+        },
+      ];
       const closePopOverSpy = jasmine.createSpyObj('closePopOver', ['present', 'onWillDismiss']);
       closePopOverSpy.onWillDismiss.and.returnValue(
         Promise.resolve({
