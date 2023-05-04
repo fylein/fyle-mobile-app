@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { FyNumberComponent } from './fy-number.component';
-import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { of } from 'rxjs';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
@@ -43,6 +43,7 @@ describe('FyNumberComponent', () => {
     fixture = TestBed.createComponent(FyNumberComponent);
     component = fixture.componentInstance;
     inputEl = fixture.debugElement.query(By.css('input'));
+    fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
     fixture.detectChanges();
   }));
 
@@ -82,7 +83,17 @@ describe('FyNumberComponent', () => {
     expect(inputElement.disabled).toBe(false);
   });
 
-  describe('valueChanges subscription', () => {
+  describe('onInit(): valueChanges subscription', () => {
+    it('should not enable the keyboard plugin when checkIfKeyboardPluginIsEnabled returns false', fakeAsync(() => {
+      platform.is.withArgs('ios').and.returnValue(false);
+      launchDarklyService.checkIfKeyboardPluginIsEnabled.and.returnValue(of(false));
+      component.ngOnInit();
+      fixture.detectChanges();
+      tick(500);
+      expect(component.isIos).toBe(false);
+      expect(component.isKeyboardPluginEnabled).toBeFalse();
+    }));
+
     it('should set this.value to a parsed float when given a string', () => {
       component.fc.setValue('1.5');
       expect(component.value).toBe(1.5);
@@ -99,21 +110,65 @@ describe('FyNumberComponent', () => {
     });
   });
 
-  it('handleChange(): should patch value with period as decimal separator if the last input was a comma or else keep it as it is', () => {
-    component.handleChange({ target: { value: '12' }, code: 'Digit1' } as any);
-    component.fc.setValue(12);
-    expect(component.fc.value).toBe(12);
-    expect(component.commaClicked).toBeFalse();
-    expect(component.inputWithoutDecimal).toBe('12');
+  describe('handleChanges():', () => {
+    it('should patch value with period as decimal separator if the last input was a comma or else keep it as it is', () => {
+      component.handleChange({ target: { value: '12' }, code: 'Digit1' } as any);
+      component.fc.setValue(12);
+      expect(component.fc.value).toBe(12);
+      expect(component.commaClicked).toBeFalse();
+      expect(component.inputWithoutDecimal).toBe('12');
 
-    component.handleChange({ target: { value: '12,' }, code: 'Comma' } as any);
-    expect(component.commaClicked).toBeTrue();
-    expect(component.inputWithoutDecimal).toBe('12');
-    //target value will the appended with a period
-    component.handleChange({ target: { value: '12.5' }, code: 'Digit5' } as any);
-    expect(component.commaClicked).toBeFalse();
-    expect(component.inputWithoutDecimal).toBe('12.5');
-    component.fc.setValue(12.5);
-    expect(component.fc.value).toBe(12.5);
+      component.handleChange({ target: { value: '12,' }, code: 'Comma' } as any);
+      expect(component.commaClicked).toBeTrue();
+      expect(component.inputWithoutDecimal).toBe('12');
+      //target value will the appended with a period
+      component.handleChange({ target: { value: '12.5' }, code: 'Digit5' } as any);
+      expect(component.commaClicked).toBeFalse();
+      expect(component.inputWithoutDecimal).toBe('12.5');
+      component.fc.setValue(12.5);
+      expect(component.fc.value).toBe(12.5);
+
+      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin'));
+      expect(inputWithoutPlugin).toBeFalsy();
+
+      expect(component.isIos).toBeTrue();
+      expect(component.isKeyboardPluginEnabled).toBeTrue();
+    });
+
+    it('should replace comma with period as decimal separator when input is comma-separated', () => {
+      component.handleChange({ target: { value: '32' }, code: 'Digit3' } as any);
+      component.fc.setValue(32);
+      expect(component.fc.value).toBe(32);
+      expect(component.commaClicked).toBeFalse();
+      expect(component.inputWithoutDecimal).toBe('32');
+
+      component.handleChange({ target: { value: '32,' }, code: 'Comma' } as any);
+      expect(component.commaClicked).toBeTrue();
+      expect(component.inputWithoutDecimal).toBe('32');
+
+      component.handleChange({ target: { value: '32.4533' }, code: 'Digit5' } as any);
+      expect(component.commaClicked).toBeFalse();
+      expect(component.inputWithoutDecimal).toBe('32.4533');
+      component.fc.setValue(32.4533);
+      expect(component.fc.value).toBe(32.4533);
+      expect(component.isIos).toBeTrue();
+      expect(component.isKeyboardPluginEnabled).toBeTrue();
+
+      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin'));
+      expect(inputWithoutPlugin).toBeFalsy();
+    });
+
+    it('should handle zero input correctly', () => {
+      component.handleChange({ target: { value: '0' }, code: 'Digit0' } as any);
+      component.fc.setValue(0);
+      expect(component.fc.value).toBe(0);
+      expect(component.commaClicked).toBeFalse();
+      expect(component.inputWithoutDecimal).toBe('0');
+      expect(component.isIos).toBeTrue();
+      expect(component.isKeyboardPluginEnabled).toBeTrue();
+
+      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin'));
+      expect(inputWithoutPlugin).toBeFalsy();
+    });
   });
 });
