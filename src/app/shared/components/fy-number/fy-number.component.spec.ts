@@ -128,7 +128,7 @@ describe('FyNumberComponent', () => {
       component.fc.setValue(12.5);
       expect(component.fc.value).toBe(12.5);
 
-      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin'));
+      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin input'));
       expect(inputWithoutPlugin).toBeFalsy();
 
       expect(component.isIos).toBeTrue();
@@ -154,7 +154,7 @@ describe('FyNumberComponent', () => {
       expect(component.isIos).toBeTrue();
       expect(component.isKeyboardPluginEnabled).toBeTrue();
 
-      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin'));
+      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin input'));
       expect(inputWithoutPlugin).toBeFalsy();
     });
 
@@ -167,7 +167,7 @@ describe('FyNumberComponent', () => {
       expect(component.isIos).toBeTrue();
       expect(component.isKeyboardPluginEnabled).toBeTrue();
 
-      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin'));
+      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin input'));
       expect(inputWithoutPlugin).toBeFalsy();
     });
   });
