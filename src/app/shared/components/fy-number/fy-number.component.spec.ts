@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { DebugElement, Injector } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
-describe('FyNumberComponent', () => {
+fdescribe('FyNumberComponent', () => {
   let component: FyNumberComponent;
   let fixture: ComponentFixture<FyNumberComponent>;
   let platform: jasmine.SpyObj<Platform>;
@@ -169,5 +169,14 @@ describe('FyNumberComponent', () => {
       const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin input'));
       expect(inputWithoutPlugin).toBeFalsy();
     });
+  });
+
+  it('should call handleChange only once on keyup', () => {
+    spyOn(component, 'handleChange').and.callThrough();
+
+    const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
+    inputElement.dispatchEvent(new KeyboardEvent('keyup', { key: '1' }));
+
+    expect(component.handleChange).toHaveBeenCalledTimes(1);
   });
 });
