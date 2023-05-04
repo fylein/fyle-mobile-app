@@ -187,6 +187,13 @@
       </div>
       <div class="text-center split-expense--add-more-label">Add Split</div>
     </div>
+
+    <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 10" (click)="splitEvenly()">
+      <div class="split-expense--add-more-icon-container">
+        <mat-icon class="split-expense--add-more-icon" svgIcon="plus"></mat-icon>
+      </div>
+      <div class="text-center split-expense--add-more-label">Split Evenly</div>
+    </div>
   </div>
 
   <div class="split-expense--limit" *ngIf="splitExpensesFormArray.controls.length === 10">

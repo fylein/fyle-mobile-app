@@ -629,4 +629,16 @@ export class SplitExpensePage implements OnInit {
 
     this.getTotalSplitAmount();
   }
+
+  splitEvenly() {
+    this.splitExpensesFormArray.controls.forEach((control) => {
+      control.patchValue(
+        {
+          amount: this.amount / this.splitExpensesFormArray.length,
+          percentage: 100 / this.splitExpensesFormArray.length,
+        },
+        { emitEvent: false }
+      );
+    });
+  }
 }
