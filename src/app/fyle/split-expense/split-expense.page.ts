@@ -634,8 +634,8 @@ export class SplitExpensePage implements OnInit {
     this.splitExpensesFormArray.controls.forEach((control) => {
       control.patchValue(
         {
-          amount: this.amount / this.splitExpensesFormArray.length,
-          percentage: 100 / this.splitExpensesFormArray.length,
+          amount: parseFloat((this.amount / this.splitExpensesFormArray.length).toFixed(3)),
+          percentage: parseFloat((100 / this.splitExpensesFormArray.length).toFixed(3)),
         },
         { emitEvent: false }
       );
