@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, Inject } from '@angular/core';
-import { CameraPreview, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
+import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Camera } from '@capacitor/camera';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
@@ -22,6 +22,7 @@ import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 
 type Image = Partial<{
   source: string;
@@ -71,6 +72,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private authService: AuthService,
+    private cameraPreviewService: CameraPreviewService,
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
@@ -368,7 +370,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         quality: 70,
       };
 
-      from(CameraPreview.capture(cameraPreviewPictureOptions)).subscribe((receiptData) => {
+      from(this.cameraPreviewService.capture(cameraPreviewPictureOptions)).subscribe((receiptData) => {
         const base64PictureData = 'data:image/jpeg;base64,' + receiptData.value;
         this.lastCapturedReceipt = base64PictureData;
         if (!this.isBulkMode) {
