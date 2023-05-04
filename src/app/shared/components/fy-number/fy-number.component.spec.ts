@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { DebugElement, Injector } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
-describe('FyNumberComponent', () => {
+fdescribe('FyNumberComponent', () => {
   let component: FyNumberComponent;
   let fixture: ComponentFixture<FyNumberComponent>;
   let platform: jasmine.SpyObj<Platform>;
@@ -89,6 +89,9 @@ describe('FyNumberComponent', () => {
       launchDarklyService.checkIfKeyboardPluginIsEnabled.and.returnValue(of(false));
       component.ngOnInit();
       fixture.detectChanges();
+      const inputElement = fixture.debugElement.query(By.css('input.fy-number--input'));
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      expect(inputElement.listeners['keyup']).toBeUndefined();
       expect(component.isIos).toBe(false);
       expect(component.isKeyboardPluginEnabled).toBeFalse();
     });
