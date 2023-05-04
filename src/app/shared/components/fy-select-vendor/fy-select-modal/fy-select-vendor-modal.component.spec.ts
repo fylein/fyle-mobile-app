@@ -13,7 +13,7 @@ import { of } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { click, getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
+import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 
 describe('FySelectVendorModalComponent', () => {
   let component: FySelectVendorModalComponent;
@@ -226,33 +226,43 @@ describe('FySelectVendorModalComponent', () => {
   }));
 
   it('should close modal when clicked on', () => {
-    spyOn(component, 'onDoneClick');
+    spyOn(component, 'onDoneClick').and.callThrough();
 
     const closeButton = getElementBySelector(fixture, '.fy-icon-close') as HTMLElement;
     click(closeButton);
 
     expect(component.onDoneClick).toHaveBeenCalledTimes(1);
+    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
 
   it('should clear value when clicked on', () => {
     component.value = 'value';
-    spyOn(component, 'clearValue');
+    spyOn(component, 'clearValue').and.callThrough();
     fixture.detectChanges();
 
     const clearButton = getElementBySelector(fixture, '[data-testid="clear"]') as HTMLElement;
     click(clearButton);
 
     expect(component.clearValue).toHaveBeenCalledTimes(1);
+    expect(component.value).toEqual('');
   });
 
   it('should add a new entry when selected', () => {
-    spyOn(component, 'onNewSelect');
+    spyOn(component, 'onNewSelect').and.callThrough();
     component.value = 'value1';
     fixture.detectChanges();
 
     const addNewButton = getElementBySelector(fixture, '.selection-modal--list-element') as HTMLElement;
     click(addNewButton);
 
+    const option = {
+      label: 'value1',
+      value: { display_name: 'value1' },
+    };
+
     expect(component.onNewSelect).toHaveBeenCalledTimes(1);
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith(option);
+    expect(component.value).toEqual('value1');
+    expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith('recentVendorList', option, 'label');
   });
 });
