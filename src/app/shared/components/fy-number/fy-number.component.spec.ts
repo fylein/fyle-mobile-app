@@ -84,15 +84,14 @@ describe('FyNumberComponent', () => {
   });
 
   describe('onInit(): valueChanges subscription', () => {
-    it('should not enable the keyboard plugin when checkIfKeyboardPluginIsEnabled returns false', fakeAsync(() => {
+    it('should not enable the keyboard plugin when checkIfKeyboardPluginIsEnabled returns false', () => {
       platform.is.withArgs('ios').and.returnValue(false);
       launchDarklyService.checkIfKeyboardPluginIsEnabled.and.returnValue(of(false));
       component.ngOnInit();
       fixture.detectChanges();
-      tick(500);
       expect(component.isIos).toBe(false);
       expect(component.isKeyboardPluginEnabled).toBeFalse();
-    }));
+    });
 
     it('should set this.value to a parsed float when given a string', () => {
       component.fc.setValue('1.5');
@@ -112,9 +111,8 @@ describe('FyNumberComponent', () => {
 
   describe('handleChanges():', () => {
     it('should patch value with period as decimal separator if the last input was a comma or else keep it as it is', () => {
+      spyOn(component.fc, 'setValue').and.callThrough();
       component.handleChange({ target: { value: '12' }, code: 'Digit1' } as any);
-      component.fc.setValue(12);
-      expect(component.fc.value).toBe(12);
       expect(component.commaClicked).toBeFalse();
       expect(component.inputWithoutDecimal).toBe('12');
 
@@ -125,20 +123,19 @@ describe('FyNumberComponent', () => {
       component.handleChange({ target: { value: '12.5' }, code: 'Digit5' } as any);
       expect(component.commaClicked).toBeFalse();
       expect(component.inputWithoutDecimal).toBe('12.5');
-      component.fc.setValue(12.5);
-      expect(component.fc.value).toBe(12.5);
-
       const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin input'));
       expect(inputWithoutPlugin).toBeFalsy();
+      const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
+      component.ngOnInit();
+      expect(inputElement.value).toBe('');
 
       expect(component.isIos).toBeTrue();
       expect(component.isKeyboardPluginEnabled).toBeTrue();
     });
 
     it('should replace comma with period as decimal separator when input is comma-separated', () => {
+      spyOn(component.fc, 'setValue').and.callThrough();
       component.handleChange({ target: { value: '32' }, code: 'Digit3' } as any);
-      component.fc.setValue(32);
-      expect(component.fc.value).toBe(32);
       expect(component.commaClicked).toBeFalse();
       expect(component.inputWithoutDecimal).toBe('32');
 
@@ -149,8 +146,7 @@ describe('FyNumberComponent', () => {
       component.handleChange({ target: { value: '32.4533' }, code: 'Digit5' } as any);
       expect(component.commaClicked).toBeFalse();
       expect(component.inputWithoutDecimal).toBe('32.4533');
-      component.fc.setValue(32.4533);
-      expect(component.fc.value).toBe(32.4533);
+
       expect(component.isIos).toBeTrue();
       expect(component.isKeyboardPluginEnabled).toBeTrue();
 
@@ -159,9 +155,9 @@ describe('FyNumberComponent', () => {
     });
 
     it('should handle zero input correctly', () => {
+      spyOn(component.fc, 'setValue').and.callThrough();
       component.handleChange({ target: { value: '0' }, code: 'Digit0' } as any);
-      component.fc.setValue(0);
-      expect(component.fc.value).toBe(0);
+
       expect(component.commaClicked).toBeFalse();
       expect(component.inputWithoutDecimal).toBe('0');
       expect(component.isIos).toBeTrue();
