@@ -55,7 +55,7 @@ export class FyPolicyViolationComponent implements OnInit {
         }
       });
 
-      if (emails?.length > 0) {
+      if (emails && emails.length > 0) {
         this.approverEmailsRequiredMsg = this.policyService.getApprovalString(emails);
       }
     }
@@ -70,7 +70,7 @@ export class FyPolicyViolationComponent implements OnInit {
         }
       });
 
-      if (cappedAmountMatches?.length > 0) {
+      if (cappedAmountMatches && cappedAmountMatches.length > 0) {
         const cappedAmount = cappedAmountMatches[1];
         if (cappedAmount) {
           const cappedAmountSplit = cappedAmount.split(' ');
