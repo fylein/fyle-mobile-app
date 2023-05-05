@@ -650,18 +650,45 @@ export class SplitExpensePage implements OnInit {
     this.getTotalSplitAmount();
   }
 
-  splitEvenly() {
-    const amount = this.amount / this.splitExpensesFormArray.length;
-    const percentage = 100 / this.splitExpensesFormArray.length;
+  setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage) {
+    const lastSplitIndex = this.splitExpensesFormArray.length - 1;
 
-    this.splitExpensesFormArray.controls.forEach((control) => {
-      control.patchValue(
-        {
-          amount: parseFloat(amount.toFixed(3)),
-          percentage: parseFloat(percentage.toFixed(3)),
-        },
-        { emitEvent: false }
-      );
+    this.splitExpensesFormArray.controls.forEach((control, index) => {
+      const isLastSplit = index === lastSplitIndex;
+
+      if (!isLastSplit) {
+        control.patchValue(
+          {
+            amount: evenAmount,
+            percentage: evenPercentage,
+          },
+          { emitEvent: false }
+        );
+      } else {
+        control.patchValue(
+          {
+            amount: lastSplitAmount,
+            percentage: lastSplitPercentage,
+          },
+          { emitEvent: false }
+        );
+      }
     });
+  }
+
+  splitEvenly() {
+    const evenAmount = parseFloat((this.amount / this.splitExpensesFormArray.length).toFixed(3));
+    const evenPercentage = parseFloat((100 / this.splitExpensesFormArray.length).toFixed(3));
+
+    const lastSplitIndex = this.splitExpensesFormArray.length - 1;
+
+    // Last split should have the remaining amount after even split to make sure we get the total amount
+    const lastSplitAmount = parseFloat((this.amount - evenAmount * lastSplitIndex).toFixed(3));
+    const lastSplitPercentage = parseFloat((100 - evenPercentage * lastSplitIndex).toFixed(3));
+
+    this.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
+
+    // Recalculate the total split amount and remaining amount
+    this.getTotalSplitAmount();
   }
 }
