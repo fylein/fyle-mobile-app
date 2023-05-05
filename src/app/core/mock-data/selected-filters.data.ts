@@ -21,6 +21,14 @@ export const selectedFilters1: SelectedFilters<string>[] = [
     name: 'Transactions Type',
     value: 'Debit',
   },
+  {
+    name: 'Type',
+    value: 'custom',
+  },
+  {
+    name: 'Receipts Attached',
+    value: 'custom',
+  },
 ];
 
 export const selectedFilters2: SelectedFilters<string>[] = [

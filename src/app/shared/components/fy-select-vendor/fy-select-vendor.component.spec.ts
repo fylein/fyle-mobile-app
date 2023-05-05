@@ -1,18 +1,18 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { FyMultiselectComponent } from './fy-multiselect.component';
+import { FySelectVendorComponent } from './fy-select-vendor.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { FyMultiselectModalComponent } from './fy-multiselect-modal/fy-multiselect-modal.component';
-import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor-modal.component';
+import { getTextContent, getElementBySelector, click } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 
-describe('FyMultiselectComponent', () => {
-  let component: FyMultiselectComponent;
-  let fixture: ComponentFixture<FyMultiselectComponent>;
+describe('FySelectVendorComponent', () => {
+  let component: FySelectVendorComponent;
+  let fixture: ComponentFixture<FySelectVendorComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
 
@@ -21,7 +21,7 @@ describe('FyMultiselectComponent', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
 
     TestBed.configureTestingModule({
-      declarations: [FyMultiselectComponent],
+      declarations: [FySelectVendorComponent],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule],
       providers: [
         {
@@ -34,18 +34,11 @@ describe('FyMultiselectComponent', () => {
         },
       ],
     }).compileComponents();
-    fixture = TestBed.createComponent(FyMultiselectComponent);
+    fixture = TestBed.createComponent(FySelectVendorComponent);
     component = fixture.componentInstance;
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
-
-    component.options = [
-      {
-        label: 'Label1',
-        value: 'value1',
-      },
-    ];
     fixture.detectChanges();
   }));
 
@@ -62,38 +55,35 @@ describe('FyMultiselectComponent', () => {
   });
 
   it('openModal(): should open modal', async () => {
-    const selectionModalSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
-    selectionModalSpy.onWillDismiss.and.returnValue(
+    const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+    currencyModalSpy.onWillDismiss.and.returnValue(
       Promise.resolve({
         data: {
-          selected: ['value'],
+          value: 'value',
         },
       })
     );
 
     modalProperties.getModalDefaultProperties.and.callThrough();
-    modalController.create.and.returnValue(Promise.resolve(selectionModalSpy));
+    modalController.create.and.returnValue(Promise.resolve(currencyModalSpy));
 
     await component.openModal();
 
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: FyMultiselectModalComponent,
+      component: FySelectVendorModalComponent,
       componentProps: {
-        options: component.options,
-        currentSelections: undefined,
-        selectModalHeader: component.selectModalHeader,
-        subheader: component.subheader,
+        currentSelection: undefined,
       },
       mode: 'ios',
     });
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
   });
 
-  it('onBlur(): should call a function when onBlur fires and registerOnTouched to trigger', () => {
+  it('onBlur(): should call a function when onBlur fires and trigger on touched callback', () => {
     const callbackFn = jasmine.createSpy('callbackFn');
     component.registerOnTouched(callbackFn);
 
-    const inputElement = fixture.debugElement.query(By.css('.fy-select--input'));
+    const inputElement = fixture.debugElement.query(By.css('.fy-select-vendor--input'));
     inputElement.nativeElement.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
 
@@ -108,24 +98,31 @@ describe('FyMultiselectComponent', () => {
       component.writeValue(['value']);
       expect(component.innerValue).toEqual(['value']);
     });
+
+    it('should set display value to empty', () => {
+      component.innerValue = 'value';
+      fixture.detectChanges();
+
+      component.writeValue(undefined);
+      expect(component.displayValue).toEqual('');
+    });
   });
 
-  it('registerOnChange(): should check if callback is triggered when value changes', async () => {
+  it('registerOnChange():should trigger on change callback when value changes', async () => {
     const callbackFn = jasmine.createSpy('callbackFn');
-
     component.registerOnChange(callbackFn);
 
-    const selectionModalSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
-    selectionModalSpy.onWillDismiss.and.returnValue(
+    const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+    currencyModalSpy.onWillDismiss.and.returnValue(
       Promise.resolve({
         data: {
-          selected: ['value'],
+          value: 'value',
         },
       })
     );
 
     modalProperties.getModalDefaultProperties.and.callThrough();
-    modalController.create.and.returnValue(Promise.resolve(selectionModalSpy));
+    modalController.create.and.returnValue(Promise.resolve(currencyModalSpy));
 
     await component.openModal();
     await fixture.detectChanges();
@@ -142,7 +139,7 @@ describe('FyMultiselectComponent', () => {
 
   it('should open modal when clicked on', () => {
     spyOn(component, 'openModal');
-    const input = getElementBySelector(fixture, '.fy-select--input') as HTMLElement;
+    const input = getElementBySelector(fixture, '.fy-select-vendor--input') as HTMLElement;
 
     click(input);
     expect(component.openModal).toHaveBeenCalledTimes(1);

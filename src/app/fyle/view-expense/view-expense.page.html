@@ -309,46 +309,50 @@
         </ion-row>
       </ion-grid>
 
-      <ion-grid *ngIf="orgSettings?.cost_centers?.enabled && etxn.tx_cost_center_id" class="view-expense--grid">
-        <ion-row>
-          <ion-col size="6">
-            <ion-grid>
-              <ion-row>
-                <ion-col class="view-expense--icon-container">
-                  <div class="view-expense--icon-container__background">
-                    <ion-icon
-                      class="view-expense--icon-container__icon"
-                      src="../../../assets/svg/building.svg"
-                    ></ion-icon>
-                  </div>
-                </ion-col>
-                <ion-col class="view-expense--content-container">
-                  <div class="view-expense--label">Cost Center</div>
-                  <div class="view-expense--value">{{ etxn.tx_cost_center_name }}</div>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          </ion-col>
-          <ion-col size="6" *ngIf="etxn.tx_cost_center_code">
-            <ion-grid>
-              <ion-row>
-                <ion-col class="view-expense--icon-container">
-                  <div class="view-expense--icon-container__background">
-                    <ion-icon
-                      class="view-expense--icon-container__icon"
-                      src="../../../assets/svg/building.svg"
-                    ></ion-icon>
-                  </div>
-                </ion-col>
-                <ion-col class="view-expense--content-container">
-                  <div class="view-expense--label">Cost Center Code</div>
-                  <div class="view-expense--value">{{ etxn.tx_cost_center_code }}</div>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+      <ng-container *ngIf="costCenterDependentCustomProperties$ | async as costCenterDependentCustomProperties">
+        <ng-container *ngIf="!costCenterDependentCustomProperties">
+          <ion-grid *ngIf="orgSettings?.cost_centers?.enabled && etxn.tx_cost_center_id" class="view-expense--grid">
+            <ion-row>
+              <ion-col size="6">
+                <ion-grid>
+                  <ion-row>
+                    <ion-col class="view-expense--icon-container">
+                      <div class="view-expense--icon-container__background">
+                        <ion-icon
+                          class="view-expense--icon-container__icon"
+                          src="../../../assets/svg/building.svg"
+                        ></ion-icon>
+                      </div>
+                    </ion-col>
+                    <ion-col class="view-expense--content-container">
+                      <div class="view-expense--label">Cost Center</div>
+                      <div class="view-expense--value">{{ etxn.tx_cost_center_name }}</div>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-col>
+              <ion-col size="6" *ngIf="etxn.tx_cost_center_code">
+                <ion-grid>
+                  <ion-row>
+                    <ion-col class="view-expense--icon-container">
+                      <div class="view-expense--icon-container__background">
+                        <ion-icon
+                          class="view-expense--icon-container__icon"
+                          src="../../../assets/svg/building.svg"
+                        ></ion-icon>
+                      </div>
+                    </ion-col>
+                    <ion-col class="view-expense--content-container">
+                      <div class="view-expense--label">Cost Center Code</div>
+                      <div class="view-expense--value">{{ etxn.tx_cost_center_code }}</div>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ng-container>
+      </ng-container>
 
       <ng-container *ngIf="systemCategoriesWithTaxi?.includes(etxn.tx_fyle_category)">
         <div class="view-expense--divider"></div>
@@ -610,41 +614,31 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="projectDependantCustomProperties$|async as projectDependantCustomProperties">
-        <ng-container *ngIf="projectDependantCustomProperties?.length > 0">
-          <div class="view-expense--divider"></div>
-          <ion-grid *ngIf="isProjectShown" class="view-expense--grid">
-            <ion-row>
-              <ion-col class="view-expense--icon-container">
-                <div class="view-expense--icon-container__background">
-                  <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-expense--content-container">
-                <div class="view-expense--label">Project</div>
-                <div class="view-expense--value">
-                  {{ projectFieldName | titlecase }}: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-          <ng-container *ngFor="let customProperty of projectDependantCustomProperties">
-            <ion-grid class="view-expense--grid">
-              <ion-row>
-                <ion-col class="view-expense--icon-container">
-                  <div class="view-expense--icon-container__background">
-                    <ion-icon
-                      class="view-expense--icon-container__icon-lg"
-                      src="../../../assets/svg/list.svg"
-                    ></ion-icon>
-                  </div>
-                </ion-col>
-                <ion-col class="view-expense--content-container">
-                  <div class="view-expense--label">{{ customProperty.name }}</div>
-                  <div class="view-expense--value">{{ customProperty.displayValue }}</div>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
+      <!-- Project dependent fields -->
+      <ng-container *ngIf="projectDependentCustomProperties$ | async as projectDependentCustomProperties">
+        <ng-container *ngIf="txnFields$ | async as txnFields">
+          <ng-container *ngIf="txnFields?.project_id?.length">
+            <app-view-dependent-fields
+              parentFieldType="PROJECT"
+              [parentFieldName]="txnFields.project_id[0]?.field_name"
+              [parentFieldValue]="etxn.tx_project_name"
+              [dependentCustomProperties]="projectDependentCustomProperties"
+            ></app-view-dependent-fields>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <!-- Cost center dependent fields -->
+      <ng-container *ngIf="costCenterDependentCustomProperties$ | async as costCenterDependentCustomProperties">
+        <ng-container *ngIf="txnFields$ | async as txnFields">
+          <ng-container *ngIf="txnFields?.cost_center_id?.length">
+            <app-view-dependent-fields
+              parentFieldType="COST_CENTER"
+              [parentFieldName]="txnFields.cost_center_id[0]?.field_name"
+              [parentFieldValue]="etxn.tx_cost_center_name"
+              [costCenterCode]="etxn.tx_cost_center_code"
+              [dependentCustomProperties]="costCenterDependentCustomProperties"
+            ></app-view-dependent-fields>
           </ng-container>
         </ng-container>
       </ng-container>
