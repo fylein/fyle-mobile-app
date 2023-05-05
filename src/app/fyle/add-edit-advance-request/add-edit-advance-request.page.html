@@ -89,6 +89,8 @@
           [showSaveButton]="true"
           [selectModalHeader]="'Enter Purpose'"
           [placeholder]="'Enter Purpose'"
+          [touchedInParent]="fg.controls.purpose.touched"
+          [validInParent]="fg.controls.purpose.valid"
         >
         </app-fy-select>
       </div>
@@ -189,6 +191,8 @@
                     [options]="customInput.options"
                     formControlName="value"
                     [placeholder]="customInput.placeholder | ellipsis: 30"
+                    [touchedInParent]="fg.controls.custom_field_values['controls'][i].touched"
+                    [validInParent]="fg.controls.custom_field_values['controls'][i].valid"
                   >
                   </app-fy-select>
                 </div>

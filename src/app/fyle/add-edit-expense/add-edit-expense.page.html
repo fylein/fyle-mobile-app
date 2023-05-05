@@ -311,6 +311,8 @@
                       [selectionElement]="paymentMode"
                       formControlName="paymentMode"
                       [placeholder]="'Payment Mode'"
+                      [touchedInParent]="fg.controls.paymentMode.touched"
+                      [validInParent]="fg.controls.paymentMode.valid"
                     >
                     </app-fy-select>
                     <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -477,6 +479,8 @@
                       [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')"
                       formControlName="tax_group"
                       [placeholder]="txnFields.tax_group_id.placeholder"
+                      [touchedInParent]="fg.controls.tax_group.touched"
+                      [validInParent]="fg.controls.tax_group.valid"
                     >
                     </app-fy-select>
                   </div>
@@ -641,6 +645,8 @@
                           [selectModalHeader]="'Select Travel Class'"
                           formControlName="flight_journey_travel_class"
                           [placeholder]="txnFields.flight_journey_travel_class?.placeholder"
+                          [touchedInParent]="fg.controls.flight_journey_travel_class.touched"
+                          [validInParent]="fg.controls.flight_journey_travel_class.valid"
                         >
                         </app-fy-select>
                       </div>
@@ -667,6 +673,8 @@
                           formControlName="flight_return_travel_class"
                           name="flightReturnClass"
                           [placeholder]="txnFields.flight_return_travel_class?.placeholder"
+                          [touchedInParent]="fg.controls.flight_return_travel_class.touched"
+                          [validInParent]="fg.controls.flight_return_travel_class.valid"
                         >
                         </app-fy-select>
                       </div>
@@ -710,6 +718,8 @@
                     [options]="txnFields.train_travel_class?.options"
                     formControlName="train_travel_class"
                     [placeholder]="txnFields.train_travel_class?.placeholder"
+                    [touchedInParent]="fg.controls.train_travel_class.touched"
+                    [validInParent]="fg.controls.train_travel_class.valid"
                   >
                   </app-fy-select>
                 </div>
@@ -751,6 +761,8 @@
                     formControlName="bus_travel_class"
                     hide-none="true"
                     [placeholder]="txnFields.bus_travel_class?.placeholder"
+                    [touchedInParent]="fg.controls.bus_travel_class.touched"
+                    [validInParent]="fg.controls.bus_travel_class.valid"
                   >
                   </app-fy-select>
                 </div>
@@ -807,6 +819,8 @@
                       sub-title="Units"
                       title="Select Unit"
                       [placeholder]="txnFields.distance_unit?.placeholder"
+                      [touchedInParent]="fg.controls.distance_unit.touched"
+                      [validInParent]="fg.controls.distance_unit.valid"
                     >
                     </app-fy-select>
                   </div>
@@ -934,6 +948,8 @@
                     [selectModalHeader]="'Enter '+ txnFields.purpose?.field_name"
                     formControlName="purpose"
                     [placeholder]="txnFields.purpose?.placeholder"
+                    [touchedInParent]="fg.controls.purpose.touched"
+                    [validInParent]="fg.controls.purpose.valid"
                   >
                   </app-fy-select>
                 </div>
@@ -1021,6 +1037,8 @@
                       [label]="customInput.name"
                       formControlName="value"
                       [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [touchedInParent]="customInput.control.controls.value.touched"
+                      [validInParent]="customInput.control.controls.value.valid"
                     >
                     </app-fy-select>
                   </div>

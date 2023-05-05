@@ -49,25 +49,23 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
 
+  @Input() touchedInParent: boolean;
+
+  @Input() validInParent: boolean;
+
   displayValue;
 
-  private innerValue;
+  innerValue;
 
-  private ngControl: NgControl;
+  onTouchedCallback: () => void = noop;
 
-  private onTouchedCallback: () => void = noop;
+  onChangeCallback: (_: any) => void = noop;
 
-  private onChangeCallback: (_: any) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private injector: Injector,
-    private modalProperties: ModalPropertiesService
-  ) {}
+  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
+    if (this.touchedInParent) {
+      return this.validInParent;
     } else {
       return true;
     }
@@ -97,9 +95,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-  }
+  ngOnInit() {}
 
   async openModal() {
     const cssClass = this.label === 'Payment Mode' ? 'payment-mode-modal' : 'fy-modal';
