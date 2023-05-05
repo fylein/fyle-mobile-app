@@ -650,7 +650,23 @@ export class SplitExpensePage implements OnInit {
     this.getTotalSplitAmount();
   }
 
-  setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage) {
+  splitEvenly() {
+    const evenAmount = parseFloat((this.amount / this.splitExpensesFormArray.length).toFixed(3));
+    const evenPercentage = parseFloat((100 / this.splitExpensesFormArray.length).toFixed(3));
+
+    const lastSplitIndex = this.splitExpensesFormArray.length - 1;
+
+    // Last split should have the remaining amount after even split to make sure we get the total amount
+    const lastSplitAmount = parseFloat((this.amount - evenAmount * lastSplitIndex).toFixed(3));
+    const lastSplitPercentage = parseFloat((100 - evenPercentage * lastSplitIndex).toFixed(3));
+
+    this.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
+
+    // Recalculate the total split amount and remaining amount
+    this.getTotalSplitAmount();
+  }
+
+  private setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage) {
     const lastSplitIndex = this.splitExpensesFormArray.length - 1;
 
     this.splitExpensesFormArray.controls.forEach((control, index) => {
@@ -674,21 +690,5 @@ export class SplitExpensePage implements OnInit {
         );
       }
     });
-  }
-
-  splitEvenly() {
-    const evenAmount = parseFloat((this.amount / this.splitExpensesFormArray.length).toFixed(3));
-    const evenPercentage = parseFloat((100 / this.splitExpensesFormArray.length).toFixed(3));
-
-    const lastSplitIndex = this.splitExpensesFormArray.length - 1;
-
-    // Last split should have the remaining amount after even split to make sure we get the total amount
-    const lastSplitAmount = parseFloat((this.amount - evenAmount * lastSplitIndex).toFixed(3));
-    const lastSplitPercentage = parseFloat((100 - evenPercentage * lastSplitIndex).toFixed(3));
-
-    this.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
-
-    // Recalculate the total split amount and remaining amount
-    this.getTotalSplitAmount();
   }
 }
