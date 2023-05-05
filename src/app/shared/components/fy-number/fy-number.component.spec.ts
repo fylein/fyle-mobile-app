@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { DebugElement, Injector } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
-describe('FyNumberComponent', () => {
+fdescribe('FyNumberComponent', () => {
   let component: FyNumberComponent;
   let fixture: ComponentFixture<FyNumberComponent>;
   let platform: jasmine.SpyObj<Platform>;
@@ -59,14 +59,25 @@ describe('FyNumberComponent', () => {
   });
 
   it('registerOnChange(): should set onChangeCallback function', () => {
-    const mockCallback = () => {};
+    const mockCallback = jasmine.createSpy('mockCallback');
     component.registerOnChange(mockCallback);
+
+    const value = 42;
     expect(component.onChangeCallback).toEqual(mockCallback);
+    component.fc.setValue(value);
+
+    expect(component.onChangeCallback).toHaveBeenCalledOnceWith(value);
   });
 
-  it('registerOnTouched(): should set onTouchedCallback function', () => {
-    const mockCallback = () => {};
+  it('registerOnTouched(): should set onTouchedCallback function and call it on blur', () => {
+    const mockCallback = jasmine.createSpy('mockCallback');
     component.registerOnTouched(mockCallback);
+
+    const inputElement = fixture.debugElement.query(By.css('.fy-number--input')).nativeElement;
+    inputElement.value = '123';
+    inputElement.dispatchEvent(new Event('input'));
+    inputElement.dispatchEvent(new Event('blur'));
+
     expect(component.onTouchedCallback).toEqual(mockCallback);
   });
 
@@ -131,10 +142,12 @@ describe('FyNumberComponent', () => {
 
       component.handleChange({ target: { value: '12' }, code: 'Digit1' } as any);
       expect(component.commaClicked).toBeFalse();
+      expect(component.fc.patchValue).not.toHaveBeenCalled();
       expect(component.inputWithoutDecimal).toBe('12');
 
       component.handleChange({ target: { value: '12,' }, code: 'Comma' } as any);
       expect(component.commaClicked).toBeTrue();
+      expect(component.fc.patchValue).not.toHaveBeenCalled();
       expect(component.inputWithoutDecimal).toBe('12');
 
       //target value will the appended with a period
@@ -160,10 +173,12 @@ describe('FyNumberComponent', () => {
 
       component.handleChange({ target: { value: '32' }, code: 'Digit3' } as any);
       expect(component.commaClicked).toBeFalse();
+      expect(component.fc.patchValue).not.toHaveBeenCalled();
       expect(component.inputWithoutDecimal).toBe('32');
 
       component.handleChange({ target: { value: '32,' }, code: 'Comma' } as any);
       expect(component.commaClicked).toBeTrue();
+      expect(component.fc.patchValue).not.toHaveBeenCalled();
       expect(component.inputWithoutDecimal).toBe('32');
 
       component.handleChange({ target: { value: '32.4533' }, code: 'Digit5', key: '4533' } as any);
@@ -184,10 +199,12 @@ describe('FyNumberComponent', () => {
 
     it('should handle zero input correctly', () => {
       spyOn(component.fc, 'setValue').and.callThrough();
+      spyOn(component.fc, 'patchValue').and.callThrough();
       component.handleChange({ target: { value: '0' }, code: 'Digit0' } as any);
 
       expect(component.commaClicked).toBeFalse();
       expect(component.inputWithoutDecimal).toBe('0');
+      expect(component.fc.patchValue).not.toHaveBeenCalled();
       expect(component.isIos).toBeTrue();
       expect(component.isKeyboardPluginEnabled).toBeTrue();
 
