@@ -382,6 +382,29 @@ describe('TransactionService', () => {
     });
   });
 
+  describe('generateSplitExpenseParams():', () => {
+    const params = { or: [] };
+    beforeEach(() => {
+      spyOn(lodash, 'cloneDeep').and.returnValue(params);
+    });
+
+    it('should return split expense params if split expense is YES', () => {
+      const filters = { splitExpense: 'YES' };
+      const splitExpenseParams = { or: ['(tx_is_split_expense.eq.true)'] };
+      expect(transactionService.generateSplitExpenseParams(params, filters)).toEqual(splitExpenseParams);
+    });
+
+    it('should return split expense params if split expense is NO', () => {
+      const filters = { splitExpense: 'NO' };
+      const splitExpenseParams = { or: ['(tx_is_split_expense.eq.false)'] };
+      expect(transactionService.generateSplitExpenseParams(params, filters)).toEqual(splitExpenseParams);
+    });
+
+    afterEach(() => {
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(params);
+    });
+  });
+
   it('generateStateFilters(): should generate state filters', () => {
     const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'CANNOT_REPORT', 'DRAFT'] };
     const params = { or: [] };
