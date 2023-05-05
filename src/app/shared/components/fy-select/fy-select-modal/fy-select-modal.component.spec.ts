@@ -7,7 +7,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, take } from 'rxjs';
 
-fdescribe('FySelectModalComponent', () => {
+describe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
   let fixture: ComponentFixture<FySelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
