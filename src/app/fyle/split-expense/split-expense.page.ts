@@ -470,6 +470,7 @@ export class SplitExpensePage implements OnInit {
 
               const splitTrackingProps = {
                 'Split Type': this.splitType,
+                'Is Evenly Split': this.isEvenlySplit(),
               };
               this.trackingService.splittingExpense(splitTrackingProps);
             })
@@ -682,5 +683,28 @@ export class SplitExpensePage implements OnInit {
         }
       );
     });
+  }
+
+  private isEvenlySplit(): boolean {
+    let splitAmount: number;
+
+    // First Assuming that the expense is evenly split
+    let isEvenSplit = true;
+
+    this.splitExpensesFormArray.controls.forEach((control) => {
+      const split = control.value;
+
+      if (!splitAmount) {
+        splitAmount = split.amount;
+      } else {
+        // If the split amount is not the same for each split, then it is not evenly split
+        // We are using 0.01 as the tolerance amount, because float point number cannot be evenly split perfectly in all cases, we will only check similarity up to 2 decimal places
+        if (Math.abs(splitAmount - split.amount) > 0.01) {
+          isEvenSplit = false;
+        }
+      }
+    });
+
+    return isEvenSplit;
   }
 }
