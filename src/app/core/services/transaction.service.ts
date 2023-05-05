@@ -713,11 +713,11 @@ export class TransactionService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
-        newQueryParamsCopy.tx_is_split_expense = 'eq.true';
+        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.true)');
       }
 
       if (filters.splitExpense === 'NO') {
-        newQueryParamsCopy.tx_is_split_expense = 'eq.false';
+        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.false)');
       }
     }
 
