@@ -384,6 +384,8 @@
                         [mandatory]="txnFields?.project_id?.is_mandatory"
                         [recentlyUsed]="recentProjects"
                         formControlName="project"
+                        [validInParent]="fg.controls.project.valid"
+                        [touchedInParent]="fg.controls.project.touched"
                       >
                       </app-fy-select-project>
                     </div>

@@ -107,6 +107,8 @@
               [label]="expenseFields?.project_id[0]?.field_name"
               [placeholder]="expenseFields?.project_id[0]?.placeholder"
               [cacheName]="'advanceProjectCache'"
+              [validInParent]="fg.controls.project.valid"
+              [touchedInParent]="fg.controls.project.touched"
             ></app-fy-select-project>
           </div>
         </ng-container>

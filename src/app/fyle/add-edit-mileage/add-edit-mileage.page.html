@@ -304,6 +304,8 @@
                             [defaultValue]="true"
                             [recentlyUsed]="recentProjects"
                             formControlName="project"
+                            [validInParent]="fg.controls.project.valid"
+                            [touchedInParent]="fg.controls.project.touched"
                           ></app-fy-select-project>
                         </div>
                       </ng-container>
