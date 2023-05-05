@@ -198,7 +198,7 @@ export class MyExpensesService {
     });
   }
 
-  generateSplitExpenseFilterPills(filterPills: FilterPill[], filter) {
+  generateSplitExpenseFilterPills(filterPills: FilterPill[], filter: Filters) {
     filterPills.push({
       label: 'Split Expense',
       type: 'splitExpense',
