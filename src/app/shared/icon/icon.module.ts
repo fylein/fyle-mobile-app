@@ -171,6 +171,7 @@ export class IconModule {
     'warning.svg',
     'fy-merge.svg',
     'split-evenly.svg',
+    'split-new.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {
