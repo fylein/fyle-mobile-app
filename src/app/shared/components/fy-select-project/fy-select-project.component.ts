@@ -1,5 +1,5 @@
-import { Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef, ElementRef } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { Component, forwardRef, Input, OnDestroy, OnInit, TemplateRef, ElementRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
@@ -25,7 +25,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
 
   @Input() placeholder: string;
 
-  @Input() cacheName;
+  @Input() cacheName: string;
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
@@ -35,25 +35,23 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
 
   @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
-  displayValue;
+  @Input() touchedInParent = false;
 
-  private ngControl: NgControl;
+  @Input() validInParent = true;
 
-  private innerValue;
+  displayValue: string;
+
+  private innerValue: ExtendedProject;
 
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
 
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector
-  ) {}
+  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
+    if (this.touchedInParent) {
+      return this.validInParent;
     } else {
       return true;
     }
@@ -77,9 +75,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
     }
   }
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-  }
+  ngOnInit() {}
 
   ngOnDestroy(): void {}
 
@@ -123,14 +119,6 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
       }
     }
   }
-
-  // validate(fc: FormControl) {
-  //   if (this.mandatory && fc.value === null) {
-  //     return {
-  //       required: true
-  //     };
-  //   }
-  // }
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;
