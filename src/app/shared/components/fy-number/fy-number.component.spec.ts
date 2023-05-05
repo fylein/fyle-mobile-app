@@ -83,38 +83,53 @@ describe('FyNumberComponent', () => {
     expect(inputElement.disabled).toBe(false);
   });
 
-  describe('onInit(): valueChanges subscription', () => {
+  describe('onInit(): valueChanges subscription and check if values are being set correctly', () => {
     it('should not enable the keyboard plugin when checkIfKeyboardPluginIsEnabled returns false', () => {
+      spyOn(component, 'handleChange');
+
       platform.is.withArgs('ios').and.returnValue(false);
       launchDarklyService.checkIfKeyboardPluginIsEnabled.and.returnValue(of(false));
+
       component.ngOnInit();
       fixture.detectChanges();
-      const inputElement = fixture.debugElement.query(By.css('input.fy-number--input'));
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      expect(inputElement.listeners['keyup']).toBeUndefined();
+      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
       expect(component.isIos).toBe(false);
       expect(component.isKeyboardPluginEnabled).toBeFalse();
+      expect(inputElement.length).toBe(1);
+      expect(component.handleChange).not.toHaveBeenCalled();
     });
 
     it('should set this.value to a parsed float when given a string', () => {
+      spyOn(component, 'onChangeCallback').and.callThrough();
       component.fc.setValue('1.5');
       expect(component.value).toBe(1.5);
+      expect(component.innerValue).toBe(1.5);
+      expect(component.onChangeCallback).toHaveBeenCalledOnceWith(1.5);
     });
 
     it('should set this.value to a number when given a number', () => {
+      spyOn(component, 'onChangeCallback').and.callThrough();
       component.fc.setValue(2.5);
       expect(component.value).toBe(2.5);
+      expect(component.innerValue).toBe(2.5);
+      expect(component.onChangeCallback).toHaveBeenCalledOnceWith(2.5);
     });
 
     it('should set this.value to null when given an invalid value', () => {
+      spyOn(component, 'onChangeCallback').and.callThrough();
       component.fc.setValue(null);
       expect(component.value).toBeNull();
+      expect(component.innerValue).toBeNull();
+      expect(component.onChangeCallback).toHaveBeenCalled();
     });
   });
 
   describe('handleChanges():', () => {
     it('should patch value with period as decimal separator if the last input was a comma or else keep it as it is', () => {
       spyOn(component.fc, 'setValue').and.callThrough();
+      spyOn(component.fc, 'patchValue').and.callThrough();
+      spyOn(component, 'handleChange').and.callThrough();
+
       component.handleChange({ target: { value: '12' }, code: 'Digit1' } as any);
       expect(component.commaClicked).toBeFalse();
       expect(component.inputWithoutDecimal).toBe('12');
@@ -122,22 +137,30 @@ describe('FyNumberComponent', () => {
       component.handleChange({ target: { value: '12,' }, code: 'Comma' } as any);
       expect(component.commaClicked).toBeTrue();
       expect(component.inputWithoutDecimal).toBe('12');
+
       //target value will the appended with a period
-      component.handleChange({ target: { value: '12.5' }, code: 'Digit5' } as any);
+      component.handleChange({ target: { value: '12.5' }, code: 'Digit5', key: '5' } as any);
       expect(component.commaClicked).toBeFalse();
+      expect(component.fc.patchValue).toHaveBeenCalledOnceWith('12.5');
+      expect(component.value).toBe(12.5);
       expect(component.inputWithoutDecimal).toBe('12.5');
+
       const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin input'));
-      expect(inputWithoutPlugin).toBeFalsy();
-      const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
-      component.ngOnInit();
-      expect(inputElement.value).toBe('');
+      expect(inputWithoutPlugin).toBeNull();
+
+      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
+      expect(inputElement.length).toBe(1);
 
       expect(component.isIos).toBeTrue();
       expect(component.isKeyboardPluginEnabled).toBeTrue();
+      expect(component.handleChange).toHaveBeenCalledTimes(3);
     });
 
     it('should replace comma with period as decimal separator when input is comma-separated', () => {
       spyOn(component.fc, 'setValue').and.callThrough();
+      spyOn(component.fc, 'patchValue').and.callThrough();
+      spyOn(component, 'handleChange').and.callThrough();
+
       component.handleChange({ target: { value: '32' }, code: 'Digit3' } as any);
       expect(component.commaClicked).toBeFalse();
       expect(component.inputWithoutDecimal).toBe('32');
@@ -146,19 +169,27 @@ describe('FyNumberComponent', () => {
       expect(component.commaClicked).toBeTrue();
       expect(component.inputWithoutDecimal).toBe('32');
 
-      component.handleChange({ target: { value: '32.4533' }, code: 'Digit5' } as any);
+      component.handleChange({ target: { value: '32.4533' }, code: 'Digit5', key: '4533' } as any);
       expect(component.commaClicked).toBeFalse();
+      expect(component.fc.patchValue).toHaveBeenCalledOnceWith('32.4533');
+      expect(component.value).toBe(32.4533);
       expect(component.inputWithoutDecimal).toBe('32.4533');
 
       expect(component.isIos).toBeTrue();
       expect(component.isKeyboardPluginEnabled).toBeTrue();
 
       const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin input'));
-      expect(inputWithoutPlugin).toBeFalsy();
+      expect(inputWithoutPlugin).toBeNull();
+
+      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
+      expect(inputElement.length).toBe(1);
+
+      expect(component.handleChange).toHaveBeenCalledTimes(3);
     });
 
     it('should handle zero input correctly', () => {
       spyOn(component.fc, 'setValue').and.callThrough();
+      spyOn(component, 'handleChange').and.callThrough();
       component.handleChange({ target: { value: '0' }, code: 'Digit0' } as any);
 
       expect(component.commaClicked).toBeFalse();
@@ -167,16 +198,12 @@ describe('FyNumberComponent', () => {
       expect(component.isKeyboardPluginEnabled).toBeTrue();
 
       const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithoutPlugin input'));
-      expect(inputWithoutPlugin).toBeFalsy();
+      expect(inputWithoutPlugin).toBeNull();
+
+      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
+      expect(inputElement.length).toBe(1);
+
+      expect(component.handleChange).toHaveBeenCalledTimes(1);
     });
-  });
-
-  it('should call handleChange only once on keyup', () => {
-    spyOn(component, 'handleChange').and.callThrough();
-
-    const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
-    inputElement.dispatchEvent(new KeyboardEvent('keyup', { key: '1' }));
-
-    expect(component.handleChange).toHaveBeenCalledTimes(1);
   });
 });
