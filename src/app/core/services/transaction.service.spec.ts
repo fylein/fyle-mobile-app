@@ -55,6 +55,7 @@ import { platformPolicyExpenseData1 } from '../mock-data/platform-policy-expense
 import { expensePolicyData } from '../mock-data/expense-policy.data';
 import { txnAccountData } from '../mock-data/txn-account.data';
 import { txnCustomPropertiesData, txnCustomPropertiesData2 } from '../mock-data/txn-custom-properties.data';
+import { FilterQueryParams } from '../models/filter-query-params.model';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -383,8 +384,10 @@ describe('TransactionService', () => {
   });
 
   describe('generateSplitExpenseParams():', () => {
-    const params = { or: [] };
+    let params: FilterQueryParams;
+
     beforeEach(() => {
+      params = { or: [] };
       spyOn(lodash, 'cloneDeep').and.returnValue(params);
     });
 
