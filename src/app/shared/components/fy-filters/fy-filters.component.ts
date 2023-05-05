@@ -141,7 +141,7 @@ export class FyFiltersComponent implements OnInit {
     this.modalController.dismiss(filters);
   }
 
-  private switchDateFilter(
+  switchDateFilter(
     filter: any,
     currentFilter: FilterOptions<any>,
     option: {
@@ -161,7 +161,7 @@ export class FyFiltersComponent implements OnInit {
     }
   }
 
-  private switchMultiselectFilter(
+  switchMultiselectFilter(
     filter: any,
     option: {
       label: string;
@@ -183,7 +183,7 @@ export class FyFiltersComponent implements OnInit {
     }
   }
 
-  private switchSingleSelectFilter(
+  switchSingleSelectFilter(
     filter: any,
     currentFilter: FilterOptions<any>,
     option: {
