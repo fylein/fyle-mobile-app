@@ -672,23 +672,15 @@ export class SplitExpensePage implements OnInit {
     this.splitExpensesFormArray.controls.forEach((control, index) => {
       const isLastSplit = index === lastSplitIndex;
 
-      if (!isLastSplit) {
-        control.patchValue(
-          {
-            amount: evenAmount,
-            percentage: evenPercentage,
-          },
-          { emitEvent: false }
-        );
-      } else {
-        control.patchValue(
-          {
-            amount: lastSplitAmount,
-            percentage: lastSplitPercentage,
-          },
-          { emitEvent: false }
-        );
-      }
+      control.patchValue(
+        {
+          amount: isLastSplit ? lastSplitAmount : evenAmount,
+          percentage: isLastSplit ? lastSplitPercentage : evenPercentage,
+        },
+        {
+          emitEvent: false,
+        }
+      );
     });
   }
 }
