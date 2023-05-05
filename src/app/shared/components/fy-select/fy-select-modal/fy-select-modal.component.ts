@@ -9,7 +9,7 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { from, fromEvent, Observable, of } from 'rxjs';
-import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, tap, switchMap, shareReplay } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
@@ -127,7 +127,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
                 return option;
               })
           );
-        })
+        }),
+        shareReplay(1)
       );
       this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
         map((event: any) => event.srcElement.value),
@@ -138,7 +139,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
             // filtering of recently used items wrt searchText is taken care in service method
             this.utilityService.searchArrayStream(searchText)
           )
-        )
+        ),
+        shareReplay(1)
       );
     } else {
       const initial = [];
