@@ -89,7 +89,6 @@
           >
           </app-fy-alert-info>
         </div>
-
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit' && etxn.tx.policy_flag">
             <ng-container *ngIf="policyDetails">
@@ -99,10 +98,6 @@
               ></app-fy-policy-violation-info>
             </ng-container>
           </ng-container>
-
-          <div *ngIf="isSplitExpense">
-            <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
-          </div>
 
           <ng-container *ngIf="isAmountCapped$|async">
             <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
