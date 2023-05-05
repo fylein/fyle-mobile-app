@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { DebugElement, Injector } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
-fdescribe('FyNumberComponent', () => {
+describe('FyNumberComponent', () => {
   let component: FyNumberComponent;
   let fixture: ComponentFixture<FyNumberComponent>;
   let platform: jasmine.SpyObj<Platform>;
