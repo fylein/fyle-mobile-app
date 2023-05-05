@@ -37,6 +37,7 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { fileData1 } from 'src/app/core/mock-data/file.data';
 import { cloneDeep } from 'lodash';
 import * as dayjs from 'dayjs';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 
 const thumbnailUrlMockData1: FileObject[] = [
   {
@@ -54,7 +55,7 @@ fdescribe('ExpensesCardComponent', () => {
   let fileService: jasmine.SpyObj<FileService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let networkService: jasmine.SpyObj<NetworkService>;
-  let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
+  let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let platform: jasmine.SpyObj<Platform>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -88,7 +89,7 @@ fdescribe('ExpensesCardComponent', () => {
     fileServiceSpy.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    const transactionOutboxServiceSpy = jasmine.createSpyObj([
+    const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
       'isDataExtractionPending',
       'isSyncInProgress',
       'fileUpload',
@@ -113,7 +114,7 @@ fdescribe('ExpensesCardComponent', () => {
         { provide: FileService, useValue: fileServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: NetworkService, useValue: networkServiceSpy },
-        { provide: TransactionsOutboxService, useValue: transactionOutboxServiceSpy },
+        { provide: TransactionsOutboxService, useValue: transactionsOutboxServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: Platform, useValue: platformSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
@@ -132,7 +133,7 @@ fdescribe('ExpensesCardComponent', () => {
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
+    transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -143,14 +144,14 @@ fdescribe('ExpensesCardComponent', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
 
     orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
-    transactionOutboxService.isSyncInProgress.and.returnValue(true);
+    transactionsOutboxService.isSyncInProgress.and.returnValue(true);
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
     transactionService.getVendorDetails.and.returnValue('asd');
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
     transactionService.getIsCriticalPolicyViolated.and.returnValue(false);
     platform.is.and.returnValue(true);
     fileService.getReceiptDetails.and.returnValue(fileObjectAdv[0].type);
-    transactionOutboxService.isDataExtractionPending.and.returnValue(true);
+    transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
     transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
     networkService.isOnline.and.returnValue(of(true));
     transactionService.getIsDraft.and.returnValue(true);
@@ -242,7 +243,7 @@ fdescribe('ExpensesCardComponent', () => {
       const attachmentType = 'png';
 
       fileService.getAttachmentType.and.returnValue(attachmentType);
-      transactionOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
       fileService.post.and.returnValue(of(fileObjectData));
 
       spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
@@ -253,7 +254,7 @@ fdescribe('ExpensesCardComponent', () => {
 
       //expect(component.attachmentUploadInProgress).toBeTrue();
       expect(component.inlineReceiptDataUrl).toBe(dataUrl);
-      expect(transactionOutboxService.fileUpload).toHaveBeenCalledWith(dataUrl, attachmentType);
+      expect(transactionsOutboxService.fileUpload).toHaveBeenCalledWith(dataUrl, attachmentType);
       expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObj);
       expect(fileService.post).toHaveBeenCalledWith(fileObj);
       expect(component.setThumbnail).toHaveBeenCalledWith(fileObjectData.id, attachmentType);
@@ -392,7 +393,7 @@ fdescribe('ExpensesCardComponent', () => {
 
   describe('pollDataExtractionStatus():', () => {
     it('should call the callback when data extraction is not pending', fakeAsync(() => {
-      transactionOutboxService.isDataExtractionPending.and.returnValue(false);
+      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
       const callbackSpy = jasmine.createSpy('callback');
       component.pollDataExtractionStatus(callbackSpy);
       tick(5000);
@@ -402,19 +403,19 @@ fdescribe('ExpensesCardComponent', () => {
     it('should keep polling when data extraction is pending', fakeAsync(() => {
       const callbackSpy = jasmine.createSpy('callback');
 
-      transactionOutboxService.isDataExtractionPending.and.returnValue(true);
+      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
 
       component.pollDataExtractionStatus(callbackSpy);
       tick(1000); // wait for the initial setTimeout call
 
-      expect(transactionOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(1);
+      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(1);
       expect(callbackSpy).not.toHaveBeenCalled();
 
       // simulate data extraction not pending
-      transactionOutboxService.isDataExtractionPending.and.returnValue(false);
+      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
       tick(5000); // wait for the next setTimeout call
 
-      expect(transactionOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(2);
+      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(2);
       expect(callbackSpy).toHaveBeenCalledTimes(1);
     }));
   });
@@ -512,117 +513,174 @@ fdescribe('ExpensesCardComponent', () => {
       fixture.detectChanges();
       expect(result).toBeFalse();
     });
+  });
 
-    describe('getReceipt', () => {
-      it('should get the receipts when th file ids are present and the length of the thumbnail files array is greater that 0', fakeAsync(() => {
-        const mockDownloadUrl = {
-          url: 'mock-url',
-        };
-        fileService.getFilesWithThumbnail.and.returnValue(of([fileObjectData]));
-        fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
-        // fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
-        component.expense = {
-          ...expenseData1,
-          tx_file_ids: ['fiGLwwPtYD8X'],
-        };
-        component.getReceipt();
-        fixture.detectChanges();
-        tick(500);
-        expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
-        expect(fileService.downloadThumbnailUrl).toHaveBeenCalledOnceWith('fiHPZUiichAS');
-      }));
+  describe('getReceipt', () => {
+    it('should get the receipts when th file ids are present and the length of the thumbnail files array is greater that 0', fakeAsync(() => {
+      const mockDownloadUrl = {
+        url: 'mock-url',
+      };
+      fileService.getFilesWithThumbnail.and.returnValue(of([fileObjectData]));
+      fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
+      component.expense = {
+        ...expenseData1,
+        tx_file_ids: ['fiGLwwPtYD8X'],
+      };
+      component.getReceipt();
+      fixture.detectChanges();
+      tick(500);
+      expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
+      expect(fileService.downloadThumbnailUrl).toHaveBeenCalledOnceWith('fiHPZUiichAS');
+    }));
 
-      it('should get the receipts when the file ids are present and there are no thumbnail files and set the icon to fy-expense when type is not pdf', fakeAsync(() => {
-        const mockDownloadUrl = {
-          url: 'mock-url',
-        };
-        fileService.getFilesWithThumbnail.and.returnValue(of([]));
-        fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
-        fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
-        fileService.getReceiptDetails.and.returnValue('mock-url');
+    it('should get the receipts when the file ids are present and there are no thumbnail files and set the icon to fy-expense when type is not pdf', fakeAsync(() => {
+      const mockDownloadUrl = {
+        url: 'mock-url',
+      };
+      fileService.getFilesWithThumbnail.and.returnValue(of([]));
+      fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
+      fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+      fileService.getReceiptDetails.and.returnValue('mock-url');
 
-        component.expense = {
-          ...expenseData1,
-          tx_file_ids: ['fiGLwwPtYD8X'],
-        };
-        component.getReceipt();
-        fixture.detectChanges();
-        tick(500);
-        expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
-        // expect(fileService.downloadThumbnailUrl).toHaveBeenCalledOnceWith('fiHPZUiichAS');
-        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiGLwwPtYD8X');
-        expect(fileService.getReceiptDetails).toHaveBeenCalledOnceWith('mock-url');
-        expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
-      }));
+      component.expense = {
+        ...expenseData1,
+        tx_file_ids: ['fiGLwwPtYD8X'],
+      };
+      component.getReceipt();
+      fixture.detectChanges();
+      tick(500);
+      expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
+      // expect(fileService.downloadThumbnailUrl).toHaveBeenCalledOnceWith('fiHPZUiichAS');
+      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiGLwwPtYD8X');
+      expect(fileService.getReceiptDetails).toHaveBeenCalledOnceWith('mock-url');
+      expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
+    }));
 
-      it('should get the receipts when the file ids are present and there are no thumbnail files and set the icon to fy-pdf when type is pdf', fakeAsync(() => {
-        const mockDownloadUrl = {
-          url: 'mock-url',
-        };
+    it('should get the receipts when the file ids are present and there are no thumbnail files and set the icon to fy-pdf when type is pdf', fakeAsync(() => {
+      const mockDownloadUrl = {
+        url: 'mock-url',
+      };
 
-        const thumbnailUrlMockRes = {
-          ...thumbnailUrlMockData1,
-          url: '/assets/mock-url.pdf',
-        };
-        fileService.getFilesWithThumbnail.and.returnValue(of([]));
-        fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockRes));
-        fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
-        fileService.getReceiptDetails.and.returnValue('pdf');
+      const thumbnailUrlMockRes = {
+        ...thumbnailUrlMockData1,
+        url: '/assets/mock-url.pdf',
+      };
+      fileService.getFilesWithThumbnail.and.returnValue(of([]));
+      fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockRes));
+      fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+      fileService.getReceiptDetails.and.returnValue('pdf');
 
-        component.expense = {
-          ...expenseData1,
-          tx_file_ids: ['fiGLwwPtYD8Y'],
-        };
-        component.getReceipt();
-        fixture.detectChanges();
-        tick(500);
-        expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
-        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiGLwwPtYD8Y');
-        expect(fileService.getReceiptDetails).toHaveBeenCalledOnceWith('mock-url');
-        expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
-      }));
+      component.expense = {
+        ...expenseData1,
+        tx_file_ids: ['fiGLwwPtYD8Y'],
+      };
+      component.getReceipt();
+      fixture.detectChanges();
+      tick(500);
+      expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
+      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiGLwwPtYD8Y');
+      expect(fileService.getReceiptDetails).toHaveBeenCalledOnceWith('mock-url');
+      expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
+    }));
 
-      it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
-        component.expense = {
-          ...expenseData1,
-          tx_fyle_category: 'mileage',
-        };
-        component.getReceipt();
-        fixture.detectChanges();
-        expect(component.receiptIcon).toEqual('assets/svg/fy-mileage.svg');
-      });
-
-      it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
-        component.expense = {
-          ...expenseData1,
-          tx_fyle_category: 'per diem',
-        };
-        component.getReceipt();
-        fixture.detectChanges();
-        expect(component.receiptIcon).toEqual('assets/svg/fy-calendar.svg');
-      });
-
-      it('should set the receipt icon to add-receipt when there are no file ids', () => {
-        component.expense = {
-          ...expenseData1,
-          tx_file_ids: null,
-        };
-        component.getReceipt();
-        fixture.detectChanges();
-        expect(component.receiptIcon).toEqual('assets/svg/add-receipt.svg');
-      });
-
-      it('should set the receipt icon to add-receipt when there are no file ids', () => {
-        component.isFromReports = true;
-        component.isFromPotentialDuplicates = true;
-        component.expense = {
-          ...expenseData1,
-          tx_file_ids: null,
-        };
-        component.getReceipt();
-        fixture.detectChanges();
-        expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
-      });
+    it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_fyle_category: 'mileage',
+      };
+      component.getReceipt();
+      fixture.detectChanges();
+      expect(component.receiptIcon).toEqual('assets/svg/fy-mileage.svg');
     });
+
+    it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_fyle_category: 'per diem',
+      };
+      component.getReceipt();
+      fixture.detectChanges();
+      expect(component.receiptIcon).toEqual('assets/svg/fy-calendar.svg');
+    });
+
+    it('should set the receipt icon to add-receipt when there are no file ids', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_file_ids: null,
+      };
+      component.getReceipt();
+      fixture.detectChanges();
+      expect(component.receiptIcon).toEqual('assets/svg/add-receipt.svg');
+    });
+
+    it('should set the receipt icon to add-receipt when there are no file ids', () => {
+      component.isFromReports = true;
+      component.isFromPotentialDuplicates = true;
+      component.expense = {
+        ...expenseData1,
+        tx_file_ids: null,
+      };
+      component.getReceipt();
+      fixture.detectChanges();
+      expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
+    });
+  });
+
+  describe('handleScanStatus():', () => {
+    it('should handle status', fakeAsync(() => {
+      component.isOutboxExpense = false;
+      const unflattenRes = {
+        ...unflattenedTxnData,
+        tx: {
+          extracted_data: {
+            amount: 25000,
+            currency: 'INR',
+            category: 'Software',
+            date: null,
+            vendor: null,
+            invoice_dt: null,
+          },
+        },
+      };
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenRes));
+      component.isScanInProgress = true;
+      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
+      tick(500);
+      component.handleScanStatus();
+      fixture.detectChanges();
+      tick(500);
+
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
+      //expect(component.pollDataExtractionStatus).toHaveBeenCalled();
+      expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
+      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
+      //expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txNVtsqF8Siq');
+      expect(component.isScanCompleted).toBeFalse();
+      expect(component.isScanInProgress).toBeFalse();
+    }));
+
+    it('should handle status of the scanning is not in progress', fakeAsync(() => {
+      component.isOutboxExpense = false;
+      component.homeCurrency = 'USD';
+      const orguserSettRes = {
+        ...orgUserSettingsData,
+        insta_fyle_settings: {
+          allowed: false,
+          enabled: false,
+          static_camera_overlay_enabled: true,
+          extract_fields: ['AMOUNT', 'CURRENCY', 'CATEGORY', 'TXN_DT'],
+        },
+      };
+      orgUserSettingsService.get.and.returnValue(of(orguserSettRes));
+      component.handleScanStatus();
+      fixture.detectChanges();
+      tick(500);
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(component.isScanCompleted).toBeTrue();
+      expect(component.isScanInProgress).toBeFalse();
+    }));
   });
 });
