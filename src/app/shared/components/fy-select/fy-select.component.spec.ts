@@ -5,8 +5,10 @@ import { FySelectComponent } from './fy-select.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 
-fdescribe('FySelectComponent', () => {
+describe('FySelectComponent', () => {
   let component: FySelectComponent;
   let fixture: ComponentFixture<FySelectComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -36,6 +38,7 @@ fdescribe('FySelectComponent', () => {
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
     fixture.detectChanges();
   }));
 
@@ -131,8 +134,8 @@ fdescribe('FySelectComponent', () => {
       );
 
       modalPropertiesService.getModalDefaultProperties.and.returnValue(mockDefaultProperties);
-
-      component.openModal();
+      const mockInput = fixture.debugElement.query(By.css('input'));
+      mockInput.nativeElement.click();
       tick(1000);
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FySelectModalComponent,
@@ -177,7 +180,8 @@ fdescribe('FySelectComponent', () => {
 
       modalPropertiesService.getModalDefaultProperties.and.returnValue(mockDefaultProperties);
 
-      component.openModal();
+      const mockInput = fixture.debugElement.query(By.css('input'));
+      mockInput.nativeElement.click();
       tick(1000);
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FySelectModalComponent,
@@ -209,7 +213,9 @@ fdescribe('FySelectComponent', () => {
 
   it('onBlur(): should call onTouchedCallback', () => {
     spyOn(component, 'onTouchedCallback');
-    component.onBlur();
+    const mockInput = fixture.debugElement.query(By.css('input'));
+    mockInput.nativeElement.dispatchEvent(new InputEvent('blur'));
+    fixture.detectChanges();
     expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
   });
 
@@ -246,13 +252,13 @@ fdescribe('FySelectComponent', () => {
   });
 
   it('registerOnChange(): should set onChangeCallback function', () => {
-    const mockCallback = () => {};
+    const mockCallback = jasmine.createSpy('mockCallback', () => {});
     component.registerOnChange(mockCallback);
     expect(component.onChangeCallback).toEqual(mockCallback);
   });
 
   it('registerOnTouched(): should set onTouchedCallback function', () => {
-    const mockCallback = () => {};
+    const mockCallback = jasmine.createSpy('mockCallback', () => {});
     component.registerOnTouched(mockCallback);
     expect(component.onTouchedCallback).toEqual(mockCallback);
   });

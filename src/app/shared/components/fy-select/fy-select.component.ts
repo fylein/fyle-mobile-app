@@ -1,5 +1,5 @@
-import { Component, OnInit, forwardRef, Input, TemplateRef, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { Component, forwardRef, Input, TemplateRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
@@ -18,7 +18,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     },
   ],
 })
-export class FySelectComponent implements ControlValueAccessor, OnInit {
+export class FySelectComponent implements ControlValueAccessor {
   @Input() options: { label: string; value: any }[] = [];
 
   @Input() disabled = false;
@@ -94,8 +94,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
       this.onChangeCallback(v);
     }
   }
-
-  ngOnInit() {}
 
   async openModal() {
     const cssClass = this.label === 'Payment Mode' ? 'payment-mode-modal' : 'fy-modal';
