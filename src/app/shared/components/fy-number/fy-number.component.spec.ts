@@ -128,7 +128,6 @@ describe('FyNumberComponent', () => {
     it('should patch value with period as decimal separator if the last input was a comma or else keep it as it is', () => {
       spyOn(component.fc, 'setValue').and.callThrough();
       spyOn(component.fc, 'patchValue').and.callThrough();
-      spyOn(component, 'handleChange').and.callThrough();
 
       component.handleChange({ target: { value: '12' }, code: 'Digit1' } as any);
       expect(component.commaClicked).toBeFalse();
@@ -153,13 +152,11 @@ describe('FyNumberComponent', () => {
 
       expect(component.isIos).toBeTrue();
       expect(component.isKeyboardPluginEnabled).toBeTrue();
-      expect(component.handleChange).toHaveBeenCalledTimes(3);
     });
 
     it('should replace comma with period as decimal separator when input is comma-separated', () => {
       spyOn(component.fc, 'setValue').and.callThrough();
       spyOn(component.fc, 'patchValue').and.callThrough();
-      spyOn(component, 'handleChange').and.callThrough();
 
       component.handleChange({ target: { value: '32' }, code: 'Digit3' } as any);
       expect(component.commaClicked).toBeFalse();
@@ -183,13 +180,10 @@ describe('FyNumberComponent', () => {
 
       const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
       expect(inputElement.length).toBe(1);
-
-      expect(component.handleChange).toHaveBeenCalledTimes(3);
     });
 
     it('should handle zero input correctly', () => {
       spyOn(component.fc, 'setValue').and.callThrough();
-      spyOn(component, 'handleChange').and.callThrough();
       component.handleChange({ target: { value: '0' }, code: 'Digit0' } as any);
 
       expect(component.commaClicked).toBeFalse();
@@ -202,8 +196,13 @@ describe('FyNumberComponent', () => {
 
       const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
       expect(inputElement.length).toBe(1);
-
-      expect(component.handleChange).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('should call handleChange only once on keyup', () => {
+    spyOn(component, 'handleChange').and.callThrough();
+    const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
+    inputElement.dispatchEvent(new KeyboardEvent('keyup', { key: '1' }));
+    expect(component.handleChange).toHaveBeenCalledTimes(1);
   });
 });
