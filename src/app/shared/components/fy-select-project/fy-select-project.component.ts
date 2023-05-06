@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, OnDestroy, OnInit, TemplateRef, ElementRef } from '@angular/core';
+import { Component, forwardRef, Input, OnDestroy, TemplateRef, ElementRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -18,7 +18,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     },
   ],
 })
-export class FySelectProjectComponent implements OnInit, ControlValueAccessor, OnDestroy {
+export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy {
   @Input() mandatory = false;
 
   @Input() label: string;
@@ -35,9 +35,9 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
 
   @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
-  @Input() touchedInParent;
+  @Input() touchedInParent: boolean;
 
-  @Input() validInParent;
+  @Input() validInParent: boolean;
 
   displayValue;
 
@@ -74,8 +74,6 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
       this.onChangeCallback(v);
     }
   }
-
-  ngOnInit() {}
 
   ngOnDestroy(): void {}
 

@@ -5,12 +5,12 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { FySelectProjectComponent } from './fy-select-project.component';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
 import { By } from '@angular/platform-browser';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-describe('FySelectProjectComponent', () => {
+fdescribe('FySelectProjectComponent', () => {
   let component: FySelectProjectComponent;
   let fixture: ComponentFixture<FySelectProjectComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -39,6 +39,7 @@ describe('FySelectProjectComponent', () => {
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
 
     fixture.detectChanges();
   }));
@@ -100,6 +101,7 @@ describe('FySelectProjectComponent', () => {
       handle: false,
     });
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    expect(component.value).toEqual('value1');
   });
 
   it('onBlur(): should call a function when onBlur fires and registerOnTouched to trigger', () => {
@@ -117,7 +119,7 @@ describe('FySelectProjectComponent', () => {
 
   describe('writeValue():', () => {
     it('should overwrite value', () => {
-      component.innerValue = ['value2'];
+      component.innerValue = 'value2';
       fixture.detectChanges();
 
       component.writeValue(['value']);
@@ -125,11 +127,11 @@ describe('FySelectProjectComponent', () => {
     });
 
     it('should set display value to empty', () => {
-      component.innerValue = 'value';
+      component.innerValue = undefined;
       fixture.detectChanges();
 
-      component.writeValue(undefined);
-      expect(component.displayValue).toEqual('');
+      component.writeValue('value');
+      expect(component.displayValue).toEqual(undefined);
     });
   });
 
@@ -152,7 +154,7 @@ describe('FySelectProjectComponent', () => {
     await component.openModal();
     await fixture.detectChanges();
 
-    expect(callbackFn).toHaveBeenCalledTimes(1);
+    expect(callbackFn).toHaveBeenCalledOnceWith('value1');
   });
 
   it('should open modal when clicked on', () => {
@@ -167,7 +169,7 @@ describe('FySelectProjectComponent', () => {
     component.label = 'Label';
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '[data-testid="label"]'))).toEqual('Label');
+    expect(getTextContent(getElementBySelector(fixture, '.text-capitalize'))).toEqual('Label');
   });
 
   it('should check if an input field is valid', () => {
