@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-fdescribe('FySelectProjectComponent', () => {
+describe('FySelectProjectComponent', () => {
   let component: FySelectProjectComponent;
   let fixture: ComponentFixture<FySelectProjectComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
