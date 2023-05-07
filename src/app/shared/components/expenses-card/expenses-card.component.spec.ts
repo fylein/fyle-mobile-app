@@ -748,10 +748,16 @@ fdescribe('ExpensesCardComponent', () => {
 
     it('should call attachReceipt and show a success toast when receiptDetails is set and option is camera', fakeAsync(() => {
       const emitSpy = spyOn(component.showCamera, 'emit');
+      const receiptDetails = {
+        type: 'png',
+        dataUrl: 'mockDataUrl.png',
+        actionSource: 'camera',
+      };
+
       const dataRes = {
         data: {
           type: 'png',
-          dataUrl: ' data.dataUrl',
+          dataUrl: 'mockDataUrl.png',
           actionSource: 'camera',
           option: 'camera',
         },
@@ -788,13 +794,8 @@ fdescribe('ExpensesCardComponent', () => {
       expect(component.attachReceipt).toHaveBeenCalled();
       expect(component.canAddAttachment).toHaveBeenCalled();
       expect(component.showCamera.emit).toHaveBeenCalledWith(false);
-      const receiptDetails = {
-        type: 'png',
-        dataUrl: 'mockdataurl.png',
-        actionSource: 'camera',
-      };
-      expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledWith(receiptDetails.dataUrl);
 
+      expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledWith(dataRes.data.dataUrl);
       expect(component.attachReceipt).toHaveBeenCalledWith(receiptDetails);
 
       const message = 'Receipt added to Expense successfully';
