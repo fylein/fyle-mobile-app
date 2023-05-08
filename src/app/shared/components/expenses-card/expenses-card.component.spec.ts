@@ -42,6 +42,7 @@ import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camer
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { By } from '@angular/platform-browser';
+import { advRequestFile } from 'src/app/core/mock-data/advance-request-file.data';
 
 const thumbnailUrlMockData1: FileObject[] = [
   {
@@ -738,7 +739,7 @@ fdescribe('ExpensesCardComponent', () => {
   // it('onFileUploadChange(): should add attachment when file is selected', fakeAsync(() => {
   //   const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
   //   fileService.readFile.and.returnValue(Promise.resolve(dataUrl));
-
+  //   spyOn(component, 'attachReceipt');
   //   const file = new File(['file contents'], 'filename.jpg', { type: 'image/jpeg' });
   //   const dummyNativeElement = document.createElement('input');
   //   component.isIos = true;
@@ -753,22 +754,24 @@ fdescribe('ExpensesCardComponent', () => {
   //   expect(fileService.readFile).toHaveBeenCalledWith(file);
   //   expect(component.attachReceipt).toHaveBeenCalledWith({
   //     type: 'image/jpeg',
-  //     dataUrl
+  //     dataUrl,
+  //     actionSource: 'gallery_upload',
   //   });
   // }));
 
-  xit('onFileUploadChange(): should add attachment when file is selected', async () => {
+  it('onFileUploadChange(): should add attachment when file is selected', fakeAsync(() => {
     const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
     const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
     fileService.readFile.and.returnValue(Promise.resolve(dataUrl));
     const mockNativeElement = {
-      fileData1,
+      files: [mockFile],
     } as unknown as HTMLInputElement;
 
     spyOn(component, 'attachReceipt');
 
-    await component.onFileUploadChange(mockNativeElement);
-
+    component.onFileUploadChange(mockNativeElement);
+    fixture.detectChanges();
+    tick(500);
     expect(fileService.readFile).toHaveBeenCalledWith(mockFile);
     expect(trackingService.addAttachment).toHaveBeenCalledWith({ type: 'image/png' });
     expect(component.attachReceipt).toHaveBeenCalledWith({
@@ -776,7 +779,7 @@ fdescribe('ExpensesCardComponent', () => {
       dataUrl,
       actionSource: 'gallery_upload',
     });
-  });
+  }));
 
   describe('addAttachments():', () => {
     // it('should add attachment when file is selected', async () => {
@@ -822,38 +825,11 @@ fdescribe('ExpensesCardComponent', () => {
     //   });
     // });
 
-    it('addAttachments(): 1should call onFileUploadChange method on iOS when file input is clicked', fakeAsync(() => {
-      const event = {
-        stopPropagation: jasmine.createSpy('stopPropagation'),
-      };
-      component.isIos = true; // set isIos property to true
-      const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
-      const mockfileData = {
-        files: [mockFile],
-      };
-      const dummyNativeElement = document.createElement('input');
-      component.fileUpload = {
-        nativeElement: dummyNativeElement,
-      };
-      const nativeElement1 = component.fileUpload.nativeElement as HTMLInputElement;
-      spyOn(component, 'onFileUploadChange').and.callThrough();
-      component.addAttachments(event);
-      tick(500);
-      nativeElement1.dispatchEvent(new Event('change'));
-      //expect(component.onFileUploadChange).toHaveBeenCalledWith(mockfileData);
-      tick(500);
-      nativeElement1.dispatchEvent(new Event('click'));
-    }));
-
     xit('should call onFileUploadChange method on iOS when file input is clicked', fakeAsync(() => {
       const event = {
         stopPropagation: jasmine.createSpy('stopPropagation'),
       };
       component.isIos = true;
-      const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
-      const mockfileData = {
-        files: [mockFile],
-      };
       const dummyNativeElement = document.createElement('input');
       component.fileUpload = {
         nativeElement: dummyNativeElement,
@@ -867,7 +843,7 @@ fdescribe('ExpensesCardComponent', () => {
       fixture.detectChanges();
       tick(500);
       nativeElement1.dispatchEvent(new Event('change'));
-      expect(component.onFileUploadChange).toHaveBeenCalledWith(mockfileData);
+      expect(component.onFileUploadChange).toHaveBeenCalledWith(nativeElement1);
       tick(500);
       nativeElement1.dispatchEvent(new Event('click'));
       expect(nativeElement1.click).toHaveBeenCalledTimes(1);
