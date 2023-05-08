@@ -169,11 +169,18 @@
                 </ng-container>
                 <ng-template #unspecifiedCategory> Unspecified Category </ng-template>
               </div>
-              <mat-icon
-                *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
-                class="expenses-card--policy-violated-icon"
-                >error</mat-icon
-              >
+              <div class="expenses-card--icons">
+                <mat-icon
+                  *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
+                  class="expenses-card--icons__policy-violated-icon"
+                  >error</mat-icon
+                >
+                <mat-icon
+                  *ngIf="expense.tx_is_split_expense"
+                  class="expenses-card--icons__split-icon"
+                  svgIcon="split-new"
+                ></mat-icon>
+              </div>
             </div>
 
             <div
