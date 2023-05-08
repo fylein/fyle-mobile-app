@@ -381,6 +381,21 @@ export class ExpensesCardComponent implements OnInit {
     );
   }
 
+  async onFileUploadChange(nativeElement: HTMLInputElement) {
+    const file = nativeElement.files[0];
+    let receiptDetails;
+    if (file) {
+      const dataUrl = await this.fileService.readFile(file);
+      this.trackingService.addAttachment({ type: file.type });
+      receiptDetails = {
+        type: file.type,
+        dataUrl,
+        actionSource: 'gallery_upload',
+      };
+      this.attachReceipt(receiptDetails);
+    }
+  }
+
   async addAttachments(event) {
     if (this.canAddAttachment()) {
       event.stopPropagation();
@@ -390,17 +405,7 @@ export class ExpensesCardComponent implements OnInit {
       if (this.isIos) {
         const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
         nativeElement.onchange = async () => {
-          const file = nativeElement.files[0];
-          if (file) {
-            const dataUrl = await this.fileService.readFile(file);
-            this.trackingService.addAttachment({ type: file.type });
-            receiptDetails = {
-              type: file.type,
-              dataUrl,
-              actionSource: 'gallery_upload',
-            };
-            this.attachReceipt(receiptDetails);
-          }
+          await this.onFileUploadChange(nativeElement);
         };
         nativeElement.click();
       } else {
