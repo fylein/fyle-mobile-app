@@ -132,7 +132,6 @@ fdescribe('ExpensesCardComponent', () => {
       ],
     }).compileComponents();
 
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -146,6 +145,7 @@ fdescribe('ExpensesCardComponent', () => {
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
 
     orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
     transactionsOutboxService.isSyncInProgress.and.returnValue(true);
@@ -175,22 +175,6 @@ fdescribe('ExpensesCardComponent', () => {
     component.receiptThumbnail = 'assets/svg/pdf.svg';
     component.isSelectionModeEnabled = false;
     component.etxnIndex = 1;
-    const memoize = (fn) => {
-      const cache = new Map();
-      return (...args) => {
-        const key = args.toString();
-        if (cache.has(key)) {
-          console.log('Using cached result');
-          return cache.get(key);
-        }
-        const result = fn.apply(this, args);
-        cache.set(key, result);
-        console.log('Calculating new result');
-        return result;
-      };
-    };
-
-    const memoizedPollDataExtractionStatus = memoize(component.pollDataExtractionStatus);
 
     fixture.detectChanges();
   }));
@@ -248,6 +232,13 @@ fdescribe('ExpensesCardComponent', () => {
 
   describe('attachReceipt(): ', () => {
     it('should attach the receipt to the thumbnail when receipt is not a pdf', fakeAsync(() => {
+      const dataUrl = '/assets/images/add-to-list.png';
+      const attachmentType = 'png';
+      const receiptDetailsaRes = {
+        dataUrl,
+        type: 'image/png',
+        actionSource: 'upload',
+      };
       const fileObj: FileObject = {
         name: '000.jpeg',
         receipt_coordinates: {
@@ -260,9 +251,6 @@ fdescribe('ExpensesCardComponent', () => {
         purpose: '',
       };
 
-      const dataUrl = '/assets/images/add-to-list.png';
-      const attachmentType = 'png';
-
       fileService.getAttachmentType.and.returnValue(attachmentType);
       transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
       fileService.post.and.returnValue(of(fileObjectData));
@@ -270,11 +258,10 @@ fdescribe('ExpensesCardComponent', () => {
       spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
       spyOn(component, 'setThumbnail').and.callThrough();
 
-      component.attachReceipt({ dataUrl, type: 'image/png', actionSource: 'upload' });
+      component.attachReceipt(receiptDetailsaRes);
       tick(500);
-
-      //expect(component.attachmentUploadInProgress).toBeTrue();
       expect(component.inlineReceiptDataUrl).toBe(dataUrl);
+      expect(fileService.getAttachmentType).toHaveBeenCalledWith(receiptDetailsaRes.type);
       expect(transactionsOutboxService.fileUpload).toHaveBeenCalledWith(dataUrl, attachmentType);
       expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObj);
       expect(fileService.post).toHaveBeenCalledWith(fileObj);
@@ -646,10 +633,12 @@ fdescribe('ExpensesCardComponent', () => {
   });
 
   describe('handleScanStatus():', () => {
-    xit('should handle status', fakeAsync(() => {
+    it('should handle status when the syncing is in progress and the extracted adata is present', fakeAsync(() => {
       component.isOutboxExpense = false;
+      component.homeCurrency = 'INR';
       const unflattenRes = {
         ...unflattenedTxnData,
+        tx_id: 'tx5fBcPBAxLv',
         tx: {
           extracted_data: {
             amount: 2500,
@@ -665,6 +654,10 @@ fdescribe('ExpensesCardComponent', () => {
       const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
       transactionService.getETxnUnflattened.and.returnValue(of(unflattenRes));
       component.isScanInProgress = true;
+      spyOn(component, 'pollDataExtractionStatus').and.callFake((callback) => {
+        callback();
+      });
+
       transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
       tick(500);
       component.handleScanStatus();
@@ -674,11 +667,49 @@ fdescribe('ExpensesCardComponent', () => {
       expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
-      expect(component.pollDataExtractionStatus).toHaveBeenCalledWith(() => {
-        expect(transactionService.getETxnUnflattened).toHaveBeenCalled();
+      expect(component.pollDataExtractionStatus).toHaveBeenCalled();
+      tick(500);
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(component.expense.tx_id);
+      expect(component.isScanCompleted).toBeTrue();
+      expect(component.isScanInProgress).toBeFalse();
+    }));
+
+    it('should handle status when the sync is in progress and there is no extracted data present', fakeAsync(() => {
+      component.isOutboxExpense = false;
+      const unflattenRes = {
+        ...unflattenedTxnData,
+        tx_id: 'tx5fBcPBAxLv',
+        tx: {
+          extracted_data: {
+            category: 'Software',
+            date: null,
+            vendor: null,
+            invoice_dt: null,
+          },
+        },
+      };
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenRes));
+      component.isScanInProgress = true;
+      const pollDataSpy = spyOn(component, 'pollDataExtractionStatus').and.callFake((callback) => {
+        callback();
       });
+
+      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
+      tick(500);
+      component.handleScanStatus();
+      fixture.detectChanges();
+      tick(500);
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
+      expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
+      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
+      expect(pollDataSpy).toHaveBeenCalled();
+      tick(500);
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(component.expense.tx_id);
       expect(component.isScanCompleted).toBeFalse();
-      expect(component.isScanInProgress).toBeTrue();
+      expect(component.isScanInProgress).toBeFalse();
     }));
 
     it('should handle status when the scanning is not in progress', fakeAsync(() => {
