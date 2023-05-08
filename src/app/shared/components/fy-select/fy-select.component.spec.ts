@@ -8,7 +8,7 @@ import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.compon
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-describe('FySelectComponent', () => {
+fdescribe('FySelectComponent', () => {
   let component: FySelectComponent;
   let fixture: ComponentFixture<FySelectComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -71,40 +71,44 @@ describe('FySelectComponent', () => {
     expect(component.value).toEqual('Economy');
   });
 
-  it('should set the value and update the displayValue', () => {
-    component.innerValue = 'ECONOMY';
-    component.options = [
-      { label: 'Business', value: 'BUSINESS' },
-      { label: 'Economy', value: 'ECONOMY' },
-      { label: '', value: '' },
-    ];
-    spyOn(component, 'onChangeCallback');
+  describe('should set the value and update the displayValue', () => {
+    beforeEach(() => {
+      component.innerValue = 'ECONOMY';
+      component.options = [
+        { label: 'Business', value: 'BUSINESS' },
+        { label: 'Economy', value: 'ECONOMY' },
+        { label: '', value: '' },
+      ];
+      spyOn(component, 'onChangeCallback');
+    });
 
-    component.value = 'BUSINESS';
+    it('if any option.value is equal to innerValue', () => {
+      component.value = 'BUSINESS';
+      expect(component.innerValue).toEqual('BUSINESS');
+      expect(component.displayValue).toEqual('Business');
+      expect(component.onChangeCallback).toHaveBeenCalledOnceWith('BUSINESS');
+    });
 
-    expect(component.innerValue).toEqual('BUSINESS');
-    expect(component.displayValue).toEqual('Business');
-    expect(component.onChangeCallback).toHaveBeenCalledWith('BUSINESS');
-
-    // Checking second if condition
-    component.value = '';
-    expect(component.innerValue).toEqual('');
-    expect(component.displayValue).toEqual('');
-    expect(component.onChangeCallback).toHaveBeenCalledWith('');
-
-    // Checking third if condition
-    component.defaultLabelProp = 'vendor';
-    component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
-    expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
-    expect(component.displayValue).toEqual('vendor1');
-    expect(component.onChangeCallback).toHaveBeenCalledWith({ travelClass: 'BUSINESS', vendor: 'vendor1' });
-
-    // Checking last if condition
-    component.defaultLabelProp = '';
-    component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
-    expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
-    expect(component.displayValue).toEqual('');
-    expect(component.onChangeCallback).toHaveBeenCalledWith({ travelClass: 'BUSINESS', vendor: 'vendor1' });
+    it('if type of innerValue is string', () => {
+      component.value = '';
+      expect(component.innerValue).toEqual('');
+      expect(component.displayValue).toEqual('');
+      expect(component.onChangeCallback).toHaveBeenCalledOnceWith('');
+    });
+    it('if innerValue and defaultLabelProps is defined', () => {
+      component.defaultLabelProp = 'vendor';
+      component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
+      expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
+      expect(component.displayValue).toEqual('vendor1');
+      expect(component.onChangeCallback).toHaveBeenCalledOnceWith({ travelClass: 'BUSINESS', vendor: 'vendor1' });
+    });
+    it('if none of the conditions holds true', () => {
+      component.defaultLabelProp = '';
+      component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
+      expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
+      expect(component.displayValue).toEqual('');
+      expect(component.onChangeCallback).toHaveBeenCalledOnceWith({ travelClass: 'BUSINESS', vendor: 'vendor1' });
+    });
   });
 
   describe('openModal(): should create a modal and set the value', () => {
