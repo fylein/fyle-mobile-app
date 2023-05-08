@@ -8,6 +8,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { of, throwError } from 'rxjs';
 import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { By } from '@angular/platform-browser';
 
 describe('PendingVerificationPage', () => {
   let component: PendingVerificationPage;
@@ -52,19 +53,28 @@ describe('PendingVerificationPage', () => {
   it('should set hasTokenExpired to true if snapshot.params.hasTokenExpired is defined and true on ionViewWillEnter()', () => {
     activatedRoute.snapshot.params.hasTokenExpired = true;
     component.ionViewWillEnter();
+    fixture.detectChanges();
+    const pageTitle = fixture.debugElement.query(By.css('app-send-email')).nativeElement.title;
     expect(component.hasTokenExpired).toBe(true);
+    expect(pageTitle).toEqual('Verification link expired');
   });
 
   it('should set hasTokenExpired to false if snapshot.params.hasTokenExpired is defined and false on ionViewWillEnter()', () => {
     activatedRoute.snapshot.params.hasTokenExpired = false;
     component.ionViewWillEnter();
+    fixture.detectChanges();
+    const pageTitle = fixture.debugElement.query(By.css('app-send-email')).nativeElement.title;
     expect(component.hasTokenExpired).toBe(false);
+    expect(pageTitle).toEqual('Please verify your email');
   });
 
   it('should set hasTokenExpired to false and currentPageState to notSent if snapshot.params.hasTokenExpired is not defined on ionViewWillEnter()', () => {
     component.ionViewWillEnter();
+    fixture.detectChanges();
+    const pageTitle = fixture.debugElement.query(By.css('app-send-email')).nativeElement.title;
     expect(component.hasTokenExpired).toBe(false);
     expect(component.currentPageState).toEqual(PageState.notSent);
+    expect(pageTitle).toEqual('Please verify your email');
   });
 
   it('resendVerificationLink(): should call routerAuthService and set PageState to success if API is successful', fakeAsync(() => {
@@ -100,12 +110,12 @@ describe('PendingVerificationPage', () => {
     expect(component.currentPageState).not.toEqual(PageState.failure);
   });
 
-  it('handleError(); should set pagestate to failure if status code is something else', () => {
+  it('handleError(); should set pagestate to failure if status code', () => {
     const error = {
-      status: 400,
+      status: 422,
     };
     component.handleError(error);
-    expect(router.navigate).not.toHaveBeenCalled();
-    expect(component.currentPageState).toEqual(PageState.failure);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'disabled']);
+    expect(component.currentPageState).not.toEqual(PageState.failure);
   });
 });
