@@ -17,18 +17,24 @@ import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgSettingsData, orgSettingsDataWithoutAdvPro } from 'src/app/core/test-data/accounts.service.spec.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
 import { HighlightPipe } from 'src/app/shared/pipes/highlight.pipe';
 import { testProjectV2 } from 'src/app/core/test-data/projects.spec.data';
-import { expectedProjects, expectedProjects2, projects } from 'src/app/core/mock-data/extended-projects.data';
+import {
+  expectedProjects,
+  expectedProjects2,
+  expectedProjects3,
+  projects,
+} from 'src/app/core/mock-data/extended-projects.data';
+import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-fdescribe('FyProjectSelectModalComponent', () => {
+describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let cdr: jasmine.SpyObj<ChangeDetectorRef>;
+  let cdr: ChangeDetectorRef;
   let projectService: jasmine.SpyObj<ProjectsService>;
   let authService: jasmine.SpyObj<AuthService>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
@@ -38,7 +44,6 @@ fdescribe('FyProjectSelectModalComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detechChanges']);
     const projectServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getByParamsUnformatted']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
@@ -58,13 +63,10 @@ fdescribe('FyProjectSelectModalComponent', () => {
         BrowserAnimationsModule,
       ],
       providers: [
+        ChangeDetectorRef,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
-        },
-        {
-          provide: ChangeDetectorRef,
-          useValue: cdrSpy,
         },
         {
           provide: ProjectsService,
@@ -96,7 +98,7 @@ fdescribe('FyProjectSelectModalComponent', () => {
     component = fixture.componentInstance;
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
+    cdr = TestBed.inject(ChangeDetectorRef);
     projectService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
@@ -174,6 +176,7 @@ fdescribe('FyProjectSelectModalComponent', () => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       projectService.getByParamsUnformatted.and.returnValue(of(projects));
+      projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
 
       component.getProjects('projects').subscribe((res) => {
         expect(res).toEqual(expectedProjects);
@@ -191,6 +194,7 @@ fdescribe('FyProjectSelectModalComponent', () => {
           offset: 0,
           limit: 20,
         });
+        expect(projectService.getbyId).toHaveBeenCalledWith(3943);
         done();
       });
     });
@@ -200,6 +204,7 @@ fdescribe('FyProjectSelectModalComponent', () => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       projectService.getByParamsUnformatted.and.returnValue(of(projects));
+      projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
       component.currentSelection = [testProjectV2];
       fixture.detectChanges();
 
@@ -219,6 +224,35 @@ fdescribe('FyProjectSelectModalComponent', () => {
           offset: 0,
           limit: 20,
         });
+        expect(projectService.getbyId).toHaveBeenCalledWith(3943);
+        done();
+      });
+    });
+
+    it('should get projects when default value is null and no default projects are available', (done) => {
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      orgSettingsService.get.and.returnValue(of(orgSettingsDataWithoutAdvPro));
+      projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
+      component.defaultValue = false;
+      fixture.detectChanges();
+
+      component.getProjects('value').subscribe((res) => {
+        expect(res).toEqual(expectedProjects);
+        expect(orgSettingsService.get).toHaveBeenCalled();
+        expect(authService.getEou).toHaveBeenCalled();
+        expect(orgUserSettingsService.get).toHaveBeenCalled();
+        expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
+          orgId: 'orNVthTo2Zyo',
+          active: true,
+          sortDirection: 'asc',
+          sortOrder: 'project_name',
+          orgCategoryIds: undefined,
+          projectIds: null,
+          searchNameText: '',
+          offset: 0,
+          limit: 20,
+        });
+        expect(projectService.getbyId).toHaveBeenCalledWith(3943);
         done();
       });
     });
@@ -325,25 +359,104 @@ fdescribe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  xit('ngAfterViewInit(): show filtered projects and recently used items', (done) => {
-    spyOn(component, 'getProjects').and.callThrough();
+  it('ngAfterViewInit(): show filtered projects and recently used items', (done) => {
     spyOn(component, 'getRecentlyUsedItems').and.callThrough();
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
+    component.currentSelection = {
+      ap1_email: null,
+      ap1_full_name: null,
+      ap2_email: null,
+      ap2_full_name: null,
+      project_active: true,
+      project_approver1_id: null,
+      project_approver2_id: null,
+      project_code: '1184',
+      project_created_at: new Date('2021-05-12T04:58:40.834Z'),
+      project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
+      project_id: 257528,
+      project_name: 'Customer Mapped Project',
+      project_org_category_ids: [122269, 122270, 122271, null],
+      project_org_id: 'orFdTTTNcyye',
+      project_updated_at: new Date('2021-07-08T04:58:27.686Z'),
+      projectv2_name: 'Customer Mapped Project',
+      sub_project_name: null,
+    };
+    fixture.detectChanges();
 
     const inputElement = document.createElement('input');
     component.searchBarRef = {
       nativeElement: inputElement,
     };
 
+    component.ngAfterViewInit();
     inputElement.value = 'projects';
     inputElement.dispatchEvent(new Event('keyup'));
 
-    component.ngAfterViewInit();
-    expect(component.getProjects).toHaveBeenCalledOnceWith('');
-    expect(component.getRecentlyUsedItems).toHaveBeenCalledTimes(2);
+    expect(component.getProjects).toHaveBeenCalledWith('projects');
+    expect(component.getRecentlyUsedItems).toHaveBeenCalledWith();
+    expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
+    expect(component.getRecentlyUsedItems).toHaveBeenCalledWith();
     component.filteredOptions$.subscribe((res) => {
-      expect(res).toEqual(expectedProjects);
-      done();
+      expect(res).toEqual(expectedProjects3);
     });
+    component.recentrecentlyUsedItems$.subscribe((res) => {
+      expect(res).toEqual([
+        {
+          label: '',
+          value: '',
+        },
+      ]);
+    });
+    done();
+  });
+
+  it('should show label on the screen', () => {
+    component.label = 'Projects';
+    fixture.detectChanges();
+
+    expect(getTextContent(getElementBySelector(fixture, '.selection-modal--title'))).toEqual('Select Projects');
+  });
+
+  it('should close the modal on clicking done CTA', () => {
+    spyOn(component, 'onDoneClick');
+    const doneButton = getElementBySelector(fixture, '.fy-icon-close') as HTMLElement;
+
+    click(doneButton);
+    expect(component.onDoneClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('should clear value on clicking the clear button', () => {
+    spyOn(component, 'clearValue').and.callThrough();
+    component.value = 'value';
+    fixture.detectChanges();
+
+    expect(component.value).toEqual('value');
+
+    const clearButton = getElementBySelector(fixture, '.selection-modal--clear-button') as HTMLElement;
+    click(clearButton);
+
+    expect(component.clearValue).toHaveBeenCalledTimes(1);
+    expect(component.value).toEqual('');
+  });
+
+  it('should select element on clicking recently used items', () => {
+    spyOn(component, 'onElementSelect');
+    component.recentrecentlyUsedItems$ = of([testProjectV2]);
+    fixture.detectChanges();
+
+    const itemsList = getAllElementsBySelector(fixture, '.selection-modal--recently-used-item-content');
+
+    click(itemsList[0] as HTMLElement);
+    expect(component.onElementSelect).toHaveBeenCalledOnceWith(testProjectV2);
+  });
+
+  it('should select an element on clicking filtered items', () => {
+    spyOn(component, 'onElementSelect');
+    component.filteredOptions$ = of(expectedProjects);
+    fixture.detectChanges();
+
+    const itemsList = getAllElementsBySelector(fixture, '.selection-modal--list-element');
+    click(itemsList[1] as HTMLElement);
+    expect(component.onElementSelect).toHaveBeenCalledOnceWith(expectedProjects[0]);
   });
 });
