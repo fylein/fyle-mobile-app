@@ -58,32 +58,13 @@ describe('FyNumberComponent', () => {
     expect(component.innerValue).toEqual(value);
   });
 
-  it('registerOnChange(): should set onChangeCallback function', () => {
-    const mockCallback = jasmine.createSpy('mockCallback');
-    component.registerOnChange(mockCallback);
-
-    const value = 42;
-    expect(component.onChangeCallback).toEqual(mockCallback);
-    component.fc.setValue(value);
-
-    expect(component.onChangeCallback).toHaveBeenCalledOnceWith(value);
-  });
-
-  it('registerOnTouched(): should set onTouchedCallback function and call it on blur', () => {
-    const mockCallback = jasmine.createSpy('mockCallback');
-    component.registerOnTouched(mockCallback);
-
-    const inputElement = fixture.debugElement.query(By.css('.fy-number--input')).nativeElement;
-    inputElement.value = '123';
-    inputElement.dispatchEvent(new Event('input'));
-    inputElement.dispatchEvent(new Event('blur'));
-
-    expect(component.onTouchedCallback).toEqual(mockCallback);
-  });
-
   it('onBlur(): should call onTouchedCallback', () => {
     spyOn(component, 'onTouchedCallback');
+    const callbackFunc = jasmine.createSpy('callback');
+    component.registerOnTouched(callbackFunc);
+
     component.onBlur();
+    expect(callbackFunc).toHaveBeenCalledTimes(1);
     expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
   });
 
@@ -112,25 +93,37 @@ describe('FyNumberComponent', () => {
 
     it('should set this.value to a parsed float when given a string', () => {
       spyOn(component, 'onChangeCallback').and.callThrough();
+      const mockCallback = jasmine.createSpy('mockCallback');
+
+      component.registerOnChange(mockCallback);
       component.fc.setValue('1.5');
       expect(component.value).toBe(1.5);
       expect(component.innerValue).toBe(1.5);
+      expect(mockCallback).toHaveBeenCalledTimes(1);
       expect(component.onChangeCallback).toHaveBeenCalledOnceWith(1.5);
     });
 
     it('should set this.value to a number when given a number', () => {
       spyOn(component, 'onChangeCallback').and.callThrough();
+      const mockCallback = jasmine.createSpy('mockCallback');
+
+      component.registerOnChange(mockCallback);
       component.fc.setValue(2.5);
       expect(component.value).toBe(2.5);
       expect(component.innerValue).toBe(2.5);
+      expect(mockCallback).toHaveBeenCalledTimes(1);
       expect(component.onChangeCallback).toHaveBeenCalledOnceWith(2.5);
     });
 
     it('should set this.value to null when given an invalid value', () => {
       spyOn(component, 'onChangeCallback').and.callThrough();
+      const mockCallback = jasmine.createSpy('mockCallback');
+
+      component.registerOnChange(mockCallback);
       component.fc.setValue(null);
       expect(component.value).toBeNull();
       expect(component.innerValue).toBeNull();
+      expect(mockCallback).toHaveBeenCalledTimes(1);
       expect(component.onChangeCallback).toHaveBeenCalled();
     });
   });
