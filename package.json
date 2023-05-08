@@ -39,6 +39,7 @@
     "@awesome-cordova-plugins/smartlook": "^6.2.0",
     "@awesome-cordova-plugins/spinner-dialog": "^6.2.0",
     "@capacitor-community/camera-preview": "^4.0.0",
+    "@capacitor-community/contacts": "^4.0.3",
     "@capacitor/android": "^4.6.1",
     "@capacitor/app": "^4.1.1",
     "@capacitor/browser": "^4.1.0",

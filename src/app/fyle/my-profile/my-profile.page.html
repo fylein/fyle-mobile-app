@@ -11,6 +11,7 @@
   <ng-container *ngIf="eou$ | async as eou">
     <app-employee-details-card [eou]="eou"></app-employee-details-card>
   </ng-container>
+  <ion-button (click)="addToContacts()">Add to Contacts</ion-button>
   <div class="my-profile__content-container__content">
     <ng-container *ngIf="isConnected$ | async">
       <div class="my-profile__section-header">Notifications</div>

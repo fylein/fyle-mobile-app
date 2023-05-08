@@ -19,6 +19,10 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OrgService } from 'src/app/core/services/org.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { Contacts, PhoneType, EmailType } from '@capacitor-community/contacts';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -75,7 +79,9 @@ export class MyProfilePage implements OnInit {
     private trackingService: TrackingService,
     private orgService: OrgService,
     private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private snackbarProperties: SnackbarPropertiesService,
+    private matSnackBar: MatSnackBar
   ) {}
 
   setupNetworkWatcher() {
@@ -196,4 +202,48 @@ export class MyProfilePage implements OnInit {
   }
 
   ngOnInit() {}
+
+  async addToContacts() {
+    try {
+      const permission = await Contacts.requestPermissions();
+      if (permission.contacts === 'denied') {
+        throw new Error('Permission denied');
+      } else if (permission.contacts === 'prompt-with-rationale' || permission.contacts === 'prompt') {
+        this.addToContacts();
+      } else {
+        await Contacts.createContact({
+          contact: {
+            name: {
+              given: 'Fyle',
+            },
+            phones: [
+              {
+                type: PhoneType.Work,
+                // eslint-disable-next-line id-blacklist
+                number: '+919876543210',
+              },
+            ],
+            emails: [
+              {
+                type: EmailType.Work,
+                address: 'ajain@example.com',
+              },
+            ],
+            urls: ['www.fylehq.com'],
+          },
+        });
+        const message = 'Contact saved successfully';
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success'],
+        });
+      }
+    } catch (err) {
+      const message = err.message || 'Something went wrong';
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+        panelClass: ['msb-failure'],
+      });
+    }
+  }
 }
