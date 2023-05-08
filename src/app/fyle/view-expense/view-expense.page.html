@@ -57,7 +57,7 @@
         </span>
       </div>
 
-      <div *ngIf="isSplitExpense">
+      <div *ngIf="isSplitExpense" class="view-expense--alert-split">
         <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
       </div>
 
