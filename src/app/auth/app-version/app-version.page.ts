@@ -6,6 +6,7 @@ import { Browser } from '@capacitor/browser';
 import { Platform } from '@ionic/angular';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { noop } from 'rxjs';
+import { AppVersionService } from 'src/app/core/services/app-version.service';
 
 @Component({
   selector: 'app-app-version',
@@ -18,14 +19,15 @@ export class AppVersionPage implements OnInit {
   constructor(
     private deviceService: DeviceService,
     private activatedRoute: ActivatedRoute,
-    private platform: Platform
+    private platform: Platform,
+    private appVersionService: AppVersionService
   ) {}
 
   ngOnInit() {
     this.message = this.activatedRoute.snapshot.params.message;
 
     //User should not be able to navigate from this page using the hardware back button.
-    this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.ABSOLUTE, noop);
+    this.appVersionService.setBackButtonActionPriority();
   }
 
   updateApp() {
@@ -36,14 +38,17 @@ export class AppVersionPage implements OnInit {
       .pipe(filter((deviceInfo) => deviceInfo.platform === 'android'));
 
     deviceAndroid$.subscribe(async () => {
-      await Browser.open({
+      await this.appVersionService.openBrowser({
         url: 'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781',
         windowName: '_system',
       });
     });
 
     deviceIos$.subscribe(async () => {
-      await Browser.open({ url: 'https://itunes.apple.com/in/app/fyle/id1137906166', windowName: '_system' });
+      await this.appVersionService.openBrowser({
+        url: 'https://itunes.apple.com/in/app/fyle/id1137906166',
+        windowName: '_system',
+      });
     });
   }
 }
