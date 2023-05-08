@@ -170,6 +170,7 @@ export class IconModule {
     'warning-inverted.svg',
     'warning.svg',
     'fy-merge.svg',
+    'split-evenly.svg',
     'split-new.svg',
   ];
 
