@@ -8,4 +8,5 @@ export type Filters = Partial<{
   sortParam: string;
   sortDir: string;
   cardNumbers: string[];
+  splitExpense: string;
 }>;
