@@ -28,6 +28,9 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
+import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -46,8 +49,6 @@ export class ViewExpensePage implements OnInit {
   isCriticalPolicyViolated$: Observable<boolean>;
 
   customProperties$: Observable<CustomField[]>;
-
-  projectDependantCustomProperties$: Observable<CustomField[]>;
 
   etxnWithoutCustomProperties$: Observable<Expense>;
 
@@ -119,6 +120,12 @@ export class ViewExpensePage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
+  txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
+
+  projectDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+
+  costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -137,7 +144,8 @@ export class ViewExpensePage implements OnInit {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private dependentFieldsService: DependentFieldsService
   ) {}
 
   get ExpenseView() {
@@ -244,11 +252,6 @@ export class ViewExpensePage implements OnInit {
       this.reportId = res.tx_report_id;
     });
 
-    this.projectDependantCustomProperties$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap((etxn) => this.customInputsService.fillDependantFieldProperties(etxn)),
-      shareReplay(1)
-    );
-
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap((etxn) =>
         this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)
@@ -258,6 +261,35 @@ export class ViewExpensePage implements OnInit {
 
     this.etxn$ = this.etxnWithoutCustomProperties$.pipe(
       finalize(() => this.loaderService.hideLoader()),
+      shareReplay(1)
+    );
+
+    this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
+
+    this.projectDependentCustomProperties$ = forkJoin({
+      etxn: this.etxn$.pipe(take(1)),
+      txnFields: this.txnFields$.pipe(take(1)),
+    }).pipe(
+      filter(({ etxn, txnFields }) => etxn.tx_custom_properties && txnFields.project_id?.length > 0),
+      switchMap(({ etxn, txnFields }) =>
+        this.dependentFieldsService.getDependentFieldValuesForBaseField(
+          etxn.tx_custom_properties,
+          txnFields.project_id[0]?.id
+        )
+      )
+    );
+
+    this.costCenterDependentCustomProperties$ = forkJoin({
+      etxn: this.etxn$.pipe(take(1)),
+      txnFields: this.txnFields$.pipe(take(1)),
+    }).pipe(
+      filter(({ etxn, txnFields }) => etxn.tx_custom_properties && txnFields.cost_center_id?.length > 0),
+      switchMap(({ etxn, txnFields }) =>
+        this.dependentFieldsService.getDependentFieldValuesForBaseField(
+          etxn.tx_custom_properties,
+          txnFields.cost_center_id[0]?.id
+        )
+      ),
       shareReplay(1)
     );
 
@@ -301,7 +333,7 @@ export class ViewExpensePage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
     });
 
-    forkJoin([this.expenseFieldsService.getAllMap(), this.etxn$.pipe(take(1))])
+    forkJoin([this.txnFields$, this.etxn$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, etxn]) => {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;

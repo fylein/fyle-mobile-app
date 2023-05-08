@@ -40,6 +40,7 @@ export class CategoriesService {
     const data = {
       params: {
         name: 'ilike.' + name,
+        is_enabled: 'eq.true',
       },
     };
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory>>(`/categories`, data).pipe(
