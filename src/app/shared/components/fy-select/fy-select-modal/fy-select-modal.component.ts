@@ -51,7 +51,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() label;
 
-  value = '';
+  value: string | object = '';
 
   recentrecentlyUsedItems$: Observable<any[]>;
 

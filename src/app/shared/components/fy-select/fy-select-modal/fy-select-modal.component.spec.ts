@@ -80,7 +80,7 @@ describe('FySelectModalComponent', () => {
     tick(1000);
   }));
 
-  it('ngAfterViewInit(): should update filteredOptions$ if currentSelection is not equal to any options value', fakeAsync(() => {
+  it('ngAfterViewInit(): should update filteredOptions$ if currentSelection is not equal to any options value', () => {
     const dummyHtmlInputElement = document.createElement('input');
     component.searchBarRef = {
       nativeElement: dummyHtmlInputElement,
@@ -104,10 +104,9 @@ describe('FySelectModalComponent', () => {
         { label: 'ECONOMY', value: { travel_class: 'ECONOMY', vendor: 'asdf' }, selected: true },
       ]);
     });
-    tick(1000);
-  }));
+  });
 
-  it('ngAfterViewInit(): should update recentrecentlyUsedItems$', fakeAsync(() => {
+  it('ngAfterViewInit(): should update recentrecentlyUsedItems$', () => {
     const dummyHtmlInputElement = document.createElement('input');
     component.searchBarRef = {
       nativeElement: dummyHtmlInputElement,
@@ -126,8 +125,8 @@ describe('FySelectModalComponent', () => {
     component.recentrecentlyUsedItems$.pipe(take(1)).subscribe((res) => {
       expect(res).toEqual([{ label: 'business', value: 'BUSINESS' }]);
     });
-    tick(1000);
-  }));
+    dummyHtmlInputElement.dispatchEvent(new Event('keyup'));
+  });
 
   it('ngAfterViewInit(): should update the filteredOptions$ if searchBarRef is not defined', fakeAsync(() => {
     component.nullOption = true;
@@ -167,8 +166,8 @@ describe('FySelectModalComponent', () => {
     expect(searchBarRefSpy.nativeElement.dispatchEvent).toHaveBeenCalledOnceWith(new Event('keyup'));
   });
 
-  it('should return recently used items from API if available', fakeAsync(() => {
-    component.options = [
+  describe('getRecentlyUsedItems(): ', () => {
+    const options = [
       { label: 'business', value: 'BUSINESS' },
       { label: 'economy', value: 'ECONOMY' },
       { label: 'first class', value: 'FIRST_CLASS' },
@@ -177,38 +176,34 @@ describe('FySelectModalComponent', () => {
       { label: 'business', value: 'BUSINESS' },
       { label: 'economy', value: 'ECONOMY' },
     ];
-
-    component.recentlyUsed = recentlyUsed;
-
-    component.getRecentlyUsedItems().subscribe((result) => {
-      expect(result).toEqual(recentlyUsed);
-    });
-    tick(1000);
-  }));
-
-  it('should return recently used items from local storage if not available from API', fakeAsync(() => {
-    component.options = [
-      { label: 'business', value: 'BUSINESS' },
-      { label: 'economy', value: 'ECONOMY' },
-      { label: 'first class', value: 'FIRST_CLASS' },
-    ];
     const localStorageItems = [
       { label: 'business', value: 'BUSINESS', selected: true },
       { label: 'second class', value: 'SECOND_CLASS', selected: false },
     ];
     const filteredItems = [{ label: 'business', value: 'BUSINESS', selected: true }];
 
-    const getSpy = recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(localStorageItems));
+    it('should return recently used items from API if available', () => {
+      component.recentlyUsed = recentlyUsed;
+      component.options = [];
 
-    component.recentlyUsed = null;
-    component.currentSelection = 'BUSINESS';
-
-    component.getRecentlyUsedItems().subscribe((result) => {
-      expect(getSpy).toHaveBeenCalledWith(component.cacheName);
-      expect(result).toEqual(filteredItems);
+      component.getRecentlyUsedItems().subscribe((result) => {
+        expect(result).toEqual(recentlyUsed);
+      });
     });
-    tick(1000);
-  }));
+
+    it('should return recently used items from local storage if not available from API', fakeAsync(() => {
+      const getSpy = recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(localStorageItems));
+      component.options = options;
+      component.recentlyUsed = null;
+      component.currentSelection = 'BUSINESS';
+
+      component.getRecentlyUsedItems().subscribe((result) => {
+        expect(getSpy).toHaveBeenCalledOnceWith(component.cacheName);
+        expect(result).toEqual(filteredItems);
+      });
+      tick(1000);
+    }));
+  });
 
   it('onElementSelect(): should call recentlocalstorage service and dismiss the modal', () => {
     component.cacheName = 'cache1';
