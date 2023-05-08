@@ -759,6 +759,11 @@ export class MyExpensesPage implements OnInit {
     if (filter.cardNumbers?.length > 0) {
       this.myExpensesService.generateCardFilterPills(filterPills, filter);
     }
+
+    if (filter.splitExpense) {
+      this.myExpensesService.generateSplitExpenseFilterPills(filterPills, filter);
+    }
+
     return filterPills;
   }
 
@@ -780,6 +785,8 @@ export class MyExpensesPage implements OnInit {
     newQueryParams = this.transactionService.generateTypeFilters(newQueryParams, this.filters);
 
     currentParams = this.transactionService.setSortParams(currentParams, this.filters);
+
+    newQueryParams = this.transactionService.generateSplitExpenseParams(newQueryParams, this.filters);
 
     currentParams.queryParams = newQueryParams;
 
@@ -1415,6 +1422,8 @@ export class MyExpensesPage implements OnInit {
       await this.openFilters('Date');
     } else if (filterType === 'sort') {
       await this.openFilters('Sort By');
+    } else if (filterType === 'splitExpense') {
+      await this.openFilters('Split Expense');
     }
   }
 
