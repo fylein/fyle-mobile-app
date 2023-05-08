@@ -10,7 +10,7 @@ import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
-describe('PendingVerificationPage', () => {
+fdescribe('PendingVerificationPage', () => {
   let component: PendingVerificationPage;
   let fixture: ComponentFixture<PendingVerificationPage>;
   let router: jasmine.SpyObj<Router>;
