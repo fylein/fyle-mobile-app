@@ -1,9 +1,9 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges, Inject } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CameraPreviewOptions } from '@capacitor-community/camera-preview';
-import { Camera } from '@capacitor/camera';
 import { from } from 'rxjs';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
+import { CameraService } from 'src/app/core/services/camera.service';
 
 enum CameraState {
   STARTING,
@@ -56,6 +56,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   constructor(
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
+    private cameraService: CameraService,
     private cameraPreviewService: CameraPreviewService
   ) {}
 
@@ -68,7 +69,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     if (this.devicePlatform === 'web') {
       this.startCameraPreview();
     } else {
-      from(Camera.requestPermissions()).subscribe((permissions) => {
+      from(this.cameraService.requestCameraPermissions()).subscribe((permissions) => {
         if (permissions?.camera === 'denied') {
           this.permissionDenied.emit('CAMERA');
         } else if (permissions?.camera === 'prompt-with-rationale') {
