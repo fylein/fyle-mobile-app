@@ -32,11 +32,11 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
 
   displayValue;
 
-  private innerValue;
+  innerValue;
 
-  private onTouchedCallback: () => void = noop;
+  onTouchedCallback: () => void = noop;
 
-  private onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (_: any) => void = noop;
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
