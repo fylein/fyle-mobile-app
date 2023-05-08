@@ -75,7 +75,7 @@ export class FySelectComponent implements ControlValueAccessor {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: string | object) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.options) {
@@ -133,7 +133,7 @@ export class FySelectComponent implements ControlValueAccessor {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
+  writeValue(value: string | object): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {
