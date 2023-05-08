@@ -189,21 +189,36 @@ $background-color: #fff;
     margin: -12px;
   }
 
-  &--add-more {
+  &--more-actions {
     display: flex;
     align-items: center;
     margin: 36px 0;
+
+    &__divider {
+      width: 1px;
+      height: 18px;
+      margin: 0 20px;
+      background-color: $grey-lighter;
+      border-radius: 2px;
+    }
   }
 
-  &--add-more-icon-container {
+  &--add-more,
+  &--split-evenly {
+    display: flex;
+    align-items: center;
+  }
+
+  &--add-more-icon,
+  &--split-evenly-icon {
     color: $brand-primary;
-  }
-
-  &--add-more-icon {
     margin-right: 8px;
+    width: 20px;
+    height: 20px;
   }
 
-  &--add-more-label {
+  &--add-more-label,
+  &--split-evenly-label {
     color: $black-light;
     font-size: 14px;
     line-height: 18px;

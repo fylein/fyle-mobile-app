@@ -181,18 +181,25 @@
       </ng-container>
     </div>
 
-    <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 10" (click)="add()">
-      <div class="split-expense--add-more-icon-container">
+    <div class="split-expense--more-actions">
+      <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 30" (click)="add()">
         <mat-icon class="split-expense--add-more-icon" svgIcon="plus"></mat-icon>
+        <div class="text-center split-expense--add-more-label">Add Split</div>
       </div>
-      <div class="text-center split-expense--add-more-label">Add Split</div>
+
+      <div *ngIf="splitExpensesFormArray.controls.length < 30" class="split-expense--more-actions__divider"></div>
+
+      <div class="split-expense--split-evenly" (click)="splitEvenly()">
+        <mat-icon class="split-expense--split-evenly-icon" svgIcon="split-evenly"></mat-icon>
+        <div class="text-center split-expense--split-evenly-label">Split Evenly</div>
+      </div>
     </div>
   </div>
 
-  <div class="split-expense--limit" *ngIf="splitExpensesFormArray.controls.length === 10">
+  <div class="split-expense--limit" *ngIf="splitExpensesFormArray.controls.length === 30">
     <app-fy-alert-info
       [type]="'warning'"
-      [message]="'Limit Reached: You cannot split an expense into more than 10 parts.'"
+      [message]="'Limit Reached: You cannot split an expense into more than 30 parts.'"
     ></app-fy-alert-info>
   </div>
 </ion-content>
