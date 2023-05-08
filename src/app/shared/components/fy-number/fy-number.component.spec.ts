@@ -124,7 +124,7 @@ describe('FyNumberComponent', () => {
       expect(component.value).toBeNull();
       expect(component.innerValue).toBeNull();
       expect(mockCallback).toHaveBeenCalledTimes(1);
-      expect(component.onChangeCallback).toHaveBeenCalled();
+      expect(component.onChangeCallback).toHaveBeenCalledTimes(1);
     });
   });
 
