@@ -337,7 +337,7 @@ describe('SidemenuComponent', () => {
           disabled: false,
         },
         {
-          title: 'Teams',
+          title: 'Team',
           isVisible: true,
           icon: 'teams',
           isDropdownOpen: false,
