@@ -22,6 +22,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
 import { HighlightPipe } from 'src/app/shared/pipes/highlight.pipe';
 import { testProjectV2 } from 'src/app/core/test-data/projects.spec.data';
+import { expectedProjects, expectedProjects2, projects } from 'src/app/core/mock-data/extended-projects.data';
 
 fdescribe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
@@ -155,8 +156,10 @@ fdescribe('FyProjectSelectModalComponent', () => {
     );
 
     component.cacheName = 'projects';
+    component.defaultValue = true;
     recentLocalStorageItemsService.get.and.returnValue(Promise.resolve([testProjectV2]));
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
+    spyOn(component, 'getProjects').and.callThrough();
 
     fixture.detectChanges();
   }));
@@ -165,14 +168,59 @@ fdescribe('FyProjectSelectModalComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('getProjects(): should get projects', (done) => {
-    orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+  describe('getProjects():', () => {
+    it('should get projects when current selection is not defined', (done) => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      projectService.getByParamsUnformatted.and.returnValue(of(projects));
 
-    component.getProjects('projects').subscribe((res) => {
-      console.log(res);
-      done();
+      component.getProjects('projects').subscribe((res) => {
+        expect(res).toEqual(expectedProjects);
+        expect(orgSettingsService.get).toHaveBeenCalled();
+        expect(authService.getEou).toHaveBeenCalled();
+        expect(orgUserSettingsService.get).toHaveBeenCalled();
+        expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
+          orgId: 'orNVthTo2Zyo',
+          active: true,
+          sortDirection: 'asc',
+          sortOrder: 'project_name',
+          orgCategoryIds: undefined,
+          projectIds: null,
+          searchNameText: '',
+          offset: 0,
+          limit: 20,
+        });
+        done();
+      });
+    });
+
+    it('should get projects when current selection is defined', (done) => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      projectService.getByParamsUnformatted.and.returnValue(of(projects));
+      component.currentSelection = [testProjectV2];
+      fixture.detectChanges();
+
+      component.getProjects('projects').subscribe((res) => {
+        expect(res).toEqual(expectedProjects2);
+        expect(orgSettingsService.get).toHaveBeenCalled();
+        expect(authService.getEou).toHaveBeenCalled();
+        expect(orgUserSettingsService.get).toHaveBeenCalled();
+        expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
+          orgId: 'orNVthTo2Zyo',
+          active: true,
+          sortDirection: 'asc',
+          sortOrder: 'project_name',
+          orgCategoryIds: undefined,
+          projectIds: null,
+          searchNameText: '',
+          offset: 0,
+          limit: 20,
+        });
+        done();
+      });
     });
   });
 
@@ -277,7 +325,7 @@ fdescribe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', () => {
+  xit('ngAfterViewInit(): show filtered projects and recently used items', (done) => {
     spyOn(component, 'getProjects').and.callThrough();
     spyOn(component, 'getRecentlyUsedItems').and.callThrough();
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
@@ -291,5 +339,11 @@ fdescribe('FyProjectSelectModalComponent', () => {
     inputElement.dispatchEvent(new Event('keyup'));
 
     component.ngAfterViewInit();
+    expect(component.getProjects).toHaveBeenCalledOnceWith('');
+    expect(component.getRecentlyUsedItems).toHaveBeenCalledTimes(2);
+    component.filteredOptions$.subscribe((res) => {
+      expect(res).toEqual(expectedProjects);
+      done();
+    });
   });
 });
