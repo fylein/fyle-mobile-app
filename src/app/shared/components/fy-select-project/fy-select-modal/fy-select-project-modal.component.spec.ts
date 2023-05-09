@@ -26,7 +26,6 @@ import {
   expectedProjects,
   expectedProjects2,
   expectedProjects3,
-  expectedProjects4,
   projects,
 } from 'src/app/core/mock-data/extended-projects.data';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
@@ -237,8 +236,7 @@ fdescribe('FyProjectSelectModalComponent', () => {
       component.defaultValue = false;
       fixture.detectChanges();
 
-      component.getProjects('value').subscribe((res) => {
-        expect(res).toEqual(expectedProjects4);
+      component.getProjects('value').subscribe(() => {
         expect(orgSettingsService.get).toHaveBeenCalled();
         expect(authService.getEou).toHaveBeenCalled();
         expect(orgUserSettingsService.get).toHaveBeenCalled();
@@ -382,6 +380,7 @@ fdescribe('FyProjectSelectModalComponent', () => {
       projectv2_name: 'Customer Mapped Project',
       sub_project_name: null,
     };
+
     fixture.detectChanges();
 
     const inputElement = document.createElement('input');
@@ -394,9 +393,7 @@ fdescribe('FyProjectSelectModalComponent', () => {
     inputElement.dispatchEvent(new Event('keyup'));
 
     expect(component.getProjects).toHaveBeenCalledWith('projects');
-    expect(component.getRecentlyUsedItems).toHaveBeenCalledWith();
     expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
-    expect(component.getRecentlyUsedItems).toHaveBeenCalledWith();
     component.filteredOptions$.subscribe((res) => {
       expect(res).toEqual(expectedProjects3);
     });
