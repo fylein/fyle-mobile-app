@@ -24,6 +24,8 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from '../../../core/mock-data/org.data';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, NO_ERRORS_SCHEMA } from '@angular/core';
+import { CameraService } from 'src/app/core/services/camera.service';
+import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 
 class MatSnackBarStub {
   openFromComponent(props: any) {
@@ -50,6 +52,8 @@ describe('CaptureReceiptComponent', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let authService: jasmine.SpyObj<AuthService>;
+  let cameraService: jasmine.SpyObj<CameraService>;
+  let cameraPreviewService: jasmine.SpyObj<CameraPreviewService>;
 
   const images = [
     {
@@ -105,6 +109,8 @@ describe('CaptureReceiptComponent', () => {
     const performanceSpy = jasmine.createSpyObj('peformance', ['getEntriesByName', 'mark', 'measure']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const cameraPreviewSpy = jasmine.createSpyObj('CameraPreviewComponent', ['setUpAndStartCamera', 'stopCamera']);
+    const cameraPreviewServiceSpy = jasmine.createSpyObj('CameraPreviewService', ['capture']);
+    const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['requestCameraPermissions']);
 
     TestBed.configureTestingModule({
       declarations: [CaptureReceiptComponent, CameraPreviewStubComponent],
@@ -170,6 +176,14 @@ describe('CaptureReceiptComponent', () => {
           provide: DEVICE_PLATFORM,
           useValue: 'android',
         },
+        {
+          provide: CameraPreviewService,
+          useValue: cameraPreviewServiceSpy,
+        },
+        {
+          provide: CameraService,
+          useValue: cameraServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -190,6 +204,8 @@ describe('CaptureReceiptComponent', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    cameraPreviewService = TestBed.inject(CameraPreviewService) as jasmine.SpyObj<CameraPreviewService>;
+    cameraService = TestBed.inject(CameraService) as jasmine.SpyObj<CameraService>;
 
     component.cameraPreview = cameraPreviewSpy;
     networkService.isOnline.and.returnValue(of(true));
@@ -484,40 +500,43 @@ describe('CaptureReceiptComponent', () => {
   });
 
   describe('onCaptureReceipt(): ', () => {
-    it('should capture receipt if bulk mode is disabled', fakeAsync(() => {
+    it('should capture receipt if bulk mode is disabled', async () => {
       spyOn(component, 'onSingleCapture').and.returnValue(null);
       spyOn(component, 'stopCamera').and.returnValue(null);
-      component.cameraPreviewPlugin = jasmine.createSpyObj('CameraPreview', {
-        capture: of({
+      cameraPreviewService.capture.and.returnValue(
+        Promise.resolve({
           value: 'value',
-        }),
-      });
+        })
+      );
+
+      component.isBulkMode = false;
       const len = component.base64ImagesWithSource.length;
       fixture.detectChanges();
 
-      tick(10000);
-      component.onCaptureReceipt();
+      await component.onCaptureReceipt();
       expect(component.onSingleCapture).toHaveBeenCalledTimes(1);
       expect(component.stopCamera).toHaveBeenCalledTimes(1);
+      expect(cameraPreviewService.capture).toHaveBeenCalledTimes(1);
       expect(component.base64ImagesWithSource.length).toEqual(len + 1);
-    }));
+    });
 
-    it('should capture multiple receipts if bulk mode is enabled', fakeAsync(() => {
+    it('should capture multiple receipts if bulk mode is enabled', async () => {
       component.isBulkMode = true;
       spyOn(component, 'onBulkCapture').and.returnValue(null);
-      component.cameraPreviewPlugin = jasmine.createSpyObj('CameraPreview', {
-        capture: of({
+      cameraPreviewService.capture.and.returnValue(
+        Promise.resolve({
           value: 'value',
-        }),
-      });
+        })
+      );
+
       const len = component.base64ImagesWithSource.length;
       fixture.detectChanges();
 
-      tick(10000);
-      component.onCaptureReceipt();
+      await component.onCaptureReceipt();
       expect(component.onBulkCapture).toHaveBeenCalledTimes(1);
       expect(component.base64ImagesWithSource.length).toEqual(len + 1);
-    }));
+      expect(cameraPreviewService.capture).toHaveBeenCalledTimes(1);
+    });
 
     it('should show limit reached popover if number of receipts => 20', fakeAsync(() => {
       component.noOfReceipts = 20;
@@ -602,6 +621,7 @@ describe('CaptureReceiptComponent', () => {
     it('should upload images to gallery if permission graneted', () => {
       imagePicker.hasReadPermission.and.returnValue(Promise.resolve(true));
       imagePicker.getPictures.and.returnValue(Promise.resolve(['encodedcontent1', 'encodedcontent2']));
+
       fixture.detectChanges();
 
       component.onGalleryUpload();
