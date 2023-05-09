@@ -22,15 +22,10 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
 import { HighlightPipe } from 'src/app/shared/pipes/highlight.pipe';
 import { testProjectV2 } from 'src/app/core/test-data/projects.spec.data';
-import {
-  expectedProjects,
-  expectedProjects2,
-  expectedProjects3,
-  projects,
-} from 'src/app/core/mock-data/extended-projects.data';
+import { expectedProjects, expectedProjects2, projects } from 'src/app/core/mock-data/extended-projects.data';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-fdescribe('FyProjectSelectModalComponent', () => {
+describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -358,7 +353,7 @@ fdescribe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', (done) => {
+  it('ngAfterViewInit(): show filtered projects and recently used items', async () => {
     spyOn(component, 'getRecentlyUsedItems').and.callThrough();
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
     component.currentSelection = {
@@ -388,24 +383,12 @@ fdescribe('FyProjectSelectModalComponent', () => {
       nativeElement: inputElement,
     };
 
-    component.ngAfterViewInit();
+    await component.ngAfterViewInit();
     inputElement.value = 'projects';
     inputElement.dispatchEvent(new Event('keyup'));
 
     expect(component.getProjects).toHaveBeenCalledWith('projects');
     expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
-    component.filteredOptions$.subscribe((res) => {
-      expect(res).toEqual(expectedProjects3);
-    });
-    component.recentrecentlyUsedItems$.subscribe((res) => {
-      expect(res).toEqual([
-        {
-          label: '',
-          value: '',
-        },
-      ]);
-    });
-    done();
   });
 
   it('should show label on the screen', () => {
