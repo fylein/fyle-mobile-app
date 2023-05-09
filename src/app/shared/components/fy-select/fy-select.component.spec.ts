@@ -71,7 +71,7 @@ describe('FySelectComponent', () => {
     expect(component.value).toEqual('Economy');
   });
 
-  describe('should set the value and update the displayValue', () => {
+  describe('set value():', () => {
     beforeEach(() => {
       component.innerValue = 'ECONOMY';
       component.options = [
@@ -82,27 +82,27 @@ describe('FySelectComponent', () => {
       spyOn(component, 'onChangeCallback');
     });
 
-    it('if any option.value is equal to innerValue', () => {
+    it('should set the value and update the displayValue if any option.value is equal to innerValue', () => {
       component.value = 'BUSINESS';
       expect(component.innerValue).toEqual('BUSINESS');
       expect(component.displayValue).toEqual('Business');
       expect(component.onChangeCallback).toHaveBeenCalledOnceWith('BUSINESS');
     });
 
-    it('if type of innerValue is string', () => {
+    it('should set the value and update the displayValue if type of innerValue is string', () => {
       component.value = '';
       expect(component.innerValue).toEqual('');
       expect(component.displayValue).toEqual('');
       expect(component.onChangeCallback).toHaveBeenCalledOnceWith('');
     });
-    it('if innerValue and defaultLabelProps is defined', () => {
+    it('should set the value and update the displayValue if innerValue and defaultLabelProps is defined', () => {
       component.defaultLabelProp = 'vendor';
       component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
       expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
       expect(component.displayValue).toEqual('vendor1');
       expect(component.onChangeCallback).toHaveBeenCalledOnceWith({ travelClass: 'BUSINESS', vendor: 'vendor1' });
     });
-    it('if none of the conditions holds true', () => {
+    it('should set the value and update the displayValue if none of the conditions holds true', () => {
       component.defaultLabelProp = '';
       component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
       expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
@@ -111,7 +111,7 @@ describe('FySelectComponent', () => {
     });
   });
 
-  describe('openModal(): should create a modal and set the value', () => {
+  describe('openModal():', () => {
     const mockDefaultProperties = {
       cssClass: 'fy-modal',
       showBackdrop: true,
@@ -123,7 +123,7 @@ describe('FySelectComponent', () => {
       handle: false,
     };
 
-    it('if label is Payment Mode', fakeAsync(() => {
+    it('should create a modal and set the value if label is Payment Mode', fakeAsync(() => {
       spyOn(component, 'onChangeCallback').and.callThrough();
       const mockCallback = jasmine.createSpy('mockCallback');
       component.value = 'PreviousValue';
@@ -183,7 +183,7 @@ describe('FySelectComponent', () => {
       expect(component.value).toEqual('UpdatedValue');
     }));
 
-    it('if label is not equal to Payment Mode', fakeAsync(() => {
+    it('should create a modal and set the value if label is not equal to Payment Mode', fakeAsync(() => {
       spyOn(component, 'onChangeCallback').and.callThrough();
       const mockCallback = jasmine.createSpy('mockCallback');
       component.value = 'PreviousValue';
@@ -255,7 +255,7 @@ describe('FySelectComponent', () => {
     expect(component.onTouchedCallback).toHaveBeenCalledTimes(1);
   });
 
-  describe('writeValue(): should set the value and update the displayValue', () => {
+  describe('writeValue(): ', () => {
     beforeEach(() => {
       component.innerValue = 'ECONOMY';
       component.options = [
@@ -265,41 +265,28 @@ describe('FySelectComponent', () => {
       ];
     });
 
-    it('if any option.value is equal to innerValue', () => {
+    it('should set the value and update the displayValue if any option.value is equal to innerValue', () => {
       component.writeValue('BUSINESS');
       expect(component.innerValue).toEqual('BUSINESS');
       expect(component.displayValue).toEqual('Business');
     });
 
-    it('if type of innerValue is string', () => {
+    it('should set the value and update the displayValue if type of innerValue is string', () => {
       component.writeValue('');
       expect(component.innerValue).toEqual('');
       expect(component.displayValue).toEqual('');
     });
-    it('if innerValue and defaultLabelProps is defined', () => {
+    it('should set the value and update the displayValue if innerValue and defaultLabelProps is defined', () => {
       component.defaultLabelProp = 'vendor';
       component.writeValue({ travelClass: 'BUSINESS', vendor: 'vendor1' });
       expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
       expect(component.displayValue).toEqual('vendor1');
     });
-    it('if none of the conditions holds true', () => {
+    it('should set the value and update the displayValue if none of the conditions holds true', () => {
       component.defaultLabelProp = '';
       component.writeValue({ travelClass: 'BUSINESS', vendor: 'vendor1' });
       expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
       expect(component.displayValue).toEqual('');
     });
   });
-
-  // it('registerOnChange(): should set onChangeCallback function', () => {
-  //   spyOn(component, 'onChangeCallback').and.callThrough();
-  //   const mockCallback = jasmine.createSpy('mockCallback');
-  //   component.registerOnChange(mockCallback);
-  //   expect(component.onChangeCallback).toEqual(mockCallback);
-  // });
-
-  // it('registerOnTouched(): should set onTouchedCallback function', () => {
-  //   const mockCallback = jasmine.createSpy('mockCallback', () => {});
-  //   component.registerOnTouched(mockCallback);
-  //   expect(component.onTouchedCallback).toEqual(mockCallback);
-  // });
 });

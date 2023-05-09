@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { Value } from './fy-select.interface';
 
 @Component({
   selector: 'app-fy-select',
@@ -53,9 +54,9 @@ export class FySelectComponent implements ControlValueAccessor {
 
   @Input() validInParent: boolean;
 
-  displayValue;
+  displayValue: string | number | boolean;
 
-  innerValue;
+  innerValue: string | Value;
 
   onTouchedCallback: () => void = noop;
 
@@ -71,11 +72,11 @@ export class FySelectComponent implements ControlValueAccessor {
     }
   }
 
-  get value(): any {
+  get value(): string | Value {
     return this.innerValue;
   }
 
-  set value(v: string | object) {
+  set value(v: string | Value) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.options) {
@@ -133,7 +134,7 @@ export class FySelectComponent implements ControlValueAccessor {
     this.onTouchedCallback();
   }
 
-  writeValue(value: string | object): void {
+  writeValue(value: string | Value): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {
