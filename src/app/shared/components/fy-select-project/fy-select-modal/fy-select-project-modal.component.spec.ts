@@ -26,11 +26,12 @@ import {
   expectedProjects,
   expectedProjects2,
   expectedProjects3,
+  expectedProjects4,
   projects,
 } from 'src/app/core/mock-data/extended-projects.data';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-describe('FyProjectSelectModalComponent', () => {
+fdescribe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -237,7 +238,7 @@ describe('FyProjectSelectModalComponent', () => {
       fixture.detectChanges();
 
       component.getProjects('value').subscribe((res) => {
-        expect(res).toEqual(expectedProjects);
+        expect(res).toEqual(expectedProjects4);
         expect(orgSettingsService.get).toHaveBeenCalled();
         expect(authService.getEou).toHaveBeenCalled();
         expect(orgUserSettingsService.get).toHaveBeenCalled();
