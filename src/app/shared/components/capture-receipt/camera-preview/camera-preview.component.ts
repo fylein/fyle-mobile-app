@@ -2,15 +2,9 @@ import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, Simp
 import { CameraPreviewOptions } from '@capacitor-community/camera-preview';
 import { from } from 'rxjs';
 import { DEVICE_PLATFORM } from 'src/app/constants';
+import { CameraState } from 'src/app/core/enums/camera-state.enum';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { CameraService } from 'src/app/core/services/camera.service';
-
-enum CameraState {
-  STARTING,
-  RUNNING,
-  STOPPING,
-  STOPPED,
-}
 
 @Component({
   selector: 'app-camera-preview',
