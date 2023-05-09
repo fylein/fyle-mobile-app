@@ -784,12 +784,16 @@ fdescribe('ExpensesCardComponent', () => {
   }));
 
   describe('addAttachments():', () => {
-    xit('should call onFileUploadChange method on iOS when file input is clicked', fakeAsync(() => {
+    fit('should call onFileUploadChange method on iOS when file input is clicked', fakeAsync(() => {
       const event = {
         stopPropagation: jasmine.createSpy('stopPropagation'),
       };
       component.isIos = true;
+
+      const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
+
       const dummyNativeElement = document.createElement('input');
+
       component.fileUpload = {
         nativeElement: dummyNativeElement,
       };
@@ -799,19 +803,18 @@ fdescribe('ExpensesCardComponent', () => {
       spyOn(nativeElement1, 'click').and.callThrough();
 
       const file = new File(['dummy content'], 'dummy.png', { type: 'image/png' });
-      const fileList = {
-        0: file,
-        length: 1,
-        item: (index: number) => file,
+      const getFileList = () => {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        return dt.files;
       };
-
-      dummyNativeElement.files = fileList;
+      dummyNativeElement.files = getFileList();
 
       component.addAttachments(event);
       fixture.detectChanges();
       tick(500);
       nativeElement1.dispatchEvent(new Event('change'));
-      expect(component.onFileUploadChange).toHaveBeenCalledOnceWith(nativeElement1);
+      expect(component.onFileUploadChange).toHaveBeenCalledOnceWith(dummyNativeElement);
       tick(500);
       nativeElement1.dispatchEvent(new Event('click'));
       expect(nativeElement1.click).toHaveBeenCalledTimes(1);
