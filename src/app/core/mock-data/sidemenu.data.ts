@@ -67,7 +67,7 @@ export const UpdatedOptionsRes: Partial<SidemenuItem> = {
 
 export const PrimaryOptionsRes2: Partial<SidemenuItem>[] = [
   {
-    title: 'Teams',
+    title: 'Team',
     isVisible: true,
     icon: 'teams',
     isDropdownOpen: false,
