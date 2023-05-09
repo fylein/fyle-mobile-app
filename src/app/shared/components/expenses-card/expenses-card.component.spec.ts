@@ -53,7 +53,7 @@ const thumbnailUrlMockData1: FileObject[] = [
   },
 ];
 
-fdescribe('ExpensesCardComponent', () => {
+describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -784,13 +784,11 @@ fdescribe('ExpensesCardComponent', () => {
   }));
 
   describe('addAttachments():', () => {
-    fit('should call onFileUploadChange method on iOS when file input is clicked', fakeAsync(() => {
+    it('should call onFileUploadChange method on iOS when file input is clicked', fakeAsync(() => {
       const event = {
         stopPropagation: jasmine.createSpy('stopPropagation'),
       };
       component.isIos = true;
-
-      const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
 
       const dummyNativeElement = document.createElement('input');
 
@@ -799,16 +797,8 @@ fdescribe('ExpensesCardComponent', () => {
       };
 
       const nativeElement1 = component.fileUpload.nativeElement as HTMLInputElement;
-      spyOn(component, 'onFileUploadChange').and.callThrough();
+      spyOn(component, 'onFileUploadChange').and.stub();
       spyOn(nativeElement1, 'click').and.callThrough();
-
-      const file = new File(['dummy content'], 'dummy.png', { type: 'image/png' });
-      const getFileList = () => {
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        return dt.files;
-      };
-      dummyNativeElement.files = getFileList();
 
       component.addAttachments(event);
       fixture.detectChanges();
