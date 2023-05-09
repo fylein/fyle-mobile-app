@@ -22,7 +22,13 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
 import { HighlightPipe } from 'src/app/shared/pipes/highlight.pipe';
 import { testProjectV2 } from 'src/app/core/test-data/projects.spec.data';
-import { expectedProjects, expectedProjects2, projects } from 'src/app/core/mock-data/extended-projects.data';
+import {
+  expectedProjects,
+  expectedProjects2,
+  projects,
+  singleProject2,
+  singleProjects1,
+} from 'src/app/core/mock-data/extended-projects.data';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 describe('FyProjectSelectModalComponent', () => {
@@ -103,54 +109,13 @@ describe('FyProjectSelectModalComponent', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
 
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-    projectService.getbyId.and.returnValue(
-      of({
-        ap1_email: 'john.d@fyle.in',
-        ap1_full_name: 'John Doe',
-        ap2_email: 'james.d@fyle.in',
-        ap2_full_name: 'James Doe',
-        project_active: true,
-        project_approver1_id: null,
-        project_approver2_id: null,
-        project_code: '67',
-        project_created_at: new Date('2021-03-11T00:12:31.322Z'),
-        project_description: 'Quickbooks Online Customer / Project - Abercrombie International Group, Id - 67',
-        project_id: 168826,
-        project_name: 'Abercrombie International Group',
-        project_org_category_ids: [16557, 16558, 16559, 16560, 16561],
-        project_org_id: 'orNVthTo2Zyo',
-        project_updated_at: new Date('2023-02-22T04:58:55.727Z'),
-        projectv2_name: 'Abercrombie International Group',
-        sub_project_name: null,
-      })
-    );
+    projectService.getbyId.and.returnValue(of(singleProjects1));
+
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
 
-    projectService.getByParamsUnformatted.and.returnValue(
-      of([
-        {
-          ap1_email: null,
-          ap1_full_name: null,
-          ap2_email: null,
-          ap2_full_name: null,
-          project_active: true,
-          project_approver1_id: null,
-          project_approver2_id: null,
-          project_code: '1184',
-          project_created_at: new Date('2021-05-12T10:28:40.834844'),
-          project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
-          project_id: 257528,
-          project_name: 'Customer Mapped Project',
-          project_org_category_ids: [122269, 122270, 122271, null],
-          project_org_id: 'orFdTTTNcyye',
-          project_updated_at: new Date('2021-07-08T10:28:27.686886'),
-          projectv2_name: 'Customer Mapped Project',
-          sub_project_name: null,
-        },
-      ])
-    );
+    projectService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
 
     component.cacheName = 'projects';
     component.defaultValue = true;
@@ -167,17 +132,14 @@ describe('FyProjectSelectModalComponent', () => {
 
   describe('getProjects():', () => {
     it('should get projects when current selection is not defined', (done) => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       projectService.getByParamsUnformatted.and.returnValue(of(projects));
       projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
 
       component.getProjects('projects').subscribe((res) => {
         expect(res).toEqual(expectedProjects);
-        expect(orgSettingsService.get).toHaveBeenCalled();
-        expect(authService.getEou).toHaveBeenCalled();
-        expect(orgUserSettingsService.get).toHaveBeenCalled();
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(authService.getEou).toHaveBeenCalledTimes(2);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
           orgId: 'orNVthTo2Zyo',
           active: true,
@@ -195,19 +157,15 @@ describe('FyProjectSelectModalComponent', () => {
     });
 
     it('should get projects when current selection is defined', (done) => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       projectService.getByParamsUnformatted.and.returnValue(of(projects));
-      projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
       component.currentSelection = [testProjectV2];
       fixture.detectChanges();
 
       component.getProjects('projects').subscribe((res) => {
         expect(res).toEqual(expectedProjects2);
-        expect(orgSettingsService.get).toHaveBeenCalled();
-        expect(authService.getEou).toHaveBeenCalled();
-        expect(orgUserSettingsService.get).toHaveBeenCalled();
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(authService.getEou).toHaveBeenCalledTimes(2);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
           orgId: 'orNVthTo2Zyo',
           active: true,
@@ -225,16 +183,15 @@ describe('FyProjectSelectModalComponent', () => {
     });
 
     it('should get projects when default value is null and no default projects are available', (done) => {
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       orgSettingsService.get.and.returnValue(of(orgSettingsDataWithoutAdvPro));
       projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
       component.defaultValue = false;
       fixture.detectChanges();
 
       component.getProjects('value').subscribe(() => {
-        expect(orgSettingsService.get).toHaveBeenCalled();
-        expect(authService.getEou).toHaveBeenCalled();
-        expect(orgUserSettingsService.get).toHaveBeenCalled();
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(authService.getEou).toHaveBeenCalledTimes(2);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
           orgId: 'orNVthTo2Zyo',
           active: true,
@@ -317,28 +274,28 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('onDoneClick', async () => {
+  it('onDoneClick', () => {
     modalController.dismiss.and.returnValue(Promise.resolve(true));
 
-    await component.onDoneClick();
+    component.onDoneClick();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
 
   describe('onElementSelect():', () => {
-    it('should dismiss the modal with selected option', async () => {
+    it('should dismiss the modal with selected option', () => {
       modalController.dismiss.and.returnValue(Promise.resolve(true));
 
-      await component.onElementSelect('value');
+      component.onElementSelect('value');
       expect(modalController.dismiss).toHaveBeenCalledWith('value');
     });
 
-    it('should cache the selected option and dismiss the modal', async () => {
+    it('should cache the selected option and dismiss the modal', () => {
       modalController.dismiss.and.returnValue(Promise.resolve(true));
       recentLocalStorageItemsService.post.and.returnValue(null);
       component.cacheName = 'cache';
       fixture.detectChanges();
 
-      await component.onElementSelect({
+      component.onElementSelect({
         value: 'value',
       });
 
@@ -356,25 +313,7 @@ describe('FyProjectSelectModalComponent', () => {
   it('ngAfterViewInit(): show filtered projects and recently used items', async () => {
     spyOn(component, 'getRecentlyUsedItems').and.callThrough();
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
-    component.currentSelection = {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
-      project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
-      project_code: '1184',
-      project_created_at: new Date('2021-05-12T04:58:40.834Z'),
-      project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
-      project_id: 257528,
-      project_name: 'Customer Mapped Project',
-      project_org_category_ids: [122269, 122270, 122271, null],
-      project_org_id: 'orFdTTTNcyye',
-      project_updated_at: new Date('2021-07-08T04:58:27.686Z'),
-      projectv2_name: 'Customer Mapped Project',
-      sub_project_name: null,
-    };
+    component.currentSelection = singleProject2;
 
     fixture.detectChanges();
 
