@@ -965,5 +965,49 @@ fdescribe('ExpensesCardComponent', () => {
 
       expect(component.showDt).toBe(true);
     });
+
+    it('should set isMileageExpense to true of the fyle category is mileage', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: 'tx12341',
+        tx_txn_dt: null,
+        tx_fyle_category: 'mileage',
+      };
+      component.ngOnInit();
+      expect(component.isMileageExpense).toBe(true);
+    });
+
+    it('should set isPerDiem to true if the fyle category is per diem', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: 'tx12341',
+        tx_txn_dt: null,
+        tx_fyle_category: 'per diem',
+      };
+      component.ngOnInit();
+      expect(component.isPerDiem).toBe(true);
+    });
+  });
+
+  describe('isSelected getter', () => {
+    describe('isSelected', () => {
+      it('should return true if the expense is selected', () => {
+        component.selectedElements = apiExpenseRes;
+        component.expense = {
+          ...expenseData1,
+          tx_id: 'tx3nHShG60zq',
+        };
+        expect(component.isSelected).toBe(true);
+      });
+
+      it('should return false if the expense is not selected', () => {
+        component.selectedElements = apiExpenseRes;
+        component.expense = {
+          ...expenseData1,
+          tx_id: null,
+        };
+        expect(component.isSelected).toBe(false);
+      });
+    });
   });
 });
