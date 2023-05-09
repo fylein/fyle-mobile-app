@@ -9,7 +9,7 @@ import { SimpleChange } from '@angular/core';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 
-fdescribe('CameraPreviewComponent', () => {
+describe('CameraPreviewComponent', () => {
   let component: CameraPreviewComponent;
   let fixture: ComponentFixture<CameraPreviewComponent>;
   let cameraPreviewService: jasmine.SpyObj<CameraPreviewService>;
