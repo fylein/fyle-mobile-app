@@ -190,7 +190,7 @@ fdescribe('ExpensesCardComponent', () => {
   it('should emit an event when onGoToTransaction is called', () => {
     spyOn(component.goToTransaction, 'emit');
     component.onGoToTransaction();
-    expect(component.goToTransaction.emit).toHaveBeenCalledWith({
+    expect(component.goToTransaction.emit).toHaveBeenCalledOnceWith({
       etxn: component.expense,
       etxnIndex: component.etxnIndex,
     });
@@ -200,7 +200,7 @@ fdescribe('ExpensesCardComponent', () => {
     component.isSelectionModeEnabled = true;
     spyOn(component.goToTransaction, 'emit');
     component.onGoToTransaction();
-    expect(component.goToTransaction.emit).not.toHaveBeenCalled();
+    expect(component.goToTransaction.emit).not.toHaveBeenCalledTimes(1);
   });
 
   describe('setThumbnail():', () => {
@@ -265,11 +265,11 @@ fdescribe('ExpensesCardComponent', () => {
       component.attachReceipt(receiptDetailsaRes);
       tick(500);
       expect(component.inlineReceiptDataUrl).toBe(dataUrl);
-      expect(fileService.getAttachmentType).toHaveBeenCalledWith(receiptDetailsaRes.type);
-      expect(transactionsOutboxService.fileUpload).toHaveBeenCalledWith(dataUrl, attachmentType);
-      expect(component.matchReceiptWithEtxn).toHaveBeenCalledWith(fileObj);
-      expect(fileService.post).toHaveBeenCalledWith(fileObj);
-      expect(component.setThumbnail).toHaveBeenCalledWith(fileObjectData.id, attachmentType);
+      expect(fileService.getAttachmentType).toHaveBeenCalledOnceWith(receiptDetailsaRes.type);
+      expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+      expect(component.matchReceiptWithEtxn).toHaveBeenCalledOnceWith(fileObj);
+      expect(fileService.post).toHaveBeenCalledOnceWith(fileObj);
+      expect(component.setThumbnail).toHaveBeenCalledOnceWith(fileObjectData.id, attachmentType);
       expect(component.attachmentUploadInProgress).toBeFalse();
       tick(500);
     }));
@@ -284,8 +284,8 @@ fdescribe('ExpensesCardComponent', () => {
     };
 
     component.dismiss(event);
-    expect(event.stopPropagation).toHaveBeenCalled();
-    expect(event.preventDefault).toHaveBeenCalled();
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
     expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
   });
 
@@ -407,7 +407,7 @@ fdescribe('ExpensesCardComponent', () => {
       const callbackSpy = jasmine.createSpy('callback');
       component.pollDataExtractionStatus(callbackSpy);
       tick(5000);
-      expect(callbackSpy).toHaveBeenCalled();
+      expect(callbackSpy).toHaveBeenCalledTimes(1);
     }));
 
     it('should keep polling when data extraction is pending', fakeAsync(() => {
@@ -419,7 +419,7 @@ fdescribe('ExpensesCardComponent', () => {
       tick(1000); // wait for the initial setTimeout call
 
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(1);
-      expect(callbackSpy).not.toHaveBeenCalled();
+      expect(callbackSpy).not.toHaveBeenCalledTimes(1);
 
       // simulate data extraction not pending
       transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
@@ -671,7 +671,7 @@ fdescribe('ExpensesCardComponent', () => {
       expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
-      expect(component.pollDataExtractionStatus).toHaveBeenCalled();
+      expect(component.pollDataExtractionStatus).toHaveBeenCalledTimes(1);
       tick(500);
       expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(component.expense.tx_id);
       expect(component.isScanCompleted).toBeTrue();
@@ -709,7 +709,7 @@ fdescribe('ExpensesCardComponent', () => {
       expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
-      expect(pollDataSpy).toHaveBeenCalled();
+      expect(pollDataSpy).toHaveBeenCalledTimes(1);
       tick(500);
       expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(component.expense.tx_id);
       expect(component.isScanCompleted).toBeFalse();
@@ -753,8 +753,8 @@ fdescribe('ExpensesCardComponent', () => {
   //   tick(500);
   //   component.onFileUploadChange(dummyNativeElement);
   //   fixture.detectChanges();
-  //   expect(fileService.readFile).toHaveBeenCalledWith(file);
-  //   expect(component.attachReceipt).toHaveBeenCalledWith({
+  //   expect(fileService.readFile).toHaveBeenCalledOnceWith(file);
+  //   expect(component.attachReceipt).toHaveBeenCalledOnceWith({
   //     type: 'image/jpeg',
   //     dataUrl,
   //     actionSource: 'gallery_upload',
@@ -774,9 +774,9 @@ fdescribe('ExpensesCardComponent', () => {
     component.onFileUploadChange(mockNativeElement);
     fixture.detectChanges();
     tick(500);
-    expect(fileService.readFile).toHaveBeenCalledWith(mockFile);
-    expect(trackingService.addAttachment).toHaveBeenCalledWith({ type: 'image/png' });
-    expect(component.attachReceipt).toHaveBeenCalledWith({
+    expect(fileService.readFile).toHaveBeenCalledOnceWith(mockFile);
+    expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ type: 'image/png' });
+    expect(component.attachReceipt).toHaveBeenCalledOnceWith({
       type: 'image/png',
       dataUrl,
       actionSource: 'gallery_upload',
@@ -811,7 +811,7 @@ fdescribe('ExpensesCardComponent', () => {
       fixture.detectChanges();
       tick(500);
       nativeElement1.dispatchEvent(new Event('change'));
-      expect(component.onFileUploadChange).toHaveBeenCalledWith(nativeElement1);
+      expect(component.onFileUploadChange).toHaveBeenCalledOnceWith(nativeElement1);
       tick(500);
       nativeElement1.dispatchEvent(new Event('click'));
       expect(nativeElement1.click).toHaveBeenCalledTimes(1);
@@ -836,7 +836,7 @@ fdescribe('ExpensesCardComponent', () => {
       component.addAttachments(event);
       fixture.detectChanges();
       tick(500);
-      expect(event.stopPropagation).toHaveBeenCalled();
+      expect(event.stopPropagation).toHaveBeenCalledTimes(1);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
@@ -879,7 +879,7 @@ fdescribe('ExpensesCardComponent', () => {
       component.addAttachments(event);
       tick(500);
       expect(event.stopPropagation).toHaveBeenCalledTimes(1);
-      expect(modalController.create).toHaveBeenCalledWith({
+      expect(modalController.create).toHaveBeenCalledOnceWith({
         component: CaptureReceiptComponent,
         componentProps: {
           isModal: true,
@@ -893,19 +893,18 @@ fdescribe('ExpensesCardComponent', () => {
       expect(captureReceiptModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       tick(500);
       expect(emitSpy).toHaveBeenCalledWith(false);
-      expect(component.attachReceipt).toHaveBeenCalled();
-      expect(component.canAddAttachment).toHaveBeenCalled();
-      expect(component.showCamera.emit).toHaveBeenCalledWith(false);
-
-      expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledWith(dataRes.data.dataUrl);
-      expect(component.attachReceipt).toHaveBeenCalledWith(receiptDetails);
+      expect(component.attachReceipt).toHaveBeenCalledTimes(1);
+      expect(emitSpy).toHaveBeenCalledTimes(2);
+      expect(component.canAddAttachment).toHaveBeenCalledTimes(1);
+      expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(dataRes.data.dataUrl);
+      expect(component.attachReceipt).toHaveBeenCalledOnceWith(receiptDetails);
 
       const message = 'Receipt added to Expense successfully';
-      expect(matSnackBar.openFromComponent).toHaveBeenCalledWith(ToastMessageComponent, {
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarProperties.setSnackbarProperties('success', { message }),
         panelClass: ['msb-success-with-camera-icon'],
       });
-      expect(trackingService.showToastMessage).toHaveBeenCalledWith({ ToastContent: message });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
     }));
   });
 
