@@ -33,7 +33,7 @@ export class TransactionsOutboxService {
   ROOT_ENDPOINT: string;
 
   //Used for showing bulk mode prompt when instafyle is used more than thrice in the same session
-  private singleCaptureCountInSession = 0;
+  singleCaptureCountInSession = 0;
 
   constructor(
     private storageService: StorageService,
