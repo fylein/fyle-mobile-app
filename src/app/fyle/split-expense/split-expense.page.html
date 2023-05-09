@@ -101,6 +101,8 @@
                 [options]="categories"
                 [mandatory]="true"
                 [cacheName]="'splitExpenseCategoryCache'"
+                [touchedInParent]="splitExpenseForm.controls.category.touched"
+                [validInParent]="splitExpenseForm.controls.category.valid"
               >
               </app-fy-select>
             </div>
@@ -138,6 +140,8 @@
                 [options]="costCenters"
                 [mandatory]="true"
                 [cacheName]="'splitExpenseCostCenterCache'"
+                [touchedInParent]="splitExpenseForm.controls.cost_center.touched"
+                [validInParent]="splitExpenseForm.controls.cost_center.valid"
               >
               </app-fy-select>
             </div>
