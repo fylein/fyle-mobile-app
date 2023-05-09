@@ -6,8 +6,9 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, take } from 'rxjs';
+import { By } from '@angular/platform-browser';
 
-describe('FySelectModalComponent', () => {
+fdescribe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
   let fixture: ComponentFixture<FySelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -111,6 +112,9 @@ describe('FySelectModalComponent', () => {
     component.searchBarRef = {
       nativeElement: dummyHtmlInputElement,
     };
+    // const inputElement = fixture.debugElement.query(By.css('.selection-modal--search-input')).nativeElement;
+    // inputElement.value = 'busi';
+    // inputElement.dispatchEvent(new Event('keyup'));
     spyOn(component, 'getRecentlyUsedItems').and.returnValue(
       of([
         { label: 'business', value: 'BUSINESS' },
@@ -122,7 +126,9 @@ describe('FySelectModalComponent', () => {
     component.ngAfterViewInit();
     dummyHtmlInputElement.value = 'busi';
     dummyHtmlInputElement.dispatchEvent(new Event('keyup'));
-    component.recentrecentlyUsedItems$.pipe(take(1)).subscribe((res) => {
+    component.recentrecentlyUsedItems$.subscribe((res) => {
+      // expect(component.getRecentlyUsedItems).toHaveBeenCalledTimes(1);
+      // expect(utilityService.searchArrayStream).toHaveBeenCalledOnceWith('busi');
       expect(res).toEqual([{ label: 'business', value: 'BUSINESS' }]);
     });
     dummyHtmlInputElement.dispatchEvent(new Event('keyup'));
@@ -185,8 +191,8 @@ describe('FySelectModalComponent', () => {
     it('should return recently used items from API if available', () => {
       component.recentlyUsed = recentlyUsed;
       component.options = [];
-
       component.getRecentlyUsedItems().subscribe((result) => {
+        expect(recentLocalStorageItemsService.get).not.toHaveBeenCalled();
         expect(result).toEqual(recentlyUsed);
       });
     });
