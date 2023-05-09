@@ -52,6 +52,41 @@
       vertical-align: middle;
       padding: 0 6px 6px;
     }
+
+    &__edit-container {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    &__status {
+      margin: auto 0;
+      font-weight: 500;
+      color: $blue-black;
+      display: flex;
+      align-items: center;
+
+      &__icon {
+        border-radius: 100%;
+        background-color: $red;
+        height: 8px;
+        width: 8px;
+        margin-right: 6px;
+
+        &--verified {
+          @extend .employee-details-card__mobile-container__status__icon;
+          background-color: $green;
+        }
+      }
+    }
+
+    &__verify {
+      color: $brand-primary;
+      font-size: 16px;
+      font-weight: 500;
+      padding-left: 8px;
+      border-left: 1px solid $grey;
+      margin-left: 8px;
+    }
   }
 
   &__icon-container {
