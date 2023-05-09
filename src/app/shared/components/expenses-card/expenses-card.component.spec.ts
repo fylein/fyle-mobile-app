@@ -18,7 +18,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { of } from 'rxjs';
+import { of, take } from 'rxjs';
 import { expenseData1, expenseList, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
@@ -35,7 +35,7 @@ import {
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, stubFalse } from 'lodash';
 import * as dayjs from 'dayjs';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
@@ -43,6 +43,7 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { By } from '@angular/platform-browser';
 import { advRequestFile } from 'src/app/core/mock-data/advance-request-file.data';
+import { EventEmitter } from '@angular/core';
 
 const thumbnailUrlMockData1: FileObject[] = [
   {
@@ -162,6 +163,7 @@ fdescribe('ExpensesCardComponent', () => {
     networkService.isOnline.and.returnValue(of(true));
     transactionService.getIsDraft.and.returnValue(true);
 
+    networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);
     component = fixture.componentInstance;
 
@@ -782,49 +784,6 @@ fdescribe('ExpensesCardComponent', () => {
   }));
 
   describe('addAttachments():', () => {
-    // it('should add attachment when file is selected', async () => {
-    //   const file = new File(['test'], 'test.png', { type: 'image/png' });
-    //   const readFileSpy = fileService.readFile.and.returnValue(
-    //     Promise.resolve('data:image/png;base64,test')
-    //   );
-
-    //   const fileInputElement = fixture.debugElement.query(By.css('input[type=file]')).nativeElement;
-    //   console.log(fileInputElement);
-    //   fileInputElement.files = [file];
-    //const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
-    //   fileService.readFile.and.returnValue(Promise.resolve(dataUrl));
-
-    //   const file = new File(['file contents'], 'filename.jpg', { type: 'image/jpeg' });
-    //   const dummyNativeElement = document.createElement('input');
-    //   component.isIos = true;
-    //   component.fileUpload = {
-    //     nativeElement: dummyNativeElement
-    //   };
-    //   fixture.detectChanges();
-
-    //   tick(500);
-    //   component.onFileUploadChange(dummyNativeElement);
-    //   fixture.detectChanges();
-    //   expect(fileService.readFile).toHaveBeenCalledWith(file);
-    //   expect(component.attachReceipt).toHaveBeenCalledWith({
-    //     type: 'image/jpeg',
-    //     dataUrl
-    //   });
-    //   fileInputElement.dispatchEvent(new Event('change'));
-
-    //   fixture.detectChanges();
-
-    //   expect(readFileSpy).toHaveBeenCalledWith(file);
-    //   component.addAttachments(event);
-    //   await fixture.whenStable();
-
-    //   expect(component.attachReceipt).toHaveBeenCalledWith({
-    //     type: 'image/png',
-    //     dataUrl: 'data:image/png;base64,test',
-    //     actionSource: 'gallery_upload'
-    //   });
-    // });
-
     xit('should call onFileUploadChange method on iOS when file input is clicked', fakeAsync(() => {
       const event = {
         stopPropagation: jasmine.createSpy('stopPropagation'),
@@ -838,6 +797,15 @@ fdescribe('ExpensesCardComponent', () => {
       const nativeElement1 = component.fileUpload.nativeElement as HTMLInputElement;
       spyOn(component, 'onFileUploadChange').and.callThrough();
       spyOn(nativeElement1, 'click').and.callThrough();
+
+      const file = new File(['dummy content'], 'dummy.png', { type: 'image/png' });
+      const fileList = {
+        0: file,
+        length: 1,
+        item: (index: number) => file,
+      };
+
+      dummyNativeElement.files = fileList;
 
       component.addAttachments(event);
       fixture.detectChanges();
@@ -939,5 +907,63 @@ fdescribe('ExpensesCardComponent', () => {
       });
       expect(trackingService.showToastMessage).toHaveBeenCalledWith({ ToastContent: message });
     }));
+  });
+
+  it('setupNetworkWatcher(): should setup the network watcher', fakeAsync(() => {
+    networkService.isOnline.and.returnValue(of(true));
+    const eventEmitterMock = new EventEmitter<boolean>();
+    networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
+
+    component.setupNetworkWatcher();
+    component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
+      expect(connectionStatus).toEqual(true);
+    });
+  }));
+
+  describe('onInit', () => {
+    it('should set ProjectEnabled to true if the  projects are allowed and enabled', (done) => {
+      component.isProjectEnabled$.subscribe((isEnabled) => {
+        expect(isEnabled).toBeTrue();
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should set showDt to isFirstOfflineExpense when tx_id is falsy', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: null,
+      };
+      component.isFirstOfflineExpense = true;
+      component.ngOnInit();
+      expect(component.showDt).toBe(true);
+    });
+
+    it('should set showDt based on date comparison when previousExpenseTxnDate is truthy', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: 'tx12341',
+        tx_txn_dt: null,
+      };
+      component.previousExpenseTxnDate = new Date('2023-01-28T17:00:00');
+      component.previousExpenseCreatedAt = null;
+
+      component.ngOnInit();
+
+      expect(component.showDt).toBe(true);
+    });
+
+    it('should set showDt based on date comparison when previousExpenseCreatedAt is truthy', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: 'tx12341',
+      };
+      component.previousExpenseTxnDate = null;
+      component.previousExpenseCreatedAt = new Date('2023-01-29T07:29:02.966116');
+
+      component.ngOnInit();
+
+      expect(component.showDt).toBe(true);
+    });
   });
 });
