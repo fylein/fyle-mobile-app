@@ -3,13 +3,15 @@
 .employee-details-card {
   color: $pure-white;
   line-height: 1.3;
+  padding: 16px 16px 0;
 
   &__background {
     background: url('../../../../assets/images/employee-card-bg.png') no-repeat bottom;
-    height: 164px;
+    height: 120px;
     background-size: 100% 100%;
     box-shadow: 0px 4px 4px 0px rgba(225, 225, 225, 0.25);
     padding: 24px 16px;
+    border-radius: 8px 8px 0 0;
   }
 
   &__grid {
@@ -17,9 +19,29 @@
     --ion-grid-column-padding: 0;
   }
 
+  &__mobile-container {
+    background: $pure-white;
+    padding: 16px;
+    border-radius: 0 0 8px 8px;
+    color: $black-light;
+    font-weight: 500;
+
+    &__icon {
+      height: 20px;
+      width: 20px;
+      vertical-align: middle;
+      padding: 0 6px 6px 0;
+    }
+
+    &__icon-lg {
+      height: 20px;
+      width: 20px;
+    }
+  }
+
   &__icon-container {
     flex: 0 0 55px;
-    max-height: 48px;
+    max-height: 54px;
     background: url('../../../../assets/images/fy-profile-gradient.svg') no-repeat bottom;
 
     &__text {
@@ -42,6 +64,10 @@
     font-weight: 500;
   }
 
+  &__employee-id {
+    padding-top: 4px;
+  }
+
   &__details-container {
     padding-top: 24px;
   }
@@ -55,9 +81,9 @@
     padding-top: 6px;
   }
 
-  &__mobile-container {
-    padding-right: 8px;
-  }
+  // &__mobile-container {
+  //   padding-right: 8px;
+  // }
 
   &__mobile {
     max-width: calc(100% - 24px);
