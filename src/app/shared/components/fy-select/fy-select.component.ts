@@ -1,10 +1,11 @@
-import { Component, OnInit, forwardRef, Input, TemplateRef, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { Component, forwardRef, Input, TemplateRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { Value } from './fy-select.interface';
 
 @Component({
   selector: 'app-fy-select',
@@ -18,7 +19,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     },
   ],
 })
-export class FySelectComponent implements ControlValueAccessor, OnInit {
+export class FySelectComponent implements ControlValueAccessor {
   @Input() options: { label: string; value: any }[] = [];
 
   @Input() disabled = false;
@@ -53,9 +54,9 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() validInParent: boolean;
 
-  displayValue;
+  displayValue: string | number | boolean;
 
-  innerValue;
+  innerValue: string | Value;
 
   onTouchedCallback: () => void = noop;
 
@@ -71,11 +72,11 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  get value(): any {
+  get value(): string | Value {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: string | Value) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.options) {
@@ -94,8 +95,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
       this.onChangeCallback(v);
     }
   }
-
-  ngOnInit() {}
 
   async openModal() {
     const cssClass = this.label === 'Payment Mode' ? 'payment-mode-modal' : 'fy-modal';
@@ -135,7 +134,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
+  writeValue(value: string | Value): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {
