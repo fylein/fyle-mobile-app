@@ -53,7 +53,7 @@ const thumbnailUrlMockData1: FileObject[] = [
   },
 ];
 
-fdescribe('ExpensesCardComponent', () => {
+describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -928,7 +928,6 @@ fdescribe('ExpensesCardComponent', () => {
       component.previousExpenseCreatedAt = new Date('2023-01-29T07:29:02.966116');
 
       component.ngOnInit();
-
       expect(component.showDt).toBe(true);
     });
 
