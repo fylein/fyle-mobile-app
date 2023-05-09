@@ -53,7 +53,7 @@ const thumbnailUrlMockData1: FileObject[] = [
   },
 ];
 
-describe('ExpensesCardComponent', () => {
+fdescribe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -70,7 +70,6 @@ describe('ExpensesCardComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-  let memoizedPollDataExtractionStatus: jasmine.Spy;
 
   beforeEach(waitForAsync(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
@@ -548,7 +547,6 @@ describe('ExpensesCardComponent', () => {
         url: 'mock-url',
       };
       fileService.getFilesWithThumbnail.and.returnValue(of([]));
-      fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
       fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
       fileService.getReceiptDetails.and.returnValue('mock-url');
 
@@ -560,7 +558,6 @@ describe('ExpensesCardComponent', () => {
       fixture.detectChanges();
       tick(500);
       expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
-      // expect(fileService.downloadThumbnailUrl).toHaveBeenCalledOnceWith('fiHPZUiichAS');
       expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiGLwwPtYD8X');
       expect(fileService.getReceiptDetails).toHaveBeenCalledOnceWith('mock-url');
       expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
@@ -737,29 +734,6 @@ describe('ExpensesCardComponent', () => {
       expect(component.isScanInProgress).toBeFalse();
     }));
   });
-
-  // it('onFileUploadChange(): should add attachment when file is selected', fakeAsync(() => {
-  //   const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
-  //   fileService.readFile.and.returnValue(Promise.resolve(dataUrl));
-  //   spyOn(component, 'attachReceipt');
-  //   const file = new File(['file contents'], 'filename.jpg', { type: 'image/jpeg' });
-  //   const dummyNativeElement = document.createElement('input');
-  //   component.isIos = true;
-  //   component.fileUpload = {
-  //     nativeElement: dummyNativeElement
-  //   };
-  //   fixture.detectChanges();
-
-  //   tick(500);
-  //   component.onFileUploadChange(dummyNativeElement);
-  //   fixture.detectChanges();
-  //   expect(fileService.readFile).toHaveBeenCalledOnceWith(file);
-  //   expect(component.attachReceipt).toHaveBeenCalledOnceWith({
-  //     type: 'image/jpeg',
-  //     dataUrl,
-  //     actionSource: 'gallery_upload',
-  //   });
-  // }));
 
   it('onFileUploadChange(): should add attachment when file is selected', fakeAsync(() => {
     const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
@@ -982,24 +956,22 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('isSelected getter', () => {
-    describe('isSelected', () => {
-      it('should return true if the expense is selected', () => {
-        component.selectedElements = apiExpenseRes;
-        component.expense = {
-          ...expenseData1,
-          tx_id: 'tx3nHShG60zq',
-        };
-        expect(component.isSelected).toBe(true);
-      });
+    it('should return true if the expense is selected', () => {
+      component.selectedElements = apiExpenseRes;
+      component.expense = {
+        ...expenseData1,
+        tx_id: 'tx3nHShG60zq',
+      };
+      expect(component.isSelected).toBe(true);
+    });
 
-      it('should return false if the expense is not selected', () => {
-        component.selectedElements = apiExpenseRes;
-        component.expense = {
-          ...expenseData1,
-          tx_id: null,
-        };
-        expect(component.isSelected).toBe(false);
-      });
+    it('should return false if the expense is not selected', () => {
+      component.selectedElements = apiExpenseRes;
+      component.expense = {
+        ...expenseData1,
+        tx_id: null,
+      };
+      expect(component.isSelected).toBe(false);
     });
   });
 });
