@@ -15,6 +15,8 @@
       [options]="location1OptionsData?.options"
       [selectModalHeader]="'Select From'"
       formControlName="location_1"
+      [touchedInParent]="categoryDependentFormGroup.controls.location_1.touched"
+      [validInParent]="categoryDependentFormGroup.controls.location_1.valid"
     >
     </app-fy-select>
   </div>
@@ -35,6 +37,8 @@
       [options]="location2OptionsData?.options"
       [selectModalHeader]="'Select To'"
       formControlName="location_2"
+      [touchedInParent]="categoryDependentFormGroup.controls.location_2.touched"
+      [validInParent]="categoryDependentFormGroup.controls.location_2.valid"
     >
     </app-fy-select>
   </div>
@@ -55,6 +59,8 @@
       [options]="onwardDateOptionsData?.options"
       [selectModalHeader]="'Select Onward Date'"
       formControlName="from_dt"
+      [touchedInParent]="categoryDependentFormGroup.controls.from_dt.touched"
+      [validInParent]="categoryDependentFormGroup.controls.from_dt.valid"
     >
     </app-fy-select>
   </div>
@@ -75,6 +81,8 @@
       [options]="returnDateOptionsData?.options"
       [selectModalHeader]="'Select Return Date'"
       formControlName="to_dt"
+      [touchedInParent]="categoryDependentFormGroup.controls.to_dt.touched"
+      [validInParent]="categoryDependentFormGroup.controls.to_dt.valid"
     >
     </app-fy-select>
   </div>
@@ -99,6 +107,8 @@
       [options]="flightJourneyTravelClassOptionsData?.options"
       [selectModalHeader]="'Select Travel Class'"
       formControlName="flight_journey_travel_class"
+      [touchedInParent]="categoryDependentFormGroup.controls.flight_journey_travel_class.touched"
+      [validInParent]="categoryDependentFormGroup.controls.flight_journey_travel_class.valid"
     >
     </app-fy-select>
   </div>
@@ -123,6 +133,8 @@
       [options]="flightReturnTravelClassOptionsData?.options"
       [selectModalHeader]="'Select Return Travel Class'"
       formControlName="flight_return_travel_class"
+      [touchedInParent]="categoryDependentFormGroup.controls.flight_return_travel_class.touched"
+      [validInParent]="categoryDependentFormGroup.controls.flight_return_travel_class.valid"
     >
     </app-fy-select>
   </div>
@@ -147,6 +159,8 @@
       [options]="trainTravelClassOptionsData?.options"
       [selectModalHeader]="'Select Travel Class'"
       formControlName="train_travel_class"
+      [touchedInParent]="categoryDependentFormGroup.controls.train_travel_class.touched"
+      [validInParent]="categoryDependentFormGroup.controls.train_travel_class.valid"
     >
     </app-fy-select>
   </div>
@@ -171,6 +185,8 @@
       [options]="busTravelClassOptionsData?.options"
       [selectModalHeader]="'Select Travel Class'"
       formControlName="bus_travel_class"
+      [touchedInParent]="categoryDependentFormGroup.controls.bus_travel_class.touched"
+      [validInParent]="categoryDependentFormGroup.controls.bus_travel_class.valid"
     >
     </app-fy-select>
   </div>
@@ -191,6 +207,8 @@
       [options]="distanceOptionsData?.options"
       [selectModalHeader]="'Select Distance'"
       formControlName="distance"
+      [touchedInParent]="categoryDependentFormGroup.controls.distance.touched"
+      [validInParent]="categoryDependentFormGroup.controls.distance.valid"
     >
     </app-fy-select>
   </div>
@@ -211,6 +229,8 @@
       [options]="distanceUnitOptionsData?.options"
       [selectModalHeader]="'Select Distance Unit'"
       formControlName="distance_unit"
+      [touchedInParent]="categoryDependentFormGroup.controls.distance_unit.touched"
+      [validInParent]="categoryDependentFormGroup.controls.distance_unit.valid"
     >
     </app-fy-select>
   </div>

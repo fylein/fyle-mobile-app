@@ -21,6 +21,8 @@
             [options]="expenseOptions"
             [enableSearch]="false"
             formControlName="target_txn_id"
+            [touchedInParent]="fg.controls.target_txn_id.touched"
+            [validInParent]="fg.controls.target_txn_id.valid"
           >
           </app-fy-select>
         </ng-container>
