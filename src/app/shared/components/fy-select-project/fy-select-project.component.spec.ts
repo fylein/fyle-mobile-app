@@ -131,7 +131,7 @@ describe('FySelectProjectComponent', () => {
       fixture.detectChanges();
 
       component.writeValue('value');
-      expect(component.displayValue).toEqual(undefined);
+      expect(component.displayValue).toBeUndefined();
     });
   });
 
