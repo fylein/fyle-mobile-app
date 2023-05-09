@@ -23,8 +23,12 @@
     background: $pure-white;
     padding: 16px;
     border-radius: 0 0 8px 8px;
-    color: $black-light;
-    font-weight: 500;
+    color: $black;
+
+    &__add-number-header {
+      color: $black-light;
+      font-weight: 500;
+    }
 
     &__icon {
       height: 20px;
@@ -33,9 +37,20 @@
       padding: 0 6px 6px 0;
     }
 
-    &__icon-lg {
-      height: 20px;
-      width: 20px;
+    &__number-container {
+      padding-top: 4px;
+    }
+
+    &__number {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    &__icon-edit {
+      height: 18px;
+      width: 18px;
+      vertical-align: middle;
+      padding: 0 6px 6px;
     }
   }
 

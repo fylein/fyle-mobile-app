@@ -61,21 +61,30 @@
     </ion-grid>
   </div>
   <div class="employee-details-card__mobile-container">
-    <div (click)="updateMobileNumber()" class="">
-      <ion-icon
-        src="../../../../assets/svg/fy-plus-gradient.svg"
-        class="employee-details-card__mobile-container__icon"
-        *ngIf="!eou.ou.mobile?.length"
-      ></ion-icon>
-      <span class="employee-details-card__mobile">
-        {{ eou.ou.mobile?.length ? eou.ou.mobile : 'Add Mobile Number' }}
-      </span>
-      <ion-icon
-        src="../../../../assets/svg/fy-edit-gradient.svg"
-        slot="icon-only"
-        class="employee-details-card__mobile-container__icon-lg"
-        *ngIf="eou.ou.mobile?.length"
-      ></ion-icon>
-    </div>
+    <ng-container *ngIf="eou.ou.mobile?.length; else addMobileNumber">
+      <div>
+        <div>Mobile Number</div>
+        <div (click)="updateMobileNumber()" class="employee-details-card__mobile-container__number-container">
+          <span class="employee-details-card__mobile-container__number">
+            {{ eou.ou.mobile }}
+          </span>
+          <ion-icon
+            src="../../../../assets/svg/fy-edit-gradient.svg"
+            slot="icon-only"
+            class="employee-details-card__mobile-container__icon-edit"
+            *ngIf="eou.ou.mobile?.length"
+          ></ion-icon>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #addMobileNumber>
+      <div (click)="updateMobileNumber()">
+        <ion-icon
+          src="../../../../assets/svg/fy-plus-gradient.svg"
+          class="employee-details-card__mobile-container__icon"
+        ></ion-icon>
+        <span class="employee-details-card__mobile-container__add-number-header"> Add Mobile Number </span>
+      </div>
+    </ng-template>
   </div>
 </div>
