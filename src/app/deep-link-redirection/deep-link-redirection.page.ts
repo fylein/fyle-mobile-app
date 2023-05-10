@@ -103,7 +103,7 @@ export class DeepLinkRedirectionPage implements OnInit {
     );
   }
 
-  private switchOrg() {
+  switchOrg() {
     this.router.navigate(['/', 'auth', 'switch_org']);
   }
 }
