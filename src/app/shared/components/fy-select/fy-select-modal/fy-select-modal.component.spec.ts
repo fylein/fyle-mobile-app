@@ -9,7 +9,7 @@ import { of, take } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 
-fdescribe('FySelectModalComponent', () => {
+describe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
   let fixture: ComponentFixture<FySelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
