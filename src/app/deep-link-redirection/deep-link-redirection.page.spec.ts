@@ -8,14 +8,12 @@ import { TransactionService } from '../core/services/transaction.service';
 import { ReportService } from '../core/services/report.service';
 import { DeepLinkRedirectionPage } from './deep-link-redirection.page';
 import { expectedSingleErpt } from '../core/mock-data/report-unflattened.data';
-import { of } from 'rxjs';
-import { apiAccessTokenRes } from '../core/mock-data/acess-token-data.data';
+import { of, throwError } from 'rxjs';
 import { apiEouRes } from '../core/mock-data/extended-org-user.data';
-import { unflattenExp1 } from '../core/mock-data/unflattened-expense.data';
 import { unflattenedTxnData } from '../core/mock-data/unflattened-txn.data';
 import { singleErqUnflattened } from '../core/mock-data/extended-advance-request.data';
 
-fdescribe('DeepLinkRedirectionPage', () => {
+describe('DeepLinkRedirectionPage', () => {
   let component: DeepLinkRedirectionPage;
   let fixture: ComponentFixture<DeepLinkRedirectionPage>;
   let router: jasmine.SpyObj<Router>;
@@ -27,7 +25,6 @@ fdescribe('DeepLinkRedirectionPage', () => {
   let activeroutemock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
-    //@ts-ignore
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getEReq']);
@@ -139,8 +136,7 @@ fdescribe('DeepLinkRedirectionPage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     }));
 
-    // Add test case to check that switchOrg() is called if AuthService.getEou() fails
-    xit('should navigate to switch_org if AuthService.getEou() fails', fakeAsync(() => {
+    it('should call switch_org if AuthService.getEou() fails', fakeAsync(() => {
       const updatedApiEouRes = {
         ...apiEouRes,
         ou: {
@@ -149,20 +145,14 @@ fdescribe('DeepLinkRedirectionPage', () => {
         },
       };
 
-      const updatedErpt = {
-        ...expectedSingleErpt,
-        rp: {
-          ...expectedSingleErpt.rp,
-          org_user_id: null,
-        },
-      };
+      spyOn(component, 'switchOrg');
+      const error = 'Something went wrong';
       authService.getEou.and.returnValue(Promise.resolve(updatedApiEouRes));
-      reportService.getERpt.and.returnValue(of(updatedErpt));
+      reportService.getERpt.and.returnValue(throwError(() => error));
       component.redirectToReportModule();
       fixture.detectChanges();
       tick(500);
-      //@ts-ignore
-      expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'switch_org']);
+      expect(component.switchOrg).toHaveBeenCalledTimes(1);
     }));
   });
 
@@ -225,6 +215,16 @@ fdescribe('DeepLinkRedirectionPage', () => {
       ]);
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should call switch_org if transactionService.getUnflattened fails', fakeAsync(() => {
+      spyOn(component, 'switchOrg');
+      const error = 'Something went wrong';
+      transactionService.getETxnUnflattened.and.returnValue(throwError(() => error));
+      component.redirectToExpenseModule();
+      fixture.detectChanges();
+      tick(500);
+      expect(component.switchOrg).toHaveBeenCalledTimes(1);
     }));
   });
 
@@ -292,6 +292,16 @@ fdescribe('DeepLinkRedirectionPage', () => {
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     }));
+
+    it('should call switch_org if tadvancedRequestService.getEreq fails', fakeAsync(() => {
+      spyOn(component, 'switchOrg');
+      const error = 'Something went wrong';
+      advanceRequestService.getEReq.and.returnValue(throwError(() => error));
+      component.redirectToAdvReqModule();
+      fixture.detectChanges();
+      tick(500);
+      expect(component.switchOrg).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('onInit()', () => {
@@ -332,5 +342,10 @@ fdescribe('DeepLinkRedirectionPage', () => {
       tick(500);
       expect(component.redirectToAdvReqModule).toHaveBeenCalledTimes(1);
     }));
+  });
+
+  it('should call switchOrg method of authService', () => {
+    component.switchOrg();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org']);
   });
 });
