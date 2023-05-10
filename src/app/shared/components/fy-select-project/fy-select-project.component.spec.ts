@@ -127,11 +127,11 @@ describe('FySelectProjectComponent', () => {
     });
 
     it('should set display value to empty', () => {
-      component.innerValue = undefined;
+      component.innerValue = 'value';
       fixture.detectChanges();
 
-      component.writeValue('value');
-      expect(component.displayValue).toBeUndefined();
+      component.writeValue(undefined);
+      expect(component.displayValue).toEqual('');
     });
   });
 
