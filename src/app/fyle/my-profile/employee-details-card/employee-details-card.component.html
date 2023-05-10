@@ -1,5 +1,5 @@
 <div class="employee-details-card">
-  <div class="employee-details-card__background">
+  <div class="employee-details-card__top-section">
     <ion-grid class="employee-details-card__grid">
       <ion-row>
         <ion-col class="employee-details-card__icon-container">
@@ -21,39 +21,36 @@
       </ion-row>
     </ion-grid>
   </div>
-  <div class="employee-details-card__mobile-container">
+  <div class="employee-details-card__bottom-section">
     <ng-container *ngIf="eou.ou.mobile?.length; else addMobileNumber">
-      <div class="employee-details-card__mobile-container__edit-container">
+      <div class="employee-details-card__bottom-section__edit-number">
         <div>
           <div>Mobile Number</div>
-          <div (click)="onUpdateMobileNumber(eou)" class="employee-details-card__mobile-container__number-container">
-            <span class="employee-details-card__mobile-container__number">
+          <div (click)="onUpdateMobileNumber(eou)" class="employee-details-card__bottom-section__number-container">
+            <span class="employee-details-card__bottom-section__number">
               {{ eou.ou.mobile }}
             </span>
             <ion-icon
-              src="../../../../assets/svg/fy-edit-gradient.svg"
+              src="../../../../assets/svg/edit.svg"
               slot="icon-only"
-              class="employee-details-card__mobile-container__icon-edit"
+              class="employee-details-card__bottom-section__icon-edit"
             ></ion-icon>
           </div>
         </div>
-        <div class="employee-details-card__mobile-container__status">
+        <div class="employee-details-card__bottom-section__status">
           <div
-            class="employee-details-card__mobile-container__status__icon"
-            [ngClass]="{ 'employee-details-card__mobile-container__status__icon--verified': eou.ou.mobile_verified }"
+            class="employee-details-card__bottom-section__status__icon"
+            [ngClass]="{ 'employee-details-card__bottom-section__status__icon--verified': eou.ou.mobile_verified }"
           ></div>
           {{ eou.ou.mobile_verified ? 'Verified' : 'Not Verified' }}
-          <div class="employee-details-card__mobile-container__verify" *ngIf="!eou?.ou?.mobile_verified">Verify</div>
+          <div class="employee-details-card__bottom-section__verify" *ngIf="!eou?.ou?.mobile_verified">Verify</div>
         </div>
       </div>
     </ng-container>
     <ng-template #addMobileNumber>
       <div (click)="onUpdateMobileNumber(eou)">
-        <ion-icon
-          src="../../../../assets/svg/fy-plus-gradient.svg"
-          class="employee-details-card__mobile-container__icon"
-        ></ion-icon>
-        <span class="employee-details-card__mobile-container__add-number-header"> Add Mobile Number </span>
+        <ion-icon src="../../../../assets/svg/plus.svg" class="employee-details-card__bottom-section__icon"></ion-icon>
+        <span class="employee-details-card__bottom-section__add-number"> Add Mobile Number </span>
       </div>
     </ng-template>
   </div>

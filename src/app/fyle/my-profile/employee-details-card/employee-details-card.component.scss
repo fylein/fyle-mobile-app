@@ -5,7 +5,7 @@
   line-height: 1.3;
   padding: 16px 16px 0;
 
-  &__background {
+  &__top-section {
     background: url('../../../../assets/images/employee-card-bg.png') no-repeat bottom;
     height: 120px;
     background-size: 100% 100%;
@@ -19,22 +19,19 @@
     --ion-grid-column-padding: 0;
   }
 
-  &__mobile-container {
+  &__bottom-section {
     background: $pure-white;
     padding: 16px;
     border-radius: 0 0 8px 8px;
     color: $black;
 
-    &__add-number-header {
-      color: $black-light;
+    &__add-number {
       font-weight: 500;
     }
 
-    &__icon {
-      height: 20px;
-      width: 20px;
-      vertical-align: middle;
-      padding: 0 6px 6px 0;
+    &__edit-number {
+      display: flex;
+      justify-content: space-between;
     }
 
     &__number-container {
@@ -51,12 +48,8 @@
       height: 18px;
       width: 18px;
       vertical-align: middle;
-      padding: 0 6px 6px;
-    }
-
-    &__edit-container {
-      display: flex;
-      justify-content: space-between;
+      padding: 0 4px 6px;
+      color: $brand-primary;
     }
 
     &__status {
@@ -74,7 +67,7 @@
         margin-right: 6px;
 
         &--verified {
-          @extend .employee-details-card__mobile-container__status__icon;
+          @extend .employee-details-card__bottom-section__status__icon;
           background-color: $green;
         }
       }
@@ -87,6 +80,14 @@
       padding-left: 8px;
       border-left: 1px solid $grey;
       margin-left: 8px;
+    }
+
+    &__icon {
+      height: 18px;
+      width: 18px;
+      vertical-align: middle;
+      padding: 0 4px 4px 0;
+      color: $brand-primary;
     }
   }
 
