@@ -7,6 +7,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, take } from 'rxjs';
 import { By } from '@angular/platform-browser';
+import { getElementBySelector } from 'src/app/core/dom-helpers';
 
 fdescribe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
@@ -115,6 +116,7 @@ fdescribe('FySelectModalComponent', () => {
     // const inputElement = fixture.debugElement.query(By.css('.selection-modal--search-input')).nativeElement;
     // inputElement.value = 'busi';
     // inputElement.dispatchEvent(new Event('keyup'));
+    // const input = getElementBySelector(fixture, '.selection-modal--search-input.smartlook-show') as HTMLInputElement;
     spyOn(component, 'getRecentlyUsedItems').and.returnValue(
       of([
         { label: 'business', value: 'BUSINESS' },
@@ -122,16 +124,24 @@ fdescribe('FySelectModalComponent', () => {
       ])
     );
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'business', value: 'BUSINESS' }]));
-
+    // component.searchBarRef = {
+    //   nativeElement: input
+    // };
     component.ngAfterViewInit();
-    dummyHtmlInputElement.value = 'busi';
+    dummyHtmlInputElement.value = '';
     dummyHtmlInputElement.dispatchEvent(new Event('keyup'));
-    component.recentrecentlyUsedItems$.subscribe((res) => {
-      // expect(component.getRecentlyUsedItems).toHaveBeenCalledTimes(1);
-      // expect(utilityService.searchArrayStream).toHaveBeenCalledOnceWith('busi');
+    component.recentrecentlyUsedItems$.pipe(take(1)).subscribe((res) => {
+      expect(utilityService.searchArrayStream).toHaveBeenCalledWith('');
       expect(res).toEqual([{ label: 'business', value: 'BUSINESS' }]);
     });
+    dummyHtmlInputElement.value = 'busi';
     dummyHtmlInputElement.dispatchEvent(new Event('keyup'));
+    component.recentrecentlyUsedItems$.pipe(take(1)).subscribe((res) => {
+      expect(utilityService.searchArrayStream).toHaveBeenCalledWith('busi');
+      expect(res).toEqual([{ label: 'business', value: 'BUSINESS' }]);
+    });
+    expect(utilityService.searchArrayStream).toHaveBeenCalledTimes(2);
+    expect(component.getRecentlyUsedItems).toHaveBeenCalledTimes(2);
   });
 
   it('ngAfterViewInit(): should update the filteredOptions$ if searchBarRef is not defined', fakeAsync(() => {
