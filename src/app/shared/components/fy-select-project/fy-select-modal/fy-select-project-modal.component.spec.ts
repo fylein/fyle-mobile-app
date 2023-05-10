@@ -134,6 +134,7 @@ describe('FyProjectSelectModalComponent', () => {
     it('should get projects when current selection is not defined', (done) => {
       projectService.getByParamsUnformatted.and.returnValue(of(projects));
       projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
 
       component.getProjects('projects').subscribe((res) => {
         expect(res).toEqual(expectedProjects);
@@ -327,6 +328,7 @@ describe('FyProjectSelectModalComponent', () => {
     inputElement.dispatchEvent(new Event('keyup'));
 
     expect(component.getProjects).toHaveBeenCalledWith('projects');
+    expect(component.getRecentlyUsedItems).toHaveBeenCalled();
     expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
   });
 
