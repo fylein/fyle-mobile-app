@@ -1,4 +1,4 @@
-export interface Value {
+export interface ModalOption {
   [key: string]: string | number | boolean;
 }
 

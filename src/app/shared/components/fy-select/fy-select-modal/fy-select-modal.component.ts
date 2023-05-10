@@ -14,7 +14,7 @@ import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { ExtendedOption, Option, Value } from './fy-select-modal.interface';
+import { ExtendedOption, ModalOption, Option } from './fy-select-modal.interface';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -26,7 +26,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() options: Option[] = [];
 
-  @Input() currentSelection: string | Value;
+  @Input() currentSelection: string | ModalOption;
 
   @Input() filteredOptions$: Observable<Option[]>;
 
@@ -52,7 +52,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() label: string;
 
-  value: string | Value = '';
+  value: string | ModalOption = '';
 
   recentrecentlyUsedItems$: Observable<ExtendedOption[]>;
 
