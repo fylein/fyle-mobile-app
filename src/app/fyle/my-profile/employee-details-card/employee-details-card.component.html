@@ -14,7 +14,7 @@
           <div>
             {{ eou.us.email }}
           </div>
-          <ng-container *ngIf="eou.ou.employee_id && eou.ou.employee_id.length">
+          <ng-container *ngIf="eou.ou.employee_id?.length">
             <div class="employee-details-card__employee-id">Employee ID - {{ eou.ou.employee_id }}</div>
           </ng-container>
         </ion-col>
@@ -43,7 +43,7 @@
             [ngClass]="{ 'employee-details-card__bottom-section__status__icon--verified': eou.ou.mobile_verified }"
           ></div>
           {{ eou.ou.mobile_verified ? 'Verified' : 'Not Verified' }}
-          <div class="employee-details-card__bottom-section__verify" *ngIf="!eou?.ou?.mobile_verified">Verify</div>
+          <div class="employee-details-card__bottom-section__verify" *ngIf="!eou.ou.mobile_verified">Verify</div>
         </div>
       </div>
     </ng-container>
