@@ -48,6 +48,13 @@ describe('FySelectProjectComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('value(): should set display value to empty string if value is undefined', () => {
+    component.innerValue = 'value';
+    component.value = undefined;
+    fixture.detectChanges();
+    expect(component.displayValue).toEqual('');
+  });
+
   it('valid(): should return validity of parent if touched is false', () => {
     component.touchedInParent = true;
     component.validInParent = false;
