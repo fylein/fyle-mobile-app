@@ -14,7 +14,7 @@ import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { Value } from './fy-select-modal.interface';
+import { ExtendedOption, Option, Value } from './fy-select-modal.interface';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -24,11 +24,11 @@ import { Value } from './fy-select-modal.interface';
 export class FySelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+  @Input() options: Option[] = [];
 
-  @Input() currentSelection: any;
+  @Input() currentSelection: string | Value;
 
-  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+  @Input() filteredOptions$: Observable<Option[]>;
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
@@ -48,13 +48,13 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() defaultLabelProp: string;
 
-  @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
+  @Input() recentlyUsed: Option[];
 
   @Input() label: string;
 
   value: string | Value = '';
 
-  recentrecentlyUsedItems$: Observable<any[]>;
+  recentrecentlyUsedItems$: Observable<ExtendedOption[]>;
 
   constructor(
     private modalController: ModalController,
@@ -78,10 +78,12 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       return of(this.recentlyUsed);
     } else {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) =>
+        map((options: ExtendedOption[]) =>
           options
-            .filter((option) => option.custom || this.options.map((op) => op.label).includes(option.label))
-            .map((option) => {
+            .filter(
+              (option: ExtendedOption) => option.custom || this.options.map((op) => op.label).includes(option.label)
+            )
+            .map((option: ExtendedOption) => {
               option.selected = isEqual(option.value, this.currentSelection);
               return option;
             })
@@ -167,7 +169,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option) {
+  onElementSelect(option: ExtendedOption) {
     if (this.cacheName && option.value) {
       option.custom = !this.options.some((internalOption) => internalOption.value !== option.value);
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
@@ -176,7 +178,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   }
 
   saveToCacheAndUse() {
-    const option: any = {
+    const option: ExtendedOption = {
       label: this.searchBarRef.nativeElement.value,
       value: this.searchBarRef.nativeElement.value,
       selected: false,
