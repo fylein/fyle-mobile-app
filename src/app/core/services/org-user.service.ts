@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
 import { User } from '../models/user.model';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Observable, Subject, throwError } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { DataTransformService } from './data-transform.service';
 import { Cacheable, globalCacheBusterNotifier, CacheBuster } from 'ts-cacheable';
@@ -79,8 +79,7 @@ export class OrgUserService {
 
   postOrgUser(orgUser: Partial<OrgUser>): Observable<Partial<OrgUser>> {
     globalCacheBusterNotifier.next();
-    // return this.apiService.post('/orgusers', orgUser);
-    return throwError(() => 'Method not implemented.');
+    return this.apiService.post('/orgusers', orgUser);
   }
 
   markActive(): Observable<ExtendedOrgUser> {
