@@ -65,7 +65,7 @@
       <div class="employee-details-card__mobile-container__edit-container">
         <div>
           <div>Mobile Number</div>
-          <div (click)="updateMobileNumber()" class="employee-details-card__mobile-container__number-container">
+          <div (click)="onUpdateMobileNumber(eou)" class="employee-details-card__mobile-container__number-container">
             <span class="employee-details-card__mobile-container__number">
               {{ eou.ou.mobile }}
             </span>
@@ -87,7 +87,7 @@
       </div>
     </ng-container>
     <ng-template #addMobileNumber>
-      <div (click)="updateMobileNumber()">
+      <div (click)="onUpdateMobileNumber(eou)">
         <ion-icon
           src="../../../../assets/svg/fy-plus-gradient.svg"
           class="employee-details-card__mobile-container__icon"

@@ -9,7 +9,10 @@
 
 <ion-content class="my-profile__content-container">
   <ng-container *ngIf="eou$ | async as eou">
-    <app-employee-details-card [eou]="eou"></app-employee-details-card>
+    <app-employee-details-card
+      [eou]="eou"
+      (updateMobileNumber)="updateMobileNumber($event)"
+    ></app-employee-details-card>
   </ng-container>
   <div class="my-profile__content-container__content">
     <ng-container *ngIf="isConnected$ | async">

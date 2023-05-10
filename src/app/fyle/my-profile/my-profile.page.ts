@@ -1,6 +1,6 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable } from 'rxjs';
-import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { Component, EventEmitter } from '@angular/core';
+import { concat, forkJoin, from, noop, Observable, throwError } from 'rxjs';
+import { catchError, concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -19,6 +19,12 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OrgService } from 'src/app/core/services/org.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
+import { PopoverController } from '@ionic/angular';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -40,7 +46,7 @@ type PreferenceSetting = {
   templateUrl: './my-profile.page.html',
   styleUrls: ['./my-profile.page.scss'],
 })
-export class MyProfilePage implements OnInit {
+export class MyProfilePage {
   orgUserSettings: OrgUserSettings;
 
   orgSettings: any;
@@ -75,7 +81,11 @@ export class MyProfilePage implements OnInit {
     private trackingService: TrackingService,
     private orgService: OrgService,
     private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private popoverController: PopoverController,
+    private orgUserService: OrgUserService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   setupNetworkWatcher() {
@@ -195,5 +205,44 @@ export class MyProfilePage implements OnInit {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
-  ngOnInit() {}
+  async updateMobileNumber(eou: ExtendedOrgUser) {
+    const updateMobileNumberPopover = await this.popoverController.create({
+      component: FyInputPopoverComponent,
+      componentProps: {
+        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+        ctaText: 'Save',
+        inputLabel: 'Mobile Number',
+        inputValue: eou.ou.mobile,
+        inputType: 'tel',
+        isRequired: false,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await updateMobileNumberPopover.present();
+    const { data } = await updateMobileNumberPopover.onWillDismiss();
+
+    if (data) {
+      eou.ou.mobile = data.newValue;
+      this.orgUserService
+        .postOrgUser(eou.ou)
+        .pipe(
+          concatMap(() => this.authService.refreshEou()),
+          catchError((err) => throwError(() => err))
+        )
+        .subscribe({
+          error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
+          complete: () => this.showToastMessage('Profile saved successfully', 'success'),
+        });
+    }
+  }
+
+  showToastMessage(message: string, type: 'success' | 'failure') {
+    const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
+      panelClass,
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
 }
