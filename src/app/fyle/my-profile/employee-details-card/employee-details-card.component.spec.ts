@@ -18,6 +18,8 @@ import { getTextContent } from 'src/app/core/dom-helpers';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { click } from 'src/app/core/dom-helpers';
 
+//TODO: Fix unit tests
+
 // xdescribe('EmployeeDetailsCardComponent', () => {
 //   let component: EmployeeDetailsCardComponent;
 //   let fixture: ComponentFixture<EmployeeDetailsCardComponent>;
