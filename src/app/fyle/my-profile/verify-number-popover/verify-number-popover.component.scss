@@ -2,10 +2,7 @@
 
 .verify-number-popover {
   &--toolbar {
-    &__title {
-      color: $black;
-      margin-left: 20px;
-    }
+    color: $black;
 
     &__btn {
       font-size: 16px;
@@ -14,6 +11,7 @@
       text-transform: none;
       background: transparent;
       margin-right: 4px;
+      font-weight: 500;
 
       &:disabled {
         opacity: 0.6;

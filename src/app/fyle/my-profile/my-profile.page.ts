@@ -1,6 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
 import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
-import { concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -227,20 +227,19 @@ export class MyProfilePage {
     const { data } = await updateMobileNumberPopover.onWillDismiss();
 
     if (data) {
-      await this.verifyMobileNumber(eou);
       const updatedOrgUserDetails = {
         ...eou.ou,
         mobile: data.newValue,
       };
       this.orgUserService
         .postOrgUser(updatedOrgUserDetails)
-        .pipe(concatMap(() => this.authService.refreshEou()))
+        .pipe(
+          concatMap(() => this.authService.refreshEou()),
+          tap(() => this.loadEou$.next(null)),
+          switchMap(() => this.eou$.pipe(map((eou) => from(this.verifyMobileNumber(eou)))))
+        )
         .subscribe({
           error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
-          complete: () => {
-            this.loadEou$.next(null);
-            this.showToastMessage('Profile saved successfully', 'success');
-          },
         });
     }
   }
@@ -258,6 +257,9 @@ export class MyProfilePage {
     const { data } = await verifyNumberPopoverComponent.onWillDismiss();
 
     if (data) {
+      if (data.action === 'BACK') {
+        this.updateMobileNumber(eou);
+      }
     }
   }
 
