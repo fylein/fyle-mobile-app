@@ -236,6 +236,7 @@ export class MyProfilePage {
         .pipe(
           concatMap(() => this.authService.refreshEou()),
           tap(() => this.loadEou$.next(null)),
+          map(() => from(updateMobileNumberPopover.onDidDismiss())),
           switchMap(() => this.eou$.pipe(map((eou) => from(this.verifyMobileNumber(eou)))))
         )
         .subscribe({
