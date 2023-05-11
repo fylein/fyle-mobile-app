@@ -125,6 +125,7 @@ describe('FyProjectSelectModalComponent', () => {
 
     component.cacheName = 'projects';
     component.defaultValue = true;
+    component.currentSelection = singleProject2;
     component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
     recentLocalStorageItemsService.get.and.returnValue(Promise.resolve([testProjectV2]));
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
@@ -320,7 +321,6 @@ describe('FyProjectSelectModalComponent', () => {
     spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
 
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
-    component.currentSelection = singleProject2;
     fixture.detectChanges();
 
     component.ngAfterViewInit();
