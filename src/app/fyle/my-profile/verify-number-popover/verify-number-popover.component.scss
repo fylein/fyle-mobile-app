@@ -12,6 +12,7 @@
       background: transparent;
       margin-right: 4px;
       font-weight: 500;
+      min-width: 45px;
 
       &:disabled {
         opacity: 0.6;
@@ -33,6 +34,7 @@
 
       &--resend {
         color: $brand-primary;
+        background-color: $pure-white;
         font-size: 12px;
         font-weight: 500;
       }

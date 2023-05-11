@@ -259,6 +259,8 @@ export class MyProfilePage {
     if (data) {
       if (data.action === 'BACK') {
         this.updateMobileNumber(eou);
+      } else if (data.action === 'SUCCESS') {
+        //TODO: Show dialog popover here
       }
     }
   }

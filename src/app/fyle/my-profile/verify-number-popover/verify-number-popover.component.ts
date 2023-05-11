@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import { noop } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ApiService } from 'src/app/core/services/api.service';
 
@@ -13,7 +15,13 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   @Input() extendedOrgUser: ExtendedOrgUser;
 
+  value: string;
+
   infoBoxText: string;
+
+  sendingOtp = false;
+
+  verifyingOtp = false;
 
   constructor(private popoverController: PopoverController, private apiService: ApiService) {}
 
@@ -31,14 +39,24 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   }
 
   resendOtp() {
-    this.apiService.post('/orgusers/verify_mobile').subscribe((res) => {
-      //TODO: Restrict this to 5 times
-    });
+    //TODO: Restrict this to 5 times a day
+    this.sendingOtp = true;
+    this.apiService
+      .post('/orgusers/verify_mobile')
+      .pipe(finalize(() => (this.sendingOtp = false)))
+      .subscribe(noop);
   }
 
   verifyOtp() {
-    this.apiService.post('/orgusers/check_mobile_verification_code', 123456).subscribe((res) => {
-      //TODO: Show success dialog after this
-    });
+    this.verifyingOtp = true;
+    this.apiService
+      .post('/orgusers/check_mobile_verification_code', this.value)
+      .pipe(finalize(() => (this.verifyingOtp = false)))
+      .subscribe(() => ({
+        complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
+        error: () => {
+          //TODO: Show error message
+        },
+      }));
   }
 }
