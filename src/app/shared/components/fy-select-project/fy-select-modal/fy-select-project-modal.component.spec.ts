@@ -23,10 +23,12 @@ import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-t
 import { HighlightPipe } from 'src/app/shared/pipes/highlight.pipe';
 import { testProjectV2 } from 'src/app/core/test-data/projects.spec.data';
 import {
+  expectedLabelledProjects,
   expectedProjects,
   expectedProjects2,
   expectedProjects3,
   expectedProjects4,
+  labelledProjects,
   projects,
   singleProject2,
   singleProjects1,
@@ -126,7 +128,6 @@ describe('FyProjectSelectModalComponent', () => {
     component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
     recentLocalStorageItemsService.get.and.returnValue(Promise.resolve([testProjectV2]));
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
-    spyOn(component, 'getProjects').and.callThrough();
 
     fixture.detectChanges();
     inputElement = component.searchBarRef.nativeElement;
@@ -316,6 +317,7 @@ describe('FyProjectSelectModalComponent', () => {
 
   it('ngAfterViewInit(): show filtered projects and recently used items', (done) => {
     spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
+    spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
 
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
     component.currentSelection = singleProject2;
@@ -329,7 +331,7 @@ describe('FyProjectSelectModalComponent', () => {
     });
 
     component.filteredOptions$.subscribe((res) => {
-      expect(res).toEqual(expectedProjects3);
+      expect(res).toEqual(expectedLabelledProjects);
     });
 
     expect(component.getProjects).toHaveBeenCalledWith('projects');
