@@ -321,6 +321,7 @@ describe('FyProjectSelectModalComponent', () => {
 
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
     component.currentSelection = singleProject2;
+    fixture.detectChanges();
 
     component.ngAfterViewInit();
     inputElement.value = 'projects';
