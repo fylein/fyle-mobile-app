@@ -223,9 +223,12 @@ export class MyProfilePage {
     const { data } = await updateMobileNumberPopover.onWillDismiss();
 
     if (data) {
-      eou.ou.mobile = data.newValue;
+      const updatedOrgUserDetails = {
+        ...eou.ou,
+        mobile: data.newValue,
+      };
       this.orgUserService
-        .postOrgUser(eou.ou)
+        .postOrgUser(updatedOrgUserDetails)
         .pipe(concatMap(() => this.authService.refreshEou()))
         .subscribe({
           error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
