@@ -125,7 +125,6 @@ describe('FyProjectSelectModalComponent', () => {
 
     component.cacheName = 'projects';
     component.defaultValue = true;
-    component.currentSelection = singleProject2;
     component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
     recentLocalStorageItemsService.get.and.returnValue(Promise.resolve([testProjectV2]));
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
