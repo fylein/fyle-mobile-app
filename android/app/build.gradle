@@ -22,8 +22,11 @@ android {
 
     signingConfigs {
         release {
+            ...
+            v1SigningEnabled true
             v2SigningEnabled true
-            v3SigningEnabled true
+            enableV3Signing = true
+            enableV4Signing = true
         }
     }
 }
