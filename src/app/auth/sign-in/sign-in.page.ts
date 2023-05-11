@@ -9,13 +9,11 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
-import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
-import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
-
+import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 @Component({
   selector: 'app-sign-in',
   templateUrl: './sign-in.page.html',
@@ -45,11 +43,11 @@ export class SignInPage implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     public googleAuthService: GoogleAuthService,
-    private inAppBrowser: InAppBrowser,
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private deviceService: DeviceService,
-    private loginInfoService: LoginInfoService
+    private loginInfoService: LoginInfoService,
+    private inAppBrowserService: InAppBrowserService
   ) {}
 
   async checkSAMLResponseAndSignInUser(data) {
@@ -86,7 +84,7 @@ export class SignInPage implements OnInit {
 
   handleSamlSignIn(res) {
     const url = res.idp_url + '&RelayState=MOBILE';
-    const browser = this.inAppBrowser.create(url, '_blank', 'location=yes');
+    const browser = this.inAppBrowserService.create(url, '_blank', 'location=yes');
     browser
       .on('loadstop')
       .pipe(take(1))

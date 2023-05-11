@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PopoverController } from '@ionic/angular';
@@ -12,18 +12,23 @@ import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
 import { SignInPage } from './sign-in.page';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { ErrorComponent } from './error/error.component';
 import { authResData1, authResData2 } from 'src/app/core/mock-data/auth-reponse.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButton, MatButtonModule } from '@angular/material/button';
+import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { getElementBySelector } from 'src/app/core/dom-helpers';
+import { By } from '@angular/platform-browser';
 
-fdescribe('SignInPage', () => {
+describe('SignInPage', () => {
   let component: SignInPage;
   let fixture: ComponentFixture<SignInPage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -39,6 +44,7 @@ fdescribe('SignInPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let deviceService: jasmine.SpyObj<DeviceService>;
   let loginInfoService: jasmine.SpyObj<LoginInfoService>;
+  let inAppBrowserService: jasmine.SpyObj<InAppBrowserService>;
 
   beforeEach(waitForAsync(() => {
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', [
@@ -58,9 +64,10 @@ fdescribe('SignInPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['onSignin', 'eventTrack']);
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const loginInfoServiceSpy = jasmine.createSpyObj('LoginInfoService', ['addLoginInfo']);
+    const inAppBrowserServiceSpy = jasmine.createSpyObj('InAppBrowserService', ['create']);
 
     TestBed.configureTestingModule({
-      declarations: [SignInPage],
+      declarations: [SignInPage, MatButton],
       imports: [
         IonicModule.forRoot(),
         FormsModule,
@@ -69,6 +76,8 @@ fdescribe('SignInPage', () => {
         MatInputModule,
         BrowserAnimationsModule,
         MatButtonModule,
+        RouterModule,
+        RouterTestingModule,
       ],
       providers: [
         FormBuilder,
@@ -120,7 +129,12 @@ fdescribe('SignInPage', () => {
           provide: LoginInfoService,
           useValue: loginInfoServiceSpy,
         },
+        {
+          provide: InAppBrowserService,
+          useValue: inAppBrowserServiceSpy,
+        },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(SignInPage);
     component = fixture.componentInstance;
@@ -138,6 +152,7 @@ fdescribe('SignInPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     loginInfoService = TestBed.inject(LoginInfoService) as jasmine.SpyObj<LoginInfoService>;
+    inAppBrowserService = TestBed.inject(InAppBrowserService) as jasmine.SpyObj<InAppBrowserService>;
 
     loaderService.showLoader.and.returnValue(Promise.resolve());
     router.navigate.and.stub();
@@ -156,51 +171,109 @@ fdescribe('SignInPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('checkSAMLResponseAndSignInUser(): should check saml response and sign in user', async () => {
-    routerAuthService.handleSignInResponse.and.returnValue(Promise.resolve(authResData1));
-    spyOn(component, 'trackLoginInfo');
-    trackingService.onSignin.and.callThrough();
-    pushNotificationService.initPush.and.callThrough();
-    router.navigate.and.returnValue(Promise.resolve(true));
-    authService.refreshEou.and.returnValue(of(apiEouRes));
-
-    component.fg.controls.email.setValue('ajain@fyle.in');
-    fixture.detectChanges();
-
-    await component.checkSAMLResponseAndSignInUser({});
-
-    expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
-    expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
-    expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-    expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
-    expect(routerAuthService.handleSignInResponse).toHaveBeenCalledOnceWith({});
-  });
-
-  it('checkIfEmailExists(): should check if value email exists', async () => {
-    component.fg.controls.email.setErrors(null);
-
-    routerAuthService.checkEmailExists.and.returnValue(
-      of({
-        smal: 'Response',
+  xit('handleSamlSignIn(): should handle saml sign in ', () => {
+    const browserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'executeScript', 'close']);
+    browserSpy.on.and.returnValue(of(new Event('event')));
+    browserSpy.executeScript.and.returnValue(
+      Promise.resolve({
+        data: 'sign-in',
       })
     );
-    fixture.detectChanges();
-    spyOn(component, 'handleSamlSignIn').and.callThrough();
+    inAppBrowserService.create.and.returnValue(browserSpy);
 
-    await component.checkIfEmailExists();
+    component.handleSamlSignIn({
+      idp_url: 'url',
+    });
+  });
+
+  describe('checkSAMLResponseAndSignInUser():', () => {
+    it('should check saml response and sign in user', async () => {
+      routerAuthService.handleSignInResponse.and.returnValue(Promise.resolve(authResData1));
+      spyOn(component, 'trackLoginInfo');
+      trackingService.onSignin.and.callThrough();
+      pushNotificationService.initPush.and.callThrough();
+      router.navigate.and.returnValue(Promise.resolve(true));
+      authService.refreshEou.and.returnValue(of(apiEouRes));
+
+      component.fg.controls.email.setValue('ajain@fyle.in');
+      fixture.detectChanges();
+
+      await component.checkSAMLResponseAndSignInUser({});
+
+      expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
+      expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
+      expect(routerAuthService.handleSignInResponse).toHaveBeenCalledOnceWith({});
+    });
+
+    it('should show error if saml response has an error', () => {
+      spyOn(component, 'handleError');
+
+      component.checkSAMLResponseAndSignInUser({ response_status_code: '500', error: 'error' });
+      expect(component.handleError).toHaveBeenCalledOnceWith({ status: 500 });
+    });
+  });
+
+  describe('checkIfEmailExists(): ', () => {
+    it('should check if value email exists', (done) => {
+      component.fg.controls.email.setValue('email@gmail.com');
+      spyOn(component, 'handleSamlSignIn');
+
+      routerAuthService.checkEmailExists.and.returnValue(
+        of({
+          saml: true,
+        })
+      );
+      fixture.detectChanges();
+
+      component.checkIfEmailExists();
+      expect(component.handleSamlSignIn).toHaveBeenCalledOnceWith({ saml: true });
+      done();
+    });
+
+    it('set email and perform sign in if saml is disabled', (done) => {
+      component.fg.controls.email.setValue('email@gmail.com');
+
+      routerAuthService.checkEmailExists.and.returnValue(of({}));
+      fixture.detectChanges();
+
+      component.checkIfEmailExists();
+      expect(component.emailSet).toBeTrue();
+      done();
+    });
+
+    it('should throw error if email does not exist', () => {
+      component.fg.controls.email.setValue('email@gmail.com');
+      routerAuthService.checkEmailExists.and.returnValue(throwError(() => new Error('error')));
+      spyOn(component, 'handleError');
+
+      component.checkIfEmailExists();
+      expect(component.handleError).toHaveBeenCalledTimes(2);
+      expect(component.handleError).toHaveBeenCalledWith(new Error('error'));
+    });
+
+    it('should mark form as touched if email field is not valid', () => {
+      spyOn(component.fg.controls.email, 'markAsTouched');
+      component.fg.controls.email.setErrors(new Error('error'));
+
+      component.checkIfEmailExists();
+      expect(component.fg.controls.email.markAsTouched).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('handleError():', () => {
-    it('should handle error and create a popover when the error is 500', async () => {
+    it('should handle error and create a popover when the error is 500', fakeAsync(() => {
       const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
-      errorPopoverSpy.present.and.returnValue(Promise.resolve(true));
       popoverController.create.and.returnValue(errorPopoverSpy);
 
       const header = 'Sorry... Something went wrong!';
       const error = { status: 500 };
 
-      await component.handleError(error);
+      component.handleError(error);
+      tick();
+
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: ErrorComponent,
         componentProps: {
@@ -209,56 +282,114 @@ fdescribe('SignInPage', () => {
         },
         cssClass: 'dialog-popover',
       });
+    }));
+  });
+
+  xit('should navigate to pending verification if error status is 400', fakeAsync(() => {
+    const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
+    popoverController.create.and.returnValue(errorPopoverSpy);
+
+    const header = 'Incorrect Email or Password';
+    const error = { status: 400 };
+
+    component.handleError(error);
+    tick();
+
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: ErrorComponent,
+      componentProps: {
+        header,
+        error,
+      },
+      cssClass: 'dialog-popover',
+    });
+  }));
+
+  describe('signInUser(): ', () => {
+    it('should sign in user', async () => {
+      spyOn(component, 'trackLoginInfo');
+      routerAuthService.basicSignin.and.returnValue(of(authResData1));
+      authService.refreshEou.and.returnValue(of(apiEouRes));
+      trackingService.onSignin.and.callThrough();
+      pushNotificationService.initPush.and.callThrough();
+      router.navigate.and.returnValue(Promise.resolve(true));
+      component.fg.controls.password.setValue('password');
+      component.fg.controls.email.setValue('email');
+      fixture.detectChanges();
+
+      await component.signInUser();
+
+      expect(routerAuthService.basicSignin).toHaveBeenCalledOnceWith('email', 'password');
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith('email', {
+        label: 'Email',
+      });
+      expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
+    });
+
+    it('show error if sign in fails', async () => {
+      component.fg.controls.password.setValue('password');
+      component.fg.controls.email.setValue('email');
+      routerAuthService.basicSignin.and.returnValue(throwError(() => new Error('error')));
+      authService.refreshEou.and.returnValue(of(apiEouRes));
+      trackingService.onSignin.and.callThrough();
+      pushNotificationService.initPush.and.callThrough();
+      router.navigate.and.returnValue(Promise.resolve(true));
+      spyOn(component, 'handleError');
+      fixture.detectChanges();
+
+      await component.signInUser();
+
+      expect(routerAuthService.basicSignin).toHaveBeenCalledOnceWith('email', 'password');
+      expect(component.handleError).toHaveBeenCalledOnceWith(new Error('error'));
+    });
+
+    it('should show password field as marked', () => {
+      spyOn(component.fg.controls.password, 'markAsTouched');
+      fixture.detectChanges();
+
+      component.signInUser();
+      expect(component.fg.controls.password.markAsTouched).toHaveBeenCalledTimes(1);
     });
   });
 
-  it('signInUser(): should sign in user', async () => {
-    spyOn(component, 'trackLoginInfo');
-    routerAuthService.basicSignin.and.returnValue(of(authResData1));
-    authService.refreshEou.and.returnValue(of(apiEouRes));
-    trackingService.onSignin.and.callThrough();
-    pushNotificationService.initPush.and.callThrough();
-    router.navigate.and.returnValue(Promise.resolve(true));
-    component.fg.controls.password.setValue('password');
-    component.fg.controls.email.setValue('email');
-    fixture.detectChanges();
+  describe('googleSignIn():', () => {
+    it('should sign in user with google', async () => {
+      spyOn(component, 'trackLoginInfo');
 
-    await component.signInUser();
+      googleAuthService.login.and.returnValue(Promise.resolve(authResData2));
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      routerAuthService.googleSignin.and.returnValue(of(authResData2));
+      trackingService.onSignin.and.callThrough();
+      pushNotificationService.initPush.and.callThrough();
+      router.navigate.and.returnValue(Promise.resolve(true));
+      authService.refreshEou.and.returnValue(of(apiEouRes));
 
-    expect(routerAuthService.basicSignin).toHaveBeenCalledOnceWith('email', 'password');
-    expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-    expect(trackingService.onSignin).toHaveBeenCalledOnceWith('email', {
-      label: 'Email',
+      await component.googleSignIn();
+
+      expect(googleAuthService.login).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledWith('Signing you in...', 10000);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
+      expect(routerAuthService.googleSignin).toHaveBeenCalledOnceWith(authResData2.accessToken);
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in', {
+        label: 'Email',
+      });
+      expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
+      expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
     });
-    expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
-  });
 
-  it('googleSignIn(): should sign in user with google', async () => {
-    spyOn(component, 'trackLoginInfo');
+    it("should throw an error if google reponse doesn't contain access token", async () => {
+      googleAuthService.login.and.returnValue(Promise.resolve(authResData1));
+      spyOn(component, 'handleError');
 
-    googleAuthService.login.and.returnValue(Promise.resolve(authResData2));
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
-    routerAuthService.googleSignin.and.returnValue(of(authResData2));
-    trackingService.onSignin.and.callThrough();
-    pushNotificationService.initPush.and.callThrough();
-    router.navigate.and.returnValue(Promise.resolve(true));
-    authService.refreshEou.and.returnValue(of(apiEouRes));
-
-    await component.googleSignIn();
-
-    expect(googleAuthService.login).toHaveBeenCalledTimes(1);
-    expect(loaderService.showLoader).toHaveBeenCalledWith('Signing you in...', 10000);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
-    expect(routerAuthService.googleSignin).toHaveBeenCalledOnceWith(authResData2.accessToken);
-    expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-    expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in', {
-      label: 'Email',
+      await component.googleSignIn();
+      expect(googleAuthService.login).toHaveBeenCalledTimes(1);
+      expect(component.handleError).toHaveBeenCalledOnceWith(undefined);
     });
-    expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
-    expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
   });
 
   it('trackLoginInfo(): should track login', async () => {
@@ -280,5 +411,32 @@ fdescribe('SignInPage', () => {
 
     component.ionViewWillEnter();
     expect(component.emailSet).toEqual(true);
+  });
+
+  it('ngOnInit(): should navigate to switch org page if logged in ', fakeAsync(() => {
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    loaderService.hideLoader.and.callThrough();
+    routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
+    router.navigate.and.returnValue(Promise.resolve(true));
+
+    component.ngOnInit();
+    tick();
+
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(2);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
+    expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(2);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: false }]);
+  }));
+
+  xit('should check if email exists on typing the input', () => {
+    spyOn(component, 'checkIfEmailExists');
+    component.emailSet = false;
+    component.fg.controls.email.setValue('ajain@fyle.in');
+    fixture.detectChanges();
+
+    const emailField = getElementBySelector(fixture, '#sign-in--email');
+    emailField.dispatchEvent(new Event('enter'));
+
+    expect(component.checkIfEmailExists).toHaveBeenCalledTimes(1);
   });
 });
