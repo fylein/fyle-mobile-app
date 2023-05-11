@@ -1,6 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { concat, forkJoin, from, noop, Observable } from 'rxjs';
+import { concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -226,10 +226,7 @@ export class MyProfilePage {
       eou.ou.mobile = data.newValue;
       this.orgUserService
         .postOrgUser(eou.ou)
-        .pipe(
-          concatMap(() => this.authService.refreshEou()),
-          catchError((err) => throwError(() => err))
-        )
+        .pipe(concatMap(() => this.authService.refreshEou()))
         .subscribe({
           error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
           complete: () => this.showToastMessage('Profile saved successfully', 'success'),
