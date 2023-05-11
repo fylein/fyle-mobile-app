@@ -1,6 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable } from 'rxjs';
-import { concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
+import { concatMap, finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -25,6 +25,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -60,6 +61,8 @@ export class MyProfilePage {
   ROUTER_API_ENDPOINT: string;
 
   isConnected$: Observable<boolean>;
+
+  loadEou$: BehaviorSubject<null>;
 
   settingsMap = {
     instaFyle: 'insta_fyle_settings',
@@ -142,6 +145,8 @@ export class MyProfilePage {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.loadEou$ = new BehaviorSubject(null);
+    this.eou$ = this.loadEou$.pipe(switchMap(() => from(this.authService.getEou())));
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
@@ -151,7 +156,6 @@ export class MyProfilePage {
   }
 
   reset() {
-    this.eou$ = from(this.authService.getEou());
     const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
@@ -160,7 +164,7 @@ export class MyProfilePage {
       .pipe(
         switchMap(() =>
           forkJoin({
-            eou: this.eou$,
+            eou: from(this.authService.getEou()),
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
           })
@@ -210,11 +214,11 @@ export class MyProfilePage {
       component: FyInputPopoverComponent,
       componentProps: {
         title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        ctaText: 'Save',
+        ctaText: 'Next',
         inputLabel: 'Mobile Number',
         inputValue: eou.ou.mobile,
         inputType: 'tel',
-        isRequired: false,
+        isRequired: true,
       },
       cssClass: 'fy-dialog-popover',
     });
@@ -223,6 +227,7 @@ export class MyProfilePage {
     const { data } = await updateMobileNumberPopover.onWillDismiss();
 
     if (data) {
+      await this.verifyMobileNumber(eou);
       const updatedOrgUserDetails = {
         ...eou.ou,
         mobile: data.newValue,
@@ -232,8 +237,27 @@ export class MyProfilePage {
         .pipe(concatMap(() => this.authService.refreshEou()))
         .subscribe({
           error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
-          complete: () => this.showToastMessage('Profile saved successfully', 'success'),
+          complete: () => {
+            this.loadEou$.next(null);
+            this.showToastMessage('Profile saved successfully', 'success');
+          },
         });
+    }
+  }
+
+  async verifyMobileNumber(eou: ExtendedOrgUser) {
+    const verifyNumberPopoverComponent = await this.popoverController.create({
+      component: VerifyNumberPopoverComponent,
+      componentProps: {
+        extendedOrgUser: eou,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await verifyNumberPopoverComponent.present();
+    const { data } = await verifyNumberPopoverComponent.onWillDismiss();
+
+    if (data) {
     }
   }
 

@@ -1,0 +1,37 @@
+<ion-header mode="md">
+  <ion-toolbar mode="md" class="fy-modal-toolbar verify-number-popover--toolbar">
+    <ion-title class="text-center">
+      <div class="verify-number-popover--toolbar__title">Verify Mobile Number</div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="closePopover()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <!-- [disabled]="!inputValue?.trim().length" -->
+      <button class="verify-number-popover--toolbar__btn" (click)="saveValue()">Verify</button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="verify-number-popover--input-container">
+  <ng-container *ngIf="infoBoxText?.length">
+    <div class="verify-number-popover--input-container__info-box">
+      <app-fy-alert-info type="information" [message]="infoBoxText"></app-fy-alert-info>
+    </div>
+  </ng-container>
+  <div class="verify-number-popover--input-container__label">
+    <span> One Time Password (OTP) </span>
+    <span class="verify-number-popover--input-container__mandatory"> * </span>
+  </div>
+  <input
+    #input
+    matInput
+    class="verify-number-popover--input-container__input smartlook-show"
+    placeholder="Enter 6 digit OTP"
+    type="numeric"
+    maxlength="6"
+    minlength="6"
+  />
+</div>
