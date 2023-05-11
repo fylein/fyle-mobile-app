@@ -25,7 +25,7 @@ import { of, throwError } from 'rxjs';
 import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
 import { HttpErrorResponse } from '@angular/common/http';
 
-fdescribe('MyProfilePage', () => {
+describe('MyProfilePage', () => {
   let component: MyProfilePage;
   let fixture: ComponentFixture<MyProfilePage>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -198,7 +198,7 @@ fdescribe('MyProfilePage', () => {
   });
 
   describe('showToastMessage(): ', () => {
-    it('should show success snackbar with mesage', () => {
+    it('should show success snackbar with message', () => {
       const message = 'Profile saved successfully';
       const successToastProperties = {
         data: {
