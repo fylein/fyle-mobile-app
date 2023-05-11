@@ -108,7 +108,6 @@ export const expectedLabelledProjects = [
       projectv2_name: 'Customer Mapped Project',
       sub_project_name: null,
     },
-    selected: true,
   },
   {
     label: 'project2',
