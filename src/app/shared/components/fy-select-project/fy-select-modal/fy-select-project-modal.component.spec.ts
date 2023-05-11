@@ -30,6 +30,7 @@ import {
   singleProjects1,
 } from 'src/app/core/mock-data/extended-projects.data';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { By } from '@angular/platform-browser';
 
 describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
@@ -42,6 +43,7 @@ describe('FyProjectSelectModalComponent', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let inputElement: HTMLInputElement;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -119,11 +121,13 @@ describe('FyProjectSelectModalComponent', () => {
 
     component.cacheName = 'projects';
     component.defaultValue = true;
+    component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
     recentLocalStorageItemsService.get.and.returnValue(Promise.resolve([testProjectV2]));
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
     spyOn(component, 'getProjects').and.callThrough();
 
     fixture.detectChanges();
+    inputElement = component.searchBarRef.nativeElement;
   }));
 
   it('should create', () => {
@@ -213,17 +217,13 @@ describe('FyProjectSelectModalComponent', () => {
   it('clearValue(): should clear all values', () => {
     component.value = 'value';
 
-    const dummyHtmlInputElement = document.createElement('input');
-    component.searchBarRef = {
-      nativeElement: dummyHtmlInputElement,
-    };
-    dummyHtmlInputElement.value = 'US';
-    dummyHtmlInputElement.dispatchEvent(new Event('keyup'));
+    inputElement.value = 'projects';
+    inputElement.dispatchEvent(new Event('keyup'));
     fixture.detectChanges();
 
     component.clearValue();
     expect(component.value).toEqual('');
-    expect(dummyHtmlInputElement.value).toEqual('');
+    expect(inputElement.value).toEqual('');
   });
 
   describe('getRecentlyUsedItems():', () => {
@@ -311,19 +311,12 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', async () => {
+  it('ngAfterViewInit(): show filtered projects and recently used items', () => {
     spyOn(component, 'getRecentlyUsedItems').and.callThrough();
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
     component.currentSelection = singleProject2;
 
-    fixture.detectChanges();
-
-    const inputElement = document.createElement('input');
-    component.searchBarRef = {
-      nativeElement: inputElement,
-    };
-
-    await component.ngAfterViewInit();
+    component.ngAfterViewInit();
     inputElement.value = 'projects';
     inputElement.dispatchEvent(new Event('keyup'));
 
