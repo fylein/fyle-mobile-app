@@ -18,6 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MyProfilePage } from './my-profile.page';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 fdescribe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -37,7 +38,7 @@ fdescribe('MyProfilePage', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
-  let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
+  let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou', 'logout']);
@@ -80,6 +81,10 @@ fdescribe('MyProfilePage', () => {
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
+    matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+
     fixture = TestBed.createComponent(MyProfilePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -99,5 +104,53 @@ fdescribe('MyProfilePage', () => {
 
   xit('updateMobileNumber', () => {});
 
-  xit('showToastMessage', () => {});
+  describe('showToastMessage(): ', () => {
+    it('should show success snackbar with mesage', () => {
+      const message = 'Profile saved successfully';
+      const successToastProperties = {
+        data: {
+          icon: 'tick-square-filled',
+          showCloseButton: true,
+          message,
+        },
+        duration: 3000,
+      };
+
+      snackbarPropertiesService.setSnackbarProperties.and.returnValue(successToastProperties);
+      component.showToastMessage(message, 'success');
+
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...successToastProperties,
+        panelClass: 'msb-success',
+      });
+      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: message,
+      });
+    });
+
+    it('should show error snackbar with message', () => {
+      const message = 'Something went wrong';
+      const failureToastProperties = {
+        data: {
+          icon: 'danger',
+          showCloseButton: true,
+          message,
+        },
+        duration: 3000,
+      };
+
+      snackbarPropertiesService.setSnackbarProperties.and.returnValue(failureToastProperties);
+      component.showToastMessage(message, 'failure');
+
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...failureToastProperties,
+        panelClass: 'msb-failure',
+      });
+      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', { message });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: message,
+      });
+    });
+  });
 });
