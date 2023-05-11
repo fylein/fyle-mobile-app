@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PopoverController } from '@ionic/angular';
@@ -24,9 +24,8 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { MatButton, MatButtonModule } from '@angular/material/button';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { By } from '@angular/platform-browser';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 describe('SignInPage', () => {
   let component: SignInPage;
@@ -134,7 +133,7 @@ describe('SignInPage', () => {
           useValue: inAppBrowserServiceSpy,
         },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(SignInPage);
     component = fixture.componentInstance;
@@ -158,8 +157,6 @@ describe('SignInPage', () => {
     router.navigate.and.stub();
     routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(false));
 
-    const presentEmail = activatedRoute.snapshot.params.email;
-
     component.fg = formBuilder.group({
       email: [],
       password: ['', Validators.required],
@@ -171,19 +168,21 @@ describe('SignInPage', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('handleSamlSignIn(): should handle saml sign in ', () => {
+  it('handleSamlSignIn(): should handle saml sign in ', async () => {
     const browserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'executeScript', 'close']);
     browserSpy.on.and.returnValue(of(new Event('event')));
     browserSpy.executeScript.and.returnValue(
       Promise.resolve({
-        data: 'sign-in',
+        data: JSON.stringify('response'),
       })
     );
     inAppBrowserService.create.and.returnValue(browserSpy);
 
-    component.handleSamlSignIn({
+    await component.handleSamlSignIn({
       idp_url: 'url',
     });
+
+    expect(inAppBrowserService.create).toHaveBeenCalledOnceWith('url' + '&RelayState=MOBILE', '_blank', 'location=yes');
   });
 
   describe('checkSAMLResponseAndSignInUser():', () => {
@@ -264,15 +263,14 @@ describe('SignInPage', () => {
   });
 
   describe('handleError():', () => {
-    it('should handle error and create a popover when the error is 500', fakeAsync(() => {
+    it('should handle error and create a popover when the error is 500', async () => {
       const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
       popoverController.create.and.returnValue(errorPopoverSpy);
 
       const header = 'Sorry... Something went wrong!';
       const error = { status: 500 };
 
-      component.handleError(error);
-      tick();
+      await component.handleError(error);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: ErrorComponent,
@@ -282,28 +280,56 @@ describe('SignInPage', () => {
         },
         cssClass: 'dialog-popover',
       });
-    }));
-  });
-
-  xit('should navigate to pending verification if error status is 400', fakeAsync(() => {
-    const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
-    popoverController.create.and.returnValue(errorPopoverSpy);
-
-    const header = 'Incorrect Email or Password';
-    const error = { status: 400 };
-
-    component.handleError(error);
-    tick();
-
-    expect(popoverController.create).toHaveBeenCalledOnceWith({
-      component: ErrorComponent,
-      componentProps: {
-        header,
-        error,
-      },
-      cssClass: 'dialog-popover',
     });
-  }));
+
+    it('should handle error and create a popover when the error is 433', async () => {
+      const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
+      popoverController.create.and.returnValue(errorPopoverSpy);
+
+      const header = 'Temporary Lockout';
+      const error = { status: 433 };
+
+      await component.handleError(error);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: ErrorComponent,
+        componentProps: {
+          header,
+          error,
+        },
+        cssClass: 'dialog-popover',
+      });
+    });
+
+    it('should show default header if error status code not present', async () => {
+      const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
+      popoverController.create.and.returnValue(errorPopoverSpy);
+
+      const header = 'Incorrect Email or Password';
+
+      await component.handleError(null);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: ErrorComponent,
+        componentProps: {
+          header,
+          error: null,
+        },
+        cssClass: 'dialog-popover',
+      });
+    });
+
+    it('should navigate to pending verification if error status is 400', async () => {
+      const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
+      popoverController.create.and.returnValue(errorPopoverSpy);
+
+      const error = { status: 400 };
+
+      await component.handleError(error);
+
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+    });
+  });
 
   describe('signInUser(): ', () => {
     it('should sign in user', async () => {
@@ -420,7 +446,7 @@ describe('SignInPage', () => {
     router.navigate.and.returnValue(Promise.resolve(true));
 
     component.ngOnInit();
-    tick();
+    tick(1000);
 
     expect(loaderService.showLoader).toHaveBeenCalledTimes(2);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
@@ -428,15 +454,31 @@ describe('SignInPage', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: false }]);
   }));
 
-  xit('should check if email exists on typing the input', () => {
+  it('should check if email exists on typing the input', () => {
     spyOn(component, 'checkIfEmailExists');
     component.emailSet = false;
     component.fg.controls.email.setValue('ajain@fyle.in');
     fixture.detectChanges();
 
     const emailField = getElementBySelector(fixture, '#sign-in--email');
-    emailField.dispatchEvent(new Event('enter'));
+    emailField.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter' }));
 
     expect(component.checkIfEmailExists).toHaveBeenCalledTimes(1);
+  });
+
+  it('should check if email exists on clicking the button', () => {
+    spyOn(component, 'checkIfEmailExists');
+
+    const contButton = getElementBySelector(fixture, '#sign-in--continue') as HTMLElement;
+    click(contButton);
+    expect(component.checkIfEmailExists).toHaveBeenCalledTimes(1);
+  });
+
+  it('should sign in with google when clicking on the SIGN IN WITH GOOGLE button', () => {
+    spyOn(component, 'googleSignIn');
+    const googleButton = getElementBySelector(fixture, '.sign-in--secondary-cta-btn') as HTMLElement;
+
+    click(googleButton);
+    expect(component.googleSignIn).toHaveBeenCalledTimes(1);
   });
 });

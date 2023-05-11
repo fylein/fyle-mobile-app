@@ -101,6 +101,7 @@ export class SignInPage implements OnInit {
               try {
                 data = JSON.parse(response);
               } catch (err) {}
+
               if (data) {
                 clearInterval(getResponse);
                 browser.close();
