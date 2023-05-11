@@ -37,11 +37,11 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   // This variable tracks if comma was clicked by the user.
   commaClicked = false;
 
-  private innerValue;
+  innerValue;
 
-  private onTouchedCallback: () => void = noop;
+  onTouchedCallback: () => void = noop;
 
-  private onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (_: any) => void = noop;
 
   constructor(private platform: Platform, private launchDarklyService: LaunchDarklyService) {}
 

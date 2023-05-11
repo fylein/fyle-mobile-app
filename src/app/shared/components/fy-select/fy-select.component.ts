@@ -1,10 +1,11 @@
-import { Component, OnInit, forwardRef, Input, TemplateRef, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { Component, forwardRef, Input, TemplateRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { Value } from './fy-select.interface';
 
 @Component({
   selector: 'app-fy-select',
@@ -18,7 +19,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     },
   ],
 })
-export class FySelectComponent implements ControlValueAccessor, OnInit {
+export class FySelectComponent implements ControlValueAccessor {
   @Input() options: { label: string; value: any }[] = [];
 
   @Input() disabled = false;
@@ -49,35 +50,33 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
 
-  displayValue;
+  @Input() touchedInParent: boolean;
 
-  private innerValue;
+  @Input() validInParent: boolean;
 
-  private ngControl: NgControl;
+  displayValue: string | number | boolean;
 
-  private onTouchedCallback: () => void = noop;
+  innerValue: string | Value;
 
-  private onChangeCallback: (_: any) => void = noop;
+  onTouchedCallback: () => void = noop;
 
-  constructor(
-    private modalController: ModalController,
-    private injector: Injector,
-    private modalProperties: ModalPropertiesService
-  ) {}
+  onChangeCallback: (_: any) => void = noop;
+
+  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
+    if (this.touchedInParent) {
+      return this.validInParent;
     } else {
       return true;
     }
   }
 
-  get value(): any {
+  get value(): string | Value {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: string | Value) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.options) {
@@ -95,10 +94,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
       this.onChangeCallback(v);
     }
-  }
-
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
   }
 
   async openModal() {
@@ -139,7 +134,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
+  writeValue(value: string | Value): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {

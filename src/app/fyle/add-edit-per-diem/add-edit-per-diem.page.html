@@ -123,6 +123,8 @@
                         [selectModalHeader]="'Select Per Diem Type'"
                         [selectionElement]="perDiemType"
                         formControlName="per_diem_rate"
+                        [touchedInParent]="fg.controls.per_diem_rate.touched"
+                        [validInParent]="fg.controls.per_diem_rate.valid"
                       >
                       </app-fy-select>
                       <ng-template #perDiemType let-label="label" let-perDiemType="value" let-selected="selected">
@@ -261,6 +263,8 @@
                         [selectModalHeader]="'Select Payment Mode'"
                         [selectionElement]="paymentMode"
                         formControlName="paymentMode"
+                        [touchedInParent]="fg.controls.paymentMode.touched"
+                        [validInParent]="fg.controls.paymentMode.valid"
                       >
                       </app-fy-select>
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -324,6 +328,8 @@
                                   [mandatory]="txnFields?.project_id?.is_mandatory"
                                   [recentlyUsed]="recentProjects"
                                   formControlName="project"
+                                  [validInParent]="fg.controls.project.valid"
+                                  [touchedInParent]="fg.controls.project.touched"
                                 >
                                 </app-fy-select-project>
                               </div>
@@ -389,6 +395,8 @@
                             [selectModalHeader]="'Select Sub Category'"
                             [nullOption]="false"
                             formControlName="sub_category"
+                            [touchedInParent]="fg.controls.sub_category.touched"
+                            [validInParent]="fg.controls.sub_category.valid"
                           >
                           </app-fy-select>
                         </div>
@@ -482,6 +490,8 @@
                             class="add-edit-per-diem--text-input"
                             formControlName="purpose"
                             [placeholder]="txnFields.purpose.placeholder | ellipsis: 30"
+                            [touchedInParent]="fg.controls.purpose.touched"
+                            [validInParent]="fg.controls.purpose.valid"
                           >
                           </app-fy-select>
                         </div>
@@ -568,6 +578,8 @@
                               [selectModalHeader]="'Select '+customInput.name"
                               formControlName="value"
                               [placeholder]="customInput.placeholder | ellipsis: 30"
+                              [touchedInParent]="customInput.control.controls.value.touched"
+                              [validInParent]="customInput.control.controls.value.valid"
                             >
                             </app-fy-select>
                           </div>

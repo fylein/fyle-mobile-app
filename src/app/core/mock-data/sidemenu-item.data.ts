@@ -12,7 +12,7 @@ export const sidemenuItemData1: SidemenuItem = {
 };
 
 export const sidemenuItemData2: SidemenuItem = {
-  title: 'Teams',
+  title: 'Team',
   isVisible: true,
   icon: 'teams',
   isDropdownOpen: false,

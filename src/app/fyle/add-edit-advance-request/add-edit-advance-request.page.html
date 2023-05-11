@@ -89,6 +89,8 @@
           [showSaveButton]="true"
           [selectModalHeader]="'Enter Purpose'"
           [placeholder]="'Enter Purpose'"
+          [touchedInParent]="fg.controls.purpose.touched"
+          [validInParent]="fg.controls.purpose.valid"
         >
         </app-fy-select>
       </div>
@@ -107,6 +109,8 @@
               [label]="expenseFields?.project_id[0]?.field_name"
               [placeholder]="expenseFields?.project_id[0]?.placeholder"
               [cacheName]="'advanceProjectCache'"
+              [validInParent]="fg.controls.project.valid"
+              [touchedInParent]="fg.controls.project.touched"
             ></app-fy-select-project>
           </div>
         </ng-container>
@@ -189,6 +193,8 @@
                     [options]="customInput.options"
                     formControlName="value"
                     [placeholder]="customInput.placeholder | ellipsis: 30"
+                    [touchedInParent]="fg.controls.custom_field_values['controls'][i].touched"
+                    [validInParent]="fg.controls.custom_field_values['controls'][i].valid"
                   >
                   </app-fy-select>
                 </div>
