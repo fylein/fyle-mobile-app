@@ -1,6 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
 import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
-import { concatMap, finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { concatMap, finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -236,8 +236,12 @@ export class MyProfilePage {
         .pipe(
           concatMap(() => this.authService.refreshEou()),
           tap(() => this.loadEou$.next(null)),
-          map(() => from(updateMobileNumberPopover.onDidDismiss())),
-          switchMap(() => this.eou$.pipe(map((eou) => from(this.verifyMobileNumber(eou)))))
+          switchMap(() =>
+            this.eou$.pipe(
+              take(1),
+              map((eou) => from(this.verifyMobileNumber(eou)))
+            )
+          )
         )
         .subscribe({
           error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
