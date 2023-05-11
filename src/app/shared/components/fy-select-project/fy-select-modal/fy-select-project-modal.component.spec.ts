@@ -328,6 +328,10 @@ describe('FyProjectSelectModalComponent', () => {
       expect(res).toEqual(expectedProjects4);
     });
 
+    component.filteredOptions$.subscribe((res) => {
+      expect(res).toEqual(expectedProjects3);
+    });
+
     expect(component.getProjects).toHaveBeenCalledWith('projects');
     expect(component.getRecentlyUsedItems).toHaveBeenCalled();
     expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
