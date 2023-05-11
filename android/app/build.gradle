@@ -22,7 +22,6 @@ android {
 
     signingConfigs {
         release {
-            ...
             v2SigningEnabled true
         }
     }
