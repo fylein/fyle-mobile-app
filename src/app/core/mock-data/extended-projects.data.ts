@@ -256,3 +256,28 @@ export const expectedProjects3 = [
     },
   },
 ];
+
+export const expectedProjects4 = [
+  {
+    label: 'project1',
+    value: {
+      ap1_email: null,
+      ap1_full_name: null,
+      ap2_email: null,
+      ap2_full_name: null,
+      project_active: true,
+      project_approver1_id: null,
+      project_approver2_id: null,
+      project_code: null,
+      project_created_at: new Date('2020-06-26T05:32:00.174Z'),
+      project_description: null,
+      project_id: 3943,
+      project_name: 'Staging Project',
+      project_org_category_ids: [16560, 224734, 201949],
+      project_org_id: 'orNVthTo2Zyo',
+      project_updated_at: new Date('2022-11-23T08:55:29.400Z'),
+      projectv2_name: 'Staging Project',
+      sub_project_name: null,
+    },
+  },
+];

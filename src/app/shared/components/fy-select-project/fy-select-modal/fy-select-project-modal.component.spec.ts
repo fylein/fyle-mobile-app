@@ -25,6 +25,8 @@ import { testProjectV2 } from 'src/app/core/test-data/projects.spec.data';
 import {
   expectedProjects,
   expectedProjects2,
+  expectedProjects3,
+  expectedProjects4,
   projects,
   singleProject2,
   singleProjects1,
@@ -244,8 +246,8 @@ describe('FyProjectSelectModalComponent', () => {
             value: testProjectV2,
           },
         ]);
-        done();
       });
+      done();
     });
 
     it('should get project from recently used storage if not already present', (done) => {
@@ -275,7 +277,7 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('onDoneClick', () => {
+  it('onDoneClick(): should dimiss the modal on clicking the done CTA', () => {
     modalController.dismiss.and.returnValue(Promise.resolve(true));
 
     component.onDoneClick();
@@ -288,6 +290,7 @@ describe('FyProjectSelectModalComponent', () => {
 
       component.onElementSelect('value');
       expect(modalController.dismiss).toHaveBeenCalledWith('value');
+      expect(recentLocalStorageItemsService.post).not.toHaveBeenCalled();
     });
 
     it('should cache the selected option and dismiss the modal', () => {
@@ -311,18 +314,28 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', () => {
-    spyOn(component, 'getRecentlyUsedItems').and.callThrough();
-    utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
+  it('ngAfterViewInit(): show filtered projects and recently used items', (done) => {
+    spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
+
+    utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
     component.currentSelection = singleProject2;
 
     component.ngAfterViewInit();
     inputElement.value = 'projects';
     inputElement.dispatchEvent(new Event('keyup'));
 
+    component.recentrecentlyUsedItems$.subscribe((res) => {
+      expect(res).toEqual(expectedProjects4);
+    });
+
+    component.filteredOptions$.subscribe((res) => {
+      expect(res).toEqual(expectedProjects3);
+    });
+
     expect(component.getProjects).toHaveBeenCalledWith('projects');
     expect(component.getRecentlyUsedItems).toHaveBeenCalled();
     expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
+    done();
   });
 
   it('should show label on the screen', () => {
