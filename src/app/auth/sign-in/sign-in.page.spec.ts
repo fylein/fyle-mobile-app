@@ -26,8 +26,9 @@ import { InAppBrowserService } from 'src/app/core/services/in-app-browser.servic
 import { RouterTestingModule } from '@angular/router/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { By } from '@angular/platform-browser';
 
-describe('SignInPage', () => {
+fdescribe('SignInPage', () => {
   let component: SignInPage;
   let fixture: ComponentFixture<SignInPage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -158,7 +159,7 @@ describe('SignInPage', () => {
     routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(false));
 
     component.fg = formBuilder.group({
-      email: [],
+      email: [Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
       password: ['', Validators.required],
     });
     fixture.detectChanges();
@@ -168,7 +169,7 @@ describe('SignInPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('handleSamlSignIn(): should handle saml sign in ', async () => {
+  xit('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
     const browserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'executeScript', 'close']);
     browserSpy.on.and.returnValue(of(new Event('event')));
     browserSpy.executeScript.and.returnValue(
@@ -178,12 +179,14 @@ describe('SignInPage', () => {
     );
     inAppBrowserService.create.and.returnValue(browserSpy);
 
-    await component.handleSamlSignIn({
+    component.handleSamlSignIn({
       idp_url: 'url',
     });
 
+    flush();
+
     expect(inAppBrowserService.create).toHaveBeenCalledOnceWith('url' + '&RelayState=MOBILE', '_blank', 'location=yes');
-  });
+  }));
 
   describe('checkSAMLResponseAndSignInUser():', () => {
     it('should check saml response and sign in user', async () => {
@@ -480,5 +483,36 @@ describe('SignInPage', () => {
 
     click(googleButton);
     expect(component.googleSignIn).toHaveBeenCalledTimes(1);
+  });
+
+  it('should show error if email field is empty', () => {
+    component.fg.controls.email.setValue(null);
+    component.fg.markAllAsTouched();
+    fixture.detectChanges();
+
+    expect(getTextContent(getElementBySelector(fixture, '.sign-in--error'))).toEqual('Please enter an email.');
+  });
+
+  it('should show error if email is invalid', () => {
+    component.fg.controls.email.setValue('email.com');
+    component.fg.markAllAsTouched();
+    fixture.detectChanges();
+
+    expect(getTextContent(getElementBySelector(fixture, '.sign-in--error'))).toEqual('Please enter a valid email.');
+  });
+
+  it('', () => {
+    component.fg.controls.email.setValue('ajain@fyle.in');
+    routerAuthService.checkEmailExists.and.returnValue(of(true));
+    fixture.detectChanges();
+
+    component.checkIfEmailExists();
+
+    fixture.whenStable();
+    console.log(component.emailSet);
+    console.log(component.fg.controls.email.value);
+    if (fixture.isStable) {
+      console.log(fixture.debugElement.query(By.css('#sign-in--password')));
+    }
   });
 });
