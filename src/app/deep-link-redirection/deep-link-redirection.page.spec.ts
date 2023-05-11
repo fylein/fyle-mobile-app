@@ -89,7 +89,7 @@ describe('DeepLinkRedirectionPage', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       tick(500);
       expect(reportService.getERpt).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
-      expect(router.navigate).toHaveBeenCalledWith([
+      expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'my_view_report',
@@ -127,7 +127,7 @@ describe('DeepLinkRedirectionPage', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       tick(500);
       expect(reportService.getERpt).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
-      expect(router.navigate).toHaveBeenCalledWith([
+      expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'view_team_report',
@@ -177,7 +177,7 @@ describe('DeepLinkRedirectionPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
       tick(500);
       expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
-      expect(router.navigate).toHaveBeenCalledWith([
+      expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'view_mileage',
@@ -207,10 +207,40 @@ describe('DeepLinkRedirectionPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
       tick(500);
       expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
-      expect(router.navigate).toHaveBeenCalledWith([
+      expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'view_per_diem',
+        { id: activeroutemock.snapshot.params.id },
+      ]);
+      tick(500);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should redirect to view_expense if the category is othter than mileage or per diem', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'expense',
+        id: 'txAfNasd34',
+      };
+
+      const updatedExtnFlatteTxnData = {
+        ...unflattenedTxnData,
+        tx: {
+          ...unflattenedTxnData.tx,
+          org_category: 'food',
+        },
+      };
+      transactionService.getETxnUnflattened.and.returnValue(of(updatedExtnFlatteTxnData));
+      component.redirectToExpenseModule();
+      fixture.detectChanges();
+      tick(500);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      tick(500);
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'view_expense',
         { id: activeroutemock.snapshot.params.id },
       ]);
       tick(500);
@@ -253,10 +283,36 @@ describe('DeepLinkRedirectionPage', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
 
       expect(advanceRequestService.getEReq).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
-      expect(router.navigate).toHaveBeenCalledWith([
+      expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'view_team_advance',
+        { id: activeroutemock.snapshot.params.id },
+      ]);
+      tick(500);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should redirect to my_view_advance_request page if non of the conditions match', fakeAsync(() => {
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+
+      activeroutemock.snapshot.params = {
+        sub_module: 'advReq',
+        id: 'areqGzKF1Tne23',
+      };
+      advanceRequestService.getEReq.and.returnValue(of(singleErqUnflattened));
+      component.redirectToAdvReqModule();
+      fixture.detectChanges();
+      tick(500);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      tick(500);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+
+      expect(advanceRequestService.getEReq).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_advance_request',
         { id: activeroutemock.snapshot.params.id },
       ]);
       tick(500);
@@ -283,7 +339,7 @@ describe('DeepLinkRedirectionPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
       tick(500);
       expect(advanceRequestService.getEReq).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
-      expect(router.navigate).toHaveBeenCalledWith([
+      expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'my_view_advance',
