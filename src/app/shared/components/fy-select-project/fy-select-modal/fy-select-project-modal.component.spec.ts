@@ -35,7 +35,7 @@ import {
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 
-fdescribe('FyProjectSelectModalComponent', () => {
+describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
