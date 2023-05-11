@@ -159,12 +159,13 @@ fdescribe('SetupAccountPage', () => {
       { input: 'StrongPassword@123', expectedOutput: true },
     ];
 
-    fixture.detectChanges();
     testCases.forEach((testCase) => {
       component.fg.controls.password.setValue(testCase.input);
-      component.lengthValidationDisplay$.subscribe((value) => {
-        expect(value).toEqual(testCase.expectedOutput);
-        console.log(`Password: ${testCase.input}, Display value: ${value}`);
+      fixture.whenStable().then(() => {
+        component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
+          expect(value).toEqual(testCase.expectedOutput);
+          console.log(`Password: ${testCase.input}, Display value: ${value}`);
+        });
       });
       tick(500);
     });
