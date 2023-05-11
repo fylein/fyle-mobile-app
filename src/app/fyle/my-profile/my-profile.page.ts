@@ -1,6 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
 import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
-import { concatMap, finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';

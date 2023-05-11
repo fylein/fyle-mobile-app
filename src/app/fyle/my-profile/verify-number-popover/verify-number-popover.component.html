@@ -5,7 +5,7 @@
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="closePopover()">
-        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        <ion-icon src="../../../../assets/svg/fy-chevron-left.svg" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
@@ -22,8 +22,11 @@
     </div>
   </ng-container>
   <div class="verify-number-popover--input-container__label">
-    <span> One Time Password (OTP) </span>
-    <span class="verify-number-popover--input-container__mandatory"> * </span>
+    <div>
+      <span> One Time Password (OTP) </span>
+      <span class="verify-number-popover--input-container__mandatory"> * </span>
+    </div>
+    <div class="verify-number-popover--input-container__label--resend">Resend OTP</div>
   </div>
   <input
     #input

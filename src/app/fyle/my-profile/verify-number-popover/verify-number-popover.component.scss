@@ -30,6 +30,14 @@
       color: $black-light;
       line-height: 1.3;
       font-weight: 400;
+      display: flex;
+      justify-content: space-between;
+
+      &--resend {
+        color: $brand-primary;
+        font-size: 12px;
+        font-weight: 500;
+      }
     }
 
     &__input {
@@ -40,7 +48,7 @@
       line-height: 1.3;
       color: $blue-black;
       width: 100%;
-      padding: 6px 0;
+      padding: 8px 0;
       border-bottom: 1px solid $grey-lighter;
     }
 
