@@ -522,6 +522,39 @@ fdescribe('ExpensesCardComponent', () => {
     }));
   });
 
+  describe('canShowPaymentModeIcon', () => {
+    it('should show payment mode icon if it is a personal expense and is reimbersable', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_skip_reimbursement: false,
+      };
+      component.canShowPaymentModeIcon();
+      fixture.detectChanges();
+      expect(component.showPaymentModeIcon).toBeTrue();
+    });
+
+    it('should not show payment mode icon if it is a personal expense and is not reimbersable', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_skip_reimbursement: true,
+      };
+      component.canShowPaymentModeIcon();
+      fixture.detectChanges();
+      expect(component.showPaymentModeIcon).toBeFalse();
+    });
+
+    it('should not show payment mode icon if it is not a personal expense and is reimbersable', () => {
+      component.expense = {
+        ...expenseData1,
+        source_account_type: 'COMPANY_ACCOUNT',
+        tx_skip_reimbursement: false,
+      };
+      component.canShowPaymentModeIcon();
+      fixture.detectChanges();
+      expect(component.showPaymentModeIcon).toBeFalse();
+    });
+  });
+
   describe('onInit', () => {
     it('should set ProjectEnabled to true if the  projects are allowed and enabled and get the home currency', (done) => {
       currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
