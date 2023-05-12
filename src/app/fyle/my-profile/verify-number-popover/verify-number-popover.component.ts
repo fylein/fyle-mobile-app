@@ -23,6 +23,8 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   verifyingOtp = false;
 
+  error = '';
+
   constructor(private popoverController: PopoverController, private apiService: ApiService) {}
 
   ngOnInit(): void {
@@ -34,8 +36,18 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.inputEl.nativeElement.focus(), 400);
   }
 
+  validateInput() {
+    if (!this.value || this.value.length < 6 || !this.value.match(/[0-9]{6}/)) {
+      this.error = 'Please enter 6 digit OTP';
+    }
+  }
+
   goBack() {
     this.popoverController.dismiss({ action: 'BACK' });
+  }
+
+  onFocus() {
+    this.error = null;
   }
 
   resendOtp() {
@@ -48,15 +60,16 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   }
 
   verifyOtp() {
-    this.verifyingOtp = true;
-    this.apiService
-      .post('/orgusers/check_mobile_verification_code', this.value)
-      .pipe(finalize(() => (this.verifyingOtp = false)))
-      .subscribe(() => ({
-        complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
-        error: () => {
-          //TODO: Show error message
-        },
-      }));
+    this.validateInput();
+    if (!this.error) {
+      this.verifyingOtp = true;
+      this.apiService
+        .post('/orgusers/check_mobile_verification_code', this.value)
+        .pipe(finalize(() => (this.verifyingOtp = false)))
+        .subscribe({
+          complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
+          error: () => (this.error = 'Incorrect mobile number or OTP. Please try again.'),
+        });
+    }
   }
 }

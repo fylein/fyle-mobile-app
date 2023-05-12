@@ -50,10 +50,19 @@
       width: 100%;
       padding: 8px 0;
       border-bottom: 1px solid $grey-lighter;
+
+      &--error {
+        border-bottom: 1px solid $red;
+      }
     }
 
     &__input:focus {
       border-bottom: 1px solid $blue-black;
+    }
+
+    &__error {
+      color: $red;
+      font-size: 12px;
     }
 
     &__info-box {
