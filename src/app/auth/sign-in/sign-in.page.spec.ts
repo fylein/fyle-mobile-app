@@ -169,7 +169,7 @@ fdescribe('SignInPage', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
+  it('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
     const browserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'executeScript', 'close']);
     browserSpy.on.and.returnValue(of(new Event('event')));
     browserSpy.executeScript.and.returnValue(
@@ -501,18 +501,25 @@ fdescribe('SignInPage', () => {
     expect(getTextContent(getElementBySelector(fixture, '.sign-in--error'))).toEqual('Please enter a valid email.');
   });
 
-  it('', () => {
-    component.fg.controls.email.setValue('ajain@fyle.in');
-    routerAuthService.checkEmailExists.and.returnValue(of(true));
+  xit('checking email set', fakeAsync(() => {
+    component.ngOnInit();
+    component.emailSet = true;
+
+    // component.fg.controls.email.setValue('ajain@fyle.in');
+    // routerAuthService.checkEmailExists.and.returnValue(of(true));
     fixture.detectChanges();
 
-    component.checkIfEmailExists();
+    // component.checkIfEmailExists();
+    tick(1500);
+    fixture.whenStable().then(() => {
+      console.log(fixture.debugElement.query(By.css('.sign-in--password-visibility-icon')));
+    });
+    tick(1500);
 
-    fixture.whenStable();
     console.log(component.emailSet);
     console.log(component.fg.controls.email.value);
-    if (fixture.isStable) {
-      console.log(fixture.debugElement.query(By.css('#sign-in--password')));
-    }
-  });
+    // if (fixture.isStable) {
+    //   console.log(fixture.debugElement.query(By.css('#sign-in--password')));
+    // }
+  }));
 });
