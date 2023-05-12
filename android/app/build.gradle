@@ -25,7 +25,10 @@ android {
             v1SigningEnabled true
             v2SigningEnabled true
             enableV3Signing = true
-            enableV4Signing = true
+            storeFile file("$rootDir/keystore/demo.jks")
+            storePassword ""
+            keyAlias ""
+            keyPassword ""
         }
     }
 }
