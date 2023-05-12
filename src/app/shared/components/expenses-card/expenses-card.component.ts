@@ -344,23 +344,6 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  getScanningReceiptCard(expense: Expense): boolean {
-    if (
-      expense?.tx_fyle_category &&
-      (expense?.tx_fyle_category?.toLowerCase() === 'mileage' ||
-        expense?.tx_fyle_category?.toLowerCase() === 'per diem')
-    ) {
-      return false;
-    } else {
-      if (!expense.tx_currency && !expense.tx_amount) {
-        if (!expense.tx_extracted_data && !expense.tx_transcribed_data) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   onSetMultiselectMode() {
     if (!this.isSelectionModeEnabled) {
       this.setMultiselectMode.emit(this.expense);
@@ -381,7 +364,7 @@ export class ExpensesCardComponent implements OnInit {
     );
   }
 
-  async onFileUploadChange(nativeElement: HTMLInputElement) {
+  async onFileUpload(nativeElement: HTMLInputElement) {
     const file = nativeElement.files[0];
     let receiptDetails;
     if (file) {
@@ -405,7 +388,7 @@ export class ExpensesCardComponent implements OnInit {
       if (this.isIos) {
         const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
         nativeElement.onchange = async () => {
-          await this.onFileUploadChange(nativeElement);
+          await this.onFileUpload(nativeElement);
         };
         nativeElement.click();
       } else {
