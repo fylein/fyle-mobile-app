@@ -28,4 +28,9 @@ export class PopupWithBulletsComponent implements OnInit {
   dimissPopover() {
     this.popoverController.dismiss();
   }
+
+  async copyToClipboard(textToCopy: string) {
+    await navigator.clipboard.writeText(textToCopy);
+    //TODO: Add a toast message once design is ready
+  }
 }
