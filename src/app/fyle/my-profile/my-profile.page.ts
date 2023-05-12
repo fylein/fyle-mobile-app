@@ -26,6 +26,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
+import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -265,9 +266,37 @@ export class MyProfilePage {
       if (data.action === 'BACK') {
         this.updateMobileNumber(eou);
       } else if (data.action === 'SUCCESS') {
-        //TODO: Show dialog popover here
+        this.showSuccessPopover();
       }
     }
+  }
+
+  async showSuccessPopover() {
+    const fyleMobileNumber = '(302) 440-2921';
+    const listItems = [
+      {
+        icon: 'message',
+        text: `Message your receipts to Fyle at ${fyleMobileNumber} and we will create an expense for you.`,
+        textToCopy: fyleMobileNumber,
+      },
+      {
+        icon: 'fy-reimbursable',
+        text: 'Standard messaging rates applicable',
+      },
+    ];
+    const verifyNumberPopoverComponent = await this.popoverController.create({
+      component: PopupWithBulletsComponent,
+      componentProps: {
+        title: 'Verification Successful',
+        listHeader: 'Now you can:',
+        listItems,
+        ctaText: 'Got it',
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await verifyNumberPopoverComponent.present();
+    await verifyNumberPopoverComponent.onWillDismiss();
   }
 
   showToastMessage(message: string, type: 'success' | 'failure') {
