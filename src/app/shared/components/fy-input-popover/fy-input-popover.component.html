@@ -30,7 +30,7 @@
     matInput
     [(ngModel)]="inputValue"
     class="input-popover--input-container__input smartlook-show"
-    [placeholder]="'Enter ' + inputLabel"
+    [placeholder]="placeholder?.length ? placeholder : 'Enter ' + inputLabel"
     [type]="inputType"
     [maxlength]="inputType === 'tel' ? 15 : null"
     [minlength]="inputType === 'tel' ? 7 : null"

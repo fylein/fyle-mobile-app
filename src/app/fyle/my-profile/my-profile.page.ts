@@ -220,6 +220,7 @@ export class MyProfilePage {
         inputValue: eou.ou.mobile,
         inputType: 'tel',
         isRequired: true,
+        placeholder: 'Enter mobile number e.g. +129586736556',
       },
       cssClass: 'fy-dialog-popover',
     });
