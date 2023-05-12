@@ -15,7 +15,7 @@ android {
       production {
         storeFile file('release-keystore.jks')
         storePassword '123456'
-        keyAlias = 'my-release-key'
+        keyAlias 'my-release-key'
         keyPassword '123456'
         enableV3Signing true
       }
