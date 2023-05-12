@@ -10,6 +10,17 @@ android {
         versionName "5.10.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    signingConfigs {
+      production {
+        storeFile file('release-keystore.jks')
+        storePassword '123456'
+        keyAlias = 'my-release-key'
+        keyPassword '123456'
+        enableV3Signing true
+      }
+    }
+
     buildTypes {
         release {
           minifyEnabled true
@@ -17,24 +28,13 @@ android {
           proguardFiles getDefaultProguardFile(
           'proguard-android-optimize.txt'),
           'proguard-rules.pro'
-        }
-    }
-
-    signingConfigs {
-        release {
-            v1SigningEnabled true
-            v2SigningEnabled true
-            enableV3Signing = true
-            storeFile file("$rootDir/keystore/demo.jks")
-            storePassword ""
-            keyAlias ""
-            keyPassword ""
+          signingConfig signingConfigs.production
         }
     }
 }
 
 repositories {
-    flatDir{
+    flatDir {
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
     }
 }
