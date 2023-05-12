@@ -28,6 +28,7 @@ import { Currency } from 'src/app/core/models/currency.model';
 import { currentEouRes, postUserParam, postUserResponse } from 'src/app/core/test-data/org-user.service.spec.data';
 import { OrgUser } from 'src/app/core/models/org-user.model';
 import { orgSettingsGetData, orgSettingsPostData } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { By } from '@angular/platform-browser';
 
 fdescribe('SetupAccountPage', () => {
   let component: SetupAccountPage;
@@ -153,18 +154,34 @@ fdescribe('SetupAccountPage', () => {
     tick(500);
   }));
 
-  it('should emit the correct length validation display value when the password value changes', fakeAsync((done) => {
-    const testCases = [{ input: 'qwert', expectedOutput: false }];
+  // it('should emit the correct length validation display value when the password value changes', fakeAsync((done) => {
+  //   const testCases = [{ input: 'qwert', expectedOutput: false }];
 
-    tick(500);
-    component.fg.controls.password.setValue(testCases[0].input);
+  //   tick(500);
+  //   component.fg.controls.password.setValue(testCases[0].input);
+  //   fixture.whenStable().then(() => {
+  //     component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
+  //       expect(value).toEqual(testCases[0].expectedOutput);
+  //       console.log(`Password: ${testCases[0].input}, Display value: ${value}`);
+  //       done();
+  //     });
+  //   });
+  //   tick(500);
+  // }));
+
+  it('should emit the correct length validation display value when the password value changes', fakeAsync((done) => {
+    const el = fixture.nativeElement.querySelector('.setup-account--password-rules');
+    el.value = 'qwert';
+    el.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
     fixture.whenStable().then(() => {
       component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toEqual(testCases[0].expectedOutput);
-        console.log(`Password: ${testCases[0].input}, Display value: ${value}`);
+        expect(value).toBeFalse();
         done();
       });
     });
+
     tick(500);
   }));
 
