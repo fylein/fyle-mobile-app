@@ -23,6 +23,8 @@ export class FyInputPopoverComponent implements OnInit, AfterViewInit {
 
   @Input() placeholder: string;
 
+  error: string;
+
   constructor(private popoverController: PopoverController) {}
 
   ngOnInit(): void {}
@@ -35,7 +37,24 @@ export class FyInputPopoverComponent implements OnInit, AfterViewInit {
     this.popoverController.dismiss();
   }
 
+  validateInput() {
+    if (this.isRequired) {
+      if (this.inputValue?.length === 0) {
+        this.error = `Please enter a ${this.inputLabel}`;
+      } else if (this.inputType === 'tel' && !this.inputValue.match(/[+]\d{7,}$/)) {
+        this.error = 'Please enter a valid mobile number with country code. e.g. +12025559975';
+      }
+    }
+  }
+
+  onFocus() {
+    this.error = null;
+  }
+
   saveValue() {
-    this.popoverController.dismiss({ newValue: this.inputValue });
+    this.validateInput();
+    if (!this.error?.length) {
+      this.popoverController.dismiss({ newValue: this.inputValue });
+    }
   }
 }
