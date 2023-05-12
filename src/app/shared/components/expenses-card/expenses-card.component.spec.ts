@@ -187,303 +187,41 @@ fdescribe('ExpensesCardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit an event when onGoToTransaction is called', () => {
-    spyOn(component.goToTransaction, 'emit');
-    component.onGoToTransaction();
-    expect(component.goToTransaction.emit).toHaveBeenCalledOnceWith({
-      etxn: component.expense,
-      etxnIndex: component.etxnIndex,
-    });
-  });
-
-  it('should not emit an event when isSelectionModeEnabled is true', () => {
-    component.isSelectionModeEnabled = true;
-    spyOn(component.goToTransaction, 'emit');
-    component.onGoToTransaction();
-    expect(component.goToTransaction.emit).not.toHaveBeenCalledTimes(1);
-  });
-
-  describe('setThumbnail():', () => {
-    it('should set the thumbnail', fakeAsync(() => {
-      const fileObjid = fileObjectData.id;
-      const attachmentType = 'pdf';
-      fileService.downloadUrl.and.returnValue(of('mock-url'));
-      component.setThumbnail(fileObjid, attachmentType);
-      fixture.detectChanges();
-      tick(500);
-      expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
-    }));
-
-    it('should set the receipt thumbnail to download url when the attatchment tyoe is not pdf', fakeAsync(() => {
-      component.receiptIcon = undefined;
-      const fileObjid = fileObjectData.id;
-      const attachmentType = 'png';
-      fileService.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
-      component.setThumbnail(fileObjid, attachmentType);
-      fixture.detectChanges();
-      tick(500);
-      expect(component.receiptThumbnail).toEqual(thumbnailUrlMockData1[0].url);
-      expect(component.receiptIcon).toBeUndefined();
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
-    }));
-  });
-
-  it('matchReceiptWithEtxn(): match the receipt with the transactions', () => {
-    component.matchReceiptWithEtxn(fileObjectData);
-    expect(component.expense.tx_file_ids).toBeDefined();
-    expect(component.expense.tx_file_ids).toContain(fileObjectData.id);
-    expect(fileObjectData.transaction_id).toBe(component.expense.tx_id);
-  });
-
-  describe('attachReceipt(): ', () => {
-    it('should attach the receipt to the thumbnail when receipt is not a pdf', fakeAsync(() => {
-      const dataUrl = '/assets/images/add-to-list.png';
-      const attachmentType = 'png';
-      const receiptDetailsaRes = {
-        dataUrl,
-        type: 'image/png',
-        actionSource: 'upload',
-      };
-      const fileObj: FileObject = {
-        name: '000.jpeg',
-        receipt_coordinates: {
-          x: 100,
-          y: 200,
-          width: 300,
-          height: 400,
-        },
-        id: 'fiHPZUiichAS',
-        purpose: '',
-      };
-
-      fileService.getAttachmentType.and.returnValue(attachmentType);
-      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
-      fileService.post.and.returnValue(of(fileObjectData));
-
-      spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
-      spyOn(component, 'setThumbnail').and.callThrough();
-
-      component.attachReceipt(receiptDetailsaRes);
-      tick(500);
-      expect(component.inlineReceiptDataUrl).toBe(dataUrl);
-      expect(fileService.getAttachmentType).toHaveBeenCalledOnceWith(receiptDetailsaRes.type);
-      expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
-      expect(component.matchReceiptWithEtxn).toHaveBeenCalledOnceWith(fileObj);
-      expect(fileService.post).toHaveBeenCalledOnceWith(fileObj);
-      expect(component.setThumbnail).toHaveBeenCalledOnceWith(fileObjectData.id, attachmentType);
-      expect(component.attachmentUploadInProgress).toBeFalse();
-      tick(500);
-    }));
-  });
-
-  it('should emit the dismissed event with the expense object when called', () => {
-    const emitSpy = spyOn(component.dismissed, 'emit');
-
-    const event = {
-      stopPropagation: jasmine.createSpy('stopPropagation'),
-      preventDefault: jasmine.createSpy('preventDefault'),
-    };
-
-    component.dismiss(event);
-    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
-    expect(event.preventDefault).toHaveBeenCalledTimes(1);
-    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
-  });
-
-  it('onSetMultiselectMode(): should emit the multiselect mode event if the selection mode is enabled', () => {
-    const emitSpy = spyOn(component.setMultiselectMode, 'emit');
-    component.isSelectionModeEnabled = false;
-    component.onSetMultiselectMode();
-    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
-  });
-
-  it('onTapTransaction(): should emit the selected card card click event when the selection mode is enabled ', () => {
-    const emitSpy = spyOn(component.cardClickedForSelection, 'emit');
-    component.isSelectionModeEnabled = true;
-    component.onTapTransaction();
-    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
-  });
-
-  describe('canAddAttchment():', () => {
-    it('should return true when none of the conditions are met', () => {
-      component.isFromViewReports = false;
-      component.isMileageExpense = false;
-      component.expense.tx_file_ids = null;
-      component.isFromPotentialDuplicates = false;
-      component.isSelectionModeEnabled = false;
-      const result = component.canAddAttachment();
-      expect(result).toBeTrue();
-    });
-
-    it('should return false when isFromViewReports is true', () => {
-      component.isFromViewReports = true;
-      component.isMileageExpense = false;
-      component.expense.tx_file_ids = null;
-      component.isFromPotentialDuplicates = false;
-      component.isSelectionModeEnabled = false;
-      const result = component.canAddAttachment();
-      expect(result).toBeFalse();
-    });
-  });
-
-  describe('checkIfScanIsCompleted():', () => {
-    it('should check of scan is complete and return true if the transaction amount is present and if the user has manually entered the data', () => {
+  describe('isSelected getter', () => {
+    it('should return true if the expense is selected', () => {
+      component.selectedElements = apiExpenseRes;
       component.expense = {
         ...expenseData1,
-        tx_amount: 100,
-        tx_extracted_data: {
-          amount: 84.12,
-          currency: 'USD',
-          category: 'Professional Services',
-          date: null,
-          vendor: null,
-          invoice_dt: null,
-        },
+        tx_id: 'tx3nHShG60zq',
       };
-      const result = component.checkIfScanIsCompleted();
-      fixture.detectChanges();
-      expect(result).toBe(true);
+      expect(component.isSelected).toBe(true);
     });
 
-    it('should check of scan is complete and return true if the transaction user amount is present and if the user has manually entered the data', () => {
+    it('should return false if the expense is not selected', () => {
+      component.selectedElements = apiExpenseRes;
       component.expense = {
         ...expenseData1,
-        tx_amount: null,
-        tx_extracted_data: {
-          amount: 84.12,
-          currency: 'USD',
-          category: 'Professional Services',
-          date: null,
-          vendor: null,
-          invoice_dt: null,
-        },
+        tx_id: null,
       };
-      const result = component.checkIfScanIsCompleted();
-      fixture.detectChanges();
-      expect(result).toBe(true);
-    });
-
-    it('should check of scan is complete and return true if the required extracted data is present', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_amount: null,
-        tx_user_amount: null,
-        tx_extracted_data: {
-          amount: 84.12,
-          currency: 'USD',
-          category: 'Professional Services',
-          date: null,
-          vendor: null,
-          invoice_dt: null,
-        },
-      };
-      const result = component.checkIfScanIsCompleted();
-      fixture.detectChanges();
-      expect(result).toBe(true);
-    });
-
-    it('should check of scan is complete and return true if the scan has expired', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_amount: null,
-        tx_user_amount: null,
-        tx_extracted_data: {
-          amount: null,
-          currency: 'USD',
-          category: 'Professional Services',
-          date: null,
-          vendor: null,
-          invoice_dt: null,
-        },
-      };
-      const result = component.checkIfScanIsCompleted();
-      fixture.detectChanges();
-      expect(result).toBe(true);
-    });
-
-    it('should return true if the scan has expired', () => {
-      const twoDaysAgo = dayjs().subtract(2, 'day').toDate();
-      component.expense = {
-        ...expenseData1,
-        tx_created_at: twoDaysAgo,
-      };
-
-      const threeDaysAfter = dayjs(twoDaysAgo).add(3, 'day').toDate();
-      jasmine.clock().mockDate(threeDaysAfter);
-
-      const result = component.checkIfScanIsCompleted();
-      expect(result).toBe(true);
+      expect(component.isSelected).toBe(false);
     });
   });
 
-  describe('pollDataExtractionStatus():', () => {
-    it('should call the callback when data extraction is not pending', fakeAsync(() => {
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
-      const callbackSpy = jasmine.createSpy('callback');
-      component.pollDataExtractionStatus(callbackSpy);
-      tick(5000);
-      expect(callbackSpy).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should keep polling when data extraction is pending', fakeAsync(() => {
-      const callbackSpy = jasmine.createSpy('callback');
-
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
-
-      component.pollDataExtractionStatus(callbackSpy);
-      tick(1000); // wait for the initial setTimeout call
-
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(1);
-      expect(callbackSpy).not.toHaveBeenCalledTimes(1);
-
-      // simulate data extraction not pending
-      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
-      tick(5000); // wait for the next setTimeout call
-
-      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(2);
-      expect(callbackSpy).toHaveBeenCalledTimes(1);
-    }));
-  });
-
-  describe('setOtherData():', () => {
-    it('should set icon to fy-matched if the source account type is corporate credit card', () => {
-      component.expense = {
-        ...expenseData1,
-        source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-        tx_corporate_credit_card_expense_group_id: 'cccet1B17R8gWZ',
-      };
-
-      component.setOtherData();
-      fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-matched');
+  describe('onGoToTransaction():', () => {
+    it('should emit an event when onGoToTransaction is called', () => {
+      spyOn(component.goToTransaction, 'emit');
+      component.onGoToTransaction();
+      expect(component.goToTransaction.emit).toHaveBeenCalledOnceWith({
+        etxn: component.expense,
+        etxnIndex: component.etxnIndex,
+      });
     });
 
-    it('should set icon to fy-unmatched if the source account type is corporate credit card but expense group id is not present', () => {
-      component.expense = {
-        ...expenseData1,
-        source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-      };
-
-      component.setOtherData();
-      fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-unmatched');
-    });
-
-    it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {
-      component.setOtherData();
-      fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
-    });
-
-    it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_skip_reimbursement: true,
-      };
-      component.setOtherData();
-      fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+    it('should not emit an event when isSelectionModeEnabled is true', () => {
+      component.isSelectionModeEnabled = true;
+      spyOn(component.goToTransaction, 'emit');
+      component.onGoToTransaction();
+      expect(component.goToTransaction.emit).not.toHaveBeenCalledTimes(1);
     });
   });
 
@@ -594,6 +332,94 @@ fdescribe('ExpensesCardComponent', () => {
     });
   });
 
+  describe('checkIfScanIsCompleted():', () => {
+    it('should check if scan is complete and return true if the transaction amount is not null and no other data is present', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: 100,
+        tx_user_amount: null,
+        tx_extracted_data: null,
+      };
+      const result = component.checkIfScanIsCompleted();
+      fixture.detectChanges();
+      expect(result).toBe(true);
+    });
+
+    it('should check if scan is complete and return true if the transaction user amount is present and no extracted data is available', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: null,
+        tx_user_amount: 7500,
+        tx_extracted_data: null,
+      };
+      const result = component.checkIfScanIsCompleted();
+      fixture.detectChanges();
+      expect(result).toBe(true);
+    });
+
+    it('should check if scan is complete and return true if the required extracted data is present', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: null,
+        tx_user_amount: null,
+        tx_extracted_data: {
+          amount: 84.12,
+          currency: 'USD',
+          category: 'Professional Services',
+          date: null,
+          vendor: null,
+          invoice_dt: null,
+        },
+      };
+      const result = component.checkIfScanIsCompleted();
+      fixture.detectChanges();
+      expect(result).toBe(true);
+    });
+
+    it('should return true if the scan has expired', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: null,
+        tx_user_amount: null,
+        tx_extracted_data: null,
+      };
+      const oneDaysAfter = dayjs(component.expense.tx_created_at).add(1, 'day').toDate();
+      jasmine.clock().mockDate(oneDaysAfter);
+
+      const result = component.checkIfScanIsCompleted();
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('pollDataExtractionStatus():', () => {
+    it('should call the callback when data extraction is not pending', fakeAsync(() => {
+      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
+      const callbackSpy = jasmine.createSpy('callback');
+      component.pollDataExtractionStatus(callbackSpy);
+      tick(5000);
+      expect(callbackSpy).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should keep polling when data extraction is pending', fakeAsync(() => {
+      const callbackSpy = jasmine.createSpy('callback');
+
+      transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
+
+      component.pollDataExtractionStatus(callbackSpy);
+      tick(1000); // wait for the initial setTimeout call
+
+      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(1);
+      expect(callbackSpy).not.toHaveBeenCalledTimes(1);
+
+      // simulate data extraction not pending
+      transactionsOutboxService.isDataExtractionPending.and.returnValue(false);
+      tick(5000); // wait for the next setTimeout call
+
+      expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledTimes(2);
+      expect(callbackSpy).toHaveBeenCalledTimes(1);
+    }));
+  });
+
   describe('handleScanStatus():', () => {
     it('should handle status when the syncing is in progress and the extracted adata is present', fakeAsync(() => {
       component.isOutboxExpense = false;
@@ -696,6 +522,215 @@ fdescribe('ExpensesCardComponent', () => {
     }));
   });
 
+  describe('onInit', () => {
+    it('should set ProjectEnabled to true if the  projects are allowed and enabled and get the home currency', (done) => {
+      currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
+      component.isProjectEnabled$.subscribe((isEnabled) => {
+        expect(isEnabled).toBeTrue();
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        done();
+      });
+      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set showDt to isFirstOfflineExpense when tx_id is falsy', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: null,
+      };
+      component.isFirstOfflineExpense = true;
+      component.ngOnInit();
+      expect(component.showDt).toBe(true);
+    });
+
+    it('should set showDt based on date comparison when previousExpenseTxnDate is truthy', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: 'tx12341',
+        tx_txn_dt: null,
+      };
+      component.previousExpenseTxnDate = new Date('2023-01-28T17:00:00');
+      component.previousExpenseCreatedAt = null;
+
+      component.ngOnInit();
+
+      expect(component.showDt).toBe(true);
+    });
+
+    it('should set showDt based on date comparison when previousExpenseCreatedAt is truthy', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: 'tx12341',
+      };
+      component.previousExpenseTxnDate = null;
+      component.previousExpenseCreatedAt = new Date('2023-01-29T07:29:02.966116');
+
+      component.ngOnInit();
+      expect(component.showDt).toBe(true);
+    });
+
+    it('should set isMileageExpense to true of the fyle category is mileage', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: 'tx12341',
+        tx_txn_dt: null,
+        tx_fyle_category: 'mileage',
+      };
+      component.ngOnInit();
+      expect(component.isMileageExpense).toBe(true);
+    });
+
+    it('should set isPerDiem to true if the fyle category is per diem', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_id: 'tx12341',
+        tx_txn_dt: null,
+        tx_fyle_category: 'per diem',
+      };
+      component.ngOnInit();
+      expect(component.isPerDiem).toBe(true);
+    });
+
+    it('should call other methods', fakeAsync(() => {
+      component.isIos = true;
+      spyOn(component, 'canShowPaymentModeIcon');
+      spyOn(component, 'getReceipt');
+      spyOn(component, 'handleScanStatus');
+      spyOn(component, 'setOtherData');
+      component.ngOnInit();
+      tick(500);
+      expect(component.canShowPaymentModeIcon).toHaveBeenCalledTimes(1);
+      expect(component.getReceipt).toHaveBeenCalledTimes(1);
+      expect(component.handleScanStatus).toHaveBeenCalledTimes(1);
+      expect(component.setOtherData).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('setOtherData():', () => {
+    it('should set icon to fy-matched if the source account type is corporate credit card', () => {
+      component.expense = {
+        ...expenseData1,
+        source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+        tx_corporate_credit_card_expense_group_id: 'cccet1B17R8gWZ',
+      };
+
+      component.setOtherData();
+      fixture.detectChanges();
+      expect(component.paymentModeIcon).toEqual('fy-matched');
+    });
+
+    it('should set icon to fy-unmatched if the source account type is corporate credit card but expense group id is not present', () => {
+      component.expense = {
+        ...expenseData1,
+        source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      };
+
+      component.setOtherData();
+      fixture.detectChanges();
+      expect(component.paymentModeIcon).toEqual('fy-unmatched');
+    });
+
+    it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {
+      component.setOtherData();
+      fixture.detectChanges();
+      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+    });
+
+    it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_skip_reimbursement: true,
+      };
+      component.setOtherData();
+      fixture.detectChanges();
+      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+    });
+  });
+
+  it('onSetMultiselectMode(): should emit the multiselect mode event if the selection mode is enabled', () => {
+    const emitSpy = spyOn(component.setMultiselectMode, 'emit');
+    component.isSelectionModeEnabled = false;
+    component.onSetMultiselectMode();
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+  });
+
+  it('onTapTransaction(): should emit the selected card card click event when the selection mode is enabled ', () => {
+    const emitSpy = spyOn(component.cardClickedForSelection, 'emit');
+    component.isSelectionModeEnabled = true;
+    component.onTapTransaction();
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+  });
+
+  it('matchReceiptWithEtxn(): match the receipt with the transactions', () => {
+    component.matchReceiptWithEtxn(fileObjectData);
+    expect(component.expense.tx_file_ids).toBeDefined();
+    expect(component.expense.tx_file_ids).toContain(fileObjectData.id);
+    expect(fileObjectData.transaction_id).toBe(component.expense.tx_id);
+  });
+
+  describe('canAddAttchment():', () => {
+    it('should return true when none of the conditions are met', () => {
+      component.isFromViewReports = false;
+      component.isMileageExpense = false;
+      component.expense.tx_file_ids = null;
+      component.isFromPotentialDuplicates = false;
+      component.isSelectionModeEnabled = false;
+      const result = component.canAddAttachment();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false when isFromViewReports is true', () => {
+      component.isFromViewReports = true;
+      component.isMileageExpense = false;
+      component.expense.tx_file_ids = null;
+      component.isFromPotentialDuplicates = false;
+      component.isSelectionModeEnabled = false;
+      const result = component.canAddAttachment();
+      expect(result).toBeFalse();
+    });
+  });
+
+  describe('attachReceipt(): ', () => {
+    it('should attach the receipt to the thumbnail when receipt is not a pdf', fakeAsync(() => {
+      const dataUrl = '/assets/images/add-to-list.png';
+      const attachmentType = 'png';
+      const receiptDetailsaRes = {
+        dataUrl,
+        type: 'image/png',
+        actionSource: 'upload',
+      };
+      const fileObj: FileObject = {
+        name: '000.jpeg',
+        receipt_coordinates: {
+          x: 100,
+          y: 200,
+          width: 300,
+          height: 400,
+        },
+        id: 'fiHPZUiichAS',
+        purpose: '',
+      };
+
+      fileService.getAttachmentType.and.returnValue(attachmentType);
+      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+      fileService.post.and.returnValue(of(fileObjectData));
+
+      spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
+      spyOn(component, 'setThumbnail').and.callThrough();
+
+      component.attachReceipt(receiptDetailsaRes);
+      tick(500);
+      expect(component.inlineReceiptDataUrl).toBe(dataUrl);
+      expect(fileService.getAttachmentType).toHaveBeenCalledOnceWith(receiptDetailsaRes.type);
+      expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+      expect(component.matchReceiptWithEtxn).toHaveBeenCalledOnceWith(fileObj);
+      expect(fileService.post).toHaveBeenCalledOnceWith(fileObj);
+      expect(component.setThumbnail).toHaveBeenCalledOnceWith(fileObjectData.id, attachmentType);
+      expect(component.attachmentUploadInProgress).toBeFalse();
+      tick(500);
+    }));
+  });
+
   it('onFileUpload(): should add attachment when file is selected', fakeAsync(() => {
     const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
     const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
@@ -719,47 +754,56 @@ fdescribe('ExpensesCardComponent', () => {
   }));
 
   describe('addAttachments():', () => {
-    // it('should call onFileUpload method on iOS when file input is clicked', fakeAsync(() => {
-    //   const event = {
-    //     stopPropagation: jasmine.createSpy('stopPropagation'),
-    //   };
-    //   component.isIos = true;
-
-    //   const dummyNativeElement = document.createElement('input');
-
-    //   component.fileUpload = {
-    //     nativeElement: dummyNativeElement,
-    //   };
-
-    //   const nativeElement1 = component.fileUpload.nativeElement as HTMLInputElement;
-    //   spyOn(component, 'onFileUpload').and.stub();
-    //   spyOn(nativeElement1, 'click').and.callThrough();
-
-    //   component.addAttachments(event);
-    //   fixture.detectChanges();
-    //   tick(500);
-    //   nativeElement1.dispatchEvent(new Event('change'));
-    //   expect(component.onFileUpload).toHaveBeenCalledOnceWith(dummyNativeElement);
-    //   tick(500);
-    //   nativeElement1.dispatchEvent(new Event('click'));
-    //   expect(nativeElement1.click).toHaveBeenCalledTimes(1);
-    // }));
-
     it('should call onFileUpload method on iOS when file input is clicked', fakeAsync(() => {
       const event = {
         stopPropagation: jasmine.createSpy('stopPropagation'),
       };
       component.isIos = true;
+
+      const dummyNativeElement = document.createElement('input');
+
+      component.fileUpload = {
+        nativeElement: dummyNativeElement,
+      };
+
+      const nativeElement1 = component.fileUpload.nativeElement as HTMLInputElement;
       spyOn(component, 'onFileUpload').and.stub();
-      const inputElement = componentElement.query(By.css('.expenses-card--receipt-container'));
+      spyOn(nativeElement1, 'click').and.callThrough();
+
       component.addAttachments(event);
-      tick(500);
       fixture.detectChanges();
-      inputElement.nativeElement.dispatchEvent(new Event('change'));
       tick(500);
-      expect(component.onFileUpload).toHaveBeenCalledOnceWith(inputElement.nativeElement);
-      inputElement.nativeElement.dispatchEvent(new Event('click'));
+      nativeElement1.dispatchEvent(new Event('change'));
+      expect(component.onFileUpload).toHaveBeenCalledOnceWith(dummyNativeElement);
+      tick(500);
+      nativeElement1.dispatchEvent(new Event('click'));
+      expect(nativeElement1.click).toHaveBeenCalledTimes(1);
     }));
+
+    // it('should call onFileUpload method on iOS when file input is clicked', fakeAsync(() => {
+    //   spyOn(component, 'onFileUpload').and.returnValue(Promise.resolve());
+    //   const event = {
+    //     stopPropagation: jasmine.createSpy('stopPropagation')
+    //   };
+    //   component.receiptThumbnail = null;
+    //   component.attachmentUploadInProgress = false;
+    //   component.isIos = true;
+    //   component.isOutboxExpense = false;
+    //   fixture.detectChanges();
+
+    //   //(component, 'onFileUpload').and.stub();py
+    //   const inputElement = componentElement.query(By.css('#ios-file-upload'));
+    //   console.log('inoutEle => '+inputElement);
+    //   component.fileUpload =  inputElement;
+    //   fixture.detectChanges();
+    //   component.addAttachments(event);
+    //   tick(500);
+    //   inputElement.nativeElement.dispatchEvent(new Event('change'));
+
+    //   expect(component.onFileUpload).toHaveBeenCalledOnceWith(inputElement.nativeElement);
+    //   //inputElement.nativeElement.dispatchEvent(new Event('click'));
+    //   tick(5000);
+    // }));
 
     it('when device not an Ios it should open the camera popover', fakeAsync(() => {
       const event = {
@@ -851,6 +895,32 @@ fdescribe('ExpensesCardComponent', () => {
     }));
   });
 
+  describe('setThumbnail():', () => {
+    it('should set the thumbnail', fakeAsync(() => {
+      const fileObjid = fileObjectData.id;
+      const attachmentType = 'pdf';
+      fileService.downloadUrl.and.returnValue(of('mock-url'));
+      component.setThumbnail(fileObjid, attachmentType);
+      fixture.detectChanges();
+      tick(500);
+      expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
+      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
+    }));
+
+    it('should set the receipt thumbnail to download url when the attatchment tyoe is not pdf', fakeAsync(() => {
+      component.receiptIcon = undefined;
+      const fileObjid = fileObjectData.id;
+      const attachmentType = 'png';
+      fileService.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
+      component.setThumbnail(fileObjid, attachmentType);
+      fixture.detectChanges();
+      tick(500);
+      expect(component.receiptThumbnail).toEqual(thumbnailUrlMockData1[0].url);
+      expect(component.receiptIcon).toBeUndefined();
+      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
+    }));
+  });
+
   it('setupNetworkWatcher(): should setup the network watcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
     const eventEmitterMock = new EventEmitter<boolean>();
@@ -862,107 +932,17 @@ fdescribe('ExpensesCardComponent', () => {
     });
   }));
 
-  describe('onInit', () => {
-    it('should set ProjectEnabled to true if the  projects are allowed and enabled and get the home currency', (done) => {
-      currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
-      component.isProjectEnabled$.subscribe((isEnabled) => {
-        expect(isEnabled).toBeTrue();
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        done();
-      });
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-    });
+  it('dismiss(): hould emit the dismissed event with the expense object when called', () => {
+    const emitSpy = spyOn(component.dismissed, 'emit');
 
-    it('should set showDt to isFirstOfflineExpense when tx_id is falsy', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_id: null,
-      };
-      component.isFirstOfflineExpense = true;
-      component.ngOnInit();
-      expect(component.showDt).toBe(true);
-    });
+    const event = {
+      stopPropagation: jasmine.createSpy('stopPropagation'),
+      preventDefault: jasmine.createSpy('preventDefault'),
+    };
 
-    it('should set showDt based on date comparison when previousExpenseTxnDate is truthy', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_id: 'tx12341',
-        tx_txn_dt: null,
-      };
-      component.previousExpenseTxnDate = new Date('2023-01-28T17:00:00');
-      component.previousExpenseCreatedAt = null;
-
-      component.ngOnInit();
-
-      expect(component.showDt).toBe(true);
-    });
-
-    it('should set showDt based on date comparison when previousExpenseCreatedAt is truthy', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_id: 'tx12341',
-      };
-      component.previousExpenseTxnDate = null;
-      component.previousExpenseCreatedAt = new Date('2023-01-29T07:29:02.966116');
-
-      component.ngOnInit();
-      expect(component.showDt).toBe(true);
-    });
-
-    it('should set isMileageExpense to true of the fyle category is mileage', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_id: 'tx12341',
-        tx_txn_dt: null,
-        tx_fyle_category: 'mileage',
-      };
-      component.ngOnInit();
-      expect(component.isMileageExpense).toBe(true);
-    });
-
-    it('should set isPerDiem to true if the fyle category is per diem', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_id: 'tx12341',
-        tx_txn_dt: null,
-        tx_fyle_category: 'per diem',
-      };
-      component.ngOnInit();
-      expect(component.isPerDiem).toBe(true);
-    });
-
-    it('should call other methods', fakeAsync(() => {
-      component.isIos = true;
-      spyOn(component, 'canShowPaymentModeIcon');
-      spyOn(component, 'getReceipt');
-      spyOn(component, 'handleScanStatus');
-      spyOn(component, 'setOtherData');
-      component.ngOnInit();
-      tick(500);
-      expect(component.canShowPaymentModeIcon).toHaveBeenCalledTimes(1);
-      expect(component.getReceipt).toHaveBeenCalledTimes(1);
-      expect(component.handleScanStatus).toHaveBeenCalledTimes(1);
-      expect(component.setOtherData).toHaveBeenCalledTimes(1);
-    }));
-  });
-
-  describe('isSelected getter', () => {
-    it('should return true if the expense is selected', () => {
-      component.selectedElements = apiExpenseRes;
-      component.expense = {
-        ...expenseData1,
-        tx_id: 'tx3nHShG60zq',
-      };
-      expect(component.isSelected).toBe(true);
-    });
-
-    it('should return false if the expense is not selected', () => {
-      component.selectedElements = apiExpenseRes;
-      component.expense = {
-        ...expenseData1,
-        tx_id: null,
-      };
-      expect(component.isSelected).toBe(false);
-    });
+    component.dismiss(event);
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
   });
 });
