@@ -183,7 +183,7 @@ fdescribe('SignInPage', () => {
       idp_url: 'url',
     });
 
-    flush();
+    tick();
 
     expect(inAppBrowserService.create).toHaveBeenCalledOnceWith('url' + '&RelayState=MOBILE', '_blank', 'location=yes');
   }));
