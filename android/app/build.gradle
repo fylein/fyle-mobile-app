@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
@@ -12,13 +18,19 @@ android {
     }
 
     signingConfigs {
-      production {
-        storeFile file('release-keystore.jks')
-        storePassword '123456'
-        keyAlias 'my-release-key'
-        keyPassword '123456'
-        enableV3Signing true
-      }
+    file(rootProject.file('key.properties')).with { propFile ->
+        if (propFile.canRead()) {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+        else {
+            print('not signed')
+        }
+    }
     }
 
     buildTypes {
@@ -28,7 +40,15 @@ android {
           proguardFiles getDefaultProguardFile(
           'proguard-android-optimize.txt'),
           'proguard-rules.pro'
-          signingConfig signingConfigs.production
+           file(rootProject.file('key.properties')).with { propFile ->
+              if (propFile.canRead()) {
+                // because we can read the keystore
+                // we are building locally
+                // so sign locally
+                // otherwise build an unsigned apk for later signing by the CI/CD provider
+                signingConfig signingConfigs.release
+              }
+           }
         }
     }
 }
