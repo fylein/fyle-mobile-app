@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import { ClipboardService } from 'src/app/core/services/clipboard.service';
 
 interface ListItems {
   icon: string;
@@ -21,7 +22,7 @@ export class PopupWithBulletsComponent implements OnInit {
 
   @Input() ctaText: string;
 
-  constructor(private popoverController: PopoverController) {}
+  constructor(private popoverController: PopoverController, private clipboardService: ClipboardService) {}
 
   ngOnInit() {}
 
@@ -30,7 +31,7 @@ export class PopupWithBulletsComponent implements OnInit {
   }
 
   async copyToClipboard(textToCopy: string) {
-    await navigator.clipboard.writeText(textToCopy);
+    this.clipboardService.writeString(textToCopy);
     //TODO: Add a toast message once design is ready
   }
 }
