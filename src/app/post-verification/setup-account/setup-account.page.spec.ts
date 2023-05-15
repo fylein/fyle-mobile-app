@@ -12,7 +12,7 @@ import { SetupAccountPage } from './setup-account.page';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { RouterTestingModule } from '@angular/router/testing';
-import { first, of, take } from 'rxjs';
+import { first, of, take, toArray } from 'rxjs';
 import { apiEouRes, eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
@@ -167,6 +167,34 @@ fdescribe('SetupAccountPage', () => {
   //     });
   //   });
   //   tick(500);
+  // }));
+
+  // it('should emit the correct length validation display value when the password value changes', fakeAsync(() => {
+  //   const testCases = [
+  //     { input: 'qwerty', expectedOutput: false },
+  //     { input: 'abc12345678', expectedOutput: true },
+  //     { input: 'john.doe@fyle.in', expectedOutput: true },
+  //     { input: 'abc1234567890abc1234567890werewrttrterterterterterrtrttweqeqew', expectedOutput: false }
+  //   ];
+
+  //   fixture.detectChanges();
+  //   tick(500);
+  //   const actualOutputs: boolean[] = [];
+
+  //   testCases.forEach((testCase) => {
+  //     component.fg.controls.password.setValue(testCase.input);
+  //     component.lengthValidationDisplay$.subscribe((actualOutput) => {
+  //       actualOutputs.push(actualOutput);
+  //       expect(actualOutput).toEqual(testCase.expectedOutput);
+  //       console.log(
+  //         `Input: ${testCase.input}; Actual output: ${actualOutput}; Expected output: ${testCase.expectedOutput}`
+  //       );
+  //     });
+  //     tick(500);
+  //   });
+
+  //   const expectedOutputs = testCases.map((testCase) => testCase.expectedOutput);
+  //   expect(actualOutputs).toEqual(expectedOutputs);
   // }));
 
   it('should emit the correct length validation display value when the password value changes', fakeAsync((done) => {
