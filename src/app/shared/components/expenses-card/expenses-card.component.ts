@@ -236,37 +236,37 @@ export class ExpensesCardComponent implements OnInit {
     that.isScanInProgress = false;
     that.isScanCompleted = false;
 
-    if (!that.isOutboxExpense) {
-      that.orgUserSettingsService.get().subscribe((orgUserSettings) => {
-        if (
-          orgUserSettings.insta_fyle_settings.allowed &&
-          orgUserSettings.insta_fyle_settings.enabled &&
-          (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
-        ) {
-          that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress =
-            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
-          if (that.isScanInProgress) {
-            that.pollDataExtractionStatus(function () {
-              that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
-                const extractedData = etxn.tx.extracted_data;
-                if (extractedData?.amount && extractedData?.currency) {
-                  that.isScanCompleted = true;
-                  that.isScanInProgress = false;
-                  that.expense.tx_extracted_data = extractedData;
-                } else {
-                  that.isScanInProgress = false;
-                  that.isScanCompleted = false;
-                }
-              });
-            });
-          }
-        } else {
-          that.isScanCompleted = true;
-          that.isScanInProgress = false;
-        }
-      });
-    }
+    // if (!that.isOutboxExpense) {
+    //   that.orgUserSettingsService.get().subscribe((orgUserSettings) => {
+    //     if (
+    //       orgUserSettings.insta_fyle_settings.allowed &&
+    //       orgUserSettings.insta_fyle_settings.enabled &&
+    //       (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
+    //     ) {
+    //       that.isScanCompleted = that.checkIfScanIsCompleted();
+    //       that.isScanInProgress =
+    //         !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+    //       if (that.isScanInProgress) {
+    //         that.pollDataExtractionStatus(function () {
+    //           that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
+    //             const extractedData = etxn.tx.extracted_data;
+    //             if (extractedData?.amount && extractedData?.currency) {
+    //               that.isScanCompleted = true;
+    //               that.isScanInProgress = false;
+    //               that.expense.tx_extracted_data = extractedData;
+    //             } else {
+    //               that.isScanInProgress = false;
+    //               that.isScanCompleted = false;
+    //             }
+    //           });
+    //         });
+    //       }
+    //     } else {
+    //       that.isScanCompleted = true;
+    //       that.isScanInProgress = false;
+    //     }
+    //   });
+    // }
   }
 
   canShowPaymentModeIcon() {

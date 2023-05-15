@@ -174,28 +174,17 @@ fdescribe('ExpensesCardComponent', () => {
     Object.freeze(expenseData1);
 
     component.receiptIcon = 'assets/svg/pdf.svg';
-    component.isOutboxExpense = true;
+    // component.isOutboxExpense = true;
     component.selectedElements = apiExpenseRes;
     component.expense = cloneDeep(expenseData1);
     component.isConnected$ = of(true);
     component.isSycing$ = of(true);
     component.isPerDiem = true;
-    component.receiptThumbnail = 'assets/svg/pdf.svg';
+    // component.receiptThumbnail = 'assets/svg/pdf.svg';
     component.isSelectionModeEnabled = false;
     component.etxnIndex = 1;
     componentElement = fixture.debugElement;
 
-    fixture.detectChanges();
-
-    component.receiptThumbnail = null;
-    component.attachmentUploadInProgress = false;
-    component.isIos = true;
-    component.isOutboxExpense = false;
-    fixture.detectChanges();
-
-    const inputElement = componentElement.query(By.css('#ios-file-upload'));
-    console.log('inoutEle => ', inputElement.nativeElement);
-    component.fileUpload = inputElement;
     fixture.detectChanges();
   }));
 
@@ -835,6 +824,18 @@ fdescribe('ExpensesCardComponent', () => {
         stopPropagation: jasmine.createSpy('stopPropagation'),
       };
       spyOn(component, 'canAddAttachment').and.returnValue(true);
+
+      component.receiptThumbnail = null;
+      component.attachmentUploadInProgress = false;
+      component.isIos = true;
+      component.isOutboxExpense = false;
+      fixture.detectChanges();
+
+      const inputElement = componentElement.query(By.css('#ios-file-upload'));
+      console.log('inoutEle => ', inputElement.nativeElement);
+      component.fileUpload = inputElement;
+      fixture.detectChanges();
+
       component.addAttachments(event);
 
       console.log('component.fileUpload', component.fileUpload);
