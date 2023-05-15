@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -16,8 +16,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { SwitchOrgPage } from './switch-org.page';
-import { ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
+import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { Platform, PopoverController } from '@ionic/angular';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,12 +26,18 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { finalize, of } from 'rxjs';
-import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { Observable, finalize, of, throwError } from 'rxjs';
+import { orgData1, orgData2 } from 'src/app/core/mock-data/org.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { authResData1 } from '../../core/mock-data/auth-reponse.data';
+import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
+import { By } from '@angular/platform-browser';
+import * as Sentry from '@sentry/angular';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
+const email = 'ajain@fyle.in';
+const org_id = 'orNVthTo2Zyo';
 
 fdescribe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
@@ -103,15 +109,16 @@ fdescribe('SwitchOrgPage', () => {
         ReactiveFormsModule,
       ],
       providers: [
+        UrlSerializer,
         ChangeDetectorRef,
         {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
               params: {
-                navigate_back: '',
-                choose: '',
-                invite_link: '',
+                navigate_back: false,
+                choose: JSON.stringify(true),
+                invite_link: JSON.stringify(true),
               },
             },
           },
@@ -189,6 +196,7 @@ fdescribe('SwitchOrgPage', () => {
           useValue: routerAuthServiceSpy,
         },
       ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(SwitchOrgPage);
     component = fixture.componentInstance;
@@ -217,6 +225,10 @@ fdescribe('SwitchOrgPage', () => {
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
 
+    component.searchRef = fixture.debugElement.query(By.css("[data-testid='search-bar']"));
+    component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
+    component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
+
     fixture.detectChanges();
   }));
 
@@ -224,10 +236,33 @@ fdescribe('SwitchOrgPage', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('ionViewWillEnter', () => {});
+  it('ionViewWillEnter(): show orgs and setup search bar', () => {
+    orgService.getOrgs.and.returnValue(of(orgData1));
+    spyOn(component, 'proceed');
+    spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    component.searchOrgsInput.nativeElement.value = 'Staging Loaded';
+    component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
 
-  xit('setSentryUser(): should set sentry user', () => {
+    component.ionViewWillEnter();
+    component.filteredOrgs$.subscribe((res) => {
+      expect(res).toEqual(orgData1);
+    });
+    expect(orgService.getOrgs).toHaveBeenCalledTimes(1);
+    expect(component.orgs).toEqual(orgData1);
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledTimes(1);
+  });
+
+  it('setSentryUser(): should set sentry user', () => {
+    const spy = jasmine.createSpyObj('Sentry', {
+      setUser: {},
+    });
     component.setSentryUser(apiEouRes);
+
+    // expect(spy.setUser).toHaveBeenCalledTimes(1);
   });
 
   it('resendInvite(): should resend invite to an org', (done) => {
@@ -235,8 +270,6 @@ fdescribe('SwitchOrgPage', () => {
       cluster_domain: 'app_fyle',
     };
     routerAuthService.resendVerificationLink.and.returnValue(of(response));
-    const email = 'ajain@fyle.in';
-    const org_id = 'orNVthTo2Zyo';
 
     component.resendInvite(email, org_id).subscribe((res) => {
       expect(res).toEqual(response);
@@ -273,7 +306,35 @@ fdescribe('SwitchOrgPage', () => {
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: msg });
   });
 
-  xit('handleDismissPopup', () => {});
+  describe('handleDismissPopup(): ', () => {
+    it('should dismiss popup', () => {
+      spyOn(component, 'resendInvite').and.returnValue(of({ cluster_domain: authResData1.cluster_domain }));
+      spyOn(component, 'showToastNotification');
+      spyOn(component, 'logoutIfSingleOrg');
+
+      component.handleDismissPopup('resend', email, org_id, orgData1);
+      expect(component.resendInvite).toHaveBeenCalledOnceWith(email, org_id);
+      expect(component.logoutIfSingleOrg).toHaveBeenCalledOnceWith(orgData1);
+      expect(component.showToastNotification).toHaveBeenCalledOnceWith('Verification Email Sent');
+    });
+
+    it('should logout if action is cancel', () => {
+      spyOn(component, 'logoutIfSingleOrg');
+
+      component.handleDismissPopup('', email, org_id, orgData1);
+      expect(component.logoutIfSingleOrg).toHaveBeenCalledOnceWith(orgData1);
+    });
+
+    it('show error notification', () => {
+      spyOn(component, 'resendInvite').and.returnValue(throwError(() => true));
+      spyOn(component, 'showToastNotification');
+
+      component.handleDismissPopup('resend', email, org_id, orgData1);
+      expect(component.showToastNotification).toHaveBeenCalledOnceWith(
+        'Verification link could not be sent. Please try again!'
+      );
+    });
+  });
 
   it('showEmailNotVerifiedAlert(): should show email not verified alert', async () => {
     spyOn(component, 'handleDismissPopup').and.stub();
@@ -449,21 +510,144 @@ fdescribe('SwitchOrgPage', () => {
     });
   });
 
-  xit('proceed', () => {});
+  it('proceed(): should proceed to other page as per user status', async () => {
+    userService.isPendingDetails.and.returnValue(of(true));
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getRoles.and.returnValue(of(roles));
+    spyOn(component, 'setSentryUser');
+    spyOn(component, 'navigateBasedOnUserStatus').and.returnValue(of(apiEouRes));
+    loaderService.hideLoader.and.returnValue(new Promise(() => {}));
+    deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+    appVersionService.load.and.callThrough();
+    appVersionService.getUserAppVersionDetails.and.returnValue(
+      of({
+        deviceInfo: extendedDeviceInfoMockData,
+        appSupportDetails: {
+          message: 'message',
+        },
+        lastLoggedInVersion: '5.50.0',
+        eou: apiEouRes,
+      })
+    );
 
-  xit('trackSwitchOrg', () => {});
+    await component.proceed();
+    expect(userService.isPendingDetails).toHaveBeenCalledTimes(1);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(authService.getRoles).toHaveBeenCalledTimes(1);
+    expect(component.setSentryUser).toHaveBeenCalledTimes(1);
+    expect(component.navigateBasedOnUserStatus).toHaveBeenCalledOnceWith({
+      isPendingDetails: true,
+      roles,
+      eou: apiEouRes,
+      isFromInviteLink: undefined,
+    });
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
+    expect(appVersionService.load).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
+    expect(appVersionService.getUserAppVersionDetails).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
+    expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Auto Logged out', {
+      lastLoggedInVersion: '5.50.0',
+      user_email: apiEouRes?.us?.email,
+      appVersion: extendedDeviceInfoMockData.appVersion,
+    });
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'app_version', { message: 'message' }]);
+  });
 
-  xit('switchOrg', () => {});
+  it('trackSwitchOrg(): tracking switch orgs', fakeAsync(() => {
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
 
-  xit('signOut', () => {});
+    component.trackSwitchOrg(orgData1[0], apiEouRes);
+    tick(500);
+    const properties = {
+      Asset: 'Mobile',
+      'Switch To': 'Staging Loaded',
+      'Is Destination Org Active': true,
+      'Is Destination Org Primary': true,
+      'Is Current Org Primary': true,
+      Source: 'User Clicked',
+      'User Email': 'ajain@fyle.in',
+      'User Org Name': 'Staging Loaded',
+      'User Org ID': 'orNVthTo2Zyo',
+      'User Full Name': 'Abhishek Jain',
+    };
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(trackingService.onSwitchOrg).toHaveBeenCalledOnceWith(properties);
+  }));
 
-  xit('getOrgsWhichContainSearchText', () => {});
+  xit('switchOrg(): should switch org', async () => {
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    orgService.switchOrg.and.returnValue(of(apiEouRes));
 
-  xit('resetSearch', () => {});
+    await component.switchOrg(orgData1[0]);
 
-  xit('openSearchBar', () => {});
+    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    // expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgData1[0].id);
+  });
 
-  xit('cancelSearch', () => {});
+  describe('signOut(): ', () => {
+    it('should sign out the user', async () => {
+      deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.logout.and.returnValue(of(null));
 
-  xit('trackSwitchOrgLaunchTime', () => {});
+      await component.signOut();
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
+      expect(authService.logout).toHaveBeenCalledOnceWith({
+        device_id: extendedDeviceInfoMockData.uuid,
+        user_id: apiEouRes.us.id,
+      });
+      expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
+      expect(storageService.clearAll).toHaveBeenCalledTimes(1);
+      expect(userEventService.logout).toHaveBeenCalledTimes(1);
+    });
+
+    it('should clear cache if sign out fails', async () => {
+      deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+      authService.getEou.and.throwError('Error');
+
+      await component.signOut();
+      expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
+      expect(storageService.clearAll).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('getOrgsWhichContainSearchText(): should return orgs with matching search text', () => {
+    const result = component.getOrgsWhichContainSearchText(orgData2, 'Fyle Loaded');
+
+    expect(result).toEqual([orgData2[1]]);
+  });
+
+  it('resetSearch(): should reset search bar', () => {
+    component.searchInput = 'value';
+    component.searchOrgsInput.nativeElement.value = 'value2';
+    fixture.detectChanges();
+
+    component.resetSearch();
+    expect(component.searchInput).toEqual('');
+  });
+
+  it('openSearchBar(): should open search bar', () => {
+    component.openSearchBar();
+
+    const contentClassList = component.contentRef.nativeElement.classList;
+    const searchBarClassList = component.searchRef.nativeElement.classList;
+
+    expect(contentClassList.contains('switch-org__content-container__content-block--hide')).toBeTrue();
+    expect(searchBarClassList.contains('switch-org__content-container__search-block--show')).toBeTrue();
+  });
+
+  it('cancelSearch(): should cancel the search and remove the bar', () => {
+    spyOn(component, 'resetSearch');
+
+    const contentClassList = component.contentRef.nativeElement.classList;
+    const searchBarClassList = component.searchRef.nativeElement.classList;
+
+    component.cancelSearch();
+    expect(component.resetSearch).toHaveBeenCalledTimes(1);
+    expect(contentClassList.contains('switch-org__content-container__content-block--hide')).toBeFalse();
+    expect(searchBarClassList.contains('switch-org__content-container__search-block--show')).toBeFalse();
+  });
 });
