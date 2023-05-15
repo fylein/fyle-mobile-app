@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { Clipboard } from '@capacitor/clipboard';
 
 interface ListItems {
   icon: string;
@@ -31,10 +30,7 @@ export class PopupWithBulletsComponent implements OnInit {
   }
 
   async copyToClipboard(textToCopy: string) {
-    await Clipboard.write({
-      // eslint-disable-next-line id-blacklist
-      string: textToCopy,
-    });
+    await navigator.clipboard.writeText(textToCopy);
     //TODO: Add a toast message once design is ready
   }
 }
