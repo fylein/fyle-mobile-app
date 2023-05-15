@@ -15,7 +15,7 @@ import { EmployeeDetailsCardComponent } from './employee-details-card/employee-d
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
-import { CopyDetailsCardComponent } from './copy-details-card/copy-details-card.component';
+import { InfoCardComponent } from './info-card/info-card.component';
 
 @NgModule({
   imports: [
@@ -37,7 +37,7 @@ import { CopyDetailsCardComponent } from './copy-details-card/copy-details-card.
     PreferenceSettingComponent,
     EmployeeDetailsCardComponent,
     VerifyNumberPopoverComponent,
-    CopyDetailsCardComponent,
+    InfoCardComponent,
   ],
 })
 export class MyProfilePageModule {}

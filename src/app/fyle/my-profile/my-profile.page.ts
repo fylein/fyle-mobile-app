@@ -81,7 +81,7 @@ export class MyProfilePage {
 
   preferenceSettings: PreferenceSetting[];
 
-  copyCardDetails: CopyCardDetails[];
+  infoCardsData: CopyCardDetails[];
 
   constructor(
     private authService: AuthService,
@@ -172,13 +172,14 @@ export class MyProfilePage {
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => this.setInfoCardsData(homeCurrency));
+
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
           forkJoin({
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
-            homeCurrency: this.currencyService.getHomeCurrency(),
           })
         ),
         finalize(() => from(this.loaderService.hideLoader()))
@@ -187,7 +188,6 @@ export class MyProfilePage {
         this.orgUserSettings = res.orgUserSettings;
         this.orgSettings = res.orgSettings;
         this.setPreferenceSettings();
-        this.setCopyCardDetails(res.homeCurrency);
       });
   }
 
@@ -222,11 +222,11 @@ export class MyProfilePage {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
-  setCopyCardDetails(homeCurrency: string) {
+  setInfoCardsData(homeCurrency: string) {
     const fyleMobileNumber = '(302) 440-2921';
     const fyleEmail = 'receipts@fylehq.com';
 
-    const allCopyCardDetails = [
+    const allInfoCardsData = [
       {
         title: 'Message Receipts',
         content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
@@ -240,7 +240,7 @@ export class MyProfilePage {
       },
     ];
 
-    this.copyCardDetails = allCopyCardDetails.filter((copyCardDetail) => !copyCardDetail.isHidden);
+    this.infoCardsData = allInfoCardsData.filter((infoCardData) => !infoCardData.isHidden);
   }
 
   showToastMessage(message: string, type: 'success' | 'failure') {

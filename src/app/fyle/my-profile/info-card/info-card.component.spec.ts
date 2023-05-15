@@ -1,19 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { CopyDetailsCardComponent } from './copy-details-card.component';
+import { InfoCardComponent } from './info-card.component';
 
-xdescribe('CopyDetailsCardComponent', () => {
-  let component: CopyDetailsCardComponent;
-  let fixture: ComponentFixture<CopyDetailsCardComponent>;
+//TODO: Add tests for this component
+xdescribe('InfoCardComponent', () => {
+  let component: InfoCardComponent;
+  let fixture: ComponentFixture<InfoCardComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [CopyDetailsCardComponent],
+      declarations: [InfoCardComponent],
       imports: [IonicModule.forRoot()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CopyDetailsCardComponent);
+    fixture = TestBed.createComponent(InfoCardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
