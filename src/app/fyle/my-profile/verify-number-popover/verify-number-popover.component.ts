@@ -67,15 +67,16 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   verifyOtp() {
     this.validateInput();
-    if (!this.error) {
-      this.verifyingOtp = true;
-      this.mobileNumberVerificationService
-        .verifyOtp(this.value)
-        .pipe(finalize(() => (this.verifyingOtp = false)))
-        .subscribe({
-          complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
-          error: () => (this.error = 'Incorrect mobile number or OTP. Please try again.'),
-        });
+    if (this.error) {
+      return;
     }
+    this.verifyingOtp = true;
+    this.mobileNumberVerificationService
+      .verifyOtp(this.value)
+      .pipe(finalize(() => (this.verifyingOtp = false)))
+      .subscribe({
+        complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
+        error: () => (this.error = 'Incorrect mobile number or OTP. Please try again.'),
+      });
   }
 }
