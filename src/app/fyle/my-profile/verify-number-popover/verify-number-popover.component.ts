@@ -1,9 +1,8 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { noop } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { ApiService } from 'src/app/core/services/api.service';
+import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 
 @Component({
   selector: 'app-verify-number-popover',
@@ -25,7 +24,10 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   error = '';
 
-  constructor(private popoverController: PopoverController, private apiService: ApiService) {}
+  constructor(
+    private popoverController: PopoverController,
+    private mobileNumberVerificationService: MobileNumberVerificationService
+  ) {}
 
   ngOnInit(): void {
     this.infoBoxText = `Please verify your mobile number using the 6-digit OTP sent to ${this.extendedOrgUser.ou.mobile}`;
@@ -53,23 +55,28 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   resendOtp() {
     //TODO: Restrict this to 5 times a day
     this.sendingOtp = true;
-    this.apiService
-      .post('/orgusers/verify_mobile')
+    this.mobileNumberVerificationService
+      .sendOtp()
       .pipe(finalize(() => (this.sendingOtp = false)))
-      .subscribe(noop);
+      .subscribe({
+        error: () => {
+          //TODO: Show error message
+        },
+      });
   }
 
   verifyOtp() {
     this.validateInput();
-    if (!this.error) {
-      this.verifyingOtp = true;
-      this.apiService
-        .post('/orgusers/check_mobile_verification_code', this.value)
-        .pipe(finalize(() => (this.verifyingOtp = false)))
-        .subscribe({
-          complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
-          error: () => (this.error = 'Incorrect mobile number or OTP. Please try again.'),
-        });
+    if (this.error) {
+      return;
     }
+    this.verifyingOtp = true;
+    this.mobileNumberVerificationService
+      .verifyOtp(this.value)
+      .pipe(finalize(() => (this.verifyingOtp = false)))
+      .subscribe({
+        complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
+        error: () => (this.error = 'Incorrect mobile number or OTP. Please try again.'),
+      });
   }
 }
