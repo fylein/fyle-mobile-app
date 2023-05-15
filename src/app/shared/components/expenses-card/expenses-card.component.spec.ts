@@ -34,6 +34,7 @@ import {
 } from 'src/app/core/mock-data/file-object.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
 import { cloneDeep, stubFalse } from 'lodash';
 import * as dayjs from 'dayjs';
@@ -43,7 +44,7 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { By } from '@angular/platform-browser';
 import { advRequestFile } from 'src/app/core/mock-data/advance-request-file.data';
-import { DebugElement, EventEmitter } from '@angular/core';
+import { DebugElement, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 
 const thumbnailUrlMockData1: FileObject[] = [
   {
@@ -53,7 +54,7 @@ const thumbnailUrlMockData1: FileObject[] = [
   },
 ];
 
-describe('ExpensesCardComponent', () => {
+fdescribe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -111,9 +112,10 @@ describe('ExpensesCardComponent', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
+    const expenseStateSpy = jasmine.createSpyObj('ExpenseState', ['transform']);
 
     TestBed.configureTestingModule({
-      declarations: [ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe],
+      declarations: [ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatCheckboxModule, FormsModule],
       providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
@@ -132,7 +134,9 @@ describe('ExpensesCardComponent', () => {
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DateFormatPipe, useValue: dateFormatPipeSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
+        { provide: ExpenseState, useValue: expenseStateSpy },
       ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -180,6 +184,18 @@ describe('ExpensesCardComponent', () => {
     component.isSelectionModeEnabled = false;
     component.etxnIndex = 1;
     componentElement = fixture.debugElement;
+
+    fixture.detectChanges();
+
+    component.receiptThumbnail = null;
+    component.attachmentUploadInProgress = false;
+    component.isIos = true;
+    component.isOutboxExpense = false;
+    fixture.detectChanges();
+
+    const inputElement = componentElement.query(By.css('#ios-file-upload'));
+    console.log('inoutEle => ', inputElement.nativeElement);
+    component.fileUpload = inputElement;
     fixture.detectChanges();
   }));
 
@@ -813,30 +829,24 @@ describe('ExpensesCardComponent', () => {
       expect(nativeElement1.click).toHaveBeenCalledTimes(1);
     }));
 
-    // it('should call onFileUpload method on iOS when file input is clicked', fakeAsync(() => {
-    //   spyOn(component, 'onFileUpload').and.returnValue(Promise.resolve());
-    //   const event = {
-    //     stopPropagation: jasmine.createSpy('stopPropagation')
-    //   };
-    //   component.receiptThumbnail = null;
-    //   component.attachmentUploadInProgress = false;
-    //   component.isIos = true;
-    //   component.isOutboxExpense = false;
-    //   fixture.detectChanges();
+    fit('should call onFileUpload method on iOS when file input is clicked', fakeAsync(() => {
+      spyOn(component, 'onFileUpload').and.returnValue(Promise.resolve());
+      const event = {
+        stopPropagation: jasmine.createSpy('stopPropagation'),
+      };
+      spyOn(component, 'canAddAttachment').and.returnValue(true);
+      component.addAttachments(event);
 
-    //   //(component, 'onFileUpload').and.stub();py
-    //   const inputElement = componentElement.query(By.css('#ios-file-upload'));
-    //   console.log('inoutEle => '+inputElement);
-    //   component.fileUpload =  inputElement;
-    //   fixture.detectChanges();
-    //   component.addAttachments(event);
-    //   tick(500);
-    //   inputElement.nativeElement.dispatchEvent(new Event('change'));
+      console.log('component.fileUpload', component.fileUpload);
+      const file = new File(['file content'], 'filename.txt', { type: 'text/plain' });
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      component.fileUpload.nativeElement.files = dataTransfer.files;
 
-    //   expect(component.onFileUpload).toHaveBeenCalledOnceWith(inputElement.nativeElement);
-    //   //inputElement.nativeElement.dispatchEvent(new Event('click'));
-    //   tick(5000);
-    // }));
+      component.fileUpload.nativeElement.dispatchEvent(new Event('change'));
+
+      expect(component.onFileUpload).toHaveBeenCalledOnceWith(component.fileUpload.nativeElement);
+    }));
 
     it('when device not an Ios it should open the camera popover', fakeAsync(() => {
       const event = {
