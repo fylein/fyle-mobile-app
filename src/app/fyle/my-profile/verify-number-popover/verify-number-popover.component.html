@@ -23,11 +23,9 @@
 </ion-header>
 
 <div class="verify-number-popover--input-container">
-  <ng-container *ngIf="infoBoxText?.length">
-    <div class="verify-number-popover--input-container__info-box">
-      <app-fy-alert-info type="information" [message]="infoBoxText"></app-fy-alert-info>
-    </div>
-  </ng-container>
+  <div class="verify-number-popover--input-container__info-box">
+    <app-fy-alert-info type="information" [message]="infoBoxText"></app-fy-alert-info>
+  </div>
   <div class="verify-number-popover--input-container__label">
     <div>
       <span> One Time Password (OTP) </span>
@@ -50,7 +48,9 @@
     [(ngModel)]="value"
     class="verify-number-popover--input-container__input smartlook-show"
     placeholder="Enter 6 digit OTP"
-    type="numeric"
+    type="text"
+    inputmode="numeric"
+    autocomplete="one-time-code"
     maxlength="6"
     minlength="6"
   />
