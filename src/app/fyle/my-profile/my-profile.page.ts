@@ -1,6 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
 import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
-import { concatMap, finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -209,6 +209,36 @@ export class MyProfilePage {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
+  showToastMessage(message: string, type: 'success' | 'failure') {
+    const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
+      panelClass,
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  async verifyMobileNumber(eou: ExtendedOrgUser) {
+    const verifyNumberPopoverComponent = await this.popoverController.create({
+      component: VerifyNumberPopoverComponent,
+      componentProps: {
+        extendedOrgUser: eou,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await verifyNumberPopoverComponent.present();
+    const { data } = await verifyNumberPopoverComponent.onWillDismiss();
+
+    if (data) {
+      if (data.action === 'BACK') {
+        this.updateMobileNumber(eou);
+      } else if (data.action === 'SUCCESS') {
+        //TODO: Show dialog popover here
+      }
+    }
+  }
+
   async updateMobileNumber(eou: ExtendedOrgUser) {
     const updateMobileNumberPopover = await this.popoverController.create({
       component: FyInputPopoverComponent,
@@ -234,7 +264,7 @@ export class MyProfilePage {
       this.orgUserService
         .postOrgUser(updatedOrgUserDetails)
         .pipe(
-          concatMap(() => this.authService.refreshEou()),
+          switchMap(() => this.authService.refreshEou()),
           tap(() => this.loadEou$.next(null)),
           switchMap(() =>
             this.eou$.pipe(
@@ -247,35 +277,5 @@ export class MyProfilePage {
           error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
         });
     }
-  }
-
-  async verifyMobileNumber(eou: ExtendedOrgUser) {
-    const verifyNumberPopoverComponent = await this.popoverController.create({
-      component: VerifyNumberPopoverComponent,
-      componentProps: {
-        extendedOrgUser: eou,
-      },
-      cssClass: 'fy-dialog-popover',
-    });
-
-    await verifyNumberPopoverComponent.present();
-    const { data } = await verifyNumberPopoverComponent.onWillDismiss();
-
-    if (data) {
-      if (data.action === 'BACK') {
-        this.updateMobileNumber(eou);
-      } else if (data.action === 'SUCCESS') {
-        //TODO: Show dialog popover here
-      }
-    }
-  }
-
-  showToastMessage(message: string, type: 'success' | 'failure') {
-    const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
-    this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
-      panelClass,
-    });
-    this.trackingService.showToastMessage({ ToastContent: message });
   }
 }
