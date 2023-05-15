@@ -23,6 +23,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
+import { StorageService } from 'src/app/core/services/storage.service';
 
 type Image = Partial<{
   source: string;
@@ -76,6 +77,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private authService: AuthService,
     private cameraService: CameraService,
     private cameraPreviewService: CameraPreviewService,
+    private storageService: StorageService,
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
@@ -367,6 +369,25 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onCaptureReceipt() {
     if (this.noOfReceipts >= 20) {
+      this.storageService.get('receiptLimitReachedCount').then((count) => {
+        let receiptLimitReachedCount = count || 0;
+        receiptLimitReachedCount++;
+
+        this.storageService.set('receiptLimitReachedCount', receiptLimitReachedCount);
+
+        const receiptLimitReachedLastTimestamp = new Date();
+        this.storageService.set('receiptLimitReachedLastTimestamp', receiptLimitReachedLastTimestamp.toISOString());
+
+        // Track the event with the count and timestamp as properties
+        const properties = {
+          Action: 'ReceiptLimitReached',
+          Description: 'The limit of 20 receipts has been reached',
+          Count: receiptLimitReachedCount,
+          LastTimestamp: receiptLimitReachedLastTimestamp.toISOString(),
+        };
+        this.trackingService.eventTrack('ReceiptLimitReached', properties);
+      });
+
       this.showLimitReachedPopover().subscribe(noop);
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
