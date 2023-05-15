@@ -104,8 +104,8 @@ export class SignInPage implements OnInit {
               console.log(data);
               if (data) {
                 clearInterval(getResponse);
-                // browser.close();
-                // await this.checkSAMLResponseAndSignInUser(data);
+                browser.close();
+                await this.checkSAMLResponseAndSignInUser(data);
               }
             });
         }, 1000);

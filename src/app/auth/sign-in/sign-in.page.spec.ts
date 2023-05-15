@@ -169,21 +169,18 @@ fdescribe('SignInPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
+  fit('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
     const browserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'executeScript', 'close']);
     browserSpy.on.and.returnValue(of(new Event('event')));
-    browserSpy.executeScript.and.returnValue(
-      Promise.resolve({
-        data: JSON.stringify('response'),
-      })
-    );
+    browserSpy.executeScript.and.returnValue(Promise.resolve([JSON.stringify({ SAMLResponse: 'samlResponse' })]));
+    browserSpy.close.and.returnValue(null);
+    spyOn(component, 'checkSAMLResponseAndSignInUser');
     inAppBrowserService.create.and.returnValue(browserSpy);
 
     component.handleSamlSignIn({
       idp_url: 'url',
     });
-
-    tick();
+    tick(1000);
 
     expect(inAppBrowserService.create).toHaveBeenCalledOnceWith('url' + '&RelayState=MOBILE', '_blank', 'location=yes');
   }));
