@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { ClipboardService } from 'src/app/core/services/clipboard.service';
 
 @Component({
   selector: 'app-copy-details-card',
@@ -12,9 +13,9 @@ export class CopyDetailsCardComponent {
 
   @Input() contentToCopy: string;
 
-  constructor() {}
+  constructor(private clipboardService: ClipboardService) {}
 
   async copyToClipboard(contentToCopy: string) {
-    await navigator.clipboard.writeText(contentToCopy);
+    await this.clipboardService.writeString(contentToCopy);
   }
 }
