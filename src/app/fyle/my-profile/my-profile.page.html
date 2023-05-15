@@ -16,6 +16,23 @@
   </ng-container>
   <div class="my-profile__content-container__content">
     <ng-container *ngIf="isConnected$ | async">
+      <ng-container *ngIf="copyCardDetails?.length">
+        <div class="my-profile__copy-details-card-container">
+          <div matRipple *ngFor="let cardDetails of copyCardDetails;let isLast=last">
+            <div
+              class="my-profile__copy-details-card-container__card"
+              [ngClass]="{'my-profile__copy-details-card-container__card--last': isLast}"
+            >
+              <app-copy-details-card
+                [title]="cardDetails.title"
+                [content]="cardDetails.content"
+                [contentToCopy]="cardDetails.contentToCopy"
+              ></app-copy-details-card>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
       <div class="my-profile__section-header">Notifications</div>
       <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
         <div class="my-profile__card__title">Manage Notifications</div>

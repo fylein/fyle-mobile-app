@@ -1,0 +1,36 @@
+@import '../../../../theme/colors.scss';
+
+.copy-details-card {
+  &__card {
+    align-items: center;
+    padding: 20px 0;
+
+    &__title {
+      font-size: 16px;
+      font-weight: 500;
+      color: $pure-black;
+    }
+  }
+
+  &__content-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+
+    &__content {
+      font-size: 12px;
+      color: $black-light;
+    }
+
+    &__icon-container {
+      padding-left: 8px;
+
+      &__icon {
+        height: 24px;
+        width: 24px;
+        color: $brand-primary;
+      }
+    }
+  }
+}
