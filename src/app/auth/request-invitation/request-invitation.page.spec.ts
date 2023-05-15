@@ -92,8 +92,8 @@ describe('RequestInvitationPage', () => {
       } catch (err) {
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Sending request to join organization...');
         expect(invitationRequestsService.upsertRouter).toHaveBeenCalledOnceWith('');
-        expect(component.currentPageState).toBe(component.RequestInvitationStates.failure);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(component.currentPageState).toBe(component.RequestInvitationStates.failure);
         expect(err).toBe(error);
       }
     }));
@@ -113,9 +113,9 @@ describe('RequestInvitationPage', () => {
       } catch (err) {
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Sending request to join organization...');
         expect(invitationRequestsService.upsertRouter).toHaveBeenCalledOnceWith('');
-        expect(component.currentPageState).toBe(component.RequestInvitationStates.alreadySent);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(err).toBe(error);
+        expect(component.currentPageState).toBe(component.RequestInvitationStates.alreadySent);
       }
     }));
   });
