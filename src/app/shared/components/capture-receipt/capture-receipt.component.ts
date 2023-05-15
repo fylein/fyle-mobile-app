@@ -385,7 +385,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           Count: receiptLimitReachedCount,
           LastTimestamp: receiptLimitReachedLastTimestamp.toISOString(),
         };
-        this.trackingService.eventTrack('ReceiptLimitReached', properties);
+        this.trackingService.receiptLimitReached(properties);
       });
 
       this.showLimitReachedPopover().subscribe(noop);
