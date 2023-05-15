@@ -369,23 +369,34 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onCaptureReceipt() {
     if (this.noOfReceipts >= 20) {
+      const currentDate = new Date();
+      const twelveMonthsAgo = new Date();
+      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+      // Get the count and timestamp from storage
       this.storageService.get('receiptLimitReachedCount').then((count) => {
         let receiptLimitReachedCount = count || 0;
-        receiptLimitReachedCount++;
+        let receiptLimitReachedTimestamps = [];
 
-        this.storageService.set('receiptLimitReachedCount', receiptLimitReachedCount);
+        //filter only those which are within 12 months
+        this.storageService.get('receiptLimitReachedTimestamps').then((timestamps) => {
+          if (timestamps) {
+            receiptLimitReachedTimestamps = timestamps.filter((timestamp) => new Date(timestamp) >= twelveMonthsAgo);
+          }
+          receiptLimitReachedCount++;
+          receiptLimitReachedTimestamps.push(currentDate.toISOString());
 
-        const receiptLimitReachedLastTimestamp = new Date();
-        this.storageService.set('receiptLimitReachedLastTimestamp', receiptLimitReachedLastTimestamp.toISOString());
-
-        // Track the event with the count and timestamp as properties
-        const properties = {
-          Action: 'ReceiptLimitReached',
-          Description: 'The limit of 20 receipts has been reached',
-          Count: receiptLimitReachedCount,
-          LastTimestamp: receiptLimitReachedLastTimestamp.toISOString(),
-        };
-        this.trackingService.receiptLimitReached(properties);
+          // Store the count and timestamps back in storage
+          this.storageService.set('receiptLimitReachedCount', receiptLimitReachedCount);
+          this.storageService.set('receiptLimitReachedTimestamps', receiptLimitReachedTimestamps);
+          const properties = {
+            Action: 'ReceiptLimitReached',
+            Description: 'The limit of 20 receipts has been reached',
+            Count: receiptLimitReachedCount,
+            Timestamps: receiptLimitReachedTimestamps,
+          };
+          this.trackingService.receiptLimitReached(properties);
+        });
       });
 
       this.showLimitReachedPopover().subscribe(noop);
