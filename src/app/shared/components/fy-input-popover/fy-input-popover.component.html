@@ -9,11 +9,7 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <button
-        [disabled]="isRequired && !inputValue?.trim().length"
-        class="input-popover--toolbar__btn"
-        (click)="saveValue()"
-      >
+      <button class="input-popover--toolbar__btn" (click)="saveValue()">
         {{ ctaText }}
       </button>
     </ion-buttons>
@@ -30,9 +26,12 @@
     matInput
     [(ngModel)]="inputValue"
     class="input-popover--input-container__input smartlook-show"
-    [placeholder]="'Enter ' + inputLabel"
+    [ngClass]="{ 'input-popover--input-container__input--error': error?.length }"
+    (focus)="onFocus()"
+    [placeholder]="placeholder?.length ? placeholder : 'Enter ' + inputLabel"
     [type]="inputType"
     [maxlength]="inputType === 'tel' ? 15 : null"
     [minlength]="inputType === 'tel' ? 7 : null"
   />
+  <span *ngIf="error?.length" class="input-popover--input-container__error">{{ error }}</span>
 </div>

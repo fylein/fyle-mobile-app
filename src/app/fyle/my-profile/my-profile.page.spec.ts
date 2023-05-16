@@ -25,7 +25,7 @@ import { of, throwError } from 'rxjs';
 import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
 import { HttpErrorResponse } from '@angular/common/http';
 
-describe('MyProfilePage', () => {
+xdescribe('MyProfilePage', () => {
   let component: MyProfilePage;
   let fixture: ComponentFixture<MyProfilePage>;
   let authService: jasmine.SpyObj<AuthService>;

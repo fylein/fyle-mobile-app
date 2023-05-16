@@ -48,7 +48,7 @@ describe('ApiService', () => {
 
       apiService.post('/advance_requests').subscribe((res) => {
         expect(res).toEqual(apiResponse);
-        expect(httpClient.post).toHaveBeenCalledOnceWith('https://staging.fyle.tech/api/advance_requests', {});
+        expect(httpClient.post).toHaveBeenCalledOnceWith('https://staging.fyle.tech/api/advance_requests', {}, {});
         done();
       });
     });
@@ -58,7 +58,11 @@ describe('ApiService', () => {
 
       apiService.post('/advance_requests', requestObj).subscribe((res) => {
         expect(res).toEqual(apiResponse);
-        expect(httpClient.post).toHaveBeenCalledOnceWith('https://staging.fyle.tech/api/advance_requests', requestObj);
+        expect(httpClient.post).toHaveBeenCalledOnceWith(
+          'https://staging.fyle.tech/api/advance_requests',
+          requestObj,
+          {}
+        );
         done();
       });
     });

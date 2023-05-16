@@ -1,6 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable } from 'rxjs';
-import { concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
+import { finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -25,6 +25,9 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
+import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -39,6 +42,13 @@ type PreferenceSetting = {
   defaultCurrency?: string;
   isEnabled: boolean;
   isAllowed: boolean;
+};
+
+type CopyCardDetails = {
+  title: string;
+  content: string;
+  contentToCopy: string;
+  isHidden?: boolean;
 };
 
 @Component({
@@ -61,6 +71,8 @@ export class MyProfilePage {
 
   isConnected$: Observable<boolean>;
 
+  loadEou$: BehaviorSubject<null>;
+
   settingsMap = {
     instaFyle: 'insta_fyle_settings',
     defaultCurrency: 'currency_settings',
@@ -68,6 +80,8 @@ export class MyProfilePage {
   };
 
   preferenceSettings: PreferenceSetting[];
+
+  infoCardsData: CopyCardDetails[];
 
   constructor(
     private authService: AuthService,
@@ -85,7 +99,8 @@ export class MyProfilePage {
     private popoverController: PopoverController,
     private orgUserService: OrgUserService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private currencyService: CurrencyService
   ) {}
 
   setupNetworkWatcher() {
@@ -142,6 +157,8 @@ export class MyProfilePage {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.loadEou$ = new BehaviorSubject(null);
+    this.eou$ = this.loadEou$.pipe(switchMap(() => from(this.authService.getEou())));
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
@@ -151,16 +168,16 @@ export class MyProfilePage {
   }
 
   reset() {
-    this.eou$ = from(this.authService.getEou());
     const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
+
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => this.setInfoCardsData(homeCurrency));
 
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
           forkJoin({
-            eou: this.eou$,
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
           })
@@ -205,16 +222,96 @@ export class MyProfilePage {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
+  setInfoCardsData(homeCurrency: string) {
+    const fyleMobileNumber = '(302) 440-2921';
+    const fyleEmail = 'receipts@fylehq.com';
+
+    const allInfoCardsData = [
+      {
+        title: 'Message Receipts',
+        content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
+        contentToCopy: fyleMobileNumber,
+        isHidden: homeCurrency !== 'USD',
+      },
+      {
+        title: 'Email Receipts',
+        content: `Forward your receipts to Fyle at ${fyleEmail}.`,
+        contentToCopy: fyleEmail,
+      },
+    ];
+
+    this.infoCardsData = allInfoCardsData.filter((infoCardData) => !infoCardData.isHidden);
+  }
+
+  showToastMessage(message: string, type: 'success' | 'failure') {
+    const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
+      panelClass,
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  async showSuccessPopover() {
+    const fyleMobileNumber = '(302) 440-2921';
+    const listItems = [
+      {
+        icon: 'message',
+        text: `Message your receipts to Fyle at ${fyleMobileNumber} and we will create an expense for you.`,
+        textToCopy: fyleMobileNumber,
+      },
+      {
+        icon: 'fy-reimbursable',
+        text: 'Standard messaging rates applicable',
+      },
+    ];
+    const verificationSuccessfulPopover = await this.popoverController.create({
+      component: PopupWithBulletsComponent,
+      componentProps: {
+        title: 'Verification Successful',
+        listHeader: 'Now you can:',
+        listItems,
+        ctaText: 'Got it',
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await verificationSuccessfulPopover.present();
+    await verificationSuccessfulPopover.onWillDismiss();
+  }
+
+  async verifyMobileNumber(eou: ExtendedOrgUser) {
+    const verifyNumberPopoverComponent = await this.popoverController.create({
+      component: VerifyNumberPopoverComponent,
+      componentProps: {
+        extendedOrgUser: eou,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await verifyNumberPopoverComponent.present();
+    const { data } = await verifyNumberPopoverComponent.onWillDismiss();
+
+    if (data) {
+      if (data.action === 'BACK') {
+        this.updateMobileNumber(eou);
+      } else if (data.action === 'SUCCESS') {
+        this.showSuccessPopover();
+      }
+    }
+  }
+
   async updateMobileNumber(eou: ExtendedOrgUser) {
     const updateMobileNumberPopover = await this.popoverController.create({
       component: FyInputPopoverComponent,
       componentProps: {
         title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        ctaText: 'Save',
+        ctaText: 'Next',
         inputLabel: 'Mobile Number',
         inputValue: eou.ou.mobile,
         inputType: 'tel',
-        isRequired: false,
+        isRequired: true,
+        placeholder: 'Enter mobile number e.g. +129586736556',
       },
       cssClass: 'fy-dialog-popover',
     });
@@ -229,20 +326,19 @@ export class MyProfilePage {
       };
       this.orgUserService
         .postOrgUser(updatedOrgUserDetails)
-        .pipe(concatMap(() => this.authService.refreshEou()))
+        .pipe(
+          switchMap(() => this.authService.refreshEou()),
+          tap(() => this.loadEou$.next(null)),
+          switchMap(() =>
+            this.eou$.pipe(
+              take(1),
+              map((eou) => from(this.verifyMobileNumber(eou)))
+            )
+          )
+        )
         .subscribe({
           error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
-          complete: () => this.showToastMessage('Profile saved successfully', 'success'),
         });
     }
-  }
-
-  showToastMessage(message: string, type: 'success' | 'failure') {
-    const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
-    this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
-      panelClass,
-    });
-    this.trackingService.showToastMessage({ ToastContent: message });
   }
 }
