@@ -7,6 +7,7 @@ import { RequestInvitationPage } from './request-invitation.page';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('RequestInvitationPage', () => {
   let component: RequestInvitationPage;
@@ -44,6 +45,7 @@ describe('RequestInvitationPage', () => {
           },
         },
       ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(RequestInvitationPage);
 
