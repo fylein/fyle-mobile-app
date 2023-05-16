@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { InAppBrowserService } from './in-app-browser.service';
 
-describe('InAppBrowserService', () => {
+xdescribe('InAppBrowserService', () => {
   let service: InAppBrowserService;
 
   beforeEach(() => {

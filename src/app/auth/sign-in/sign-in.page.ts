@@ -101,7 +101,7 @@ export class SignInPage implements OnInit {
               try {
                 data = JSON.parse(response);
               } catch (err) {}
-              console.log(data);
+
               if (data) {
                 clearInterval(getResponse);
                 browser.close();
@@ -113,7 +113,6 @@ export class SignInPage implements OnInit {
   }
 
   async checkIfEmailExists() {
-    console.log('in email check method');
     if (this.fg.controls.email.valid) {
       this.emailLoading = true;
 
@@ -128,16 +127,10 @@ export class SignInPage implements OnInit {
 
       const basicSignIn$ = checkEmailExists$.pipe(filter((res) => (!res.saml ? true : false)));
 
-      basicSignIn$
-        .pipe(
-          tap(() => {
-            console.log('basic sign triggered');
-          })
-        )
-        .subscribe({
-          next: () => (this.emailSet = true),
-          error: (err) => this.handleError(err),
-        });
+      basicSignIn$.subscribe({
+        next: () => (this.emailSet = true),
+        error: (err) => this.handleError(err),
+      });
 
       saml$.subscribe({
         next: (res) => this.handleSamlSignIn(res),

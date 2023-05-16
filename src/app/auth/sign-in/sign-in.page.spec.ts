@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PopoverController } from '@ionic/angular';
@@ -26,9 +26,8 @@ import { InAppBrowserService } from 'src/app/core/services/in-app-browser.servic
 import { RouterTestingModule } from '@angular/router/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { By } from '@angular/platform-browser';
 
-fdescribe('SignInPage', () => {
+describe('SignInPage', () => {
   let component: SignInPage;
   let fixture: ComponentFixture<SignInPage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -169,7 +168,7 @@ fdescribe('SignInPage', () => {
     expect(component).toBeTruthy();
   });
 
-  fit('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
+  it('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
     const browserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'executeScript', 'close']);
     browserSpy.on.and.returnValue(of(new Event('event')));
     browserSpy.executeScript.and.returnValue(Promise.resolve([JSON.stringify({ SAMLResponse: 'samlResponse' })]));
@@ -497,26 +496,4 @@ fdescribe('SignInPage', () => {
 
     expect(getTextContent(getElementBySelector(fixture, '.sign-in--error'))).toEqual('Please enter a valid email.');
   });
-
-  xit('checking email set', fakeAsync(() => {
-    component.ngOnInit();
-    component.emailSet = true;
-
-    // component.fg.controls.email.setValue('ajain@fyle.in');
-    // routerAuthService.checkEmailExists.and.returnValue(of(true));
-    fixture.detectChanges();
-
-    // component.checkIfEmailExists();
-    tick(1500);
-    fixture.whenStable().then(() => {
-      console.log(fixture.debugElement.query(By.css('.sign-in--password-visibility-icon')));
-    });
-    tick(1500);
-
-    console.log(component.emailSet);
-    console.log(component.fg.controls.email.value);
-    // if (fixture.isStable) {
-    //   console.log(fixture.debugElement.query(By.css('#sign-in--password')));
-    // }
-  }));
 });
