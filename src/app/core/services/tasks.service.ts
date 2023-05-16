@@ -408,8 +408,7 @@ export class TasksService {
     return tasks;
   }
 
-  //TODO: Write unit tests for this
-  getMobileNumberVerificationTasks() {
+  getMobileNumberVerificationTasks(): Observable<DashboardTask[]> {
     const rtfEnrolledCards$ = this.corporateCreditCardExpenseService
       .getCorporateCards()
       .pipe(map((cards) => cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled)));
@@ -421,7 +420,7 @@ export class TasksService {
       switchMap(({ rtfEnrolledCards, eou }) => {
         //Show this task only if mobile number is not verified and user is enrolled for RTF
         if (!eou.ou.mobile_verified && rtfEnrolledCards.length) {
-          return this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add');
+          return of(this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'));
         }
         return of([]);
       })
@@ -514,7 +513,7 @@ export class TasksService {
       );
   }
 
-  mapMobileNumberVerificationTask(type: 'Add' | 'Verify') {
+  mapMobileNumberVerificationTask(type: 'Add' | 'Verify'): DashboardTask[] {
     const subheaderPrefixString = type === 'Add' ? 'Add and verify' : 'Verify';
     const task = [
       {
@@ -528,9 +527,9 @@ export class TasksService {
             event: TASKEVENT.mobileNumberVerification,
           },
         ],
-      } as DashboardTask,
+      },
     ];
-    return [task];
+    return task;
   }
 
   mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]) {

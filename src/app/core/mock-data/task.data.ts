@@ -99,7 +99,7 @@ export const sentBackAdvanceTaskSample = {
   ],
 };
 
-export const mobileNumberVerificationTaskSample = {
+export const addMobileNumberTask = {
   hideAmount: true,
   header: 'Add Mobile Number',
   subheader: 'Add and verify your mobile number to text the receipts directly',
@@ -107,6 +107,19 @@ export const mobileNumberVerificationTaskSample = {
   ctas: [
     {
       content: 'Add',
+      event: TASKEVENT.mobileNumberVerification,
+    },
+  ],
+};
+
+export const verifyMobileNumberTask = {
+  hideAmount: true,
+  header: 'Verify Mobile Number',
+  subheader: 'Verify your mobile number to text the receipts directly',
+  icon: TaskIcon.MOBILE,
+  ctas: [
+    {
+      content: 'Verify',
       event: TASKEVENT.mobileNumberVerification,
     },
   ],
