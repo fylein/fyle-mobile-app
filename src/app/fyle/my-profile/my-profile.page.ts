@@ -1,4 +1,5 @@
 import { Component, EventEmitter } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -100,7 +101,8 @@ export class MyProfilePage {
     private orgUserService: OrgUserService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   setupNetworkWatcher() {
@@ -163,8 +165,18 @@ export class MyProfilePage {
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
     });
-
     this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
+
+    const popover = this.activatedRoute.snapshot.params.openPopover;
+    if (popover) {
+      this.eou$.pipe(take(1)).subscribe((eou) => {
+        if (popover === 'add_mobile_number') {
+          this.updateMobileNumber(eou);
+        } else if (popover === 'verify_mobile_number') {
+          this.verifyMobileNumber(eou);
+        }
+      });
+    }
   }
 
   reset() {
