@@ -183,7 +183,7 @@ describe('SetupAccountPage', () => {
         expect(orgSettingsRes.mileage.two_wheeler).toBe(0.58);
       });
       tick(500);
-      expect(orgSettingsService.post).toHaveBeenCalledWith(orgSettingsRes);
+      expect(orgSettingsService.post).toHaveBeenCalledOnceWith(orgSettingsRes);
     }));
 
     it('should set the desired mileage value if the org currency is not USD', fakeAsync(() => {
@@ -202,7 +202,7 @@ describe('SetupAccountPage', () => {
         expect(orgSettingsRes.mileage.two_wheeler).toBe(6.0);
       });
       tick(500);
-      expect(orgSettingsService.post).toHaveBeenCalledWith(orgSettingsRes);
+      expect(orgSettingsService.post).toHaveBeenCalledOnceWith(orgSettingsRes);
     }));
   });
 
@@ -233,7 +233,7 @@ describe('SetupAccountPage', () => {
       tick(500);
       expect(trackingService.setupHalf).toHaveBeenCalledTimes(1);
       expect(trackingService.updateSegmentProfile).toHaveBeenCalledOnceWith({ 'Company Name': 'Acme Inc.' });
-      expect(router.navigate).toHaveBeenCalledWith(['/', 'post_verification', 'setup_account_preferences']);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'post_verification', 'setup_account_preferences']);
     }));
 
     it('should display a toast message when form is invalid', fakeAsync(() => {
