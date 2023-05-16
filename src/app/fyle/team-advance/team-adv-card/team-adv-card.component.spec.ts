@@ -9,7 +9,7 @@ import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-req
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 
-fdescribe('TeamAdvCardComponent', () => {
+describe('TeamAdvCardComponent', () => {
   let teamAdvCardComponent: TeamAdvCardComponent;
   let fixture: ComponentFixture<TeamAdvCardComponent>;
   let advanceRequestServiceSpy: jasmine.SpyObj<AdvanceRequestService>;
