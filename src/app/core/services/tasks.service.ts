@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, noop, Observable, of } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -295,6 +295,7 @@ export class TasksService {
 
   getTasks(isReportAutoSubmissionScheduled = false, filters?: TaskFilters): Observable<DashboardTask[]> {
     return forkJoin({
+      mobileNumberVerification: this.getMobileNumberVerificationTasks(),
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
       unreportedExpenses: this.getUnreportedExpensesTasks(isReportAutoSubmissionScheduled),
@@ -305,6 +306,7 @@ export class TasksService {
     }).pipe(
       map(
         ({
+          mobileNumberVerification,
           potentialDuplicates,
           sentBackReports,
           unreportedExpenses,
@@ -314,7 +316,8 @@ export class TasksService {
           sentBackAdvances,
         }) => {
           this.totalTaskCount$.next(
-            sentBackReports.length +
+            mobileNumberVerification.length +
+              sentBackReports.length +
               draftExpenses.length +
               unsubmittedReports.length +
               unreportedExpenses.length +
@@ -336,7 +339,8 @@ export class TasksService {
             !filters?.teamReports &&
             !filters?.sentBackAdvances
           ) {
-            return potentialDuplicates
+            return mobileNumberVerification
+              .concat(potentialDuplicates)
               .concat(sentBackReports)
               .concat(draftExpenses)
               .concat(unsubmittedReports)
@@ -400,6 +404,12 @@ export class TasksService {
     }
 
     return tasks;
+  }
+
+  getMobileNumberVerificationTasks() {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) => this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'))
+    );
   }
 
   getSentBackReports() {
@@ -486,6 +496,25 @@ export class TasksService {
           duplicateSets?.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : of([])
         )
       );
+  }
+
+  mapMobileNumberVerificationTask(type: 'Add' | 'Verify') {
+    const subheaderPrefixString = type === 'Add' ? 'Add and verify' : 'Verify';
+    const task = [
+      {
+        hideAmount: true,
+        header: `${type} Mobile Number`,
+        subheader: `${subheaderPrefixString} your mobile number to text the receipts directly`,
+        icon: TaskIcon.MOBILE,
+        ctas: [
+          {
+            content: type,
+            event: TASKEVENT.mobileNumberVerification,
+          },
+        ],
+      } as DashboardTask,
+    ];
+    return [task];
   }
 
   mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]) {
