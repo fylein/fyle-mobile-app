@@ -18,7 +18,6 @@ import {
   txnParam1,
   txnParam2,
   createSourceTxn2,
-  expectedSplitTxns,
   txnData2,
 } from '../mock-data/transaction.data';
 import { of } from 'rxjs';
@@ -271,7 +270,7 @@ describe('SplitExpenseService', () => {
     });
   });
 
-  fit('createSplitTxns(): should create split transaction when IDs are not present', (done) => {
+  it('createSplitTxns(): should create split transaction when IDs are not present', (done) => {
     utilityService.generateRandomString.and.returnValue('0AGAoeQfQX');
     spyOn(splitExpenseService, 'createTxns').and.returnValue(of(splitTxn2));
 
