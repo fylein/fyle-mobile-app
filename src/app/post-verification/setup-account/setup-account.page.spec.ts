@@ -20,17 +20,12 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatIcon } from '@angular/material/icon';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
-import { recentCurrencyRes } from 'src/app/core/mock-data/recently-used.data';
-import { Currency } from 'src/app/core/models/currency.model';
 import { currentEouRes, postUserParam, postUserResponse } from 'src/app/core/test-data/org-user.service.spec.data';
-import { OrgUser } from 'src/app/core/models/org-user.model';
 import { orgSettingsGetData, orgSettingsPostData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { By } from '@angular/platform-browser';
 
-fdescribe('SetupAccountPage', () => {
+describe('SetupAccountPage', () => {
   let component: SetupAccountPage;
   let fixture: ComponentFixture<SetupAccountPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -137,82 +132,6 @@ fdescribe('SetupAccountPage', () => {
     expect(component.fg.controls.homeCurrency.value).toEqual('USD');
   }));
 
-  it('onInit(): should set the homeCurrency control value from org$', fakeAsync(() => {
-    spyOn(component, 'setupNetworkWatcher');
-    const org = { currency: 'USD' };
-    orgService.setCurrencyBasedOnIp.and.returnValue(of(orgData1[0]));
-    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
-    component.ngOnInit();
-    fixture.detectChanges();
-    tick(500);
-    expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-    expect(orgService.setCurrencyBasedOnIp).toHaveBeenCalledTimes(2);
-    expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(2);
-    component.org$.subscribe(() => {
-      expect(component.fg.controls.homeCurrency.value).toBe(org.currency);
-    });
-    tick(500);
-  }));
-
-  // it('should emit the correct length validation display value when the password value changes', fakeAsync((done) => {
-  //   const testCases = [{ input: 'qwert', expectedOutput: false }];
-
-  //   tick(500);
-  //   component.fg.controls.password.setValue(testCases[0].input);
-  //   fixture.whenStable().then(() => {
-  //     component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
-  //       expect(value).toEqual(testCases[0].expectedOutput);
-  //       console.log(`Password: ${testCases[0].input}, Display value: ${value}`);
-  //       done();
-  //     });
-  //   });
-  //   tick(500);
-  // }));
-
-  // it('should emit the correct length validation display value when the password value changes', fakeAsync(() => {
-  //   const testCases = [
-  //     { input: 'qwerty', expectedOutput: false },
-  //     { input: 'abc12345678', expectedOutput: true },
-  //     { input: 'john.doe@fyle.in', expectedOutput: true },
-  //     { input: 'abc1234567890abc1234567890werewrttrterterterterterrtrttweqeqew', expectedOutput: false }
-  //   ];
-
-  //   fixture.detectChanges();
-  //   tick(500);
-  //   const actualOutputs: boolean[] = [];
-
-  //   testCases.forEach((testCase) => {
-  //     component.fg.controls.password.setValue(testCase.input);
-  //     component.lengthValidationDisplay$.subscribe((actualOutput) => {
-  //       actualOutputs.push(actualOutput);
-  //       expect(actualOutput).toEqual(testCase.expectedOutput);
-  //       console.log(
-  //         `Input: ${testCase.input}; Actual output: ${actualOutput}; Expected output: ${testCase.expectedOutput}`
-  //       );
-  //     });
-  //     tick(500);
-  //   });
-
-  //   const expectedOutputs = testCases.map((testCase) => testCase.expectedOutput);
-  //   expect(actualOutputs).toEqual(expectedOutputs);
-  // }));
-
-  it('should emit the correct length validation display value when the password value changes', fakeAsync((done) => {
-    const el = fixture.nativeElement.querySelector('.setup-account--password-rules');
-    el.value = 'qwert';
-    el.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    fixture.whenStable().then(() => {
-      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
-        expect(value).toBeFalse();
-        done();
-      });
-    });
-
-    tick(500);
-  }));
-
   it('postUser(): should update the password of the user', fakeAsync(() => {
     orgUserService.postUser.and.returnValue(of(postUserResponse));
     component.eou$ = of(currentEouRes);
@@ -233,7 +152,7 @@ fdescribe('SetupAccountPage', () => {
     tick(500);
   }));
 
-  it('postOrg', fakeAsync(() => {
+  it('postOrg(): should update the company name and the homecurrency and return the updated data', fakeAsync(() => {
     component.org$ = of(orgData1[0]);
     orgService.updateOrg.and.returnValue(of(orgData1[0]));
     component.fg.controls.companyName.setValue('Uber');
@@ -251,7 +170,7 @@ fdescribe('SetupAccountPage', () => {
     tick(500);
   }));
 
-  describe('saveGuessedMileage', () => {
+  describe('saveGuessedMileage():', () => {
     it('should set the desired mileage value if the org currency is USD', fakeAsync(() => {
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       component.org$ = of(orgData1[0]);
@@ -287,7 +206,7 @@ fdescribe('SetupAccountPage', () => {
     }));
   });
 
-  describe('saveData', () => {
+  describe('saveData():', () => {
     it('should navigate to setup_account_preferences when form is valid', fakeAsync(() => {
       spyOn(component.fg, 'markAllAsTouched');
       spyOn(component, 'postUser').and.returnValue(of(postUserResponse));
@@ -339,5 +258,91 @@ fdescribe('SetupAccountPage', () => {
         duration: 1200,
       });
     }));
+  });
+
+  describe('onInit()', () => {
+    it('onInit(): should set the homeCurrency control value from org$', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      const org = { currency: 'USD' };
+      orgService.setCurrencyBasedOnIp.and.returnValue(of(orgData1[0]));
+      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      component.ngOnInit();
+      fixture.detectChanges();
+      tick(500);
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(orgService.setCurrencyBasedOnIp).toHaveBeenCalledTimes(2);
+      expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(2);
+      component.org$.subscribe(() => {
+        expect(component.fg.controls.homeCurrency.value).toBe(org.currency);
+      });
+      tick(500);
+    }));
+
+    it('should emit the correct length validation display value when the password value changes', () => {
+      const testCases = [
+        { input: 'qwert', expectedOutput: false },
+        { input: 'John_doe123@fyle', expectedOutput: true },
+        { input: 'Thisisaveryverylong12345@password', expectedOutput: false },
+      ];
+      testCases.forEach((testCase) => {
+        component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
+          expect(value).toEqual(testCase.expectedOutput);
+        });
+        component.fg.controls.password.patchValue(testCase.input);
+      });
+    });
+
+    it('should emit the correct value to check for upperCase vadility', () => {
+      const testCases = [
+        { input: 'qwert', expectedOutput: false },
+        { input: '1234@abcd', expectedOutput: false },
+        { input: 'John_doe123@fyle', expectedOutput: true },
+      ];
+      testCases.forEach((testCase) => {
+        component.uppercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+          expect(value).toEqual(testCase.expectedOutput);
+        });
+        component.fg.controls.password.patchValue(testCase.input);
+      });
+    });
+
+    it('should emit the correct value to check for number vadility', () => {
+      const testCases = [
+        { input: 'qwert', expectedOutput: false },
+        { input: 'John_doe123@fyle', expectedOutput: true },
+      ];
+      testCases.forEach((testCase) => {
+        component.numberValidationDisplay$.pipe(take(1)).subscribe((value) => {
+          expect(value).toEqual(testCase.expectedOutput);
+        });
+        component.fg.controls.password.patchValue(testCase.input);
+      });
+    });
+
+    it('should emit the correct value to check for lowerCase vadility', () => {
+      const testCases = [
+        { input: 'PASSWORD_123', expectedOutput: false },
+        { input: 'John_doe123@fyle', expectedOutput: true },
+      ];
+      testCases.forEach((testCase) => {
+        component.lowercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+          expect(value).toEqual(testCase.expectedOutput);
+        });
+        component.fg.controls.password.patchValue(testCase.input);
+      });
+    });
+
+    it('should emit the correct value to check for lowerCase vadility', () => {
+      const testCases = [
+        { input: 'Password123', expectedOutput: false },
+        { input: 'John_doe123@fyle', expectedOutput: true },
+      ];
+      testCases.forEach((testCase) => {
+        component.specialCharValidationDisplay$.pipe(take(1)).subscribe((value) => {
+          expect(value).toEqual(testCase.expectedOutput);
+        });
+        component.fg.controls.password.patchValue(testCase.input);
+      });
+    });
   });
 });
