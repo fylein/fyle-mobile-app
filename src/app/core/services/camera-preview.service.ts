@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   CameraPreview,
   CameraPreviewFlashMode,
+  CameraPreviewOptions,
   CameraPreviewPictureOptions,
 } from '@capacitor-community/camera-preview';
 
@@ -17,7 +18,7 @@ export class CameraPreviewService {
     return CameraPreview.capture(options);
   }
 
-  start(options: CameraPreviewPictureOptions): Promise<{}> {
+  start(options: CameraPreviewOptions): Promise<{}> {
     return CameraPreview.start(options);
   }
 

@@ -9,6 +9,8 @@
       [options]="amountOptionsData?.options"
       [selectModalHeader]="'Select amount'"
       formControlName="amount"
+      [touchedInParent]="genericFieldsFormGroup.controls.amount.touched"
+      [validInParent]="genericFieldsFormGroup.controls.amount.valid"
     >
     </app-fy-select>
   </div>
@@ -42,6 +44,8 @@
               [options]="dateOfSpendOptionsData?.options"
               [selectModalHeader]="'Select spend date'"
               formControlName="dateOfSpend"
+              [touchedInParent]="genericFieldsFormGroup.controls.dateOfSpend.touched"
+              [validInParent]="genericFieldsFormGroup.controls.dateOfSpend.valid"
             >
             </app-fy-select>
           </div>
@@ -66,6 +70,8 @@
               [options]="paymentModeOptionsData?.options"
               [selectModalHeader]="'Select Payment Mode'"
               formControlName="paymentMode"
+              [touchedInParent]="genericFieldsFormGroup.controls.paymentMode.touched"
+              [validInParent]="genericFieldsFormGroup.controls.paymentMode.valid"
             >
             </app-fy-select>
           </div>
@@ -93,6 +99,8 @@
       [options]="receiptOptions"
       [selectModalHeader]="'Select receipt'"
       formControlName="receipt_ids"
+      [touchedInParent]="genericFieldsFormGroup.controls.receipt_ids.touched"
+      [validInParent]="genericFieldsFormGroup.controls.receipt_ids.valid"
     >
     </app-fy-select>
   </div>
@@ -144,6 +152,8 @@
               [options]="projectOptionsData?.options"
               [selectModalHeader]="'Select project'"
               formControlName="project"
+              [touchedInParent]="genericFieldsFormGroup.controls.project.touched"
+              [validInParent]="genericFieldsFormGroup.controls.project.valid"
             >
             </app-fy-select>
           </div>
@@ -165,6 +175,8 @@
               [options]="billableOptionsData?.options"
               [selectModalHeader]="'Select billable'"
               formControlName="billable"
+              [touchedInParent]="genericFieldsFormGroup.controls.billable.touched"
+              [validInParent]="genericFieldsFormGroup.controls.billable.valid"
             >
             </app-fy-select>
           </div>
@@ -196,6 +208,8 @@
       [options]="vendorOptionsData?.options"
       [selectModalHeader]="'Select merchant'"
       formControlName="vendor"
+      [touchedInParent]="genericFieldsFormGroup.controls.vendor.touched"
+      [validInParent]="genericFieldsFormGroup.controls.vendor.valid"
     >
     </app-fy-select>
   </div>
@@ -215,6 +229,8 @@
       [options]="categoryOptionsData?.options"
       [selectModalHeader]="'Select category'"
       formControlName="category"
+      [touchedInParent]="genericFieldsFormGroup.controls.category.touched"
+      [validInParent]="genericFieldsFormGroup.controls.category.valid"
     >
     </app-fy-select>
   </div>
@@ -236,6 +252,8 @@
       [options]="taxGroupOptionsData?.options"
       [selectModalHeader]="'Select Tax Group'"
       formControlName="tax_group"
+      [touchedInParent]="genericFieldsFormGroup.controls.tax_group.touched"
+      [validInParent]="genericFieldsFormGroup.controls.tax_group.valid"
     >
     </app-fy-select>
   </div>
@@ -255,6 +273,8 @@
       [options]="taxAmountOptionsData?.options"
       [selectModalHeader]="'Select Tax'"
       formControlName="tax_amount"
+      [touchedInParent]="genericFieldsFormGroup.controls.tax_amount.touched"
+      [validInParent]="genericFieldsFormGroup.controls.tax_amount.valid"
     >
     </app-fy-select>
   </div>
@@ -274,6 +294,8 @@
       [options]="constCenterOptionsData?.options"
       [selectModalHeader]="'Select Cost center'"
       formControlName="costCenter"
+      [touchedInParent]="genericFieldsFormGroup.controls.costCenter.touched"
+      [validInParent]="genericFieldsFormGroup.controls.costCenter.valid"
     >
     </app-fy-select>
   </div>
@@ -300,6 +322,8 @@
       [options]="purposeOptionsData?.options"
       [selectModalHeader]="'Select Purpose'"
       formControlName="purpose"
+      [touchedInParent]="genericFieldsFormGroup.controls.purpose.touched"
+      [validInParent]="genericFieldsFormGroup.controls.purpose.valid"
     >
     </app-fy-select>
   </div>

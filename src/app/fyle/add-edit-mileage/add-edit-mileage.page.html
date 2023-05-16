@@ -165,6 +165,8 @@
                     [selectModalHeader]="'Select Mileage Rate'"
                     formControlName="mileage_rate_name"
                     [selectionElement]="mileage_rate_name"
+                    [touchedInParent]="fg.controls.mileage_rate_name.touched"
+                    [validInParent]="fg.controls.mileage_rate_name.valid"
                   >
                   </app-fy-select>
                   <ng-template
@@ -234,6 +236,8 @@
                           [selectionElement]="paymentMode"
                           formControlName="paymentMode"
                           [placeholder]="'Select Payment Mode'"
+                          [touchedInParent]="fg.controls.paymentMode.touched"
+                          [validInParent]="fg.controls.paymentMode.valid"
                         >
                         </app-fy-select>
                         <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -304,6 +308,8 @@
                             [defaultValue]="true"
                             [recentlyUsed]="recentProjects"
                             formControlName="project"
+                            [validInParent]="fg.controls.project.valid"
+                            [touchedInParent]="fg.controls.project.touched"
                           ></app-fy-select-project>
                         </div>
                       </ng-container>
@@ -364,6 +370,8 @@
                     [selectModalHeader]="'Select Sub Category'"
                     formControlName="sub_category"
                     [placeholder]="'Sub Category'"
+                    [touchedInParent]="fg.controls.sub_category.touched"
+                    [validInParent]="fg.controls.sub_category.valid"
                   >
                   </app-fy-select>
                 </div>
@@ -452,6 +460,8 @@
                         [selectModalHeader]="'Enter ' + txnFields.purpose?.field_name"
                         formControlName="purpose"
                         [placeholder]="txnFields.purpose?.placeholder"
+                        [touchedInParent]="fg.controls.purpose.touched"
+                        [validInParent]="fg.controls.purpose.valid"
                       >
                       </app-fy-select>
                     </div>
@@ -531,6 +541,8 @@
                           [selectModalHeader]="'Select '+customInput.name"
                           formControlName="value"
                           [placeholder]="customInput.placeholder | ellipsis: 30"
+                          [touchedInParent]="customInput.control.controls.value.touched"
+                          [validInParent]="customInput.control.controls.value.valid"
                         >
                         </app-fy-select>
                       </div>

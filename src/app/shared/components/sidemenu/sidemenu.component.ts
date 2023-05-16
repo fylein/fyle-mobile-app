@@ -244,7 +244,7 @@ export class SidemenuComponent implements OnInit {
         disabled: !isConnected,
       },
       {
-        title: 'Teams',
+        title: 'Team',
         isVisible: teamOptions.length ? true : false,
         icon: 'teams',
         isDropdownOpen: false,
@@ -264,7 +264,7 @@ export class SidemenuComponent implements OnInit {
     }
 
     if (teamOptions.length === 1) {
-      this.updateSidemenuOption(primaryOptions, 'Teams', {
+      this.updateSidemenuOption(primaryOptions, 'Team', {
         ...teamOptions[0],
         icon: 'teams',
         disabled: !isConnected,

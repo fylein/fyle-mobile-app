@@ -9,11 +9,12 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { from, fromEvent, Observable, of } from 'rxjs';
-import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, tap, switchMap, shareReplay } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { ExtendedOption, ModalOption, Option } from './fy-select-modal.interface';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -23,21 +24,21 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 export class FySelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+  @Input() options: Option[] = [];
 
-  @Input() currentSelection: any;
+  @Input() currentSelection: string | ModalOption;
 
-  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+  @Input() filteredOptions$: Observable<Option[]>;
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
   @Input() nullOption = true;
 
-  @Input() cacheName;
+  @Input() cacheName: string;
 
   @Input() customInput = false;
 
-  @Input() enableSearch;
+  @Input() enableSearch: boolean;
 
   @Input() selectModalHeader = '';
 
@@ -45,15 +46,15 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() placeholder: string;
 
-  @Input() defaultLabelProp;
+  @Input() defaultLabelProp: string;
 
-  @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
+  @Input() recentlyUsed: Option[];
 
-  @Input() label;
+  @Input() label: string;
 
-  value = '';
+  value: string | ModalOption = '';
 
-  recentrecentlyUsedItems$: Observable<any[]>;
+  recentrecentlyUsedItems$: Observable<ExtendedOption[]>;
 
   constructor(
     private modalController: ModalController,
@@ -77,10 +78,12 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       return of(this.recentlyUsed);
     } else {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) =>
+        map((options: ExtendedOption[]) =>
           options
-            .filter((option) => option.custom || this.options.map((op) => op.label).includes(option.label))
-            .map((option) => {
+            .filter(
+              (option: ExtendedOption) => option.custom || this.options.map((op) => op.label).includes(option.label)
+            )
+            .map((option: ExtendedOption) => {
               option.selected = isEqual(option.value, this.currentSelection);
               return option;
             })
@@ -127,7 +130,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
                 return option;
               })
           );
-        })
+        }),
+        shareReplay(1)
       );
       this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
         map((event: any) => event.srcElement.value),
@@ -138,7 +142,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
             // filtering of recently used items wrt searchText is taken care in service method
             this.utilityService.searchArrayStream(searchText)
           )
-        )
+        ),
+        shareReplay(1)
       );
     } else {
       const initial = [];
@@ -164,7 +169,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option) {
+  onElementSelect(option: ExtendedOption) {
     if (this.cacheName && option.value) {
       option.custom = !this.options.some((internalOption) => internalOption.value !== option.value);
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
@@ -173,7 +178,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
   }
 
   saveToCacheAndUse() {
-    const option: any = {
+    const option: ExtendedOption = {
       label: this.searchBarRef.nativeElement.value,
       value: this.searchBarRef.nativeElement.value,
       selected: false,
