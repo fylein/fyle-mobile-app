@@ -44,7 +44,7 @@ describe('TeamAdvCardComponent', () => {
 
   describe('OnInit():', () => {
     it('should set showDate to false when advanceRequest was created on the same day as prevDate', () => {
-      teamAdvCardComponent.prevDate = new Date('2023-05-16T06:22:47.058Z');
+      teamAdvCardComponent.prevDate = new Date('2023-01-16T06:22:47.058Z');
       fixture.detectChanges();
       teamAdvCardComponent.ngOnInit();
       expect(teamAdvCardComponent.currencySymbol).toEqual('$'); // Assuming USD is the currency code
