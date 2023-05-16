@@ -39,7 +39,7 @@ import {
 } from '../mock-data/task.data';
 import { platformCorporateCard } from '../mock-data/platform-corporate-card.data';
 
-fdescribe('TasksService', () => {
+describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
   let transactionService: jasmine.SpyObj<TransactionService>;

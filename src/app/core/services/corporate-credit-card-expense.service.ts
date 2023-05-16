@@ -29,7 +29,6 @@ export class CorporateCreditCardExpenseService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  //TODO: Write unit tests for this method
   @Cacheable()
   getCorporateCards(): Observable<PlatformCorporateCard[]> {
     return this.spenderPlatformV1ApiService
