@@ -1,4 +1,5 @@
 import { ProjectV1 } from '../models/v1/extended-project.model';
+import { ExtendedProject } from '../models/v2/extended-project.model';
 
 export const apiResponseActiveOnly = [
   {
@@ -231,7 +232,7 @@ export const allowedActiveCategories = [
   },
 ];
 
-export const expectedProjectsResponse = [
+export const expectedProjectsResponse: ExtendedProject[] = [
   {
     ap1_email: null,
     ap1_full_name: null,
