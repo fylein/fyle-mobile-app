@@ -18,6 +18,7 @@ import { PolicyService } from './policy.service';
 import { StatusService } from './status.service';
 import { TransactionService } from './transaction.service';
 import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
+import { UtilityService } from './utility.service';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +34,8 @@ export class SplitExpenseService {
     private policyService: PolicyService,
     private statusService: StatusService,
     private categoriesService: CategoriesService,
-    private dataTransformService: DataTransformService
+    private dataTransformService: DataTransformService,
+    private utilityService: UtilityService
   ) {}
 
   linkTxnWithFiles(data: FileTransaction): Observable<FileObject[]> {
@@ -228,32 +230,18 @@ export class SplitExpenseService {
 
   createSplitTxns(sourceTxn, totalSplitAmount, splitExpenses) {
     let splitGroupAmount = sourceTxn.split_group_user_amount || sourceTxn.amount;
-    const splitGroupId = sourceTxn.split_group_id || sourceTxn.id;
+    let splitGroupId = sourceTxn.split_group_id || sourceTxn.id;
+
     if (!splitGroupAmount) {
       splitGroupAmount = totalSplitAmount;
     }
 
     if (!splitGroupId) {
-      const firstSplitExpense = splitExpenses[0];
-
-      return this.createTxns(sourceTxn, [firstSplitExpense], splitGroupAmount, null, splitExpenses.length).pipe(
-        map((firstTxn) => {
-          splitExpenses.splice(0, 1);
-          return firstTxn;
-        }),
-        switchMap((firstTxn: any[]) =>
-          this.createTxns(
-            sourceTxn,
-            splitExpenses,
-            splitGroupAmount,
-            firstTxn[0].split_group_id,
-            splitExpenses.length
-          ).pipe(map((otherTxns) => firstTxn.concat(otherTxns)))
-        )
-      );
-    } else {
-      return this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, splitExpenses.length);
+      // Hack: Split group id must be present and it should point to the original expense for identifying split expenses, but for splitting expenses through the creation flow, we don't have an original expense. So, we are generating a new random expense id and using it as split group id.
+      splitGroupId = `tx${this.utilityService.generateRandomString(10)}`;
     }
+
+    return this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, splitExpenses.length);
   }
 
   // TODO: Fix later. High impact
