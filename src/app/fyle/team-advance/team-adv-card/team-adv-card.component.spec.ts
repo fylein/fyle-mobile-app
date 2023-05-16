@@ -7,6 +7,7 @@ import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 
 describe('TeamAdvCardComponent', () => {
   let teamAdvCardComponent: TeamAdvCardComponent;
@@ -14,6 +15,8 @@ describe('TeamAdvCardComponent', () => {
   let advanceRequestServiceSpy: jasmine.SpyObj<AdvanceRequestService>;
 
   beforeEach(waitForAsync(() => {
+    const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
+
     advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getInternalStateAndDisplayName']);
 
     advanceRequestServiceSpy.getInternalStateAndDisplayName.and.returnValue({
@@ -22,15 +25,24 @@ describe('TeamAdvCardComponent', () => {
     });
 
     TestBed.configureTestingModule({
-      declarations: [TeamAdvCardComponent, HumanizeCurrencyPipe, EllipsisPipe],
+      declarations: [TeamAdvCardComponent, HumanizeCurrencyPipe, EllipsisPipe, FyCurrencyPipe],
       imports: [IonicModule.forRoot(), MatRippleModule],
-      providers: [{ provide: AdvanceRequestService, useValue: advanceRequestServiceSpy }],
+      providers: [
+        { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
+        {
+          provide: FyCurrencyPipe,
+          useValue: fyCurrencyPipeSpy,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TeamAdvCardComponent);
     teamAdvCardComponent = fixture.componentInstance;
-    teamAdvCardComponent.advanceRequest = extendedAdvReqDraft;
-    teamAdvCardComponent.advanceRequest = { areq_currency: 'USD' } as ExtendedAdvanceRequest;
+    teamAdvCardComponent.advanceRequest = {
+      ...extendedAdvReqDraft,
+      areq_created_at: new Date('2023-01-16T06:22:47.058Z'),
+      areq_currency: 'USD',
+    };
     teamAdvCardComponent.internalState = {
       state: 'inquiry',
       name: 'Sent Back',
@@ -44,11 +56,11 @@ describe('TeamAdvCardComponent', () => {
 
   describe('OnInit():', () => {
     it('should set showDate to false when advanceRequest was created on the same day as prevDate', () => {
-      teamAdvCardComponent.prevDate = new Date('2023-05-16T06:22:47.058Z');
+      teamAdvCardComponent.prevDate = new Date('2023-01-16T06:22:47.058Z');
       fixture.detectChanges();
       teamAdvCardComponent.ngOnInit();
       expect(teamAdvCardComponent.currencySymbol).toEqual('$'); // Assuming USD is the currency code
-      expect(teamAdvCardComponent.showDate).toBeFalse();
+      expect(teamAdvCardComponent.showDate).toBeTrue();
       expect(advanceRequestServiceSpy.getInternalStateAndDisplayName).toHaveBeenCalledWith(
         teamAdvCardComponent.advanceRequest
       );
