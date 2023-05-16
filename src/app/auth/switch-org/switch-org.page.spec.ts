@@ -26,20 +26,23 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { Observable, finalize, of, throwError } from 'rxjs';
+import { finalize, of, throwError } from 'rxjs';
 import { orgData1, orgData2 } from 'src/app/core/mock-data/org.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { authResData1 } from '../../core/mock-data/auth-reponse.data';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { By } from '@angular/platform-browser';
-import * as Sentry from '@sentry/angular';
+import { ActiveOrgCardComponent } from './active-org-card/active-org-card.component';
+import { OrgCardComponent } from './org-card/org-card.component';
+import { FyZeroStateComponent } from 'src/app/shared/components/fy-zero-state/fy-zero-state.component';
+import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
 
-fdescribe('SwitchOrgPage', () => {
+describe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
   let platform: jasmine.SpyObj<Platform>;
@@ -97,7 +100,7 @@ fdescribe('SwitchOrgPage', () => {
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['resendVerificationLink']);
 
     TestBed.configureTestingModule({
-      declarations: [SwitchOrgPage],
+      declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
       imports: [
         IonicModule.forRoot(),
         MatIconTestingModule,
@@ -254,15 +257,6 @@ fdescribe('SwitchOrgPage', () => {
     expect(component.orgs).toEqual(orgData1);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledTimes(1);
-  });
-
-  it('setSentryUser(): should set sentry user', () => {
-    const spy = jasmine.createSpyObj('Sentry', {
-      setUser: {},
-    });
-    component.setSentryUser(apiEouRes);
-
-    // expect(spy.setUser).toHaveBeenCalledTimes(1);
   });
 
   it('resendInvite(): should resend invite to an org', (done) => {
@@ -514,7 +508,7 @@ fdescribe('SwitchOrgPage', () => {
     userService.isPendingDetails.and.returnValue(of(true));
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     authService.getRoles.and.returnValue(of(roles));
-    spyOn(component, 'setSentryUser');
+    spyOn(component, 'setSentryUser').and.callThrough();
     spyOn(component, 'navigateBasedOnUserStatus').and.returnValue(of(apiEouRes));
     loaderService.hideLoader.and.returnValue(new Promise(() => {}));
     deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
@@ -534,7 +528,7 @@ fdescribe('SwitchOrgPage', () => {
     expect(userService.isPendingDetails).toHaveBeenCalledTimes(1);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(authService.getRoles).toHaveBeenCalledTimes(1);
-    expect(component.setSentryUser).toHaveBeenCalledTimes(1);
+    expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
     expect(component.navigateBasedOnUserStatus).toHaveBeenCalledOnceWith({
       isPendingDetails: true,
       roles,
@@ -574,16 +568,45 @@ fdescribe('SwitchOrgPage', () => {
     expect(trackingService.onSwitchOrg).toHaveBeenCalledOnceWith(properties);
   }));
 
-  xit('switchOrg(): should switch org', async () => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    orgService.switchOrg.and.returnValue(of(apiEouRes));
+  describe('switchOrg(): ', () => {
+    it('should catch error and clear all caches', async () => {
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      orgService.switchOrg.and.returnValue(throwError(() => {}));
+      secureStorageService.clearAll.and.returnValue(Promise.resolve({ value: true }));
+      storageService.clearAll.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      userEventService.logout.and.returnValue(null);
 
-    await component.switchOrg(orgData1[0]);
+      await component.switchOrg(orgData1[0]).then(async () => {
+        await Promise.resolve();
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgData1[0].id);
+        expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
+        expect(storageService.clearAll).toHaveBeenCalledTimes(1);
+      });
 
-    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
-    expect(authService.getEou).toHaveBeenCalledTimes(1);
-    // expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgData1[0].id);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(userEventService.logout).toHaveBeenCalledTimes(1);
+    });
+
+    it('should switch org', async () => {
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      orgService.switchOrg.and.returnValue(of(apiEouRes));
+      spyOn(component, 'trackSwitchOrg').and.returnValue(null);
+      spyOn(component, 'proceed').and.returnValue(Promise.resolve(null));
+
+      await component.switchOrg(orgData1[0]);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledTimes(1);
+      expect(component.proceed).toHaveBeenCalledTimes(1);
+      expect(userEventService.clearTaskCache).toHaveBeenCalledTimes(1);
+      expect(component.trackSwitchOrg).toHaveBeenCalledOnceWith(orgData1[0], apiEouRes);
+      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgData1[0].id);
+    });
   });
 
   describe('signOut(): ', () => {
@@ -649,5 +672,47 @@ fdescribe('SwitchOrgPage', () => {
     expect(component.resetSearch).toHaveBeenCalledTimes(1);
     expect(contentClassList.contains('switch-org__content-container__content-block--hide')).toBeFalse();
     expect(searchBarClassList.contains('switch-org__content-container__search-block--show')).toBeFalse();
+  });
+
+  it('should cancel search when clicking on CANCEL button', () => {
+    spyOn(component, 'cancelSearch');
+
+    const cancelButton = getElementBySelector(fixture, '.switch-org__searchbar-container__cancel') as HTMLElement;
+    click(cancelButton);
+
+    expect(component.cancelSearch).toHaveBeenCalledTimes(1);
+  });
+
+  it('should reset search when clicking on RESET button', () => {
+    spyOn(component, 'resetSearch');
+    component.searchInput = 'Staging Loaded';
+    fixture.detectChanges();
+
+    const resetButton = getElementBySelector(
+      fixture,
+      '.switch-org__searchbar-container__searchbar__clear-icon'
+    ) as HTMLElement;
+    click(resetButton);
+
+    expect(component.resetSearch).toHaveBeenCalledTimes(1);
+  });
+
+  it('should open search bar on cliking on the OPEN icon', () => {
+    spyOn(component, 'openSearchBar');
+
+    const openButton = getElementBySelector(fixture, '.switch-org__content-container__content__icon') as HTMLElement;
+    click(openButton);
+
+    expect(component.openSearchBar).toHaveBeenCalledTimes(1);
+  });
+
+  it('should show orgs as cards', () => {
+    component.filteredOrgs$ = of(orgData2);
+    component.primaryOrg$ = of(orgData1[0]);
+    component.isLoading = false;
+    fixture.detectChanges();
+    const orgCards = getAllElementsBySelector(fixture, "[data-test='org-cards']");
+
+    expect(orgCards.length).toEqual(orgData2.length);
   });
 });
