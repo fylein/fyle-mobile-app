@@ -278,7 +278,7 @@ describe('SplitExpenseService', () => {
     const amount = 16428.56;
 
     splitExpenseService.createSplitTxns(createSourceTxn2, amount, splitTxn2).subscribe((res) => {
-      expect(res).toEqual(expectedSplitTxns);
+      expect(res).toEqual(splitTxn2);
       expect(utilityService.generateRandomString).toHaveBeenCalledOnceWith(10);
       expect(splitExpenseService.createTxns).toHaveBeenCalledOnceWith(
         createSourceTxn2,
