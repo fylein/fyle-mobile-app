@@ -241,7 +241,6 @@ describe('SwitchOrgPage', () => {
 
   it('ionViewWillEnter(): show orgs and setup search bar', () => {
     orgService.getOrgs.and.returnValue(of(orgData1));
-    spyOn(component, 'proceed');
     spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
@@ -254,6 +253,7 @@ describe('SwitchOrgPage', () => {
       expect(res).toEqual(orgData1);
     });
     expect(orgService.getOrgs).toHaveBeenCalledTimes(1);
+    expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
     expect(component.orgs).toEqual(orgData1);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledTimes(1);
@@ -298,6 +298,7 @@ describe('SwitchOrgPage', () => {
       panelClass: ['msb-info'],
     });
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: msg });
+    expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledTimes(1);
   });
 
   describe('handleDismissPopup(): ', () => {
@@ -324,6 +325,7 @@ describe('SwitchOrgPage', () => {
       spyOn(component, 'showToastNotification');
 
       component.handleDismissPopup('resend', email, org_id, orgData1);
+      expect(component.resendInvite).toHaveBeenCalledOnceWith(email, org_id);
       expect(component.showToastNotification).toHaveBeenCalledOnceWith(
         'Verification link could not be sent. Please try again!'
       );
@@ -331,7 +333,7 @@ describe('SwitchOrgPage', () => {
   });
 
   it('showEmailNotVerifiedAlert(): should show email not verified alert', async () => {
-    spyOn(component, 'handleDismissPopup').and.stub();
+    spyOn(component, 'handleDismissPopup').and.returnValue(null);
     const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
     popoverSpy.onWillDismiss.and.returnValue(
       Promise.resolve({
@@ -346,6 +348,7 @@ describe('SwitchOrgPage', () => {
     fixture.detectChanges();
 
     await component.showEmailNotVerifiedAlert();
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       componentProps: {
         title: 'Invite Not Accepted',
@@ -384,7 +387,7 @@ describe('SwitchOrgPage', () => {
     loaderService.hideLoader.and.returnValue(Promise.resolve());
     orgUserService.markActive.and.returnValue(of(apiEouRes));
 
-    component
+    await component
       .markUserActive()
       .pipe(
         finalize(() => {
@@ -395,7 +398,6 @@ describe('SwitchOrgPage', () => {
       .subscribe((res) => {
         expect(res).toEqual(apiEouRes);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-
         expect(orgUserService.markActive).toHaveBeenCalledTimes(1);
       });
   });
