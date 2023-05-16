@@ -52,6 +52,37 @@ describe('UtilityService', () => {
     });
   });
 
+  describe('generateRandomString():', () => {
+    it('should return a string of the specified length', () => {
+      const result = utilityService.generateRandomString(10);
+      expect(result.length).toBe(10);
+    });
+
+    it('should return a random string', () => {
+      const result1 = utilityService.generateRandomString(10);
+      const result2 = utilityService.generateRandomString(10);
+      expect(result1).not.toBe(result2);
+    });
+
+    it('should only contain valid characters', () => {
+      const result = utilityService.generateRandomString(10);
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      for (let i = 0; i < result.length; i++) {
+        expect(characters).toContain(result[i]);
+      }
+    });
+
+    it('should return an empty string when length is 0', () => {
+      const result = utilityService.generateRandomString(0);
+      expect(result).toBe('');
+    });
+
+    it('should return an empty string when length is negative', () => {
+      const result = utilityService.generateRandomString(-1);
+      expect(result).toBe('');
+    });
+  });
+
   describe('sortAllAdvances():', () => {
     it('should sort single advance', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue(singleExtendedAdvReqRes.data);

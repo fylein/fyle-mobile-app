@@ -122,6 +122,15 @@ export class UtilityService {
     return text.match(/capped to ([a-zA-Z]{1,3} \d+)/i);
   }
 
+  generateRandomString(length: number): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  }
+
   private getSortingValue(advance: any, sortParam: SortingParam) {
     if (sortParam === SortingParam.creationDate) {
       return advance.areq_created_at ? dayjs(advance.areq_created_at) : dayjs(advance.adv_created_at);
