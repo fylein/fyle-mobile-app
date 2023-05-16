@@ -39,6 +39,7 @@ import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/tran
 import { violationComment1, violationComment2, violationComment3 } from '../mock-data/policy-violcation-comment.data';
 import { unflattenExp1, unflattenExp2 } from '../mock-data/unflattened-expense.data';
 import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data/crtical-policy-violations.data';
+import { UtilityService } from './utility.service';
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -47,6 +48,7 @@ describe('SplitExpenseService', () => {
   let fileService: jasmine.SpyObj<FileService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
 
   beforeEach(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
@@ -64,6 +66,7 @@ describe('SplitExpenseService', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['base64Download']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['filterByOrgCategoryId']);
+    const utilityServiceSpy = jasmine.createSpyObj('UtiltyService', ['generateRandomString']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -92,6 +95,10 @@ describe('SplitExpenseService', () => {
           provide: DataTransformService,
           useValue: dataTransformServiceSpy,
         },
+        {
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
+        },
       ],
     });
 
@@ -102,6 +109,7 @@ describe('SplitExpenseService', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
   });
 
   it('should be created', () => {
@@ -263,14 +271,22 @@ describe('SplitExpenseService', () => {
     });
   });
 
-  it('createSplitTxns(): should create split transaction when IDs are not present', (done) => {
+  fit('createSplitTxns(): should create split transaction when IDs are not present', (done) => {
+    utilityService.generateRandomString.and.returnValue('0AGAoeQfQX');
     spyOn(splitExpenseService, 'createTxns').and.returnValue(of(splitTxn2));
 
     const amount = 16428.56;
 
     splitExpenseService.createSplitTxns(createSourceTxn2, amount, splitTxn2).subscribe((res) => {
       expect(res).toEqual(expectedSplitTxns);
-      expect(splitExpenseService.createTxns).toHaveBeenCalledTimes(2);
+      expect(utilityService.generateRandomString).toHaveBeenCalledOnceWith(10);
+      expect(splitExpenseService.createTxns).toHaveBeenCalledOnceWith(
+        createSourceTxn2,
+        splitTxn2,
+        amount,
+        'tx0AGAoeQfQX',
+        splitTxn2.length
+      );
       done();
     });
   });
