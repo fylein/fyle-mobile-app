@@ -22,6 +22,8 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   verifyingOtp = false;
 
+  error = '';
+
   constructor(
     private popoverController: PopoverController,
     private mobileNumberVerificationService: MobileNumberVerificationService
@@ -36,8 +38,18 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.inputEl.nativeElement.focus(), 400);
   }
 
+  validateInput() {
+    if (!this.value || this.value.length < 6 || !this.value.match(/[0-9]{6}/)) {
+      this.error = 'Please enter 6 digit OTP';
+    }
+  }
+
   goBack() {
     this.popoverController.dismiss({ action: 'BACK' });
+  }
+
+  onFocus() {
+    this.error = null;
   }
 
   resendOtp() {
@@ -54,15 +66,17 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   }
 
   verifyOtp() {
+    this.validateInput();
+    if (this.error) {
+      return;
+    }
     this.verifyingOtp = true;
     this.mobileNumberVerificationService
       .verifyOtp(this.value)
       .pipe(finalize(() => (this.verifyingOtp = false)))
-      .subscribe(() => ({
+      .subscribe({
         complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
-        error: () => {
-          //TODO: Show error message
-        },
-      }));
+        error: () => (this.error = 'Incorrect mobile number or OTP. Please try again.'),
+      });
   }
 }

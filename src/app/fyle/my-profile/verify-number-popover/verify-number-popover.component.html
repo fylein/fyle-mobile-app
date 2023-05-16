@@ -47,11 +47,13 @@
     matInput
     [(ngModel)]="value"
     class="verify-number-popover--input-container__input smartlook-show"
+    [ngClass]="{ 'verify-number-popover--input-container__input--error': error?.length }"
     placeholder="Enter 6 digit OTP"
     type="text"
     inputmode="numeric"
     autocomplete="one-time-code"
     maxlength="6"
-    minlength="6"
+    (focus)="onFocus()"
   />
+  <span *ngIf="error?.length" class="verify-number-popover--input-container__error">{{ error }}</span>
 </div>

@@ -1,0 +1,45 @@
+<div class="popup-with-bullets">
+  <ion-header>
+    <div class="popup-with-bullets__title">
+      {{ title }}
+    </div>
+  </ion-header>
+
+  <div class="popup-with-bullets__list-header">{{ listHeader }}</div>
+
+  <div
+    class="popup-with-bullets__list-item"
+    [ngClass]="{ 'popup-with-bullets__list-item--last': lastItem }"
+    *ngFor="let item of listItems; let lastItem = last"
+  >
+    <div class="d-flex">
+      <div>
+        <ion-icon
+          class="popup-with-bullets__list-item__icon"
+          [src]="'../../../../assets/svg/' + item.icon + '.svg'"
+        ></ion-icon>
+      </div>
+      <div class="popup-with-bullets__list-item__text">
+        {{ item.text }}
+      </div>
+    </div>
+    <ng-container *ngIf="item.textToCopy?.length">
+      <div (click)="copyToClipboard(item.textToCopy)" class="popup-with-bullets__list-item__copy-text">
+        <div>
+          {{ item.textToCopy }}
+        </div>
+        <div>
+          <ion-icon class="popup-with-bullets__list-item__icon" src="../../../../assets/svg/duplicate.svg"></ion-icon>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <ion-footer class="popup-with-bullets__footer">
+    <div>
+      <button type="submit" class="popup-with-bullets__cta" (click)="dimissPopover()">
+        {{ ctaText }}
+      </button>
+    </div>
+  </ion-footer>
+</div>
