@@ -79,27 +79,6 @@ describe('RequestInvitationPage', () => {
       expect(component.currentPageState).toBe(component.RequestInvitationStates.success);
     }));
 
-    it('should set current page state to failure if error status is not 400', fakeAsync(() => {
-      const error = new Error('Some error');
-      activeroutemock.snapshot.params = {
-        email: '',
-      };
-      component.fg.controls.email.setValue('');
-      invitationRequestsService.upsertRouter.and.returnValue(throwError(() => error));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
-      try {
-        component.sendRequestInvitation();
-        tick(10000);
-      } catch (err) {
-        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Sending request to join organization...');
-        expect(invitationRequestsService.upsertRouter).toHaveBeenCalledOnceWith('');
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        expect(component.currentPageState).toBe(component.RequestInvitationStates.failure);
-        expect(err).toBe(error);
-      }
-    }));
-
     it('should set current page state to alreadtSent if error status is 400', fakeAsync(() => {
       const error = { status: 400 };
       activeroutemock.snapshot.params = {
@@ -118,6 +97,27 @@ describe('RequestInvitationPage', () => {
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(err).toBe(error);
         expect(component.currentPageState).toBe(component.RequestInvitationStates.alreadySent);
+      }
+    }));
+
+    it('should set current page state to failure if error status is not 400', fakeAsync(() => {
+      const error = new Error('Some error');
+      activeroutemock.snapshot.params = {
+        email: '',
+      };
+      component.fg.controls.email.setValue('');
+      invitationRequestsService.upsertRouter.and.returnValue(throwError(() => error));
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      try {
+        component.sendRequestInvitation();
+        tick(10000);
+      } catch (err) {
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Sending request to join organization...');
+        expect(invitationRequestsService.upsertRouter).toHaveBeenCalledOnceWith('');
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(component.currentPageState).toBe(component.RequestInvitationStates.failure);
+        expect(err).toBe(error);
       }
     }));
   });
