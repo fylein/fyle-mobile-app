@@ -18,6 +18,7 @@ import { HandleDuplicatesService } from './handle-duplicates.service';
 import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
+import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 
 type StatsResponse = {
   aggregates: [
@@ -49,7 +50,8 @@ export class TasksService {
     private authService: AuthService,
     private handleDuplicatesService: HandleDuplicatesService,
     private advancesRequestService: AdvanceRequestService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {
     this.refreshOnTaskClear();
   }
@@ -406,9 +408,23 @@ export class TasksService {
     return tasks;
   }
 
+  //TODO: Write unit tests for this
   getMobileNumberVerificationTasks() {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) => this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'))
+    const rtfEnrolledCards$ = this.corporateCreditCardExpenseService
+      .getCorporateCards()
+      .pipe(map((cards) => cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled)));
+
+    return forkJoin({
+      rtfEnrolledCards: rtfEnrolledCards$,
+      eou: from(this.authService.getEou()),
+    }).pipe(
+      switchMap(({ rtfEnrolledCards, eou }) => {
+        //Show this task only if mobile number is not verified and user is enrolled for RTF
+        if (!eou.ou.mobile_verified && rtfEnrolledCards.length) {
+          return this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add');
+        }
+        return of([]);
+      })
     );
   }
 
