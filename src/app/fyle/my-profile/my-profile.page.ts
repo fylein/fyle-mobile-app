@@ -27,6 +27,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -41,6 +42,13 @@ type PreferenceSetting = {
   defaultCurrency?: string;
   isEnabled: boolean;
   isAllowed: boolean;
+};
+
+type CopyCardDetails = {
+  title: string;
+  content: string;
+  contentToCopy: string;
+  isHidden?: boolean;
 };
 
 @Component({
@@ -73,6 +81,8 @@ export class MyProfilePage {
 
   preferenceSettings: PreferenceSetting[];
 
+  infoCardsData: CopyCardDetails[];
+
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -89,7 +99,8 @@ export class MyProfilePage {
     private popoverController: PopoverController,
     private orgUserService: OrgUserService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private currencyService: CurrencyService
   ) {}
 
   setupNetworkWatcher() {
@@ -161,11 +172,12 @@ export class MyProfilePage {
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => this.setInfoCardsData(homeCurrency));
+
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
           forkJoin({
-            eou: from(this.authService.getEou()),
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
           })
@@ -208,6 +220,27 @@ export class MyProfilePage {
       },
     ];
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
+  }
+
+  setInfoCardsData(homeCurrency: string) {
+    const fyleMobileNumber = '(302) 440-2921';
+    const fyleEmail = 'receipts@fylehq.com';
+
+    const allInfoCardsData = [
+      {
+        title: 'Message Receipts',
+        content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
+        contentToCopy: fyleMobileNumber,
+        isHidden: homeCurrency !== 'USD',
+      },
+      {
+        title: 'Email Receipts',
+        content: `Forward your receipts to Fyle at ${fyleEmail}.`,
+        contentToCopy: fyleEmail,
+      },
+    ];
+
+    this.infoCardsData = allInfoCardsData.filter((infoCardData) => !infoCardData.isHidden);
   }
 
   showToastMessage(message: string, type: 'success' | 'failure') {
