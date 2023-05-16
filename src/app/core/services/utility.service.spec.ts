@@ -72,12 +72,14 @@ describe('UtilityService', () => {
       }
     });
 
-    it('should return an empty string when length is 0 or negative', () => {
-      const result1 = utilityService.generateRandomString(0);
-      expect(result1).toBe('');
+    it('should return an empty string when length is 0', () => {
+      const result = utilityService.generateRandomString(0);
+      expect(result).toBe('');
+    });
 
-      const result2 = utilityService.generateRandomString(-1);
-      expect(result2).toBe('');
+    it('should return an empty string when length is negative', () => {
+      const result = utilityService.generateRandomString(-1);
+      expect(result).toBe('');
     });
   });
 
