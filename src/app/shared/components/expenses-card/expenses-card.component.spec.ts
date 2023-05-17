@@ -54,7 +54,7 @@ const thumbnailUrlMockData1: FileObject[] = [
   },
 ];
 
-fdescribe('ExpensesCardComponent', () => {
+describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -197,7 +197,7 @@ fdescribe('ExpensesCardComponent', () => {
         ...expenseData1,
         tx_id: 'tx3nHShG60zq',
       };
-      expect(component.isSelected).toBe(true);
+      expect(component.isSelected).toBeTrue();
     });
 
     it('should return false if the expense is not selected', () => {
@@ -206,7 +206,7 @@ fdescribe('ExpensesCardComponent', () => {
         ...expenseData1,
         tx_id: null,
       };
-      expect(component.isSelected).toBe(false);
+      expect(component.isSelected).toBeFalse();
     });
   });
 
@@ -345,7 +345,7 @@ fdescribe('ExpensesCardComponent', () => {
       };
       const result = component.checkIfScanIsCompleted();
       fixture.detectChanges();
-      expect(result).toBe(true);
+      expect(result).toBeTrue();
     });
 
     it('should check if scan is complete and return true if the transaction user amount is present and no extracted data is available', () => {
@@ -357,7 +357,7 @@ fdescribe('ExpensesCardComponent', () => {
       };
       const result = component.checkIfScanIsCompleted();
       fixture.detectChanges();
-      expect(result).toBe(true);
+      expect(result).toBeTrue();
     });
 
     it('should check if scan is complete and return true if the required extracted data is present', () => {
@@ -376,7 +376,7 @@ fdescribe('ExpensesCardComponent', () => {
       };
       const result = component.checkIfScanIsCompleted();
       fixture.detectChanges();
-      expect(result).toBe(true);
+      expect(result).toBeTrue();
     });
 
     it('should return true if the scan has expired', () => {
@@ -390,7 +390,7 @@ fdescribe('ExpensesCardComponent', () => {
       jasmine.clock().mockDate(oneDaysAfter);
 
       const result = component.checkIfScanIsCompleted();
-      expect(result).toBe(true);
+      expect(result).toBeTrue();
     });
   });
 
@@ -576,7 +576,7 @@ fdescribe('ExpensesCardComponent', () => {
       };
       component.isFirstOfflineExpense = true;
       component.ngOnInit();
-      expect(component.showDt).toBe(true);
+      expect(component.showDt).toBeTrue();
     });
 
     it('should set showDt based on date comparison when previousExpenseTxnDate is truthy', () => {
@@ -590,7 +590,7 @@ fdescribe('ExpensesCardComponent', () => {
 
       component.ngOnInit();
 
-      expect(component.showDt).toBe(true);
+      expect(component.showDt).toBeTrue();
     });
 
     it('should set showDt based on date comparison when previousExpenseCreatedAt is truthy', () => {
@@ -602,7 +602,7 @@ fdescribe('ExpensesCardComponent', () => {
       component.previousExpenseCreatedAt = new Date('2023-01-29T07:29:02.966116');
 
       component.ngOnInit();
-      expect(component.showDt).toBe(true);
+      expect(component.showDt).toBeTrue();
     });
 
     it('should set isMileageExpense to true of the fyle category is mileage', () => {
@@ -613,7 +613,7 @@ fdescribe('ExpensesCardComponent', () => {
         tx_fyle_category: 'mileage',
       };
       component.ngOnInit();
-      expect(component.isMileageExpense).toBe(true);
+      expect(component.isMileageExpense).toBeTrue();
     });
 
     it('should set isPerDiem to true if the fyle category is per diem', () => {
@@ -624,7 +624,7 @@ fdescribe('ExpensesCardComponent', () => {
         tx_fyle_category: 'per diem',
       };
       component.ngOnInit();
-      expect(component.isPerDiem).toBe(true);
+      expect(component.isPerDiem).toBeTrue();
     });
 
     it('should call other methods', fakeAsync(() => {
