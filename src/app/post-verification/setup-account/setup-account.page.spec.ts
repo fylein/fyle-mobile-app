@@ -22,7 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
-import { currentEouRes, postUserParam, postUserResponse } from 'src/app/core/test-data/org-user.service.spec.data';
+import { currentEouRes, postUserResponse } from 'src/app/core/test-data/org-user.service.spec.data';
 import { orgSettingsGetData, orgSettingsPostData } from 'src/app/core/test-data/org-settings.service.spec.data';
 
 describe('SetupAccountPage', () => {
@@ -167,7 +167,6 @@ describe('SetupAccountPage', () => {
       expect(orgData1[0]).toEqual(expectedOrgData);
       expect(orgService.updateOrg).toHaveBeenCalledOnceWith(expectedOrgData);
     });
-    tick(500);
   }));
 
   describe('saveGuessedMileage():', () => {
@@ -176,13 +175,11 @@ describe('SetupAccountPage', () => {
       component.org$ = of(orgData1[0]);
       orgSettingsService.post.and.returnValue(of(orgSettingsPostData));
       component.saveGuessedMileage().subscribe(() => {
-        fixture.detectChanges();
         expect(orgSettingsRes.mileage.four_wheeler).toBe(0.58);
         expect(orgSettingsRes.mileage.unit).toBe('MILES');
         expect(orgSettingsRes.mileage.enabled).toBe(true);
         expect(orgSettingsRes.mileage.two_wheeler).toBe(0.58);
       });
-      tick(500);
       expect(orgSettingsService.post).toHaveBeenCalledOnceWith(orgSettingsRes);
     }));
 
@@ -261,21 +258,27 @@ describe('SetupAccountPage', () => {
   });
 
   describe('onInit()', () => {
-    it('onInit(): should set the homeCurrency control value from org$', fakeAsync(() => {
+    it('should check if eou$ was called and the appropriate fullname was obtained', fakeAsync(() => {
       spyOn(component, 'setupNetworkWatcher');
-      const org = { currency: 'USD' };
-      orgService.setCurrencyBasedOnIp.and.returnValue(of(orgData1[0]));
-      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      component.eou$ = of(currentEouRes);
       component.ngOnInit();
       fixture.detectChanges();
       tick(500);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-      expect(orgService.setCurrencyBasedOnIp).toHaveBeenCalledTimes(2);
-      expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(2);
+      component.fullname$.subscribe((res) => {
+        expect(res).toBe(currentEouRes.us.full_name);
+      });
+    }));
+
+    it('should set the homeCurrency control value from org$', fakeAsync(() => {
+      const org = { currency: 'USD' };
+      orgService.setCurrencyBasedOnIp.and.returnValue(of(orgData1[0]));
+      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      expect(orgService.setCurrencyBasedOnIp).toHaveBeenCalledTimes(1);
+      expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
       component.org$.subscribe(() => {
         expect(component.fg.controls.homeCurrency.value).toBe(org.currency);
       });
-      tick(500);
     }));
 
     it('should emit the correct length validation display value when the password value changes', () => {
@@ -292,7 +295,7 @@ describe('SetupAccountPage', () => {
       });
     });
 
-    it('should emit the correct value to check for upperCase vadility', () => {
+    it('should emit the correct value to check for upperCase validity', () => {
       const testCases = [
         { input: 'qwert', expectedOutput: false },
         { input: '1234@abcd', expectedOutput: false },
@@ -306,7 +309,7 @@ describe('SetupAccountPage', () => {
       });
     });
 
-    it('should emit the correct value to check for number vadility', () => {
+    it('should emit the correct value to check for number validity', () => {
       const testCases = [
         { input: 'qwert', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
@@ -319,7 +322,7 @@ describe('SetupAccountPage', () => {
       });
     });
 
-    it('should emit the correct value to check for lowerCase vadility', () => {
+    it('should emit the correct value to check for lower case validity', () => {
       const testCases = [
         { input: 'PASSWORD_123', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
@@ -332,7 +335,7 @@ describe('SetupAccountPage', () => {
       });
     });
 
-    it('should emit the correct value to check for lowerCase vadility', () => {
+    it('should emit the correct value to check for special characters in the password', () => {
       const testCases = [
         { input: 'Password123', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
