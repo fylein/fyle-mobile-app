@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -24,12 +24,26 @@ import {
 } from 'src/app/core/mock-data/expense.data';
 import { approversData1 } from 'src/app/core/mock-data/approver.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { EventEmitter } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { ShareReportComponent } from './share-report/share-report.component';
+import { expectedAllReports, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
+import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { CurrencyPipe } from '@angular/common';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { By } from '@angular/platform-browser';
+import {
+  getEstatusApiResponse,
+  updateReponseWithFlattenedEStatus,
+} from 'src/app/core/test-data/status.service.spec.data';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
+import { FormsModule } from '@angular/forms';
 
 fdescribe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
@@ -86,9 +100,11 @@ fdescribe('ViewTeamReportPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportPage],
-      imports: [IonicModule.forRoot()],
+      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe],
+      imports: [IonicModule.forRoot(), FormsModule],
       providers: [
+        FyCurrencyPipe,
+        CurrencyPipe,
         {
           provide: ActivatedRoute,
           useValue: {
@@ -165,6 +181,7 @@ fdescribe('ViewTeamReportPage', () => {
           useValue: orgSettingsServiceSpy,
         },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(ViewTeamReportPage);
     component = fixture.componentInstance;
@@ -243,7 +260,66 @@ fdescribe('ViewTeamReportPage', () => {
     expect(result).toBeFalse();
   });
 
-  xit('ionViewWillEnter', () => {});
+  it('ionViewWillEnter', fakeAsync(() => {
+    spyOn(component, 'setupNetworkWatcher');
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    reportService.getReport.and.returnValue(of(expectedAllReports[0]));
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    statusService.find.and.returnValue(of(getEstatusApiResponse));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+    reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
+    reportService.getExports.and.returnValue(
+      of({
+        results: [
+          { created_at: '2023-01-17T06:35:06.814556', update_at: '2023-02-23T11:46:17.569Z' },
+          { created_at: '2023-02-24T12:03:57.680Z', update_at: '2023-02-23T11:46:17.569Z' },
+        ],
+      })
+    );
+    reportService.getApproversByReportId.and.returnValue(of(approversData1));
+    reportService.getReportETxnc.and.returnValue(of(etxncListData.data));
+    reportService.actions.and.returnValue(of(apiReportActions));
+
+    component.ionViewWillEnter();
+    tick(500);
+
+    expect(authService.getEou).toHaveBeenCalledTimes(2);
+    expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
+    expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+    expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
+
+    component.erpt$.subscribe((res) => {
+      console.log(res);
+    });
+
+    tick(500);
+    component.simplifyReportsSettings$.subscribe((res) => {
+      console.log(res);
+    });
+
+    component.totalCommentsCount$.subscribe((res) => {
+      console.log(res);
+    });
+
+    component.etxnAmountSum$.subscribe((res) => {
+      console.log(res);
+    });
+
+    component.sharedWith$.subscribe((res) => {
+      console.log(res);
+    });
+
+    component.canEdit$.subscribe((res) => {
+      console.log(res);
+    });
+
+    component.canDelete$.subscribe((res) => {
+      console.log(res);
+    });
+  }));
 
   it('toggleTooltip(): should toggle tooltip', () => {
     component.canShowTooltip = false;
@@ -253,12 +329,88 @@ fdescribe('ViewTeamReportPage', () => {
     expect(component.canShowTooltip).toBeTrue();
   });
 
-  xit('isUserActiveInCurrentSeqApprovalQueue', () => {});
+  it('isUserActiveInCurrentSeqApprovalQueue(): should check whether user is active and an approver', () => {
+    const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData1);
 
-  xit('deleteReport(): should delete report', () => {});
+    expect(result).toBeFalse();
+  });
+
+  it('deleteReport(): should delete report', async () => {
+    popupService.showPopup.and.returnValue(Promise.resolve('primary'));
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    reportService.delete.and.returnValue(of(true));
+    loaderService.hideLoader.and.returnValue(Promise.resolve());
+
+    await component.deleteReport();
+
+    expect(popupService.showPopup).toHaveBeenCalledOnceWith({
+      header: 'Delete Report',
+      message: `
+        <p class="highlight-info">
+          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
+        </p>
+        <p>
+          Are you sure, you want to delete this report?
+        </p>
+      `,
+      primaryCta: {
+        text: 'Delete Report',
+      },
+    });
+    expect(reportService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+  });
 
   describe('approveReport(): ', () => {
-    it('should open the modal and approve the report', async () => {});
+    it('should open the modal and approve the report', async () => {
+      humanizeCurrency.transform.and.callThrough();
+      const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.returnValue(
+        Promise.resolve({
+          data: {
+            action: 'approve',
+          },
+        })
+      );
+
+      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+      reportService.approve.and.returnValue(of(true));
+      refinerService.startSurvey.and.returnValue(null);
+
+      component.erpt$ = of(expectedReportSingleResponse);
+      component.etxns$ = of(etxncListData.data);
+      fixture.detectChanges();
+
+      await component.approveReport();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        componentProps: {
+          etxns: etxncListData.data,
+          title: 'Approve Report',
+          message: '3 expenses of amount undefined will be approved',
+          primaryCta: {
+            text: 'Approve',
+            action: 'approve',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
+        },
+        component: PopupAlertComponent,
+        cssClass: 'pop-up-in-center',
+      });
+      expect(humanizeCurrency.transform).toHaveBeenCalledOnceWith(
+        expectedReportSingleResponse.rp_amount,
+        expectedReportSingleResponse.rp_currency,
+        false
+      );
+      expect(reportService.approve).toHaveBeenCalledOnceWith(expectedReportSingleResponse.rp_id);
+      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+    });
 
     it('should toggle tooltip if approval privledge', async () => {
       spyOn(component, 'toggleTooltip');
@@ -467,5 +619,73 @@ fdescribe('ViewTeamReportPage', () => {
     expect(trackingService.clickViewReportInfo).toHaveBeenCalledOnceWith({ view: ExpenseView.team });
   });
 
-  xit('addComment', () => {});
+  describe('segmentChanged():', () => {
+    it('should show expense tab', () => {
+      component.segmentChanged({
+        detail: {
+          value: 'expenses',
+        },
+      });
+
+      expect(component.isExpensesView).toBeTrue();
+      expect(component.isCommentsView).toBeFalse();
+      expect(component.isHistoryView).toBeFalse();
+
+      const expenseTab = fixture.debugElement.query(By.css('.view-reports-expense-card-block'));
+      expect(expenseTab).toBeDefined();
+    });
+
+    it('should show comments tab', fakeAsync(() => {
+      spyOn(component.content, 'scrollToBottom');
+      component.segmentChanged({
+        detail: {
+          value: 'comments',
+        },
+      });
+
+      tick(1000);
+      expect(component.isExpensesView).toBeFalse();
+      expect(component.isCommentsView).toBeTrue();
+      expect(component.isHistoryView).toBeFalse();
+      expect(component.content.scrollToBottom).toHaveBeenCalledOnceWith(500);
+
+      const commentTab = fixture.debugElement.query(By.css('.view-comment--container'));
+      expect(commentTab).toBeDefined();
+    }));
+
+    it('should show history tab', () => {
+      component.segmentChanged({
+        detail: {
+          value: 'history',
+        },
+      });
+
+      expect(component.isExpensesView).toBeFalse();
+      expect(component.isCommentsView).toBeFalse();
+      expect(component.isHistoryView).toBeTrue();
+
+      const historyTab = fixture.debugElement.query(By.css('.view-reports--history-container'));
+      expect(historyTab).toBeDefined();
+    });
+  });
+
+  it('addComment(): should add a comment', () => {
+    statusService.post.and.returnValue(of(true));
+    spyOn(component.content, 'scrollToBottom');
+    spyOn(component.refreshEstatuses$, 'next');
+    component.isCommentsView = true;
+    component.newComment = 'comment';
+    component.commentInput = fixture.debugElement.query(By.css('.view-comment--text-area'));
+    fixture.detectChanges();
+    spyOn(component.commentInput.nativeElement, 'focus');
+
+    component.addComment();
+    expect(statusService.post).toHaveBeenCalledOnceWith(component.objectType, component.objectId, {
+      comment: 'comment',
+    });
+    expect(component.isCommentAdded).toBeTrue();
+    expect(component.newComment).toBeNull();
+    expect(component.commentInput.nativeElement.focus).toHaveBeenCalledTimes(1);
+    expect(component.refreshEstatuses$.next).toHaveBeenCalledTimes(1);
+  });
 });
