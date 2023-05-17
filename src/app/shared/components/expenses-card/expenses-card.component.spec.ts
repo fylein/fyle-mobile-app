@@ -27,7 +27,6 @@ import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import {
-  fileObject5,
   fileObjectAdv,
   fileObjectAdv1,
   fileObjectData,
@@ -42,8 +41,6 @@ import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.da
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
-import { By } from '@angular/platform-browser';
-import { advRequestFile } from 'src/app/core/mock-data/advance-request-file.data';
 import { DebugElement, EventEmitter } from '@angular/core';
 
 const thumbnailUrlMockData1: FileObject[] = [
@@ -169,8 +166,6 @@ describe('ExpensesCardComponent', () => {
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);
     component = fixture.componentInstance;
-
-    Object.freeze(expenseData1);
 
     component.receiptIcon = 'assets/svg/pdf.svg';
     component.isOutboxExpense = true;
