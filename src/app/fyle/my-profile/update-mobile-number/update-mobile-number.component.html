@@ -1,0 +1,43 @@
+<ion-header mode="md">
+  <ion-toolbar mode="md" class="fy-modal-toolbar update-mobile-number--toolbar">
+    <ion-title class="text-center">
+      <div class="update-mobile-number--toolbar__title">{{ title }}</div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="closePopover()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <button
+        appFormButtonValidation
+        [loading]="updatingMobileNumber"
+        loadingText=" "
+        class="update-mobile-number--toolbar__btn"
+        (click)="saveValue()"
+      >
+        {{ ctaText }}
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="update-mobile-number--input-container">
+  <div class="update-mobile-number--input-container__label">
+    <span> {{ inputLabel }} </span>
+    <span class="update-mobile-number--input-container__mandatory"> * </span>
+  </div>
+  <input
+    #input
+    matInput
+    [(ngModel)]="inputValue"
+    class="update-mobile-number--input-container__input smartlook-show"
+    [ngClass]="{ 'update-mobile-number--input-container__input--error': error?.length }"
+    (focus)="onFocus()"
+    [placeholder]="placeholder?.length ? placeholder : 'Enter ' + inputLabel"
+    type="tel"
+    [maxlength]="15"
+    [minlength]="7"
+  />
+  <span *ngIf="error?.length" class="update-mobile-number--input-container__error">{{ error }}</span>
+</div>

@@ -16,6 +16,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { InfoCardComponent } from './info-card/info-card.component';
+import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 
 @NgModule({
   imports: [
@@ -38,6 +39,7 @@ import { InfoCardComponent } from './info-card/info-card.component';
     EmployeeDetailsCardComponent,
     VerifyNumberPopoverComponent,
     InfoCardComponent,
+    UpdateMobileNumberComponent,
   ],
 })
 export class MyProfilePageModule {}
