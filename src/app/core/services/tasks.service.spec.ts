@@ -988,6 +988,8 @@ describe('TasksService', () => {
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([platformCorporateCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
         expect(res).toEqual([]);
         expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
         done();
@@ -1001,6 +1003,8 @@ describe('TasksService', () => {
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
         expect(res).toEqual([]);
         expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
         done();
@@ -1017,6 +1021,8 @@ describe('TasksService', () => {
         [addMobileNumberTask]
       );
       tasksService.getMobileNumberVerificationTasks().subscribe(() => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
         expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledOnceWith('Add');
         done();
       });
@@ -1031,6 +1037,8 @@ describe('TasksService', () => {
         [addMobileNumberTask]
       );
       tasksService.getMobileNumberVerificationTasks().subscribe(() => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
         expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledOnceWith('Verify');
         done();
       });
