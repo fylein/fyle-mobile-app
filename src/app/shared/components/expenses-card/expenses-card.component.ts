@@ -154,9 +154,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt() {
-    if (this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'mileage') {
+    if (this.expense.tx_fyle_category && this.expense.tx_fyle_category?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'per diem') {
+    } else if (this.expense.tx_fyle_category && this.expense.tx_fyle_category?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
       if (!this.expense.tx_file_ids) {
@@ -250,7 +250,7 @@ export class ExpensesCardComponent implements OnInit {
             that.pollDataExtractionStatus(function () {
               that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
                 const extractedData = etxn.tx.extracted_data;
-                if (extractedData?.amount && extractedData?.currency) {
+                if (extractedData.amount && extractedData.currency) {
                   that.isScanCompleted = true;
                   that.isScanInProgress = false;
                   that.expense.tx_extracted_data = extractedData;
@@ -282,9 +282,8 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.isMileageExpense =
-      this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'per diem';
+    this.isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category?.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category?.toLowerCase() === 'per diem';
 
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
