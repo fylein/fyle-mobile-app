@@ -17,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
+import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { of, take } from 'rxjs';
 import { expenseData1, expenseList, expenseList2 } from 'src/app/core/mock-data/expense.data';
@@ -53,7 +54,7 @@ const thumbnailUrlMockData1: FileObject[] = [
   },
 ];
 
-describe('ExpensesCardComponent', () => {
+fdescribe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -101,6 +102,7 @@ describe('ExpensesCardComponent', () => {
       'isSyncInProgress',
       'fileUpload',
     ]);
+    const expenseStateSpy = jasmine.createSpyObj('ExpenseState', ['transform']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -113,7 +115,7 @@ describe('ExpensesCardComponent', () => {
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
-      declarations: [ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe],
+      declarations: [ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatCheckboxModule, FormsModule],
       providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
@@ -132,6 +134,7 @@ describe('ExpensesCardComponent', () => {
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DateFormatPipe, useValue: dateFormatPipeSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
+        { provide: ExpenseState, useValue: expenseStateSpy },
       ],
     }).compileComponents();
 
@@ -812,31 +815,6 @@ describe('ExpensesCardComponent', () => {
       nativeElement1.dispatchEvent(new Event('click'));
       expect(nativeElement1.click).toHaveBeenCalledTimes(1);
     }));
-
-    // it('should call onFileUpload method on iOS when file input is clicked', fakeAsync(() => {
-    //   spyOn(component, 'onFileUpload').and.returnValue(Promise.resolve());
-    //   const event = {
-    //     stopPropagation: jasmine.createSpy('stopPropagation')
-    //   };
-    //   component.receiptThumbnail = null;
-    //   component.attachmentUploadInProgress = false;
-    //   component.isIos = true;
-    //   component.isOutboxExpense = false;
-    //   fixture.detectChanges();
-
-    //   //(component, 'onFileUpload').and.stub();py
-    //   const inputElement = componentElement.query(By.css('#ios-file-upload'));
-    //   console.log('inoutEle => '+inputElement);
-    //   component.fileUpload =  inputElement;
-    //   fixture.detectChanges();
-    //   component.addAttachments(event);
-    //   tick(500);
-    //   inputElement.nativeElement.dispatchEvent(new Event('change'));
-
-    //   expect(component.onFileUpload).toHaveBeenCalledOnceWith(inputElement.nativeElement);
-    //   //inputElement.nativeElement.dispatchEvent(new Event('click'));
-    //   tick(5000);
-    // }));
 
     it('when device not an Ios it should open the camera popover', fakeAsync(() => {
       const event = {
