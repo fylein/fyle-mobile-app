@@ -27,6 +27,7 @@
                 [title]="infoCardData.title"
                 [content]="infoCardData.content"
                 [contentToCopy]="infoCardData.contentToCopy"
+                (textCopied)="showToastMessage($event, 'success')"
               ></app-info-card>
             </div>
           </div>

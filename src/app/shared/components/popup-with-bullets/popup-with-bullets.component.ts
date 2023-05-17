@@ -1,6 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
+import { ToastMessageComponent } from '../toast-message/toast-message.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 interface ListItems {
   icon: string;
@@ -22,7 +25,12 @@ export class PopupWithBulletsComponent implements OnInit {
 
   @Input() ctaText: string;
 
-  constructor(private popoverController: PopoverController, private clipboardService: ClipboardService) {}
+  constructor(
+    private popoverController: PopoverController,
+    private clipboardService: ClipboardService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
+  ) {}
 
   ngOnInit() {}
 
@@ -32,6 +40,13 @@ export class PopupWithBulletsComponent implements OnInit {
 
   async copyToClipboard(textToCopy: string) {
     this.clipboardService.writeString(textToCopy);
-    //TODO: Add a toast message once design is ready
+    this.showToastMessage('Phone Number Copied Successfully');
+  }
+
+  showToastMessage(message: string) {
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }, 'tick-circle-outline'),
+      panelClass: 'msb-success',
+    });
   }
 }
