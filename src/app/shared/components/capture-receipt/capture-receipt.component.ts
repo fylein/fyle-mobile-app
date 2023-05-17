@@ -367,7 +367,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onCaptureReceipt() {
     if (this.noOfReceipts >= 20) {
-      this.trackingService.receiptLimitReached({});
+      this.trackingService.receiptLimitReached();
       this.showLimitReachedPopover().subscribe(noop);
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {

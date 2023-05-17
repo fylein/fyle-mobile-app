@@ -546,7 +546,7 @@ describe('CaptureReceiptComponent', () => {
 
       tick(10000);
       component.onCaptureReceipt();
-      expect(trackingService.receiptLimitReached).toHaveBeenCalledOnceWith({});
+      expect(trackingService.receiptLimitReached).toHaveBeenCalledTimes(1);
       expect(component.showLimitReachedPopover).toHaveBeenCalledTimes(1);
     }));
   });
