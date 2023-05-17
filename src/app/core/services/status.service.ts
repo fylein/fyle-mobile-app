@@ -145,10 +145,16 @@ export class StatusService {
           icon: 'success-tick',
         };
         break;
-      case lowerCaseComment.indexOf('un-approved') > -1:
+      case lowerCaseComment.indexOf('approver_inquiry') > -1:
         statusCategory = {
           category: type + ' Sent Back',
           icon: 'send-back',
+        };
+        break;
+      case lowerCaseComment.indexOf('approver_pending') > -1:
+        statusCategory = {
+          category: 'Approver Pending',
+          icon: 'circle',
         };
         break;
       case lowerCaseComment.indexOf('approved') > -1:
