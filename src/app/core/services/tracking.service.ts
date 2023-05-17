@@ -567,6 +567,6 @@ export class TrackingService {
   }
 
   receiptLimitReached(properties = {}) {
-    this.eventTrack('Limit of 20 receipts has been reached', properties);
+    this.eventTrack('Popover shown since receipt limit exceeded', properties);
   }
 }

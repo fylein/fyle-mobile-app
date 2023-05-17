@@ -90,6 +90,7 @@ describe('CaptureReceiptComponent', () => {
       'switchedToInstafyleSingleMode',
       'captureSingleReceiptTime',
       'instafyleGalleryUploadOpened',
+      'receiptLimitReached',
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -545,6 +546,7 @@ describe('CaptureReceiptComponent', () => {
 
       tick(10000);
       component.onCaptureReceipt();
+      expect(trackingService.receiptLimitReached).toHaveBeenCalledOnceWith({});
       expect(component.showLimitReachedPopover).toHaveBeenCalledTimes(1);
     }));
   });

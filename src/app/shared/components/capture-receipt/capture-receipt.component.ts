@@ -369,36 +369,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onCaptureReceipt() {
     if (this.noOfReceipts >= 20) {
-      const currentDate = new Date();
-      const twelveMonthsAgo = new Date();
-      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
-
-      // Get the count and timestamp from storage
-      this.storageService.get('receiptLimitReachedCount').then((count) => {
-        let receiptLimitReachedCount = count || 0;
-        let receiptLimitReachedTimestamps = [];
-
-        //filter only those which are within 12 months
-        this.storageService.get('receiptLimitReachedTimestamps').then((timestamps) => {
-          if (timestamps) {
-            receiptLimitReachedTimestamps = timestamps.filter((timestamp) => new Date(timestamp) >= twelveMonthsAgo);
-          }
-          receiptLimitReachedCount++;
-          receiptLimitReachedTimestamps.push(currentDate.toISOString());
-
-          // Store the count and timestamps back in storage
-          this.storageService.set('receiptLimitReachedCount', receiptLimitReachedCount);
-          this.storageService.set('receiptLimitReachedTimestamps', receiptLimitReachedTimestamps);
-          const properties = {
-            Action: 'ReceiptLimitReached',
-            Description: 'The limit of 20 receipts has been reached',
-            Count: receiptLimitReachedCount,
-            Timestamps: receiptLimitReachedTimestamps,
-          };
-          this.trackingService.receiptLimitReached(properties);
-        });
-      });
-
+      this.trackingService.receiptLimitReached({});
       this.showLimitReachedPopover().subscribe(noop);
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
