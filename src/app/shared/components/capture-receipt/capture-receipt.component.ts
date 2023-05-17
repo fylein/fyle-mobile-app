@@ -23,7 +23,6 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
-import { StorageService } from 'src/app/core/services/storage.service';
 
 type Image = Partial<{
   source: string;
@@ -77,7 +76,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private authService: AuthService,
     private cameraService: CameraService,
     private cameraPreviewService: CameraPreviewService,
-    private storageService: StorageService,
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
