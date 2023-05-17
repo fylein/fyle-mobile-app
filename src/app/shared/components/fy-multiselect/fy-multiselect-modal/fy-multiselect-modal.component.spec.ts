@@ -79,11 +79,16 @@ describe('FyMultiselectModalComponent', () => {
   });
 
   it('addChip(): should add material chip', () => {
-    const ev: MatChipInputEvent = {
+    const inputElement = getElementBySelector(fixture, '.selection-modal--form-input') as HTMLInputElement;
+    const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
+    const event: MatChipInputEvent = {
       value: 'label',
-      input: getElementBySelector(fixture, '.selection-modal--form-input') as HTMLInputElement,
+      chipInput,
+      input: inputElement,
     };
-    component.addChip(ev);
+    component.addChip(event);
+    fixture.detectChanges();
+    expect(chipInput.clear).toHaveBeenCalledTimes(1);
   });
 
   it('removeChip(): should remove chip', () => {
