@@ -28,7 +28,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 
-fdescribe('SignInPage', () => {
+describe('SignInPage', () => {
   let component: SignInPage;
   let fixture: ComponentFixture<SignInPage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -454,16 +454,36 @@ fdescribe('SignInPage', () => {
     expect(component.emailSet).toEqual(true);
   });
 
-  xit('should navigate to switch org page if logged in ', () => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
-    routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
-    router.navigate.and.returnValue(Promise.resolve(true));
+  describe('ngOnInit(): ', () => {
+    it('should navigate to switch org page if logged in ', fakeAsync(() => {
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
+      router.navigate.and.returnValue(Promise.resolve(true));
+      component.ngOnInit();
+      tick(100);
 
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(1);
-    // expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: false }]);
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(2);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: false }]);
+    }));
+
+    it('should set fg when email is not present in URl', fakeAsync(() => {
+      activatedRoute.snapshot.params.email = null;
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
+      router.navigate.and.returnValue(Promise.resolve(true));
+      component.ngOnInit();
+      tick(1000);
+
+      expect(component.fg.controls.email.value).toEqual('');
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(2);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: false }]);
+    }));
   });
 
   it('should check if email exists on typing the input', () => {
