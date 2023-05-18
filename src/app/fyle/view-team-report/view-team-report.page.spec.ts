@@ -45,7 +45,7 @@ import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.da
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
 import { FormsModule } from '@angular/forms';
 
-fdescribe('ViewTeamReportPage', () => {
+describe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
