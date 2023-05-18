@@ -253,16 +253,19 @@ fdescribe('SignInPage', () => {
       spyOn(component, 'handleError');
 
       component.checkIfEmailExists();
+
       expect(component.handleError).toHaveBeenCalledTimes(2);
       expect(component.handleError).toHaveBeenCalledWith(new Error('error'));
     });
 
     it('should mark form as touched if email field is not valid', () => {
-      spyOn(component.fg.controls.email, 'markAsTouched');
       component.fg.controls.email.setErrors(new Error('error'));
 
       component.checkIfEmailExists();
-      expect(component.fg.controls.email.markAsTouched).toHaveBeenCalledTimes(1);
+      fixture.detectChanges();
+      const emailError = fixture.debugElement.query(By.css('.sign-in--error'));
+      expect(emailError).toBeDefined();
+      expect(getTextContent(emailError.nativeElement)).toEqual('Please enter a valid email.');
     });
   });
 
@@ -378,6 +381,9 @@ fdescribe('SignInPage', () => {
 
       expect(routerAuthService.basicSignin).toHaveBeenCalledOnceWith('email', 'password');
       expect(component.handleError).toHaveBeenCalledOnceWith(new Error('error'));
+
+      const errorPopup = fixture.debugElement.query(By.css('.dialog-popover'));
+      expect(errorPopup).toBeDefined();
     });
 
     it('should show password field as marked', () => {
