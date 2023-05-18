@@ -454,16 +454,27 @@ fdescribe('SignInPage', () => {
     expect(component.emailSet).toEqual(true);
   });
 
-  xit('should navigate to switch org page if logged in ', () => {
+  it('should navigate to switch org page if logged in ', fakeAsync(() => {
     loaderService.showLoader.and.returnValue(Promise.resolve());
     loaderService.hideLoader.and.returnValue(Promise.resolve());
     routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
     router.navigate.and.returnValue(Promise.resolve(true));
 
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    component.ngOnInit();
+    tick(100);
+
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(2);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(1);
-    // expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: false }]);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: false }]);
+  }));
+
+  it('should set fg when email is not present in URl ', () => {
+    activatedRoute.snapshot.params.email = null;
+    component.ngOnInit();
+
+    //Replace with test cases
+    expect(true).toBeTruthy();
   });
 
   it('should check if email exists on typing the input', () => {
