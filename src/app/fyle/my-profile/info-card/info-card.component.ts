@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 
 @Component({
@@ -13,9 +13,14 @@ export class InfoCardComponent {
 
   @Input() contentToCopy: string;
 
+  @Input() toastMessageContent: string;
+
+  @Output() copiedText = new EventEmitter<string>();
+
   constructor(private clipboardService: ClipboardService) {}
 
   async copyToClipboard(contentToCopy: string) {
     await this.clipboardService.writeString(contentToCopy);
+    this.copiedText.emit(this.toastMessageContent);
   }
 }

@@ -43,7 +43,13 @@
             [ngClass]="{ 'employee-details-card__bottom-section__status__icon--verified': eou.ou.mobile_verified }"
           ></div>
           {{ eou.ou.mobile_verified ? 'Verified' : 'Not Verified' }}
-          <div class="employee-details-card__bottom-section__verify" *ngIf="!eou.ou.mobile_verified">Verify</div>
+          <div
+            class="employee-details-card__bottom-section__verify"
+            (click)="onVerifyMobileNumber(eou)"
+            *ngIf="!eou.ou.mobile_verified"
+          >
+            Verify
+          </div>
         </div>
       </div>
     </ng-container>
