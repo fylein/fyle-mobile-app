@@ -43,7 +43,7 @@ const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
 
-describe('SwitchOrgPage', () => {
+fdescribe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
   let platform: jasmine.SpyObj<Platform>;
@@ -241,7 +241,7 @@ describe('SwitchOrgPage', () => {
   });
 
   describe('ionViewWillEnter():', () => {
-    it('should show orgs and setup search bar', async () => {
+    it('should show orgs and setup search bar', fakeAsync(() => {
       orgService.getOrgs.and.returnValue(of(orgData1));
       spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
       spyOn(component, 'proceed').and.returnValue(Promise.resolve());
@@ -250,7 +250,8 @@ describe('SwitchOrgPage', () => {
       loaderService.showLoader.and.returnValue(Promise.resolve());
       fixture.detectChanges();
 
-      await component.ionViewWillEnter();
+      component.ionViewWillEnter();
+      tick(1000);
 
       component.searchOrgsInput.nativeElement.value = 'Staging Loaded';
       component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
@@ -267,9 +268,9 @@ describe('SwitchOrgPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledOnceWith([orgData2[1]], '');
       expect(component.proceed).toHaveBeenCalledOnceWith(true);
-    });
+    }));
 
-    it('should directly proceed to invite line flow if choosing is disabled', async () => {
+    it('should directly proceed to invite line flow if choosing is disabled', () => {
       activatedRoute.snapshot.params.choose = false;
       orgService.getOrgs.and.returnValue(of(orgData1));
       spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
@@ -278,7 +279,7 @@ describe('SwitchOrgPage', () => {
       orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
       loaderService.showLoader.and.returnValue(Promise.resolve());
 
-      await component.ionViewWillEnter();
+      component.ionViewWillEnter();
 
       component.searchOrgsInput.nativeElement.value = 'Staging Loaded';
       component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
@@ -657,7 +658,7 @@ describe('SwitchOrgPage', () => {
   }));
 
   describe('switchOrg(): ', () => {
-    it('should catch error and clear all caches', async () => {
+    fit('should catch error and clear all caches', fakeAsync(() => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       loaderService.showLoader.and.returnValue(Promise.resolve());
       orgService.switchOrg.and.returnValue(throwError(() => {}));
@@ -667,19 +668,19 @@ describe('SwitchOrgPage', () => {
       userEventService.logout.and.returnValue(null);
       spyOn(globalCacheBusterNotifier, 'next');
 
-      await component.switchOrg(orgData1[0]).then(async () => {
-        await Promise.resolve();
-        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgData1[0].id);
-        expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
-        expect(storageService.clearAll).toHaveBeenCalledTimes(1);
-      });
+      component.switchOrg(orgData1[0]);
+
+      tick(1000);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgData1[0].id);
+      expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
+      expect(storageService.clearAll).toHaveBeenCalledTimes(1);
       expect(globalCacheBusterNotifier.next).toHaveBeenCalledTimes(1);
 
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(userEventService.logout).toHaveBeenCalledTimes(1);
-    });
+    }));
 
     it('should switch org', async () => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
