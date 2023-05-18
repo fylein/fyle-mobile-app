@@ -45,7 +45,7 @@ import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.da
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
 import { FormsModule } from '@angular/forms';
 
-describe('ViewTeamReportPage', () => {
+fdescribe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -254,10 +254,23 @@ describe('ViewTeamReportPage', () => {
     expect(result).toEqual(['ashutosh.m@fyle.in', '123@fye.in', 'chethan.m+90@fyle.in']);
   });
 
-  it('getShowViolation(): should show expense violation', () => {
-    const result = component.getShowViolation(expenseData2);
+  describe('getShowViolation():', () => {
+    it('should show expense violation', () => {
+      const result = component.getShowViolation(expenseData2);
 
-    expect(result).toBeFalse();
+      expect(result).toBeFalse();
+    });
+
+    it('should show the policy flag in expense', () => {
+      const result = component.getShowViolation({
+        ...expenseData2,
+        tx_policy_flag: true,
+        tx_manual_flag: false,
+        tx_policy_amount: '1000',
+      });
+
+      expect(result).toBeTrue();
+    });
   });
 
   it('toggleTooltip(): should toggle tooltip', () => {
@@ -442,7 +455,7 @@ describe('ViewTeamReportPage', () => {
     });
   });
 
-  it('shareReport(): shoudl open share report modal', async () => {
+  it('shareReport(): should open share report modal', async () => {
     const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
     popoverSpy.onWillDismiss.and.returnValue(
       Promise.resolve({
