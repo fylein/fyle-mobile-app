@@ -24,6 +24,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { currentEouRes, postUserResponse } from 'src/app/core/test-data/org-user.service.spec.data';
 import { orgSettingsGetData, orgSettingsPostData } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { cloneDeep } from 'lodash';
 
 describe('SetupAccountPage', () => {
   let component: SetupAccountPage;
@@ -99,6 +100,7 @@ describe('SetupAccountPage', () => {
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     orgService.setCurrencyBasedOnIp.and.returnValue(of(orgData1[0]));
+
     fixture.detectChanges();
   }));
 
@@ -149,23 +151,23 @@ describe('SetupAccountPage', () => {
       expect(orgUserService.postUser).toHaveBeenCalledOnceWith(updatedEou);
       expect(currentEouRes.us).toEqual(updatedEou);
     });
-    tick(500);
   }));
 
   it('postOrg(): should update the company name and the homecurrency and return the updated data', fakeAsync(() => {
-    component.org$ = of(orgData1[0]);
-    orgService.updateOrg.and.returnValue(of(orgData1[0]));
+    const orgData = cloneDeep(orgData1[0]);
+    component.org$ = of(orgData);
+    orgService.updateOrg.and.returnValue(of(orgData));
     component.fg.controls.companyName.setValue('Uber');
     component.fg.controls.homeCurrency.setValue('USD');
 
-    const expectedOrgData = {
+    const expectedorgData1 = {
       ...orgData1[0],
       name: 'Uber',
       currency: 'USD',
     };
     component.postOrg().subscribe(() => {
-      expect(orgData1[0]).toEqual(expectedOrgData);
-      expect(orgService.updateOrg).toHaveBeenCalledOnceWith(expectedOrgData);
+      expect(orgData).toEqual(expectedorgData1);
+      expect(orgService.updateOrg).toHaveBeenCalledOnceWith(expectedorgData1);
     });
   }));
 
@@ -185,11 +187,11 @@ describe('SetupAccountPage', () => {
 
     it('should set the desired mileage value if the org currency is not USD', fakeAsync(() => {
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      const orgData2 = {
+      const orgData12 = {
         ...orgData1[0],
         currency: 'INR',
       };
-      component.org$ = of(orgData2);
+      component.org$ = of(orgData12);
       orgSettingsService.post.and.returnValue(of(orgSettingsPostData));
       component.saveGuessedMileage().subscribe(() => {
         fixture.detectChanges();
@@ -258,22 +260,27 @@ describe('SetupAccountPage', () => {
   });
 
   describe('onInit()', () => {
-    it('should check if eou$ was called and the appropriate fullname was obtained', fakeAsync(() => {
+    it('should check if newtwokWatcher is called', fakeAsync(() => {
       spyOn(component, 'setupNetworkWatcher');
-      component.eou$ = of(currentEouRes);
       component.ngOnInit();
       fixture.detectChanges();
       tick(500);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should check if eou$ was called and the appropriate fullname was obtained', fakeAsync(() => {
+      component.eou$ = of(currentEouRes);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       component.fullname$.subscribe((res) => {
         expect(res).toBe(currentEouRes.us.full_name);
       });
     }));
 
     it('should set the homeCurrency control value from org$', fakeAsync(() => {
+      const orgData = cloneDeep(orgData1[0]);
       const org = { currency: 'USD' };
-      orgService.setCurrencyBasedOnIp.and.returnValue(of(orgData1[0]));
-      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      orgService.setCurrencyBasedOnIp.and.returnValue(of(orgData));
+      orgService.getCurrentOrg.and.returnValue(of(orgData));
       expect(orgService.setCurrencyBasedOnIp).toHaveBeenCalledTimes(1);
       expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
       component.org$.subscribe(() => {
@@ -295,7 +302,7 @@ describe('SetupAccountPage', () => {
       });
     });
 
-    it('should emit the correct value to check for upperCase validity', () => {
+    it('should emit the correct value to check for upper case validity', () => {
       const testCases = [
         { input: 'qwert', expectedOutput: false },
         { input: '1234@abcd', expectedOutput: false },
