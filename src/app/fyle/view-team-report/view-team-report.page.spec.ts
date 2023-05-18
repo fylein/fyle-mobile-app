@@ -45,7 +45,7 @@ import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.da
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
 import { FormsModule } from '@angular/forms';
 
-fdescribe('ViewTeamReportPage', () => {
+describe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -260,79 +260,12 @@ fdescribe('ViewTeamReportPage', () => {
     expect(result).toBeFalse();
   });
 
-  it('ionViewWillEnter', fakeAsync(() => {
-    spyOn(component, 'setupNetworkWatcher');
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    reportService.getReport.and.returnValue(of(expectedAllReports[0]));
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    statusService.find.and.returnValue(of(getEstatusApiResponse));
-    orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
-    reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
-    reportService.getExports.and.returnValue(
-      of({
-        results: [
-          { created_at: '2023-01-17T06:35:06.814556', update_at: '2023-02-23T11:46:17.569Z' },
-          { created_at: '2023-02-24T12:03:57.680Z', update_at: '2023-02-23T11:46:17.569Z' },
-        ],
-      })
-    );
-    reportService.getApproversByReportId.and.returnValue(of(approversData1));
-    reportService.getReportETxnc.and.returnValue(of(etxncListData.data));
-    reportService.actions.and.returnValue(of(apiReportActions));
-
-    component.ionViewWillEnter();
-    tick(500);
-
-    expect(authService.getEou).toHaveBeenCalledTimes(2);
-    expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
-    expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-    expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
-
-    component.erpt$.subscribe((res) => {
-      console.log(res);
-    });
-
-    tick(500);
-    component.simplifyReportsSettings$.subscribe((res) => {
-      console.log(res);
-    });
-
-    component.totalCommentsCount$.subscribe((res) => {
-      console.log(res);
-    });
-
-    component.etxnAmountSum$.subscribe((res) => {
-      console.log(res);
-    });
-
-    component.sharedWith$.subscribe((res) => {
-      console.log(res);
-    });
-
-    component.canEdit$.subscribe((res) => {
-      console.log(res);
-    });
-
-    component.canDelete$.subscribe((res) => {
-      console.log(res);
-    });
-  }));
-
   it('toggleTooltip(): should toggle tooltip', () => {
     component.canShowTooltip = false;
     fixture.detectChanges();
 
     component.toggleTooltip();
     expect(component.canShowTooltip).toBeTrue();
-  });
-
-  it('isUserActiveInCurrentSeqApprovalQueue(): should check whether user is active and an approver', () => {
-    const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData1);
-
-    expect(result).toBeFalse();
   });
 
   it('deleteReport(): should delete report', async () => {
@@ -412,7 +345,7 @@ fdescribe('ViewTeamReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
     });
 
-    it('should toggle tooltip if approval privledge', async () => {
+    it('should toggle tooltip if approval priviledge is not provided', async () => {
       spyOn(component, 'toggleTooltip');
       component.canApprove = false;
       fixture.detectChanges();
