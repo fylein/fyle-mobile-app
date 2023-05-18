@@ -79,7 +79,7 @@ describe('RequestInvitationPage', () => {
       expect(component.currentPageState).toBe(component.RequestInvitationStates.success);
     }));
 
-    it('should set current page state to alreadtSent if error status is 400', fakeAsync(() => {
+    it('should set current page state to alreadySent if error status is 400', fakeAsync(() => {
       const error = { status: 400 };
       activeroutemock.snapshot.params = {
         email: '',
