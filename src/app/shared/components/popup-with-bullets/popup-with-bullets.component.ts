@@ -39,11 +39,6 @@ export class PopupWithBulletsComponent {
   async copyToClipboard(textToCopy: string) {
     this.clipboardService.writeString(textToCopy);
     this.showToastMessage('Phone Number Copied Successfully');
-
-    console.log(this.title);
-    console.log(this.listHeader);
-    console.log(this.listItems);
-    console.log(this.ctaText);
   }
 
   showToastMessage(message: string) {

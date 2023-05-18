@@ -8,7 +8,7 @@ import { PopupWithBulletsComponent } from './popup-with-bullets.component';
 import { By } from '@angular/platform-browser';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 
-fdescribe('PopupWithBulletsComponent', () => {
+describe('PopupWithBulletsComponent', () => {
   let component: PopupWithBulletsComponent;
   let fixture: ComponentFixture<PopupWithBulletsComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
