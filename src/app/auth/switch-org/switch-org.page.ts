@@ -440,7 +440,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.searchRef.nativeElement.classList.remove('switch-org__content-container__search-block--show');
   }
 
-  private trackSwitchOrgLaunchTime() {
+  trackSwitchOrgLaunchTime() {
     try {
       if (performance.getEntriesByName('switch org launch time').length === 0) {
         // Time taken to land on switch org page after sign-in
