@@ -52,8 +52,7 @@ export class InvitedUserPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
     this.isConnected$.subscribe(noop);
 
