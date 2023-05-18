@@ -565,4 +565,8 @@ export class TrackingService {
   setCategoryFromVendor(properties = {}) {
     this.eventTrack('Category Updated By Vendor', properties);
   }
+
+  receiptLimitReached(properties = {}) {
+    this.eventTrack('Popover shown since receipt limit exceeded', properties);
+  }
 }
