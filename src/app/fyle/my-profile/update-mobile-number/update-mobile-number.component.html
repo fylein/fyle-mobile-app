@@ -34,7 +34,7 @@
     class="update-mobile-number--input-container__input smartlook-show"
     [ngClass]="{ 'update-mobile-number--input-container__input--error': error?.length }"
     (focus)="onFocus()"
-    [placeholder]="placeholder?.length ? placeholder : 'Enter ' + inputLabel"
+    [placeholder]="placeholder || 'Enter ' + inputLabel"
     type="tel"
     [maxlength]="15"
     [minlength]="7"

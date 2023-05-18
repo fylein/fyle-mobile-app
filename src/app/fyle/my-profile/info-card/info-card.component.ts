@@ -13,7 +13,7 @@ export class InfoCardComponent {
 
   @Input() contentToCopy: string;
 
-  @Output() textCopied = new EventEmitter<string>();
+  @Output() copiedText = new EventEmitter<string>();
 
   constructor(private clipboardService: ClipboardService) {}
 
@@ -23,6 +23,6 @@ export class InfoCardComponent {
     if (this.title.includes('Message')) {
       message = 'Phone Number Copied Successfully';
     }
-    this.textCopied.emit(message);
+    this.copiedText.emit(message);
   }
 }
