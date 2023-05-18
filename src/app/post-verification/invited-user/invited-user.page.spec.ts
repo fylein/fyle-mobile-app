@@ -87,11 +87,17 @@ fdescribe('InvitedUserPage', () => {
   });
 
   describe('onInit()', () => {
-    it('should set the fullname control value from eou$', fakeAsync(() => {
+    it('should set the fullname control value from eou$ and setup network watcher', fakeAsync(() => {
+      networkService.isOnline.and.returnValue(of(true));
+      const eventEmitterMock = new EventEmitter<boolean>();
+      networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
       component.eou$ = of(currentEouRes);
       component.fg.controls.fullName.setValue('Abhishek Jain');
       component.ngOnInit();
       tick(500);
+      component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
+        expect(connectionStatus).toEqual(true);
+      });
       expect(component.fg.controls.fullName.value).toEqual(currentEouRes.us.full_name);
     }));
 
@@ -109,7 +115,7 @@ fdescribe('InvitedUserPage', () => {
       });
     });
 
-    it('should emit the correct value to check for upperCase vadility', () => {
+    it('should emit the correct value to check for upper case validity', () => {
       const testCases = [
         { input: 'qwert', expectedOutput: false },
         { input: '1234@abcd', expectedOutput: false },
@@ -123,7 +129,7 @@ fdescribe('InvitedUserPage', () => {
       });
     });
 
-    it('should emit the correct value to check for number vadility', () => {
+    it('should emit the correct value to check for number validity', () => {
       const testCases = [
         { input: 'qwert', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
@@ -136,7 +142,7 @@ fdescribe('InvitedUserPage', () => {
       });
     });
 
-    it('should emit the correct value to check for lowerCase vadility', () => {
+    it('should emit the correct value to check for lower case validity', () => {
       const testCases = [
         { input: 'PASSWORD_123', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
@@ -149,7 +155,7 @@ fdescribe('InvitedUserPage', () => {
       });
     });
 
-    it('should emit the correct value to check for lowerCase vadility', () => {
+    it('should emit the correct value to check for special characters', () => {
       const testCases = [
         { input: 'Password123', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
@@ -162,5 +168,28 @@ fdescribe('InvitedUserPage', () => {
       });
     });
   });
-  xit('saveData', () => {});
+
+  describe('saveData', () => {
+    it('should navigate to setup_account_preferences when form is valid', fakeAsync(() => {
+      spyOn(component.fg, 'markAllAsTouched');
+
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      // authService.refreshEou.and.returnValue(of(eouRes3));
+      component.fg.setValue({
+        companyName: 'Acme Inc.',
+        homeCurrency: 'USD',
+        password: 'StrongPassword@123',
+      });
+      component.saveData();
+      fixture.detectChanges();
+      tick(500);
+      expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
+      expect(component.fg.valid).toBe(true);
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      //
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      tick(500);
+    }));
+  });
 });
