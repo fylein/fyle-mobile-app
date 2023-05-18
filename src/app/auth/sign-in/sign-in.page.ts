@@ -268,6 +268,8 @@ export class SignInPage implements OnInit {
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe((isLoggedIn) => {
+        console.log('Subscribe');
+        console.log(isLoggedIn);
         if (isLoggedIn) {
           this.router.navigate(['/', 'auth', 'switch_org', { choose: false }]);
         }
