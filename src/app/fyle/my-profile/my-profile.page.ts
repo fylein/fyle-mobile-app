@@ -50,6 +50,7 @@ type CopyCardDetails = {
   title: string;
   content: string;
   contentToCopy: string;
+  toastMessageContent: string;
   isHidden?: boolean;
 };
 
@@ -244,12 +245,14 @@ export class MyProfilePage {
         title: 'Message Receipts',
         content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
         contentToCopy: fyleMobileNumber,
+        toastMessageContent: 'Phone Number Copied Successfully',
         isHidden: homeCurrency !== 'USD',
       },
       {
         title: 'Email Receipts',
         content: `Forward your receipts to Fyle at ${fyleEmail}.`,
         contentToCopy: fyleEmail,
+        toastMessageContent: 'Email Copied Successfully',
       },
     ];
 

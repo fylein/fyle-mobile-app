@@ -13,16 +13,14 @@ export class InfoCardComponent {
 
   @Input() contentToCopy: string;
 
+  @Input() toastMessageContent: string;
+
   @Output() copiedText = new EventEmitter<string>();
 
   constructor(private clipboardService: ClipboardService) {}
 
   async copyToClipboard(contentToCopy: string) {
     await this.clipboardService.writeString(contentToCopy);
-    let message = 'Email Copied Successfully';
-    if (this.title.includes('Message')) {
-      message = 'Phone Number Copied Successfully';
-    }
-    this.copiedText.emit(message);
+    this.copiedText.emit(this.toastMessageContent);
   }
 }
