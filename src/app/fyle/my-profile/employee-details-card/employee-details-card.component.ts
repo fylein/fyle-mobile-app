@@ -11,9 +11,15 @@ export class EmployeeDetailsCardComponent {
 
   @Output() updateMobileNumber = new EventEmitter();
 
+  @Output() verifyMobileNumber = new EventEmitter();
+
   constructor() {}
 
   onUpdateMobileNumber(eou: ExtendedOrgUser) {
     this.updateMobileNumber.emit(eou);
+  }
+
+  onVerifyMobileNumber(eou: ExtendedOrgUser) {
+    this.verifyMobileNumber.emit(eou);
   }
 }

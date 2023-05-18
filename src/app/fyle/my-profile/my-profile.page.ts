@@ -29,6 +29,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -49,6 +50,7 @@ type CopyCardDetails = {
   title: string;
   content: string;
   contentToCopy: string;
+  toastMessageContent: string;
   isHidden?: boolean;
 };
 
@@ -243,12 +245,14 @@ export class MyProfilePage {
         title: 'Message Receipts',
         content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
         contentToCopy: fyleMobileNumber,
+        toastMessageContent: 'Phone Number Copied Successfully',
         isHidden: homeCurrency !== 'USD',
       },
       {
         title: 'Email Receipts',
         content: `Forward your receipts to Fyle at ${fyleEmail}.`,
         contentToCopy: fyleEmail,
+        toastMessageContent: 'Email Copied Successfully',
       },
     ];
 
@@ -257,8 +261,12 @@ export class MyProfilePage {
 
   showToastMessage(message: string, type: 'success' | 'failure') {
     const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
+    let snackbarIcon: string;
+    if (message.toLowerCase().includes('copied')) {
+      snackbarIcon = 'tick-circle-outline';
+    }
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }, snackbarIcon),
       panelClass,
     });
     this.trackingService.showToastMessage({ ToastContent: message });
@@ -308,6 +316,7 @@ export class MyProfilePage {
       if (data.action === 'BACK') {
         this.updateMobileNumber(eou);
       } else if (data.action === 'SUCCESS') {
+        this.loadEou$.next(null);
         this.showSuccessPopover();
       }
     }
@@ -315,14 +324,12 @@ export class MyProfilePage {
 
   async updateMobileNumber(eou: ExtendedOrgUser) {
     const updateMobileNumberPopover = await this.popoverController.create({
-      component: FyInputPopoverComponent,
+      component: UpdateMobileNumberComponent,
       componentProps: {
         title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
         ctaText: 'Next',
         inputLabel: 'Mobile Number',
-        inputValue: eou.ou.mobile,
-        inputType: 'tel',
-        isRequired: true,
+        extendedOrgUser: eou,
         placeholder: 'Enter mobile number e.g. +129586736556',
       },
       cssClass: 'fy-dialog-popover',
@@ -332,25 +339,19 @@ export class MyProfilePage {
     const { data } = await updateMobileNumberPopover.onWillDismiss();
 
     if (data) {
-      const updatedOrgUserDetails = {
-        ...eou.ou,
-        mobile: data.newValue,
-      };
-      this.orgUserService
-        .postOrgUser(updatedOrgUserDetails)
-        .pipe(
-          switchMap(() => this.authService.refreshEou()),
-          tap(() => this.loadEou$.next(null)),
-          switchMap(() =>
-            this.eou$.pipe(
-              take(1),
-              map((eou) => from(this.verifyMobileNumber(eou)))
-            )
+      if (data.action === 'SUCCESS') {
+        this.loadEou$.next(null);
+        this.eou$
+          .pipe(
+            take(1),
+            map((eou) => from(this.verifyMobileNumber(eou)))
           )
-        )
-        .subscribe({
-          error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
-        });
+          .subscribe({
+            error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
+          });
+      } else if (data.action === 'ERROR') {
+        this.showToastMessage('Something went wrong. Please try again later.', 'failure');
+      }
     }
   }
 }

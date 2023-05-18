@@ -12,6 +12,7 @@
     <app-employee-details-card
       [eou]="eou"
       (updateMobileNumber)="updateMobileNumber($event)"
+      (verifyMobileNumber)="verifyMobileNumber($event)"
     ></app-employee-details-card>
   </ng-container>
   <div class="my-profile__content-container__content">
@@ -27,6 +28,8 @@
                 [title]="infoCardData.title"
                 [content]="infoCardData.content"
                 [contentToCopy]="infoCardData.contentToCopy"
+                [toastMessageContent]="infoCardData.toastMessageContent"
+                (copiedText)="showToastMessage($event, 'success')"
               ></app-info-card>
             </div>
           </div>
