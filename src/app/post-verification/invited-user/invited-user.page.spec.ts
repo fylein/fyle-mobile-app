@@ -14,9 +14,17 @@ import { InvitedUserPage } from './invited-user.page';
 import { FormBuilder } from '@angular/forms';
 import { of, take } from 'rxjs';
 import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
-import { currentEouRes } from 'src/app/core/test-data/org-user.service.spec.data';
+import {
+  currentEouRes,
+  extendedOrgUserResponse,
+  postUserResponse,
+} from 'src/app/core/test-data/org-user.service.spec.data';
+import { cloneDeep } from 'lodash';
+import { eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
+import { OrgService } from 'src/app/core/services/org.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
-fdescribe('InvitedUserPage', () => {
+describe('InvitedUserPage', () => {
   let component: InvitedUserPage;
   let fixture: ComponentFixture<InvitedUserPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -32,7 +40,6 @@ fdescribe('InvitedUserPage', () => {
 
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    // const toastControllerSpy = jasmine.createSpyObj("ToastController");
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postUser', 'markActive']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
@@ -87,7 +94,7 @@ fdescribe('InvitedUserPage', () => {
   });
 
   describe('onInit()', () => {
-    it('should set the fullname control value from eou$ and setup network watcher', fakeAsync(() => {
+    it('should set the fullname value from eou$ and setup network watcher', fakeAsync(() => {
       networkService.isOnline.and.returnValue(of(true));
       const eventEmitterMock = new EventEmitter<boolean>();
       networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
@@ -170,26 +177,78 @@ fdescribe('InvitedUserPage', () => {
   });
 
   describe('saveData', () => {
-    it('should navigate to setup_account_preferences when form is valid', fakeAsync(() => {
+    it('should navigate to dashboard when form fields are valid', fakeAsync(() => {
       spyOn(component.fg, 'markAllAsTouched');
-
+      component.fg.controls.fullName.setValue('John Doe');
+      component.fg.controls.password.setValue('StrongPassword@123');
+      component.eou$ = of(cloneDeep(currentEouRes));
       loaderService.showLoader.and.returnValue(Promise.resolve());
       loaderService.hideLoader.and.returnValue(Promise.resolve());
-      // authService.refreshEou.and.returnValue(of(eouRes3));
-      component.fg.setValue({
-        companyName: 'Acme Inc.',
-        homeCurrency: 'USD',
-        password: 'StrongPassword@123',
-      });
+      authService.refreshEou.and.returnValue(of(eouRes3));
+      orgUserService.postUser.and.returnValue(of(postUserResponse));
+      orgUserService.markActive.and.returnValue(of(extendedOrgUserResponse));
+
+      const updatedEou = {
+        ...currentEouRes,
+        us: {
+          ...currentEouRes.us,
+          full_name: 'John Doe',
+          password: 'StrongPassword@123',
+        },
+      };
+
       component.saveData();
       fixture.detectChanges();
       tick(500);
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
       expect(component.fg.valid).toBe(true);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      //
+
+      component.eou$.subscribe((exOrgUser) => {
+        expect(exOrgUser.us).toEqual(updatedEou.us);
+        expect(orgUserService.postUser).toHaveBeenCalledOnceWith(updatedEou.us);
+      });
+      expect(trackingService.setupComplete).toHaveBeenCalledTimes(1);
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      expect(orgUserService.markActive).toHaveBeenCalledTimes(1);
+      expect(trackingService.activated).toHaveBeenCalledTimes(1);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
       tick(500);
+    }));
+
+    it('should show error snackbar  when password is invalid', fakeAsync(() => {
+      spyOn(component.fg, 'markAllAsTouched');
+      component.fg.controls.fullName.setValue('John Doe');
+      component.fg.controls.password.setValue('');
+      const message = 'Please enter a valid password';
+
+      component.saveData();
+      tick(500);
+      expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
+      expect(component.fg.valid).toBe(false);
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarProperties.setSnackbarProperties('failure', { message }),
+        panelClass: ['msb-failure'],
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
+    }));
+
+    it('should show error snackbar when name is invalid', fakeAsync(() => {
+      spyOn(component.fg, 'markAllAsTouched');
+      component.fg.controls.fullName.setValue('');
+      component.fg.controls.password.setValue('StrongPassword@123');
+      const message = 'Please enter a valid name';
+
+      component.saveData();
+      tick(500);
+      expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
+      expect(component.fg.valid).toBe(false);
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarProperties.setSnackbarProperties('failure', { message }),
+        panelClass: ['msb-failure'],
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
     }));
   });
 });
