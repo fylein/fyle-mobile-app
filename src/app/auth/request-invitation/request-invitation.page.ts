@@ -48,18 +48,19 @@ export class RequestInvitationPage implements OnInit {
         concatMap(() => this.invitationRequestsService.upsertRouter(this.fg.controls.email.value)),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        }),
-        catchError((err) => {
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.currentPageState = this.RequestInvitationStates.success;
+        },
+        error: (err) => {
           if (err.status === 400) {
             this.currentPageState = this.RequestInvitationStates.alreadySent;
           } else {
             this.currentPageState = this.RequestInvitationStates.failure;
           }
-          return throwError(err);
-        })
-      )
-      .subscribe(() => {
-        this.currentPageState = this.RequestInvitationStates.success;
+        },
       });
   }
 }
