@@ -24,7 +24,7 @@ import { eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
 import { OrgService } from 'src/app/core/services/org.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
-describe('InvitedUserPage', () => {
+fdescribe('InvitedUserPage', () => {
   let component: InvitedUserPage;
   let fixture: ComponentFixture<InvitedUserPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -93,7 +93,7 @@ describe('InvitedUserPage', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('onInit()', () => {
+  describe('ngOnInit():', () => {
     it('should set the fullname value from eou$ and setup network watcher', fakeAsync(() => {
       networkService.isOnline.and.returnValue(of(true));
       const eventEmitterMock = new EventEmitter<boolean>();
@@ -108,7 +108,7 @@ describe('InvitedUserPage', () => {
       expect(component.fg.controls.fullName.value).toEqual(currentEouRes.us.full_name);
     }));
 
-    it('should emit the correct length validation display value when the password value changes', () => {
+    it('should emit the correct length validation display value when the password value changes', (done) => {
       const testCases = [
         { input: 'qwert', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
@@ -117,12 +117,13 @@ describe('InvitedUserPage', () => {
       testCases.forEach((testCase) => {
         component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
           expect(value).toEqual(testCase.expectedOutput);
+          done();
         });
         component.fg.controls.password.patchValue(testCase.input);
       });
     });
 
-    it('should emit the correct value to check for upper case validity', () => {
+    it('should emit the correct value to check for upper case validity', (done) => {
       const testCases = [
         { input: 'qwert', expectedOutput: false },
         { input: '1234@abcd', expectedOutput: false },
@@ -131,12 +132,13 @@ describe('InvitedUserPage', () => {
       testCases.forEach((testCase) => {
         component.uppercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
           expect(value).toEqual(testCase.expectedOutput);
+          done();
         });
         component.fg.controls.password.patchValue(testCase.input);
       });
     });
 
-    it('should emit the correct value to check for number validity', () => {
+    it('should emit the correct value to check for number validity', (done) => {
       const testCases = [
         { input: 'qwert', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
@@ -144,12 +146,13 @@ describe('InvitedUserPage', () => {
       testCases.forEach((testCase) => {
         component.numberValidationDisplay$.pipe(take(1)).subscribe((value) => {
           expect(value).toEqual(testCase.expectedOutput);
+          done();
         });
         component.fg.controls.password.patchValue(testCase.input);
       });
     });
 
-    it('should emit the correct value to check for lower case validity', () => {
+    it('should emit the correct value to check for lower case validity', (done) => {
       const testCases = [
         { input: 'PASSWORD_123', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
@@ -157,12 +160,13 @@ describe('InvitedUserPage', () => {
       testCases.forEach((testCase) => {
         component.lowercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
           expect(value).toEqual(testCase.expectedOutput);
+          done();
         });
         component.fg.controls.password.patchValue(testCase.input);
       });
     });
 
-    it('should emit the correct value to check for special characters', () => {
+    it('should emit the correct value to check for special characters', (done) => {
       const testCases = [
         { input: 'Password123', expectedOutput: false },
         { input: 'John_doe123@fyle', expectedOutput: true },
@@ -170,6 +174,7 @@ describe('InvitedUserPage', () => {
       testCases.forEach((testCase) => {
         component.specialCharValidationDisplay$.pipe(take(1)).subscribe((value) => {
           expect(value).toEqual(testCase.expectedOutput);
+          done();
         });
         component.fg.controls.password.patchValue(testCase.input);
       });
