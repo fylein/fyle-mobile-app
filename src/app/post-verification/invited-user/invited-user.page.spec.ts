@@ -24,7 +24,7 @@ import { eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
 import { OrgService } from 'src/app/core/services/org.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
-fdescribe('InvitedUserPage', () => {
+describe('InvitedUserPage', () => {
   let component: InvitedUserPage;
   let fixture: ComponentFixture<InvitedUserPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -108,76 +108,103 @@ fdescribe('InvitedUserPage', () => {
       expect(component.fg.controls.fullName.value).toEqual(currentEouRes.us.full_name);
     }));
 
-    it('should emit the correct length validation display value when the password value changes', (done) => {
-      const testCases = [
-        { input: 'qwert', expectedOutput: false },
-        { input: 'John_doe123@fyle', expectedOutput: true },
-        { input: 'Thisisaveryverylong12345@password', expectedOutput: false },
-      ];
-      testCases.forEach((testCase) => {
-        component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
-          expect(value).toEqual(testCase.expectedOutput);
-          done();
-        });
-        component.fg.controls.password.patchValue(testCase.input);
+    it('should emit false value when there are less than 12 chars', (done) => {
+      const testCase = { input: 'qwert', expectedOutput: false };
+      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
       });
+      component.fg.controls.password.patchValue(testCase.input);
     });
 
-    it('should emit the correct value to check for upper case validity', (done) => {
-      const testCases = [
-        { input: 'qwert', expectedOutput: false },
-        { input: '1234@abcd', expectedOutput: false },
-        { input: 'John_doe123@fyle', expectedOutput: true },
-      ];
-      testCases.forEach((testCase) => {
-        component.uppercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
-          expect(value).toEqual(testCase.expectedOutput);
-          done();
-        });
-        component.fg.controls.password.patchValue(testCase.input);
+    it('should emit false value when there are greater than 32  chars', (done) => {
+      const testCase = { input: 'Thisisaveryverylong12345@password', expectedOutput: false };
+      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
       });
+      component.fg.controls.password.patchValue(testCase.input);
     });
 
-    it('should emit the correct value to check for number validity', (done) => {
-      const testCases = [
-        { input: 'qwert', expectedOutput: false },
-        { input: 'John_doe123@fyle', expectedOutput: true },
-      ];
-      testCases.forEach((testCase) => {
-        component.numberValidationDisplay$.pipe(take(1)).subscribe((value) => {
-          expect(value).toEqual(testCase.expectedOutput);
-          done();
-        });
-        component.fg.controls.password.patchValue(testCase.input);
+    it('should emit true value when there are between 12 and 32 chars', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.lengthValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
       });
+      component.fg.controls.password.patchValue(testCase.input);
     });
 
-    it('should emit the correct value to check for lower case validity', (done) => {
-      const testCases = [
-        { input: 'PASSWORD_123', expectedOutput: false },
-        { input: 'John_doe123@fyle', expectedOutput: true },
-      ];
-      testCases.forEach((testCase) => {
-        component.lowercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
-          expect(value).toEqual(testCase.expectedOutput);
-          done();
-        });
-        component.fg.controls.password.patchValue(testCase.input);
+    it('should emit false value when there are no special chars', (done) => {
+      const testCase = { input: 'qwert', expectedOutput: false };
+      component.specialCharValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
       });
+      component.fg.controls.password.patchValue(testCase.input);
     });
 
-    it('should emit the correct value to check for special characters', (done) => {
-      const testCases = [
-        { input: 'Password123', expectedOutput: false },
-        { input: 'John_doe123@fyle', expectedOutput: true },
-      ];
-      testCases.forEach((testCase) => {
-        component.specialCharValidationDisplay$.pipe(take(1)).subscribe((value) => {
-          expect(value).toEqual(testCase.expectedOutput);
-          done();
-        });
-        component.fg.controls.password.patchValue(testCase.input);
+    it('should emit true value when there are special chars', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.specialCharValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
       });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit false value when there are no numbers', (done) => {
+      const testCase = { input: 'qwert', expectedOutput: false };
+      component.numberValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit true value when there are numbers', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.numberValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit false value when there are no upper case letters', (done) => {
+      const testCase = { input: 'qwert', expectedOutput: false };
+      component.uppercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit true value when there are upper case letters', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.uppercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit false value when there are no lower case letters', (done) => {
+      const testCase = { input: 'QWERT', expectedOutput: false };
+      component.lowercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
+    });
+
+    it('should emit true value when there are lower case letters', (done) => {
+      const testCase = { input: 'John_doe123@fyle', expectedOutput: true };
+      component.lowercaseValidationDisplay$.pipe(take(1)).subscribe((value) => {
+        expect(value).toEqual(testCase.expectedOutput);
+        done();
+      });
+      component.fg.controls.password.patchValue(testCase.input);
     });
   });
 
