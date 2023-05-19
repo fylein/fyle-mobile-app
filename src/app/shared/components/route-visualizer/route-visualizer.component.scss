@@ -1,5 +1,12 @@
-.route-visualizer {
+.route-visualizer,
+.current-location {
   &--map {
     height: 266px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
 }
