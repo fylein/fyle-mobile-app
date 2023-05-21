@@ -359,7 +359,37 @@ fdescribe('ViewExpensePage', () => {
     });
   });
 
-  xit('getDisplayValue', () => {});
+  describe('getDisplayValue():', () => {
+    it('should get the correct display value', () => {
+      const testProperty = {
+        name: 'Multi Type',
+        value: ['record1', 'record2'],
+        type: 'MULTI_SELECT',
+        mandatory: true,
+        options: ['record1', 'record2', 'record3'],
+      };
+
+      const expectedProperty = 'record1, record2';
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue(expectedProperty);
+      const result = component.getDisplayValue(testProperty);
+      expect(result).toEqual(expectedProperty);
+    });
+
+    it('should display Not Added if no value is added', () => {
+      const testProperty = {
+        name: 'userlist',
+        value: [],
+        type: 'USER_LIST',
+        mandatory: false,
+        options: ['scooby@fyle.com', 'mickey@wd.com', 'johnny@cn.com'],
+      };
+
+      const expectedProperty = '-';
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue(expectedProperty);
+      const result = component.getDisplayValue(testProperty);
+      expect(result).toEqual('Not Added');
+    });
+  });
   xit('ionViewWillEnter', () => {});
   xit('getReceiptExtension', () => {});
   xit('getReceiptDetails', () => {});
