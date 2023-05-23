@@ -23,14 +23,34 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { etxncListData, expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { getApiResponse } from 'src/app/core/test-data/status.service.spec.data';
+import { getApiResponse, getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import {
   ApproverExpensePolicyStatesData,
   expensePolicyStatesData,
 } from 'src/app/core/mock-data/platform-policy-expense.data';
+import {
+  fileObjectAdv,
+  fileObjectAdv1,
+  fileObjectData,
+  fileObjectData4,
+} from 'src/app/core/mock-data/file-object.data';
+import {
+  individualExpPolicyStateData1,
+  individualExpPolicyStateData3,
+} from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { expenseFieldsMapResponse, expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
+import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { apiTeamRptSingleRes } from 'src/app/core/mock-data/api-reports.data';
+import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
+import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 
 fdescribe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -321,41 +341,18 @@ fdescribe('ViewExpensePage', () => {
       );
       component.getPolicyDetails('txRNWeQRXhso');
       expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith('txRNWeQRXhso');
+      expect(component.policyDetails).toEqual(ApproverExpensePolicyStatesData.data[0].individual_desired_states);
     });
 
     it('should get policy details for individual expenses', () => {
+      component.policyDetails = individualExpPolicyStateData3;
       component.view = ExpenseView.individual;
       policyService.getSpenderExpensePolicyViolations.and.returnValue(
         of(expensePolicyStatesData.data[0].individual_desired_states)
       );
       component.getPolicyDetails('txVTmNOp5JEa');
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('txVTmNOp5JEa');
-    });
-  });
-
-  describe('goBack', () => {
-    it('should go to view team report if the expense is a team expense', () => {
-      component.reportId = 'rpWDg3QX3';
-      component.view = ExpenseView.team;
-      component.goBack();
-      expect(router.navigate).toHaveBeenCalledOnceWith([
-        '/',
-        'enterprise',
-        'view_team_report',
-        { id: component.reportId, navigate_back: true },
-      ]);
-    });
-
-    it('should go to view report if the expense is an individual expense', () => {
-      component.reportId = 'rpJFg3Da4';
-      component.view = ExpenseView.individual;
-      component.goBack();
-      expect(router.navigate).toHaveBeenCalledOnceWith([
-        '/',
-        'enterprise',
-        'my_view_report',
-        { id: component.reportId, navigate_back: true },
-      ]);
+      expect(individualExpPolicyStateData3).toEqual(component.policyDetails);
     });
   });
 
@@ -390,10 +387,376 @@ fdescribe('ViewExpensePage', () => {
       expect(result).toEqual('Not Added');
     });
   });
-  xit('ionViewWillEnter', () => {});
-  xit('getReceiptExtension', () => {});
-  xit('getReceiptDetails', () => {});
-  xit('removeExpenseFromReport', () => {});
-  xit('flagUnflagExpense', () => {});
-  xit('viewAttachments', () => {});
+
+  describe('goBack', () => {
+    it('should go to view team report if the expense is a team expense', () => {
+      component.reportId = 'rpWDg3QX3';
+      component.view = ExpenseView.team;
+      component.goBack();
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'view_team_report',
+        { id: component.reportId, navigate_back: true },
+      ]);
+    });
+
+    it('should go to view report if the expense is an individual expense', () => {
+      component.reportId = 'rpJFg3Da4';
+      component.view = ExpenseView.individual;
+      component.goBack();
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: component.reportId, navigate_back: true },
+      ]);
+    });
+  });
+
+  describe('ionViewWillEnter', () => {
+    it('should get all the system categories', () => {
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'isNumber');
+      spyOn(component, 'getPolicyDetails');
+      activateRouteMock.snapshot.params = {
+        id: 'tx5fBcPBAxLv',
+        view: ExpenseView.individual,
+        activeIndex: 0,
+      };
+
+      categoriesService.getSystemCategories.and.returnValue(['Bus', 'Airlines', 'Lodging', 'Train']);
+      categoriesService.getSystemCategoriesWithTaxi.and.returnValue(['Taxi', 'Bus', 'Airlines', 'Lodging', 'Train']);
+      categoriesService.getBreakfastSystemCategories.and.returnValue(['Lodging']);
+      categoriesService.getTravelSystemCategories.and.returnValue(['Bus', 'Airlines', 'Train']);
+      categoriesService.getFlightSystemCategories.and.returnValue(['Airlines']);
+
+      const mockWithoutCustPropData = {
+        ...expenseData2,
+        tx_custom_properties: null,
+      };
+      component.etxnWithoutCustomProperties$ = of(mockWithoutCustPropData);
+      transactionService.getEtxn.and.returnValue(of(expenseData1));
+
+      customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+
+      const mockExpenseFielsMap = {
+        ...expenseFieldsMapResponse,
+        ...expenseFieldsMapResponse2,
+        project_id: [
+          {
+            code: 'PID001',
+            column_name: 'project_id',
+            created_at: new Date('2018-01-31T23:50:27.221Z'),
+            default_value: 'Default Value',
+            field_name: 'Project ID',
+            id: 1,
+            is_custom: false,
+            is_enabled: true,
+            is_mandatory: true,
+            options: ['Option 1', 'Option 2', 'Option 3'],
+            org_category_ids: [1, 2, 3],
+            org_id: 'ORG001',
+            placeholder: 'Enter Project ID',
+            roles_editable: ['Role 1', 'Role 2'],
+            seq: 1,
+            type: 'text',
+            updated_at: new Date(),
+            parent_field_id: 123,
+            field: 'Project',
+            input_type: 'input',
+          },
+        ],
+      };
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap)); //it actually returns expenseFieldsMapResponse2
+
+      component.etxn$ = of(expenseData1);
+      component.txnFields$ = of(expenseFieldsMapResponse2);
+
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
+
+      corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
+      statusService.find.and.returnValue(of(getEstatusApiResponse));
+
+      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+
+      const mockDownloadUrl = {
+        url: 'mock-url',
+      };
+      fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
+      fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+
+      component.ionViewWillEnter();
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(categoriesService.getSystemCategories).toHaveBeenCalledTimes(1);
+      expect(categoriesService.getSystemCategoriesWithTaxi).toHaveBeenCalledTimes(1);
+      expect(categoriesService.getBreakfastSystemCategories).toHaveBeenCalledTimes(1);
+      expect(categoriesService.getTravelSystemCategories).toHaveBeenCalledTimes(1);
+      expect(categoriesService.getFlightSystemCategories).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getReceiptExtension', () => {
+    it('should return the receipt extention if present', () => {
+      const res = component.getReceiptExtension('dummyFile.pdf');
+      expect(res).toEqual('pdf');
+    });
+
+    it('should return null when a file name without extension is provided', () => {
+      const res = component.getReceiptExtension('dummyFile');
+      expect(res).toEqual(null);
+    });
+  });
+
+  describe('getReceiptDetails', () => {
+    it('should get the receipt details when the file extention is of type pdf', () => {
+      spyOn(component, 'getReceiptExtension').and.returnValue('pdf');
+      const res = component.getReceiptDetails(fileObjectAdv1);
+      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(fileObjectAdv1.name);
+      expect(res.type).toEqual('pdf');
+      expect(res.thumbnail).toEqual('img/fy-pdf.svg');
+    });
+
+    it('should get the receipt details when the it is an image with jpeg as extention', () => {
+      spyOn(component, 'getReceiptExtension').and.returnValue('jpeg');
+      const res = component.getReceiptDetails(fileObjectAdv[0]);
+      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(fileObjectAdv[0].name);
+      expect(res.type).toEqual('image');
+      expect(res.thumbnail).toEqual(fileObjectAdv[0].url);
+    });
+
+    it('should get the receipt details when the it is an image with jpg as extention', () => {
+      const mockFileData = {
+        ...fileObjectAdv[0],
+        name: 'dummyFile.jpg',
+        url: 'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
+      };
+      spyOn(component, 'getReceiptExtension').and.returnValue('jpg');
+      const res = component.getReceiptDetails(mockFileData);
+      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(mockFileData.name);
+      expect(res.type).toEqual('image');
+      expect(res.thumbnail).toEqual(mockFileData.url);
+    });
+
+    it('should get the receipt details when the it is an image with png as extention', () => {
+      const mockFileData = {
+        ...fileObjectAdv[0],
+        name: 'dummyFile.png',
+        url: 'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
+      };
+      spyOn(component, 'getReceiptExtension').and.returnValue('png');
+      const res = component.getReceiptDetails(mockFileData);
+      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(mockFileData.name);
+      expect(res.type).toEqual('image');
+      expect(res.thumbnail).toEqual(mockFileData.url);
+    });
+
+    it('should get the receipt details when the it is an image with gif as extention', () => {
+      const mockFileData = {
+        ...fileObjectAdv[0],
+        name: 'dummyFile.gif',
+        url: 'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.gif?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
+      };
+      spyOn(component, 'getReceiptExtension').and.returnValue('gif');
+      const res = component.getReceiptDetails(mockFileData);
+      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(mockFileData.name);
+      expect(res.type).toEqual('image');
+      expect(res.thumbnail).toEqual(mockFileData.url);
+    });
+  });
+
+  describe('removeExpenseFromReport', () => {
+    it('should remove the expense from report', fakeAsync(() => {
+      activateRouteMock.snapshot.params = {
+        id: 'tx5fBcPBAxLv',
+      };
+      transactionService.getEtxn.and.returnValue(of(expenseData1));
+      reportService.removeTransaction.and.stub();
+      const deletePopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
+      popoverController.create.and.returnValue(deletePopoverSpy);
+      deletePopoverSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { status: 'success' } }));
+      component.removeExpenseFromReport();
+      tick(500);
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+      tick(500);
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Remove Expense',
+          body: 'Are you sure you want to remove this expense from the report?',
+          infoMessage: 'The report amount will be adjusted accordingly.',
+          ctaText: 'Remove',
+          ctaLoadingText: 'Removing',
+          deleteMethod: jasmine.any(Function),
+        },
+      });
+      expect(deletePopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+      //expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(expenseData1.tx_report_id, expenseData1.tx_id);
+      expect(trackingService.expenseRemovedByApprover).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'view_team_report',
+        { id: expenseData1.tx_report_id, navigate_back: true },
+      ]);
+    }));
+  });
+
+  describe('flagUnflagExpense', () => {
+    it('should flag,unflagged expense', fakeAsync(() => {
+      activateRouteMock.snapshot.queryParams = {
+        id: 'tx5fBcPBAxLv',
+      };
+      const testComment = {
+        id: 'stjIdPp8BX8O',
+        created_at: '2022-11-17T06:07:38.590Z',
+        org_user_id: 'ouX8dwsbLCLv',
+        comment: 'This is a comment for flagging',
+        diff: null,
+        state: null,
+        transaction_id: null,
+        report_id: 'rpkpSa8guCuR',
+        advance_request_id: null,
+      };
+
+      transactionService.getEtxn.and.returnValue(of(expenseData1));
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      component.isExpenseFlagged = false;
+      const title = 'Flag';
+      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.returnValue(flagPopoverSpy);
+      const data = { comment: 'This is a comment for flagging' };
+      flagPopoverSpy.onWillDismiss.and.returnValue(Promise.resolve({ data }));
+      statusService.post.and.returnValue(of(testComment));
+      transactionService.manualFlag.and.returnValue(of(expenseData2));
+
+      component.flagUnflagExpense();
+      tick(500);
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+      tick(500);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyPopoverComponent,
+        componentProps: {
+          title,
+          formLabel: 'Reason for flaging expense',
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+
+      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', expenseData1.tx_id, data, true);
+      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(expenseData1.tx_id);
+      tick(500);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(component.isExpenseFlagged).toEqual(expenseData1.tx_manual_flag);
+      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
+    }));
+
+    it('should unflag,flagged expense', fakeAsync(() => {
+      activateRouteMock.snapshot.params = {
+        id: 'tx5fBcPBAxLv',
+      };
+
+      const mockExpenseData = {
+        ...expenseData1,
+        tx_manual_flag: true,
+      };
+      const testComment = {
+        id: 'stjIdPp8BX8O',
+        created_at: '2022-11-17T06:07:38.590Z',
+        org_user_id: 'ouX8dwsbLCLv',
+        comment: 'a comment',
+        diff: null,
+        state: null,
+        transaction_id: null,
+        report_id: 'rpkpSa8guCuR',
+        advance_request_id: null,
+      };
+      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      component.isExpenseFlagged = true;
+      const title = 'Unflag';
+      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.returnValue(flagPopoverSpy);
+      const data = { comment: 'This is a comment for flagging' };
+      flagPopoverSpy.onWillDismiss.and.returnValue(Promise.resolve({ data }));
+      statusService.post.and.returnValue(of(testComment));
+      transactionService.manualUnflag.and.returnValue(of(expenseData1));
+
+      component.flagUnflagExpense();
+      tick(500);
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+      tick(500);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyPopoverComponent,
+        componentProps: {
+          title,
+          formLabel: 'Reason for unflaging expense',
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+
+      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', mockExpenseData.tx_id, data, true);
+      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(mockExpenseData.tx_id);
+      tick(500);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(component.isExpenseFlagged).toEqual(mockExpenseData.tx_manual_flag);
+      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
+    }));
+  });
+
+  describe('viewAttachments', () => {
+    it('should open modal with attachments', fakeAsync(() => {
+      const attachments = [
+        {
+          id: '1',
+          type: 'pdf',
+          url: 'http://example.com/attachment1.pdf',
+        },
+        {
+          id: '2',
+          type: 'image',
+          url: 'http://example.com/attachment2.jpg',
+        },
+        {
+          id: '3',
+          type: 'pdf',
+          url: 'http://example.com/attachment3.pdf',
+        },
+      ];
+
+      component.attachments$ = of(attachments);
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present']);
+      modalController.create.and.returnValue(modalSpy);
+      component.viewAttachments();
+      tick(500);
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyViewAttachmentComponent,
+        componentProps: {
+          attachments,
+          canEdit: false,
+        },
+      });
+
+      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    }));
+  });
 });
