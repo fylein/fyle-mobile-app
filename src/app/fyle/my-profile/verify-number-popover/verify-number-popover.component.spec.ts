@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 
 fdescribe('VerifyNumberPopoverComponent', () => {
   let component: VerifyNumberPopoverComponent;
@@ -50,11 +51,39 @@ fdescribe('VerifyNumberPopoverComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('ngOnInit(): should execute on component initialization', () => {
+    spyOn(component, 'resendOtp');
+    component.ngOnInit();
+
+    expect(component.infoBoxText).toBe('Please verify your mobile number using the 6-digit OTP sent to 123456');
+    expect(component.resendOtp).toHaveBeenCalledOnceWith();
+  });
+
+  it('ngAfterViewInit(): should focus on input element on init', () => {
+    const inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
+    component.inputEl.nativeElement = inputElement;
+
+    expect(document.activeElement).toBe(inputElement);
+  });
+
   xit('validateInput', () => {});
 
-  xit('goBack', () => {});
+  it('goBack(): Should dismiss modal', () => {
+    const backButton = getElementBySelector(fixture, 'ion-button') as HTMLIonButtonElement;
+    click(backButton);
+    expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ action: 'BACK' });
+  });
 
-  xit('onFocus', () => {});
+  it('onFocus(): should clear the error message', () => {
+    spyOn(component, 'onFocus').and.callThrough();
+    component.error = 'Please enter a valid OTP';
+
+    const inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
+    inputElement.dispatchEvent(new FocusEvent('focus'));
+
+    expect(component.onFocus).toHaveBeenCalledOnceWith();
+    expect(component.error).toBeNull();
+  });
 
   xit('resendOtp', () => {});
 
