@@ -22,7 +22,7 @@ import {
   expenseData2,
   perDiemExpenseSingleNumDays,
 } from 'src/app/core/mock-data/expense.data';
-import { approversData1 } from 'src/app/core/mock-data/approver.data';
+import { approversData1, approversData4 } from 'src/app/core/mock-data/approver.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
@@ -45,7 +45,7 @@ import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.da
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
 import { FormsModule } from '@angular/forms';
 
-describe('ViewTeamReportPage', () => {
+fdescribe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -218,6 +218,76 @@ describe('ViewTeamReportPage', () => {
     expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
   });
 
+  it('ionViewWillEnter', fakeAsync(() => {
+    spyOn(component, 'setupNetworkWatcher');
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    reportService.getReport.and.returnValue(of(expectedAllReports[0]));
+    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    statusService.find.and.returnValue(of(getEstatusApiResponse));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+    reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
+    reportService.getExports.and.returnValue(
+      of({
+        results: [
+          { created_at: '2023-01-17T06:35:06.814556', update_at: '2023-02-23T11:46:17.569Z' },
+          { created_at: '2023-02-24T12:03:57.680Z', update_at: '2023-02-23T11:46:17.569Z' },
+        ],
+      })
+    );
+    reportService.getApproversByReportId.and.returnValue(of(approversData1));
+    reportService.getReportETxnc.and.returnValue(of(etxncListData.data));
+    reportService.actions.and.returnValue(of(apiReportActions));
+
+    component.ionViewWillEnter();
+    tick(2000);
+
+    expect(authService.getEou).toHaveBeenCalledTimes(2);
+    expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
+    expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+    expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
+    expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+    expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+    expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+    expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+    expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
+
+    component.erpt$.subscribe((res) => {
+      expect(res).toEqual(expectedAllReports[0]);
+    });
+
+    component.simplifyReportsSettings$.subscribe((res) => {
+      expect(res).toEqual({
+        enabled: undefined,
+      });
+    });
+
+    component.totalCommentsCount$.subscribe((res) => {
+      expect(res).toEqual(4);
+    });
+
+    component.etxnAmountSum$.subscribe((res) => {
+      expect(res).toEqual(310.65);
+    });
+
+    component.sharedWith$.subscribe((res) => {
+      expect(res).toEqual([undefined]);
+    });
+
+    component.canEdit$.subscribe((res) => {
+      expect(res).toBeTrue();
+    });
+
+    component.canDelete$.subscribe((res) => {
+      expect(res).toBeTrue();
+    });
+
+    component.canResubmitReport$.subscribe((res) => {
+      expect(res).toBeFalse();
+    });
+  }));
+
   it('setupNetworkWatcher(): should setup network watcher', () => {
     networkService.connectivityWatcher.and.returnValue(new EventEmitter(true));
     networkService.isOnline.and.returnValue(of(false));
@@ -279,6 +349,20 @@ describe('ViewTeamReportPage', () => {
 
     component.toggleTooltip();
     expect(component.canShowTooltip).toBeTrue();
+  });
+
+  describe('isUserActiveInCurrentSeqApprovalQueue(): ', () => {
+    it('should check whether the user is active', () => {
+      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData4);
+
+      expect(result).toBeFalse();
+    });
+
+    it('should return false if no approvers match', () => {
+      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, []);
+
+      expect(result).toBeFalse();
+    });
   });
 
   it('deleteReport(): should delete report', async () => {
