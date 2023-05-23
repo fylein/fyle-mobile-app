@@ -27,7 +27,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
 
-fdescribe('MyProfilePage', () => {
+describe('MyProfilePage', () => {
   let component: MyProfilePage;
   let fixture: ComponentFixture<MyProfilePage>;
   let authService: jasmine.SpyObj<AuthService>;
