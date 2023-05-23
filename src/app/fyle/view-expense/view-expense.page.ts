@@ -460,10 +460,8 @@ export class ViewExpensePage implements OnInit {
     return res;
   }
 
-  async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-
-    const deletePopover = await this.popoverController.create({
+  getDeleteDialogProps(etxn) {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
@@ -475,8 +473,12 @@ export class ViewExpensePage implements OnInit {
         ctaLoadingText: 'Removing',
         deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
-    });
+    };
+  }
 
+  async removeExpenseFromReport() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
     await deletePopover.present();
     const { data } = await deletePopover.onDidDismiss();
 

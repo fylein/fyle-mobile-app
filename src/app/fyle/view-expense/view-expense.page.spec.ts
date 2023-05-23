@@ -46,7 +46,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
-fdescribe('ViewExpensePage', () => {
+describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
   let fixture: ComponentFixture<ViewExpensePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -477,34 +477,30 @@ fdescribe('ViewExpensePage', () => {
     });
   });
 
+  it('getDeleteDialogProps(): should return the props', () => {
+    const props = component.getDeleteDialogProps(expenseData1);
+    props.componentProps.deleteMethod();
+    expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(expenseData1.tx_report_id, expenseData1.tx_id);
+  });
+
   describe('removeExpenseFromReport', () => {
-    it('should remove the expense from report', async () => {
+    it('should remove the expense from report', fakeAsync(() => {
       activateRouteMock.snapshot.params = {
         id: 'tx5fBcPBAxLv',
       };
-      await transactionService.getEtxn.and.returnValue(of(expenseData1));
-      reportService.removeTransaction.and.returnValue(of(null));
+      transactionService.getEtxn.and.returnValue(of(expenseData1));
+
+      spyOn(component, 'getDeleteDialogProps');
       const deletePopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
       popoverController.create.and.returnValue(deletePopoverSpy);
       deletePopoverSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { status: 'success' } }));
-      await component.removeExpenseFromReport();
+
+      component.removeExpenseFromReport();
+      tick(500);
       expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyDeleteDialogComponent,
-        cssClass: 'delete-dialog',
-        backdropDismiss: false,
-        componentProps: {
-          header: 'Remove Expense',
-          body: 'Are you sure you want to remove this expense from the report?',
-          infoMessage: 'The report amount will be adjusted accordingly.',
-          ctaText: 'Remove',
-          ctaLoadingText: 'Removing',
-          deleteMethod: jasmine.any(Function),
-        },
-      });
+      expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteDialogProps(expenseData1));
       expect(deletePopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
-      //expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(expenseData1.tx_report_id, expenseData1.tx_id);
       expect(trackingService.expenseRemovedByApprover).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
@@ -512,7 +508,7 @@ fdescribe('ViewExpensePage', () => {
         'view_team_report',
         { id: expenseData1.tx_report_id, navigate_back: true },
       ]);
-    });
+    }));
   });
 
   describe('flagUnflagExpense', () => {
