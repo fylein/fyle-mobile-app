@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { finalize, switchMap } from 'rxjs/operators';
-import { eouFlattended } from 'src/app/core/mock-data/extended-org-user.data';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
