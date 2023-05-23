@@ -136,6 +136,37 @@ fdescribe('MyProfilePage', () => {
 
   xit('reset', () => {});
 
+  describe('setInfoCardsData(): ', () => {
+    let allInfoCardsData = [];
+    beforeAll(() => {
+      allInfoCardsData = [
+        {
+          title: 'Message Receipts',
+          content: 'Message your receipts to Fyle at (302) 440-2921.',
+          contentToCopy: '(302) 440-2921',
+          toastMessageContent: 'Phone Number Copied Successfully',
+          isHidden: false,
+        },
+        {
+          title: 'Email Receipts',
+          content: 'Forward your receipts to Fyle at receipts@fylehq.com.',
+          contentToCopy: 'receipts@fylehq.com',
+          toastMessageContent: 'Email Copied Successfully',
+        },
+      ];
+    });
+
+    it('should show only email card for non USD orgs', () => {
+      component.setInfoCardsData('INR');
+      expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
+    });
+
+    it('should show both email and mobile number cards for USD orgs', () => {
+      component.setInfoCardsData('USD');
+      expect(component.infoCardsData).toEqual(allInfoCardsData);
+    });
+  });
+
   describe('showToastMessage(): ', () => {
     it('should show success snackbar with message', () => {
       const message = 'Profile saved successfully';
@@ -254,6 +285,40 @@ fdescribe('MyProfilePage', () => {
     expect(popoverSpy.present).toHaveBeenCalledOnceWith();
     expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
   }));
+
+  describe('verifyMobileNumber(): ', () => {
+    let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+    beforeEach(() => {
+      popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.resolveTo(popoverSpy);
+      spyOn(component.loadEou$, 'next');
+      spyOn(component, 'showSuccessPopover');
+      spyOn(component, 'updateMobileNumber');
+    });
+
+    it('should show success popover if mobile number is verified', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
+
+      component.verifyMobileNumber(apiEouRes);
+      tick(200);
+
+      expect(popoverSpy.present).toHaveBeenCalledOnceWith();
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
+      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
+      expect(component.showSuccessPopover).toHaveBeenCalledOnceWith();
+    }));
+
+    it('should show mobile number popover if user clicks on back button', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'BACK' } });
+
+      component.verifyMobileNumber(apiEouRes);
+      tick(200);
+
+      expect(popoverSpy.present).toHaveBeenCalledOnceWith();
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
+      expect(component.updateMobileNumber).toHaveBeenCalled();
+    }));
+  });
 
   describe('updateMobileNumber(): ', () => {
     let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
