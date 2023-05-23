@@ -3,6 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { InfoCardComponent } from './info-card.component';
 import { By } from '@angular/platform-browser';
+import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 
 describe('InfoCardComponent', () => {
   let component: InfoCardComponent;
@@ -37,8 +38,8 @@ describe('InfoCardComponent', () => {
     clipboardService.writeString.and.resolveTo();
     spyOn(component.copiedText, 'emit');
 
-    const infoCard = fixture.debugElement.query(By.css('.info-card__card'));
-    infoCard.nativeElement.click();
+    const infoCard = getElementBySelector(fixture, '.info-card__card') as HTMLDivElement;
+    click(infoCard);
     tick(100);
 
     expect(component.copyToClipboard).toHaveBeenCalledOnceWith(component.contentToCopy);
@@ -47,10 +48,10 @@ describe('InfoCardComponent', () => {
   }));
 
   it('should render title and content in the ui', () => {
-    const title = fixture.debugElement.query(By.css('.info-card__card__title'));
-    const content = fixture.debugElement.query(By.css('.info-card__content-container__content'));
+    const title = getElementBySelector(fixture, '.info-card__card__title');
+    const content = getElementBySelector(fixture, '.info-card__content-container__content');
 
-    expect(title.nativeElement.textContent).toEqual(component.title);
-    expect(content.nativeElement.textContent).toEqual(component.content);
+    expect(title.textContent).toEqual(component.title);
+    expect(content.textContent).toEqual(component.content);
   });
 });

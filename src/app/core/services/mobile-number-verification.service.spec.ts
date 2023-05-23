@@ -5,7 +5,7 @@ import { MobileNumberVerificationService } from './mobile-number-verification.se
 import { ApiService } from './api.service';
 
 describe('MobileNumberVerificationService', () => {
-  let service: MobileNumberVerificationService;
+  let mobileNumberVerificationService: MobileNumberVerificationService;
   let apiService: jasmine.SpyObj<ApiService>;
 
   beforeEach(() => {
@@ -18,25 +18,25 @@ describe('MobileNumberVerificationService', () => {
         },
       ],
     });
-    service = TestBed.inject(MobileNumberVerificationService);
+    mobileNumberVerificationService = TestBed.inject(MobileNumberVerificationService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
 
     apiService.post.and.returnValue(of({}));
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(mobileNumberVerificationService).toBeTruthy();
   });
 
   it('sendOtp(): should send otp', () => {
-    service.sendOtp().subscribe(() => {
+    mobileNumberVerificationService.sendOtp().subscribe(() => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/orgusers/verify_mobile');
     });
   });
 
   it('verifyOtp(): should verify otp', () => {
     const otp = '123456';
-    service.verifyOtp(otp).subscribe(() => {
+    mobileNumberVerificationService.verifyOtp(otp).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledOnceWith(
         '/orgusers/check_mobile_verification_code',
         otp,
