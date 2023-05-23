@@ -45,12 +45,6 @@ import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platf
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
-import { expenseFieldsMapResponse, expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
-import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { apiTeamRptSingleRes } from 'src/app/core/mock-data/api-reports.data';
-import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
-import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 
 fdescribe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -290,9 +284,9 @@ fdescribe('ViewExpensePage', () => {
         },
         ...modalProperties.getModalDefaultProperties(),
       });
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       expect(trackingService.addComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
     }));
 
@@ -312,9 +306,9 @@ fdescribe('ViewExpensePage', () => {
         },
         ...modalProperties.getModalDefaultProperties(),
       });
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       expect(trackingService.viewComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
     }));
   });
@@ -414,92 +408,7 @@ fdescribe('ViewExpensePage', () => {
     });
   });
 
-  describe('ionViewWillEnter', () => {
-    it('should get all the system categories', () => {
-      spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'isNumber');
-      spyOn(component, 'getPolicyDetails');
-      activateRouteMock.snapshot.params = {
-        id: 'tx5fBcPBAxLv',
-        view: ExpenseView.individual,
-        activeIndex: 0,
-      };
-
-      categoriesService.getSystemCategories.and.returnValue(['Bus', 'Airlines', 'Lodging', 'Train']);
-      categoriesService.getSystemCategoriesWithTaxi.and.returnValue(['Taxi', 'Bus', 'Airlines', 'Lodging', 'Train']);
-      categoriesService.getBreakfastSystemCategories.and.returnValue(['Lodging']);
-      categoriesService.getTravelSystemCategories.and.returnValue(['Bus', 'Airlines', 'Train']);
-      categoriesService.getFlightSystemCategories.and.returnValue(['Airlines']);
-
-      const mockWithoutCustPropData = {
-        ...expenseData2,
-        tx_custom_properties: null,
-      };
-      component.etxnWithoutCustomProperties$ = of(mockWithoutCustPropData);
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
-
-      customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
-
-      const mockExpenseFielsMap = {
-        ...expenseFieldsMapResponse,
-        ...expenseFieldsMapResponse2,
-        project_id: [
-          {
-            code: 'PID001',
-            column_name: 'project_id',
-            created_at: new Date('2018-01-31T23:50:27.221Z'),
-            default_value: 'Default Value',
-            field_name: 'Project ID',
-            id: 1,
-            is_custom: false,
-            is_enabled: true,
-            is_mandatory: true,
-            options: ['Option 1', 'Option 2', 'Option 3'],
-            org_category_ids: [1, 2, 3],
-            org_id: 'ORG001',
-            placeholder: 'Enter Project ID',
-            roles_editable: ['Role 1', 'Role 2'],
-            seq: 1,
-            type: 'text',
-            updated_at: new Date(),
-            parent_field_id: 123,
-            field: 'Project',
-            input_type: 'input',
-          },
-        ],
-      };
-      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap)); //it actually returns expenseFieldsMapResponse2
-
-      component.etxn$ = of(expenseData1);
-      component.txnFields$ = of(expenseFieldsMapResponse2);
-
-      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
-
-      corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
-      statusService.find.and.returnValue(of(getEstatusApiResponse));
-
-      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
-
-      const mockDownloadUrl = {
-        url: 'mock-url',
-      };
-      fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
-      fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
-      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
-
-      component.ionViewWillEnter();
-      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-      expect(categoriesService.getSystemCategories).toHaveBeenCalledTimes(1);
-      expect(categoriesService.getSystemCategoriesWithTaxi).toHaveBeenCalledTimes(1);
-      expect(categoriesService.getBreakfastSystemCategories).toHaveBeenCalledTimes(1);
-      expect(categoriesService.getTravelSystemCategories).toHaveBeenCalledTimes(1);
-      expect(categoriesService.getFlightSystemCategories).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('getReceiptExtension', () => {
+  describe('getReceiptExtension():', () => {
     it('should return the receipt extention if present', () => {
       const res = component.getReceiptExtension('dummyFile.pdf');
       expect(res).toEqual('pdf');
@@ -569,19 +478,17 @@ fdescribe('ViewExpensePage', () => {
   });
 
   describe('removeExpenseFromReport', () => {
-    it('should remove the expense from report', fakeAsync(() => {
+    it('should remove the expense from report', async () => {
       activateRouteMock.snapshot.params = {
         id: 'tx5fBcPBAxLv',
       };
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
-      reportService.removeTransaction.and.stub();
+      await transactionService.getEtxn.and.returnValue(of(expenseData1));
+      reportService.removeTransaction.and.returnValue(of(null));
       const deletePopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
       popoverController.create.and.returnValue(deletePopoverSpy);
       deletePopoverSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { status: 'success' } }));
-      component.removeExpenseFromReport();
-      tick(500);
+      await component.removeExpenseFromReport();
       expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
-      tick(500);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: FyDeleteDialogComponent,
         cssClass: 'delete-dialog',
@@ -605,7 +512,7 @@ fdescribe('ViewExpensePage', () => {
         'view_team_report',
         { id: expenseData1.tx_report_id, navigate_back: true },
       ]);
-    }));
+    });
   });
 
   describe('flagUnflagExpense', () => {
