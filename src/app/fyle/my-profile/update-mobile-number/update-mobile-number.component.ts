@@ -48,7 +48,7 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   }
 
   validateInput() {
-    if (this.inputValue?.length === 0) {
+    if (!this.inputValue?.length) {
       this.error = 'Please enter a Mobile Number';
     } else if (!this.inputValue.match(/[+]\d{7,}$/)) {
       this.error = 'Please enter a valid mobile number with country code. e.g. +12025559975';
