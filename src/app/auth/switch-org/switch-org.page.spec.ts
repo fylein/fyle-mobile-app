@@ -43,7 +43,7 @@ const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
 
-fdescribe('SwitchOrgPage', () => {
+describe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
   let platform: jasmine.SpyObj<Platform>;
@@ -241,7 +241,7 @@ fdescribe('SwitchOrgPage', () => {
   });
 
   describe('ionViewWillEnter():', () => {
-    it('should show orgs and setup search bar', fakeAsync(() => {
+    it('should show orgs and setup search bar', async () => {
       orgService.getOrgs.and.returnValue(of(orgData1));
       spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
       spyOn(component, 'proceed').and.returnValue(Promise.resolve());
@@ -251,12 +251,10 @@ fdescribe('SwitchOrgPage', () => {
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
       fixture.detectChanges();
 
-      component.ionViewWillEnter();
-      tick(2000);
+      await component.ionViewWillEnter();
 
       component.searchOrgsInput.nativeElement.value = 'Staging Loaded';
       component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
-      tick(2000);
 
       component.filteredOrgs$.subscribe((res) => {
         expect(res).toEqual(orgData1);
@@ -267,13 +265,13 @@ fdescribe('SwitchOrgPage', () => {
       expect(orgService.getPrimaryOrg).toHaveBeenCalledTimes(1);
       expect(component.orgs).toEqual(orgData1);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      tick(2000);
+
       expect(component.proceed).toHaveBeenCalledOnceWith(true);
 
       expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledOnceWith([orgData2[1]], '');
-    }));
+    });
 
-    xit('should directly proceed to invite line flow if choosing is disabled', fakeAsync(() => {
+    it('should directly proceed to invite line flow if choosing is disabled', async () => {
       activatedRoute.snapshot.params.choose = false;
       orgService.getOrgs.and.returnValue(of(orgData1));
       spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
@@ -283,12 +281,10 @@ fdescribe('SwitchOrgPage', () => {
       loaderService.showLoader.and.returnValue(Promise.resolve());
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
 
-      component.ionViewWillEnter();
-      tick(500);
+      await component.ionViewWillEnter();
 
       component.searchOrgsInput.nativeElement.value = 'Staging Loaded';
       component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
-      tick(500);
 
       component.filteredOrgs$.subscribe((res) => {
         expect(res).toEqual(orgData1);
@@ -298,10 +294,10 @@ fdescribe('SwitchOrgPage', () => {
       expect(orgService.getPrimaryOrg).toHaveBeenCalledTimes(1);
       expect(component.orgs).toEqual(orgData1);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      tick(2000);
+
       expect(component.proceed).toHaveBeenCalledOnceWith(true);
       expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledOnceWith([orgData2[1]], '');
-    }));
+    });
   });
 
   it('resendInvite(): should resend invite to an org', (done) => {
@@ -476,7 +472,7 @@ fdescribe('SwitchOrgPage', () => {
     });
   });
 
-  it('markUserActive(): should mark the user as active and return the org', () => {
+  it('markUserActive(): should mark the user as active and return the org', (done) => {
     loaderService.showLoader.and.returnValue(Promise.resolve());
     loaderService.hideLoader.and.returnValue(Promise.resolve());
     orgUserService.markActive.and.returnValue(of(apiEouRes));
@@ -493,6 +489,7 @@ fdescribe('SwitchOrgPage', () => {
         expect(res).toEqual(apiEouRes);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(orgUserService.markActive).toHaveBeenCalledTimes(1);
+        done();
       });
   });
 
