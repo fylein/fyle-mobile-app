@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { PopoverController } from '@ionic/angular';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
@@ -11,8 +11,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { ErrorType } from './error-type.model';
 
-describe('VerifyNumberPopoverComponent', () => {
+fdescribe('VerifyNumberPopoverComponent', () => {
   let component: VerifyNumberPopoverComponent;
   let fixture: ComponentFixture<VerifyNumberPopoverComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -58,11 +59,28 @@ describe('VerifyNumberPopoverComponent', () => {
     expect(component.resendOtp).toHaveBeenCalledOnceWith();
   });
 
-  it('ngAfterViewInit(): should focus on input element on init', () => {
-    const inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
-    component.inputEl.nativeElement = inputElement;
+  describe('ngAfterViewInit(): ', () => {
+    let inputElement: HTMLInputElement;
+    beforeEach(() => {
+      inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
+      component.inputEl.nativeElement = inputElement;
+    });
 
-    expect(document.activeElement).toBe(inputElement);
+    it('should focus on input element on init', fakeAsync(() => {
+      component.error = null;
+      component.ngAfterViewInit();
+      tick(200);
+
+      expect(document.activeElement).toEqual(inputElement);
+    }));
+
+    it('should not focus on input element if there is some error', fakeAsync(() => {
+      component.error = 'Invalid OTP';
+      component.ngAfterViewInit();
+      tick(200);
+
+      expect(document.activeElement).not.toEqual(inputElement);
+    }));
   });
 
   it('validateInput(): should set error message if input is invalid', () => {
@@ -116,7 +134,7 @@ describe('VerifyNumberPopoverComponent', () => {
 
     const inputElement = getElementBySelector(
       fixture,
-      '.verify-number-popover--input-container__label--resend'
+      '.verify-number-popover__input-container__label__resend'
     ) as HTMLButtonElement;
     click(inputElement);
 
@@ -125,14 +143,14 @@ describe('VerifyNumberPopoverComponent', () => {
     expect(mobileNumberVerificationService.sendOtp).toHaveBeenCalledTimes(2);
   });
 
-  describe('verifyOtp(): ', () => {
+  fdescribe('verifyOtp(): ', () => {
     let verifyCta: HTMLButtonElement;
     beforeEach(() => {
       spyOn(component, 'verifyOtp').and.callThrough();
       spyOn(component, 'validateInput');
 
       component.error = null;
-      verifyCta = getElementBySelector(fixture, '.verify-number-popover--toolbar__btn') as HTMLButtonElement;
+      verifyCta = getElementBySelector(fixture, '.verify-number-popover__toolbar__btn') as HTMLButtonElement;
     });
 
     it('should verify otp if input is valid', () => {
@@ -143,7 +161,7 @@ describe('VerifyNumberPopoverComponent', () => {
       fixture.detectChanges();
       const errorElement = getElementBySelector(
         fixture,
-        '.verify-number-popover--input-container__error'
+        '.verify-number-popover__input-container__error'
       ) as HTMLSpanElement;
 
       expect(component.verifyOtp).toHaveBeenCalledOnceWith();
@@ -163,7 +181,7 @@ describe('VerifyNumberPopoverComponent', () => {
       fixture.detectChanges();
       const errorElement = getElementBySelector(
         fixture,
-        '.verify-number-popover--input-container__error'
+        '.verify-number-popover__input-container__error'
       ) as HTMLSpanElement;
 
       expect(mobileNumberVerificationService.verifyOtp).toHaveBeenCalledOnceWith(component.value);
@@ -179,7 +197,7 @@ describe('VerifyNumberPopoverComponent', () => {
       fixture.detectChanges();
       const errorElement = getElementBySelector(
         fixture,
-        '.verify-number-popover--input-container__error'
+        '.verify-number-popover__input-container__error'
       ) as HTMLSpanElement;
 
       expect(mobileNumberVerificationService.verifyOtp).not.toHaveBeenCalled();
@@ -187,4 +205,58 @@ describe('VerifyNumberPopoverComponent', () => {
       expect(getTextContent(errorElement)).toEqual(component.error);
     });
   });
+
+  it('setError(): should set correct error messages', () => {
+    const errorMappings = [
+      {
+        type: 'LIMIT_REACHED',
+        error: 'You have exhausted the limit to request OTP for your mobile number. Please try again after 24 hours.',
+      },
+      {
+        type: 'INVALID_MOBILE_NUMBER',
+        error: 'Invalid mobile number. Please try again',
+      },
+      {
+        type: 'INVALID_OTP',
+        error: 'Incorrect mobile number or OTP. Please try again.',
+      },
+      {
+        type: 'INVALID_INPUT',
+        error: 'Please enter 6 digit OTP',
+      },
+      {
+        type: 'ATTEMPTS_LEFT',
+        value: 4,
+        error: 'You have 4 attempts left to verify your mobile number.',
+      },
+      {
+        type: 'ATTEMPTS_LEFT',
+        value: 1,
+        error: 'You have 1 attempt left to verify your mobile number.',
+      },
+    ];
+
+    errorMappings.forEach((errorMapping) => {
+      component.setError(errorMapping.type as ErrorType, errorMapping.value);
+      expect(component.error).toEqual(errorMapping.error);
+    });
+  });
+
+  it('startTimer(): should start a timer and clear it after 30 seconds', fakeAsync(() => {
+    spyOn(window, 'setInterval').and.callThrough();
+    spyOn(window, 'clearInterval').and.callThrough();
+
+    component.startTimer();
+    expect(setInterval).toHaveBeenCalledOnceWith(jasmine.any(Function), 1000);
+    expect(component.otpTimer).toBe(30);
+    expect(component.showOtpTimer).toBeTrue();
+
+    tick(1000);
+    expect(component.otpTimer).toBe(29);
+
+    tick(29000);
+    expect(component.otpTimer).toBe(0);
+    expect(clearInterval).toHaveBeenCalledOnceWith(jasmine.any(Number));
+    expect(component.showOtpTimer).toBeFalse();
+  }));
 });

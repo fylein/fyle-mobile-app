@@ -3,8 +3,7 @@ import { PopoverController } from '@ionic/angular';
 import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
-
-type Error = 'LIMIT_REACHED' | 'INVALID_MOBILE_NUMBER' | 'INVALID_OTP' | 'INVALID_INPUT' | 'ATTEMPTS_LEFT';
+import { ErrorType } from './error-type.model';
 
 @Component({
   selector: 'app-verify-number-popover',
@@ -111,7 +110,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
       });
   }
 
-  setError(error: Error, attemptsLeft = 5) {
+  setError(error: ErrorType, attemptsLeft = 5) {
     const errorMapping = {
       LIMIT_REACHED:
         'You have exhausted the limit to request OTP for your mobile number. Please try again after 24 hours.',
