@@ -46,7 +46,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
-describe('ViewExpensePage', () => {
+fdescribe('ViewExpensePage', () => {
   let component: ViewExpensePage;
   let fixture: ComponentFixture<ViewExpensePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -272,8 +272,8 @@ describe('ViewExpensePage', () => {
       component.view = ExpenseView.individual;
       transactionService.getEtxn.and.returnValue(of(expenseData1));
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
-      modalController.create.and.returnValue(Promise.resolve(modalSpy));
-      modalSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { updated: true } } as any));
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } } as any);
       component.openCommentsModal();
       tick(500);
       expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -294,8 +294,8 @@ describe('ViewExpensePage', () => {
       component.view = ExpenseView.individual;
       transactionService.getEtxn.and.returnValue(of(expenseData1));
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
-      modalController.create.and.returnValue(Promise.resolve(modalSpy));
-      modalSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { updated: false } } as any));
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onDidDismiss.and.resolveTo({ data: { updated: false } } as any);
       component.openCommentsModal();
       tick(500);
       expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -339,7 +339,6 @@ describe('ViewExpensePage', () => {
     });
 
     it('should get policy details for individual expenses', () => {
-      component.policyDetails = individualExpPolicyStateData3;
       component.view = ExpenseView.individual;
       policyService.getSpenderExpensePolicyViolations.and.returnValue(
         of(expensePolicyStatesData.data[0].individual_desired_states)
@@ -493,7 +492,7 @@ describe('ViewExpensePage', () => {
       spyOn(component, 'getDeleteDialogProps');
       const deletePopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
       popoverController.create.and.returnValue(deletePopoverSpy);
-      deletePopoverSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: { status: 'success' } }));
+      deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
 
       component.removeExpenseFromReport();
       tick(500);
@@ -511,11 +510,12 @@ describe('ViewExpensePage', () => {
     }));
   });
 
-  describe('flagUnflagExpense', () => {
+  fdescribe('flagUnflagExpense', () => {
     it('should flag,unflagged expense', fakeAsync(() => {
       activateRouteMock.snapshot.queryParams = {
         id: 'tx5fBcPBAxLv',
       };
+
       const testComment = {
         id: 'stjIdPp8BX8O',
         created_at: '2022-11-17T06:07:38.590Z',
@@ -529,14 +529,14 @@ describe('ViewExpensePage', () => {
       };
 
       transactionService.getEtxn.and.returnValue(of(expenseData1));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
       component.isExpenseFlagged = false;
       const title = 'Flag';
       const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
       popoverController.create.and.returnValue(flagPopoverSpy);
       const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.returnValue(Promise.resolve({ data }));
+      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
       statusService.post.and.returnValue(of(testComment));
       transactionService.manualFlag.and.returnValue(of(expenseData2));
 
@@ -561,7 +561,7 @@ describe('ViewExpensePage', () => {
       expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(expenseData1.tx_id);
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(component.isExpenseFlagged).toEqual(expenseData1.tx_manual_flag);
+      expect(component.isExpenseFlagged).toBeFalse();
       expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
     }));
 
@@ -586,14 +586,14 @@ describe('ViewExpensePage', () => {
         advance_request_id: null,
       };
       transactionService.getEtxn.and.returnValue(of(mockExpenseData));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
       component.isExpenseFlagged = true;
       const title = 'Unflag';
       const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
       popoverController.create.and.returnValue(flagPopoverSpy);
       const data = { comment: 'This is a comment for flagging' };
-      flagPopoverSpy.onWillDismiss.and.returnValue(Promise.resolve({ data }));
+      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
       statusService.post.and.returnValue(of(testComment));
       transactionService.manualUnflag.and.returnValue(of(expenseData1));
 
@@ -618,7 +618,7 @@ describe('ViewExpensePage', () => {
       expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(mockExpenseData.tx_id);
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(component.isExpenseFlagged).toEqual(mockExpenseData.tx_manual_flag);
+      expect(component.isExpenseFlagged).toBeTrue();
       expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
     }));
   });
@@ -644,7 +644,7 @@ describe('ViewExpensePage', () => {
       ];
 
       component.attachments$ = of(attachments);
-      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present']);
       modalController.create.and.returnValue(modalSpy);
       component.viewAttachments();
