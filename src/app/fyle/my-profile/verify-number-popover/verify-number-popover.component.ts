@@ -39,6 +39,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.infoBoxText = `Please verify your mobile number using the 6-digit OTP sent to ${this.extendedOrgUser.ou.mobile}`;
+    this.value = '';
     this.resendOtp();
   }
 
