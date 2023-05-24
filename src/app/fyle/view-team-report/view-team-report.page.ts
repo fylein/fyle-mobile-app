@@ -185,16 +185,20 @@ export class ViewTeamReportPage implements OnInit {
     );
   }
 
+  loadReports() {
+    return from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
+      finalize(() => from(this.loaderService.hideLoader()))
+    );
+  }
+
   ionViewWillEnter() {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
 
-    this.erpt$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
-      finalize(() => from(this.loaderService.hideLoader()))
-    );
+    this.erpt$ = this.loadReports();
     this.eou$ = from(this.authService.getEou());
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
