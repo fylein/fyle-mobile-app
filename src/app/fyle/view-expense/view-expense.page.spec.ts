@@ -510,7 +510,7 @@ fdescribe('ViewExpensePage', () => {
     }));
   });
 
-  fdescribe('flagUnflagExpense', () => {
+  describe('flagUnflagExpense', () => {
     it('should flag,unflagged expense', fakeAsync(() => {
       activateRouteMock.snapshot.queryParams = {
         id: 'tx5fBcPBAxLv',
@@ -531,7 +531,7 @@ fdescribe('ViewExpensePage', () => {
       transactionService.getEtxn.and.returnValue(of(expenseData1));
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
-      component.isExpenseFlagged = false;
+
       const title = 'Flag';
       const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
       popoverController.create.and.returnValue(flagPopoverSpy);
@@ -540,7 +540,7 @@ fdescribe('ViewExpensePage', () => {
       statusService.post.and.returnValue(of(testComment));
       transactionService.manualFlag.and.returnValue(of(expenseData2));
 
-      component.flagUnflagExpense();
+      component.flagUnflagExpense(expenseData1.tx_manual_flag);
       tick(500);
       expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       tick(500);
@@ -561,7 +561,6 @@ fdescribe('ViewExpensePage', () => {
       expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(expenseData1.tx_id);
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(component.isExpenseFlagged).toBeFalse();
       expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
     }));
 
@@ -588,7 +587,7 @@ fdescribe('ViewExpensePage', () => {
       transactionService.getEtxn.and.returnValue(of(mockExpenseData));
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
-      component.isExpenseFlagged = true;
+
       const title = 'Unflag';
       const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
       popoverController.create.and.returnValue(flagPopoverSpy);
@@ -597,7 +596,7 @@ fdescribe('ViewExpensePage', () => {
       statusService.post.and.returnValue(of(testComment));
       transactionService.manualUnflag.and.returnValue(of(expenseData1));
 
-      component.flagUnflagExpense();
+      component.flagUnflagExpense(mockExpenseData.tx_manual_flag);
       tick(500);
       expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       tick(500);
@@ -618,7 +617,6 @@ fdescribe('ViewExpensePage', () => {
       expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(mockExpenseData.tx_id);
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(component.isExpenseFlagged).toBeTrue();
       expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
     }));
   });
