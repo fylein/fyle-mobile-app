@@ -24,6 +24,12 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   error = '';
 
+  showOtpTimer = false;
+
+  otpTimer: number;
+
+  disableResendOtp = false;
+
   constructor(
     private popoverController: PopoverController,
     private mobileNumberVerificationService: MobileNumberVerificationService
@@ -53,8 +59,8 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   }
 
   resendOtp() {
-    //TODO: Restrict this to 5 times a day
     this.sendingOtp = true;
+    this.startTimer();
     this.mobileNumberVerificationService
       .sendOtp()
       .pipe(finalize(() => (this.sendingOtp = false)))
@@ -68,6 +74,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
         error: (err) => {
           if (err.status === 400 && err.error.message === 'Out of attempts') {
             this.error = 'You have exhausted the limit to verify your mobile number. Please try again after 24 hours.';
+            this.disableResendOtp = true;
           }
         },
       });
@@ -86,5 +93,17 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
         complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
         error: () => (this.error = 'Incorrect mobile number or OTP. Please try again.'),
       });
+  }
+
+  startTimer() {
+    this.otpTimer = 30;
+    this.showOtpTimer = true;
+    const interval = setInterval(() => {
+      this.otpTimer--;
+      if (this.otpTimer === 0) {
+        clearInterval(interval);
+        this.showOtpTimer = false;
+      }
+    }, 1000);
   }
 }

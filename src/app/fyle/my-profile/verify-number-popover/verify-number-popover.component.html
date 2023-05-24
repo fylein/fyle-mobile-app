@@ -1,7 +1,7 @@
 <ion-header mode="md">
-  <ion-toolbar mode="md" class="fy-modal-toolbar verify-number-popover--toolbar">
+  <ion-toolbar mode="md" class="fy-modal-toolbar verify-number-popover__toolbar">
     <ion-title class="text-center">
-      <div class="verify-number-popover--toolbar__title">Verify Mobile Number</div>
+      <div class="verify-number-popover__toolbar__title">Verify Mobile Number</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="goBack()">
@@ -10,7 +10,7 @@
     </ion-buttons>
     <ion-buttons slot="end">
       <button
-        class="verify-number-popover--toolbar__btn"
+        class="verify-number-popover__toolbar__btn"
         (click)="verifyOtp()"
         appFormButtonValidation
         [loading]="verifyingOtp"
@@ -22,32 +22,43 @@
   </ion-toolbar>
 </ion-header>
 
-<div class="verify-number-popover--input-container">
-  <div class="verify-number-popover--input-container__info-box">
+<div class="verify-number-popover__input-container">
+  <div class="verify-number-popover__input-container__info-box">
     <app-fy-alert-info type="information" [message]="infoBoxText"></app-fy-alert-info>
   </div>
-  <div class="verify-number-popover--input-container__label">
+  <div class="verify-number-popover__input-container__label">
     <div>
       <span> One Time Password (OTP) </span>
-      <span class="verify-number-popover--input-container__mandatory"> * </span>
+      <span class="verify-number-popover__input-container__mandatory"> * </span>
     </div>
-    <button
-      class="verify-number-popover--input-container__label--resend"
-      (click)="resendOtp()"
-      appFormButtonValidation
-      buttonType="secondary"
-      [loading]="sendingOtp"
-      loadingText="Sending OTP"
-    >
-      Resend OTP
-    </button>
+    <ng-container *ngIf="showOtpTimer; else resendOtpCta">
+      <span class="verify-number-popover__input-container__label__otp-timer">
+        Resend OTP in
+        <span class="verify-number-popover__input-container__label__otp-timer--timer"
+          >0:{{ otpTimer | number : '2.0' }}</span
+        >
+      </span>
+    </ng-container>
+    <ng-template #resendOtpCta>
+      <button
+        class="verify-number-popover__input-container__label__resend"
+        [ngClass]="{ 'verify-number-popover__input-container__label__resend--disabled': disableResendOtp }"
+        (click)="resendOtp()"
+        appFormButtonValidation
+        buttonType="secondary"
+        [loading]="sendingOtp"
+        loadingText="Sending OTP"
+        [disabled]="disableResendOtp"
+      >
+        Resend OTP
+      </button>
+    </ng-template>
   </div>
   <input
     #input
     matInput
     [(ngModel)]="value"
-    class="verify-number-popover--input-container__input smartlook-show"
-    [ngClass]="{ 'verify-number-popover--input-container__input--error': error?.length }"
+    class="verify-number-popover__input-container__input smartlook-show"
     placeholder="Enter 6 digit OTP"
     type="text"
     inputmode="numeric"
@@ -55,5 +66,5 @@
     maxlength="6"
     (focus)="onFocus()"
   />
-  <span *ngIf="error?.length" class="verify-number-popover--input-container__error">{{ error }}</span>
+  <span *ngIf="error?.length" class="verify-number-popover__input-container__error">{{ error }}</span>
 </div>

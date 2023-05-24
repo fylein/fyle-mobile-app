@@ -1,7 +1,7 @@
 @import '../../../../theme/colors.scss';
 
 .verify-number-popover {
-  &--toolbar {
+  &__toolbar {
     color: $black;
 
     &__btn {
@@ -20,23 +20,35 @@
     }
   }
 
-  &--input-container {
+  &__input-container {
     padding: 16px 16px 36px;
 
     &__label {
       margin: 0 8px 0 0;
-      font-size: 12px;
       color: $black-light;
       line-height: 1.3;
       font-weight: 400;
       display: flex;
       justify-content: space-between;
+      align-items: center;
 
-      &--resend {
+      &__resend {
         color: $brand-primary;
         background-color: $pure-white;
         font-size: 12px;
         font-weight: 500;
+
+        &:disabled {
+          color: $grey-light;
+        }
+      }
+
+      &__otp-timer {
+        font-size: 12px;
+
+        &--timer {
+          color: $brand-primary;
+        }
       }
     }
 
