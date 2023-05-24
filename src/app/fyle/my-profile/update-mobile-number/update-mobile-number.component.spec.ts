@@ -156,6 +156,18 @@ describe('UpdateMobileNumberComponent', () => {
       submitCta = getElementBySelector(fixture, '.update-mobile-number--toolbar__btn') as HTMLButtonElement;
     });
 
+    it('should close modal if mobile number is verified and user has not changed it', () => {
+      const extendedOrgUser = cloneDeep(apiEouRes);
+      extendedOrgUser.ou.mobile = '+911234566756';
+      extendedOrgUser.ou.mobile_verified = true;
+      component.extendedOrgUser = extendedOrgUser;
+      click(submitCta);
+
+      expect(component.saveValue).toHaveBeenCalledOnceWith();
+      expect(popoverController.dismiss).toHaveBeenCalledOnceWith();
+      expect(orgUserService.postOrgUser).not.toHaveBeenCalled();
+    });
+
     it('should save mobile number if entered value is valid', () => {
       click(submitCta);
 
