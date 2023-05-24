@@ -74,8 +74,6 @@ export class ViewExpensePage implements OnInit {
 
   isDeviceWidthSmall = window.innerWidth < 330;
 
-  isExpenseFlagged: boolean;
-
   isSplitExpense: boolean;
 
   exchangeRate: number;
@@ -294,8 +292,6 @@ export class ViewExpensePage implements OnInit {
     );
 
     this.etxn$.subscribe((etxn) => {
-      this.isExpenseFlagged = etxn.tx_manual_flag;
-
       this.isSplitExpense = etxn.tx_split_group_id !== etxn.tx_id;
 
       if (etxn.tx_amount && etxn.tx_orig_amount) {
@@ -460,10 +456,8 @@ export class ViewExpensePage implements OnInit {
     return res;
   }
 
-  async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-
-    const deletePopover = await this.popoverController.create({
+  getDeleteDialogProps(etxn) {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
@@ -475,8 +469,12 @@ export class ViewExpensePage implements OnInit {
         ctaLoadingText: 'Removing',
         deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
-    });
+    };
+  }
 
+  async removeExpenseFromReport() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
     await deletePopover.present();
     const { data } = await deletePopover.onDidDismiss();
 
@@ -486,11 +484,11 @@ export class ViewExpensePage implements OnInit {
     }
   }
 
-  async flagUnflagExpense() {
+  async flagUnflagExpense(isExpenseFlagged: boolean) {
     const id = this.activatedRoute.snapshot.params.id;
     const etxn = await this.transactionService.getEtxn(id).toPromise();
 
-    const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
+    const title = isExpenseFlagged ? 'Unflag' : 'Flag';
     const flagUnflagModal = await this.popoverController.create({
       component: FyPopoverComponent,
       componentProps: {
@@ -524,7 +522,6 @@ export class ViewExpensePage implements OnInit {
         )
         .subscribe(noop);
     }
-    this.isExpenseFlagged = etxn.tx_manual_flag;
     this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
