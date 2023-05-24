@@ -60,7 +60,6 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   resendOtp() {
     this.sendingOtp = true;
-    this.startTimer();
     this.mobileNumberVerificationService
       .sendOtp()
       .pipe(finalize(() => (this.sendingOtp = false)))
@@ -70,6 +69,9 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
           this.error = `You have ${attemptsLeft} attempt${
             attemptsLeft > 1 ? 's' : ''
           } left to verify your mobile number.`;
+          if (attemptsLeft > 0) {
+            this.startTimer();
+          }
         },
         error: (err) => {
           if (err.status === 400 && err.error.message === 'Out of attempts') {
