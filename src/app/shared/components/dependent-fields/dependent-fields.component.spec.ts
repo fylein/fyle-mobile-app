@@ -65,12 +65,13 @@ describe('DependentFieldsComponent', () => {
   });
 
   it('ngOnDestroy(): should not call complete if onPageExit$ is not defined', () => {
+    const nextSpy = spyOn(component.onPageExit$, 'next');
+    const completeSpy = spyOn(component.onPageExit$, 'complete');
     component.onPageExit$ = null;
-    const onPageExitSpy = jasmine.createSpyObj('onPageExit$', ['next', 'complete']);
 
     component.ngOnDestroy();
-    expect(onPageExitSpy.next).not.toHaveBeenCalled();
-    expect(onPageExitSpy.complete).not.toHaveBeenCalled();
+    expect(nextSpy).not.toHaveBeenCalled();
+    expect(completeSpy).not.toHaveBeenCalled();
   });
 
   describe('ngOnChanges(): ', () => {
