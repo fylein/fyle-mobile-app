@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
-import { of } from 'rxjs';
+import { finalize, of } from 'rxjs';
 import { etxncListData, expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
@@ -51,6 +51,7 @@ import { apiTeamRptSingleRes } from 'src/app/core/mock-data/api-reports.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { fill } from 'lodash';
 
 fdescribe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -74,6 +75,35 @@ fdescribe('ViewExpensePage', () => {
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let activateRouteMock: ActivatedRoute;
+
+  const mockExpenseFielsMap = {
+    ...expenseFieldsMapResponse,
+    ...expenseFieldsMapResponse2,
+    project_id: [
+      {
+        code: 'PID001',
+        column_name: 'project_id',
+        created_at: new Date('2018-01-31T23:50:27.221Z'),
+        default_value: 'Default Value',
+        field_name: 'Project ID',
+        id: 1,
+        is_custom: false,
+        is_enabled: true,
+        is_mandatory: true,
+        options: ['Option 1', 'Option 2', 'Option 3'],
+        org_category_ids: [1, 2, 3],
+        org_id: 'ORG001',
+        placeholder: 'Enter Project ID',
+        roles_editable: ['Role 1', 'Role 2'],
+        seq: 1,
+        type: 'text',
+        updated_at: new Date(),
+        parent_field_id: 123,
+        field: 'Project',
+        input_type: 'input',
+      },
+    ],
+  };
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
@@ -236,7 +266,6 @@ fdescribe('ViewExpensePage', () => {
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
-
     fixture.detectChanges();
   }));
 
@@ -415,7 +444,8 @@ fdescribe('ViewExpensePage', () => {
   });
 
   describe('ionViewWillEnter', () => {
-    it('should get all the system categories', () => {
+    beforeEach(() => {
+      component.reportId = 'rpT7x1BFlLOi';
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'isNumber');
       spyOn(component, 'getPolicyDetails');
@@ -432,7 +462,7 @@ fdescribe('ViewExpensePage', () => {
       categoriesService.getFlightSystemCategories.and.returnValue(['Airlines']);
 
       const mockWithoutCustPropData = {
-        ...expenseData2,
+        ...expenseData1,
         tx_custom_properties: null,
       };
       component.etxnWithoutCustomProperties$ = of(mockWithoutCustPropData);
@@ -442,38 +472,10 @@ fdescribe('ViewExpensePage', () => {
       loaderService.showLoader.and.returnValue(Promise.resolve());
       loaderService.hideLoader.and.returnValue(Promise.resolve());
 
-      const mockExpenseFielsMap = {
-        ...expenseFieldsMapResponse,
-        ...expenseFieldsMapResponse2,
-        project_id: [
-          {
-            code: 'PID001',
-            column_name: 'project_id',
-            created_at: new Date('2018-01-31T23:50:27.221Z'),
-            default_value: 'Default Value',
-            field_name: 'Project ID',
-            id: 1,
-            is_custom: false,
-            is_enabled: true,
-            is_mandatory: true,
-            options: ['Option 1', 'Option 2', 'Option 3'],
-            org_category_ids: [1, 2, 3],
-            org_id: 'ORG001',
-            placeholder: 'Enter Project ID',
-            roles_editable: ['Role 1', 'Role 2'],
-            seq: 1,
-            type: 'text',
-            updated_at: new Date(),
-            parent_field_id: 123,
-            field: 'Project',
-            input_type: 'input',
-          },
-        ],
-      };
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap)); //it actually returns expenseFieldsMapResponse2
 
       component.etxn$ = of(expenseData1);
-      component.txnFields$ = of(expenseFieldsMapResponse2);
+      component.txnFields$ = of(mockExpenseFielsMap);
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
 
@@ -488,14 +490,55 @@ fdescribe('ViewExpensePage', () => {
       fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
       fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+    });
 
+    it('should get all the system categories and get the correct value of report is by subscribing to etxnWithoutCustomProperties$', fakeAsync(() => {
       component.ionViewWillEnter();
+      tick(500);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(categoriesService.getSystemCategories).toHaveBeenCalledTimes(1);
       expect(categoriesService.getSystemCategoriesWithTaxi).toHaveBeenCalledTimes(1);
       expect(categoriesService.getBreakfastSystemCategories).toHaveBeenCalledTimes(1);
       expect(categoriesService.getTravelSystemCategories).toHaveBeenCalledTimes(1);
       expect(categoriesService.getFlightSystemCategories).toHaveBeenCalledTimes(1);
+      component.etxnWithoutCustomProperties$.subscribe((res) => {
+        expect(res).toEqual(expenseData1);
+        expect(component.reportId).toEqual(res.tx_report_id);
+      });
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
+      tick(500);
+      component.txnFields$.subscribe((res) => {
+        expect(res).toEqual(mockExpenseFielsMap);
+        expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(2);
+      });
+    }));
+
+    it('should get the custom properties', (done) => {
+      component.ionViewWillEnter();
+      component.customProperties$.subscribe((res) => {
+        expect(res).toEqual(filledCustomProperties);
+        expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
+          expenseData1.tx_org_category_id,
+          expenseData1.tx_custom_properties,
+          true
+        );
+        done();
+      });
+    });
+    it('should get the project dependent custom properties', (done) => {
+      const customProps = expenseData1.tx_custom_properties;
+      const projectIdNumber = mockExpenseFielsMap.project_id[0].id;
+      component.ionViewWillEnter();
+      component.projectDependentCustomProperties$.subscribe((res) => {
+        expect(res).toEqual(dependentFieldValues);
+        expect(expenseData1.tx_custom_properties).toBeDefined();
+        expect(mockExpenseFielsMap.project_id.length).toBeGreaterThan(0);
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
+          customProps,
+          projectIdNumber
+        );
+        done();
+      });
     });
   });
 
