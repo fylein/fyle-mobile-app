@@ -46,7 +46,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
-fdescribe('ViewExpensePage', () => {
+describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
   let fixture: ComponentFixture<ViewExpensePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
