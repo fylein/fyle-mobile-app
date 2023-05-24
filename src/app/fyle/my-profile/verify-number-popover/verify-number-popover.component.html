@@ -35,9 +35,9 @@
       class="verify-number-popover--input-container__label--resend"
       (click)="resendOtp()"
       appFormButtonValidation
+      buttonType="secondary"
       [loading]="sendingOtp"
       loadingText="Sending OTP"
-      loaderPosition="prefix"
     >
       Resend OTP
     </button>

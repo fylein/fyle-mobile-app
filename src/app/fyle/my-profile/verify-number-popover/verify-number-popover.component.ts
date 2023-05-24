@@ -35,7 +35,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.inputEl.nativeElement.focus(), 400);
+    setTimeout(() => this.inputEl.nativeElement.focus(), 200);
   }
 
   validateInput() {
@@ -59,8 +59,16 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
       .sendOtp()
       .pipe(finalize(() => (this.sendingOtp = false)))
       .subscribe({
-        error: () => {
-          //TODO: Show error message
+        next: (otpDetails) => {
+          const attemptsLeft = otpDetails.attempts_left;
+          this.error = `You have ${attemptsLeft} attempt${
+            attemptsLeft > 1 ? 's' : ''
+          } left to verify your mobile number.`;
+        },
+        error: (err) => {
+          if (err.status === 400 && err.error.message === 'Out of attempts') {
+            this.error = 'You have exhausted the limit to verify your mobile number. Please try again after 24 hours.';
+          }
         },
       });
   }
