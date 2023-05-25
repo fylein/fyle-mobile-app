@@ -12,6 +12,7 @@ import { FormButtonValidationDirective } from 'src/app/shared/directive/form-but
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ErrorType } from './error-type.model';
+import { errorMappings } from 'src/app/core/mock-data/error-mapping-for-verify-number-popover.data';
 
 describe('VerifyNumberPopoverComponent', () => {
   let component: VerifyNumberPopoverComponent;
@@ -292,35 +293,6 @@ describe('VerifyNumberPopoverComponent', () => {
   });
 
   it('setError(): should set correct error messages', () => {
-    const errorMappings = [
-      {
-        type: 'LIMIT_REACHED',
-        error: 'You have exhausted the limit to request OTP for your mobile number. Please try again after 24 hours.',
-      },
-      {
-        type: 'INVALID_MOBILE_NUMBER',
-        error: 'Invalid mobile number. Please try again',
-      },
-      {
-        type: 'INVALID_OTP',
-        error: 'Incorrect mobile number or OTP. Please try again.',
-      },
-      {
-        type: 'INVALID_INPUT',
-        error: 'Please enter 6 digit OTP',
-      },
-      {
-        type: 'ATTEMPTS_LEFT',
-        value: 4,
-        error: 'You have 4 attempts left to verify your mobile number.',
-      },
-      {
-        type: 'ATTEMPTS_LEFT',
-        value: 1,
-        error: 'You have 1 attempt left to verify your mobile number.',
-      },
-    ];
-
     errorMappings.forEach((errorMapping) => {
       component.setError(errorMapping.type as ErrorType, errorMapping.value);
       expect(component.error).toEqual(errorMapping.error);
