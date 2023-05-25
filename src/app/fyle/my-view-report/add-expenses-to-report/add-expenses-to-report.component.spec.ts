@@ -12,7 +12,7 @@ import { CurrencyPipe } from '@angular/common';
 import { expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-fdescribe('AddExpensesToReportComponent', () => {
+describe('AddExpensesToReportComponent', () => {
   let component: AddExpensesToReportComponent;
   let fixture: ComponentFixture<AddExpensesToReportComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
