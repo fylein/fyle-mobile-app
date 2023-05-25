@@ -231,6 +231,23 @@ export class ViewExpensePage implements OnInit {
 
   ngOnInit() {}
 
+  setPaymentModeandIcon(etxn) {
+    if (etxn.source_account_type === AccountType.ADVANCE) {
+      this.paymentMode = 'Advance';
+      this.paymentModeIcon = 'fy-non-reimbursable';
+    } else if (etxn.source_account_type === AccountType.CCC) {
+      this.paymentMode = 'Corporate Card';
+      this.paymentModeIcon = 'fy-unmatched';
+      this.isCCCTransaction = true;
+    } else if (etxn.tx_skip_reimbursement) {
+      this.paymentMode = 'Paid by Company';
+      this.paymentModeIcon = 'fy-non-reimbursable';
+    } else {
+      this.paymentMode = 'Paid by Employee';
+      this.paymentModeIcon = 'fy-reimbursable';
+    }
+  }
+
   ionViewWillEnter() {
     this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id;
@@ -298,20 +315,7 @@ export class ViewExpensePage implements OnInit {
         this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
       }
 
-      if (etxn.source_account_type === AccountType.ADVANCE) {
-        this.paymentMode = 'Advance';
-        this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (etxn.source_account_type === AccountType.CCC) {
-        this.paymentMode = 'Corporate Card';
-        this.paymentModeIcon = 'fy-unmatched';
-        this.isCCCTransaction = true;
-      } else if (etxn.tx_skip_reimbursement) {
-        this.paymentMode = 'Paid by Company';
-        this.paymentModeIcon = 'fy-non-reimbursable';
-      } else {
-        this.paymentMode = 'Paid by Employee';
-        this.paymentModeIcon = 'fy-reimbursable';
-      }
+      this.setPaymentModeandIcon(etxn);
 
       if (this.isCCCTransaction) {
         this.matchingCCCTransaction$ = this.corporateCreditCardExpenseService
