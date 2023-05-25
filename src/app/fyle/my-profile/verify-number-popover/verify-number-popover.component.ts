@@ -83,12 +83,14 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
         },
         error: (err) => {
           if (err.status === 400) {
-            const errorMessage = err.error.message.toLowerCase();
+            const errorMessage = err.error.message?.toLowerCase() || '';
             if (errorMessage.includes('out of attempts') || errorMessage.includes('max send attempts reached')) {
               this.setError('LIMIT_REACHED');
               this.disableResendOtp = true;
             } else if (errorMessage.includes('invalid parameter')) {
               this.setError('INVALID_MOBILE_NUMBER');
+            } else {
+              this.setError('INVALID_OTP');
             }
           }
         },

@@ -211,6 +211,21 @@ describe('VerifyNumberPopoverComponent', () => {
       expect(component.setError).toHaveBeenCalledOnceWith('INVALID_MOBILE_NUMBER');
       expect(component.disableResendOtp).toBeFalsy();
     });
+
+    it('should default to invalid otp or mobile number error if api throws 400 without error message', () => {
+      mobileNumberVerificationService.sendOtp.and.returnValue(
+        throwError(() => ({
+          status: 400,
+          error: {},
+        }))
+      );
+      resendOtpSpy.and.callThrough();
+      click(resentOtpCta);
+
+      expect(mobileNumberVerificationService.sendOtp).toHaveBeenCalledOnceWith();
+      expect(component.setError).toHaveBeenCalledOnceWith('INVALID_OTP');
+      expect(component.disableResendOtp).toBeFalsy();
+    });
   });
 
   describe('verifyOtp(): ', () => {
