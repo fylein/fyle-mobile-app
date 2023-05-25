@@ -192,6 +192,14 @@ export class ViewTeamReportPage implements OnInit {
     );
   }
 
+  getApprovalSettings(orgSettings) {
+    return orgSettings?.approval_settings?.enable_sequential_approvers;
+  }
+
+  getReportClosureSettings(orgSettings) {
+    return orgSettings?.simplified_report_closure_settings?.enabled;
+  }
+
   ionViewWillEnter() {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
@@ -221,7 +229,7 @@ export class ViewTeamReportPage implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+      map((orgSettings) => ({ enabled: this.getReportClosureSettings(orgSettings) }))
     );
 
     this.estatuses$.subscribe((estatuses) => {
@@ -275,8 +283,6 @@ export class ViewTeamReportPage implements OnInit {
        */
       if (erpt) {
         this.isReportReported = ['APPROVER_PENDING'].indexOf(erpt.rp_state) > -1;
-      } else {
-        this.router.navigate(['/', 'enterprise', 'team_reports']);
       }
     });
 
@@ -327,7 +333,7 @@ export class ViewTeamReportPage implements OnInit {
       orgSettings: this.orgSettingsService.get(),
     }).subscribe((res) => {
       this.reportEtxnIds = res.etxns.map((etxn) => etxn.tx_id);
-      this.isSequentialApprovalEnabled = res?.orgSettings?.approval_settings?.enable_sequential_approvers;
+      this.isSequentialApprovalEnabled = this.getApprovalSettings(res.orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
         ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
         : true;
