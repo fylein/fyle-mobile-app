@@ -89,6 +89,7 @@
           >
           </app-fy-alert-info>
         </div>
+
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit' && etxn.tx.policy_flag">
             <ng-container *ngIf="policyDetails">
@@ -98,6 +99,10 @@
               ></app-fy-policy-violation-info>
             </ng-container>
           </ng-container>
+
+          <div *ngIf="isSplitExpense" class="add-edit-expense--alert-split">
+            <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
+          </div>
 
           <ng-container *ngIf="isAmountCapped$|async">
             <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
@@ -218,6 +223,8 @@
                   [recentlyUsed]="recentCurrencies"
                   [txnDt]="fg?.controls?.dateOfSpend?.value"
                   [expanded]="attachedReceiptsCount === 0"
+                  [touchedInParent]="fg?.controls?.currencyObj?.touched"
+                  [validInParent]="fg?.controls?.currencyObj?.valid"
                 >
                 </app-currency>
                 <div
@@ -309,6 +316,8 @@
                       [selectionElement]="paymentMode"
                       formControlName="paymentMode"
                       [placeholder]="'Payment Mode'"
+                      [touchedInParent]="fg.controls.paymentMode.touched"
+                      [validInParent]="fg.controls.paymentMode.valid"
                     >
                     </app-fy-select>
                     <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -382,6 +391,8 @@
                         [mandatory]="txnFields?.project_id?.is_mandatory"
                         [recentlyUsed]="recentProjects"
                         formControlName="project"
+                        [validInParent]="fg.controls.project.valid"
+                        [touchedInParent]="fg.controls.project.touched"
                       >
                       </app-fy-select-project>
                     </div>
@@ -412,14 +423,14 @@
             <ng-container *ngIf="dependentFields$|async as dependentFields">
               <ng-container *ngIf="etxn$|async as etxn">
                 <ng-container *ngIf="selectedProject$|async as selectedProject">
-                  <ng-container formArrayName="dependent_fields">
+                  <ng-container formArrayName="project_dependent_fields">
                     <app-dependent-fields
-                      #dependentFieldsRef
-                      [dependentFieldsFormArray]="fg.controls.dependent_fields"
+                      #projectDependentFieldsRef
+                      [dependentFieldsFormArray]="fg.controls.project_dependent_fields"
                       [dependentCustomFields]="dependentFields"
                       [parentFieldId]="txnFields?.project_id?.id"
                       [parentFieldValue]="selectedProject?.projectv2_name"
-                      [txnCustomProperties]="etxn.tx.custom_properties"
+                      [txnCustomProperties]="etxn.tx.custom_properties || []"
                     ></app-dependent-fields>
                   </ng-container>
                 </ng-container>
@@ -475,6 +486,8 @@
                       [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')"
                       formControlName="tax_group"
                       [placeholder]="txnFields.tax_group_id.placeholder"
+                      [touchedInParent]="fg.controls.tax_group.touched"
+                      [validInParent]="fg.controls.tax_group.valid"
                     >
                     </app-fy-select>
                   </div>
@@ -518,6 +531,8 @@
                           [mandatory]="txnFields.location1?.is_mandatory"
                           formControlName="location_1"
                           [placeholder]="txnFields.location1?.placeholder"
+                          [touchedInParent]="fg.controls.location_1.touched"
+                          [validInParent]="fg.controls.location_1.valid"
                         >
                         </app-fy-location>
                       </div>
@@ -540,6 +555,8 @@
                           [mandatory]="txnFields.location2?.is_mandatory"
                           formControlName="location_2"
                           [placeholder]="txnFields.location2?.placeholder"
+                          [touchedInParent]="fg.controls.location_2.touched"
+                          [validInParent]="fg.controls.location_2.valid"
                         >
                         </app-fy-location>
                       </div>
@@ -635,6 +652,8 @@
                           [selectModalHeader]="'Select Travel Class'"
                           formControlName="flight_journey_travel_class"
                           [placeholder]="txnFields.flight_journey_travel_class?.placeholder"
+                          [touchedInParent]="fg.controls.flight_journey_travel_class.touched"
+                          [validInParent]="fg.controls.flight_journey_travel_class.valid"
                         >
                         </app-fy-select>
                       </div>
@@ -661,6 +680,8 @@
                           formControlName="flight_return_travel_class"
                           name="flightReturnClass"
                           [placeholder]="txnFields.flight_return_travel_class?.placeholder"
+                          [touchedInParent]="fg.controls.flight_return_travel_class.touched"
+                          [validInParent]="fg.controls.flight_return_travel_class.valid"
                         >
                         </app-fy-select>
                       </div>
@@ -704,6 +725,8 @@
                     [options]="txnFields.train_travel_class?.options"
                     formControlName="train_travel_class"
                     [placeholder]="txnFields.train_travel_class?.placeholder"
+                    [touchedInParent]="fg.controls.train_travel_class.touched"
+                    [validInParent]="fg.controls.train_travel_class.valid"
                   >
                   </app-fy-select>
                 </div>
@@ -745,6 +768,8 @@
                     formControlName="bus_travel_class"
                     hide-none="true"
                     [placeholder]="txnFields.bus_travel_class?.placeholder"
+                    [touchedInParent]="fg.controls.bus_travel_class.touched"
+                    [validInParent]="fg.controls.bus_travel_class.valid"
                   >
                   </app-fy-select>
                 </div>
@@ -801,6 +826,8 @@
                       sub-title="Units"
                       title="Select Unit"
                       [placeholder]="txnFields.distance_unit?.placeholder"
+                      [touchedInParent]="fg.controls.distance_unit.touched"
+                      [validInParent]="fg.controls.distance_unit.valid"
                     >
                     </app-fy-select>
                   </div>
@@ -827,6 +854,8 @@
                 [mandatory]="txnFields?.vendor_id?.is_mandatory"
                 formControlName="vendor_id"
                 [placeholder]="txnFields.vendor_id?.placeholder"
+                [touchedInParent]="fg.controls.vendor_id.touched"
+                [validInParent]="fg.controls.vendor_id.valid"
               >
               </app-fy-select-vendor>
               <app-virtual-select
@@ -871,6 +900,23 @@
                     Please select {{ txnFields.cost_center_id?.field_name }}
                   </div>
                 </div>
+
+                <ng-container *ngIf="dependentFields$|async as dependentFields">
+                  <ng-container *ngIf="etxn$|async as etxn">
+                    <ng-container *ngIf="selectedCostCenter$|async as selectedCostCenter">
+                      <ng-container formArrayName="cost_center_dependent_fields">
+                        <app-dependent-fields
+                          #costCenterDependentFieldsRef
+                          [dependentFieldsFormArray]="fg.controls.cost_center_dependent_fields"
+                          [dependentCustomFields]="dependentFields"
+                          [parentFieldId]="txnFields?.cost_center_id?.id"
+                          [parentFieldValue]="selectedCostCenter?.name"
+                          [txnCustomProperties]="etxn.tx.custom_properties || []"
+                        ></app-dependent-fields>
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
               </ng-container>
             </ng-container>
           </ng-container>
@@ -909,6 +955,8 @@
                     [selectModalHeader]="'Enter '+ txnFields.purpose?.field_name"
                     formControlName="purpose"
                     [placeholder]="txnFields.purpose?.placeholder"
+                    [touchedInParent]="fg.controls.purpose.touched"
+                    [validInParent]="fg.controls.purpose.valid"
                   >
                   </app-fy-select>
                 </div>
@@ -981,6 +1029,8 @@
                       [mandatory]="customInput.mandatory"
                       formControlName="value"
                       [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [touchedInParent]="customInput.control.controls.value.touched"
+                      [validInParent]="customInput.control.controls.value.valid"
                     >
                     </app-fy-location>
                   </div>
@@ -994,6 +1044,8 @@
                       [label]="customInput.name"
                       formControlName="value"
                       [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [touchedInParent]="customInput.control.controls.value.touched"
+                      [validInParent]="customInput.control.controls.value.valid"
                     >
                     </app-fy-select>
                   </div>
@@ -1007,6 +1059,8 @@
                       [subheader]="customInput.name"
                       formControlName="value"
                       [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [touchedInParent]="customInput.control.controls.value.touched"
+                      [validInParent]="customInput.control.controls.value.valid"
                     >
                     </app-fy-multiselect>
                   </div>
@@ -1018,6 +1072,8 @@
                       [allowCustomValues]="true"
                       formControlName="value"
                       [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [touchedInParent]="customInput.control.controls.value.touched"
+                      [validInParent]="customInput.control.controls.value.valid"
                     >
                     </app-fy-userlist>
                   </div>

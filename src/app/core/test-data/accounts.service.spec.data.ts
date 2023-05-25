@@ -2925,3 +2925,12 @@ export const accountsData: ExtendedAccount[] = [
     amount: 499,
   },
 ];
+
+export const orgSettingsDataWithoutAdvPro = {
+  ...orgSettingsData,
+  advanced_projects: {
+    allowed: true,
+    enabled: true,
+    enable_individual_projects: true,
+  },
+};

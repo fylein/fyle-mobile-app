@@ -32,7 +32,14 @@
           *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
           (click)="addAttachments($event)"
         >
-          <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+          <input
+            *ngIf="isIos"
+            type="file"
+            id="ios-file-upload"
+            #fileUpload
+            accept="application/pdf,image/*"
+            class="d-none"
+          />
           <ion-icon
             class="expenses-card--receipt-icon"
             [src]="receiptIcon"
@@ -69,7 +76,7 @@
             class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
               'background-image':
-                expense.tx_dataUrls.length > 0 &&
+                expense.tx_dataUrls?.length > 0 &&
                 imageTransperencyOverlay + 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
             }"
           >
@@ -83,7 +90,7 @@
             class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
               'background-image':
-                expense.tx_dataUrls.length > 0 &&
+                expense.tx_dataUrls?.length > 0 &&
                 imageTransperencyOverlay + 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
             }"
           >
@@ -169,11 +176,18 @@
                 </ng-container>
                 <ng-template #unspecifiedCategory> Unspecified Category </ng-template>
               </div>
-              <mat-icon
-                *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
-                class="expenses-card--policy-violated-icon"
-                >error</mat-icon
-              >
+              <div class="expenses-card--icons">
+                <mat-icon
+                  *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
+                  class="expenses-card--icons__policy-violated-icon"
+                  >error</mat-icon
+                >
+                <mat-icon
+                  *ngIf="expense.tx_is_split_expense"
+                  class="expenses-card--icons__split-icon"
+                  svgIcon="split-new"
+                ></mat-icon>
+              </div>
             </div>
 
             <div

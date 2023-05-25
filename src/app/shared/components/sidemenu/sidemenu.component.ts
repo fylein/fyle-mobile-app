@@ -74,18 +74,13 @@ export class SidemenuComponent implements OnInit {
   }
 
   setupNetworkWatcher() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       shareReplay(1)
     );
   }
 
   showSideMenuOffline() {
-    const isLoggedIn = this.routerAuthService.isLoggedIn();
-    if (!isLoggedIn) {
-      return 0;
-    }
     this.deviceService
       .getDeviceInfo()
       .pipe(shareReplay(1))
@@ -249,7 +244,7 @@ export class SidemenuComponent implements OnInit {
         disabled: !isConnected,
       },
       {
-        title: 'Teams',
+        title: 'Team',
         isVisible: teamOptions.length ? true : false,
         icon: 'teams',
         isDropdownOpen: false,
@@ -269,7 +264,7 @@ export class SidemenuComponent implements OnInit {
     }
 
     if (teamOptions.length === 1) {
-      this.updateSidemenuOption(primaryOptions, 'Teams', {
+      this.updateSidemenuOption(primaryOptions, 'Team', {
         ...teamOptions[0],
         icon: 'teams',
         disabled: !isConnected,

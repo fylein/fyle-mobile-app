@@ -55,6 +55,7 @@ import { platformPolicyExpenseData1 } from '../mock-data/platform-policy-expense
 import { expensePolicyData } from '../mock-data/expense-policy.data';
 import { txnAccountData } from '../mock-data/txn-account.data';
 import { txnCustomPropertiesData, txnCustomPropertiesData2 } from '../mock-data/txn-custom-properties.data';
+import { FilterQueryParams } from '../models/filter-query-params.model';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -375,6 +376,31 @@ describe('TransactionService', () => {
       const filters = { receiptsAttached: 'NO' };
       const receiptsAttachedParams = { or: [], tx_num_files: 'eq.0' };
       expect(transactionService.generateReceiptAttachedParams(params, filters)).toEqual(receiptsAttachedParams);
+    });
+
+    afterEach(() => {
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(params);
+    });
+  });
+
+  describe('generateSplitExpenseParams():', () => {
+    let params: FilterQueryParams;
+
+    beforeEach(() => {
+      params = { or: [] };
+      spyOn(lodash, 'cloneDeep').and.returnValue(params);
+    });
+
+    it('should return split expense params if split expense is YES', () => {
+      const filters = { splitExpense: 'YES' };
+      const splitExpenseParams = { or: ['(tx_is_split_expense.eq.true)'] };
+      expect(transactionService.generateSplitExpenseParams(params, filters)).toEqual(splitExpenseParams);
+    });
+
+    it('should return split expense params if split expense is NO', () => {
+      const filters = { splitExpense: 'NO' };
+      const splitExpenseParams = { or: ['(tx_is_split_expense.eq.false)'] };
+      expect(transactionService.generateSplitExpenseParams(params, filters)).toEqual(splitExpenseParams);
     });
 
     afterEach(() => {

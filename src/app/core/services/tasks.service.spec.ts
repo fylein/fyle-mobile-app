@@ -98,7 +98,7 @@ describe('TasksService', () => {
   const unreportedExpenseTaskSample = {
     amount: '142.26K',
     count: 13,
-    header: 'Unreported',
+    header: 'Expenses are ready to report',
     subheader: '13 expenses  worth ₹142.26K  can be added to a report',
     icon: TaskIcon.REPORT,
     ctas: [
@@ -523,7 +523,7 @@ describe('TasksService', () => {
       {
         label: 'Expenses',
         type: 'Expenses',
-        value: 'Incomplete, Unreported, Duplicate',
+        value: 'Incomplete, Complete, Duplicate',
       },
       {
         label: 'Reports',
@@ -551,7 +551,7 @@ describe('TasksService', () => {
       {
         label: 'Expenses',
         type: 'Expenses',
-        value: 'Unreported, Duplicate',
+        value: 'Complete, Duplicate',
       },
       {
         label: 'Reports',
@@ -775,7 +775,7 @@ describe('TasksService', () => {
         'Report sent back!',
         'Incomplete expenses',
         'Unsubmitted reports',
-        'Unreported',
+        'Expenses are ready to report',
         'Reports to be approved',
         'Advances sent back!',
       ]);

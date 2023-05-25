@@ -26,7 +26,8 @@ import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -82,7 +83,7 @@ export class SplitExpensePage implements OnInit {
 
   categoryList: OrgCategory[];
 
-  projectDependentFields: ExpenseField[];
+  dependentCustomProperties$: Observable<CustomInput[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -104,7 +105,8 @@ export class SplitExpensePage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private dependentFieldsService: DependentFieldsService
   ) {}
 
   ngOnInit() {}
@@ -215,24 +217,36 @@ export class SplitExpensePage implements OnInit {
       this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
     this.transaction.to_dt = this.transaction?.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
 
-    //If expense is split by projects and the selected project is same as the original expense, then add dependent fields from source expense.
-    let txnCustomProperties = this.transaction.custom_properties;
-    if (this.splitType === 'projects' && splitExpenseValue.project?.project_id === this.transaction.project_id) {
-      txnCustomProperties = this.transaction.custom_properties.concat(this.projectDependentFields);
-    }
+    return this.dependentCustomProperties$.pipe(
+      map((dependentCustomProperties) => {
+        let txnCustomProperties = this.transaction.custom_properties;
 
-    return {
-      ...this.transaction,
-      org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
-      project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
-      cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
-      currency: splitExpenseValue.currency,
-      amount: splitExpenseValue.amount,
-      source: 'MOBILE',
-      billable: this.setUpSplitExpenseBillable(splitExpenseValue),
-      tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
-      custom_properties: txnCustomProperties,
-    };
+        const isDifferentProject =
+          this.splitType === 'projects' && splitExpenseValue.project?.project_id !== this.transaction.project_id;
+        const isDifferentCostCenter =
+          this.splitType === 'cost centers' && splitExpenseValue.cost_center?.id !== this.transaction.cost_center_id;
+
+        //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
+        if (isDifferentProject || isDifferentCostCenter) {
+          txnCustomProperties = this.transaction.custom_properties.filter(
+            (customProperty) => !dependentCustomProperties.includes(customProperty)
+          );
+        }
+
+        return {
+          ...this.transaction,
+          org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
+          project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
+          cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
+          currency: splitExpenseValue.currency,
+          amount: splitExpenseValue.amount,
+          source: 'MOBILE',
+          billable: this.setUpSplitExpenseBillable(splitExpenseValue),
+          tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
+          custom_properties: txnCustomProperties,
+        };
+      })
+    );
   }
 
   uploadNewFiles(files) {
@@ -417,16 +431,17 @@ export class SplitExpensePage implements OnInit {
         }
 
         this.saveSplitExpenseLoading = true;
-        const generatedSplitEtxn = [];
-        this.splitExpensesFormArray.value.forEach((splitExpenseValue) => {
-          generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
-        });
 
-        const uploadFiles$ = this.uploadFiles(this.fileUrls);
+        const generatedSplitEtxn$ = this.splitExpensesFormArray.value.map((splitExpenseValue) =>
+          this.generateSplitEtxnFromFg(splitExpenseValue)
+        );
 
-        uploadFiles$
+        forkJoin({
+          generatedSplitEtxn: forkJoin(generatedSplitEtxn$),
+          files: this.uploadFiles(this.fileUrls),
+        })
           .pipe(
-            concatMap(() => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
+            concatMap(({ generatedSplitEtxn }) => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
             concatMap((res) => {
               const observables: { [id: string]: Observable<any> } = {};
               if (this.transaction.id) {
@@ -455,6 +470,7 @@ export class SplitExpensePage implements OnInit {
 
               const splitTrackingProps = {
                 'Split Type': this.splitType,
+                'Is Evenly Split': this.isEvenlySplit(),
               };
               this.trackingService.splittingExpense(splitTrackingProps);
             })
@@ -490,16 +506,21 @@ export class SplitExpensePage implements OnInit {
 
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
 
-    //Remove project dependent fields if split type is project.
+    let parentFieldId: number;
     if (this.splitType === 'projects') {
-      this.projectDependentFields = this.transaction.custom_properties.filter(
-        (customProperty) => customProperty.type === 'DEPENDENT_SELECT'
-      );
-
-      this.transaction.custom_properties = this.transaction.custom_properties.filter(
-        (customProperty) => customProperty.type !== 'DEPENDENT_SELECT'
-      );
+      parentFieldId = this.txnFields.project_id.id;
+    } else if (this.splitType === 'cost centers') {
+      parentFieldId = this.txnFields.cost_center_id.id;
     }
+
+    this.dependentCustomProperties$ = iif(
+      () => !!parentFieldId,
+      this.dependentFieldsService.getDependentFieldValuesForBaseField(
+        this.transaction.custom_properties,
+        parentFieldId
+      ) as Observable<CustomInput[]>,
+      of(null)
+    );
 
     if (this.splitType === 'cost centers') {
       const orgSettings$ = this.orgSettingsService.get();
@@ -628,5 +649,62 @@ export class SplitExpensePage implements OnInit {
     }
 
     this.getTotalSplitAmount();
+  }
+
+  splitEvenly() {
+    const evenAmount = parseFloat((this.amount / this.splitExpensesFormArray.length).toFixed(3));
+    const evenPercentage = parseFloat((100 / this.splitExpensesFormArray.length).toFixed(3));
+
+    const lastSplitIndex = this.splitExpensesFormArray.length - 1;
+
+    // Last split should have the remaining amount after even split to make sure we get the total amount
+    const lastSplitAmount = parseFloat((this.amount - evenAmount * lastSplitIndex).toFixed(3));
+    const lastSplitPercentage = parseFloat((100 - evenPercentage * lastSplitIndex).toFixed(3));
+
+    this.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
+
+    // Recalculate the total split amount and remaining amount
+    this.getTotalSplitAmount();
+  }
+
+  private setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage) {
+    const lastSplitIndex = this.splitExpensesFormArray.length - 1;
+
+    this.splitExpensesFormArray.controls.forEach((control, index) => {
+      const isLastSplit = index === lastSplitIndex;
+
+      control.patchValue(
+        {
+          amount: isLastSplit ? lastSplitAmount : evenAmount,
+          percentage: isLastSplit ? lastSplitPercentage : evenPercentage,
+        },
+        {
+          emitEvent: false,
+        }
+      );
+    });
+  }
+
+  private isEvenlySplit(): boolean {
+    let splitAmount: number;
+
+    // First Assuming that the expense is evenly split
+    let isEvenSplit = true;
+
+    this.splitExpensesFormArray.controls.forEach((control) => {
+      const split = control.value;
+
+      if (!splitAmount) {
+        splitAmount = split.amount;
+      } else {
+        // If the split amount is not the same for each split, then it is not evenly split
+        // We are using 0.01 as the tolerance amount, because float point number cannot be evenly split perfectly in all cases, we will only check similarity up to 2 decimal places
+        if (Math.abs(splitAmount - split.amount) > 0.01) {
+          isEvenSplit = false;
+        }
+      }
+    });
+
+    return isEvenSplit;
   }
 }

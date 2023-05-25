@@ -13,7 +13,6 @@ jobs:
           token: ${{ secrets.APPFLOW_TOKEN }}
           app-id: 32316914
           platform: Web
-          build-stack: Linux - 2022.07
           environment: staging
           destinations: Staging
         
@@ -30,7 +29,7 @@ jobs:
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C017C400V37
-          slack-text: Live update released for branch "${{ steps.get-branch.outputs._1 }}" on Staging.
+          slack-text: Live update deployed for branch `${{ steps.get-branch.outputs._1 }}` on Staging.
 
   prod-live-update:
     runs-on: ubuntu-latest
@@ -44,7 +43,6 @@ jobs:
           token: ${{ secrets.APPFLOW_TOKEN }}
           app-id: 32316914
           platform: Web
-          build-stack: Linux - 2022.07
           environment: production
           destinations: Production
 
@@ -61,7 +59,7 @@ jobs:
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C017C400V37
-          slack-text: Live update released for branch "${{ steps.get-branch.outputs._1 }}" on Production.
+          slack-text: Live update deployed for branch `${{ steps.get-branch.outputs._1 }}` on Production.
 
 
 

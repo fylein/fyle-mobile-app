@@ -58,6 +58,12 @@ export class MyExpensesService {
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
+    const splitExpenseFilter = selectedFilters.find((filter) => filter.name === 'Split Expense');
+
+    if (splitExpenseFilter) {
+      generatedFilters.splitExpense = splitExpenseFilter.value;
+    }
+
     return generatedFilters;
   }
 
@@ -192,6 +198,14 @@ export class MyExpensesService {
     });
   }
 
+  generateSplitExpenseFilterPills(filterPills: FilterPill[], filter: Filters) {
+    filterPills.push({
+      label: 'Split Expense',
+      type: 'splitExpense',
+      value: filter.splitExpense.toLowerCase(),
+    });
+  }
+
   generateCardFilterPills(filterPills: FilterPill[], filter) {
     filterPills.push({
       label: 'Cards',
@@ -211,7 +225,7 @@ export class MyExpensesService {
           if (state === 'DRAFT') {
             return 'Incomplete';
           } else if (state === 'READY_TO_REPORT') {
-            return 'Unreported';
+            return 'Complete';
           } else {
             return state.replace(/_/g, ' ').toLowerCase();
           }
@@ -264,7 +278,7 @@ export class MyExpensesService {
         optionType: FilterOptionType.multiselect,
         options: [
           {
-            label: 'Unreported',
+            label: 'Complete',
             value: 'READY_TO_REPORT',
           },
           {
@@ -369,6 +383,20 @@ export class MyExpensesService {
           },
         ],
       } as FilterOptions<string>,
+      {
+        name: 'Split Expense',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Yes',
+            value: 'YES',
+          },
+          {
+            label: 'No',
+            value: 'NO',
+          },
+        ],
+      } as FilterOptions<string>,
     ];
   }
 
@@ -416,6 +444,13 @@ export class MyExpensesService {
 
     if (filter.sortParam && filter.sortDir) {
       this.addSortToGeneratedFilters(filter, generatedFilters);
+    }
+
+    if (filter.splitExpense) {
+      generatedFilters.push({
+        name: 'Split Expense',
+        value: filter.splitExpense,
+      });
     }
 
     return generatedFilters;

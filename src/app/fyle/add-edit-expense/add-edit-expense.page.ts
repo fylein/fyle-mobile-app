@@ -124,7 +124,9 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
-  @ViewChild('dependentFieldsRef') dependentFieldsRef: DependentFieldsComponent;
+  @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
+
+  @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<any>;
 
@@ -309,6 +311,8 @@ export class AddEditExpensePage implements OnInit {
 
   canRemoveFromReport = false;
 
+  isSplitExpense: boolean;
+
   isCccExpense: boolean;
 
   cardNumber: string;
@@ -352,6 +356,8 @@ export class AddEditExpensePage implements OnInit {
   dependentFields$: Observable<ExpenseField[]>;
 
   selectedProject$: BehaviorSubject<ExtendedProject>;
+
+  selectedCostCenter$: BehaviorSubject<CostCenter>;
 
   private _isExpandedView = false;
 
@@ -1403,6 +1409,10 @@ export class AddEditExpensePage implements OnInit {
             this.selectedProject$.next(project);
           }
 
+          if (costCenter) {
+            this.selectedCostCenter$.next(costCenter);
+          }
+
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
             this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
@@ -1575,6 +1585,7 @@ export class AddEditExpensePage implements OnInit {
             if (autoFillCostCenter) {
               costCenter = autoFillCostCenter.value;
               this.presetCostCenterId = autoFillCostCenter.value.id;
+              this.fg.patchValue({ costCenter });
             }
           }
 
@@ -1931,19 +1942,40 @@ export class AddEditExpensePage implements OnInit {
     );
 
     forkJoin({
+      txnFields: this.txnFields$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
       isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
       individualProjectIds: this.individualProjectIds$,
-    }).subscribe(({ orgSettings, isIndividualProjectsEnabled, individualProjectIds }) => {
+    }).subscribe(({ orgSettings, isIndividualProjectsEnabled, individualProjectIds, txnFields }) => {
       const projectFormControl = this.fg.controls.project;
       projectFormControl.clearValidators();
-      projectFormControl.setValidators(
-        orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
-          ? null
-          : Validators.required
-      );
-      projectFormControl.updateValueAndValidity();
+      if (txnFields?.project_id?.is_mandatory) {
+        projectFormControl.setValidators(
+          orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+            ? null
+            : Validators.required
+        );
+        projectFormControl.updateValueAndValidity();
+      }
     });
+
+    combineLatest({
+      txnFields: this.txnFields$,
+      costCenters: this.costCenters$,
+    })
+      .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
+      .subscribe(({ costCenters, txnFields }) => {
+        const costCenterControl = this.fg.controls.costCenter;
+        costCenterControl.clearValidators();
+        if (txnFields?.cost_center_id?.is_mandatory) {
+          costCenterControl.setValidators(costCenters?.length > 0 ? Validators.required : null);
+        }
+        //If cost center field is not present in txnFields, then clear its value
+        else if (txnFields.cost_center_id === undefined) {
+          costCenterControl.setValue(null);
+        }
+        costCenterControl.updateValueAndValidity();
+      });
 
     this.txnFields$
       .pipe(
@@ -1951,28 +1983,25 @@ export class AddEditExpensePage implements OnInit {
         switchMap((txnFields) =>
           forkJoin({
             isConnected: this.isConnected$.pipe(take(1)),
-            costCenters: this.costCenters$,
             taxGroups: this.taxGroups$,
             filteredCategories: this.filteredCategories$.pipe(take(1)),
           }).pipe(
-            map(({ isConnected, costCenters, taxGroups, filteredCategories }) => ({
+            map(({ isConnected, taxGroups, filteredCategories }) => ({
               isConnected,
               txnFields,
-              costCenters,
               taxGroups,
               filteredCategories,
             }))
           )
         )
       )
-      .subscribe(({ isConnected, txnFields, costCenters, taxGroups, filteredCategories }) => {
+      .subscribe(({ isConnected, txnFields, taxGroups, filteredCategories }) => {
         const keyToControlMap: {
           [id: string]: AbstractControl;
         } = {
           purpose: this.fg.controls.purpose,
           txn_dt: this.fg.controls.dateOfSpend,
           vendor_id: this.fg.controls.vendor_id,
-          cost_center_id: this.fg.controls.costCenter,
           from_dt: this.fg.controls.from_dt,
           to_dt: this.fg.controls.to_dt,
           location1: this.fg.controls.location_1,
@@ -1996,6 +2025,7 @@ export class AddEditExpensePage implements OnInit {
         // setup validations
         const txnFieldsCopy = cloneDeep(txnFields);
         delete txnFieldsCopy.project_id;
+        delete txnFieldsCopy.cost_center_id;
         for (const txnFieldKey of Object.keys(txnFieldsCopy)) {
           const control = keyToControlMap[txnFieldKey];
           if (txnFieldsCopy[txnFieldKey].is_mandatory) {
@@ -2038,8 +2068,6 @@ export class AddEditExpensePage implements OnInit {
               control.setValidators(
                 isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
               );
-            } else if (txnFieldKey === 'cost_center_id') {
-              control.setValidators(isConnected && costCenters && costCenters.length > 0 ? Validators.required : null);
             } else if (txnFieldKey === 'tax_group_id') {
               control.setValidators(isConnected && taxGroups && taxGroups.length > 0 ? Validators.required : null);
             } else if (txnFieldKey === 'org_category_id') {
@@ -2287,8 +2315,10 @@ export class AddEditExpensePage implements OnInit {
   ionViewWillEnter() {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
-    this.dependentFieldsRef?.ngOnInit();
+    this.projectDependentFieldsRef?.ngOnInit();
+    this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject(null);
+    this.selectedCostCenter$ = new BehaviorSubject(null);
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
@@ -2330,7 +2360,8 @@ export class AddEditExpensePage implements OnInit {
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
-      dependent_fields: this.formBuilder.array([]),
+      project_dependent_fields: this.formBuilder.array([]),
+      cost_center_dependent_fields: this.formBuilder.array([]),
     });
 
     this.systemCategories = this.categoriesService.getSystemCategories();
@@ -2340,6 +2371,10 @@ export class AddEditExpensePage implements OnInit {
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
       .subscribe((project) => this.selectedProject$.next(project));
+
+    this.fg.controls.costCenter.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((costCenter) => this.selectedCostCenter$.next(costCenter));
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -2645,6 +2680,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.etxn$.subscribe((etxn) => {
+      this.isSplitExpense = etxn?.tx?.split_group_id !== etxn?.tx?.id;
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
@@ -2849,7 +2885,11 @@ export class AddEditExpensePage implements OnInit {
   getCustomFields() {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
-        const mappedDependentFields = this.fg.value.dependent_fields.map((dependentField) => ({
+        const allDependentFields = [
+          ...this.fg.value.project_dependent_fields,
+          ...this.fg.value.cost_center_dependent_fields,
+        ];
+        const mappedDependentFields = allDependentFields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
         }));
@@ -4230,7 +4270,8 @@ export class AddEditExpensePage implements OnInit {
 
   ionViewWillLeave() {
     this.hardwareBackButtonAction.unsubscribe();
-    this.dependentFieldsRef?.ngOnDestroy();
+    this.projectDependentFieldsRef?.ngOnDestroy();
+    this.costCenterDependentFieldsRef?.ngOnDestroy();
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
     this.selectedProject$.complete();

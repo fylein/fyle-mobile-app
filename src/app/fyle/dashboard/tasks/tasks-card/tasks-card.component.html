@@ -19,7 +19,7 @@
         </ion-col>
         <ion-col size="11">
           <ion-row class="ion-justify-content-between">
-            <ion-col size="8" class="task--header-col">
+            <ion-col [size]="task.hideAmount ? 12 : 8" class="task--header-col">
               <div class="task--header">
                 {{ task.header }}
               </div>
