@@ -26,6 +26,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ActivatedRoute } from '@angular/router';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
+import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -137,25 +138,6 @@ describe('MyProfilePage', () => {
   xit('reset', () => {});
 
   describe('setInfoCardsData(): ', () => {
-    let allInfoCardsData = [];
-    beforeAll(() => {
-      allInfoCardsData = [
-        {
-          title: 'Message Receipts',
-          content: 'Message your receipts to Fyle at (302) 440-2921.',
-          contentToCopy: '(302) 440-2921',
-          toastMessageContent: 'Phone Number Copied Successfully',
-          isHidden: false,
-        },
-        {
-          title: 'Email Receipts',
-          content: 'Forward your receipts to Fyle at receipts@fylehq.com.',
-          contentToCopy: 'receipts@fylehq.com',
-          toastMessageContent: 'Email Copied Successfully',
-        },
-      ];
-    });
-
     it('should show only email card for non USD orgs', () => {
       component.setInfoCardsData('INR');
       expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);

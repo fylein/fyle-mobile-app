@@ -28,6 +28,7 @@ import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-num
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
+import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -237,7 +238,7 @@ export class MyProfilePage {
     const fyleMobileNumber = '(302) 440-2921';
     const fyleEmail = 'receipts@fylehq.com';
 
-    const allInfoCardsData = [
+    const allInfoCardsData: InfoCardData[] = [
       {
         title: 'Message Receipts',
         content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
