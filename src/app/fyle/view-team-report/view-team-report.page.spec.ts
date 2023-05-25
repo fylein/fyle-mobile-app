@@ -283,6 +283,8 @@ describe('ViewTeamReportPage', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
+      spyOn(component, 'getVendorName');
+      spyOn(component, 'getShowViolation');
       spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
       loaderService.showLoader.and.returnValue(Promise.resolve());
       spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
@@ -307,18 +309,25 @@ describe('ViewTeamReportPage', () => {
       component.ionViewWillEnter();
       tick(2000);
 
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(2);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+
+      component.simplifyReportsSettings$.subscribe((res) => {
+        expect(res).toEqual({
+          enabled: true,
+        });
+      });
+
       expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
-      expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
-      expect(component.loadReports).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
-      expect(component.isUserActiveInCurrentSeqApprovalQueue).toHaveBeenCalledOnceWith(apiEouRes, [approversData1[0]]);
+
+      component.totalCommentsCount$.subscribe((res) => {
+        expect(res).toEqual(3);
+      });
 
       component.erpt$
         .pipe(
@@ -330,15 +339,16 @@ describe('ViewTeamReportPage', () => {
           expect(res).toEqual(expectedAllReports[0]);
         });
 
-      component.simplifyReportsSettings$.subscribe((res) => {
-        expect(res).toEqual({
-          enabled: true,
-        });
-      });
+      expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
-      component.totalCommentsCount$.subscribe((res) => {
-        expect(res).toEqual(3);
-      });
+      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
+      expect(component.getVendorName).toHaveBeenCalledTimes(2);
+      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[0]);
+      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[1]);
+      expect(component.getShowViolation).toHaveBeenCalledTimes(2);
+      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[0]);
+      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[1]);
 
       component.etxnAmountSum$.subscribe((res) => {
         expect(res).toEqual(310.65);
@@ -359,11 +369,17 @@ describe('ViewTeamReportPage', () => {
       component.canResubmitReport$.subscribe((res) => {
         expect(res).toBeFalse();
       });
+
+      expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
+      expect(component.isUserActiveInCurrentSeqApprovalQueue).toHaveBeenCalledOnceWith(apiEouRes, [approversData1[0]]);
     }));
 
     it('should load reports when object type is expenses', fakeAsync(() => {
       component.objectType = 'Transactions';
       spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'getVendorName');
+      spyOn(component, 'getShowViolation');
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
       spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
@@ -392,17 +408,25 @@ describe('ViewTeamReportPage', () => {
       component.ionViewWillEnter();
       tick(2000);
 
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(2);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+
+      component.simplifyReportsSettings$.subscribe((res) => {
+        expect(res).toEqual({
+          enabled: true,
+        });
+      });
+
       expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
-      expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
-      expect(component.loadReports).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
+
+      component.totalCommentsCount$.subscribe((res) => {
+        expect(res).toEqual(3);
+      });
 
       component.erpt$
         .pipe(
@@ -414,15 +438,16 @@ describe('ViewTeamReportPage', () => {
           expect(res).toEqual(expectedAllReports[0]);
         });
 
-      component.simplifyReportsSettings$.subscribe((res) => {
-        expect(res).toEqual({
-          enabled: true,
-        });
-      });
+      expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
-      component.totalCommentsCount$.subscribe((res) => {
-        expect(res).toEqual(3);
-      });
+      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
+      expect(component.getVendorName).toHaveBeenCalledTimes(2);
+      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[0]);
+      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[1]);
+      expect(component.getShowViolation).toHaveBeenCalledTimes(2);
+      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[0]);
+      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[1]);
 
       component.etxnAmountSum$.subscribe((res) => {
         expect(res).toEqual(310.65);
@@ -443,6 +468,9 @@ describe('ViewTeamReportPage', () => {
       component.canResubmitReport$.subscribe((res) => {
         expect(res).toBeFalse();
       });
+
+      expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
     }));
   });
 
