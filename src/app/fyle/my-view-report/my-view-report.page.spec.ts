@@ -40,9 +40,8 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { By } from '@angular/platform-browser';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
-import { getElementBySelector } from 'src/app/core/dom-helpers';
 
-fdescribe('MyViewReportPage', () => {
+describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
