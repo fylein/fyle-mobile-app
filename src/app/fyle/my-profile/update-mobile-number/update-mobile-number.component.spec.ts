@@ -12,6 +12,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
 import { of, throwError } from 'rxjs';
+import { valueErrorMapping } from 'src/app/core/mock-data/value-error-mapping-for-update-mobile-number-popover.data';
 
 describe('UpdateMobileNumberComponent', () => {
   let component: UpdateMobileNumberComponent;
@@ -88,29 +89,6 @@ describe('UpdateMobileNumberComponent', () => {
   });
 
   it('validateInput(): should set error message if input is invalid', () => {
-    const valueErrorMapping = [
-      {
-        value: null,
-        error: 'Please enter a Mobile Number',
-      },
-      {
-        value: '',
-        error: 'Please enter a Mobile Number',
-      },
-      {
-        value: '123+98',
-        error: 'Please enter a valid mobile number with country code. e.g. +12025559975',
-      },
-      {
-        value: '8080913866',
-        error: 'Please enter a valid mobile number with country code. e.g. +12025559975',
-      },
-      {
-        value: '+918080913866',
-        error: null,
-      },
-    ];
-
     valueErrorMapping.forEach((valueError) => {
       component.error = null;
       component.inputValue = valueError.value;
