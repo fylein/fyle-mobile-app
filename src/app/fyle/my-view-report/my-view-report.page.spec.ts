@@ -39,9 +39,10 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { By } from '@angular/platform-browser';
-import { Segment } from 'src/app/core/enums/segment.enum';
+import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
+import { getElementBySelector } from 'src/app/core/dom-helpers';
 
-describe('MyViewReportPage', () => {
+fdescribe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -288,18 +289,12 @@ describe('MyViewReportPage', () => {
     spyOn(component, 'updateReportName').and.returnValue(null);
 
     const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
-    editReportNamePopoverSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          reportName: 'new name',
-        },
-      })
-    );
+    editReportNamePopoverSpy.onWillDismiss.and.resolveTo({ data: { reportName: 'new name' } });
 
     popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
 
     component.editReportName();
-    tick(20000);
+    tick(5000);
 
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: EditReportNamePopoverComponent,
@@ -384,7 +379,7 @@ describe('MyViewReportPage', () => {
   });
 
   describe('goToTransaction():', () => {
-    it('should go to view EXPENSE page if user CANNOT EDIT', () => {
+    it('should go to view expense page', () => {
       component.goToTransaction({
         etxn: expenseData1,
         etxnIndex: 0,
@@ -406,7 +401,7 @@ describe('MyViewReportPage', () => {
         },
       ]);
     });
-    it('should go to view EXPENSE page if user CAN EDIT', () => {
+    it('should go to view edit expense page', () => {
       component.erpt$ = of(expectedAllReports[0]);
 
       component.canEditTxn = () => true;
@@ -428,7 +423,7 @@ describe('MyViewReportPage', () => {
       ]);
     });
 
-    it('should go to view MILEAGE page if user CANNOT EDIT', () => {
+    it('should go to view mileage page', () => {
       component.goToTransaction({
         etxn: etxncListData.data[0],
         etxnIndex: 0,
@@ -451,7 +446,7 @@ describe('MyViewReportPage', () => {
       ]);
     });
 
-    it('should go to view MILEAGE page if user CAN EDIT', () => {
+    it('should go to edit mileage page', () => {
       component.erpt$ = of(expectedAllReports[0]);
 
       component.canEditTxn = () => true;
@@ -473,7 +468,7 @@ describe('MyViewReportPage', () => {
       ]);
     });
 
-    it('should go to view PER DIEM page if user CANNOT EDIT', () => {
+    it('should go to view per diem page', () => {
       const perDiemTxn = { ...expenseData1, tx_org_category: 'PER DIEM' };
       component.goToTransaction({
         etxn: perDiemTxn,
@@ -497,7 +492,7 @@ describe('MyViewReportPage', () => {
       ]);
     });
 
-    it('should go to view PER DIEM page if user CAN EDIT', () => {
+    it('should go to edit per diem page', () => {
       const perDiemTxn = { ...expenseData1, tx_org_category: 'PER DIEM' };
       component.erpt$ = of(expectedAllReports[0]);
 
@@ -611,12 +606,30 @@ describe('MyViewReportPage', () => {
     expect(trackingService.clickViewReportInfo).toHaveBeenCalledOnceWith({ view: ExpenseView.individual });
   });
 
-  it('canEditTxn(): should show whether the user can edit txn', () => {
-    component.canEdit$ = of(true);
-    fixture.detectChanges();
+  describe('canEditTxn():', () => {
+    it('should show whether the user can edit txn', () => {
+      component.canEdit$ = of(true);
+      fixture.detectChanges();
 
-    const result = component.canEditTxn('DRAFT');
-    expect(result).toBeTrue();
+      const result = component.canEditTxn('DRAFT');
+      expect(result).toBeTrue();
+    });
+
+    it('should show that the user cannot edit the txn', () => {
+      component.canEdit$ = of(false);
+      fixture.detectChanges();
+
+      const result = component.canEditTxn('SENT_BACK');
+      expect(result).toBeFalse();
+    });
+
+    it('should show that the user cannot edit the txn if state does not match', () => {
+      component.canEdit$ = of(true);
+      fixture.detectChanges();
+
+      const result = component.canEditTxn('SENT_BACK');
+      expect(result).toBeFalse();
+    });
   });
 
   it('segmentChanged(): should change segment value', () => {
@@ -634,13 +647,13 @@ describe('MyViewReportPage', () => {
     spyOn(component.content, 'scrollToBottom');
     spyOn(component.refreshEstatuses$, 'next');
     component.newComment = 'comment';
-    component.segmentValue = Segment.COMMENTS;
+    component.segmentValue = ReportPageSegment.COMMENTS;
     component.commentInput = fixture.debugElement.query(By.css('.view-comment--text-area'));
     fixture.detectChanges();
     spyOn(component.commentInput.nativeElement, 'focus');
 
     component.addComment();
-    tick(20000);
+    tick(5000);
     expect(statusService.post).toHaveBeenCalledOnceWith(component.objectType, component.reportId, {
       comment: 'comment',
     });
@@ -687,7 +700,7 @@ describe('MyViewReportPage', () => {
     spyOn(component, 'addEtxnsToReport').and.returnValue(null);
 
     component.showAddExpensesToReportModal();
-    tick(10000);
+    tick(5000);
 
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: AddExpensesToReportComponent,
@@ -715,5 +728,6 @@ describe('MyViewReportPage', () => {
     expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpFkJ6jUJOyg', ['txfCdl3TEZ7K', 'tx3qHxFNgRcZ']);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
     expect(component.loadReportTxns$.next).toHaveBeenCalledTimes(1);
+    expect(component.unReportedEtxns).toEqual([expensesWithDependentFields[1]]);
   });
 });

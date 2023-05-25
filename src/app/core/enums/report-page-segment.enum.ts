@@ -1,4 +1,4 @@
-export enum Segment {
+export enum ReportPageSegment {
   EXPENSES,
   COMMENTS,
   HISTORY,

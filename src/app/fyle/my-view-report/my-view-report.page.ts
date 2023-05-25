@@ -28,7 +28,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { Segment } from 'src/app/core/enums/segment.enum';
+import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -91,7 +91,7 @@ export class MyViewReportPage {
 
   loadReportTxns$ = new BehaviorSubject<void>(null);
 
-  segmentValue = Segment.EXPENSES;
+  segmentValue = ReportPageSegment.EXPENSES;
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
@@ -115,7 +115,7 @@ export class MyViewReportPage {
   ) {}
 
   get Segment() {
-    return Segment;
+    return ReportPageSegment;
   }
 
   setupNetworkWatcher() {
@@ -165,7 +165,7 @@ export class MyViewReportPage {
     this.reportId = this.activatedRoute.snapshot.params.id;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.segmentValue = Segment.EXPENSES;
+    this.segmentValue = ReportPageSegment.EXPENSES;
 
     this.erpt$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
@@ -226,7 +226,7 @@ export class MyViewReportPage {
 
       //For sent back reports, show the comments section instead of expenses when opening the report
       if (erpt?.rp_state === 'APPROVER_INQUIRY') {
-        this.segmentValue = Segment.COMMENTS;
+        this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
 
