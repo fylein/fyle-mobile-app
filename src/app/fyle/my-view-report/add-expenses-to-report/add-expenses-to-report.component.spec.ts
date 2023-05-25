@@ -1,16 +1,21 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { Router } from '@angular/router';
-import { AddExpensesToReportComponent } from './add-expenses-to-report.component';
-import { of } from 'rxjs';
-import { apiExpenseRes, expenseData1, perDiemExpenseMultipleNumDays } from 'src/app/core/mock-data/expense.data';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { CurrencyPipe } from '@angular/common';
-import { expenseData2 } from 'src/app/core/mock-data/expense.data';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { IonicModule, ModalController } from '@ionic/angular';
+import { cloneDeep } from 'lodash';
+import { of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import {
+  apiExpenseRes,
+  expenseData1,
+  expenseData2,
+  perDiemExpenseMultipleNumDays,
+} from 'src/app/core/mock-data/expense.data';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { AddExpensesToReportComponent } from './add-expenses-to-report.component';
 
 describe('AddExpensesToReportComponent', () => {
   let component: AddExpensesToReportComponent;
@@ -18,6 +23,8 @@ describe('AddExpensesToReportComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let router: jasmine.SpyObj<Router>;
+
+  const closeExpData1 = cloneDeep(expenseData1);
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -43,6 +50,7 @@ describe('AddExpensesToReportComponent', () => {
           useValue: routerSpy,
         },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(AddExpensesToReportComponent);
     component = fixture.componentInstance;
@@ -82,21 +90,21 @@ describe('AddExpensesToReportComponent', () => {
 
   describe('updateSelectedTxns():', () => {
     it('should update selected txns', () => {
-      component.selectedElements = [...apiExpenseRes, expenseData1];
+      component.selectedElements = [...apiExpenseRes, closeExpData1];
       fixture.detectChanges();
 
       component.updateSelectedTxns();
-      expect(component.selectedTxnIds).toEqual([apiExpenseRes[0].tx_id, expenseData1.tx_id]);
+      expect(component.selectedTxnIds).toEqual([apiExpenseRes[0].tx_id, closeExpData1.tx_id]);
       expect(component.selectedTotalTxns).toEqual(2);
       expect(component.selectedTotalAmount).toEqual(959);
     });
 
     it('should update selected txns when reimbursement is enabled', () => {
-      component.selectedElements = [...apiExpenseRes, { ...expenseData1, tx_skip_reimbursement: true }];
+      component.selectedElements = [...apiExpenseRes, { ...closeExpData1, tx_skip_reimbursement: true }];
       fixture.detectChanges();
 
       component.updateSelectedTxns();
-      expect(component.selectedTxnIds).toEqual([apiExpenseRes[0].tx_id, expenseData1.tx_id]);
+      expect(component.selectedTxnIds).toEqual([apiExpenseRes[0].tx_id, closeExpData1.tx_id]);
       expect(component.selectedTotalTxns).toEqual(2);
       expect(component.selectedTotalAmount).toEqual(3);
     });
@@ -105,7 +113,7 @@ describe('AddExpensesToReportComponent', () => {
   describe('toggleTransaction():', () => {
     it('should toggle transactions and filter txn if already selected', () => {
       spyOn(component, 'updateSelectedTxns');
-      component.selectedElements = [...apiExpenseRes, expenseData1];
+      component.selectedElements = [...apiExpenseRes, closeExpData1];
       component.unReportedEtxns = [perDiemExpenseMultipleNumDays];
       fixture.detectChanges();
 
@@ -121,8 +129,8 @@ describe('AddExpensesToReportComponent', () => {
       component.unReportedEtxns = [perDiemExpenseMultipleNumDays];
       fixture.detectChanges();
 
-      component.toggleTransaction(expenseData1);
-      expect(component.selectedElements).toEqual([...apiExpenseRes, expenseData1]);
+      component.toggleTransaction(closeExpData1);
+      expect(component.selectedElements).toEqual([...apiExpenseRes, closeExpData1]);
       expect(component.updateSelectedTxns).toHaveBeenCalledTimes(1);
       expect(component.isSelectedAll).toBeFalse();
     });
@@ -131,11 +139,11 @@ describe('AddExpensesToReportComponent', () => {
   describe('toggleSelectAll():', () => {
     it('should select all txns if value is true', () => {
       spyOn(component, 'updateSelectedTxns');
-      component.unReportedEtxns = [expenseData1];
+      component.unReportedEtxns = [closeExpData1];
       fixture.detectChanges();
 
       component.toggleSelectAll(true);
-      expect(component.selectedElements).toEqual([expenseData1]);
+      expect(component.selectedElements).toEqual([closeExpData1]);
       expect(component.updateSelectedTxns).toHaveBeenCalledTimes(1);
     });
 
@@ -150,7 +158,7 @@ describe('AddExpensesToReportComponent', () => {
 
   it('ionViewWillEnter():', () => {
     spyOn(component, 'updateSelectedTxns');
-    component.unReportedEtxns = [...apiExpenseRes, expenseData1];
+    component.unReportedEtxns = [...apiExpenseRes, closeExpData1];
     fixture.detectChanges();
 
     component.ionViewWillEnter();
@@ -160,7 +168,7 @@ describe('AddExpensesToReportComponent', () => {
       expect(res).toEqual('USD');
     });
     expect(component.isSelectedAll).toBeTrue();
-    expect(component.selectedElements).toEqual([...apiExpenseRes, expenseData1]);
+    expect(component.selectedElements).toEqual([...apiExpenseRes, closeExpData1]);
   });
 
   it('addNewExpense(): should navigate to add expense page', () => {
@@ -187,7 +195,7 @@ describe('AddExpensesToReportComponent', () => {
   });
 
   it('should show number of expenses and total amount', () => {
-    component.selectedElements = [...apiExpenseRes, expenseData1];
+    component.selectedElements = [...apiExpenseRes, closeExpData1];
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--title'))).toEqual(
