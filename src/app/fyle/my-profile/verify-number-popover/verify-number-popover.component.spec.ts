@@ -13,7 +13,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ErrorType } from './error-type.model';
 
-fdescribe('VerifyNumberPopoverComponent', () => {
+describe('VerifyNumberPopoverComponent', () => {
   let component: VerifyNumberPopoverComponent;
   let fixture: ComponentFixture<VerifyNumberPopoverComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
