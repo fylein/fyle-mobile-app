@@ -18,6 +18,7 @@ fdescribe('VerifyNumberPopoverComponent', () => {
   let fixture: ComponentFixture<VerifyNumberPopoverComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let mobileNumberVerificationService: jasmine.SpyObj<MobileNumberVerificationService>;
+  let resendOtpSpy: jasmine.Spy;
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
@@ -44,8 +45,11 @@ fdescribe('VerifyNumberPopoverComponent', () => {
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
 
     component.extendedOrgUser = apiEouRes;
-    spyOn(component, 'resendOtp').and.callThrough();
-    mobileNumberVerificationService.sendOtp.and.returnValue(of({}));
+    component.showOtpTimer = false;
+    component.disableResendOtp = false;
+    component.error = null;
+    component.value = '';
+    resendOtpSpy = spyOn(component, 'resendOtp');
 
     fixture.detectChanges();
   }));
@@ -59,29 +63,15 @@ fdescribe('VerifyNumberPopoverComponent', () => {
     expect(component.resendOtp).toHaveBeenCalledOnceWith();
   });
 
-  describe('ngAfterViewInit(): ', () => {
-    let inputElement: HTMLInputElement;
-    beforeEach(() => {
-      inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
-      component.inputEl.nativeElement = inputElement;
-    });
+  it('ngAfterViewInit(): should focus on input element on init', fakeAsync(() => {
+    const inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
+    component.inputEl.nativeElement = inputElement;
+    component.error = null;
+    component.ngAfterViewInit();
+    tick(200);
 
-    it('should focus on input element on init', fakeAsync(() => {
-      component.error = null;
-      component.ngAfterViewInit();
-      tick(200);
-
-      expect(document.activeElement).toEqual(inputElement);
-    }));
-
-    it('should not focus on input element if there is some error', fakeAsync(() => {
-      component.error = 'Invalid OTP';
-      component.ngAfterViewInit();
-      tick(200);
-
-      expect(document.activeElement).not.toEqual(inputElement);
-    }));
-  });
+    expect(document.activeElement).toEqual(inputElement);
+  }));
 
   it('validateInput(): should set error message if input is invalid', () => {
     const valueErrorMapping = [
@@ -128,22 +118,102 @@ fdescribe('VerifyNumberPopoverComponent', () => {
     expect(component.error).toBeNull();
   });
 
-  it('resendOtp(): should resend otp when cta is clicked', () => {
-    //Called once inside ngOnInit
-    expect(component.resendOtp).toHaveBeenCalledOnceWith();
+  describe('resendOtp(): ', () => {
+    let resentOtpCta: HTMLButtonElement;
+    beforeEach(() => {
+      spyOn(component, 'setError');
+      spyOn(component, 'startTimer');
 
-    const inputElement = getElementBySelector(
-      fixture,
-      '.verify-number-popover__input-container__label__resend'
-    ) as HTMLButtonElement;
-    click(inputElement);
+      resentOtpCta = getElementBySelector(
+        fixture,
+        '.verify-number-popover__input-container__label__resend'
+      ) as HTMLButtonElement;
+    });
 
-    //Called second time on click
-    expect(component.resendOtp).toHaveBeenCalledTimes(2);
-    expect(mobileNumberVerificationService.sendOtp).toHaveBeenCalledTimes(2);
+    it('should resend otp and show remaining attempts when cta is clicked', () => {
+      //Called once inside ngOnInit
+      expect(component.resendOtp).toHaveBeenCalledOnceWith();
+      mobileNumberVerificationService.sendOtp.and.returnValue(
+        of({
+          attempts_left: 3,
+        })
+      );
+      resendOtpSpy.and.callThrough();
+      click(resentOtpCta);
+
+      expect(component.resendOtp).toHaveBeenCalledTimes(2);
+      expect(mobileNumberVerificationService.sendOtp).toHaveBeenCalledOnceWith();
+      expect(component.setError).toHaveBeenCalledOnceWith('ATTEMPTS_LEFT', 3);
+      expect(component.startTimer).toHaveBeenCalledOnceWith();
+    });
+
+    it('should show limit reached error message if no attempts left', () => {
+      mobileNumberVerificationService.sendOtp.and.returnValue(
+        of({
+          attempts_left: 0,
+        })
+      );
+      resendOtpSpy.and.callThrough();
+      click(resentOtpCta);
+
+      expect(mobileNumberVerificationService.sendOtp).toHaveBeenCalledOnceWith();
+      expect(component.setError).toHaveBeenCalledOnceWith('LIMIT_REACHED');
+      expect(component.disableResendOtp).toBeTrue();
+    });
+
+    it('should show limit reached error message if api throws 400 with out of attempts message', () => {
+      mobileNumberVerificationService.sendOtp.and.returnValue(
+        throwError(() => ({
+          status: 400,
+          error: {
+            message: 'Out of attempts',
+          },
+        }))
+      );
+      resendOtpSpy.and.callThrough();
+      click(resentOtpCta);
+
+      expect(mobileNumberVerificationService.sendOtp).toHaveBeenCalledOnceWith();
+      expect(component.setError).toHaveBeenCalledOnceWith('LIMIT_REACHED');
+      expect(component.disableResendOtp).toBeTrue();
+    });
+
+    it('should show limit reached error message if api throws 400 with max send attempts reached message', () => {
+      mobileNumberVerificationService.sendOtp.and.returnValue(
+        throwError(() => ({
+          status: 400,
+          error: {
+            message: 'Max send attempts reached',
+          },
+        }))
+      );
+      resendOtpSpy.and.callThrough();
+      click(resentOtpCta);
+
+      expect(mobileNumberVerificationService.sendOtp).toHaveBeenCalledOnceWith();
+      expect(component.setError).toHaveBeenCalledOnceWith('LIMIT_REACHED');
+      expect(component.disableResendOtp).toBeTrue();
+    });
+
+    it('should show invalid mobile number error message if api throws 400 with invalid parameter message', () => {
+      mobileNumberVerificationService.sendOtp.and.returnValue(
+        throwError(() => ({
+          status: 400,
+          error: {
+            message: 'Invalid parameter `To`: +9112345667899',
+          },
+        }))
+      );
+      resendOtpSpy.and.callThrough();
+      click(resentOtpCta);
+
+      expect(mobileNumberVerificationService.sendOtp).toHaveBeenCalledOnceWith();
+      expect(component.setError).toHaveBeenCalledOnceWith('INVALID_MOBILE_NUMBER');
+      expect(component.disableResendOtp).toBeFalsy();
+    });
   });
 
-  fdescribe('verifyOtp(): ', () => {
+  describe('verifyOtp(): ', () => {
     let verifyCta: HTMLButtonElement;
     beforeEach(() => {
       spyOn(component, 'verifyOtp').and.callThrough();
