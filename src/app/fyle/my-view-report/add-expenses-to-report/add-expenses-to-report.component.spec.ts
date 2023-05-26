@@ -99,7 +99,7 @@ describe('AddExpensesToReportComponent', () => {
       expect(component.selectedTotalAmount).toEqual(959);
     });
 
-    it('should update selected txns when reimbursement is enabled', () => {
+    it('should update selected txns expense is non-reimbursable', () => {
       component.selectedElements = [...apiExpenseRes, { ...closeExpData1, tx_skip_reimbursement: true }];
       fixture.detectChanges();
 
