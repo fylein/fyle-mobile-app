@@ -35,3 +35,28 @@ export const dependentFieldValues: PlatformDependentFieldValue[] = [
     updated_at: '2023-03-23T07:29:36.441882+00:00',
   },
 ];
+
+export const dependentFieldOptionsForCostCode: PlatformDependentFieldValue[] = [
+  {
+    created_at: '2023-02-23T10:50:38.058403+00:00',
+    expense_field_id: 219199,
+    expense_field_value: 'Cost Code 1',
+    id: 4,
+    is_enabled: true,
+    org_id: 'orN6GkZNaD8b',
+    parent_expense_field_id: 219175,
+    parent_expense_field_value: 'Project 1',
+    updated_at: '2023-02-23T10:51:06.155705+00:00',
+  },
+  {
+    created_at: '2023-02-23T10:50:56.756648+00:00',
+    expense_field_id: 219199,
+    expense_field_value: 'Cost Code 2',
+    id: 8,
+    is_enabled: true,
+    org_id: 'orN6GkZNaD8b',
+    parent_expense_field_id: 219175,
+    parent_expense_field_value: 'Project 1',
+    updated_at: '2023-02-23T10:51:06.155705+00:00',
+  },
+];
