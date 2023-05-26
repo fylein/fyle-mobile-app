@@ -22,7 +22,7 @@ import {
   expenseData2,
   perDiemExpenseSingleNumDays,
 } from 'src/app/core/mock-data/expense.data';
-import { approversData1, approversData4, approversData5 } from 'src/app/core/mock-data/approver.data';
+import { approversData1, approversData4, approversData5, approversData6 } from 'src/app/core/mock-data/approver.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { finalize, of } from 'rxjs';
@@ -40,6 +40,7 @@ import { By } from '@angular/platform-browser';
 import {
   getEstatusApiResponse2,
   updateReponseWithFlattenedEStatus,
+  userCommentsData,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
@@ -309,12 +310,20 @@ describe('ViewTeamReportPage', () => {
       component.ionViewWillEnter();
       tick(2000);
 
+      component.eou$.subscribe((res) => {
+        expect(res).toEqual(apiEouRes);
+      });
+
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(2);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+
+      component.estatuses$.subscribe((res) => {
+        expect(res).toEqual(userCommentsData);
+      });
 
       component.simplifyReportsSettings$.subscribe((res) => {
         expect(res).toEqual({
@@ -329,15 +338,17 @@ describe('ViewTeamReportPage', () => {
         expect(res).toEqual(3);
       });
 
-      component.erpt$
-        .pipe(
-          finalize(() => {
-            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          })
-        )
-        .subscribe((res) => {
-          expect(res).toEqual(expectedAllReports[0]);
-        });
+      component.erpt$.subscribe((res) => {
+        expect(res).toEqual(expectedAllReports[0]);
+      });
+
+      expect(component.systemComments).toEqual(userCommentsData);
+
+      expect(component.objectType).toEqual('reports');
+
+      expect(component.systemEstatuses).toEqual(updateReponseWithFlattenedEStatus);
+
+      expect(component.userComments).toEqual(userCommentsData);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
@@ -358,6 +369,14 @@ describe('ViewTeamReportPage', () => {
         expect(res).toEqual([undefined]);
       });
 
+      component.reportApprovals$.subscribe((res) => {
+        expect(res).toEqual([approversData1[0]]);
+      });
+
+      component.actions$.subscribe((res) => {
+        expect(res).toEqual(apiReportActions);
+      });
+
       component.canEdit$.subscribe((res) => {
         expect(res).toBeTrue();
       });
@@ -373,6 +392,11 @@ describe('ViewTeamReportPage', () => {
       expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
       expect(component.isUserActiveInCurrentSeqApprovalQueue).toHaveBeenCalledOnceWith(apiEouRes, [approversData1[0]]);
+
+      expect(component.reportEtxnIds).toEqual(['txZ1nfsXb5Xs', 'txnYF8lUl3Sr']);
+      expect(component.isSequentialApprovalEnabled).toBeTrue();
+      expect(component.canApprove).toBeNull();
+      expect(component.canShowTooltip).toBeTrue();
     }));
 
     it('should load reports when object type is expenses', fakeAsync(() => {
@@ -408,12 +432,20 @@ describe('ViewTeamReportPage', () => {
       component.ionViewWillEnter();
       tick(2000);
 
+      component.eou$.subscribe((res) => {
+        expect(res).toEqual(apiEouRes);
+      });
+
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(2);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+
+      component.estatuses$.subscribe((res) => {
+        expect(res).toEqual(userCommentsData);
+      });
 
       component.simplifyReportsSettings$.subscribe((res) => {
         expect(res).toEqual({
@@ -428,15 +460,17 @@ describe('ViewTeamReportPage', () => {
         expect(res).toEqual(3);
       });
 
-      component.erpt$
-        .pipe(
-          finalize(() => {
-            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          })
-        )
-        .subscribe((res) => {
-          expect(res).toEqual(expectedAllReports[0]);
-        });
+      component.erpt$.subscribe((res) => {
+        expect(res).toEqual(expectedAllReports[0]);
+      });
+
+      expect(component.systemComments).toEqual(userCommentsData);
+
+      expect(component.objectType).toEqual('Transactions');
+
+      expect(component.systemEstatuses).toEqual(updateReponseWithFlattenedEStatus);
+
+      expect(component.userComments).toEqual(userCommentsData);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
@@ -457,6 +491,14 @@ describe('ViewTeamReportPage', () => {
         expect(res).toEqual([undefined]);
       });
 
+      component.reportApprovals$.subscribe((res) => {
+        expect(approversData1[0]);
+      });
+
+      component.actions$.subscribe((res) => {
+        expect(res).toEqual(apiReportActions);
+      });
+
       component.canEdit$.subscribe((res) => {
         expect(res).toBeTrue();
       });
@@ -471,6 +513,11 @@ describe('ViewTeamReportPage', () => {
 
       expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
+
+      expect(component.reportEtxnIds).toEqual(['txZ1nfsXb5Xs', 'txnYF8lUl3Sr']);
+      expect(component.isSequentialApprovalEnabled).toBeFalse();
+      expect(component.canApprove).toBeTrue();
+      expect(component.canShowTooltip).toBeTrue();
     }));
   });
 
@@ -554,6 +601,12 @@ describe('ViewTeamReportPage', () => {
       const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData5);
 
       expect(result).toBeTrue();
+    });
+
+    it("should return false when approver's rank less than minimum rank", () => {
+      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData6);
+
+      expect(result).toBeFalse();
     });
   });
 
