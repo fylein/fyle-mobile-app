@@ -233,7 +233,7 @@ fdescribe('ViewExpensePage', () => {
                 id: 'tx5fBcPBAxLv',
                 view: ExpenseView.individual,
                 txnIds: ['tx5fBcPBAxLv', 'txCBp2jIK6G3'],
-                activeIndex: 0,
+                activeIndex: '0',
               },
             },
           },
@@ -469,13 +469,12 @@ fdescribe('ViewExpensePage', () => {
     beforeEach(() => {
       component.reportId = 'rpT7x1BFlLOi';
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'isNumber');
       spyOn(component, 'getPolicyDetails');
       spyOn(component, 'setPaymentModeandIcon');
       activateRouteMock.snapshot.params = {
-        id: 'tx5fBcPBAxLv',
+        id: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
         view: ExpenseView.individual,
-        activeIndex: 0,
+        activeIndex: '0',
       };
 
       categoriesService.getSystemCategories.and.returnValue(['Bus', 'Airlines', 'Lodging', 'Train']);
@@ -492,8 +491,8 @@ fdescribe('ViewExpensePage', () => {
       transactionService.getEtxn.and.returnValue(of(expenseData1));
 
       customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
 
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap)); //it actually returns expenseFieldsMapResponse2
 
@@ -528,7 +527,7 @@ fdescribe('ViewExpensePage', () => {
         expect(res).toEqual(expenseData1);
         expect(component.reportId).toEqual(res.tx_report_id);
       });
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       tick(500);
       component.txnFields$.subscribe((res) => {
         expect(res).toEqual(mockExpenseFielsMap);
@@ -633,7 +632,7 @@ fdescribe('ViewExpensePage', () => {
       activateRouteMock.snapshot.params = {
         id: 'tx5fBcPBAxLv',
         view: ExpenseView.team,
-        activeIndex: 0,
+        activeIndex: '0',
       };
       component.ionViewWillEnter();
       component.comments$.subscribe(() => {
@@ -696,6 +695,123 @@ fdescribe('ViewExpensePage', () => {
         expect(mockWithoutCustPropData.tx_state).toEqual('DRAFT');
         expect(res).toBeTrue();
       });
+    });
+
+    it('should return true if the policy amount value is of type number should check if the amount is capped', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExpenseData = {
+        ...expenseData1,
+        tx_policy_amount: 1000,
+        tx_admin_amount: null,
+      };
+
+      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      component.etxn$ = of(mockExpenseData);
+      component.ionViewWillEnter();
+      component.isAmountCapped$.subscribe((res) => {
+        expect(res).toBeTrue();
+        //expect(component.isNumber).toHaveBeenCalledWith(mockExpenseData.tx_policy_amount);
+        done();
+      });
+    });
+
+    it('should return true if the admin amount value is of type number should check if the amount is capped', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExpenseData = {
+        ...expenseData1,
+        tx_admin_amount: 1000,
+        tx_policy_amount: null,
+      };
+
+      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      component.etxn$ = of(mockExpenseData);
+      component.ionViewWillEnter();
+      component.isAmountCapped$.subscribe((res) => {
+        expect(res).toBeTrue();
+        expect(component.isNumber).toHaveBeenCalledOnceWith(mockExpenseData.tx_admin_amount);
+        done();
+      });
+    });
+
+    it('should return false if the value is not of type number and check if the expense is capped', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(false);
+      const mockExpenseData = {
+        ...expenseData1,
+        tx_admin_amount: null,
+        tx_policy_amount: null,
+      };
+
+      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      component.etxn$ = of(mockExpenseData);
+      component.ionViewWillEnter();
+      component.isAmountCapped$.subscribe((res) => {
+        expect(res).toBeFalse();
+        expect(component.isNumber).toHaveBeenCalledWith(mockExpenseData.tx_policy_amount);
+        expect(component.isNumber).toHaveBeenCalledTimes(2);
+        done();
+      });
+    });
+
+    it('should get all the org setting and return true if new reports Flow Enabled ', () => {
+      const mockOrgSettings = {
+        ...orgSettingsGetData,
+        simplified_report_closure_settings: {
+          allowed: false,
+          enabled: true,
+        },
+      };
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isNewReportsFlowEnabled).toBeTrue();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should get all the org setting and return false if new reports Flow Enabled ', () => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      component.ionViewWillEnter();
+      expect(component.isNewReportsFlowEnabled).toBeFalse();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should get the merchant field name', () => {
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap));
+      component.ionViewWillEnter();
+      expect(component.merchantFieldName).toEqual('Merchant');
+      expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(2);
+    });
+
+    it('should set the merchant field to null', () => {
+      const mockExpenseFielsMap1 = {
+        ...mockExpenseFielsMap,
+        vendor_id: [],
+      };
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap1));
+      component.ionViewWillEnter();
+      expect(component.merchantFieldName).toBeUndefined();
+      expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(2);
+    });
+
+    it('should be true if expense policy is violated', () => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExpenseData = {
+        ...expenseData1,
+        tx_policy_amount: -1,
+      };
+      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      component.etxn$ = of(mockExpenseData);
+      component.ionViewWillEnter();
+      component.isCriticalPolicyViolated$.subscribe((res) => {
+        expect(res).toBeTrue();
+        expect(component.isNumber).toHaveBeenCalledOnceWith(mockExpenseData.tx_policy_amount);
+      });
+    });
+
+    it('parse the transaction ids and active index accoirngly', () => {
+      activateRouteMock.snapshot.params.txnIds = '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]';
+      activateRouteMock.snapshot.params.activeIndex = '20';
+      component.ionViewWillEnter();
+      expect(component.numEtxnsInReport).toEqual(3);
+      expect(component.activeEtxnIndex).toEqual(20);
     });
   });
 
