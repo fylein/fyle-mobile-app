@@ -231,7 +231,7 @@ export class ViewExpensePage implements OnInit {
 
   ngOnInit() {}
 
-  setPaymentModeandIcon(etxn) {
+  setPaymentModeandIcon(etxn: Expense) {
     if (etxn.source_account_type === AccountType.ADVANCE) {
       this.paymentMode = 'Advance';
       this.paymentModeIcon = 'fy-non-reimbursable';

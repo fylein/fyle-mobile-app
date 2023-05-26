@@ -593,7 +593,7 @@ fdescribe('ViewExpensePage', () => {
       expect(component.exchangeRate).toBe(0.5);
     });
 
-    it('should set the matchingCCCTxnIds and the correct card number', (done) => {
+    it('should set the matchingCCCTxnIds and the correct card number and set foreign and expense transaction currency symbol', (done) => {
       const mockExchangeRateExpData = {
         ...expenseData1,
         tx_skip_reimbursement: false,
@@ -604,16 +604,13 @@ fdescribe('ViewExpensePage', () => {
       component.etxn$ = of(mockExchangeRateExpData);
       component.ionViewWillEnter();
       component.matchingCCCTransaction$.subscribe((res) => {
+        expect(component.paymentModeIcon).toEqual('fy-matched');
         expect(component.cardNumber).toEqual(res.card_or_account_number);
         expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith(
           mockExchangeRateExpData.tx_corporate_credit_card_expense_group_id
         );
         done();
       });
-    });
-
-    it('set foreign and expense transaction currency symbol', () => {
-      component.ionViewWillEnter();
       expect(component.foreignCurrencySymbol).toEqual(expenseData1.tx_orig_currency);
       expect(component.etxnCurrencySymbol).toEqual('$');
     });
@@ -806,7 +803,31 @@ fdescribe('ViewExpensePage', () => {
       });
     });
 
-    it('parse the transaction ids and active index accoirngly', () => {
+    it('should be able to edit expense attachments', fakeAsync(() => {
+      spyOn(component, 'getReceiptDetails').and.returnValue({
+        type: 'image',
+        thumbnail: 'mock-thumbnail',
+      });
+      const mockDownloadUrl = {
+        url: 'mock-url',
+      };
+      fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
+      fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+      component.ionViewWillEnter();
+      tick(500);
+      component.etxn$.subscribe((res) => {
+        expect(fileService.findByTransactionId).toHaveBeenCalledWith(res.tx_id);
+        expect(fileService.downloadUrl).toHaveBeenCalledWith(fileObjectData.id);
+        expect(component.getReceiptDetails).toHaveBeenCalledWith(fileObjectData);
+      });
+      tick(500);
+      component.attachments$.subscribe((res) => {
+        expect(res).toEqual([fileObjectData]);
+        expect(component.isLoading).toBeFalse();
+      });
+    }));
+
+    it('should parse the transaction ids and active index accordingly', () => {
       activateRouteMock.snapshot.params.txnIds = '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]';
       activateRouteMock.snapshot.params.activeIndex = '20';
       component.ionViewWillEnter();
