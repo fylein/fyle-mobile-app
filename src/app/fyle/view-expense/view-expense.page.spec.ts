@@ -492,7 +492,7 @@ describe('ViewExpensePage', () => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
-      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap)); //it actually returns expenseFieldsMapResponse2
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap));
 
       component.etxn$ = of(expenseData1);
       component.txnFields$ = of(mockExpenseFielsMap);
