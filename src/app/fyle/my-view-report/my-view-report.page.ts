@@ -152,7 +152,7 @@ export class MyViewReportPage {
     return vendorName;
   }
 
-  getShowViolation(etxn) {
+  getShowViolation(etxn: Expense): boolean {
     return (
       etxn.tx_id &&
       (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
@@ -336,7 +336,7 @@ export class MyViewReportPage {
     this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
-  async deleteReportPopup(erpt) {
+  async deleteReportPopup(erpt: ExtendedReport) {
     const deleteReportPopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'pop-up-in-center',
@@ -388,7 +388,7 @@ export class MyViewReportPage {
     });
   }
 
-  goToTransaction({ etxn, etxnIndex }) {
+  goToTransaction({ etxn, etxnIndex }: { etxn: Expense; etxnIndex: number }) {
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
 
@@ -486,7 +486,7 @@ export class MyViewReportPage {
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
 
-  canEditTxn(txState) {
+  canEditTxn(txState: string): boolean {
     return this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1;
   }
 
