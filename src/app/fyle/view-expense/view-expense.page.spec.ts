@@ -46,7 +46,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { expenseFieldsMapResponse, expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
-import { apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
+import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
@@ -664,7 +664,7 @@ fdescribe('ViewExpensePage', () => {
     it('should return false there is only one transaction in the report', () => {
       const mockWithoutCustPropData = {
         ...etxnData,
-        tx_state: 'APPROVED',
+        tx_state: 'PAID',
         tx_report_id: 'rphNNUiCISkD',
         tx_custom_properties: null,
       };
@@ -675,8 +675,26 @@ fdescribe('ViewExpensePage', () => {
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((res) => {
-        expect(mockWithoutCustPropData.tx_state).toEqual('APPROVED');
+        expect(mockWithoutCustPropData.tx_state).toEqual('PAID');
         expect(res).toBeFalse();
+      });
+    });
+
+    it('should return true if the transaction state is DRAFT and there are more than one transactions in the report', () => {
+      const mockWithoutCustPropData = {
+        ...expenseData1,
+        tx_report_id: 'rphNNUiCISkD',
+        tx_custom_properties: null,
+      };
+      reportService.getTeamReport.and.returnValue(of(apiTeamReportPaginated1.data[3]));
+      transactionService.getEtxn.and.returnValue(of(mockWithoutCustPropData));
+      component.etxnWithoutCustomProperties$ = of(mockWithoutCustPropData);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+
+      component.ionViewWillEnter();
+      component.canDelete$.subscribe((res) => {
+        expect(mockWithoutCustPropData.tx_state).toEqual('DRAFT');
+        expect(res).toBeTrue();
       });
     });
   });
