@@ -169,7 +169,7 @@ export class ViewExpensePage implements OnInit {
     });
   }
 
-  isNumber(val) {
+  isNumber(val: string | number): boolean {
     return typeof val === 'number';
   }
 
@@ -194,7 +194,7 @@ export class ViewExpensePage implements OnInit {
     }
   }
 
-  isPolicyComment(estatus) {
+  isPolicyComment(estatus: ExtendedStatus): boolean {
     return estatus.st_org_user_id === 'POLICY';
   }
 
@@ -216,7 +216,7 @@ export class ViewExpensePage implements OnInit {
     }
   }
 
-  getDisplayValue(customProperties) {
+  getDisplayValue(customProperties): boolean | string {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
@@ -338,7 +338,7 @@ export class ViewExpensePage implements OnInit {
         map(([expenseFieldsMap, etxn]) => {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
-          this.isProjectShown = this.orgSettings?.projects?.enabled && (etxn.tx_project_name || isProjectMandatory);
+          this.isProjectShown = this.orgSettings.projects?.enabled && (etxn.tx_project_name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -378,7 +378,7 @@ export class ViewExpensePage implements OnInit {
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+      this.isNewReportsFlowEnabled = orgSettings.simplified_report_closure_settings?.enabled || false;
     });
 
     this.expenseFieldsService
@@ -460,7 +460,7 @@ export class ViewExpensePage implements OnInit {
     return res;
   }
 
-  getDeleteDialogProps(etxn) {
+  getDeleteDialogProps(etxn: Expense) {
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',

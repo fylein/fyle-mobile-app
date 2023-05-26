@@ -350,14 +350,12 @@ fdescribe('ViewExpensePage', () => {
 
   describe('isPolicyComment', () => {
     it('should return true if the comment is a policy comment', () => {
-      const estatus = { st_org_user_id: 'POLICY' };
-      const result = component.isPolicyComment(estatus);
+      const result = component.isPolicyComment(getEstatusApiResponse[0]);
       expect(result).toBeTrue();
     });
 
     it('should return false if the comment is not a policy comment', () => {
-      const estatus = { st_org_user_id: 'SYSTEM' };
-      const result = component.isPolicyComment(estatus);
+      const result = component.isPolicyComment(getEstatusApiResponse[4]);
       expect(result).toBeFalse();
     });
   });
@@ -615,12 +613,42 @@ fdescribe('ViewExpensePage', () => {
       expect(component.etxnCurrencySymbol).toEqual('$');
     });
 
+    it('should get the project details', () => {
+      const mockExpFieldData = {
+        ...expenseFieldsMapResponse,
+        project_id: [],
+      };
+      transactionService.getEtxn.and.returnValue(of(expenseData1));
+      component.etxn$ = of(expenseData1);
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
+      component.txnFields$ = of(mockExpFieldData);
+
+      component.ionViewWillEnter();
+      expect(component.projectFieldName).toBeUndefined();
+      expect(component.isProjectShown).toBeTruthy();
+    });
+
+    it('should get the project details when project name is not present', () => {
+      const mockExpData = {
+        ...expenseData1,
+        tx_project_name: null,
+      };
+      transactionService.getEtxn.and.returnValue(of(mockExpData));
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap));
+      component.etxn$ = of(mockExpData);
+
+      component.ionViewWillEnter();
+      expect(component.projectFieldName).toEqual('Project ID');
+      expect(component.isProjectShown).toBeTrue();
+    });
+
     it('should get all the policy violations', (done) => {
       spyOn(component, 'isPolicyComment').and.returnValue(true);
       component.ionViewWillEnter();
       component.policyViloations$.subscribe(() => {
         expect(statusService.find).toHaveBeenCalledWith('transactions', expenseData1.tx_id);
-        expect(component.isPolicyComment).toHaveBeenCalled();
+        expect(statusService.find).toHaveBeenCalledTimes(2);
+        expect(component.isPolicyComment).toHaveBeenCalledTimes(5);
         done();
       });
     });
@@ -633,7 +661,7 @@ fdescribe('ViewExpensePage', () => {
       };
       component.ionViewWillEnter();
       component.comments$.subscribe(() => {
-        expect(statusService.find).toHaveBeenCalledWith('transactions', expenseData1.tx_id);
+        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', expenseData1.tx_id);
         done();
       });
       expect(component.view).toEqual(activateRouteMock.snapshot.params.view);
@@ -707,7 +735,6 @@ fdescribe('ViewExpensePage', () => {
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
-        //expect(component.isNumber).toHaveBeenCalledWith(mockExpenseData.tx_policy_amount);
         done();
       });
     });
@@ -760,6 +787,17 @@ fdescribe('ViewExpensePage', () => {
       orgSettingsService.get.and.returnValue(of(mockOrgSettings));
       component.ionViewWillEnter();
       expect(component.isNewReportsFlowEnabled).toBeTrue();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should get all the org setting and return false if there are no report closure settings ', () => {
+      const mockOrgSettings = {
+        ...orgSettingsGetData,
+        simplified_report_closure_settings: null,
+      };
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isNewReportsFlowEnabled).toBeFalse();
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
@@ -816,9 +854,9 @@ fdescribe('ViewExpensePage', () => {
       component.ionViewWillEnter();
       tick(500);
       component.etxn$.subscribe((res) => {
-        expect(fileService.findByTransactionId).toHaveBeenCalledWith(res.tx_id);
-        expect(fileService.downloadUrl).toHaveBeenCalledWith(fileObjectData.id);
-        expect(component.getReceiptDetails).toHaveBeenCalledWith(fileObjectData);
+        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(res.tx_id);
+        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjectData.id);
+        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObjectData);
       });
       tick(500);
       component.attachments$.subscribe((res) => {
