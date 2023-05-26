@@ -535,13 +535,11 @@ describe('MyViewReportPage', () => {
       duration: 3000,
     };
     const shareReportModalSpy = jasmine.createSpyObj('shareReportModal', ['present', 'onWillDismiss']);
-    shareReportModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          email: 'aj@fyle.com',
-        },
-      })
-    );
+    shareReportModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        email: 'aj@fyle.com',
+      },
+    });
     modalController.create.and.returnValue(Promise.resolve(shareReportModalSpy));
     reportService.downloadSummaryPdfUrl.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
@@ -575,7 +573,7 @@ describe('MyViewReportPage', () => {
 
   it('openViewReportInfoModal(): should open report info modal', async () => {
     const viewInfoModalSpy = jasmine.createSpyObj('viewInfoModal', ['onWillDismiss', 'present']);
-    viewInfoModalSpy.onWillDismiss.and.returnValue(Promise.resolve());
+    viewInfoModalSpy.onWillDismiss.and.resolveTo();
 
     const properties = {
       cssClass: 'fy-modal',
@@ -675,13 +673,11 @@ describe('MyViewReportPage', () => {
 
   it('showAddExpensesToReportModal(): should show modal to add expense to report', fakeAsync(() => {
     const addExpensesToReportModalSpy = jasmine.createSpyObj('addExpensesToReportModal', ['onWillDismiss', 'present']);
-    addExpensesToReportModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          selectedTxnIds: ['txfCdl3TEZ7K', 'txWphhAUZbq7'],
-        },
-      })
-    );
+    addExpensesToReportModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        selectedTxnIds: ['txfCdl3TEZ7K', 'txWphhAUZbq7'],
+      },
+    });
 
     const properties = {
       cssClass: 'fy-modal',
