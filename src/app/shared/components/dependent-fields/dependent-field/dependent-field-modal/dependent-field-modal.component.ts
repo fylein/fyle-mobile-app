@@ -1,21 +1,17 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, Input } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-
-interface DependentFieldOption {
-  label: string;
-  value: string;
-  selected: boolean;
-}
+import { DependentFieldOption } from 'src/app/core/models/dependent-field-option.model';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-dependent-field-modal',
   templateUrl: './dependent-field-modal.component.html',
   styleUrls: ['./dependent-field-modal.component.scss'],
 })
-export class DependentFieldModalComponent implements OnInit, AfterViewInit {
+export class DependentFieldModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() currentSelection: string;
@@ -37,8 +33,6 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
   isLoading = false;
 
   constructor(private modalController: ModalController, private dependentFieldsService: DependentFieldsService) {}
-
-  ngOnInit() {}
 
   getDependentFieldOptions(searchQuery: string): Observable<DependentFieldOption[]> {
     this.isLoading = true;
@@ -87,20 +81,21 @@ export class DependentFieldModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss(option);
   }
 
-  private getFinalDependentFieldValues(dependentFieldOptions: DependentFieldOption[], currentSelection: string) {
+  getFinalDependentFieldValues(dependentFieldOptions: DependentFieldOption[], currentSelection: string) {
     const nullOption = { label: 'None', value: null, selected: currentSelection === null };
 
     if (!currentSelection) {
       return [nullOption, ...dependentFieldOptions];
     }
 
-    let selectedOption = dependentFieldOptions.find(
+    const dependentFieldOptionsCopy = cloneDeep(dependentFieldOptions);
+    let selectedOption = dependentFieldOptionsCopy.find(
       (dependentFieldOption) => dependentFieldOption.value === currentSelection
     );
 
     if (selectedOption) {
       selectedOption.selected = true;
-      return [nullOption, ...dependentFieldOptions];
+      return [nullOption, ...dependentFieldOptionsCopy];
     } else {
       selectedOption = {
         label: currentSelection,
