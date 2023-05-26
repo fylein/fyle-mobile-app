@@ -81,7 +81,7 @@ const mockExpenseFielsMap = {
   ],
 };
 
-fdescribe('ViewExpensePage', () => {
+describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
   let fixture: ComponentFixture<ViewExpensePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
