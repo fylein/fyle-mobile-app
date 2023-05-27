@@ -47,3 +47,32 @@ export const individualExpPolicyStateData2: IndividualExpensePolicyState[] = [
     run_status: 'VIOLATED_ACTION_SUCCESS',
   },
 ];
+
+export const individualExpPolicyStateData3: IndividualExpensePolicyState[] = [
+  {
+    add_approver_user_ids: [],
+    amount: null,
+    expense_id: 'txVTmNOp5JEa',
+    expense_policy_rule: {
+      action_show_warning: false,
+      description:
+        'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000. ',
+      id: 'tprlDUfXa0idO',
+    },
+    expense_policy_rule_id: 'tprlDUfXa0idO',
+    expenses_query_object_params: {
+      limit_end_date: '2023-03-01',
+      limit_start_date: '2023-02-01',
+      params: {
+        category_id: 'in.(1630)',
+        employee_id: 'eq.ouWmQvnfr9x0',
+        cost_center_id: 'CostCentId2',
+        currency: 'INR',
+        mileage_rate_id: 'MilRatId2',
+        project_id: 'ProId2',
+      },
+    },
+    run_result: ['expense will be flagged for verification and approval'],
+    run_status: 'VIOLATED_ACTION_SUCCESS',
+  },
+];

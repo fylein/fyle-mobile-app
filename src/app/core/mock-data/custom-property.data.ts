@@ -34,3 +34,22 @@ export const customPropertiesData: CustomProperty<any>[] = [
     value: '2023-02-05T09:48:18.482566+00:00',
   },
 ];
+
+export const dependentCustomProperties: CustomProperty<string>[] = [
+  {
+    name: 'CUSTOM FIELD',
+    value: '',
+  },
+  {
+    name: 'Cost Code',
+    value: 'Cost Code 1',
+  },
+  {
+    name: 'Cost Area',
+    value: null,
+  },
+  {
+    name: 'Taj Mahaj Construction',
+    value: null,
+  },
+];

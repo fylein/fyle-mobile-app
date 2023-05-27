@@ -32,7 +32,14 @@
           *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
           (click)="addAttachments($event)"
         >
-          <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+          <input
+            *ngIf="isIos"
+            type="file"
+            id="ios-file-upload"
+            #fileUpload
+            accept="application/pdf,image/*"
+            class="d-none"
+          />
           <ion-icon
             class="expenses-card--receipt-icon"
             [src]="receiptIcon"
@@ -69,7 +76,7 @@
             class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
               'background-image':
-                expense.tx_dataUrls.length > 0 &&
+                expense.tx_dataUrls?.length > 0 &&
                 imageTransperencyOverlay + 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
             }"
           >
@@ -83,7 +90,7 @@
             class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
               'background-image':
-                expense.tx_dataUrls.length > 0 &&
+                expense.tx_dataUrls?.length > 0 &&
                 imageTransperencyOverlay + 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
             }"
           >

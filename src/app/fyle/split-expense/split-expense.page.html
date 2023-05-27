@@ -121,8 +121,8 @@
               formControlName="project"
               [mandatory]="true"
               [cacheName]="'splitExpenseProjectCache'"
-              [validInParent]="fg.controls.project.valid"
-              [touchedInParent]="fg.controls.project.touched"
+              [validInParent]="splitExpenseForm.controls.project.valid"
+              [touchedInParent]="splitExpenseForm.controls.project.touched"
             >
             </app-fy-select-project>
             <div
