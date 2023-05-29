@@ -236,7 +236,7 @@ describe('ViewCommentComponent', () => {
         st_org_user_id: 'POLICY',
       }));
 
-      const totalCommentsCount = 31;
+      const totalCommentsCount = 32;
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       statusService.find.and.returnValue(of(updatedApiCommentsResponse));
       statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
