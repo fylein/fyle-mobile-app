@@ -314,7 +314,8 @@ export class MyProfilePage {
       if (data.action === 'BACK') {
         this.updateMobileNumber(eou);
       } else if (data.action === 'SUCCESS') {
-        this.loadEou$.next(null);
+        this.authService.refreshEou().subscribe(() => this.loadEou$.next(null));
+
         if (data.homeCurrency === 'USD') {
           this.showSuccessPopover();
         } else {
