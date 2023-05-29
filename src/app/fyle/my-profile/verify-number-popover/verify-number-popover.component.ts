@@ -76,8 +76,8 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
           if (attemptsLeft > 0) {
             if (action === 'CLICK') {
               this.setError('ATTEMPTS_LEFT', attemptsLeft);
-              this.startTimer();
             }
+            this.startTimer();
           } else {
             this.setError('LIMIT_REACHED');
             this.disableResendOtp = true;
@@ -109,7 +109,8 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
       .verifyOtp(this.value)
       .pipe(finalize(() => (this.verifyingOtp = false)))
       .subscribe({
-        complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
+        complete: () =>
+          this.popoverController.dismiss({ action: 'SUCCESS', homeCurrency: this.extendedOrgUser.org.currency }),
         error: () => this.setError('INVALID_OTP'),
       });
   }

@@ -315,7 +315,11 @@ export class MyProfilePage {
         this.updateMobileNumber(eou);
       } else if (data.action === 'SUCCESS') {
         this.loadEou$.next(null);
-        this.showSuccessPopover();
+        if (data.homeCurrency === 'USD') {
+          this.showSuccessPopover();
+        } else {
+          this.showToastMessage('Mobile Number Verified Successfully', 'success');
+        }
       }
     }
   }
