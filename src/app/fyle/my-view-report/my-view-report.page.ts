@@ -29,6 +29,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -158,6 +159,10 @@ export class MyViewReportPage {
       (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
       !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
     );
+  }
+
+  getSimplifyReportSettings(orgSettings: OrgSettings) {
+    return orgSettings?.simplified_report_closure_settings?.enabled;
   }
 
   ionViewWillEnter() {
@@ -291,7 +296,7 @@ export class MyViewReportPage {
 
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
     );
   }
 
@@ -336,8 +341,8 @@ export class MyViewReportPage {
     this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
-  async deleteReportPopup(erpt: ExtendedReport) {
-    const deleteReportPopover = await this.popoverController.create({
+  getDeleteReportPopupParams(erpt: ExtendedReport) {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'pop-up-in-center',
       backdropDismiss: false,
@@ -351,7 +356,11 @@ export class MyViewReportPage {
         deleteMethod: () =>
           this.reportService.delete(this.reportId).pipe(tap(() => this.trackingService.deleteReport())),
       },
-    });
+    };
+  }
+
+  async deleteReportPopup(erpt: ExtendedReport) {
+    const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopupParams(erpt));
 
     await deleteReportPopover.present();
 

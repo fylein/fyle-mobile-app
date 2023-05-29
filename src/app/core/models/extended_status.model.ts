@@ -17,4 +17,5 @@ export interface ExtendedStatus {
   us_email?: string;
   us_full_name: string;
   st?: StatusCategory;
+  show_dt?: boolean;
 }
