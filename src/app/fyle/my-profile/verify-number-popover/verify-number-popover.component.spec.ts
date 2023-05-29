@@ -61,7 +61,7 @@ describe('VerifyNumberPopoverComponent', () => {
 
   it('ngOnInit(): should execute on component initialization', () => {
     expect(component.infoBoxText).toBe('Please verify your mobile number using the 6-digit OTP sent to 123456');
-    expect(component.resendOtp).toHaveBeenCalledOnceWith();
+    expect(component.resendOtp).toHaveBeenCalledOnceWith('INITIAL');
   });
 
   it('ngAfterViewInit(): should focus on input element on init', fakeAsync(() => {
@@ -133,7 +133,7 @@ describe('VerifyNumberPopoverComponent', () => {
 
     it('should resend otp and show remaining attempts when cta is clicked', () => {
       //Called once inside ngOnInit
-      expect(component.resendOtp).toHaveBeenCalledOnceWith();
+      expect(component.resendOtp).toHaveBeenCalledOnceWith('INITIAL');
       mobileNumberVerificationService.sendOtp.and.returnValue(
         of({
           attempts_left: 3,
@@ -254,7 +254,7 @@ describe('VerifyNumberPopoverComponent', () => {
       expect(component.validateInput).toHaveBeenCalledOnceWith();
 
       expect(mobileNumberVerificationService.verifyOtp).toHaveBeenCalledOnceWith(component.value);
-      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ action: 'SUCCESS' });
+      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ action: 'SUCCESS', homeCurrency: 'USD' });
       expect(errorElement).toBeNull();
     });
 
