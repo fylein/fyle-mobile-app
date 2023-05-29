@@ -31,12 +31,7 @@ import {
   ApproverExpensePolicyStatesData,
   expensePolicyStatesData,
 } from 'src/app/core/mock-data/platform-policy-expense.data';
-import {
-  fileObjectAdv,
-  fileObjectAdv1,
-  fileObjectData,
-  fileObjectData4,
-} from 'src/app/core/mock-data/file-object.data';
+import { fileObjectAdv, fileObjectAdv1, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import {
   individualExpPolicyStateData1,
   individualExpPolicyStateData3,
@@ -45,41 +40,12 @@ import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platf
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
-import { expenseFieldsMapResponse, expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
+import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-
-const mockExpenseFielsMap = {
-  ...expenseFieldsMapResponse,
-  ...expenseFieldsMapResponse2,
-  project_id: [
-    {
-      code: 'PID001',
-      column_name: 'project_id',
-      created_at: new Date('2018-01-31T23:50:27.221Z'),
-      default_value: 'Default Value',
-      field_name: 'Project ID',
-      id: 1,
-      is_custom: false,
-      is_enabled: true,
-      is_mandatory: true,
-      options: ['Option 1', 'Option 2', 'Option 3'],
-      org_category_ids: [1, 2, 3],
-      org_id: 'ORG001',
-      placeholder: 'Enter Project ID',
-      roles_editable: ['Role 1', 'Role 2'],
-      seq: 1,
-      type: 'text',
-      updated_at: new Date(),
-      parent_field_id: 123,
-      field: 'Project',
-      input_type: 'input',
-    },
-  ],
-};
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -383,27 +349,11 @@ describe('ViewExpensePage', () => {
   });
 
   describe('setPaymentModeandIcon', () => {
-    it('should set the correct value for split expenses and expense rate', (done) => {
-      const mockExchangeRateExpData = {
-        ...expenseData1,
-        ou_org_name: 'Test',
-        tx_split_group_id: 'tx5fBcNgRxJk',
-      };
-      transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
-      component.etxn$ = of(mockExchangeRateExpData);
-      component.setPaymentModeandIcon(mockExchangeRateExpData);
-      component.etxn$.subscribe((res) => {
-        expect(res.tx_split_group_id).not.toEqual(res.tx_id);
-        done();
-      });
-    });
-
     it('should set the payment mode and icon accordingly when the source account type is ADVANCE', () => {
       const mockExchangeRateExpData = {
         ...expenseData1,
         source_account_type: 'PERSONAL_ADVANCE_ACCOUNT',
       };
-      transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
       component.etxn$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
       component.etxn$.subscribe((res) => {
@@ -420,7 +370,6 @@ describe('ViewExpensePage', () => {
         source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
       };
 
-      transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
       component.etxn$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
       component.etxn$.subscribe((res) => {
@@ -436,7 +385,6 @@ describe('ViewExpensePage', () => {
         ...expenseData1,
         tx_skip_reimbursement: true,
       };
-      transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
       component.etxn$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
       component.etxn$.subscribe((res) => {
@@ -452,7 +400,6 @@ describe('ViewExpensePage', () => {
         source_account_type: 'PERSONAL_ACCOUNT',
         tx_skip_reimbursement: false,
       };
-      transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
       component.etxn$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
       component.etxn$.subscribe((res) => {
@@ -469,6 +416,7 @@ describe('ViewExpensePage', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getPolicyDetails');
       spyOn(component, 'setPaymentModeandIcon');
+
       activateRouteMock.snapshot.params = {
         id: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
         view: ExpenseView.individual,
@@ -492,10 +440,10 @@ describe('ViewExpensePage', () => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
-      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap));
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
 
       component.etxn$ = of(expenseData1);
-      component.txnFields$ = of(mockExpenseFielsMap);
+      component.txnFields$ = of(expenseFieldsMapResponse4);
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
 
@@ -528,7 +476,7 @@ describe('ViewExpensePage', () => {
       expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       tick(500);
       component.txnFields$.subscribe((res) => {
-        expect(res).toEqual(mockExpenseFielsMap);
+        expect(res).toEqual(expenseFieldsMapResponse4);
         expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(2);
       });
     }));
@@ -548,12 +496,12 @@ describe('ViewExpensePage', () => {
 
     it('should get the project dependent custom properties', (done) => {
       const customProps = expenseData1.tx_custom_properties;
-      const projectIdNumber = mockExpenseFielsMap.project_id[0].id;
+      const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
       component.ionViewWillEnter();
       component.projectDependentCustomProperties$.subscribe((res) => {
         expect(res).toEqual(dependentFieldValues);
         expect(expenseData1.tx_custom_properties).toBeDefined();
-        expect(mockExpenseFielsMap.project_id.length).toBeGreaterThan(0);
+        expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
           projectIdNumber
@@ -564,16 +512,31 @@ describe('ViewExpensePage', () => {
 
     it('should get the cost center dependent custom properties', (done) => {
       const customProps = expenseData1.tx_custom_properties;
-      const costCenterId = mockExpenseFielsMap.cost_center_id[0].id;
+      const costCenterId = expenseFieldsMapResponse4.cost_center_id[0].id;
       component.ionViewWillEnter();
       component.costCenterDependentCustomProperties$.subscribe((res) => {
         expect(res).toEqual(dependentFieldValues);
         expect(expenseData1.tx_custom_properties).toBeDefined();
-        expect(mockExpenseFielsMap.project_id.length).toBeGreaterThan(0);
+        expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
           costCenterId
         );
+        done();
+      });
+    });
+
+    it('should set the correct value for split expenses and expense rate', (done) => {
+      const mockExchangeRateExpData = {
+        ...expenseData1,
+        ou_org_name: 'Test',
+        tx_split_group_id: 'tx5fBcNgRxJk',
+      };
+      transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
+      component.etxn$ = of(mockExchangeRateExpData);
+      component.ionViewWillEnter();
+      component.etxn$.subscribe((res) => {
+        expect(res.tx_split_group_id).not.toEqual(res.tx_id);
         done();
       });
     });
@@ -634,7 +597,7 @@ describe('ViewExpensePage', () => {
         tx_project_name: null,
       };
       transactionService.getEtxn.and.returnValue(of(mockExpData));
-      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap));
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
       component.etxn$ = of(mockExpData);
 
       component.ionViewWillEnter();
@@ -685,7 +648,7 @@ describe('ViewExpensePage', () => {
       });
     });
 
-    it('should return false there is only one transaction in the report', () => {
+    it('should return false if there is only one transaction in the report and the state is PAID', () => {
       const mockWithoutCustPropData = {
         ...etxnData,
         tx_state: 'PAID',
@@ -801,7 +764,7 @@ describe('ViewExpensePage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
-    it('should get all the org setting and return false if new reports Flow Enabled ', () => {
+    it('should get all the org setting and return false if simplified_report_closure_settings is not present in orgSettings', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
       component.ionViewWillEnter();
       expect(component.isNewReportsFlowEnabled).toBeFalse();
@@ -809,7 +772,7 @@ describe('ViewExpensePage', () => {
     });
 
     it('should get the merchant field name', () => {
-      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap));
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
       component.ionViewWillEnter();
       expect(component.merchantFieldName).toEqual('Merchant');
       expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(2);
@@ -817,7 +780,7 @@ describe('ViewExpensePage', () => {
 
     it('should set the merchant field to null', () => {
       const mockExpenseFielsMap1 = {
-        ...mockExpenseFielsMap,
+        ...expenseFieldsMapResponse4,
         vendor_id: [],
       };
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseFielsMap1));
