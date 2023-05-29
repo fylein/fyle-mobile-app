@@ -8,6 +8,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { from, of } from 'rxjs';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
 @Component({
   selector: 'app-help',
@@ -24,7 +25,8 @@ export class HelpPage implements OnInit {
     private orgUserService: OrgUserService,
     private loaderService: LoaderService,
     private trackingService: TrackingService,
-    private authService: AuthService
+    private authService: AuthService,
+    private browserHandlerService: BrowserHandlerService
   ) {}
 
   openContactSupportDialog() {
@@ -70,7 +72,6 @@ export class HelpPage implements OnInit {
     });
 
     await modal.present();
-
     const { data } = await modal.onDidDismiss();
     if (data) {
       if (dialogType === 'contact_support') {
@@ -82,7 +83,7 @@ export class HelpPage implements OnInit {
   }
 
   openHelpLink() {
-    Browser.open({ toolbarColor: '#280a31', url: 'https://help.fylehq.com' });
+    this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://help.fylehq.com');
   }
 
   ngOnInit() {}

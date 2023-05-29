@@ -11,6 +11,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { of } from 'rxjs';
 import { employeesRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
 fdescribe('HelpPage', () => {
   let component: HelpPage;
@@ -20,6 +21,7 @@ fdescribe('HelpPage', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let authService: jasmine.SpyObj<AuthService>;
+  let browserHandlerService: jasmine.SpyObj<BrowserHandlerService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
@@ -27,6 +29,7 @@ fdescribe('HelpPage', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['viewHelpCard']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
       declarations: [HelpPage],
@@ -52,6 +55,10 @@ fdescribe('HelpPage', () => {
           provide: AuthService,
           useValue: authServiceSpy,
         },
+        {
+          provide: BrowserHandlerService,
+          useValue: browserHandlerServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -62,6 +69,7 @@ fdescribe('HelpPage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    browserHandlerService = TestBed.inject(BrowserHandlerService) as jasmine.SpyObj<BrowserHandlerService>;
 
     component.orgAdmins = employeesRes;
     fixture.detectChanges();
@@ -154,5 +162,10 @@ fdescribe('HelpPage', () => {
     }));
   });
 
-  xit('openHelpLink', () => {});
+  it('openHelpLink', () => {
+    const url = 'https://help.fylehq.com';
+    const toolbarColor = '#280a31';
+    component.openHelpLink();
+    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(toolbarColor, url);
+  });
 });
