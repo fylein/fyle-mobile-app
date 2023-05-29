@@ -20,9 +20,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OrgService } from 'src/app/core/services/org.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
 import { PopoverController } from '@ionic/angular';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -30,6 +28,7 @@ import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-num
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
+import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -100,7 +99,6 @@ export class MyProfilePage {
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
     private popoverController: PopoverController,
-    private orgUserService: OrgUserService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private currencyService: CurrencyService,
@@ -240,7 +238,7 @@ export class MyProfilePage {
     const fyleMobileNumber = '(302) 440-2921';
     const fyleEmail = 'receipts@fylehq.com';
 
-    const allInfoCardsData = [
+    const allInfoCardsData: InfoCardData[] = [
       {
         title: 'Message Receipts',
         content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
@@ -341,14 +339,7 @@ export class MyProfilePage {
     if (data) {
       if (data.action === 'SUCCESS') {
         this.loadEou$.next(null);
-        this.eou$
-          .pipe(
-            take(1),
-            map((eou) => from(this.verifyMobileNumber(eou)))
-          )
-          .subscribe({
-            error: () => this.showToastMessage('Something went wrong. Please try again later.', 'failure'),
-          });
+        this.eou$.pipe(take(1)).subscribe((eou) => from(this.verifyMobileNumber(eou)));
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
       }

@@ -21,11 +21,14 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { postOrgUser } from 'src/app/core/test-data/org-user.service.spec.data';
-import { of, throwError } from 'rxjs';
-import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
-import { HttpErrorResponse } from '@angular/common/http';
+import { of } from 'rxjs';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { ActivatedRoute } from '@angular/router';
+import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
+import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
+import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
 
-xdescribe('MyProfilePage', () => {
+describe('MyProfilePage', () => {
   let component: MyProfilePage;
   let fixture: ComponentFixture<MyProfilePage>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -62,6 +65,12 @@ xdescribe('MyProfilePage', () => {
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postOrgUser']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
+    const activatedRouteSpy = {
+      snapshot: {
+        params: {},
+      },
+    };
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -83,6 +92,8 @@ xdescribe('MyProfilePage', () => {
         { provide: OrgUserService, useValue: orgUserServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
+        { provide: CurrencyService, useValue: currencyServiceSpy },
+        { provide: ActivatedRoute, useValue: activatedRouteSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -106,6 +117,11 @@ xdescribe('MyProfilePage', () => {
 
     fixture = TestBed.createComponent(MyProfilePage);
     component = fixture.componentInstance;
+    spyOn(component, 'setupNetworkWatcher');
+    spyOn(component, 'reset');
+    tokenService.getClusterDomain.and.resolveTo('https://app.fyle.com');
+    authService.getEou.and.resolveTo(apiEouRes);
+    component.ionViewWillEnter();
     fixture.detectChanges();
   }));
 
@@ -121,80 +137,16 @@ xdescribe('MyProfilePage', () => {
 
   xit('reset', () => {});
 
-  describe('updateMobileNumber(): ', () => {
-    let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
-    beforeEach(() => {
-      popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
-      popoverSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { newValue: '900900900' } }));
-
-      authService.refreshEou.and.returnValue(of(apiEouRes));
-      spyOn(component, 'showToastMessage');
+  describe('setInfoCardsData(): ', () => {
+    it('should show only email card for non USD orgs', () => {
+      component.setInfoCardsData('INR');
+      expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
     });
 
-    it('should open edit number popover and show success toast message if update is successful', fakeAsync(() => {
-      orgUserService.postOrgUser.and.returnValue(of(postOrgUser));
-
-      component.updateMobileNumber(apiEouRes);
-      tick(1000);
-      fixture.detectChanges();
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyInputPopoverComponent,
-        componentProps: {
-          title: 'Edit Mobile Number',
-          ctaText: 'Save',
-          inputLabel: 'Mobile Number',
-          inputValue: apiEouRes.ou.mobile,
-          inputType: 'tel',
-          isRequired: false,
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-      expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith({ ...apiEouRes.ou, mobile: '900900900' });
-      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
-      expect(component.showToastMessage).toHaveBeenCalledOnceWith('Profile saved successfully', 'success');
-    }));
-
-    it('should open add number popover and show error toast message if api returns error', fakeAsync(() => {
-      orgUserService.postOrgUser.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-
-      const eouWithoutMobileNumber = {
-        ...apiEouRes,
-        ou: {
-          ...apiEouRes.ou,
-          mobile: null,
-        },
-      };
-
-      component.updateMobileNumber(eouWithoutMobileNumber);
-      tick(1000);
-      fixture.detectChanges();
-
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyInputPopoverComponent,
-        componentProps: {
-          title: 'Add Mobile Number',
-          ctaText: 'Save',
-          inputLabel: 'Mobile Number',
-          inputValue: eouWithoutMobileNumber.ou.mobile,
-          inputType: 'tel',
-          isRequired: false,
-        },
-        cssClass: 'fy-dialog-popover',
-      });
-      expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(orgUserService.postOrgUser).toHaveBeenCalledOnceWith({
-        ...eouWithoutMobileNumber.ou,
-        mobile: '900900900',
-      });
-      expect(authService.refreshEou).not.toHaveBeenCalled();
-      expect(component.showToastMessage).toHaveBeenCalledOnceWith(
-        'Something went wrong. Please try again later.',
-        'failure'
-      );
-    }));
+    it('should show both email and mobile number cards for USD orgs', () => {
+      component.setInfoCardsData('USD');
+      expect(component.infoCardsData).toEqual(allInfoCardsData);
+    });
   });
 
   describe('showToastMessage(): ', () => {
@@ -216,7 +168,11 @@ xdescribe('MyProfilePage', () => {
         ...successToastProperties,
         panelClass: 'msb-success',
       });
-      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
+      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith(
+        'success',
+        { message },
+        undefined
+      );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
       });
@@ -240,10 +196,183 @@ xdescribe('MyProfilePage', () => {
         ...failureToastProperties,
         panelClass: 'msb-failure',
       });
-      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', { message });
+      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith(
+        'failure',
+        { message },
+        undefined
+      );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
       });
     });
+
+    it('should show content copied snackbar with message', () => {
+      const message = 'Mobile number copied successfully';
+      const successToastProperties = {
+        data: {
+          icon: 'success',
+          showCloseButton: true,
+          message,
+        },
+        duration: 3000,
+      };
+
+      snackbarPropertiesService.setSnackbarProperties.and.returnValue(successToastProperties);
+      component.showToastMessage(message, 'success');
+
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...successToastProperties,
+        panelClass: 'msb-success',
+      });
+      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith(
+        'success',
+        { message },
+        'tick-circle-outline'
+      );
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: message,
+      });
+    });
+  });
+
+  it('showSuccessPopover(): should show success popover', fakeAsync(() => {
+    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+    popoverController.create.and.resolveTo(popoverSpy);
+    popoverSpy.onWillDismiss.and.resolveTo();
+
+    component.showSuccessPopover();
+    tick(200);
+
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: PopupWithBulletsComponent,
+      componentProps: {
+        title: 'Verification Successful',
+        listHeader: 'Now you can:',
+        listItems: [
+          {
+            icon: 'message',
+            text: 'Message your receipts to Fyle at (302) 440-2921 and we will create an expense for you.',
+            textToCopy: '(302) 440-2921',
+          },
+          {
+            icon: 'fy-reimbursable',
+            text: 'Standard messaging rates applicable',
+          },
+        ],
+        ctaText: 'Got it',
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    expect(popoverSpy.present).toHaveBeenCalledOnceWith();
+    expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
+  }));
+
+  describe('verifyMobileNumber(): ', () => {
+    let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+    beforeEach(() => {
+      popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.resolveTo(popoverSpy);
+      spyOn(component.loadEou$, 'next');
+      spyOn(component, 'showSuccessPopover');
+      spyOn(component, 'updateMobileNumber');
+    });
+
+    it('should show success popover if mobile number is verified', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
+
+      component.verifyMobileNumber(apiEouRes);
+      tick(200);
+
+      expect(popoverSpy.present).toHaveBeenCalledOnceWith();
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
+      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
+      expect(component.showSuccessPopover).toHaveBeenCalledOnceWith();
+    }));
+
+    it('should show mobile number popover if user clicks on back button', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'BACK' } });
+
+      component.verifyMobileNumber(apiEouRes);
+      tick(200);
+
+      expect(popoverSpy.present).toHaveBeenCalledOnceWith();
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
+      expect(component.updateMobileNumber).toHaveBeenCalled();
+    }));
+  });
+
+  describe('updateMobileNumber(): ', () => {
+    let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+    beforeEach(() => {
+      popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+
+      authService.refreshEou.and.returnValue(of(apiEouRes));
+      spyOn(component, 'showToastMessage');
+      spyOn(component, 'verifyMobileNumber').and.resolveTo();
+      spyOn(component.loadEou$, 'next');
+    });
+
+    it('should open edit number popover and show success toast message if update is successful', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
+      orgUserService.postOrgUser.and.returnValue(of(postOrgUser));
+
+      component.updateMobileNumber(apiEouRes);
+      tick(500);
+      fixture.detectChanges();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: UpdateMobileNumberComponent,
+        componentProps: {
+          title: 'Edit Mobile Number',
+          ctaText: 'Next',
+          inputLabel: 'Mobile Number',
+          extendedOrgUser: apiEouRes,
+          placeholder: 'Enter mobile number e.g. +129586736556',
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
+      expect(component.verifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
+      expect(component.showToastMessage).not.toHaveBeenCalled();
+    }));
+
+    it('should open add number popover and show error toast message if api returns error', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'ERROR' } });
+
+      const eouWithoutMobileNumber = {
+        ...apiEouRes,
+        ou: {
+          ...apiEouRes.ou,
+          mobile: null,
+        },
+      };
+
+      component.updateMobileNumber(eouWithoutMobileNumber);
+      tick(500);
+      fixture.detectChanges();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: UpdateMobileNumberComponent,
+        componentProps: {
+          title: 'Add Mobile Number',
+          ctaText: 'Next',
+          inputLabel: 'Mobile Number',
+          extendedOrgUser: eouWithoutMobileNumber,
+          placeholder: 'Enter mobile number e.g. +129586736556',
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(orgUserService.postOrgUser).not.toHaveBeenCalled();
+      expect(component.showToastMessage).toHaveBeenCalledOnceWith(
+        'Something went wrong. Please try again later.',
+        'failure'
+      );
+    }));
   });
 });
