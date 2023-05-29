@@ -47,7 +47,6 @@ describe('AppVersionPage', () => {
     activatedRouteStub = TestBed.inject(ActivatedRoute);
     appVersionService = TestBed.inject(AppVersionService) as jasmine.SpyObj<AppVersionService>;
     component = fixture.componentInstance;
-    // spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
     fixture.detectChanges();
   }));
 
