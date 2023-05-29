@@ -102,25 +102,25 @@ describe('HelpPage', () => {
     expect(component.contactSupportLoading).toBeTrue();
     expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait', 10000);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(orgUserService.getEmployeesByParams).toHaveBeenCalledOnceWith(params);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(component.orgAdmins).toEqual(employeesRes.data);
     expect(component.presentSupportModal).toHaveBeenCalledWith(dialogType);
   }));
 
-  it('openLogMileageDialog', () => {
+  it('openLogMileageDialog(): should open LogMileage dialog', () => {
     spyOn(component, 'presentSupportModal');
     component.openLogMileageDialog();
     expect(component.presentSupportModal).toHaveBeenCalledWith('log_mileage');
   });
 
-  it('openCaptureEmailReceiptsDialog', () => {
+  it('openCaptureEmailReceiptsDialog(): should open captureEmailReceipts dialog', () => {
     spyOn(component, 'presentSupportModal');
     component.openCaptureEmailReceiptsDialog();
     expect(component.presentSupportModal).toHaveBeenCalledWith('capture_email');
   });
 
-  describe('presentSupportModal', () => {
+  describe('presentSupportModal():', () => {
     it('should open present support modal when the dialog type is contact_support and when data is present', fakeAsync(() => {
       const dialogType = 'contact_support';
       component.orgAdmins = employeesRes;
@@ -129,6 +129,7 @@ describe('HelpPage', () => {
       modalControllerSpy.onDidDismiss.and.resolveTo({ data: { dismissed: true } } as any);
       component.presentSupportModal(dialogType);
       tick(500);
+      expect(trackingService.viewHelpCard).toHaveBeenCalledTimes(1);
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: SupportDialogPage,
         componentProps: {
@@ -141,7 +142,7 @@ describe('HelpPage', () => {
       expect(component.contactSupportLoading).toBeFalse();
     }));
 
-    it('should open present support modal when the dialog type is not contact_support and when data is not present', fakeAsync(() => {
+    it('should open present support modal when the dialog type is not contact_support and when no data is present', fakeAsync(() => {
       const dialogType = 'capture_email';
       component.orgAdmins = employeesRes;
       const modalControllerSpy = jasmine.createSpyObj('Modal', ['present', 'onDidDismiss']);
@@ -149,6 +150,7 @@ describe('HelpPage', () => {
       modalControllerSpy.onDidDismiss.and.resolveTo({ data: null });
       component.presentSupportModal(dialogType);
       tick(500);
+      expect(trackingService.viewHelpCard).toHaveBeenCalledTimes(1);
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: SupportDialogPage,
         componentProps: {
