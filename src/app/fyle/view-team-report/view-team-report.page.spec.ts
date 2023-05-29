@@ -1,51 +1,51 @@
+import { CurrencyPipe } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ReportService } from 'src/app/core/services/report.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { NetworkService } from '../../core/services/network.service';
-import { TrackingService } from '../../core/services/tracking.service';
+import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
-import { StatusService } from 'src/app/core/services/status.service';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ViewTeamReportPage } from './view-team-report.page';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { finalize, of } from 'rxjs';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { approversData1, approversData4, approversData5, approversData6 } from 'src/app/core/mock-data/approver.data';
 import {
   etxncListData,
   expenseData1,
   expenseData2,
   perDiemExpenseSingleNumDays,
 } from 'src/app/core/mock-data/expense.data';
-import { approversData1, approversData4, approversData5, approversData6 } from 'src/app/core/mock-data/approver.data';
-import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
-import { finalize, of } from 'rxjs';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { ShareReportComponent } from './share-report/share-report.component';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
 import { expectedAllReports, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { StatusService } from 'src/app/core/services/status.service';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  expectedNewStatusData,
+  newEstatusData1,
+  systemComments1,
+  systemCommentsWithSt,
+} from 'src/app/core/test-data/status.service.spec.data';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { CurrencyPipe } from '@angular/common';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { By } from '@angular/platform-browser';
-import {
-  getEstatusApiResponse2,
-  updateReponseWithFlattenedEStatus,
-  userCommentsData,
-} from 'src/app/core/test-data/status.service.spec.data';
-import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
-import { FormsModule } from '@angular/forms';
-import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { NetworkService } from '../../core/services/network.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { ShareReportComponent } from './share-report/share-report.component';
+import { ViewTeamReportPage } from './view-team-report.page';
 
 describe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
@@ -291,9 +291,9 @@ describe('ViewTeamReportPage', () => {
       spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
       loaderService.hideLoader.and.returnValue(Promise.resolve());
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      statusService.find.and.returnValue(of(getEstatusApiResponse2));
+      statusService.find.and.returnValue(of(newEstatusData1));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+      statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
       reportService.getExports.and.returnValue(
         of({
@@ -322,7 +322,7 @@ describe('ViewTeamReportPage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
 
       component.estatuses$.subscribe((res) => {
-        expect(res).toEqual(userCommentsData);
+        expect(res).toEqual(expectedNewStatusData);
       });
 
       component.simplifyReportsSettings$.subscribe((res) => {
@@ -342,13 +342,13 @@ describe('ViewTeamReportPage', () => {
         expect(res).toEqual(expectedAllReports[0]);
       });
 
-      expect(component.systemComments).toEqual(userCommentsData);
+      expect(component.systemComments).toEqual(systemComments1);
 
       expect(component.objectType).toEqual('reports');
 
-      expect(component.systemEstatuses).toEqual(updateReponseWithFlattenedEStatus);
+      expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      expect(component.userComments).toEqual(userCommentsData);
+      expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
@@ -411,9 +411,9 @@ describe('ViewTeamReportPage', () => {
       spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
       loaderService.hideLoader.and.returnValue(Promise.resolve());
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      statusService.find.and.returnValue(of(getEstatusApiResponse2));
+      statusService.find.and.returnValue(of(newEstatusData1));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+      statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
       reportService.getExports.and.returnValue(
         of({
@@ -444,7 +444,7 @@ describe('ViewTeamReportPage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
 
       component.estatuses$.subscribe((res) => {
-        expect(res).toEqual(userCommentsData);
+        expect(res).toEqual(expectedNewStatusData);
       });
 
       component.simplifyReportsSettings$.subscribe((res) => {
@@ -464,13 +464,13 @@ describe('ViewTeamReportPage', () => {
         expect(res).toEqual(expectedAllReports[0]);
       });
 
-      expect(component.systemComments).toEqual(userCommentsData);
+      expect(component.systemComments).toEqual(systemComments1);
 
       expect(component.objectType).toEqual('Transactions');
 
-      expect(component.systemEstatuses).toEqual(updateReponseWithFlattenedEStatus);
+      expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      expect(component.userComments).toEqual(userCommentsData);
+      expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
