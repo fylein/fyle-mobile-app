@@ -83,10 +83,7 @@ $password-icon: #b9beba;
     }
     margin-top: 24px;
     &-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      display: inline-block;
       &-logo {
         width: 10%;
         min-width: 28px;
