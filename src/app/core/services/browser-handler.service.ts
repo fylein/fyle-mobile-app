@@ -7,11 +7,11 @@ import { Browser } from '@capacitor/browser';
 export class BrowserHandlerService {
   constructor() {}
 
-  openLinkWithToolbarColor(toolbarColor: string, url: string): void {
-    Browser.open({ toolbarColor, url });
+  async openLinkWithToolbarColor(toolbarColor: string, url: string): Promise<void> {
+    await Browser.open({ toolbarColor, url });
   }
 
-  openLinkWithWindowName(windowName: string, url: string): void {
-    Browser.open({ url, windowName });
+  async openLinkWithWindowName(windowName: string, url: string): Promise<void> {
+    await Browser.open({ url, windowName });
   }
 }

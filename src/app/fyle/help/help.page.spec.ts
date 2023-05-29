@@ -164,10 +164,11 @@ describe('HelpPage', () => {
     }));
   });
 
-  it('openHelpLink', () => {
+  it('openHelpLink', fakeAsync(() => {
     const url = 'https://help.fylehq.com';
     const toolbarColor = '#280a31';
     component.openHelpLink();
+    tick(500);
     expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(toolbarColor, url);
-  });
+  }));
 });
