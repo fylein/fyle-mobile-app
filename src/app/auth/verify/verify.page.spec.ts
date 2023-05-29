@@ -9,7 +9,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { of, throwError } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { getElementBySelector } from 'src/app/core/dom-helpers';
+import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { VerifyPageState } from './verify.enum';
 
 describe('VerifyPage', () => {
   let component: VerifyPage;
@@ -18,10 +19,6 @@ describe('VerifyPage', () => {
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let authService: jasmine.SpyObj<AuthService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  enum VerifyPageState {
-    verifying,
-    error,
-  }
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -72,33 +69,35 @@ describe('VerifyPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit(): should navigate to switch_org route when verification is successful', () => {
-    const mockResponse = { refresh_token: 'xyz123' };
-    routerAuthService.emailVerify.and.returnValue(of(mockResponse));
-    authService.newRefreshToken.and.returnValue(of(apiEouRes));
-    fixture.detectChanges();
-    expect(trackingService.emailVerified).toHaveBeenCalledTimes(1);
-    expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { invite_link: true }]);
-    const verifyHeader = getElementBySelector(fixture, '#verify--header');
-    const verifySubheader = getElementBySelector(fixture, '.verify--form-subheader');
-    expect(verifyHeader.textContent).toContain('Verifying Identity');
-    expect(verifySubheader.textContent).toContain('Checking your credentials..');
-  });
+  describe('ngOnInit(): ', () => {
+    it('ngOnInit(): should navigate to switch_org route when verification is successful', () => {
+      const mockResponse = { refresh_token: 'xyz123' };
+      routerAuthService.emailVerify.and.returnValue(of(mockResponse));
+      authService.newRefreshToken.and.returnValue(of(apiEouRes));
+      fixture.detectChanges();
+      expect(trackingService.emailVerified).toHaveBeenCalledTimes(1);
+      expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { invite_link: true }]);
+      const verifyHeader = getElementBySelector(fixture, '#verify--header');
+      const verifySubheader = getElementBySelector(fixture, '.verify--form-subheader');
+      expect(getTextContent(verifyHeader)).toContain('Verifying Identity');
+      expect(getTextContent(verifySubheader)).toContain('Checking your credentials..');
+    });
 
-  it('ngOnInit(): should handle error when verification fails', () => {
-    const mockError = new Error('Verification failed');
-    routerAuthService.emailVerify.and.returnValue(throwError(() => mockError));
-    fixture.detectChanges();
-    spyOn(component, 'handleError');
-    component.ngOnInit();
-    expect(component.handleError).toHaveBeenCalledOnceWith(mockError);
-    const verifyHeader = getElementBySelector(fixture, '#verify--header');
-    const verifySubheader = getElementBySelector(fixture, '.verify--form-subheader');
-    expect(verifyHeader.textContent).toContain('Verification Failed');
-    expect(verifySubheader.textContent).toContain(
-      'Unable to verify your Fyle account. Please contact support by sending an email to support@fylehq.com'
-    );
+    it('ngOnInit(): should handle error when verification fails', () => {
+      const mockError = new Error('Verification failed');
+      routerAuthService.emailVerify.and.returnValue(throwError(() => mockError));
+      fixture.detectChanges();
+      spyOn(component, 'handleError');
+      component.ngOnInit();
+      expect(component.handleError).toHaveBeenCalledOnceWith(mockError);
+      const verifyHeader = getElementBySelector(fixture, '#verify--header');
+      const verifySubheader = getElementBySelector(fixture, '.verify--form-subheader');
+      expect(getTextContent(verifyHeader)).toContain('Verification Failed');
+      expect(getTextContent(verifySubheader)).toContain(
+        'Unable to verify your Fyle account. Please contact support by sending an email to support@fylehq.com'
+      );
+    });
   });
 
   describe('handleError(): ', () => {
