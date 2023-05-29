@@ -70,7 +70,7 @@ describe('VerifyPage', () => {
   });
 
   describe('ngOnInit(): ', () => {
-    it('ngOnInit(): should navigate to switch_org route when verification is successful', () => {
+    it('should navigate to switch_org route when verification is successful', () => {
       const mockResponse = { refresh_token: 'xyz123' };
       routerAuthService.emailVerify.and.returnValue(of(mockResponse));
       authService.newRefreshToken.and.returnValue(of(apiEouRes));
@@ -84,7 +84,7 @@ describe('VerifyPage', () => {
       expect(getTextContent(verifySubheader)).toContain('Checking your credentials..');
     });
 
-    it('ngOnInit(): should handle error when verification fails', () => {
+    it('should handle error when verification fails', () => {
       const mockError = new Error('Verification failed');
       routerAuthService.emailVerify.and.returnValue(throwError(() => mockError));
       fixture.detectChanges();
