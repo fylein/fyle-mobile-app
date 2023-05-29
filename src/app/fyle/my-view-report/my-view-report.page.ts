@@ -137,7 +137,7 @@ export class MyViewReportPage {
     this.onPageExit.next(null);
   }
 
-  getVendorName(etxn) {
+  getVendorName(etxn: Expense) {
     const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
     let vendorName = etxn.tx_vendor || 'Expense';
 
