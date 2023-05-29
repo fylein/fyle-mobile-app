@@ -13,7 +13,7 @@ import { employeesRes } from 'src/app/core/test-data/org-user.service.spec.data'
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
-fdescribe('HelpPage', () => {
+describe('HelpPage', () => {
   let component: HelpPage;
   let fixture: ComponentFixture<HelpPage>;
   let modalController: jasmine.SpyObj<ModalController>;
