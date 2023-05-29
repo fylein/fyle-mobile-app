@@ -60,24 +60,29 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   }
 
   saveValue() {
-    this.validateInput();
-    if (!this.error?.length) {
-      this.updatingMobileNumber = true;
+    //If user has not changed the verified mobile number, close the popover
+    if (this.inputValue === this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified) {
+      this.popoverController.dismiss();
+    } else {
+      this.validateInput();
+      if (!this.error?.length) {
+        this.updatingMobileNumber = true;
 
-      const updatedOrgUserDetails = {
-        ...this.extendedOrgUser.ou,
-        mobile: this.inputValue,
-      };
-      this.orgUserService
-        .postOrgUser(updatedOrgUserDetails)
-        .pipe(
-          switchMap(() => this.authService.refreshEou()),
-          finalize(() => (this.updatingMobileNumber = false))
-        )
-        .subscribe({
-          complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
-          error: () => this.popoverController.dismiss({ action: 'ERROR' }),
-        });
+        const updatedOrgUserDetails = {
+          ...this.extendedOrgUser.ou,
+          mobile: this.inputValue,
+        };
+        this.orgUserService
+          .postOrgUser(updatedOrgUserDetails)
+          .pipe(
+            switchMap(() => this.authService.refreshEou()),
+            finalize(() => (this.updatingMobileNumber = false))
+          )
+          .subscribe({
+            complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
+            error: () => this.popoverController.dismiss({ action: 'ERROR' }),
+          });
+      }
     }
   }
 }
