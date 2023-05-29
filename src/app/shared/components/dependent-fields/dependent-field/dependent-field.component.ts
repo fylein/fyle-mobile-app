@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -17,7 +17,7 @@ import { DependentFieldModalComponent } from './dependent-field-modal/dependent-
     },
   ],
 })
-export class DependentFieldComponent implements OnInit, ControlValueAccessor {
+export class DependentFieldComponent implements ControlValueAccessor {
   @Input() label = '';
 
   @Input() placeholder: string;
@@ -34,13 +34,11 @@ export class DependentFieldComponent implements OnInit, ControlValueAccessor {
 
   displayValue: string;
 
-  private onTouchedCallback: () => void = noop;
+  onTouchedCallback: () => void = noop;
 
-  private onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (_: any) => void = noop;
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
-
-  ngOnInit() {}
 
   async openModal() {
     const selectionModal = await this.modalController.create({
