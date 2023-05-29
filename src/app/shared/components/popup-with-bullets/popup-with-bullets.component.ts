@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
@@ -16,7 +16,7 @@ interface ListItems {
   templateUrl: './popup-with-bullets.component.html',
   styleUrls: ['./popup-with-bullets.component.scss'],
 })
-export class PopupWithBulletsComponent implements OnInit {
+export class PopupWithBulletsComponent {
   @Input() title: string;
 
   @Input() listHeader: string;
@@ -32,9 +32,7 @@ export class PopupWithBulletsComponent implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ngOnInit() {}
-
-  dimissPopover() {
+  dismissPopover() {
     this.popoverController.dismiss();
   }
 

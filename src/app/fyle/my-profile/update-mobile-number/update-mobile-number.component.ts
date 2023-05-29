@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { finalize, switchMap } from 'rxjs/operators';
-import { eouFlattended } from 'src/app/core/mock-data/extended-org-user.data';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -49,7 +48,7 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   }
 
   validateInput() {
-    if (this.inputValue?.length === 0) {
+    if (!this.inputValue?.length) {
       this.error = 'Please enter a Mobile Number';
     } else if (!this.inputValue.match(/[+]\d{7,}$/)) {
       this.error = 'Please enter a valid mobile number with country code. e.g. +12025559975';
@@ -61,24 +60,29 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
   }
 
   saveValue() {
-    this.validateInput();
-    if (!this.error?.length) {
-      this.updatingMobileNumber = true;
+    //If user has not changed the verified mobile number, close the popover
+    if (this.inputValue === this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified) {
+      this.popoverController.dismiss();
+    } else {
+      this.validateInput();
+      if (!this.error?.length) {
+        this.updatingMobileNumber = true;
 
-      const updatedOrgUserDetails = {
-        ...this.extendedOrgUser.ou,
-        mobile: this.inputValue,
-      };
-      this.orgUserService
-        .postOrgUser(updatedOrgUserDetails)
-        .pipe(
-          switchMap(() => this.authService.refreshEou()),
-          finalize(() => (this.updatingMobileNumber = false))
-        )
-        .subscribe({
-          complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
-          error: () => this.popoverController.dismiss({ action: 'ERROR' }),
-        });
+        const updatedOrgUserDetails = {
+          ...this.extendedOrgUser.ou,
+          mobile: this.inputValue,
+        };
+        this.orgUserService
+          .postOrgUser(updatedOrgUserDetails)
+          .pipe(
+            switchMap(() => this.authService.refreshEou()),
+            finalize(() => (this.updatingMobileNumber = false))
+          )
+          .subscribe({
+            complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
+            error: () => this.popoverController.dismiss({ action: 'ERROR' }),
+          });
+      }
     }
   }
 }

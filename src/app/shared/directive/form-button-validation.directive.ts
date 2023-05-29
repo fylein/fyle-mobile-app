@@ -13,6 +13,8 @@ export class FormButtonValidationDirective implements OnInit, OnChanges {
 
   @Input() loaderPosition: LoaderPosition = LoaderPosition.postfix;
 
+  @Input() disabled: boolean;
+
   defaultText;
 
   loaderAdded = false;
@@ -42,7 +44,13 @@ export class FormButtonValidationDirective implements OnInit, OnChanges {
   constructor(private elementRef: ElementRef) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    this.onLoading(this.loading);
+    if (this.disabled) {
+      this.disableButton();
+      this.elementRef.nativeElement.classList.remove('disabled');
+      this.elementRef.nativeElement.innerHTML = this.defaultText;
+    } else {
+      this.onLoading(this.loading);
+    }
   }
 
   disableButton() {

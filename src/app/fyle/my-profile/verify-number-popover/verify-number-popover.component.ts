@@ -3,6 +3,7 @@ import { PopoverController } from '@ionic/angular';
 import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
+import { ErrorType } from './error-type.model';
 
 @Component({
   selector: 'app-verify-number-popover',
@@ -24,6 +25,12 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   error = '';
 
+  showOtpTimer = false;
+
+  otpTimer: number;
+
+  disableResendOtp = false;
+
   constructor(
     private popoverController: PopoverController,
     private mobileNumberVerificationService: MobileNumberVerificationService
@@ -31,16 +38,21 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.infoBoxText = `Please verify your mobile number using the 6-digit OTP sent to ${this.extendedOrgUser.ou.mobile}`;
+    this.value = '';
     this.resendOtp();
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.inputEl.nativeElement.focus(), 400);
+    setTimeout(() => {
+      if (!this.error) {
+        this.inputEl.nativeElement.focus();
+      }
+    }, 200);
   }
 
   validateInput() {
     if (!this.value || this.value.length < 6 || !this.value.match(/[0-9]{6}/)) {
-      this.error = 'Please enter 6 digit OTP';
+      this.setError('INVALID_INPUT');
     }
   }
 
@@ -53,14 +65,34 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   }
 
   resendOtp() {
-    //TODO: Restrict this to 5 times a day
     this.sendingOtp = true;
     this.mobileNumberVerificationService
       .sendOtp()
       .pipe(finalize(() => (this.sendingOtp = false)))
       .subscribe({
-        error: () => {
-          //TODO: Show error message
+        next: (otpDetails) => {
+          const attemptsLeft = otpDetails.attempts_left;
+
+          if (attemptsLeft > 0) {
+            this.setError('ATTEMPTS_LEFT', attemptsLeft);
+            this.startTimer();
+          } else {
+            this.setError('LIMIT_REACHED');
+            this.disableResendOtp = true;
+          }
+        },
+        error: (err) => {
+          if (err.status === 400) {
+            const errorMessage = err.error.message?.toLowerCase() || '';
+            if (errorMessage.includes('out of attempts') || errorMessage.includes('max send attempts reached')) {
+              this.setError('LIMIT_REACHED');
+              this.disableResendOtp = true;
+            } else if (errorMessage.includes('invalid parameter')) {
+              this.setError('INVALID_MOBILE_NUMBER');
+            } else {
+              this.setError('INVALID_OTP');
+            }
+          }
         },
       });
   }
@@ -76,7 +108,34 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
       .pipe(finalize(() => (this.verifyingOtp = false)))
       .subscribe({
         complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
-        error: () => (this.error = 'Incorrect mobile number or OTP. Please try again.'),
+        error: () => this.setError('INVALID_OTP'),
       });
+  }
+
+  setError(error: ErrorType, attemptsLeft = 5) {
+    const errorMapping = {
+      LIMIT_REACHED:
+        'You have exhausted the limit to request OTP for your mobile number. Please try again after 24 hours.',
+      INVALID_MOBILE_NUMBER: 'Invalid mobile number. Please try again',
+      INVALID_OTP: 'Incorrect mobile number or OTP. Please try again.',
+      INVALID_INPUT: 'Please enter 6 digit OTP',
+      ATTEMPTS_LEFT: `You have ${attemptsLeft} attempt${
+        attemptsLeft > 1 ? 's' : ''
+      } left to verify your mobile number.`,
+    };
+
+    this.error = errorMapping[error];
+  }
+
+  startTimer() {
+    this.otpTimer = 30;
+    this.showOtpTimer = true;
+    const interval = setInterval(() => {
+      this.otpTimer--;
+      if (this.otpTimer === 0) {
+        clearInterval(interval);
+        this.showOtpTimer = false;
+      }
+    }, 1000);
   }
 }
