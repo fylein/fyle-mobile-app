@@ -1,15 +1,10 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges, Inject } from '@angular/core';
-import { CameraPreview, CameraPreviewOptions } from '@capacitor-community/camera-preview';
-import { Camera } from '@capacitor/camera';
+import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { CameraPreviewOptions } from '@capacitor-community/camera-preview';
 import { from } from 'rxjs';
 import { DEVICE_PLATFORM } from 'src/app/constants';
-
-enum CameraState {
-  STARTING,
-  RUNNING,
-  STOPPING,
-  STOPPED,
-}
+import { CameraState } from 'src/app/core/enums/camera-state.enum';
+import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
+import { CameraService } from 'src/app/core/services/camera.service';
 
 @Component({
   selector: 'app-camera-preview',
@@ -53,7 +48,11 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   isIos = true;
 
-  constructor(@Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web') {}
+  constructor(
+    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
+    private cameraService: CameraService,
+    private cameraPreviewService: CameraPreviewService
+  ) {}
 
   get CameraState() {
     return CameraState;
@@ -64,7 +63,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     if (this.devicePlatform === 'web') {
       this.startCameraPreview();
     } else {
-      from(Camera.requestPermissions()).subscribe((permissions) => {
+      from(this.cameraService.requestCameraPermissions()).subscribe((permissions) => {
         if (permissions?.camera === 'denied') {
           this.permissionDenied.emit('CAMERA');
         } else if (permissions?.camera === 'prompt-with-rationale') {
@@ -92,7 +91,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         disableAudio: true,
       };
 
-      from(CameraPreview.start(cameraPreviewOptions)).subscribe((_) => {
+      from(this.cameraPreviewService.start(cameraPreviewOptions)).subscribe((_) => {
         this.cameraState = CameraState.RUNNING;
         this.getFlashModes();
       });
@@ -103,17 +102,17 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     //Stop camera only if it is in RUNNING state
     if (this.cameraState === CameraState.RUNNING) {
       this.cameraState = CameraState.STOPPING;
-      from(CameraPreview.stop()).subscribe((_) => (this.cameraState = CameraState.STOPPED));
+      from(this.cameraPreviewService.stop()).subscribe((_) => (this.cameraState = CameraState.STOPPED));
     }
   }
 
   getFlashModes() {
     if (this.devicePlatform !== 'web') {
-      from(CameraPreview.getSupportedFlashModes()).subscribe((flashModes) => {
+      from(this.cameraPreviewService.getSupportedFlashModes()).subscribe((flashModes) => {
         const requiredFlashModesPresent = flashModes.result?.includes('on') && flashModes.result?.includes('off');
         if (requiredFlashModesPresent) {
           this.flashMode = this.flashMode || 'off';
-          CameraPreview.setFlashMode({ flashMode: this.flashMode });
+          this.cameraPreviewService.setFlashMode({ flashMode: this.flashMode });
         }
       });
     }
@@ -126,7 +125,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         nextActiveFlashMode = 'off';
       }
 
-      CameraPreview.setFlashMode({ flashMode: nextActiveFlashMode });
+      this.cameraPreviewService.setFlashMode({ flashMode: nextActiveFlashMode });
       this.flashMode = nextActiveFlashMode;
       this.toggleFlashMode.emit(this.flashMode);
     }
