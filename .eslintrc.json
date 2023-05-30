@@ -69,6 +69,17 @@
       "rules": {
         "@angular-eslint/template/no-negated-async": "off"
       }
+    },
+    {
+      "files": ["./src/app/shared/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-unsafe-call": 1,
+        "@typescript-eslint/no-unsafe-member-access": 1,
+        "@typescript-eslint/no-unsafe-assignment": 1,
+        "@typescript-eslint/no-unsafe-return": 1,
+        "@typescript-eslint/no-unsafe-argument": 1,
+        "@typescript-eslint/no-explicit-any": 1
+      }
     }
   ]
 }
