@@ -1,49 +1,51 @@
+import { CurrencyPipe } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ReportService } from 'src/app/core/services/report.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { NetworkService } from '../../core/services/network.service';
-import { TrackingService } from '../../core/services/tracking.service';
+import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
-import { StatusService } from 'src/app/core/services/status.service';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ViewTeamReportPage } from './view-team-report.page';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { finalize, of } from 'rxjs';
+import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { approversData1, approversData4, approversData5, approversData6 } from 'src/app/core/mock-data/approver.data';
 import {
   etxncListData,
   expenseData1,
   expenseData2,
   perDiemExpenseSingleNumDays,
 } from 'src/app/core/mock-data/expense.data';
-import { approversData1 } from 'src/app/core/mock-data/approver.data';
-import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
-import { of } from 'rxjs';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { ShareReportComponent } from './share-report/share-report.component';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
 import { expectedAllReports, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { StatusService } from 'src/app/core/services/status.service';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  expectedNewStatusData,
+  newEstatusData1,
+  systemComments1,
+  systemCommentsWithSt,
+} from 'src/app/core/test-data/status.service.spec.data';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { CurrencyPipe } from '@angular/common';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { By } from '@angular/platform-browser';
-import {
-  getEstatusApiResponse,
-  updateReponseWithFlattenedEStatus,
-} from 'src/app/core/test-data/status.service.spec.data';
-import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
-import { FormsModule } from '@angular/forms';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { NetworkService } from '../../core/services/network.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { ShareReportComponent } from './share-report/share-report.component';
+import { ViewTeamReportPage } from './view-team-report.page';
 
 describe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
@@ -218,6 +220,307 @@ describe('ViewTeamReportPage', () => {
     expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
   });
 
+  it('loadReports(): should load reports', (done) => {
+    loaderService.showLoader.and.returnValue(Promise.resolve());
+    reportService.getReport.and.returnValue(of(expectedAllReports[0]));
+    loaderService.hideLoader.and.returnValue(Promise.resolve());
+
+    component
+      .loadReports()
+      .pipe(
+        finalize(() => {
+          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        })
+      )
+      .subscribe((res) => {
+        expect(res).toEqual(expectedAllReports[0]);
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(reportService.getReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+        done();
+      });
+  });
+
+  describe('getApprovalSettings():', () => {
+    it('should return approval_settings', () => {
+      const result = component.getApprovalSettings(orgSettingsData);
+      expect(result).toBeFalse();
+    });
+
+    it('should return undefined if approval settings not present', () => {
+      const result = component.getApprovalSettings({ ...orgSettingsData, approval_settings: undefined });
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined if org settings are not present', () => {
+      const result = component.getApprovalSettings(undefined);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('getReportClosureSettings():', () => {
+    it('should return closure settings', () => {
+      const result = component.getReportClosureSettings({
+        ...orgSettingsData,
+        simplified_report_closure_settings: {
+          enabled: true,
+        },
+      });
+      expect(result).toBeTrue();
+    });
+
+    it('should return undefined if approval settings not present', () => {
+      const result = component.getReportClosureSettings({ ...orgSettingsData, getReportClosureSettings: undefined });
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined if org settings are not present', () => {
+      const result = component.getReportClosureSettings(undefined);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('ionViewWillEnter():', () => {
+    it('should initialize the variables and load reports and statuses', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'getApprovalSettings').and.returnValue(true);
+      spyOn(component, 'getReportClosureSettings').and.returnValue(true);
+      spyOn(component, 'getVendorName');
+      spyOn(component, 'getShowViolation');
+      spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      statusService.find.and.returnValue(of(newEstatusData1));
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
+      reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
+      reportService.getExports.and.returnValue(
+        of({
+          results: [
+            { created_at: '2023-01-17T06:35:06.814556', update_at: '2023-02-23T11:46:17.569Z' },
+            { created_at: '2023-02-24T12:03:57.680Z', update_at: '2023-02-23T11:46:17.569Z' },
+          ],
+        })
+      );
+      reportService.getApproversByReportId.and.returnValue(of(approversData1));
+      reportService.getReportETxnc.and.returnValue(of(etxncListData.data));
+      reportService.actions.and.returnValue(of(apiReportActions));
+
+      component.ionViewWillEnter();
+      tick(2000);
+
+      component.eou$.subscribe((res) => {
+        expect(res).toEqual(apiEouRes);
+      });
+
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(component.loadReports).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+
+      component.estatuses$.subscribe((res) => {
+        expect(res).toEqual(expectedNewStatusData);
+      });
+
+      component.simplifyReportsSettings$.subscribe((res) => {
+        expect(res).toEqual({
+          enabled: true,
+        });
+      });
+
+      expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
+
+      component.totalCommentsCount$.subscribe((res) => {
+        expect(res).toEqual(3);
+      });
+
+      component.erpt$.subscribe((res) => {
+        expect(res).toEqual(expectedAllReports[0]);
+      });
+
+      expect(component.systemComments).toEqual(systemComments1);
+
+      expect(component.objectType).toEqual('reports');
+
+      expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
+
+      expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
+
+      expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+
+      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
+      expect(component.getVendorName).toHaveBeenCalledTimes(2);
+      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[0]);
+      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[1]);
+      expect(component.getShowViolation).toHaveBeenCalledTimes(2);
+      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[0]);
+      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[1]);
+
+      component.etxnAmountSum$.subscribe((res) => {
+        expect(res).toEqual(310.65);
+      });
+
+      component.sharedWith$.subscribe((res) => {
+        expect(res).toEqual([undefined]);
+      });
+
+      component.reportApprovals$.subscribe((res) => {
+        expect(res).toEqual([approversData1[0]]);
+      });
+
+      component.actions$.subscribe((res) => {
+        expect(res).toEqual(apiReportActions);
+      });
+
+      component.canEdit$.subscribe((res) => {
+        expect(res).toBeTrue();
+      });
+
+      component.canDelete$.subscribe((res) => {
+        expect(res).toBeTrue();
+      });
+
+      component.canResubmitReport$.subscribe((res) => {
+        expect(res).toBeFalse();
+      });
+
+      expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
+      expect(component.isUserActiveInCurrentSeqApprovalQueue).toHaveBeenCalledOnceWith(apiEouRes, [approversData1[0]]);
+
+      expect(component.reportEtxnIds).toEqual(['txZ1nfsXb5Xs', 'txnYF8lUl3Sr']);
+      expect(component.isSequentialApprovalEnabled).toBeTrue();
+      expect(component.canApprove).toBeNull();
+      expect(component.canShowTooltip).toBeTrue();
+    }));
+
+    it('should load reports when object type is expenses', fakeAsync(() => {
+      component.objectType = 'Transactions';
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'getVendorName');
+      spyOn(component, 'getShowViolation');
+      spyOn(component, 'getApprovalSettings').and.returnValue(false);
+      spyOn(component, 'getReportClosureSettings').and.returnValue(true);
+      spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
+      loaderService.showLoader.and.returnValue(Promise.resolve());
+      spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
+      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      statusService.find.and.returnValue(of(newEstatusData1));
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
+      reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
+      reportService.getExports.and.returnValue(
+        of({
+          results: [
+            { created_at: '2023-02-24T12:28:18.700Z', update_at: '2023-01-19T07:27:33.235573Z' },
+            { created_at: '2023-01-17T06:35:06.814556', update_at: '2023-02-23T11:46:17.569Z' },
+            { created_at: '2023-02-24T12:03:57.680Z', update_at: '2023-02-23T11:46:17.569Z' },
+          ],
+        })
+      );
+      reportService.getApproversByReportId.and.returnValue(of(approversData1));
+      reportService.getReportETxnc.and.returnValue(of(etxncListData.data));
+      reportService.actions.and.returnValue(of(apiReportActions));
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(2000);
+
+      component.eou$.subscribe((res) => {
+        expect(res).toEqual(apiEouRes);
+      });
+
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(component.loadReports).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+
+      component.estatuses$.subscribe((res) => {
+        expect(res).toEqual(expectedNewStatusData);
+      });
+
+      component.simplifyReportsSettings$.subscribe((res) => {
+        expect(res).toEqual({
+          enabled: true,
+        });
+      });
+
+      expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
+
+      component.totalCommentsCount$.subscribe((res) => {
+        expect(res).toEqual(3);
+      });
+
+      component.erpt$.subscribe((res) => {
+        expect(res).toEqual(expectedAllReports[0]);
+      });
+
+      expect(component.systemComments).toEqual(systemComments1);
+
+      expect(component.objectType).toEqual('Transactions');
+
+      expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
+
+      expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
+
+      expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+
+      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
+      expect(component.getVendorName).toHaveBeenCalledTimes(2);
+      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[0]);
+      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[1]);
+      expect(component.getShowViolation).toHaveBeenCalledTimes(2);
+      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[0]);
+      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[1]);
+
+      component.etxnAmountSum$.subscribe((res) => {
+        expect(res).toEqual(310.65);
+      });
+
+      component.sharedWith$.subscribe((res) => {
+        expect(res).toEqual([undefined]);
+      });
+
+      component.reportApprovals$.subscribe((res) => {
+        expect(approversData1[0]);
+      });
+
+      component.actions$.subscribe((res) => {
+        expect(res).toEqual(apiReportActions);
+      });
+
+      component.canEdit$.subscribe((res) => {
+        expect(res).toBeTrue();
+      });
+
+      component.canDelete$.subscribe((res) => {
+        expect(res).toBeTrue();
+      });
+
+      component.canResubmitReport$.subscribe((res) => {
+        expect(res).toBeFalse();
+      });
+
+      expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
+
+      expect(component.reportEtxnIds).toEqual(['txZ1nfsXb5Xs', 'txnYF8lUl3Sr']);
+      expect(component.isSequentialApprovalEnabled).toBeFalse();
+      expect(component.canApprove).toBeTrue();
+      expect(component.canShowTooltip).toBeTrue();
+    }));
+  });
+
   it('setupNetworkWatcher(): should setup network watcher', () => {
     networkService.connectivityWatcher.and.returnValue(new EventEmitter(true));
     networkService.isOnline.and.returnValue(of(false));
@@ -279,6 +582,32 @@ describe('ViewTeamReportPage', () => {
 
     component.toggleTooltip();
     expect(component.canShowTooltip).toBeTrue();
+  });
+
+  describe('isUserActiveInCurrentSeqApprovalQueue(): ', () => {
+    it('should check whether the user is active', () => {
+      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData4);
+
+      expect(result).toBeFalse();
+    });
+
+    it('should return false if no approvers match', () => {
+      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, []);
+
+      expect(result).toBeFalse();
+    });
+
+    it('should return whethere the user is active after comparing ranks', () => {
+      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData5);
+
+      expect(result).toBeTrue();
+    });
+
+    it("should return false when approver's rank less than minimum rank", () => {
+      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData6);
+
+      expect(result).toBeFalse();
+    });
   });
 
   it('deleteReport(): should delete report', async () => {
@@ -633,5 +962,62 @@ describe('ViewTeamReportPage', () => {
     expect(component.newComment).toBeNull();
     expect(component.commentInput.nativeElement.focus).toHaveBeenCalledTimes(1);
     expect(component.refreshEstatuses$.next).toHaveBeenCalledTimes(1);
+  });
+
+  it('should send back the report on clicking the SEND BACK button', () => {
+    spyOn(component, 'sendBack');
+    component.isReportReported = true;
+    fixture.detectChanges();
+
+    const sendBackButton = getElementBySelector(fixture, '.view-reports--send-back') as HTMLElement;
+    click(sendBackButton);
+
+    expect(component.sendBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('should add new comment on clicking the Add Comment button', () => {
+    spyOn(component, 'addComment');
+    component.isCommentsView = true;
+    fixture.detectChanges();
+
+    const addCommentButton = getElementBySelector(fixture, '.view-comment--send-icon') as HTMLElement;
+    click(addCommentButton);
+
+    expect(component.addComment).toHaveBeenCalledTimes(1);
+  });
+
+  it('should approve the report  on clicking the Approve Report Button', () => {
+    spyOn(component, 'approveReport');
+
+    component.actions$ = of({ ...apiReportActions, can_approve: true });
+    component.isCommentsView = false;
+    component.isReportReported = true;
+    fixture.detectChanges();
+
+    const approveReportButton = getElementBySelector(fixture, '.view-reports--primary-cta') as HTMLElement;
+    click(approveReportButton);
+
+    expect(component.approveReport).toHaveBeenCalledTimes(1);
+  });
+
+  it('should show report information correctly', () => {
+    spyOn(component, 'openViewReportInfoModal');
+    component.erpt$ = of(expectedAllReports[0]);
+    fixture.detectChanges();
+
+    expect(getTextContent(getElementBySelector(fixture, '.view-reports--employee-name__name'))).toEqual(
+      expectedAllReports[0].us_full_name
+    );
+    expect(getTextContent(getElementBySelector(fixture, '.view-reports--submitted-date__date'))).toEqual(
+      'Feb 01, 2023'
+    );
+    expect(getTextContent(getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount'))).toEqual(
+      '0.00'
+    );
+
+    const openButton = getElementBySelector(fixture, '.view-reports--view-info') as HTMLElement;
+    click(openButton);
+
+    expect(component.openViewReportInfoModal).toHaveBeenCalledTimes(1);
   });
 });
