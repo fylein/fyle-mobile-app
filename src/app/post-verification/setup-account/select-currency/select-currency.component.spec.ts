@@ -10,7 +10,7 @@ import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 import { selectedCurrencies } from 'src/app/core/mock-data/currency.data';
 
-fdescribe('SelectCurrencyComponent', () => {
+describe('SelectCurrencyComponent', () => {
   let component: SelectCurrencyComponent;
   let fixture: ComponentFixture<SelectCurrencyComponent>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
