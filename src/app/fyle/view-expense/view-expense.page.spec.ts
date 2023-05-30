@@ -809,6 +809,9 @@ describe('ViewExpensePage', () => {
         type: 'image',
         thumbnail: 'mock-thumbnail',
       });
+
+      spyOn(component.updateFlag$, 'next');
+
       const mockDownloadUrl = {
         url: 'mock-url',
       };
@@ -822,6 +825,7 @@ describe('ViewExpensePage', () => {
         expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObjectData);
       });
       tick(500);
+      expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
       component.attachments$.subscribe((res) => {
         expect(res).toEqual([fileObjectData]);
         expect(component.isLoading).toBeFalse();
