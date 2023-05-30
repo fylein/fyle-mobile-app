@@ -53,6 +53,7 @@ import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { cloneDeep } from 'lodash';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
+import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -545,7 +546,7 @@ describe('MyViewReportPage', () => {
   });
 
   describe('editReportName(): ', () => {
-    it('shoudl edit report name', fakeAsync(() => {
+    it('should edit report name', fakeAsync(() => {
       component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT' }));
       component.canEdit$ = of(true);
       fixture.detectChanges();
@@ -559,7 +560,7 @@ describe('MyViewReportPage', () => {
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
-      tick(5000);
+      tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: EditReportNamePopoverComponent,
@@ -585,7 +586,7 @@ describe('MyViewReportPage', () => {
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
-      tick(5000);
+      tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: EditReportNamePopoverComponent,
@@ -860,16 +861,6 @@ describe('MyViewReportPage', () => {
   });
 
   it('shareReport(): should share report', async () => {
-    const properties = {
-      cssClass: 'share-report-modal',
-      showBackdrop: true,
-      canDismiss: true,
-      backdropDismiss: true,
-      animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
-    };
     const snackbarPropertiesData = {
       data: {
         icon: 'tick-square-filled',
@@ -887,7 +878,7 @@ describe('MyViewReportPage', () => {
     modalController.create.and.returnValue(Promise.resolve(shareReportModalSpy));
     reportService.downloadSummaryPdfUrl.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
-    modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    modalProperties.getModalDefaultProperties.and.returnValue(shareReportModalProperties);
     snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesData);
 
     await component.shareReport();
@@ -896,7 +887,7 @@ describe('MyViewReportPage', () => {
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: ShareReportComponent,
       mode: 'ios',
-      ...properties,
+      ...shareReportModalProperties,
       cssClass: 'share-report-modal',
     });
     expect(reportService.downloadSummaryPdfUrl).toHaveBeenCalledOnceWith({
@@ -919,19 +910,8 @@ describe('MyViewReportPage', () => {
     const viewInfoModalSpy = jasmine.createSpyObj('viewInfoModal', ['onWillDismiss', 'present']);
     viewInfoModalSpy.onWillDismiss.and.resolveTo();
 
-    const properties = {
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      canDismiss: true,
-      backdropDismiss: true,
-      animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
-    };
-
     modalController.create.and.returnValue(Promise.resolve(viewInfoModalSpy));
-    modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
 
     await component.openViewReportInfoModal();
     expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -941,7 +921,7 @@ describe('MyViewReportPage', () => {
         etxns$: component.etxns$,
         view: ExpenseView.individual,
       },
-      ...properties,
+      ...fyModalProperties,
     });
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     expect(trackingService.clickViewReportInfo).toHaveBeenCalledOnceWith({ view: ExpenseView.individual });
@@ -1055,19 +1035,8 @@ describe('MyViewReportPage', () => {
         },
       });
 
-      const properties = {
-        cssClass: 'fy-modal',
-        showBackdrop: true,
-        canDismiss: true,
-        backdropDismiss: true,
-        animated: true,
-        initialBreakpoint: 1,
-        breakpoints: [0, 1],
-        handle: false,
-      };
-
       modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
-      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addEtxnsToReport').and.returnValue(null);
 
       const openButton = getElementBySelector(fixture, '.view-reports--add-expenses-container__icon') as HTMLElement;
@@ -1081,7 +1050,7 @@ describe('MyViewReportPage', () => {
           reportId: component.reportId,
         },
         mode: 'ios',
-        ...properties,
+        ...fyModalProperties,
       });
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
       expect(component.addEtxnsToReport).toHaveBeenCalledOnceWith(['txfCdl3TEZ7K', 'txWphhAUZbq7']);
@@ -1099,19 +1068,8 @@ describe('MyViewReportPage', () => {
       ]);
       addExpensesToReportModalSpy.onWillDismiss.and.resolveTo(null);
 
-      const properties = {
-        cssClass: 'fy-modal',
-        showBackdrop: true,
-        canDismiss: true,
-        backdropDismiss: true,
-        animated: true,
-        initialBreakpoint: 1,
-        breakpoints: [0, 1],
-        handle: false,
-      };
-
       modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
-      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addEtxnsToReport').and.returnValue(null);
 
       const openButton = getElementBySelector(fixture, '.view-reports--add-expenses-container__icon') as HTMLElement;
@@ -1125,7 +1083,7 @@ describe('MyViewReportPage', () => {
           reportId: component.reportId,
         },
         mode: 'ios',
-        ...properties,
+        ...fyModalProperties,
       });
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
       expect(component.addEtxnsToReport).not.toHaveBeenCalled();
