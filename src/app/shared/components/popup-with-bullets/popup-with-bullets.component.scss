@@ -1,0 +1,65 @@
+@import '../../../../theme/colors';
+
+.popup-with-bullets {
+  padding: 24px;
+  text-align: center;
+
+  &__title {
+    color: $black;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 1.3;
+    padding-bottom: 16px;
+  }
+
+  &__list-header {
+    font-weight: 500;
+  }
+
+  &__list-item {
+    padding: 18px 0 12px;
+    border-bottom: 1px solid $grey;
+
+    &--last {
+      border-bottom: none;
+    }
+
+    &__icon {
+      height: 24px;
+      width: 24px;
+      color: $black-light;
+    }
+
+    &__text {
+      text-align: left;
+      margin-left: 18px;
+    }
+
+    &__copy-text {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: $alice-blue;
+      padding: 8px;
+      margin-top: 8px;
+      border-radius: 4px;
+      color: $black-light;
+    }
+  }
+
+  &__footer {
+    margin-top: 16px;
+  }
+
+  &__cta {
+    min-height: 40px;
+    min-width: 50%;
+    padding: 10px 12px;
+    background: $pink-gradient;
+    color: $pure-white;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    border-radius: 4px;
+  }
+}
