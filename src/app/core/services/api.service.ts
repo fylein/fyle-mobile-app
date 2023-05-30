@@ -16,8 +16,8 @@ export class ApiService {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
-  post(url: string, data = {}) {
-    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data);
+  post(url: string, data = {}, config = {}) {
+    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data, config);
   }
 
   delete(url: string, data = {}) {
