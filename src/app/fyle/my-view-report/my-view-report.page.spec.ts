@@ -29,7 +29,7 @@ import {
 } from 'src/app/core/mock-data/expense.data';
 import { expensesWithDependentFields } from 'src/app/core/mock-data/dependent-field-expenses.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { expectedAllReports, reportParam } from 'src/app/core/mock-data/report.data';
+import { expectedAllReports, newReportParam } from 'src/app/core/mock-data/report.data';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
@@ -271,13 +271,13 @@ describe('MyViewReportPage', () => {
   xit('ionViewWillEnter', () => {});
 
   it('updateReportName(): should update report name', () => {
-    component.erpt$ = of(reportParam);
+    component.erpt$ = of(newReportParam);
     fixture.detectChanges();
     reportService.updateReportDetails.and.returnValue(of(apiReportUpdatedDetails));
     spyOn(component.loadReportDetails$, 'next');
 
     component.updateReportName('new report');
-    expect(reportService.updateReportDetails).toHaveBeenCalledOnceWith(reportParam);
+    expect(reportService.updateReportDetails).toHaveBeenCalledOnceWith(newReportParam);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
