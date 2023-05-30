@@ -695,3 +695,32 @@ export const expenseFieldsMapResponse3 = {
     },
   ],
 };
+
+export const expenseFieldsMapResponse4 = {
+  ...expenseFieldsMapResponse,
+  ...expenseFieldsMapResponse2,
+  project_id: [
+    {
+      code: 'PID001',
+      column_name: 'project_id',
+      created_at: new Date('2018-01-31T23:50:27.221Z'),
+      default_value: 'Default Value',
+      field_name: 'Project ID',
+      id: 1,
+      is_custom: false,
+      is_enabled: true,
+      is_mandatory: true,
+      options: ['Option 1', 'Option 2', 'Option 3'],
+      org_category_ids: [1, 2, 3],
+      org_id: 'ORG001',
+      placeholder: 'Enter Project ID',
+      roles_editable: ['Role 1', 'Role 2'],
+      seq: 1,
+      type: 'text',
+      updated_at: new Date(),
+      parent_field_id: 123,
+      field: 'Project',
+      input_type: 'input',
+    },
+  ],
+};
