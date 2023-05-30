@@ -27,7 +27,7 @@ import {
 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
-fdescribe('ViewMileagePage', () => {
+describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
