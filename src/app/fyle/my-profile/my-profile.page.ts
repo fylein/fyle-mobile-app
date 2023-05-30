@@ -314,8 +314,13 @@ export class MyProfilePage {
       if (data.action === 'BACK') {
         this.updateMobileNumber(eou);
       } else if (data.action === 'SUCCESS') {
-        this.loadEou$.next(null);
-        this.showSuccessPopover();
+        this.authService.refreshEou().subscribe(() => this.loadEou$.next(null));
+
+        if (data.homeCurrency === 'USD') {
+          this.showSuccessPopover();
+        } else {
+          this.showToastMessage('Mobile Number Verified Successfully', 'success');
+        }
       }
     }
   }

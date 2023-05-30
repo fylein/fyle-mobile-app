@@ -39,7 +39,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.infoBoxText = `Please verify your mobile number using the 6-digit OTP sent to ${this.extendedOrgUser.ou.mobile}`;
     this.value = '';
-    this.resendOtp();
+    this.resendOtp('INITIAL');
   }
 
   ngAfterViewInit() {
@@ -64,7 +64,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
     this.error = null;
   }
 
-  resendOtp() {
+  resendOtp(action: 'CLICK' | 'INITIAL') {
     this.sendingOtp = true;
     this.mobileNumberVerificationService
       .sendOtp()
@@ -74,7 +74,9 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
           const attemptsLeft = otpDetails.attempts_left;
 
           if (attemptsLeft > 0) {
-            this.setError('ATTEMPTS_LEFT', attemptsLeft);
+            if (action === 'CLICK') {
+              this.setError('ATTEMPTS_LEFT', attemptsLeft);
+            }
             this.startTimer();
           } else {
             this.setError('LIMIT_REACHED');
@@ -107,7 +109,8 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
       .verifyOtp(this.value)
       .pipe(finalize(() => (this.verifyingOtp = false)))
       .subscribe({
-        complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),
+        complete: () =>
+          this.popoverController.dismiss({ action: 'SUCCESS', homeCurrency: this.extendedOrgUser.org.currency }),
         error: () => this.setError('INVALID_OTP'),
       });
   }

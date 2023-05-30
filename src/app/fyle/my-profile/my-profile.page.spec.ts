@@ -275,11 +275,13 @@ describe('MyProfilePage', () => {
       popoverController.create.and.resolveTo(popoverSpy);
       spyOn(component.loadEou$, 'next');
       spyOn(component, 'showSuccessPopover');
+      spyOn(component, 'showToastMessage');
       spyOn(component, 'updateMobileNumber');
+      authService.refreshEou.and.returnValue(of(apiEouRes));
     });
 
     it('should show success popover if mobile number is verified', fakeAsync(() => {
-      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS', homeCurrency: 'USD' } });
 
       component.verifyMobileNumber(apiEouRes);
       tick(200);
@@ -288,6 +290,18 @@ describe('MyProfilePage', () => {
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
       expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
       expect(component.showSuccessPopover).toHaveBeenCalledOnceWith();
+    }));
+
+    it('should show success toast message if mobile number is verified for non-USD org', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS', homeCurrency: 'INR' } });
+
+      component.verifyMobileNumber(apiEouRes);
+      tick(200);
+
+      expect(popoverSpy.present).toHaveBeenCalledOnceWith();
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
+      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
+      expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile Number Verified Successfully', 'success');
     }));
 
     it('should show mobile number popover if user clicks on back button', fakeAsync(() => {

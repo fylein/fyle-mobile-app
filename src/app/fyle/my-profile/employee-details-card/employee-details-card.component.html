@@ -37,18 +37,20 @@
             ></ion-icon>
           </div>
         </div>
-        <div class="employee-details-card__bottom-section__status">
-          <div
-            class="employee-details-card__bottom-section__status__icon"
-            [ngClass]="{ 'employee-details-card__bottom-section__status__icon--verified': eou.ou.mobile_verified }"
-          ></div>
-          {{ eou.ou.mobile_verified ? 'Verified' : 'Not Verified' }}
-          <div
-            class="employee-details-card__bottom-section__verify"
-            (click)="onVerifyMobileNumber(eou)"
-            *ngIf="!eou.ou.mobile_verified"
-          >
-            Verify
+        <div class="employee-details-card__bottom-section__status-container">
+          <div class="employee-details-card__bottom-section__status">
+            <div
+              class="employee-details-card__bottom-section__status__icon"
+              [ngClass]="{ 'employee-details-card__bottom-section__status__icon--verified': eou.ou.mobile_verified }"
+            ></div>
+            <div class="text-ellipsis">{{ eou.ou.mobile_verified ? 'Verified' : 'Not Verified' }}</div>
+            <div
+              class="employee-details-card__bottom-section__verify"
+              (click)="onVerifyMobileNumber(eou)"
+              *ngIf="!eou.ou.mobile_verified"
+            >
+              Verify
+            </div>
           </div>
         </div>
       </div>
