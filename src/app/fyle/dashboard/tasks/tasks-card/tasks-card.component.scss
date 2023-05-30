@@ -28,6 +28,15 @@
       height: 32px;
       width: 32px;
     }
+
+    &__mobile {
+      color: $grey-light;
+      position: relative;
+      bottom: 4px;
+      right: 6px;
+      height: 28px;
+      width: 28px;
+    }
   }
 
   &--row {

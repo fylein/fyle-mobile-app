@@ -20,10 +20,24 @@ import { AuthService } from './auth.service';
 import { CurrencyService } from './currency.service';
 import { HandleDuplicatesService } from './handle-duplicates.service';
 import { ReportService } from './report.service';
+import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 
 import { TasksService } from './tasks.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
+
+import {
+  draftExpenseTaskSample,
+  potentailDuplicateTaskSample,
+  teamReportTaskSample,
+  sentBackReportTaskSample,
+  unreportedExpenseTaskSample,
+  unsubmittedReportTaskSample,
+  sentBackAdvanceTaskSample,
+  addMobileNumberTask,
+  verifyMobileNumberTask,
+} from '../mock-data/task.data';
+import { platformCorporateCard } from '../mock-data/platform-corporate-card.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -33,109 +47,12 @@ describe('TasksService', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let handleDuplicatesService: jasmine.SpyObj<HandleDuplicatesService>;
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
+  let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let humanizeCurrencyPipe: jasmine.SpyObj<HumanizeCurrencyPipe>;
 
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
-
-  const draftExpenseTaskSample = {
-    amount: '132.57B',
-    count: 161,
-    header: 'Incomplete expenses',
-    subheader: '161 expenses worth ₹132.57B  require additional information',
-    icon: TaskIcon.WARNING,
-    ctas: [
-      {
-        content: 'Review Expenses',
-        event: TASKEVENT.reviewExpenses,
-      },
-    ],
-  };
-
-  const potentailDuplicateTaskSample = {
-    hideAmount: true,
-    count: 13,
-    header: '34 Potential Duplicates',
-    subheader: 'We detected 34 expenses which may be duplicates',
-    icon: TaskIcon.WARNING,
-    ctas: [
-      {
-        content: 'Review',
-        event: TASKEVENT.openPotentialDuplicates,
-      },
-    ],
-  };
-
-  const teamReportTaskSample = {
-    amount: '733.48K',
-    count: 2,
-    header: 'Reports to be approved',
-    subheader: '2 reports worth ₹733.48K  require your approval',
-    icon: TaskIcon.REPORT,
-    ctas: [
-      {
-        content: 'Show Reports',
-        event: TASKEVENT.openTeamReport,
-      },
-    ],
-  };
-
-  const sentBackReportTaskSample = {
-    amount: '44.53',
-    count: 1,
-    header: 'Report sent back!',
-    subheader: '1 report worth ₹44.53  was sent back by your approver',
-    icon: TaskIcon.REPORT,
-    ctas: [
-      {
-        content: 'View Report',
-        event: TASKEVENT.openSentBackReport,
-      },
-    ],
-  };
-
-  const unreportedExpenseTaskSample = {
-    amount: '142.26K',
-    count: 13,
-    header: 'Expenses are ready to report',
-    subheader: '13 expenses  worth ₹142.26K  can be added to a report',
-    icon: TaskIcon.REPORT,
-    ctas: [
-      {
-        content: 'Add to Report',
-        event: TASKEVENT.expensesAddToReport,
-      },
-    ],
-  };
-
-  const unsubmittedReportTaskSample = {
-    amount: '0.00',
-    count: 2,
-    header: 'Unsubmitted reports',
-    subheader: '2 reports remain in draft state',
-    icon: TaskIcon.REPORT,
-    ctas: [
-      {
-        content: 'Submit Reports',
-        event: TASKEVENT.openDraftReports,
-      },
-    ],
-  };
-
-  const sentBackAdvanceTaskSample = {
-    amount: '123.37M',
-    count: 5,
-    header: 'Advances sent back!',
-    subheader: '5 advances worth ₹123.37M  were sent back by your approver',
-    icon: TaskIcon.ADVANCE,
-    ctas: [
-      {
-        content: 'View Advances',
-        event: TASKEVENT.openSentBackAdvance,
-      },
-    ],
-  };
 
   beforeEach(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
@@ -148,6 +65,9 @@ describe('TasksService', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const handleDuplicatesServiceSpy = jasmine.createSpyObj('HandleDuplicatesService', ['getDuplicateSets']);
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getMyAdvanceRequestStats']);
+    const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
+      'getCorporateCards',
+    ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
 
@@ -179,6 +99,10 @@ describe('TasksService', () => {
           useValue: handleDuplicatesServiceSpy,
         },
         {
+          provide: CorporateCreditCardExpenseService,
+          useValue: corporateCreditCardExpenseServiceSpy,
+        },
+        {
           provide: AdvanceRequestService,
           useValue: advanceRequestServiceSpy,
         },
@@ -196,6 +120,9 @@ describe('TasksService', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     handleDuplicatesService = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
+    corporateCreditCardExpenseService = TestBed.inject(
+      CorporateCreditCardExpenseService
+    ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
   });
@@ -765,6 +692,8 @@ describe('TasksService', () => {
         tx_report_id: 'is.null',
       })
       .and.returnValue(of(incompleteExpensesResponse));
+
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([platformCorporateCard]));
   }
 
   it('should be able to fetch tasks with no filters', (done) => {
@@ -801,7 +730,7 @@ describe('TasksService', () => {
       });
   });
 
-  it('should skip  unreported expenses & unsubmitted reports when automate report submission is enabled', (done) => {
+  it('should skip unreported expenses & unsubmitted reports when automate report submission is enabled', (done) => {
     setupData();
     tasksService.getTasks(true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
@@ -1041,5 +970,78 @@ describe('TasksService', () => {
         expect(count).toEqual(7);
         done();
       });
+  });
+
+  describe('mapMobileNumberVerificationTask(): ', () => {
+    it('should return correct task object for add mobile number', () => {
+      expect(tasksService.mapMobileNumberVerificationTask('Add')).toEqual([addMobileNumberTask]);
+    });
+
+    it('should return correct task object for verify mobile number', () => {
+      expect(tasksService.mapMobileNumberVerificationTask('Verify')).toEqual([verifyMobileNumberTask]);
+    });
+  });
+
+  describe('getMobileNumberVerificationTasks(): ', () => {
+    it('should not return any task if user has verified mobile number', (done) => {
+      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([platformCorporateCard]));
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(res).toEqual([]);
+        expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should not return any task if user has not enrolled for RTF', (done) => {
+      const eou = cloneDeep(extendedOrgUserResponse);
+      eou.ou.mobile_verified = false;
+      authService.getEou.and.returnValue(Promise.resolve(eou));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(res).toEqual([]);
+        expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should return add number task if user has not added mobile number', (done) => {
+      const eou = cloneDeep(extendedOrgUserResponse);
+      eou.ou.mobile_verified = false;
+      eou.ou.mobile = null;
+      authService.getEou.and.returnValue(Promise.resolve(eou));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([platformCorporateCard]));
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
+        [addMobileNumberTask]
+      );
+      tasksService.getMobileNumberVerificationTasks().subscribe(() => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledOnceWith('Add');
+        done();
+      });
+    });
+
+    it('should return verify number task if user has verified mobile number', (done) => {
+      const eou = cloneDeep(extendedOrgUserResponse);
+      eou.ou.mobile_verified = false;
+      authService.getEou.and.returnValue(Promise.resolve(eou));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([platformCorporateCard]));
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
+        [addMobileNumberTask]
+      );
+      tasksService.getMobileNumberVerificationTasks().subscribe(() => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledOnceWith('Verify');
+        done();
+      });
+    });
   });
 });
