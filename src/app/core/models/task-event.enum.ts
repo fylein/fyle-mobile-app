@@ -7,5 +7,4 @@ export enum TASKEVENT {
   openTeamReport = 5,
   openPotentialDuplicates = 6,
   openSentBackAdvance = 7,
-  mobileNumberVerification = 8,
 }

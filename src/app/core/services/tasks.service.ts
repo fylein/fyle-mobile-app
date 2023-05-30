@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, noop, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -18,7 +18,6 @@ import { HandleDuplicatesService } from './handle-duplicates.service';
 import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
-import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 
 type StatsResponse = {
   aggregates: [
@@ -50,8 +49,7 @@ export class TasksService {
     private authService: AuthService,
     private handleDuplicatesService: HandleDuplicatesService,
     private advancesRequestService: AdvanceRequestService,
-    private currencyService: CurrencyService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private currencyService: CurrencyService
   ) {
     this.refreshOnTaskClear();
   }
@@ -297,7 +295,6 @@ export class TasksService {
 
   getTasks(isReportAutoSubmissionScheduled = false, filters?: TaskFilters): Observable<DashboardTask[]> {
     return forkJoin({
-      mobileNumberVerification: this.getMobileNumberVerificationTasks(),
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
       unreportedExpenses: this.getUnreportedExpensesTasks(isReportAutoSubmissionScheduled),
@@ -308,7 +305,6 @@ export class TasksService {
     }).pipe(
       map(
         ({
-          mobileNumberVerification,
           potentialDuplicates,
           sentBackReports,
           unreportedExpenses,
@@ -318,8 +314,7 @@ export class TasksService {
           sentBackAdvances,
         }) => {
           this.totalTaskCount$.next(
-            mobileNumberVerification.length +
-              sentBackReports.length +
+            sentBackReports.length +
               draftExpenses.length +
               unsubmittedReports.length +
               unreportedExpenses.length +
@@ -341,8 +336,7 @@ export class TasksService {
             !filters?.teamReports &&
             !filters?.sentBackAdvances
           ) {
-            return mobileNumberVerification
-              .concat(potentialDuplicates)
+            return potentialDuplicates
               .concat(sentBackReports)
               .concat(draftExpenses)
               .concat(unsubmittedReports)
@@ -406,25 +400,6 @@ export class TasksService {
     }
 
     return tasks;
-  }
-
-  getMobileNumberVerificationTasks(): Observable<DashboardTask[]> {
-    const rtfEnrolledCards$ = this.corporateCreditCardExpenseService
-      .getCorporateCards()
-      .pipe(map((cards) => cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled)));
-
-    return forkJoin({
-      rtfEnrolledCards: rtfEnrolledCards$,
-      eou: from(this.authService.getEou()),
-    }).pipe(
-      switchMap(({ rtfEnrolledCards, eou }) => {
-        //Show this task only if mobile number is not verified and user is enrolled for RTF
-        if (!eou.ou.mobile_verified && rtfEnrolledCards.length) {
-          return of(this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'));
-        }
-        return of([]);
-      })
-    );
   }
 
   getSentBackReports() {
@@ -511,25 +486,6 @@ export class TasksService {
           duplicateSets?.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : of([])
         )
       );
-  }
-
-  mapMobileNumberVerificationTask(type: 'Add' | 'Verify'): DashboardTask[] {
-    const subheaderPrefixString = type === 'Add' ? 'Add and verify' : 'Verify';
-    const task = [
-      {
-        hideAmount: true,
-        header: `${type} Mobile Number`,
-        subheader: `${subheaderPrefixString} your mobile number to text the receipts directly`,
-        icon: TaskIcon.MOBILE,
-        ctas: [
-          {
-            content: type,
-            event: TASKEVENT.mobileNumberVerification,
-          },
-        ],
-      },
-    ];
-    return task;
   }
 
   mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]) {

@@ -10,21 +10,20 @@ export class SnackbarPropertiesService {
    *
    * @param toastMessageType - Type of toast message: success or failure
    * @param toastMessageData - Object containing the toast message and redirectionText
-   * @param snackbarIcon - Optional param to pass the icon name
    * @returns Object to be used for displaying toast message component
    */
 
   setSnackbarProperties(
     toastMessageType: 'success' | 'failure' | 'information',
-    toastMessageData: { message: string; redirectiontext?: string },
-    snackbarIcon?: string
+    toastMessageData: { message: string; redirectiontext?: string }
   ) {
-    if (!snackbarIcon) {
-      if (toastMessageType === 'success') {
-        snackbarIcon = 'tick-square-filled';
-      } else if (toastMessageType === 'failure') {
-        snackbarIcon = 'danger';
-      }
+    let snackbarIcon;
+    if (toastMessageType === 'success') {
+      snackbarIcon = 'tick-square-filled';
+    } else if (toastMessageType === 'failure') {
+      snackbarIcon = 'danger';
+    } else {
+      snackbarIcon = '';
     }
     return {
       data: {
