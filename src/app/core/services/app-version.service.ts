@@ -8,9 +8,6 @@ import { environment } from 'src/environments/environment';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 import { LoginInfoService } from './login-info.service';
 import { AuthService } from './auth.service';
-import { Browser } from '@capacitor/browser';
-import { Platform } from '@ionic/angular';
-import { BackButtonActionPriority } from '../models/back-button-action-priority.enum';
 
 @Injectable({
   providedIn: 'root',
