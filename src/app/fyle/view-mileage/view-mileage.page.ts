@@ -186,10 +186,8 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-
-    const deletePopover = await this.popoverController.create({
+  getDeleteDialogProps(etxn: Expense) {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
@@ -201,7 +199,13 @@ export class ViewMileagePage implements OnInit {
         ctaLoadingText: 'Removing',
         deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
-    });
+    };
+  }
+
+  async removeExpenseFromReport() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
 
     await deletePopover.present();
     const { data } = await deletePopover.onDidDismiss();
@@ -212,11 +216,11 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  async flagUnflagExpense() {
+  async flagUnflagExpense(isExpenseFlagged: boolean) {
     const id = this.activatedRoute.snapshot.params.id;
     const etxn = await this.transactionService.getEtxn(id).toPromise();
 
-    const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
+    const title = isExpenseFlagged ? 'Unflag' : 'Flag';
     const flagUnflagModal = await this.popoverController.create({
       component: FyPopoverComponent,
       componentProps: {
@@ -250,7 +254,6 @@ export class ViewMileagePage implements OnInit {
         )
         .subscribe(noop);
     }
-    this.isExpenseFlagged = etxn.tx_manual_flag;
     this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
@@ -399,10 +402,6 @@ export class ViewMileagePage implements OnInit {
     this.isAmountCapped$ = this.extendedMileage$.pipe(
       map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
-
-    this.extendedMileage$.subscribe((etxn) => {
-      this.isExpenseFlagged = etxn.tx_manual_flag;
-    });
 
     this.updateFlag$.next(null);
 
