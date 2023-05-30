@@ -20,8 +20,7 @@ export class AppVersionService {
     private apiService: ApiService,
     private routerApiService: RouterApiService,
     private loginInfoService: LoginInfoService,
-    private authService: AuthService,
-    private platform: Platform
+    private authService: AuthService
   ) {}
 
   // not fixing since copied from somewhere
@@ -100,13 +99,5 @@ export class AppVersionService {
 
   post(data) {
     return this.apiService.post('/version/app', data);
-  }
-
-  async openBrowser(config) {
-    await Browser.open(config);
-  }
-
-  setBackButtonActionPriority() {
-    this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.ABSOLUTE, noop);
   }
 }
