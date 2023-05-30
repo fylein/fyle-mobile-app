@@ -135,7 +135,7 @@ export class ViewMileagePage implements OnInit {
     });
   }
 
-  isNumber(val) {
+  isNumber(val: string | number): boolean {
     return typeof val === 'number';
   }
 
@@ -412,7 +412,7 @@ export class ViewMileagePage implements OnInit {
     this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
   }
 
-  getDisplayValue(customProperties) {
+  getDisplayValue(customProperties): boolean | string {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
