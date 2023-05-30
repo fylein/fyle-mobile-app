@@ -58,13 +58,16 @@ describe('SupportDialogPage', () => {
   it('openHelpLink(): should open help link', () => {
     component.openHelpLink();
     expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
-    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledWith('#280a31', 'https://help.fylehq.com');
+    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
+      '#280a31',
+      'https://help.fylehq.com'
+    );
   });
 
   it('openChromeExtLink(): should open chrome extention link', () => {
     component.openChromeExtLink();
     expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
-    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledWith(
+    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
       '#280a31',
       'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk'
     );
@@ -73,7 +76,7 @@ describe('SupportDialogPage', () => {
   it('openOutlookExtLink(): should open outlook extention link', () => {
     component.openOutlookExtLink();
     expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
-    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledWith(
+    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
       '#280a31',
       'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview'
     );
