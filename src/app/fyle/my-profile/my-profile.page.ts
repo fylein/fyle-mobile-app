@@ -1,6 +1,7 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable } from 'rxjs';
-import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { Component, EventEmitter } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
+import { finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -19,6 +20,15 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OrgService } from 'src/app/core/services/org.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PopoverController } from '@ionic/angular';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
+import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
+import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -35,12 +45,20 @@ type PreferenceSetting = {
   isAllowed: boolean;
 };
 
+type CopyCardDetails = {
+  title: string;
+  content: string;
+  contentToCopy: string;
+  toastMessageContent: string;
+  isHidden?: boolean;
+};
+
 @Component({
   selector: 'app-my-profile',
   templateUrl: './my-profile.page.html',
   styleUrls: ['./my-profile.page.scss'],
 })
-export class MyProfilePage implements OnInit {
+export class MyProfilePage {
   orgUserSettings: OrgUserSettings;
 
   orgSettings: any;
@@ -55,6 +73,8 @@ export class MyProfilePage implements OnInit {
 
   isConnected$: Observable<boolean>;
 
+  loadEou$: BehaviorSubject<null>;
+
   settingsMap = {
     instaFyle: 'insta_fyle_settings',
     defaultCurrency: 'currency_settings',
@@ -62,6 +82,8 @@ export class MyProfilePage implements OnInit {
   };
 
   preferenceSettings: PreferenceSetting[];
+
+  infoCardsData: CopyCardDetails[];
 
   constructor(
     private authService: AuthService,
@@ -75,7 +97,12 @@ export class MyProfilePage implements OnInit {
     private trackingService: TrackingService,
     private orgService: OrgService,
     private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private popoverController: PopoverController,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private currencyService: CurrencyService,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   setupNetworkWatcher() {
@@ -132,25 +159,37 @@ export class MyProfilePage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.loadEou$ = new BehaviorSubject(null);
+    this.eou$ = this.loadEou$.pipe(switchMap(() => from(this.authService.getEou())));
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
     });
-
     this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
+
+    const popover = this.activatedRoute.snapshot.params.openPopover;
+    if (popover) {
+      this.eou$.pipe(take(1)).subscribe((eou) => {
+        if (popover === 'add_mobile_number') {
+          this.updateMobileNumber(eou);
+        } else if (popover === 'verify_mobile_number') {
+          this.verifyMobileNumber(eou);
+        }
+      });
+    }
   }
 
   reset() {
-    this.eou$ = from(this.authService.getEou());
     const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
+
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => this.setInfoCardsData(homeCurrency));
 
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
           forkJoin({
-            eou: this.eou$,
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
           })
@@ -195,5 +234,120 @@ export class MyProfilePage implements OnInit {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
-  ngOnInit() {}
+  setInfoCardsData(homeCurrency: string) {
+    const fyleMobileNumber = '(302) 440-2921';
+    const fyleEmail = 'receipts@fylehq.com';
+
+    const allInfoCardsData: InfoCardData[] = [
+      {
+        title: 'Message Receipts',
+        content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
+        contentToCopy: fyleMobileNumber,
+        toastMessageContent: 'Phone Number Copied Successfully',
+        isHidden: homeCurrency !== 'USD',
+      },
+      {
+        title: 'Email Receipts',
+        content: `Forward your receipts to Fyle at ${fyleEmail}.`,
+        contentToCopy: fyleEmail,
+        toastMessageContent: 'Email Copied Successfully',
+      },
+    ];
+
+    this.infoCardsData = allInfoCardsData.filter((infoCardData) => !infoCardData.isHidden);
+  }
+
+  showToastMessage(message: string, type: 'success' | 'failure') {
+    const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
+    let snackbarIcon: string;
+    if (message.toLowerCase().includes('copied')) {
+      snackbarIcon = 'tick-circle-outline';
+    }
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }, snackbarIcon),
+      panelClass,
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  async showSuccessPopover() {
+    const fyleMobileNumber = '(302) 440-2921';
+    const listItems = [
+      {
+        icon: 'message',
+        text: `Message your receipts to Fyle at ${fyleMobileNumber} and we will create an expense for you.`,
+        textToCopy: fyleMobileNumber,
+      },
+      {
+        icon: 'fy-reimbursable',
+        text: 'Standard messaging rates applicable',
+      },
+    ];
+    const verificationSuccessfulPopover = await this.popoverController.create({
+      component: PopupWithBulletsComponent,
+      componentProps: {
+        title: 'Verification Successful',
+        listHeader: 'Now you can:',
+        listItems,
+        ctaText: 'Got it',
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await verificationSuccessfulPopover.present();
+    await verificationSuccessfulPopover.onWillDismiss();
+  }
+
+  async verifyMobileNumber(eou: ExtendedOrgUser) {
+    const verifyNumberPopoverComponent = await this.popoverController.create({
+      component: VerifyNumberPopoverComponent,
+      componentProps: {
+        extendedOrgUser: eou,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await verifyNumberPopoverComponent.present();
+    const { data } = await verifyNumberPopoverComponent.onWillDismiss();
+
+    if (data) {
+      if (data.action === 'BACK') {
+        this.updateMobileNumber(eou);
+      } else if (data.action === 'SUCCESS') {
+        this.authService.refreshEou().subscribe(() => this.loadEou$.next(null));
+
+        if (data.homeCurrency === 'USD') {
+          this.showSuccessPopover();
+        } else {
+          this.showToastMessage('Mobile Number Verified Successfully', 'success');
+        }
+      }
+    }
+  }
+
+  async updateMobileNumber(eou: ExtendedOrgUser) {
+    const updateMobileNumberPopover = await this.popoverController.create({
+      component: UpdateMobileNumberComponent,
+      componentProps: {
+        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+        ctaText: 'Next',
+        inputLabel: 'Mobile Number',
+        extendedOrgUser: eou,
+        placeholder: 'Enter mobile number e.g. +129586736556',
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await updateMobileNumberPopover.present();
+    const { data } = await updateMobileNumberPopover.onWillDismiss();
+
+    if (data) {
+      if (data.action === 'SUCCESS') {
+        this.loadEou$.next(null);
+        this.eou$.pipe(take(1)).subscribe((eou) => from(this.verifyMobileNumber(eou)));
+      } else if (data.action === 'ERROR') {
+        this.showToastMessage('Something went wrong. Please try again later.', 'failure');
+      }
+    }
+  }
 }
