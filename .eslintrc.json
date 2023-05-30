@@ -59,8 +59,8 @@
         // "no-magic-numbers": "error",
         "max-params-no-constructor/max-params-no-constructor": ["error", 4],
         "max-len": "off",
-        "space-before-function-paren": "off",
-        "@typescript-eslint/quotes": "off"
+        "space-before-function-paren": "off"
+        // "@typescript-eslint/quotes": "off"
       }
     },
     {
