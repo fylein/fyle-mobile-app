@@ -28,13 +28,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-
-enum Segment {
-  EXPENSES,
-  COMMENTS,
-  HISTORY,
-}
-
+import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -97,7 +91,7 @@ export class MyViewReportPage {
 
   loadReportTxns$ = new BehaviorSubject<void>(null);
 
-  segmentValue = Segment.EXPENSES;
+  segmentValue = ReportPageSegment.EXPENSES;
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
@@ -121,7 +115,7 @@ export class MyViewReportPage {
   ) {}
 
   get Segment() {
-    return Segment;
+    return ReportPageSegment;
   }
 
   setupNetworkWatcher() {
@@ -143,7 +137,7 @@ export class MyViewReportPage {
     this.onPageExit.next(null);
   }
 
-  getVendorName(etxn) {
+  getVendorName(etxn: Expense) {
     const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
     let vendorName = etxn.tx_vendor || 'Expense';
 
@@ -158,7 +152,7 @@ export class MyViewReportPage {
     return vendorName;
   }
 
-  getShowViolation(etxn) {
+  getShowViolation(etxn: Expense): boolean {
     return (
       etxn.tx_id &&
       (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
@@ -171,7 +165,7 @@ export class MyViewReportPage {
     this.reportId = this.activatedRoute.snapshot.params.id;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.segmentValue = Segment.EXPENSES;
+    this.segmentValue = ReportPageSegment.EXPENSES;
 
     this.erpt$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
@@ -232,7 +226,7 @@ export class MyViewReportPage {
 
       //For sent back reports, show the comments section instead of expenses when opening the report
       if (erpt?.rp_state === 'APPROVER_INQUIRY') {
-        this.segmentValue = Segment.COMMENTS;
+        this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
 
@@ -342,7 +336,7 @@ export class MyViewReportPage {
     this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
-  async deleteReportPopup(erpt) {
+  async deleteReportPopup(erpt: ExtendedReport) {
     const deleteReportPopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'pop-up-in-center',
@@ -394,7 +388,7 @@ export class MyViewReportPage {
     });
   }
 
-  goToTransaction({ etxn, etxnIndex }) {
+  goToTransaction({ etxn, etxnIndex }: { etxn: Expense; etxnIndex: number }) {
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
 
@@ -492,7 +486,7 @@ export class MyViewReportPage {
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
 
-  canEditTxn(txState) {
+  canEditTxn(txState: string): boolean {
     return this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1;
   }
 
