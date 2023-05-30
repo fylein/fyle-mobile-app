@@ -8,8 +8,9 @@ import { of, take } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
+import { selectedCurrencies } from 'src/app/core/mock-data/currency.data';
 
-describe('SelectCurrencyComponent', () => {
+fdescribe('SelectCurrencyComponent', () => {
   let component: SelectCurrencyComponent;
   let fixture: ComponentFixture<SelectCurrencyComponent>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
@@ -55,20 +56,7 @@ describe('SelectCurrencyComponent', () => {
     expect(currencyService.getAll).toHaveBeenCalledTimes(1);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     component.currencies$.subscribe((currencies) => {
-      expect(currencies).toEqual([
-        {
-          shortCode: 'USD',
-          longName: 'US Dollar',
-        },
-        {
-          shortCode: 'EUR',
-          longName: 'Euro',
-        },
-        {
-          shortCode: 'JPY',
-          longName: 'JPY',
-        },
-      ]);
+      expect(currencies).toEqual(selectedCurrencies);
     });
   }));
 
