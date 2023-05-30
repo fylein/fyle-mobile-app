@@ -2,11 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { Browser } from '@capacitor/browser';
-import { Platform } from '@ionic/angular';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { noop } from 'rxjs';
-import { AppVersionService } from 'src/app/core/services/app-version.service';
+import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 
 @Component({
   selector: 'app-app-version',
@@ -19,15 +18,15 @@ export class AppVersionPage implements OnInit {
   constructor(
     private deviceService: DeviceService,
     private activatedRoute: ActivatedRoute,
-    private platform: Platform,
-    private appVersionService: AppVersionService
+    private browserHandlerService: BrowserHandlerService,
+    private platformHandlerService: PlatformHandlerService
   ) {}
 
   ngOnInit() {
     this.message = this.activatedRoute.snapshot.params.message;
 
     //User should not be able to navigate from this page using the hardware back button.
-    this.appVersionService.setBackButtonActionPriority();
+    this.platformHandlerService.registerBackButtonAction(BackButtonActionPriority.ABSOLUTE, noop);
   }
 
   updateApp() {
@@ -38,17 +37,17 @@ export class AppVersionPage implements OnInit {
       .pipe(filter((deviceInfo) => deviceInfo.platform === 'android'));
 
     deviceAndroid$.subscribe(async () => {
-      await this.appVersionService.openBrowser({
-        url: 'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781',
-        windowName: '_system',
-      });
+      await this.browserHandlerService.openLinkWithWindowName(
+        '_system',
+        'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781'
+      );
     });
 
     deviceIos$.subscribe(async () => {
-      await this.appVersionService.openBrowser({
-        url: 'https://itunes.apple.com/in/app/fyle/id1137906166',
-        windowName: '_system',
-      });
+      await this.browserHandlerService.openLinkWithWindowName(
+        '_system',
+        'https://itunes.apple.com/in/app/fyle/id1137906166'
+      );
     });
   }
 }

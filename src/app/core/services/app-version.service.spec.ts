@@ -5,20 +5,17 @@ import { RouterApiService } from './router-api.service';
 import { LoginInfoService } from './login-info.service';
 import { AuthService } from './auth.service';
 import { appVersionData1 } from '../mock-data/app-version.data';
-import { noop, of } from 'rxjs';
+import { of } from 'rxjs';
 import { extendedDeviceInfoMockData } from '../mock-data/extended-device-info.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { environment } from 'src/environments/environment';
-import { Platform } from '@ionic/angular';
-import { BackButtonActionPriority } from '../models/back-button-action-priority.enum';
 
-fdescribe('AppVersionService', () => {
+describe('AppVersionService', () => {
   let appVersionService: AppVersionService;
   let apiService: jasmine.SpyObj<ApiService>;
   let routerApiService: jasmine.SpyObj<RouterApiService>;
   let loginInfoService: jasmine.SpyObj<LoginInfoService>;
   let authService: jasmine.SpyObj<AuthService>;
-  let platform: Platform;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
@@ -44,16 +41,13 @@ fdescribe('AppVersionService', () => {
           provide: LoginInfoService,
           useValue: loginInfoServiceSpy,
         },
-        Platform,
       ],
     });
     appVersionService = TestBed.inject(AppVersionService);
-    platform = TestBed.inject(Platform);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     loginInfoService = TestBed.inject(LoginInfoService) as jasmine.SpyObj<LoginInfoService>;
     routerApiService = TestBed.inject(RouterApiService) as jasmine.SpyObj<RouterApiService>;
-    spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
   });
 
   it('should be created', () => {
@@ -158,18 +152,5 @@ fdescribe('AppVersionService', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
     });
     done();
-  });
-
-  // it('openBrowser(): should open the browser with the given link', (done) => {
-  //   const mockBrowser = jasmine.createSpyObj('Browser', ['open']);
-  //   appVersionService.openBrowser('https://example.com').then(() => {
-  //     expect(mockBrowser.open).toHaveBeenCalledOnceWith('https://example.com');
-  //     done();
-  //   });
-  // });
-
-  it('setBackButtonActionPriority(): should subscribe to back button with priority', () => {
-    appVersionService.setBackButtonActionPriority();
-    expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(BackButtonActionPriority.ABSOLUTE, noop);
   });
 });

@@ -1,22 +1,25 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { IonicModule, Platform } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { DeviceService } from 'src/app/core/services/device.service';
 
 import { AppVersionPage } from './app-version.page';
-import { of } from 'rxjs';
+import { noop, of } from 'rxjs';
 import {
   extendedDeviceInfoMockData,
   extendedDeviceInfoMockData2,
 } from 'src/app/core/mock-data/extended-device-info.data';
-import { AppVersionService } from 'src/app/core/services/app-version.service';
+import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 describe('AppVersionPage', () => {
   let component: AppVersionPage;
   let fixture: ComponentFixture<AppVersionPage>;
   let deviceService: jasmine.SpyObj<DeviceService>;
   let activatedRouteStub: Partial<ActivatedRoute>;
-  let appVersionService: jasmine.SpyObj<AppVersionService>;
+  let browserHandlerService: jasmine.SpyObj<BrowserHandlerService>;
+  let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
   const headerMsg = 'Your app version is outdated. Please update to the latest version to continue using Fyle.';
 
   beforeEach(waitForAsync(() => {
@@ -28,24 +31,25 @@ describe('AppVersionPage', () => {
         },
       },
     };
-    const appVersionServiceSpy = jasmine.createSpyObj('AppVersionService', [
-      'setBackButtonActionPriority',
-      'openBrowser',
-    ]);
+    const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithWindowName']);
+    const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
+
     TestBed.configureTestingModule({
       declarations: [AppVersionPage],
       imports: [IonicModule.forRoot()],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStubSpy },
-        { provide: AppVersionService, useValue: appVersionServiceSpy },
+        { provide: BrowserHandlerService, useValue: browserHandlerServiceSpy },
+        { provide: PlatformHandlerService, useValue: platformHandlerServiceSpy },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppVersionPage);
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     activatedRouteStub = TestBed.inject(ActivatedRoute);
-    appVersionService = TestBed.inject(AppVersionService) as jasmine.SpyObj<AppVersionService>;
+    browserHandlerService = TestBed.inject(BrowserHandlerService) as jasmine.SpyObj<BrowserHandlerService>;
+    platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
@@ -54,9 +58,12 @@ describe('AppVersionPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set header message from activated route snapshot', () => {
+  it('ngOnInit(): should set header message from activated route snapshot and call registerBackButtonAction', () => {
     expect(component.message).toBe(headerMsg);
-    expect(appVersionService.setBackButtonActionPriority).toHaveBeenCalledTimes(1);
+    expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
+      BackButtonActionPriority.ABSOLUTE,
+      noop
+    );
   });
 
   it('should open Android app URL when updateApp is called for Android platform', fakeAsync(() => {
@@ -65,10 +72,10 @@ describe('AppVersionPage', () => {
 
     expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(2);
     tick(1000);
-    expect(appVersionService.openBrowser).toHaveBeenCalledWith({
-      url: 'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781',
-      windowName: '_system',
-    });
+    expect(browserHandlerService.openLinkWithWindowName).toHaveBeenCalledWith(
+      '_system',
+      'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781'
+    );
   }));
 
   it('should open iOS app URL when updateApp is called for iOS platform', fakeAsync(() => {
@@ -77,9 +84,9 @@ describe('AppVersionPage', () => {
 
     expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(2);
     tick(1000);
-    expect(appVersionService.openBrowser).toHaveBeenCalledWith({
-      url: 'https://itunes.apple.com/in/app/fyle/id1137906166',
-      windowName: '_system',
-    });
+    expect(browserHandlerService.openLinkWithWindowName).toHaveBeenCalledWith(
+      '_system',
+      'https://itunes.apple.com/in/app/fyle/id1137906166'
+    );
   }));
 });
