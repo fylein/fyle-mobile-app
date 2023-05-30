@@ -9,7 +9,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 
-fdescribe('SelectCurrencyComponent', () => {
+describe('SelectCurrencyComponent', () => {
   let component: SelectCurrencyComponent;
   let fixture: ComponentFixture<SelectCurrencyComponent>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
