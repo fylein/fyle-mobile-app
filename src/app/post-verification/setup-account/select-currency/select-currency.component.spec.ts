@@ -43,34 +43,33 @@ describe('SelectCurrencyComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load currencies on initialization', fakeAsync(() => {
-    const mockCurrencies = { USD: 'US Dollar', EUR: 'Euro', JPY: 'Japanese Yen' };
-    currencyService.getAll.and.returnValue(of(mockCurrencies));
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo();
-
-    fixture.detectChanges();
-    component.ngOnInit();
-    tick(1000);
-    expect(loaderService.showLoader).toHaveBeenCalled();
-    expect(currencyService.getAll).toHaveBeenCalled();
-    expect(loaderService.hideLoader).toHaveBeenCalled();
-    expect(component.currencies$).toBeDefined();
-  }));
-
-  it('should load currencies on initialization even if value is empty', fakeAsync(() => {
+  it('ngOnInit(): should load currencies on initialization', fakeAsync(() => {
     const mockCurrencies = { USD: 'US Dollar', EUR: 'Euro', JPY: '' };
     currencyService.getAll.and.returnValue(of(mockCurrencies));
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
 
     fixture.detectChanges();
-    component.ngOnInit();
-    tick(1000);
-    expect(loaderService.showLoader).toHaveBeenCalled();
-    expect(currencyService.getAll).toHaveBeenCalled();
-    expect(loaderService.hideLoader).toHaveBeenCalled();
-    expect(component.currencies$).toBeDefined();
+    tick(500);
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    expect(currencyService.getAll).toHaveBeenCalledTimes(1);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    component.currencies$.subscribe((currencies) => {
+      expect(currencies).toEqual([
+        {
+          shortCode: 'USD',
+          longName: 'US Dollar',
+        },
+        {
+          shortCode: 'EUR',
+          longName: 'Euro',
+        },
+        {
+          shortCode: 'JPY',
+          longName: 'JPY',
+        },
+      ]);
+    });
   }));
 
   it('ngAfterViewInit(): should update the filteredCurrencies$', fakeAsync(() => {
@@ -99,7 +98,7 @@ describe('SelectCurrencyComponent', () => {
   }));
 
   it('onDoneClick(): should dismiss the modal', () => {
-    const doneBtn = getElementBySelector(fixture, '[data-testid="doneBtn"]') as HTMLButtonElement;
+    const doneBtn = getElementBySelector(fixture, 'ion-button') as HTMLButtonElement;
     doneBtn.click();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
