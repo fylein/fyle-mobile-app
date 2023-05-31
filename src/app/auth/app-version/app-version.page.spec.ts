@@ -70,7 +70,7 @@ describe('AppVersionPage', () => {
     deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData2));
     component.updateApp();
 
-    expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(2);
+    expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
     tick(1000);
     expect(browserHandlerService.openLinkWithWindowName).toHaveBeenCalledWith(
       '_system',
@@ -82,7 +82,7 @@ describe('AppVersionPage', () => {
     deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
     component.updateApp();
 
-    expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(2);
+    expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
     tick(1000);
     expect(browserHandlerService.openLinkWithWindowName).toHaveBeenCalledWith(
       '_system',
