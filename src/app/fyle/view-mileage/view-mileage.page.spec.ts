@@ -39,7 +39,7 @@ import { expenseV2Data } from 'src/app/core/mock-data/expense-v2.data';
 import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
 import { E } from '@angular/cdk/keycodes';
 
-fdescribe('ViewMileagePage', () => {
+describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -517,7 +517,7 @@ fdescribe('ViewMileagePage', () => {
       };
 
       component.extendedMileage$ = of(etxncData.data[0]);
-      // component.view =  activateRouteMock.snapshot.params.view;
+      component.view = activateRouteMock.snapshot.params.view;
       loaderService.showLoader.and.resolveTo();
       transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
       loaderService.hideLoader.and.resolveTo();
@@ -683,23 +683,53 @@ fdescribe('ViewMileagePage', () => {
       });
     });
 
-    // it('should get the project details', () => {
-    //   const mockExpFieldData = {
-    //     ...expenseFieldsMapResponse,
-    //     project_id: [],
-    //   };
+    it('should get the project details', fakeAsync(() => {
+      const mockExpFieldData = {
+        ...expenseFieldsMapResponse,
+        project_id: [],
+      };
 
-    //   transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
-    //   component.extendedMileage$= of(etxncData.data[0]);
-    //   expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
-    //   component.txnFields$ = of(mockExpFieldData);
-    //   orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
+      component.extendedMileage$ = of(etxncData.data[0]);
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
+      component.txnFields$ = of(mockExpFieldData);
+      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
 
-    //   component.ionViewWillEnter();
-    //   expect(component.projectFieldName).toBeUndefined();
-    //   expect(component.isProjectShown).toBeTruthy();
-    //   expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    // });
+      component.ionViewWillEnter();
+      tick(500);
+      expect(component.projectFieldName).toBeUndefined();
+      expect(component.isProjectShown).toBeTruthy();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should get the project details when project name is not present', fakeAsync(() => {
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_project_name: null,
+      };
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      component.extendedMileage$ = of(mockExtMileageData);
+
+      component.ionViewWillEnter();
+      tick(500);
+      expect(component.projectFieldName).toEqual('Project ID');
+      expect(component.isProjectShown).toBeTrue();
+    }));
+
+    it('should set projecct shown to false when org setting do not have the projects property', fakeAsync(() => {
+      const mockOrgSettData = {
+        ...orgSettingsGetData,
+        projects: null,
+      };
+      transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
+      component.extendedMileage$ = of(etxncData.data[0]);
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
+      component.txnFields$ = of(expenseFieldsMapResponse);
+      orgSettingsService.get.and.returnValue(of(mockOrgSettData));
+      component.ionViewWillEnter();
+      tick(500);
+      expect(component.isProjectShown).toBeFalsy();
+    }));
 
     it('should get all the org setting and return true if new reports Flow Enabled ', () => {
       const mockOrgSettings = {
