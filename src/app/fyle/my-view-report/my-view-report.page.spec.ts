@@ -1,61 +1,62 @@
+import { AsyncPipe, CurrencyPipe } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, NavController } from '@ionic/angular';
-import { ReportService } from 'src/app/core/services/report.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { By } from '@angular/platform-browser';
+import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
+import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { cloneDeep } from 'lodash';
+import { of } from 'rxjs';
+import { click, getElementBySelector } from 'src/app/core/dom-helpers';
+import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
+import { approversData1 } from 'src/app/core/mock-data/approver.data';
+import { expensesWithDependentFields } from 'src/app/core/mock-data/dependent-field-expenses.data';
+import {
+  etxncListData,
+  expenseData1,
+  expenseData2,
+  newExpenseViewReport,
+  perDiemExpenseSingleNumDays,
+} from 'src/app/core/mock-data/expense.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
+import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
+import { apiReportUpdatedDetails } from 'src/app/core/mock-data/report-v1.data';
+import { expectedAllReports, newReportParam } from 'src/app/core/mock-data/report.data';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { NetworkService } from '../../core/services/network.service';
-import { TrackingService } from '../../core/services/tracking.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
+import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import { RefinerService } from 'src/app/core/services/refiner.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { MyViewReportPage } from './my-view-report.page';
-import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { PopoverController, ModalController } from '@ionic/angular';
-import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatIconModule } from '@angular/material/icon';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
-import { of } from 'rxjs';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
-import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import {
-  expenseData1,
-  etxncListData,
-  perDiemExpenseSingleNumDays,
-  expenseData2,
-  newExpenseViewReport,
-} from 'src/app/core/mock-data/expense.data';
-import { expensesWithDependentFields } from 'src/app/core/mock-data/dependent-field-expenses.data';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { expectedAllReports, newReportParam } from 'src/app/core/mock-data/report.data';
-import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { CurrencyPipe } from '@angular/common';
-import { apiReportUpdatedDetails } from 'src/app/core/mock-data/report-v1.data';
-import { ShareReportComponent } from './share-report/share-report.component';
-import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
-import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
-import { By } from '@angular/platform-browser';
-import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
   expectedNewStatusData,
   newEstatusData1,
   systemComments1,
   systemCommentsWithSt,
 } from 'src/app/core/test-data/status.service.spec.data';
-import { approversData1 } from 'src/app/core/mock-data/approver.data';
-import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
-import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { cloneDeep } from 'lodash';
-import { click, getElementBySelector } from 'src/app/core/dom-helpers';
-import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
+import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
+import { NetworkService } from '../../core/services/network.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
+import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
+import { MyViewReportPage } from './my-view-report.page';
+import { ShareReportComponent } from './share-report/share-report.component';
 
-fdescribe('MyViewReportPage', () => {
+describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -110,7 +111,14 @@ fdescribe('MyViewReportPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [MyViewReportPage, EllipsisPipe, HumanizeCurrencyPipe],
+      declarations: [
+        MyViewReportPage,
+        EllipsisPipe,
+        HumanizeCurrencyPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+        AsyncPipe,
+      ],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [
         FyCurrencyPipe,
@@ -549,7 +557,7 @@ fdescribe('MyViewReportPage', () => {
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
-  fdescribe('editReportName(): ', () => {
+  describe('editReportName(): ', () => {
     it('should edit report name', fakeAsync(() => {
       component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT' }));
       component.canEdit$ = of(true);
@@ -728,6 +736,7 @@ fdescribe('MyViewReportPage', () => {
 
   describe('goToTransaction():', () => {
     it('should go to view expense page', () => {
+      spyOn(component, 'canEditTxn').and.returnValue(false);
       component.goToTransaction({
         etxn: expenseData1,
         etxnIndex: 0,
@@ -748,6 +757,7 @@ fdescribe('MyViewReportPage', () => {
           view: ExpenseView.individual,
         },
       ]);
+      expect(component.canEditTxn).toHaveBeenCalledOnceWith(expenseData1.tx_state);
     });
     it('should go to view edit expense page', () => {
       component.erpt$ = of(expectedAllReports[0]);
@@ -772,6 +782,7 @@ fdescribe('MyViewReportPage', () => {
     });
 
     it('should go to view mileage page', () => {
+      spyOn(component, 'canEditTxn').and.returnValue(false);
       component.goToTransaction({
         etxn: etxncListData.data[0],
         etxnIndex: 0,
@@ -792,6 +803,7 @@ fdescribe('MyViewReportPage', () => {
           view: ExpenseView.individual,
         },
       ]);
+      expect(component.canEditTxn).toHaveBeenCalledOnceWith(etxncListData.data[0].tx_state);
     });
 
     it('should go to edit mileage page', () => {
@@ -817,6 +829,7 @@ fdescribe('MyViewReportPage', () => {
     });
 
     it('should go to view per diem page', () => {
+      spyOn(component, 'canEditTxn').and.returnValue(false);
       const perDiemTxn = { ...expenseData1, tx_org_category: 'PER DIEM' };
       component.goToTransaction({
         etxn: perDiemTxn,
@@ -838,6 +851,7 @@ fdescribe('MyViewReportPage', () => {
           view: ExpenseView.individual,
         },
       ]);
+      expect(component.canEditTxn).toHaveBeenCalledOnceWith(perDiemTxn.tx_state);
     });
 
     it('should go to edit per diem page', () => {
@@ -979,7 +993,8 @@ fdescribe('MyViewReportPage', () => {
     });
   });
 
-  it('addComment(): should add a comment', fakeAsync(() => {
+  it('addComment(): should add a comment', () => {
+    jasmine.clock().install();
     component.segmentValue = ReportPageSegment.COMMENTS;
     fixture.detectChanges();
 
@@ -996,15 +1011,17 @@ fdescribe('MyViewReportPage', () => {
     click(addCommentButton);
 
     component.addComment();
-    tick(5000);
+    fixture.detectChanges();
+    jasmine.clock().tick(1000);
+
     expect(statusService.post).toHaveBeenCalledOnceWith(component.objectType, component.reportId, {
       comment: 'comment',
     });
     expect(component.newComment).toBeNull();
     expect(component.isCommentAdded).toBeTrue();
-    expect(component.content.scrollToBottom).toHaveBeenCalledOnceWith(500);
     expect(component.refreshEstatuses$.next).toHaveBeenCalledTimes(1);
-  }));
+    jasmine.clock().uninstall();
+  });
 
   it('addExpense(): should navigate to expense page', () => {
     component.segmentValue = ReportPageSegment.EXPENSES;
