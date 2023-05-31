@@ -38,7 +38,7 @@ export class StatsResponse {
 
   sequential_approval_turn?: string[];
 
-  constructor({ data, url }) {
+  constructor({ data, url }: { data: Datum[]; url: string }) {
     this.data = data;
     this.url = url;
   }
