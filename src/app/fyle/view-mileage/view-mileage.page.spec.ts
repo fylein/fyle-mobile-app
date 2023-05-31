@@ -27,11 +27,17 @@ import {
 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { expenseFieldsMapResponse2, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
+import {
+  expenseFieldsMapResponse,
+  expenseFieldsMapResponse2,
+  expenseFieldsMapResponse4,
+} from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { filledCustomProperties, platformApiResponse } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { expenseV2Data } from 'src/app/core/mock-data/expense-v2.data';
+import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
+import { E } from '@angular/cdk/keycodes';
 
 fdescribe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -161,9 +167,9 @@ fdescribe('ViewMileagePage', () => {
           useValue: {
             snapshot: {
               params: {
-                id: 'tx5fBcPBAxLv',
+                id: 'tx3qwe4ty',
                 view: ExpenseView.individual,
-                txnIds: ['tx5fBcPBAxLv', 'txCBp2jIK6G3'],
+                txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
                 activeIndex: '0',
               },
             },
@@ -499,18 +505,19 @@ fdescribe('ViewMileagePage', () => {
 
   describe('ionViewWillEnter', () => {
     beforeEach(() => {
-      component.reportId = 'rpT7x1BFlLOi';
+      component.reportId = 'rpFvmTgyeBjN';
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getPolicyDetails');
 
       activateRouteMock.snapshot.params = {
-        id: 'tx3qwe4ty',
+        id: 'tx5fBcPBAxLv',
         view: ExpenseView.individual,
         txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
         activeIndex: '0',
       };
 
       component.extendedMileage$ = of(etxncData.data[0]);
+      // component.view =  activateRouteMock.snapshot.params.view;
       loaderService.showLoader.and.resolveTo();
       transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
       loaderService.hideLoader.and.resolveTo();
@@ -574,6 +581,364 @@ fdescribe('ViewMileagePage', () => {
         );
         done();
       });
+    });
+
+    it('should set the correct report id and set proper payment mode and icon', (done) => {
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        source_account_type: 'PERSONAL_ADVANCE_ACCOUNT',
+      };
+
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+
+      component.ionViewWillEnter();
+      component.extendedMileage$.subscribe((data) => {
+        expect(data).toEqual(mockExtMileageData);
+        expect(component.reportId).toEqual(mockExtMileageData.tx_report_id);
+        expect(component.paymentMode).toEqual('Paid from Advance');
+        expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+        done();
+      });
+    });
+
+    it('should set the correct payment mode and icon when reimbursement is skipped', (done) => {
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_skip_reimbursement: true,
+      };
+
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+
+      component.ionViewWillEnter();
+      component.extendedMileage$.subscribe((data) => {
+        expect(data).toEqual(mockExtMileageData);
+        expect(component.reportId).toEqual(mockExtMileageData.tx_report_id);
+        expect(component.paymentMode).toEqual('Paid by Company');
+        expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+        done();
+      });
+    });
+
+    it('should set the correct payment mode and icon when the expense is reimbursement', (done) => {
+      component.ionViewWillEnter();
+      component.extendedMileage$.subscribe((data) => {
+        expect(data).toEqual(etxncData.data[0]);
+        expect(component.paymentMode).toEqual('Paid by Employee');
+        expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+        done();
+      });
+    });
+
+    it('should set the vehicle type to car if the mileage_vehicle type has the word four in it', (done) => {
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_mileage_vehicle_type: 'Four Wheeler - Type 1 (₹11.00/km)',
+      };
+      component.extendedMileage$ = of(mockExtMileageData);
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      component.ionViewWillEnter();
+      component.extendedMileage$.subscribe((data) => {
+        expect(data).toEqual(mockExtMileageData);
+        expect(component.vehicleType).toEqual('car');
+        done();
+      });
+    });
+
+    it('should set the vehicle type to car if the mileage_vehicle type has the word car in it', (done) => {
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_mileage_vehicle_type: 'Electric Car',
+      };
+      component.extendedMileage$ = of(mockExtMileageData);
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      component.ionViewWillEnter();
+      component.extendedMileage$.subscribe((data) => {
+        expect(data).toEqual(mockExtMileageData);
+        expect(component.vehicleType).toEqual('car');
+        done();
+      });
+    });
+
+    it('should set the vehicle type to bike if the mileage_vehicle type has neither of htese words - car or four', (done) => {
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_mileage_vehicle_type: 'Two Wheeler - Type 1 (₹11.00/km)',
+      };
+      component.extendedMileage$ = of(mockExtMileageData);
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      component.ionViewWillEnter();
+      component.extendedMileage$.subscribe((data) => {
+        expect(data).toEqual(mockExtMileageData);
+        expect(component.vehicleType).toEqual('bike');
+        done();
+      });
+    });
+
+    it('should get the correct currency symbol', (done) => {
+      component.ionViewWillEnter();
+      component.extendedMileage$.subscribe((data) => {
+        expect(data.tx_currency).toEqual('USD');
+        expect(component.etxnCurrencySymbol).toEqual('$');
+        done();
+      });
+    });
+
+    // it('should get the project details', () => {
+    //   const mockExpFieldData = {
+    //     ...expenseFieldsMapResponse,
+    //     project_id: [],
+    //   };
+
+    //   transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
+    //   component.extendedMileage$= of(etxncData.data[0]);
+    //   expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
+    //   component.txnFields$ = of(mockExpFieldData);
+    //   orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+
+    //   component.ionViewWillEnter();
+    //   expect(component.projectFieldName).toBeUndefined();
+    //   expect(component.isProjectShown).toBeTruthy();
+    //   expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    // });
+
+    it('should get all the org setting and return true if new reports Flow Enabled ', () => {
+      const mockOrgSettings = {
+        ...orgSettingsGetData,
+        simplified_report_closure_settings: {
+          allowed: false,
+          enabled: true,
+        },
+      };
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isNewReportsFlowEnabled).toBeTrue();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should get all the org setting and return false if there are no report closure settings ', () => {
+      const mockOrgSettings = {
+        ...orgSettingsGetData,
+        simplified_report_closure_settings: null,
+      };
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isNewReportsFlowEnabled).toBeFalse();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should get all the org setting and return false if simplified_report_closure_settings is not present in orgSettings', () => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      component.ionViewWillEnter();
+      expect(component.isNewReportsFlowEnabled).toBeFalse();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should get the custom mileage fileds', (done) => {
+      customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue('record1, record2');
+
+      component.ionViewWillEnter();
+      component.mileageCustomFields$.subscribe((data) => {
+        expect(data).toEqual(filledCustomProperties);
+        expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
+          etxncData.data[0].tx_org_category_id,
+          etxncData.data[0].tx_custom_properties,
+          true
+        );
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(6);
+        done();
+      });
+    });
+
+    it('should get the flag status when the expense can be flagged', (done) => {
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+      component.extendedMileage$ = of(etxncData.data[0]);
+      component.ionViewWillEnter();
+      component.canFlagOrUnflag$.subscribe((res) => {
+        expect(etxncData.data[0].tx_state).toEqual('APPROVER_PENDING');
+        expect(res).toBeTrue();
+        done();
+      });
+    });
+
+    it('should return false if there is only one transaction in the report and the state is PAID', (done) => {
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_state: 'PAID',
+        tx_report_id: 'rphNNUiCISkD',
+        tx_custom_properties: null,
+      };
+      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      component.extendedMileage$ = of(mockExtMileageData);
+      component.txnFields$ = of(expenseFieldsMapResponse4);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+
+      component.ionViewWillEnter();
+      component.canDelete$.subscribe((res) => {
+        expect(mockExtMileageData.tx_state).toEqual('PAID');
+        expect(res).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return true if the transaction state is APPROVER_PENDING and there are more than one transactions in the report', (done) => {
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_state: 'APPROVER_PENDING',
+        tx_report_id: 'rphNNUiCISkD',
+        tx_custom_properties: null,
+      };
+      reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      component.extendedMileage$ = of(mockExtMileageData);
+      component.txnFields$ = of(expenseFieldsMapResponse4);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+
+      component.ionViewWillEnter();
+      component.canDelete$.subscribe((res) => {
+        expect(mockExtMileageData.tx_state).toEqual('APPROVER_PENDING');
+        expect(res).toBeTrue();
+        done();
+      });
+    });
+
+    it('should get all the policy violations when it a team expense', (done) => {
+      activateRouteMock.snapshot.params.id = 'tx5fBcPBAxLv';
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+      policyService.getApproverExpensePolicyViolations.and.returnValue(
+        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states)
+      );
+      component.ionViewWillEnter();
+      component.policyViloations$.subscribe(() => {
+        expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith(
+          activateRouteMock.snapshot.params.id
+        );
+        done();
+      });
+    });
+
+    it('should get all the policy violations when it an individual expense', (done) => {
+      activateRouteMock.snapshot.params.id = 'tx5fBcPBAxLv';
+      activateRouteMock.snapshot.params.view = ExpenseView.individual;
+      policyService.getSpenderExpensePolicyViolations.and.returnValue(
+        of(expensePolicyStatesData.data[0].individual_desired_states)
+      );
+      component.ionViewWillEnter();
+      component.policyViloations$.subscribe(() => {
+        expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
+          activateRouteMock.snapshot.params.id
+        );
+        done();
+      });
+    });
+
+    it('policyViolations should emit null if no id is provided', (done) => {
+      activateRouteMock.snapshot.params.id = null;
+      component.ionViewWillEnter();
+      component.policyViloations$.subscribe((data) => {
+        expect(data).toBeNull();
+        done();
+      });
+    });
+
+    it('should get all the comments and set the appropriate view', (done) => {
+      activateRouteMock.snapshot.params = {
+        id: 'tx5fBcPBAxLv',
+        view: ExpenseView.individual,
+        txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
+        activeIndex: '0',
+      };
+      component.ionViewWillEnter();
+      component.comments$.subscribe(() => {
+        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', expenseData1.tx_id);
+        done();
+      });
+      expect(component.view).toEqual(activateRouteMock.snapshot.params.view);
+    });
+
+    it('should be true if expense policy is violated', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_policy_amount: -1,
+      };
+
+      transactionService.getEtxn.and.returnValue(of(mockExtMileageData));
+      component.extendedMileage$ = of(mockExtMileageData);
+      component.ionViewWillEnter();
+      component.isCriticalPolicyViolated$.subscribe((res) => {
+        expect(res).toBeTrue();
+        //expect(component.isNumber).toHaveBeenCalledOnceWith(mockExtMileageData.tx_policy_amount);
+        done();
+      });
+    });
+
+    it('should return true if the policy amount value is of type number should check if the amount is capped', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_policy_amount: 1000,
+        tx_admin_amount: null,
+      };
+
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      component.extendedMileage$ = of(mockExtMileageData);
+      component.ionViewWillEnter();
+      component.isAmountCapped$.subscribe((res) => {
+        expect(res).toBeTrue();
+        done();
+      });
+    });
+
+    it('should return true if the admin amount value is of type number should check if the amount is capped', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_admin_amount: 1000,
+        tx_policy_amount: null,
+      };
+
+      transactionService.getEtxn.and.returnValue(of(mockExtMileageData));
+      component.extendedMileage$ = of(mockExtMileageData);
+      component.ionViewWillEnter();
+      component.isAmountCapped$.subscribe((res) => {
+        expect(res).toBeTrue();
+        done();
+      });
+    });
+
+    it('should return false if the value is not of type number and check if the expense is capped', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(false);
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_admin_amount: null,
+        tx_policy_amount: null,
+      };
+
+      transactionService.getEtxn.and.returnValue(of(mockExtMileageData));
+      component.extendedMileage$ = of(mockExtMileageData);
+      component.ionViewWillEnter();
+      component.isAmountCapped$.subscribe((res) => {
+        expect(res).toBeFalse();
+        expect(component.isNumber).toHaveBeenCalledWith(mockExtMileageData.tx_policy_amount);
+        expect(component.isNumber).toHaveBeenCalledTimes(2);
+        done();
+      });
+    });
+
+    it('should parse the transaction ids and active index accordingly', () => {
+      spyOn(component.updateFlag$, 'next');
+      activateRouteMock.snapshot.params = {
+        id: 'tx3qwe4ty',
+        view: ExpenseView.individual,
+        txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
+        activeIndex: '20',
+      };
+      component.ionViewWillEnter();
+      expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
+      expect(component.numEtxnsInReport).toEqual(3);
+      expect(component.activeEtxnIndex).toEqual(20);
     });
   });
 });

@@ -317,8 +317,8 @@ export class ViewMileagePage implements OnInit {
       }
 
       if (
-        extendedMileage.tx_mileage_vehicle_type?.indexOf('four') > -1 ||
-        extendedMileage.tx_mileage_vehicle_type?.indexOf('car') > -1
+        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('four') > -1 ||
+        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('car') > -1
       ) {
         this.vehicleType = 'car';
       } else {
@@ -334,7 +334,7 @@ export class ViewMileagePage implements OnInit {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
-            this.orgSettings?.projects?.enabled && (extendedMileage.tx_project_name || isProjectMandatory);
+            this.orgSettings.projects?.enabled && (extendedMileage.tx_project_name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -344,7 +344,7 @@ export class ViewMileagePage implements OnInit {
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
-        this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+        this.isNewReportsFlowEnabled = orgSettings.simplified_report_closure_settings?.enabled || false;
       });
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
