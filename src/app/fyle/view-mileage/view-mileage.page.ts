@@ -59,7 +59,7 @@ export class ViewMileagePage implements OnInit {
 
   isConnected$: Observable<boolean>;
 
-  onPageExit = new Subject();
+  onPageExit$ = new Subject();
 
   comments$: Observable<ExtendedStatus[]>;
 
@@ -117,14 +117,14 @@ export class ViewMileagePage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.onPageExit.next(null);
+    this.onPageExit$.next(null);
   }
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit),
+      takeUntil(this.onPageExit$),
       shareReplay(1)
     );
 
@@ -135,7 +135,7 @@ export class ViewMileagePage implements OnInit {
     });
   }
 
-  isNumber(val) {
+  isNumber(val: string | number): boolean {
     return typeof val === 'number';
   }
 
@@ -186,10 +186,8 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-
-    const deletePopover = await this.popoverController.create({
+  getDeleteDialogProps(etxn: Expense) {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
@@ -201,7 +199,13 @@ export class ViewMileagePage implements OnInit {
         ctaLoadingText: 'Removing',
         deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
-    });
+    };
+  }
+
+  async removeExpenseFromReport() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
 
     await deletePopover.present();
     const { data } = await deletePopover.onDidDismiss();
@@ -212,11 +216,11 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  async flagUnflagExpense() {
+  async flagUnflagExpense(isExpenseFlagged: boolean) {
     const id = this.activatedRoute.snapshot.params.id;
     const etxn = await this.transactionService.getEtxn(id).toPromise();
 
-    const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
+    const title = isExpenseFlagged ? 'Unflag' : 'Flag';
     const flagUnflagModal = await this.popoverController.create({
       component: FyPopoverComponent,
       componentProps: {
@@ -250,7 +254,6 @@ export class ViewMileagePage implements OnInit {
         )
         .subscribe(noop);
     }
-    this.isExpenseFlagged = etxn.tx_manual_flag;
     this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
@@ -400,10 +403,6 @@ export class ViewMileagePage implements OnInit {
       map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
 
-    this.extendedMileage$.subscribe((etxn) => {
-      this.isExpenseFlagged = etxn.tx_manual_flag;
-    });
-
     this.updateFlag$.next(null);
 
     const etxnIds =
@@ -412,7 +411,7 @@ export class ViewMileagePage implements OnInit {
     this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
   }
 
-  getDisplayValue(customProperties) {
+  getDisplayValue(customProperties): boolean | string {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
