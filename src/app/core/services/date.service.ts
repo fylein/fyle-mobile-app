@@ -50,19 +50,19 @@ export class DateService {
     return new Date(this.year, this.month + 1, 0, 23, 59);
   }
 
-  getUTCDate(date) {
+  getUTCDate(date: Date) {
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
     return new Date(date.getTime() + userTimezoneOffset);
   }
 
-  getLocalDate(date) {
+  getLocalDate(date: Date) {
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
     return new Date(date.getTime() - userTimezoneOffset);
   }
 
   // unovoidable right now
   // eslint-disable-next-line complexity
-  fixDates(data) {
+  fixDates<T>(data): T {
     if (data.txn_dt) {
       data.txn_dt = this.getUTCDate(new Date(data.txn_dt));
     }
@@ -132,7 +132,7 @@ export class DateService {
   }
 
   // Use this method if you are getting api response from V2.
-  fixDatesV2(data) {
+  fixDatesV2<T>(data): T {
     if (data.tx_txn_dt) {
       data.tx_txn_dt = new Date(data.tx_txn_dt);
     }
@@ -164,10 +164,12 @@ export class DateService {
     return data;
   }
 
-  addDaysToDate(fromDate, numOfDays) {
-    numOfDays = parseInt(numOfDays, 10);
-
-    return new Date(fromDate.getTime() + numOfDays * 24 * 60 * 60 * 1000);
+  addDaysToDate(fromDate: Date, numOfDays: number | string) {
+    let numDays;
+    if (typeof numOfDays === 'string') {
+      numDays = parseInt(numOfDays, 10);
+    }
+    return new Date(fromDate.getTime() + numDays * 24 * 60 * 60 * 1000);
   }
 
   getThisMonthRange() {
@@ -215,7 +217,7 @@ export class DateService {
     };
   }
 
-  getLastDaysRange(numOfDays) {
+  getLastDaysRange(numOfDays: number) {
     const startDate = new Date(this.today.getTime() - numOfDays * 24 * 60 * 60 * 1000);
     return {
       from: startDate,
@@ -223,7 +225,7 @@ export class DateService {
     };
   }
 
-  convertUTCDateToLocalDate(date) {
+  convertUTCDateToLocalDate(date: Date) {
     const newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
     const offset = date.getTimezoneOffset() / 60;
     const hours = date.getHours();
@@ -236,7 +238,7 @@ export class DateService {
     return dayjs(date1).startOf('day').isSame(dayjs(date2).startOf('day'));
   }
 
-  isValidDate(date) {
+  isValidDate(date: Date) {
     return dayjs(date).isValid();
   }
 }
