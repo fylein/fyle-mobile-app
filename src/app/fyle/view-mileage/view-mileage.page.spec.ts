@@ -531,7 +531,6 @@ fdescribe('ViewMileagePage', () => {
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
 
       component.extendedMileage$.subscribe((data) => {
-        console.log(data);
         expect(data).toEqual(etxncData.data[0]);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(transactionService.getExpenseV2).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
@@ -550,7 +549,6 @@ fdescribe('ViewMileagePage', () => {
       component.txnFields$ = of(expenseFieldsMapResponse4);
       component.ionViewWillEnter();
       component.projectDependentCustomProperties$.subscribe((data) => {
-        console.log(data);
         expect(data).toEqual(dependentFieldValues);
         expect(etxncData.data[0].tx_custom_properties).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
@@ -567,7 +565,6 @@ fdescribe('ViewMileagePage', () => {
       const costCenterIdNumber = expenseFieldsMapResponse4.cost_center_id[0].id;
       component.ionViewWillEnter();
       component.costCenterDependentCustomProperties$.subscribe((data) => {
-        console.log(data);
         expect(data).toEqual(dependentFieldValues);
         expect(etxncData.data[0].tx_custom_properties).toBeDefined();
         expect(expenseFieldsMapResponse4.cost_center_id.length).toBeGreaterThan(0);
