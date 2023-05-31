@@ -33,11 +33,17 @@ export class BackButtonService {
       .pipe(
         tap((exitAppPopover) => exitAppPopover.present()),
         switchMap((exitAppPopover) => exitAppPopover.onWillDismiss()),
-        map((popoverDetails) => {
-          if (popoverDetails?.data?.action === 'close') {
-            return App.exitApp();
+        map(
+          (popoverDetails: {
+            data?: {
+              action?: string;
+            };
+          }) => {
+            if (popoverDetails?.data?.action === 'close') {
+              return App.exitApp();
+            }
           }
-        })
+        )
       )
       .subscribe(noop);
   }
