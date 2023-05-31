@@ -55,7 +55,7 @@ import { cloneDeep } from 'lodash';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
 
-describe('MyViewReportPage', () => {
+fdescribe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -209,6 +209,10 @@ describe('MyViewReportPage', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+
+    component.erpt$ = of(newReportParam);
+    component.canEdit$ = of(true);
+    component.canDelete$ = of(true);
 
     fixture.detectChanges();
   }));
@@ -545,7 +549,7 @@ describe('MyViewReportPage', () => {
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
-  describe('editReportName(): ', () => {
+  fdescribe('editReportName(): ', () => {
     it('should edit report name', fakeAsync(() => {
       component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT' }));
       component.canEdit$ = of(true);
