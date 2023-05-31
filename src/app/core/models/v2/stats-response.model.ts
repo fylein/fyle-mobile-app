@@ -16,7 +16,8 @@ export interface Value {
 export interface Datum {
   dimensions: string[];
   name: string;
-  value: Value[];
+  value?: Value[];
+  aggregates?: Aggregate[];
 }
 
 export class StatsResponse {
@@ -32,7 +33,7 @@ export class StatsResponse {
 
   approved_by?: string;
 
-  rp_approval_state: string[];
+  rp_approval_state?: string[];
 
   rp_state?: string[];
 
