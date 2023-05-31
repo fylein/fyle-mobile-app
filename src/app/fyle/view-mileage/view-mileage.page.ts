@@ -59,7 +59,7 @@ export class ViewMileagePage implements OnInit {
 
   isConnected$: Observable<boolean>;
 
-  onPageExit = new Subject();
+  onPageExit$ = new Subject();
 
   comments$: Observable<ExtendedStatus[]>;
 
@@ -117,14 +117,14 @@ export class ViewMileagePage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.onPageExit.next(null);
+    this.onPageExit$.next(null);
   }
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit),
+      takeUntil(this.onPageExit$),
       shareReplay(1)
     );
 
