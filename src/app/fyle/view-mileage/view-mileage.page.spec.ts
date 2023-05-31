@@ -198,10 +198,10 @@ fdescribe('ViewMileagePage', () => {
   });
 
   it('ionViewWillLeave(): should execute the on page exit next function', () => {
-    spyOn(component.onPageExit, 'next');
+    spyOn(component.onPageExit$, 'next');
 
     component.ionViewWillLeave();
-    expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
+    expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {
