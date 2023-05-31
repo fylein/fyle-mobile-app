@@ -18,16 +18,22 @@ import { PopoverController, ModalController } from '@ionic/angular';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import { etxncData, expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { individualExpPolicyStateData3 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import {
   ApproverExpensePolicyStatesData,
   expensePolicyStatesData,
 } from 'src/app/core/mock-data/platform-policy-expense.data';
+import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { expenseFieldsMapResponse2, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
+import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
+import { expenseV2Data } from 'src/app/core/mock-data/expense-v2.data';
 
-describe('ViewMileagePage', () => {
+fdescribe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -491,5 +497,86 @@ describe('ViewMileagePage', () => {
     });
   });
 
-  xit('ionViewWillEnter', () => {});
+  describe('ionViewWillEnter', () => {
+    beforeEach(() => {
+      component.reportId = 'rpT7x1BFlLOi';
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'getPolicyDetails');
+
+      activateRouteMock.snapshot.params = {
+        id: 'tx3qwe4ty',
+        view: ExpenseView.individual,
+        txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
+        activeIndex: '0',
+      };
+
+      component.extendedMileage$ = of(etxncData.data[0]);
+      loaderService.showLoader.and.resolveTo();
+      transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
+      loaderService.hideLoader.and.resolveTo();
+
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
+      component.txnFields$ = of(expenseFieldsMapResponse4);
+
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
+      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+
+      customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
+      statusService.find.and.returnValue(of(getEstatusApiResponse));
+    });
+
+    it('should get all the data for extended mileage and expense fields', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+
+      component.extendedMileage$.subscribe((data) => {
+        console.log(data);
+        expect(data).toEqual(etxncData.data[0]);
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(transactionService.getExpenseV2).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+      });
+
+      component.txnFields$.subscribe((data) => {
+        expect(data).toEqual(expenseFieldsMapResponse4);
+        expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
+      });
+    }));
+
+    it('should get the project dependent custom properties', (done) => {
+      const customProps = etxncData.data[0].tx_custom_properties;
+      const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
+
+      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.ionViewWillEnter();
+      component.projectDependentCustomProperties$.subscribe((data) => {
+        console.log(data);
+        expect(data).toEqual(dependentFieldValues);
+        expect(etxncData.data[0].tx_custom_properties).toBeDefined();
+        expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
+          customProps,
+          projectIdNumber
+        );
+        done();
+      });
+    });
+
+    it('should get the cost center dependent custom properties', (done) => {
+      const customProps = etxncData.data[0].tx_custom_properties;
+      const costCenterIdNumber = expenseFieldsMapResponse4.cost_center_id[0].id;
+      component.ionViewWillEnter();
+      component.costCenterDependentCustomProperties$.subscribe((data) => {
+        console.log(data);
+        expect(data).toEqual(dependentFieldValues);
+        expect(etxncData.data[0].tx_custom_properties).toBeDefined();
+        expect(expenseFieldsMapResponse4.cost_center_id.length).toBeGreaterThan(0);
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
+          customProps,
+          costCenterIdNumber
+        );
+        done();
+      });
+    });
+  });
 });
