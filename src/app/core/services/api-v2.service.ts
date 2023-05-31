@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { TextSearchQueryParams } from '../models/text-search-params.model';
+import { TextSearchQuery } from '../models/text-search-query.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,11 +18,14 @@ export class ApiV2Service {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
-  get(url: string, config = {}) {
-    return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/v2' + url, config);
+  get<T>(url: string, config = {}) {
+    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/v2' + url, config);
   }
 
-  extendQueryParamsForTextSearch(queryParams, simpleSearchText) {
+  extendQueryParamsForTextSearch(
+    queryParams: TextSearchQueryParams<string | number>,
+    simpleSearchText: string
+  ): TextSearchQuery {
     if (simpleSearchText === undefined || simpleSearchText.length < 1) {
       return queryParams;
     }
