@@ -55,31 +55,33 @@ describe('SupportDialogPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('openHelpLink(): should open help link', () => {
-    component.openHelpLink();
-    expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
-    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
-      '#280a31',
-      'https://help.fylehq.com'
-    );
-  });
+  describe('Should open correct links', () => {
+    it('openHelpLink(): should open help link', () => {
+      component.openHelpLink();
+      expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
+      expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
+        '#280a31',
+        'https://help.fylehq.com'
+      );
+    });
 
-  it('openChromeExtLink(): should open chrome extention link', () => {
-    component.openChromeExtLink();
-    expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
-    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
-      '#280a31',
-      'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk'
-    );
-  });
+    it('openChromeExtLink(): should open chrome extention link', () => {
+      component.openChromeExtLink();
+      expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
+      expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
+        '#280a31',
+        'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk'
+      );
+    });
 
-  it('openOutlookExtLink(): should open outlook extention link', () => {
-    component.openOutlookExtLink();
-    expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
-    expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
-      '#280a31',
-      'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview'
-    );
+    it('openOutlookExtLink(): should open outlook extention link', () => {
+      component.openOutlookExtLink();
+      expect(trackingService.engageWithHelpCard).toHaveBeenCalledTimes(1);
+      expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
+        '#280a31',
+        'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview'
+      );
+    });
   });
 
   it('closeDialog(): should dismiss the dialog', () => {
