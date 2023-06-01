@@ -897,8 +897,7 @@ export class AddEditExpensePage implements OnInit {
           label: costCenter.name,
           value: costCenter,
         }))
-      ),
-      tap((res) => console.log(res))
+      )
     );
   }
 
