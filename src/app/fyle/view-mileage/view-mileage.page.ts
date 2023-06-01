@@ -26,6 +26,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -37,7 +38,7 @@ export class ViewMileagePage implements OnInit {
 
   extendedMileage$: Observable<Expense>;
 
-  orgSettings: any;
+  orgSettings: OrgSettings;
 
   mileageCustomFields$: Observable<CustomField[]>;
 
@@ -64,8 +65,6 @@ export class ViewMileagePage implements OnInit {
   comments$: Observable<ExtendedStatus[]>;
 
   isDeviceWidthSmall = window.innerWidth < 330;
-
-  isExpenseFlagged: boolean;
 
   numEtxnsInReport: number;
 
