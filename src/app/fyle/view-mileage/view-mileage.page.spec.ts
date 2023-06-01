@@ -33,11 +33,15 @@ import {
   expenseFieldsMapResponse4,
 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { filledCustomProperties, platformApiResponse } from 'src/app/core/test-data/custom-inputs.spec.data';
+import {
+  customProperties,
+  filledCustomProperties,
+  platformApiResponse,
+} from 'src/app/core/test-data/custom-inputs.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { expenseV2Data } from 'src/app/core/mock-data/expense-v2.data';
 import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, slice } from 'lodash';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -816,6 +820,25 @@ describe('ViewMileagePage', () => {
       });
     });
 
+    it('should get the custom mileage fileds', (done) => {
+      const mockfilledCustomProperties = cloneDeep(slice(filledCustomProperties, 0, 1));
+      customInputsService.fillCustomProperties.and.returnValue(of(mockfilledCustomProperties));
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue(mockfilledCustomProperties[0].displayValue);
+      component.ionViewWillEnter();
+      component.mileageCustomFields$.subscribe((data) => {
+        expect(data).toEqual(mockfilledCustomProperties);
+        expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
+          etxncData.data[0].tx_org_category_id,
+          etxncData.data[0].tx_custom_properties,
+          true
+        );
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
+          mockfilledCustomProperties.length
+        );
+        done();
+      });
+    });
+
     it('should get all the policy violations when it a team expense', (done) => {
       activateRouteMock.snapshot.params.id = 'tx5fBcPBAxLv';
       activateRouteMock.snapshot.params.view = ExpenseView.team;
@@ -882,7 +905,6 @@ describe('ViewMileagePage', () => {
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
         expect(res).toBeTrue();
-        //expect(component.isNumber).toHaveBeenCalledOnceWith(mockExtMileageData.tx_policy_amount);
         done();
       });
     });
