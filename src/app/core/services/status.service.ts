@@ -22,7 +22,7 @@ export class StatusService {
     );
   }
 
-  post(objectType: string, objectId: string, status, notify: boolean = false) {
+  post(objectType: string, objectId: string, status: { comment: string | ExtendedStatus }, notify: boolean = false) {
     return this.apiService.post('/' + objectType + '/' + objectId + '/statuses', {
       status,
       notify,

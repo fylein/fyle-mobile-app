@@ -11,11 +11,6 @@ import { UniqueCardStats } from '../models/unique-cards-stats.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
 import { DateService } from './date.service';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
-import { Cacheable } from 'ts-cacheable';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -25,16 +20,8 @@ export class CorporateCreditCardExpenseService {
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
     private authService: AuthService,
-    private dateService: DateService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
+    private dateService: DateService
   ) {}
-
-  @Cacheable()
-  getCorporateCards(): Observable<PlatformCorporateCard[]> {
-    return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformCorporateCard>>('/corporate_cards')
-      .pipe(map((res) => res.data));
-  }
 
   getv2CardTransactions(config: {
     offset: number;

@@ -9,33 +9,10 @@
 
 <ion-content class="my-profile__content-container">
   <ng-container *ngIf="eou$ | async as eou">
-    <app-employee-details-card
-      [eou]="eou"
-      (updateMobileNumber)="updateMobileNumber($event)"
-      (verifyMobileNumber)="verifyMobileNumber($event)"
-    ></app-employee-details-card>
+    <app-employee-details-card [eou]="eou"></app-employee-details-card>
   </ng-container>
   <div class="my-profile__content-container__content">
     <ng-container *ngIf="isConnected$ | async">
-      <ng-container *ngIf="infoCardsData?.length">
-        <div class="my-profile__info-card-container">
-          <div matRipple *ngFor="let infoCardData of infoCardsData;let isLast=last">
-            <div
-              class="my-profile__info-card-container__card"
-              [ngClass]="{'my-profile__info-card-container__card--last': isLast}"
-            >
-              <app-info-card
-                [title]="infoCardData.title"
-                [content]="infoCardData.content"
-                [contentToCopy]="infoCardData.contentToCopy"
-                [toastMessageContent]="infoCardData.toastMessageContent"
-                (copiedText)="showToastMessage($event, 'success')"
-              ></app-info-card>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
       <div class="my-profile__section-header">Notifications</div>
       <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
         <div class="my-profile__card__title">Manage Notifications</div>

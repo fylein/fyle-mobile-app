@@ -7,7 +7,7 @@ export interface DashboardTask {
   header: string;
   subheader: string;
   amount?: string;
-  count?: number;
+  count: number;
   ctas: TaskCta[];
   data?: any;
   hideAmount?: boolean;

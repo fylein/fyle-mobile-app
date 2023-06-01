@@ -29,7 +29,7 @@ describe('SnackbarPropertiesService', () => {
 
   it('should return correct icon for a information toast message', () => {
     const properties = service.setSnackbarProperties('information', { message: 'Information message' });
-    expect(properties.data.icon).toBeUndefined();
+    expect(properties.data.icon).toEqual('');
   });
 
   it('should return the correct duration', () => {
