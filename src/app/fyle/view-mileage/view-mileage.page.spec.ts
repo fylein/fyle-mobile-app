@@ -37,7 +37,7 @@ import { filledCustomProperties, platformApiResponse } from 'src/app/core/test-d
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { expenseV2Data } from 'src/app/core/mock-data/expense-v2.data';
 import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
-import { E } from '@angular/cdk/keycodes';
+import { cloneDeep } from 'lodash';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -769,7 +769,7 @@ describe('ViewMileagePage', () => {
 
       component.ionViewWillEnter();
       component.mileageCustomFields$.subscribe((data) => {
-        expect(data).toEqual(filledCustomProperties);
+        expect(data).toEqual(cloneDeep(filledCustomProperties));
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           etxncData.data[0].tx_org_category_id,
           etxncData.data[0].tx_custom_properties,
