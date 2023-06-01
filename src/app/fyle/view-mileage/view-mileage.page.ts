@@ -26,6 +26,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -37,7 +38,7 @@ export class ViewMileagePage implements OnInit {
 
   extendedMileage$: Observable<Expense>;
 
-  orgSettings: any;
+  orgSettings: OrgSettings;
 
   mileageCustomFields$: Observable<CustomField[]>;
 
@@ -55,7 +56,7 @@ export class ViewMileagePage implements OnInit {
 
   reportId: string;
 
-  policyDetails;
+  policyDetails = [];
 
   isConnected$: Observable<boolean>;
 
@@ -64,8 +65,6 @@ export class ViewMileagePage implements OnInit {
   comments$: Observable<ExtendedStatus[]>;
 
   isDeviceWidthSmall = window.innerWidth < 330;
-
-  isExpenseFlagged: boolean;
 
   numEtxnsInReport: number;
 
@@ -317,8 +316,8 @@ export class ViewMileagePage implements OnInit {
       }
 
       if (
-        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('four') > -1 ||
-        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('car') > -1
+        extendedMileage.tx_mileage_vehicle_type?.indexOf('four') > -1 ||
+        extendedMileage.tx_mileage_vehicle_type?.indexOf('car') > -1
       ) {
         this.vehicleType = 'car';
       } else {
@@ -334,7 +333,7 @@ export class ViewMileagePage implements OnInit {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
-            this.orgSettings.projects?.enabled && (extendedMileage.tx_project_name || isProjectMandatory);
+            this.orgSettings?.projects?.enabled && (extendedMileage.tx_project_name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -344,7 +343,7 @@ export class ViewMileagePage implements OnInit {
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
-        this.isNewReportsFlowEnabled = orgSettings.simplified_report_closure_settings?.enabled || false;
+        this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       });
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
