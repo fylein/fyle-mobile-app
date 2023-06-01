@@ -27,19 +27,10 @@ import {
 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import {
-  expenseFieldsMapResponse,
-  expenseFieldsMapResponse2,
-  expenseFieldsMapResponse4,
-} from 'src/app/core/mock-data/expense-fields-map.data';
+import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import {
-  customProperties,
-  filledCustomProperties,
-  platformApiResponse,
-} from 'src/app/core/test-data/custom-inputs.spec.data';
+import { customProperties, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
-import { expenseV2Data } from 'src/app/core/mock-data/expense-v2.data';
 import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
 import { cloneDeep, slice } from 'lodash';
 
@@ -537,6 +528,7 @@ describe('ViewMileagePage', () => {
     });
 
     it('should get all the data for extended mileage and expense fields', fakeAsync(() => {
+      spyOn(component.updateFlag$, 'next');
       component.ionViewWillEnter();
       tick(500);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
@@ -545,6 +537,8 @@ describe('ViewMileagePage', () => {
         expect(data).toEqual(etxncData.data[0]);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(transactionService.getExpenseV2).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+        expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       });
 
       component.txnFields$.subscribe((data) => {
@@ -767,6 +761,25 @@ describe('ViewMileagePage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
+    it('should get the custom mileage fileds', (done) => {
+      const mockfilledCustomProperties = cloneDeep(slice(filledCustomProperties, 0, 1));
+      customInputsService.fillCustomProperties.and.returnValue(of(mockfilledCustomProperties));
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue(mockfilledCustomProperties[0].displayValue);
+      component.ionViewWillEnter();
+      component.mileageCustomFields$.subscribe((data) => {
+        expect(data).toEqual(mockfilledCustomProperties);
+        expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
+          etxncData.data[0].tx_org_category_id,
+          etxncData.data[0].tx_custom_properties,
+          true
+        );
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
+          mockfilledCustomProperties.length
+        );
+        done();
+      });
+    });
+
     it('should get the flag status when the expense can be flagged', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
       component.extendedMileage$ = of(etxncData.data[0]);
@@ -816,25 +829,6 @@ describe('ViewMileagePage', () => {
       component.canDelete$.subscribe((res) => {
         expect(mockExtMileageData.tx_state).toEqual('APPROVER_PENDING');
         expect(res).toBeTrue();
-        done();
-      });
-    });
-
-    it('should get the custom mileage fileds', (done) => {
-      const mockfilledCustomProperties = cloneDeep(slice(filledCustomProperties, 0, 1));
-      customInputsService.fillCustomProperties.and.returnValue(of(mockfilledCustomProperties));
-      customInputsService.getCustomPropertyDisplayValue.and.returnValue(mockfilledCustomProperties[0].displayValue);
-      component.ionViewWillEnter();
-      component.mileageCustomFields$.subscribe((data) => {
-        expect(data).toEqual(mockfilledCustomProperties);
-        expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          etxncData.data[0].tx_org_category_id,
-          etxncData.data[0].tx_custom_properties,
-          true
-        );
-        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
-          mockfilledCustomProperties.length
-        );
         done();
       });
     });
@@ -905,6 +899,7 @@ describe('ViewMileagePage', () => {
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
         expect(res).toBeTrue();
+        expect(component.isNumber).toHaveBeenCalledTimes(1);
         done();
       });
     });
@@ -922,6 +917,7 @@ describe('ViewMileagePage', () => {
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
+        expect(component.isNumber).toHaveBeenCalledTimes(1);
         done();
       });
     });
@@ -939,6 +935,7 @@ describe('ViewMileagePage', () => {
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
+        expect(component.isNumber).toHaveBeenCalledTimes(1);
         done();
       });
     });
