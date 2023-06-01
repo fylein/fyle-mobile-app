@@ -317,8 +317,8 @@ export class ViewMileagePage implements OnInit {
       }
 
       if (
-        extendedMileage.tx_mileage_vehicle_type?.indexOf('four') > -1 ||
-        extendedMileage.tx_mileage_vehicle_type?.indexOf('car') > -1
+        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('four') > -1 ||
+        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('car') > -1
       ) {
         this.vehicleType = 'car';
       } else {
