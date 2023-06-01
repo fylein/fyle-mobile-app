@@ -994,7 +994,6 @@ describe('MyViewReportPage', () => {
   });
 
   it('addComment(): should add a comment', () => {
-    jasmine.clock().install();
     component.segmentValue = ReportPageSegment.COMMENTS;
     fixture.detectChanges();
 
@@ -1012,7 +1011,6 @@ describe('MyViewReportPage', () => {
 
     component.addComment();
     fixture.detectChanges();
-    jasmine.clock().tick(1000);
 
     expect(statusService.post).toHaveBeenCalledOnceWith(component.objectType, component.reportId, {
       comment: 'comment',
@@ -1020,7 +1018,6 @@ describe('MyViewReportPage', () => {
     expect(component.newComment).toBeNull();
     expect(component.isCommentAdded).toBeTrue();
     expect(component.refreshEstatuses$.next).toHaveBeenCalledTimes(1);
-    jasmine.clock().uninstall();
   });
 
   it('addExpense(): should navigate to expense page', () => {
