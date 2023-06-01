@@ -16,7 +16,7 @@ export class RecentlyUsedItemsService {
   constructor(private apiService: ApiService, private projectService: ProjectsService) {}
 
   getRecentlyUsed(): Observable<RecentlyUsed> {
-    return this.apiService.get('/recently_used');
+    return this.apiService.get('/recently_used') as Observable<RecentlyUsed>;
   }
 
   getRecentlyUsedProjects(config: {
@@ -43,7 +43,7 @@ export class RecentlyUsedItemsService {
         })
         .pipe(
           map((project) => {
-            const projectsMap = {};
+            const projectsMap: { [key: string]: ExtendedProject } = {};
             project.forEach((item) => {
               projectsMap[item.project_id] = item;
             });
