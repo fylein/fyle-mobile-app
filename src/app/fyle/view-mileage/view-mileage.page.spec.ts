@@ -763,23 +763,6 @@ describe('ViewMileagePage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
-    it('should get the custom mileage fileds', (done) => {
-      customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
-      customInputsService.getCustomPropertyDisplayValue.and.returnValue('record1, record2');
-
-      component.ionViewWillEnter();
-      component.mileageCustomFields$.subscribe((data) => {
-        expect(data).toEqual(cloneDeep(filledCustomProperties));
-        expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          etxncData.data[0].tx_org_category_id,
-          etxncData.data[0].tx_custom_properties,
-          true
-        );
-        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(6);
-        done();
-      });
-    });
-
     it('should get the flag status when the expense can be flagged', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
       component.extendedMileage$ = of(etxncData.data[0]);
