@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import { DeepLinkService } from './deep-link.service';
 import { DeviceService } from './device.service';
 import { UserService } from './user.service';
+import { PushNotificationData } from '../models/push-notification-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -49,17 +50,20 @@ export class PushNotificationService {
     });
 
     PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
-      that.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
+      const notificationData = notification.data as PushNotificationData;
+      that.updateNotificationStatusAndRedirect(notificationData).subscribe(noop);
     });
 
     PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {
-      that.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(() => {
-        that.deepLinkService.redirect(that.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
+      const notificationData = notification.notification.data as PushNotificationData;
+      that.updateNotificationStatusAndRedirect(notificationData, true).subscribe(() => {
+        const notificationData = notification.notification.data as PushNotificationData;
+        that.deepLinkService.redirect(that.deepLinkService.getJsonFromUrl(notificationData.cta_url));
       });
     });
   }
 
-  postDeviceInfo(token) {
+  postDeviceInfo(token: string) {
     return forkJoin({
       userProperties$: this.userService.getProperties(),
       deviceInfo$: this.deviceService.getDeviceInfo(),
@@ -85,18 +89,18 @@ export class PushNotificationService {
     );
   }
 
-  updateDeliveryStatus(notification_id) {
+  updateDeliveryStatus(notification_id: number) {
     return this.httpClient.post<any>(
       this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/delivered',
       ''
     );
   }
 
-  updateReadStatus(notification_id) {
+  updateReadStatus(notification_id: number) {
     return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/read', '');
   }
 
-  updateNotificationStatusAndRedirect(notificationData, wasTapped?: boolean) {
+  updateNotificationStatusAndRedirect(notificationData: PushNotificationData, wasTapped?: boolean) {
     return this.updateDeliveryStatus(notificationData.notification_id).pipe(
       concatMap(() =>
         iif(
