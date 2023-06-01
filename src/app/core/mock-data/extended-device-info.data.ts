@@ -12,3 +12,16 @@ export const extendedDeviceInfoMockData: ExtendedDeviceInfo = {
   isVirtual: false,
   webViewVersion: 'mockwebviewversion123',
 };
+
+export const extendedDeviceInfoMockData2: ExtendedDeviceInfo = {
+  uuid: 'mockuuid124',
+  appVersion: '5.52.0',
+  liveUpdateAppVersion: '5.52.0',
+  model: 'Samsung Galaxy A13',
+  platform: 'android',
+  operatingSystem: 'android',
+  osVersion: '12.0.0',
+  manufacturer: 'Samsung',
+  isVirtual: false,
+  webViewVersion: 'mockwebviewversion124',
+};
