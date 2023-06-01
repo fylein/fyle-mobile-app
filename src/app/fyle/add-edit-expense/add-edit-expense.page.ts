@@ -1032,7 +1032,7 @@ export class AddEditExpensePage implements OnInit {
       accounts: accounts$,
       eou: eou$,
       imageData: this.getInstaFyleImageData(),
-      recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
+      recentCurrency: from(this.recentLocalStorageItemsService.get<Currency>('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
       map((dependencies) => {
@@ -2482,7 +2482,7 @@ export class AddEditExpensePage implements OnInit {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
     // If User has already clicked on See More he need not to click again and again
-    from(this.storageService.get('isExpandedView')).subscribe((expandedView) => {
+    from(this.storageService.get<boolean>('isExpandedView')).subscribe((expandedView) => {
       this.isExpandedView = this.mode !== 'add' || expandedView;
     });
 

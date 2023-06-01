@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { from } from 'rxjs';
 import { StorageService } from './storage.service';
 import * as dayjs from 'dayjs';
+import { RecentLocalStorageItems } from '../models/recent-local-storage-items.model';
 
 @Injectable({
   providedIn: 'root',
@@ -9,9 +10,9 @@ import * as dayjs from 'dayjs';
 export class RecentLocalStorageItemsService {
   constructor(private storageService: StorageService) {}
 
-  async get(cacheName) {
-    let recentItems = [];
-    const res = await this.storageService.get(cacheName);
+  async get<T>(cacheName: string) {
+    let recentItems: T[] = [];
+    const res = await this.storageService.get<{ updatedAt: string; recentItems: T[] }>(cacheName);
 
     if (res && res.updatedAt) {
       if (dayjs(res.updatedAt).diff(Date.now(), 'minute') > 2) {
@@ -27,7 +28,7 @@ export class RecentLocalStorageItemsService {
     return recentItems;
   }
 
-  async clear(cacheName) {
+  async clear(cacheName: string) {
     await this.storageService.delete(cacheName);
   }
 
@@ -56,7 +57,7 @@ export class RecentLocalStorageItemsService {
     this.clear('recentVendorList');
   }
 
-  indexOfItem(recentItemsArray, item, property?) {
+  indexOfItem<T>(recentItemsArray: T[], item: T, property?: string) {
     for (let i = 0, len = recentItemsArray.length; i < len; i++) {
       if (recentItemsArray[i][property] === item[property]) {
         return i;
@@ -66,13 +67,13 @@ export class RecentLocalStorageItemsService {
     return -1;
   }
 
-  async post(cacheName, item, property?) {
-    const res = await this.get(cacheName);
+  async post<T>(cacheName: string, item: T, property?: string) {
+    const res = await this.get<T>(cacheName);
     const recentItems = res;
     const maxArrayLength = 3;
 
     // 1. Find the index of the item
-    let i;
+    let i: number;
     if (property) {
       i = this.indexOfItem(recentItems, item, property);
     } else {

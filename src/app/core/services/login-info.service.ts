@@ -3,6 +3,7 @@ import { IonFooter } from '@ionic/angular';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { StorageService } from './storage.service';
+import { LoginInfo } from '../models/login-info.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,7 @@ export class LoginInfoService {
 
   async addLoginInfo(version: string, time: Date) {
     // login succeeded on this version at this time
-    let loginInfo = await this.storageService.get('loginInfo');
+    let loginInfo = await this.storageService.get<LoginInfo>('loginInfo');
 
     if (!loginInfo) {
       loginInfo = {};
@@ -22,7 +23,7 @@ export class LoginInfoService {
       loginInfo[version] = [];
     }
 
-    loginInfo[version].push(time);
+    (loginInfo[version] as Date[]).push(time);
 
     if (!loginInfo.lastLoggedInTime || new Date(loginInfo.lastLoggedInTime) < time) {
       loginInfo.lastLoggedInVersion = version;
@@ -33,6 +34,8 @@ export class LoginInfoService {
   }
 
   getLastLoggedInVersion(): Observable<string> {
-    return from(this.storageService.get('loginInfo')).pipe(map((loginInfo) => loginInfo?.lastLoggedInVersion));
+    return from(this.storageService.get<LoginInfo>('loginInfo')).pipe(
+      map((loginInfo) => loginInfo?.lastLoggedInVersion)
+    );
   }
 }
