@@ -346,7 +346,7 @@ export class TransactionService {
             })
           );
         } else {
-          return from(this.storageService.get('etxncCount'));
+          return from(this.storageService.get<{ count: number }>('etxncCount'));
         }
       })
     );
