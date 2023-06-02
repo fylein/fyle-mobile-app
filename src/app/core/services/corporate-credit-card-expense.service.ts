@@ -1,21 +1,17 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
-import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
-import { from, Observable, range } from 'rxjs';
+import { Observable, from } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+import { CardAggregateStat } from '../models/card-aggregate-stat.model';
+import { CCCDetails } from '../models/ccc-expense-details.model';
+import { UniqueCardStats } from '../models/unique-cards-stats.model';
+import { ApiV2Response } from '../models/v2/api-v2-response.model';
+import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
+import { StatsResponse } from '../models/v2/stats-response.model';
 import { ApiV2Service } from './api-v2.service';
+import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
-import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
-import { CardAggregateStat } from '../models/card-aggregate-stat.model';
-import { UniqueCardStats } from '../models/unique-cards-stats.model';
-import { CCCDetails } from '../models/ccc-expense-details.model';
 import { DateService } from './date.service';
-import { ApiV2Response } from '../models/v2/api-v2-response.model';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
-import { Cacheable } from 'ts-cacheable';
-import { StatsResponse } from '../models/v2/stats-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -26,16 +22,8 @@ export class CorporateCreditCardExpenseService {
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
     private authService: AuthService,
-    private dateService: DateService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
+    private dateService: DateService
   ) {}
-
-  @Cacheable()
-  getCorporateCards(): Observable<PlatformCorporateCard[]> {
-    return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformCorporateCard>>('/corporate_cards')
-      .pipe(map((res) => res.data));
-  }
 
   getv2CardTransactions(config: {
     offset: number;

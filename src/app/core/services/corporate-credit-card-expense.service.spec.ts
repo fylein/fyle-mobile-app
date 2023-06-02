@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { AuthService } from './auth.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { DataTransformService } from './data-transform.service';
@@ -16,7 +15,6 @@ import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
 import { expectedAssignedCCCStats } from '../mock-data/ccc-expense.details.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { eCCCApiResponse } from '../mock-data/corporate-card-expense-flattened.data';
-import { platformCorporateCard } from '../mock-data/platform-corporate-card.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
 
 describe('CorporateCreditCardExpenseService', () => {
@@ -25,14 +23,12 @@ describe('CorporateCreditCardExpenseService', () => {
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let authService: jasmine.SpyObj<AuthService>;
-  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let dataTransformService: DataTransformService;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -49,10 +45,6 @@ describe('CorporateCreditCardExpenseService', () => {
           provide: AuthService,
           useValue: authServiceSpy,
         },
-        {
-          provide: SpenderPlatformV1ApiService,
-          useValue: spenderPlatformV1ApiServiceSpy,
-        },
         DataTransformService,
         DateService,
       ],
@@ -62,9 +54,6 @@ describe('CorporateCreditCardExpenseService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     dataTransformService = TestBed.inject(DataTransformService);
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
   });
@@ -156,20 +145,6 @@ describe('CorporateCreditCardExpenseService', () => {
           order: 'txn_dt.desc,id.desc',
         },
       });
-      done();
-    });
-  });
-
-  it('getCorporateCards(): should get all corporate cards', (done) => {
-    const apiResponse = {
-      data: [platformCorporateCard],
-      count: 1,
-    };
-    spenderPlatformV1ApiService.get.and.returnValue(of(apiResponse));
-
-    cccExpenseService.getCorporateCards().subscribe((res) => {
-      expect(res).toEqual([platformCorporateCard]);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/corporate_cards');
       done();
     });
   });
