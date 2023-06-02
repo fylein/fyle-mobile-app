@@ -51,7 +51,7 @@ export class TokenService {
     return this.secureStorageService.delete('X-REFRESH-TOKEN');
   }
 
-  getClusterDomain() {
+  getClusterDomain(): Promise<string> {
     return this.secureStorageService.get('CLUSTER-DOMAIN');
   }
 
