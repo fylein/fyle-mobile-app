@@ -2,6 +2,21 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { DeviceService } from '../../core/services/device.service';
 import { environment } from 'src/environments/environment';
+import {
+  EventTrackProperties,
+  ExpenseProperties,
+  IdentifyProperties,
+  SplittingExpenseProperties,
+  TrackingMethods,
+  PolicyCorrectionProperties,
+  AddAttachmentProperties,
+  CommentHistoryActionProperties,
+  CreateReportProperties,
+  SwitchOrgProperties,
+  CorporateCardExpenseProperties,
+  ExpenseClickProperties,
+} from '../models/tracking-properties.model';
+import { ExpenseView } from '../models/expense-view.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -11,8 +26,8 @@ export class TrackingService {
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
-  get tracking() {
-    return (window as any).analytics;
+  get tracking(): TrackingMethods {
+    return (window as typeof window & { analytics: TrackingMethods }).analytics;
   }
 
   async updateIdentity() {
@@ -28,8 +43,8 @@ export class TrackingService {
     }
   }
 
-  async getUserProperties() {
-    const properties = {};
+  async getUserProperties(): Promise<IdentifyProperties> {
+    const properties: IdentifyProperties = {};
     const eou = await this.authService.getEou();
     if (eou && eou.us && eou && eou.ou) {
       properties['User Name'] = eou.us.full_name;
@@ -46,13 +61,13 @@ export class TrackingService {
   }
 
   // new function name
-  updateSegmentProfile(data) {
+  updateSegmentProfile(data: IdentifyProperties) {
     if (this.tracking) {
       this.tracking.identify(data);
     }
   }
 
-  eventTrack(action, properties = {}) {
+  eventTrack<T>(action: string, properties = {} as T) {
     this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
       properties = {
         ...properties,
@@ -76,7 +91,7 @@ export class TrackingService {
   }
 
   // external APIs
-  onSignin(email, properties = {}) {
+  onSignin(email: string, properties: { label?: string } = {}) {
     if (this.tracking) {
       this.tracking.identify(email, {
         $email: email,
@@ -90,38 +105,38 @@ export class TrackingService {
 
   /*** Events related to expense ***/
   // create expense event
-  async createExpense(properties) {
+  async createExpense(properties: ExpenseProperties) {
     // Temporary hack for already logged in users - we need to know their identity
     await this.updateIdentity();
     this.eventTrack('Create Expense', properties);
   }
 
-  splittingExpense(properties) {
+  splittingExpense(properties: SplittingExpenseProperties) {
     this.eventTrack('Splitting Expense', properties);
   }
 
   // view expense event
-  viewExpense(properties) {
+  viewExpense(properties: { Type: string }) {
     this.eventTrack('View Expense', properties);
   }
 
   // delete expense event
-  deleteExpense(properties = {}) {
+  deleteExpense(properties: { Type?: string } = {}) {
     this.eventTrack('Delete Expense', properties);
   }
 
   // edit expense event
-  editExpense(properties) {
+  editExpense(properties: ExpenseProperties) {
     this.eventTrack('Edit Expense', properties);
   }
 
   // policy correction event
-  policyCorrection(properties) {
+  policyCorrection(properties: PolicyCorrectionProperties) {
     this.eventTrack('Policy Correction on Expense', properties);
   }
 
   // add attachment event
-  addAttachment(properties) {
+  addAttachment(properties: Partial<AddAttachmentProperties>) {
     this.eventTrack('Add Attachment', properties);
   }
 
@@ -131,17 +146,17 @@ export class TrackingService {
   }
 
   // add comment event
-  addComment(properties = {}) {
+  addComment(properties: { view?: ExpenseView } = {}) {
     this.eventTrack('Add Comment', properties);
   }
 
   // view comment event
-  viewComment(properties = {}) {
+  viewComment(properties: { view?: ExpenseView } = {}) {
     this.eventTrack('View Comment', properties);
   }
 
   //Actions inside comments and history
-  commentsHistoryActions(properties) {
+  commentsHistoryActions(properties: CommentHistoryActionProperties) {
     this.eventTrack('Comments and History segment Actions', properties);
   }
 
@@ -156,12 +171,12 @@ export class TrackingService {
   }
 
   // click on Delete Expense
-  clickDeleteExpense(properties) {
+  clickDeleteExpense(properties: { Type: string }) {
     this.eventTrack('Click Delete Expense', properties);
   }
 
   // click on Add to report button
-  addToReport(properties = {}) {
+  addToReport(properties: { count?: number } = {}) {
     this.eventTrack('Add Expenses to report', properties);
   }
 
@@ -182,12 +197,8 @@ export class TrackingService {
   }
 
   // create report event
-  createReport(properties) {
+  createReport(properties: CreateReportProperties) {
     this.eventTrack('Create Report', properties);
-  }
-
-  createDraftReport(properties) {
-    this.eventTrack('Create Draft Report', properties);
   }
 
   /*** Events related to help page ***/
@@ -224,7 +235,7 @@ export class TrackingService {
   }
 
   // when first report is created
-  createFirstReport(properties) {
+  createFirstReport(properties: CreateReportProperties) {
     this.eventTrack('Create First Report', properties);
   }
 
@@ -239,7 +250,7 @@ export class TrackingService {
   }
 
   // When toast message is displayed
-  showToastMessage(properties) {
+  showToastMessage(properties: { ToastContent: string }) {
     this.eventTrack('Toast message displayed', properties);
   }
 
@@ -250,7 +261,7 @@ export class TrackingService {
   }
 
   // sync error event
-  syncError(properties) {
+  syncError(properties: { label: Error }) {
     this.eventTrack('Sync Error', properties);
   }
 
@@ -268,18 +279,13 @@ export class TrackingService {
     this.eventTrack('Remove Expenses from existing report through edit expense', properties);
   }
 
-  onSwitchOrg(properties) {
+  onSwitchOrg(properties: SwitchOrgProperties) {
     this.eventTrack('Switch Org', properties);
   }
 
   // Corporate Cards section related Events
-  unlinkCorporateCardExpense(properties) {
+  unlinkCorporateCardExpense(properties: CorporateCardExpenseProperties) {
     this.eventTrack('unlink corporate card expense', properties);
-  }
-
-  // Track switching to and fro from Beta View
-  onSwitch(properties) {
-    this.eventTrack('Switch between Beta and Original', properties);
   }
 
   switchedToInstafyleBulkMode(properties = {}) {
@@ -294,7 +300,7 @@ export class TrackingService {
     this.eventTrack('instafyle gallery upload opened', properties);
   }
 
-  flashModeSet(properties) {
+  flashModeSet(properties: { FlashMode: 'on' | 'off' }) {
     this.eventTrack('instafyle flash mode set', properties);
   }
 
@@ -303,7 +309,7 @@ export class TrackingService {
     this.eventTrack('dashboard action sheet opened', properties);
   }
 
-  dashboardActionSheetButtonClicked(properties) {
+  dashboardActionSheetButtonClicked(properties: { Action: string }) {
     this.eventTrack('dashboard action sheet button clicked', properties);
   }
 
@@ -323,20 +329,16 @@ export class TrackingService {
     this.eventTrack('dashboard total corporate card expenses clicked', properties);
   }
 
-  dashboardOnReportPillClick(properties) {
+  dashboardOnReportPillClick(properties: { State: string }) {
     this.eventTrack('dashboard report pill clicked', properties);
   }
 
-  dashboardOnCorporateCardClick(properties) {
-    this.eventTrack('dashboard corporate card clicked', properties);
-  }
-
   //View expenses
-  viewExpenseClicked(properties) {
+  viewExpenseClicked(properties: ExpenseClickProperties) {
     this.eventTrack('View expense clicked', properties);
   }
 
-  expenseNavClicked(properties) {
+  expenseNavClicked(properties: { to: string }) {
     this.eventTrack('Expense navigation clicked', properties);
   }
 
