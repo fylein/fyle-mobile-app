@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-import { from } from 'rxjs';
 import { StorageService } from './storage.service';
 import * as dayjs from 'dayjs';
-import { RecentLocalStorageItems } from '../models/recent-local-storage-items.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +8,7 @@ import { RecentLocalStorageItems } from '../models/recent-local-storage-items.mo
 export class RecentLocalStorageItemsService {
   constructor(private storageService: StorageService) {}
 
-  async get<T>(cacheName: string) {
+  async get<T>(cacheName: string): Promise<T[]> {
     let recentItems: T[] = [];
     const res = await this.storageService.get<{ updatedAt: string; recentItems: T[] }>(cacheName);
 
@@ -57,7 +55,7 @@ export class RecentLocalStorageItemsService {
     this.clear('recentVendorList');
   }
 
-  indexOfItem<T>(recentItemsArray: T[], item: T, property?: string) {
+  indexOfItem<T>(recentItemsArray: T[], item: T, property?: string): number {
     for (let i = 0, len = recentItemsArray.length; i < len; i++) {
       if (recentItemsArray[i][property] === item[property]) {
         return i;
@@ -67,7 +65,7 @@ export class RecentLocalStorageItemsService {
     return -1;
   }
 
-  async post<T>(cacheName: string, item: T, property?: string) {
+  async post<T>(cacheName: string, item: T, property?: string): Promise<T[]> {
     const res = await this.get<T>(cacheName);
     const recentItems = res;
     const maxArrayLength = 3;
