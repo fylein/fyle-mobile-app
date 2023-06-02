@@ -1,6 +1,7 @@
 import { DeviceInfo } from '@capacitor/device';
 import { Transaction } from './v1/transaction.model';
 import { ExpenseView } from './expense-view.enum';
+import { TaskFilters } from './task-filters.model';
 
 export interface TrackingMethods {
   identify<T, K>(data: T, property?: K): void;
@@ -83,4 +84,58 @@ export interface CorporateCardExpenseProperties {
 export interface ExpenseClickProperties {
   view: ExpenseView;
   category: string;
+}
+
+export interface FooterButtonClickProperties {
+  Action: string;
+  Url: string;
+}
+
+export interface TaskPageOpenProperties {
+  Asset: string;
+  from: string;
+}
+
+export interface TaskProperties {
+  Asset: string;
+  header: string;
+}
+
+export interface TaskFilterClearAllProperties {
+  Asset: string;
+  appliedFilters: TaskFilters;
+}
+
+export interface FilterPillClickedProperties {
+  Asset: string;
+  filterPillType: string;
+}
+
+export interface ViewReportInfoProperties {
+  view: ExpenseView;
+  action: string;
+  segment: string;
+}
+
+export interface OnSettingToggleProperties {
+  userSetting: string;
+  action: string;
+  setDefaultCurrency: boolean;
+}
+
+export interface AppLaunchTimeProperties {
+  'App launch time': string;
+  'Is logged in': boolean;
+  'Is multi org': boolean;
+}
+
+export interface CaptureSingleReceiptTimeProperties {
+  'Capture receipt time': string;
+  'Is logged in': boolean;
+  'Is multi org': boolean;
+}
+
+export interface SwitchOrgLaunchTimeProperties {
+  'Switch org launch time': string;
+  'Login method': string;
 }

@@ -3,7 +3,6 @@ import { AuthService } from './auth.service';
 import { DeviceService } from '../../core/services/device.service';
 import { environment } from 'src/environments/environment';
 import {
-  EventTrackProperties,
   ExpenseProperties,
   IdentifyProperties,
   SplittingExpenseProperties,
@@ -15,8 +14,21 @@ import {
   SwitchOrgProperties,
   CorporateCardExpenseProperties,
   ExpenseClickProperties,
+  FooterButtonClickProperties,
+  TaskPageOpenProperties,
+  TaskProperties,
+  TaskFilterClearAllProperties,
+  FilterPillClickedProperties,
+  ViewReportInfoProperties,
+  OnSettingToggleProperties,
+  AppLaunchTimeProperties,
+  CaptureSingleReceiptTimeProperties,
+  SwitchOrgLaunchTimeProperties,
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
+import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { TaskFilters } from '../models/task-filters.model';
+import { OrgCategory } from '../models/v1/org-category.model';
 
 @Injectable({
   providedIn: 'root',
@@ -342,7 +354,7 @@ export class TrackingService {
     this.eventTrack('Expense navigation clicked', properties);
   }
 
-  expenseFlagUnflagClicked(properties) {
+  expenseFlagUnflagClicked(properties: { action: string }) {
     this.eventTrack('Expense flagged or unflagged', properties);
   }
 
@@ -351,35 +363,35 @@ export class TrackingService {
   }
 
   // Footer
-  footerButtonClicked(properties) {
+  footerButtonClicked(properties: FooterButtonClickProperties) {
     this.eventTrack('footer button clicked', properties);
   }
 
-  myExpensesBulkDeleteExpenses(properties = {}) {
+  myExpensesBulkDeleteExpenses(properties: { count?: number } = {}) {
     this.eventTrack('bulk delete of expenses from my expenses page', properties);
   }
 
-  myExpensesActionSheetAction(properties) {
+  myExpensesActionSheetAction(properties: { Action: string }) {
     this.eventTrack('my expenses action sheet action clicked', properties);
   }
 
-  myExpensesFilterApplied(properties) {
+  myExpensesFilterApplied(properties: Filters) {
     this.eventTrack('my expenses filters applied', properties);
   }
 
-  myReportsFilterApplied(properties) {
+  myReportsFilterApplied(properties: Filters) {
     this.eventTrack('my reports filters applied', properties);
   }
 
-  TeamReportsFilterApplied(properties) {
+  TeamReportsFilterApplied(properties: Filters) {
     this.eventTrack('team reports filters applied', properties);
   }
 
-  showMoreClicked(properties) {
+  showMoreClicked(properties: { source: string }) {
     this.eventTrack('show more clicked', properties);
   }
 
-  hideMoreClicked(properties) {
+  hideMoreClicked(properties: { source: string }) {
     this.eventTrack('hide more clicked', properties);
   }
 
@@ -392,32 +404,32 @@ export class TrackingService {
   }
 
   // Tasks
-  async tasksFiltersApplied(properties = {}) {
+  async tasksFiltersApplied(properties = {} as TaskFilters) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('filters applied in tasks', properties);
   }
 
-  async tasksPageOpened(properties = {}) {
+  async tasksPageOpened(properties = {} as TaskPageOpenProperties) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('tasks page opened', properties);
   }
 
-  async tasksShown(properties = {}) {
+  async tasksShown(properties = {} as TaskProperties) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('tasks shown', properties);
   }
 
-  async tasksClicked(properties = {}) {
+  async tasksClicked(properties = {} as TaskProperties) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('tasks clicked', properties);
   }
 
-  async tasksFilterClearAllClicked(properties = {}) {
+  async tasksFilterClearAllClicked(properties = {} as TaskFilterClearAllProperties) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('tasks clear all filters clicked', properties);
   }
 
-  async tasksFilterPillClicked(properties = {}) {
+  async tasksFilterPillClicked(properties = {} as FilterPillClickedProperties) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('tasks clicked on filter pill', properties);
   }
@@ -441,28 +453,28 @@ export class TrackingService {
 
   //Reports
   //Open view report info modal
-  clickViewReportInfo(properties) {
+  clickViewReportInfo(properties: { view: ExpenseView }) {
     this.eventTrack('Open View Report Info', properties);
   }
 
   //Actions inside view report info modal
-  viewReportInfo(properties) {
+  viewReportInfo(properties: ViewReportInfoProperties) {
     this.eventTrack('View Report Info', properties);
   }
 
   // Team Advances
-  async sendBackAdvance(properties = {}) {
+  async sendBackAdvance(properties = {} as { Asset: string }) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('Send Back Advance', properties);
   }
 
-  async rejectAdvance(properties = {}) {
+  async rejectAdvance(properties = {} as { Asset: string }) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('Reject Advance', properties);
   }
 
   //Toggle settings
-  onSettingsToggle(properties) {
+  onSettingsToggle(properties: OnSettingToggleProperties) {
     this.eventTrack('Toggle Setting', properties);
   }
 
@@ -529,30 +541,30 @@ export class TrackingService {
   }
 
   // Track app launch time
-  appLaunchTime(properties = {}) {
+  appLaunchTime(properties = {} as AppLaunchTimeProperties) {
     this.eventTrack('app launch time', properties);
   }
 
   // Track time taken to capture single receipt for the first time
-  captureSingleReceiptTime(properties = {}) {
+  captureSingleReceiptTime(properties = {} as CaptureSingleReceiptTimeProperties) {
     this.eventTrack('capture single receipt time', properties);
   }
 
-  autoSubmissionInfoCardClicked(properties = {}) {
+  autoSubmissionInfoCardClicked(properties = {} as { isSeparateCard: boolean }) {
     this.eventTrack('Auto Submission Info Card Clicked', properties);
   }
 
   // Track switch org launch time
-  switchOrgLaunchTime(properties = {}) {
+  switchOrgLaunchTime(properties = {} as SwitchOrgLaunchTimeProperties) {
     this.eventTrack('switch org launch time', properties);
   }
 
   // Track dashboard launch time
-  dashboardLaunchTime(properties = {}) {
+  dashboardLaunchTime(properties = {} as { 'Dashboard launch time': string }) {
     this.eventTrack('dashboard launch time', properties);
   }
 
-  footerHomeTabClicked(properties = {}) {
+  footerHomeTabClicked(properties = {} as { page: string }) {
     this.eventTrack('Home Tab clicked On Footer', properties);
   }
 
@@ -560,11 +572,11 @@ export class TrackingService {
     this.eventTrack('Menu Button Clicked', properties);
   }
 
-  menuItemClicked(properties = {}) {
+  menuItemClicked(properties = {} as { option: string }) {
     this.eventTrack('Menu Item Clicked', properties);
   }
 
-  setCategoryFromVendor(properties = {}) {
+  setCategoryFromVendor(properties = {} as OrgCategory) {
     this.eventTrack('Category Updated By Vendor', properties);
   }
 
