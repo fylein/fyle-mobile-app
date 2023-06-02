@@ -21,7 +21,7 @@ export class TokenService {
     cacheBusterObserver: tokenCacheBuster$,
   })
   getAccessToken() {
-    return this.secureStorageService.get('X-AUTH-TOKEN');
+    return this.secureStorageService.get<string>('X-AUTH-TOKEN');
   }
 
   @PCacheBuster({
@@ -40,7 +40,7 @@ export class TokenService {
   }
 
   getRefreshToken() {
-    return this.secureStorageService.get('X-REFRESH-TOKEN');
+    return this.secureStorageService.get<string>('X-REFRESH-TOKEN');
   }
 
   setRefreshToken(refreshToken: string) {
@@ -52,7 +52,7 @@ export class TokenService {
   }
 
   getClusterDomain(): Promise<string> {
-    return this.secureStorageService.get('CLUSTER-DOMAIN');
+    return this.secureStorageService.get<string>('CLUSTER-DOMAIN');
   }
 
   setClusterDomain(clusterDomain: string) {
