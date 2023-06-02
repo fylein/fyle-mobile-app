@@ -29,6 +29,7 @@ import { ExpenseView } from '../models/expense-view.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
+import { StringChain } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -158,12 +159,12 @@ export class TrackingService {
   }
 
   // add comment event
-  addComment(properties: { view?: ExpenseView } = {}) {
+  addComment(properties: { view?: string } = {}) {
     this.eventTrack('Add Comment', properties);
   }
 
   // view comment event
-  viewComment(properties: { view?: ExpenseView } = {}) {
+  viewComment(properties: { view?: string } = {}) {
     this.eventTrack('View Comment', properties);
   }
 
