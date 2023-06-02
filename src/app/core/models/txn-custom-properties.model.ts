@@ -2,7 +2,7 @@ export interface TxnCustomProperties {
   id?: number;
   mandatory?: boolean;
   name: string;
-  options?: CustomInputsOptions[] | string[];
+  options?: CustomInputsOption[] | string[];
   placeholder?: string;
   prefix?: string;
   type?: string;
@@ -10,7 +10,7 @@ export interface TxnCustomProperties {
   parent_field_id?: number;
 }
 
-export interface CustomInputsOptions {
+export interface CustomInputsOption {
   label: string;
   value: string;
 }

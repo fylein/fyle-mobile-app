@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CustomProperty } from '../models/custom-properties.model';
-import { CustomInputsOptions, TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { CustomInputsOption, TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 
 @Injectable({
@@ -59,7 +59,7 @@ export class CustomFieldsService {
       placeholder: customInput[prefix + 'placeholder'] as string,
       type: customInput[prefix + 'type'] as string,
       mandatory: customInputMandatory as boolean,
-      options: customInput[prefix + 'options'] as CustomInputsOptions[],
+      options: customInput[prefix + 'options'] as CustomInputsOption[],
       parent_field_id: customInput.parent_field_id,
     };
 
