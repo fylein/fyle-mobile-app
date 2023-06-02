@@ -4,6 +4,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { throwError, of, iif } from 'rxjs';
 import { OrgSettings } from '../models/org-settings.model';
 import { ReportAllowedActions } from '../models/allowed-actions.model';
+import { SidemenuAllowedActions } from '../models/sidemenu-allowed-actions.model';
 
 @Injectable({
   providedIn: 'root',
@@ -1579,7 +1580,7 @@ export class PermissionsService {
 
   allowedActions(resource: string, actions: string[], orgSettings: OrgSettings) {
     const roles$ = this.authService.getRoles();
-    const allowedActions: Partial<ReportAllowedActions> = {
+    const allowedActions: any = {
       allowedRouteAccess: false,
     };
 
