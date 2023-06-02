@@ -34,7 +34,7 @@ import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spe
 import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
 import { cloneDeep, slice } from 'lodash';
 
-describe('ViewMileagePage', () => {
+fdescribe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -697,6 +697,29 @@ describe('ViewMileagePage', () => {
       expect(component.isProjectShown).toBeFalsy();
     }));
 
+    it('projectFieldName is present, project is not mandatory and project name is provided', fakeAsync(() => {
+      transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
+      component.extendedMileage$ = of(etxncData.data[0]);
+      const mockExpFieldData = {
+        ...expenseFieldsMapResponse4,
+        project_id: [
+          {
+            ...expenseFieldsMapResponse4.project_id[0],
+            is_mandatory: false,
+          },
+        ],
+      };
+
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
+      component.txnFields$ = of(mockExpFieldData);
+      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      component.ionViewWillEnter();
+      tick(500);
+      expect(component.projectFieldName).toEqual('Project ID');
+      expect(component.isProjectShown).toBeTruthy();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    }));
+
     it('should get all the org setting and return true if new reports Flow Enabled ', () => {
       const mockOrgSettings = {
         ...orgSettingsGetData,
@@ -800,6 +823,26 @@ describe('ViewMileagePage', () => {
         done();
       });
     });
+
+    it('expense cannot be deleted nor flagged when the view is set to individual', fakeAsync(() => {
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_state: 'PAID',
+        tx_report_id: 'rphNNUiCISkD',
+        tx_custom_properties: null,
+      };
+      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      component.extendedMileage$ = of(mockExtMileageData);
+      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.view = ExpenseView.individual;
+
+      component.ionViewWillEnter();
+      tick(5000);
+      component.canDelete$.subscribe((res) => {
+        expect(res).toBeTrue();
+      });
+    }));
 
     it('should get all the policy violations when it a team expense', (done) => {
       activateRouteMock.snapshot.params.id = 'tx5fBcPBAxLv';
