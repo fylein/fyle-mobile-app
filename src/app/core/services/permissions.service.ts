@@ -10,7 +10,7 @@ import { ReportAllowedActions } from '../models/allowed-actions.model';
 })
 export class PermissionsService {
   // can check roleActionMap[role]['company']['view'] for whether he is allowed company view.
-  roleActionMap = {
+  roleActionMap: Record<string, Record<string, Record<string, boolean>>> = {
     owner: {
       expenses: {
         create: false,
@@ -1579,12 +1579,12 @@ export class PermissionsService {
 
   allowedActions(resource: string, actions: string[], orgSettings: OrgSettings) {
     const roles$ = this.authService.getRoles();
-    const allowedActions: any = {
+    const allowedActions: Partial<ReportAllowedActions> = {
       allowedRouteAccess: false,
     };
 
     const filteredRoles$ = roles$.pipe(
-      map((roles) => {
+      map((roles: string[]) => {
         if (roles.indexOf('SUPER_ADMIN') > -1) {
           roles.splice(roles.indexOf('SUPER_ADMIN'), 1);
         }
