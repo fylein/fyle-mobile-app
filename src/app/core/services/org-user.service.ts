@@ -15,6 +15,7 @@ import { Employee } from '../models/spender/employee.model';
 import { EmployeeParams } from '../models/employee-params.model';
 import { OrgUser } from '../models/org-user.model';
 import { EouApiResponse } from '../models/eou-api-response.model';
+import { ApiV2Response } from '../models/v2/api-v2-response.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -40,14 +41,8 @@ export class OrgUserService {
   @Cacheable({
     cacheBusterObserver: orgUsersCacheBuster$,
   })
-  getEmployeesByParams(params: Partial<EmployeeParams>): Observable<{
-    count: number;
-    data: Partial<Employee>[];
-    limit: number;
-    offset: number;
-    url: string;
-  }> {
-    return this.apiV2Service.get('/spender_employees', { params });
+  getEmployeesByParams(params: Partial<EmployeeParams>) {
+    return this.apiV2Service.get<Partial<Employee>, {}>('/spender_employees', { params });
   }
 
   @CacheBuster({

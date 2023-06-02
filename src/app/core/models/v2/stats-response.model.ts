@@ -17,6 +17,7 @@ export interface Datum {
   dimensions: string[];
   name: string;
   value: Value[];
+  aggregates?: Aggregate[];
 }
 
 export class StatsResponse {

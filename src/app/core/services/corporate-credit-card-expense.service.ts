@@ -15,6 +15,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { Cacheable } from 'ts-cacheable';
+import { StatsResponse } from '../models/v2/stats-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -130,7 +131,7 @@ export class CorporateCreditCardExpenseService {
   getAssignedCards(): Observable<CCCDetails> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiV2Service.get(
+        this.apiV2Service.getStats(
           '/expenses_and_ccce/stats?aggregates=count(tx_id),sum(tx_amount)&scalar=true&dimension_1_1=corporate_credit_card_bank_name,corporate_credit_card_account_number,tx_state&tx_state=' +
             this.constructInQueryParamStringForV2(['COMPLETE', 'DRAFT']) +
             '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
@@ -138,7 +139,7 @@ export class CorporateCreditCardExpenseService {
           {}
         )
       ),
-      map((statsResponse) => {
+      map((statsResponse: StatsResponse) => {
         const stats = {
           totalTxns: 0,
           totalAmount: 0,

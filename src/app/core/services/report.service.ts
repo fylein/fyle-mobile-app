@@ -611,7 +611,7 @@ export class ReportService {
           },
         })
       ),
-      map((rawStatsResponse) => new StatsResponse(rawStatsResponse))
+      map((rawStatsResponse: StatsResponse) => new StatsResponse(rawStatsResponse))
     );
   }
 }

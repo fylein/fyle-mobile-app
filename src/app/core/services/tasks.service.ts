@@ -440,7 +440,7 @@ export class TasksService {
       reportsStats: this.getSentBackReports(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: StatsResponse; homeCurrency: string }) =>
         this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
@@ -497,7 +497,7 @@ export class TasksService {
       reportsStats: this.getTeamReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: StatsResponse; homeCurrency: string }) =>
         this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
@@ -564,7 +564,7 @@ export class TasksService {
       reportsStats: this.getUnsubmittedReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: StatsResponse; homeCurrency: string }) =>
         this.mapAggregateToUnsubmittedReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );

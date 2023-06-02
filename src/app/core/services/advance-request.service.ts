@@ -100,7 +100,7 @@ export class AdvanceRequestService {
   })
   getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
     return this.apiv2Service
-      .get('/advance_requests', {
+      .get<ExtendedAdvanceRequest, { params: { areq_id: string } }>('/advance_requests', {
         params: {
           areq_id: `eq.${id}`,
         },
@@ -207,7 +207,7 @@ export class AdvanceRequestService {
         }
 
         const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
-        return this.apiv2Service.get('/advance_requests', {
+        return this.apiv2Service.get<ExtendedAdvanceRequest, {}>('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -411,7 +411,7 @@ export class AdvanceRequestService {
     eou: ExtendedOrgUser,
     params: advanceRequestStat
   ): Observable<Partial<ApiV2Response<StatsDimensionResponse>>> {
-    return this.apiv2Service.get('/advance_requests/stats', {
+    return this.apiv2Service.get<StatsDimensionResponse, {}>('/advance_requests/stats', {
       params: {
         areq_org_user_id: 'eq.' + eou.ou.id,
         ...params,
