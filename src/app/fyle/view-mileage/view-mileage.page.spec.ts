@@ -29,12 +29,13 @@ import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.se
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { customProperties, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
-import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
+import { apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
 import { cloneDeep, slice } from 'lodash';
+import { isEmpty } from 'rxjs/operators';
 
-fdescribe('ViewMileagePage', () => {
+describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -697,7 +698,7 @@ fdescribe('ViewMileagePage', () => {
       expect(component.isProjectShown).toBeFalsy();
     }));
 
-    it('projectFieldName is present, project is not mandatory and project name is provided', fakeAsync(() => {
+    it('should get the project field name and the value of project field name should be truthy', fakeAsync(() => {
       transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
       component.extendedMileage$ = of(etxncData.data[0]);
       const mockExpFieldData = {
@@ -709,7 +710,6 @@ fdescribe('ViewMileagePage', () => {
           },
         ],
       };
-
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
       component.txnFields$ = of(mockExpFieldData);
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
@@ -782,6 +782,20 @@ fdescribe('ViewMileagePage', () => {
       });
     });
 
+    it('expense cannot be flagged when the view is set to indivivual', (done) => {
+      activateRouteMock.snapshot.params.view = ExpenseView.individual;
+      const mockExtMileageData = {
+        ...etxncData.data[0],
+        tx_state: 'PAID',
+      };
+      component.extendedMileage$ = of(mockExtMileageData);
+      component.ionViewWillEnter();
+      component.canFlagOrUnflag$.pipe(isEmpty()).subscribe((isEmpty) => {
+        expect(isEmpty).toBeTrue();
+        done();
+      });
+    });
+
     it('should return false if there is only one transaction in the report and the state is PAID', (done) => {
       const mockExtMileageData = {
         ...etxncData.data[0],
@@ -824,25 +838,25 @@ fdescribe('ViewMileagePage', () => {
       });
     });
 
-    it('expense cannot be deleted nor flagged when the view is set to individual', fakeAsync(() => {
+    it('should not delete expense when view is individual', (done) => {
       const mockExtMileageData = {
         ...etxncData.data[0],
-        tx_state: 'PAID',
+        tx_state: 'APPROVER_PENDING',
         tx_report_id: 'rphNNUiCISkD',
         tx_custom_properties: null,
       };
-      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
       component.extendedMileage$ = of(mockExtMileageData);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       component.view = ExpenseView.individual;
 
       component.ionViewWillEnter();
-      tick(5000);
-      component.canDelete$.subscribe((res) => {
-        expect(res).toBeTrue();
+      component.canDelete$.pipe(isEmpty()).subscribe((isEmpty) => {
+        expect(isEmpty).toBeTrue();
+        done();
       });
-    }));
+    });
 
     it('should get all the policy violations when it a team expense', (done) => {
       activateRouteMock.snapshot.params.id = 'tx5fBcPBAxLv';
@@ -905,7 +919,7 @@ fdescribe('ViewMileagePage', () => {
         tx_policy_amount: -1,
       };
 
-      transactionService.getEtxn.and.returnValue(of(mockExtMileageData));
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
       component.extendedMileage$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
@@ -975,12 +989,12 @@ fdescribe('ViewMileagePage', () => {
       activateRouteMock.snapshot.params = {
         id: 'tx3qwe4ty',
         view: ExpenseView.individual,
-        txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
+        txnIds: '["tx3qwe4ty","tx6sd7gh"]',
         activeIndex: '20',
       };
       component.ionViewWillEnter();
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.numEtxnsInReport).toEqual(3);
+      expect(component.numEtxnsInReport).toEqual(2);
       expect(component.activeEtxnIndex).toEqual(20);
     });
   });

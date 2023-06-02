@@ -362,6 +362,7 @@ export class ViewMileagePage implements OnInit {
     this.view = this.activatedRoute.snapshot.params.view;
 
     this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
+      take(1),
       filter(() => this.view === ExpenseView.team),
       map(
         (etxn) =>
@@ -370,6 +371,7 @@ export class ViewMileagePage implements OnInit {
     );
 
     this.canDelete$ = this.extendedMileage$.pipe(
+      take(1),
       filter(() => this.view === ExpenseView.team),
       switchMap((etxn) =>
         this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
