@@ -29,7 +29,6 @@ import { ExpenseView } from '../models/expense-view.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
-import { StringChain } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
