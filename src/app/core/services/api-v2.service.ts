@@ -1,11 +1,7 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { TextSearchQueryParams } from '../models/text-search-params.model';
-import { TextSearchQuery } from '../models/text-search-query.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
-import { StatsResponse } from '../models/v2/stats-response.model';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
