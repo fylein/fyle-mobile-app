@@ -1,31 +1,36 @@
-<div class="route-visualizer">
+<ng-container *ngIf="loadDynamicMap">
+  <google-map
+    *ngIf="directionsResults$ | async as directionsResults"
+    (mapClick)="mapClicked($event)"
+    [width]="this.mapWidth"
+    [height]="this.mapHeight"
+    [options]="dynamicMapOptions"
+  >
+    <map-directions-renderer [directions]="directionsResults"></map-directions-renderer>
+  </google-map>
+</ng-container>
+
+<ng-container *ngIf="!loadDynamicMap">
+  <img
+    *ngIf="routeMapImageUrl$ | async as routeMapImageUrl"
+    [src]="routeMapImageUrl"
+    [style.width]="mapWidth + 'px'"
+    [style.height]="mapHeight + 'px'"
+  />
+</ng-container>
+
+<ng-container *ngIf="showCurrentLocationMap && currentLocation">
   <ng-container *ngIf="loadDynamicMap">
     <google-map
-      *ngIf="directionsResults$ | async as directionsResults"
       (mapClick)="mapClicked($event)"
-      [height]="266"
+      [width]="this.mapWidth"
+      [height]="this.mapHeight"
+      [center]="currentLocation"
       [options]="dynamicMapOptions"
-    >
-      <map-directions-renderer [directions]="directionsResults"></map-directions-renderer>
-    </google-map>
+    ></google-map>
   </ng-container>
 
   <ng-container *ngIf="!loadDynamicMap">
-    <img *ngIf="routeMapImageUrl$ | async as routeMapImageUrl" [src]="routeMapImageUrl" />
+    <img [src]="currentLocationMapImageUrl" [style.width]="mapWidth + 'px'" [style.height]="mapHeight + 'px'" />
   </ng-container>
-
-  <ng-container *ngIf="showCurrentLocationMap && currentLocation">
-    <ng-container *ngIf="loadDynamicMap">
-      <google-map
-        (mapClick)="mapClicked($event)"
-        [height]="266"
-        [center]="currentLocation"
-        [options]="dynamicMapOptions"
-      ></google-map>
-    </ng-container>
-
-    <ng-container *ngIf="!loadDynamicMap">
-      <img [src]="currentLocationMapImageUrl" />
-    </ng-container>
-  </ng-container>
-</div>
+</ng-container>

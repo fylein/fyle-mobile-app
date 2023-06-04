@@ -1,14 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { Observable, catchError, of, map, filter } from 'rxjs';
 
 import { GmapsService } from 'src/app/core/services/gmaps.service';
@@ -21,7 +11,7 @@ import { MileageRoute } from './mileage-route.interface';
   templateUrl: './route-visualizer.component.html',
   styleUrls: ['./route-visualizer.component.scss'],
 })
-export class RouteVisualizerComponent implements OnChanges, OnInit, AfterViewInit {
+export class RouteVisualizerComponent implements OnChanges, OnInit {
   @Input() mileageLocations: MileageLocation[];
 
   @Input() loadDynamicMap: boolean;
@@ -42,18 +32,14 @@ export class RouteVisualizerComponent implements OnChanges, OnInit, AfterViewIni
 
   currentLocationMapImageUrl: string;
 
-  constructor(
-    private locationService: LocationService,
-    private gmapsService: GmapsService,
-    private elementRef: ElementRef<HTMLElement>
-  ) {}
+  mapWidth = window.innerWidth;
 
-  ngOnChanges(changes: SimpleChanges) {
-    const isMileageLocationsChanged = changes.mileageLocations && !changes.mileageLocations.firstChange;
+  mapHeight = 266;
 
-    if (isMileageLocationsChanged) {
-      this.reset();
-    }
+  constructor(private locationService: LocationService, private gmapsService: GmapsService) {}
+
+  ngOnChanges() {
+    this.reset();
   }
 
   ngOnInit() {
@@ -63,20 +49,14 @@ export class RouteVisualizerComponent implements OnChanges, OnInit, AfterViewIni
           lat: geoLocationPosition.coords?.latitude,
           lng: geoLocationPosition.coords?.longitude,
         };
+
+        this.currentLocationMapImageUrl = this.gmapsService.generateStaticLocationMapUrl(
+          this.currentLocation,
+          this.mapWidth,
+          this.mapHeight
+        );
       }
     });
-  }
-
-  ngAfterViewInit() {
-    if (this.currentLocation) {
-      this.currentLocationMapImageUrl = this.gmapsService.generateStaticLocationMapUrl(
-        this.currentLocation,
-        this.elementRef.nativeElement.offsetWidth,
-        266
-      );
-    }
-
-    this.reset();
   }
 
   mapClicked(event) {
@@ -122,20 +102,13 @@ export class RouteVisualizerComponent implements OnChanges, OnInit, AfterViewIni
     );
 
     if (!this.loadDynamicMap) {
-      // Setting the width and height of the map image to the size of the container element to avoid aspect ratio issues
-      const containerWidth = this.elementRef.nativeElement.offsetWidth;
-      // TODO: Figure out how to set the image dimensions
-      const containerHeight = 266;
-
       this.routeMapImageUrl$ = this.directionsResults$.pipe(
         filter((directionsResults) => directionsResults !== null),
         map((directionsResults) => {
           mileageRoute.directions = directionsResults.routes[0];
           return mileageRoute;
         }),
-        map((mileageRoute) =>
-          this.gmapsService.generateStaticRouteMapUrl(mileageRoute, containerWidth, containerHeight)
-        )
+        map((mileageRoute) => this.gmapsService.generateStaticRouteMapUrl(mileageRoute, this.mapWidth, this.mapHeight))
       );
     }
   }
