@@ -82,6 +82,7 @@
             <div class="add-edit-mileage--map">
               <app-route-visualizer
                 [mileageLocations]="fg.controls.route.value?.mileageLocations || []"
+                [loadDynamicMap]="loadDynamicMileageMap"
                 (mapClick)="onRouteVisualizerClick()"
               ></app-route-visualizer>
             </div>

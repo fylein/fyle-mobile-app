@@ -245,6 +245,8 @@ export class AddEditMileagePage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
+  loadDynamicMileageMap = false;
+
   private _isExpandedView = false;
 
   constructor(
@@ -324,6 +326,10 @@ export class AddEditMileagePage implements OnInit {
   ngOnInit() {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+
+    this.launchDarklyService.getVariation('load_dynamic_map', false).subscribe((loadDynamicMileageMap) => {
+      this.loadDynamicMileageMap = loadDynamicMileageMap;
+    });
   }
 
   goToPrev() {

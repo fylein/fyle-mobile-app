@@ -1,4 +1,4 @@
-import { MileageLocation } from 'src/app/shared/components/route-visualizer/mileage-locations';
+import { MileageLocation } from 'src/app/shared/components/route-visualizer/mileage-locations.interface';
 
 export const mileageLocationData1: MileageLocation[] = [
   {
