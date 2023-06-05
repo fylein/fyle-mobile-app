@@ -63,8 +63,8 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
     this.locationService.getCurrentLocation().subscribe((geoLocationPosition) => {
       if (geoLocationPosition) {
         this.currentLocation = {
-          lat: geoLocationPosition.coords?.latitude,
-          lng: geoLocationPosition.coords?.longitude,
+          lat: geoLocationPosition.coords.latitude,
+          lng: geoLocationPosition.coords.longitude,
         };
 
         this.currentLocationMapImageUrl = this.gmapsService.generateStaticLocationMapUrl(
