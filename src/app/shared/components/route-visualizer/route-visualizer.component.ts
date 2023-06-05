@@ -22,39 +22,39 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
     disableDefaultUI: true,
   };
 
-  showCurrentLocationMap = false;
-
-  directionsResults$: Observable<google.maps.DirectionsResult>;
-
-  routeMapImageUrl$: Observable<string>;
-
-  currentLocation: google.maps.LatLngLiteral;
-
-  currentLocationMapImageUrl: string;
+  showCurrentLocation = false;
 
   mapWidth = window.innerWidth;
 
   mapHeight = 266;
 
+  directions$: Observable<google.maps.DirectionsResult>;
+
+  directionsMapUrl$: Observable<string>;
+
+  currentLocation: google.maps.LatLngLiteral;
+
+  currentLocationMapUrl: string;
+
   constructor(private locationService: LocationService, private gmapsService: GmapsService) {}
 
   ngOnChanges() {
-    this.showCurrentLocationMap = false;
+    this.showCurrentLocation = false;
 
-    // Only render the map if there are at least two locations and all locations have a valid latitude and longitude value
-    const hasValidLocations = this.mileageLocations.every(
+    const allLocationsValid = this.mileageLocations.every(
       (location) => location && location.latitude && location.longitude
     );
 
-    if (hasValidLocations && this.mileageLocations.length >= 2) {
+    if (allLocationsValid && this.mileageLocations.length >= 2) {
       const mileageRoute = this.locationService.getMileageRoute(this.mileageLocations);
       this.renderMap(mileageRoute);
     } else {
       const allLocationsInvalid = this.mileageLocations.every(
         (location) => !(location && location.latitude && location.longitude)
       );
+
       if (allLocationsInvalid) {
-        this.showCurrentLocationMap = true;
+        this.showCurrentLocation = true;
       }
     }
   }
@@ -67,7 +67,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
           lng: geoLocationPosition.coords.longitude,
         };
 
-        this.currentLocationMapImageUrl = this.gmapsService.generateStaticLocationMapUrl(
+        this.currentLocationMapUrl = this.gmapsService.generateStaticLocationMapUrl(
           this.currentLocation,
           this.mapWidth,
           this.mapHeight
@@ -80,12 +80,12 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
     this.mapClick.emit();
   }
 
-  handleMapLoadError() {
-    this.showCurrentLocationMap = true;
+  handleMapLoadError(event) {
+    this.showCurrentLocation = true;
   }
 
   private renderMap(mileageRoute: MileageRoute) {
-    this.directionsResults$ = this.gmapsService.getDirections(mileageRoute).pipe(
+    this.directions$ = this.gmapsService.getDirections(mileageRoute).pipe(
       map((response) => {
         if (response.status === google.maps.DirectionsStatus.OK) {
           return response.result;
@@ -93,14 +93,14 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
         throw new Error(response.status);
       }),
-      catchError(() => {
-        this.showCurrentLocationMap = true;
+      catchError((error) => {
+        this.showCurrentLocation = true;
         return of(null);
       })
     );
 
     if (!this.loadDynamicMap) {
-      this.routeMapImageUrl$ = this.directionsResults$.pipe(
+      this.directionsMapUrl$ = this.directions$.pipe(
         filter((directionsResults) => directionsResults !== null),
         map((directionsResults) => {
           mileageRoute.directions = directionsResults.routes[0];

@@ -80,7 +80,7 @@ describe('RouteVisualizerComponent', () => {
     fixture.detectChanges();
 
     expect(gmapsService.getDirections).not.toHaveBeenCalled();
-    expect(component.showCurrentLocationMap).toBeTrue();
+    expect(component.showCurrentLocation).toBeTrue();
   });
 
   it('should empty map when list of location is empty', () => {
@@ -90,7 +90,7 @@ describe('RouteVisualizerComponent', () => {
     fixture.detectChanges();
 
     expect(gmapsService.getDirections).not.toHaveBeenCalled();
-    expect(component.showCurrentLocationMap).toBeTrue();
+    expect(component.showCurrentLocation).toBeTrue();
   });
 
   it('should show route for multiple locations', () => {
