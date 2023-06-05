@@ -43,10 +43,6 @@ describe('AdvanceRequestPolicyService', () => {
   });
 
   it('servicePost(): should make POST request', (done) => {
-    const requestObj = {
-      someKey: 'someValue',
-    };
-
     const apiResponse = {
       message: 'SUCCESS',
     };
@@ -56,7 +52,7 @@ describe('AdvanceRequestPolicyService', () => {
       expect(res).toEqual(apiResponse);
       expect(httpClient.post).toHaveBeenCalledOnceWith(
         'https://staging.fyle.tech/policy/advance_requests/policy_check',
-        requestObj
+        advancedRequests
       );
       done();
     });
