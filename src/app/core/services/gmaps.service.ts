@@ -74,7 +74,8 @@ export class GmapsService {
     return this.mapDirectionsService.route(request);
   }
 
-  generateStaticLocationMapUrl(location: google.maps.LatLngLiteral, mapWidth: number, mapHeight: number) {
+  // Used to generate static map image urls, for single location
+  generateLocationMapUrl(location: google.maps.LatLngLiteral, mapWidth: number, mapHeight: number) {
     const staticMapImageUrl = new URL(this.staticMapsApi);
 
     const size = `${mapWidth}x${mapHeight}`;
@@ -90,7 +91,8 @@ export class GmapsService {
     return staticMapImageUrl.href;
   }
 
-  generateStaticRouteMapUrl(mileageRoute: MileageRoute, mapWidth: number, mapHeight: number): string {
+  // Used to generate static map image urls, for routes
+  generateDirectionsMapUrl(mileageRoute: MileageRoute, mapWidth: number, mapHeight: number): string {
     const staticMapImageUrl = new URL(this.staticMapsApi);
 
     const size = `${mapWidth}x${mapHeight}`;

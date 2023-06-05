@@ -67,7 +67,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
           lng: geoLocationPosition.coords.longitude,
         };
 
-        this.currentLocationMapUrl = this.gmapsService.generateStaticLocationMapUrl(
+        this.currentLocationMapUrl = this.gmapsService.generateLocationMapUrl(
           this.currentLocation,
           this.mapWidth,
           this.mapHeight
@@ -106,7 +106,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
           mileageRoute.directions = directionsResults.routes[0];
           return mileageRoute;
         }),
-        map((mileageRoute) => this.gmapsService.generateStaticRouteMapUrl(mileageRoute, this.mapWidth, this.mapHeight))
+        map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute, this.mapWidth, this.mapHeight))
       );
     }
   }
