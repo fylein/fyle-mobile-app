@@ -83,3 +83,16 @@ export const mileageLocationData4: MileageLocation[] = [
     longitude: 88.3506995,
   },
 ];
+
+export const mileageLocationData5: MileageLocation[] = [
+  {
+    city: 'Kolkata',
+    state: 'West Bengal',
+    country: 'India',
+    display: 'Kolkata',
+    formatted_address: 'Moore Avenue',
+    latitude: 22.4860708,
+    longitude: 88.3506995,
+  },
+  null,
+];
