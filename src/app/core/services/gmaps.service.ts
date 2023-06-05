@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { MapDirectionsResponse, MapDirectionsService, MapGeocoder, MapGeocoderResponse } from '@angular/google-maps';
 import { Cacheable } from 'ts-cacheable';
 import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
@@ -59,7 +59,7 @@ export class GmapsService {
   }
 
   @Cacheable()
-  getDirections(mileageRoute: MileageRoute): Observable<MapDirectionsResponse> {
+  getDirections(mileageRoute: MileageRoute): Observable<google.maps.DirectionsResult> {
     const { origin, destination, waypoints } = mileageRoute;
 
     // Convert waypoints to google maps waypoints
@@ -71,10 +71,12 @@ export class GmapsService {
       waypoints: directionsWaypoints,
       travelMode: google.maps.TravelMode.DRIVING,
     };
-    return this.mapDirectionsService.route(request);
+
+    return this.mapDirectionsService.route(request).pipe(map((response: MapDirectionsResponse) => response.result));
   }
 
-  generateStaticLocationMapUrl(location: google.maps.LatLngLiteral, mapWidth: number, mapHeight: number) {
+  // Used to generate static map image urls, for single location
+  generateLocationMapUrl(location: google.maps.LatLngLiteral, mapWidth: number, mapHeight: number): string {
     const staticMapImageUrl = new URL(this.staticMapsApi);
 
     const size = `${mapWidth}x${mapHeight}`;
@@ -90,7 +92,8 @@ export class GmapsService {
     return staticMapImageUrl.href;
   }
 
-  generateStaticRouteMapUrl(mileageRoute: MileageRoute, mapWidth: number, mapHeight: number): string {
+  // Used to generate static map image urls, for routes
+  generateDirectionsMapUrl(mileageRoute: MileageRoute, mapWidth: number, mapHeight: number): string {
     const staticMapImageUrl = new URL(this.staticMapsApi);
 
     const size = `${mapWidth}x${mapHeight}`;

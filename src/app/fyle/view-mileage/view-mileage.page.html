@@ -97,7 +97,10 @@
       <ng-container *ngIf="isConnected$|async">
         <div class="view-mileage--map-block">
           <div class="view-mileage--map-block__map">
-            <app-route-visualizer [mileageLocations]="extendedMileage.tx_locations || []"></app-route-visualizer>
+            <app-route-visualizer
+              [mileageLocations]="extendedMileage.tx_locations || []"
+              [loadDynamicMap]="loadDynamicMap"
+            ></app-route-visualizer>
           </div>
         </div>
       </ng-container>
