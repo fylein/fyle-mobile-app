@@ -94,8 +94,6 @@ export class ViewMileagePage implements OnInit {
 
   costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
 
-  loadDynamicMap = false;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -112,8 +110,7 @@ export class ViewMileagePage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService,
-    private launchDarklyService: LaunchDarklyService
+    private dependentFieldsService: DependentFieldsService
   ) {}
 
   get ExpenseView() {
@@ -420,9 +417,5 @@ export class ViewMileagePage implements OnInit {
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
 
-  ngOnInit() {
-    this.launchDarklyService.getVariation('load_dynamic_map', false).subscribe((loadDynamicMap) => {
-      this.loadDynamicMap = loadDynamicMap;
-    });
-  }
+  ngOnInit() {}
 }
