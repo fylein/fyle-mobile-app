@@ -1,7 +1,7 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { Position } from '@capacitor/geolocation';
-import { of, delay } from 'rxjs';
+import { of } from 'rxjs';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { GmapsService } from 'src/app/core/services/gmaps.service';
@@ -13,7 +13,7 @@ import {
   mileageLocationData5,
 } from 'src/app/core/mock-data/mileage-location.data';
 import { MileageRoute } from './mileage-route.interface';
-import { directionsResponse1, directionsResponse2 } from 'src/app/core/mock-data/directions-response.data';
+import { directionsResults1, directionsResults2 } from 'src/app/core/mock-data/directions-response.data';
 
 const positionData1: Position = {
   timestamp: Date.now(),
@@ -40,10 +40,10 @@ const mileageRoute1: MileageRoute = {
   waypoints: [],
 };
 
-const directionsMapUrl =
+const mockDirectionsMapUrl =
   'https://maps.googleapis.com/maps/api/staticmap?size=350x506&scale=2&path=color%3A0x00BFFF%7Cenc%3AoygtBwpx%7DLa%40LMHGPB%60%40AXNl%40BXC%5CWd%40k%40Y%5BQEIKg%40WwCKYt%40Wr%40Qb%40Ip%40%5Dv%40_%40h%40SIWOe%40XONK%40GE_%40Uq%40MOM%40&markers=label%3AA%7C19.2143774%2C73.20346099999999&markers=label%3AB%7C19.2142019%2C73.2053908&key=GOOGLE_MAPS_API_KEY';
 
-const locationMapUrl =
+const mockLocationMapUrl =
   'https://maps.googleapis.com/maps/api/staticmap?size=425x266&scale=2&zoom=15&center=19.2185231%2C73.1940418&key=GOOGLE_MAPS_API_KEY';
 
 fdescribe('RouteVisualizerComponent', () => {
@@ -56,8 +56,8 @@ fdescribe('RouteVisualizerComponent', () => {
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getCurrentLocation', 'getMileageRoute']);
     const gmapsServiceSpy = jasmine.createSpyObj('GmapsService', [
       'getDirections',
-      'generatedirectionsMapUrl',
-      'generatelocationMapUrl',
+      'generateDirectionsMapUrl',
+      'generateLocationMapUrl',
     ]);
 
     TestBed.configureTestingModule({
@@ -83,26 +83,12 @@ fdescribe('RouteVisualizerComponent', () => {
     gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
 
     locationService.getCurrentLocation.and.returnValue(of(positionData1));
-    gmapsService.generateLocationMapUrl.and.returnValue(locationMapUrl);
-    gmapsService.generateDirectionsMapUrl.and.returnValue(directionsMapUrl);
     locationService.getMileageRoute.and.returnValue(mileageRoute1);
 
+    gmapsService.generateLocationMapUrl.and.returnValue(mockLocationMapUrl);
+    gmapsService.generateDirectionsMapUrl.and.returnValue(mockDirectionsMapUrl);
+
     fixture.detectChanges();
-
-    // @ts-ignore
-    spyOn(component, 'renderMap').and.callThrough();
-
-    spyOn(component, 'handleMapLoadError').and.callThrough();
-
-    const googleSpy = {
-      maps: {
-        DirectionsStatus: {
-          OK: 'OK',
-        },
-      },
-    };
-
-    window.google = googleSpy as any;
   }));
 
   it('should create', () => {
@@ -119,60 +105,62 @@ fdescribe('RouteVisualizerComponent', () => {
 
   it('ngOnInit(): should set the current location map image url', () => {
     expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledTimes(1);
-
     expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledWith(
       component.currentLocation,
       component.mapWidth,
       component.mapHeight
     );
-
-    expect(component.currentLocationMapUrl).toEqual(locationMapUrl);
+    expect(component.currentLocationMapUrl).toEqual(mockLocationMapUrl);
   });
 
   describe('ngOnChanges', () => {
-    it('should render the map when at least 2 mileage locations are provided and they contain valid coordinates', () => {
-      gmapsService.getDirections.and.returnValue(of(directionsResponse1));
+    beforeEach(() => {
+      // @ts-ignore
+      spyOn(component, 'renderMap');
+    });
+
+    it('should render the directions map when at least 2 mileage locations are provided and they contain valid coordinates', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults1));
       component.mileageLocations = mileageLocationData1;
 
       fixture.detectChanges();
       component.ngOnChanges();
 
-      expect(component.showCurrentLocation).toBe(false);
-
       expect(locationService.getMileageRoute).toHaveBeenCalledTimes(1);
       expect(locationService.getMileageRoute).toHaveBeenCalledWith(component.mileageLocations);
-
       // @ts-ignore
       expect(component.renderMap).toHaveBeenCalledTimes(1);
       // @ts-ignore
       expect(component.renderMap).toHaveBeenCalledWith(mileageRoute1);
     });
 
-    it('should not render the map when any of the provided mileage locations do not contain valid coordinates', () => {
+    it('should not render the directions map when any of the provided mileage locations do not contain valid coordinates', () => {
       component.mileageLocations = mileageLocationData5;
 
       fixture.detectChanges();
       component.ngOnChanges();
 
       expect(locationService.getMileageRoute).not.toHaveBeenCalledTimes(1);
-
       // @ts-ignore
       expect(component.renderMap).not.toHaveBeenCalled();
+      expect(component.directions$).toBeNull();
+      expect(component.directionsMapUrl$).toBeNull();
     });
 
-    it('should not render the map when less than 2 mileage locations are provided', () => {
+    it('should not render the directions map when less than 2 mileage locations are provided', () => {
       component.mileageLocations = mileageLocationData4;
 
       fixture.detectChanges();
       component.ngOnChanges();
 
       expect(locationService.getMileageRoute).not.toHaveBeenCalled();
-
       // @ts-ignore
       expect(component.renderMap).not.toHaveBeenCalled();
+      expect(component.directions$).toBeNull();
+      expect(component.directionsMapUrl$).toBeNull();
     });
 
-    it('should display a current location map when no mileage locations are provided', () => {
+    it('should display a current location map when no valid mileage locations are present', () => {
       component.mileageLocations = [];
 
       fixture.detectChanges();
@@ -182,102 +170,74 @@ fdescribe('RouteVisualizerComponent', () => {
     });
   });
 
-  it('should set the map directions based on the route provided to render the map', () => {
-    gmapsService.getDirections.and.returnValue(of(directionsResponse1));
-    component.mileageLocations = mileageLocationData1;
+  describe('renderMap', () => {
+    it('should set the map directions based on the route provided to render the map', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults1));
+      component.mileageLocations = mileageLocationData1;
 
-    fixture.detectChanges();
-    component.ngOnChanges();
+      fixture.detectChanges();
+      component.ngOnChanges();
 
-    expect(component.directions$).toBeDefined();
+      expect(component.directions$).toBeDefined();
+      expect(gmapsService.getDirections).toHaveBeenCalledTimes(1);
+      expect(gmapsService.getDirections).toHaveBeenCalledWith(mileageRoute1);
+    });
 
-    expect(gmapsService.getDirections).toHaveBeenCalledTimes(1);
-    expect(gmapsService.getDirections).toHaveBeenCalledWith(mileageRoute1);
+    it('should generate a map image url', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults1));
+      component.mileageLocations = mileageLocationData1;
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+      fixture.detectChanges();
+
+      expect(component.directionsMapUrl$).toBeDefined();
+      expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledTimes(1);
+
+      const directionsResults: google.maps.DirectionsResult = directionsResults1;
+      const updatedMileageRoute = {
+        ...mileageRoute1,
+        directions: directionsResults.routes[0],
+      };
+
+      expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith(
+        updatedMileageRoute,
+        component.mapWidth,
+        component.mapHeight
+      );
+    });
+
+    it('should not generate a map image url if loading a dynamic map', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults1));
+      component.mileageLocations = mileageLocationData1;
+      component.loadDynamicMap = true;
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+      fixture.detectChanges();
+
+      expect(component.directionsMapUrl$).toBeUndefined();
+      expect(gmapsService.generateDirectionsMapUrl).not.toHaveBeenCalled();
+    });
+
+    it('should not generate a map image url if directions api didnt return any results', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults2));
+      component.mileageLocations = mileageLocationData1;
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+      fixture.detectChanges();
+
+      expect(gmapsService.generateDirectionsMapUrl).not.toHaveBeenCalled();
+    });
   });
 
-  it('should generate a map image url', () => {
-    gmapsService.getDirections.and.returnValue(of(directionsResponse1));
-    gmapsService.generateDirectionsMapUrl.and.returnValue(directionsMapUrl);
-
-    component.mileageLocations = mileageLocationData1;
-
-    fixture.detectChanges();
-    component.ngOnChanges();
-
-    fixture.detectChanges();
-
-    expect(component.directionsMapUrl$).toBeDefined();
-    expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledTimes(1);
-
-    const directionsResult: google.maps.DirectionsResult = directionsResponse1.result;
-
-    const updatedMileageRoute = {
-      ...mileageRoute1,
-      directions: directionsResult.routes[0],
-    };
-
-    expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith(
-      updatedMileageRoute,
-      component.mapWidth,
-      component.mapHeight
-    );
-  });
-
-  it('should not generate a map image url if loading a dynamic map', fakeAsync(() => {
-    gmapsService.getDirections.and.returnValue(of(directionsResponse1));
-
-    component.mileageLocations = mileageLocationData1;
-    component.loadDynamicMap = true;
-
-    fixture.detectChanges();
-    component.ngOnChanges();
-
-    fixture.detectChanges();
-
-    expect(component.directionsMapUrl$).toBeUndefined();
-    expect(gmapsService.generateDirectionsMapUrl).not.toHaveBeenCalled();
-  }));
-
-  it('should show the current location map when directions api results in failure', fakeAsync(() => {
-    /*
-     * Delaying the mocked directions API response
-     * This is done because the showMap property is updated in ngOnChanges as well as in the catchError block, this leads to the ExpressionChangedAfterItHasBeenCheckedError.
-     * Delaying the observable makes sure that the showMap property in catchError is updated in the next change detection cycle.
-     */
-    gmapsService.getDirections.and.returnValue(of(directionsResponse2).pipe(delay(0)));
-    component.mileageLocations = mileageLocationData1;
-
-    fixture.detectChanges();
-    component.ngOnChanges();
-
-    fixture.detectChanges();
-    tick(0);
-
-    expect(component.showCurrentLocation).toBe(true);
-  }));
-
-  it('should not generate a map image url if directions api results in failure', fakeAsync(() => {
-    /*
-     * Delaying the mocked directions API response
-     * This is done because the showMap property is updated in ngOnChanges as well as in the catchError block, this leads to the ExpressionChangedAfterItHasBeenCheckedError.
-     * Delaying the observable makes sure that the showMap property in catchError is updated in the next change detection cycle.
-     */
-    gmapsService.getDirections.and.returnValue(of(directionsResponse2).pipe(delay(0)));
-    component.mileageLocations = mileageLocationData1;
-
-    fixture.detectChanges();
-    component.ngOnChanges();
-
-    fixture.detectChanges();
-    tick(0);
-
-    expect(gmapsService.generateDirectionsMapUrl).not.toHaveBeenCalled();
-  }));
-
-  it('handleMapLoadError(): should set showCurrentLocationMap to true', () => {
+  it('handleMapLoadError(): should reset the map component', () => {
     component.handleMapLoadError(null);
 
-    expect(component.showCurrentLocation).toBe(true);
+    expect(component.showCurrentLocation).toBe(false);
+    expect(component.directions$).toBeNull();
+    expect(component.directionsMapUrl$).toBeNull();
   });
 
   it('mapClicked(): should emit event when the map is clicked on', () => {

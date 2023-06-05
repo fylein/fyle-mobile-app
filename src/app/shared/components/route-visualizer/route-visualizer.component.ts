@@ -49,15 +49,15 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
       const mileageRoute = this.locationService.getMileageRoute(this.mileageLocations);
       this.renderMap(mileageRoute);
     } else {
+      this.directions$ = null;
+      this.directionsMapUrl$ = null;
+
       const allLocationsInvalid = this.mileageLocations.every(
         (location) => !(location && location.latitude && location.longitude)
       );
 
       if (allLocationsInvalid) {
         this.showCurrentLocation = true;
-
-        this.directions$ = of(null);
-        this.directionsMapUrl$ = of(null);
       }
     }
   }
@@ -86,8 +86,8 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
   handleMapLoadError(event) {
     this.showCurrentLocation = false;
 
-    this.directions$ = of(null);
-    this.directionsMapUrl$ = of(null);
+    this.directions$ = null;
+    this.directionsMapUrl$ = null;
   }
 
   private renderMap(mileageRoute: MileageRoute) {
@@ -95,7 +95,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
     if (!this.loadDynamicMap) {
       this.directionsMapUrl$ = this.directions$.pipe(
-        filter((directionsResults) => directionsResults?.routes?.length > 0),
+        filter((directionsResults) => directionsResults.routes?.length > 0),
         map((directionsResults) => {
           mileageRoute.directions = directionsResults.routes[0];
           return mileageRoute;
