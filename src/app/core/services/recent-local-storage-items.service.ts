@@ -26,11 +26,11 @@ export class RecentLocalStorageItemsService {
     return recentItems;
   }
 
-  async clear(cacheName: string) {
+  async clear(cacheName: string): Promise<void> {
     await this.storageService.delete(cacheName);
   }
 
-  clearRecentLocalStorageCache() {
+  clearRecentLocalStorageCache(): void {
     this.clear('advanceProjectCache');
 
     this.clear('expenseProjectCache');

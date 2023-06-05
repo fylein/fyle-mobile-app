@@ -15,7 +15,7 @@ export class StorageService {
     });
   }
 
-  async get<T>(key: string) {
+  async get<T>(key: string): Promise<T> {
     const stringifiedObject = await Preferences.get({
       key,
     });

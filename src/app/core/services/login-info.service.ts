@@ -13,7 +13,7 @@ export class LoginInfoService {
 
   async addLoginInfo(version: string, time: Date) {
     // login succeeded on this version at this time
-    let loginInfo = await this.storageService.get<LoginInfo>('loginInfo');
+    let loginInfo = await this.storageService.get<Partial<LoginInfo>>('loginInfo');
 
     if (!loginInfo) {
       loginInfo = {};
