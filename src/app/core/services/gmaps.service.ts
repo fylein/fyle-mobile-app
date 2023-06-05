@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { MapDirectionsResponse, MapDirectionsService, MapGeocoder, MapGeocoderResponse } from '@angular/google-maps';
 import { Cacheable } from 'ts-cacheable';
 import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
@@ -59,7 +59,7 @@ export class GmapsService {
   }
 
   @Cacheable()
-  getDirections(mileageRoute: MileageRoute): Observable<MapDirectionsResponse> {
+  getDirections(mileageRoute: MileageRoute): Observable<google.maps.DirectionsResult> {
     const { origin, destination, waypoints } = mileageRoute;
 
     // Convert waypoints to google maps waypoints
@@ -71,7 +71,8 @@ export class GmapsService {
       waypoints: directionsWaypoints,
       travelMode: google.maps.TravelMode.DRIVING,
     };
-    return this.mapDirectionsService.route(request);
+
+    return this.mapDirectionsService.route(request).pipe(map((response: MapDirectionsResponse) => response.result));
   }
 
   // Used to generate static map image urls, for single location

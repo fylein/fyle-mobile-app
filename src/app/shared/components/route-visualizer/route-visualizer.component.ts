@@ -54,10 +54,10 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
       );
 
       if (allLocationsInvalid) {
+        this.showCurrentLocation = true;
+
         this.directions$ = of(null);
         this.directionsMapUrl$ = of(null);
-
-        this.showCurrentLocation = true;
       }
     }
   }
@@ -84,27 +84,18 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
   }
 
   handleMapLoadError(event) {
-    this.showCurrentLocation = true;
+    this.showCurrentLocation = false;
+
+    this.directions$ = of(null);
+    this.directionsMapUrl$ = of(null);
   }
 
   private renderMap(mileageRoute: MileageRoute) {
-    this.directions$ = this.gmapsService.getDirections(mileageRoute).pipe(
-      map((response) => {
-        if (response.status === google.maps.DirectionsStatus.OK) {
-          return response.result;
-        }
-
-        throw new Error(response.status);
-      }),
-      catchError((error) => {
-        this.showCurrentLocation = true;
-        return of(null);
-      })
-    );
+    this.directions$ = this.gmapsService.getDirections(mileageRoute);
 
     if (!this.loadDynamicMap) {
       this.directionsMapUrl$ = this.directions$.pipe(
-        filter((directionsResults) => directionsResults !== null),
+        filter((directionsResults) => directionsResults?.routes?.length > 0),
         map((directionsResults) => {
           mileageRoute.directions = directionsResults.routes[0];
           return mileageRoute;
