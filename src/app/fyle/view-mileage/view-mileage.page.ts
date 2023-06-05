@@ -94,7 +94,7 @@ export class ViewMileagePage implements OnInit {
 
   costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
 
-  loadDynamicMileageMap = false;
+  loadDynamicMap = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -422,7 +422,7 @@ export class ViewMileagePage implements OnInit {
 
   ngOnInit() {
     this.launchDarklyService.getVariation('load_dynamic_map', false).subscribe((loadDynamicMap) => {
-      this.loadDynamicMileageMap = loadDynamicMap;
+      this.loadDynamicMap = loadDynamicMap;
     });
   }
 }
