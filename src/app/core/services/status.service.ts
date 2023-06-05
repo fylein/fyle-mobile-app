@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { ExtendedStatus } from '../models/extended_status.model';
 import { StatusCategory } from '../models/status-category.model';
 import { Observable } from 'rxjs';
+import { TransactionStatus } from '../models/transaction-status.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,7 @@ export class StatusService {
   }
 
   post(objectType: string, objectId: string, status: { comment: string | ExtendedStatus }, notify: boolean = false) {
-    return this.apiService.post('/' + objectType + '/' + objectId + '/statuses', {
+    return this.apiService.post<TransactionStatus>('/' + objectType + '/' + objectId + '/statuses', {
       status,
       notify,
     });

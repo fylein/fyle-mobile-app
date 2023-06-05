@@ -11,6 +11,7 @@ import { UniqueCardStats } from '../models/unique-cards-stats.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
 import { DateService } from './date.service';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
+import { CCCExpFlattened } from '../models/corporate-card-expense-flattened.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -68,7 +69,7 @@ export class CorporateCreditCardExpenseService {
     };
 
     return this.apiService
-      .get('/extended_corporate_credit_card_expenses', data)
+      .get<CCCExpFlattened[]>('/extended_corporate_credit_card_expenses', data)
       .pipe(map((res) => (res && res.length && res.map((elem) => this.dataTransformService.unflatten(elem))) || []));
   }
 

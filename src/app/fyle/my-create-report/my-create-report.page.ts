@@ -15,6 +15,7 @@ import { NgModel } from '@angular/forms';
 import { getCurrencySymbol } from '@angular/common';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { ReportV1 } from 'src/app/core/models/report-v1.model';
 
 @Component({
   selector: 'app-my-create-report',
@@ -134,7 +135,7 @@ export class MyCreateReportPage implements OnInit {
                 Report_Value: this.selectedTotalAmount,
               })
             ),
-            switchMap((report) => {
+            switchMap((report: ReportV1) => {
               if (txnIds.length > 0) {
                 return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
               } else {
