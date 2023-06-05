@@ -13,7 +13,7 @@ import {
   mileageLocationData5,
 } from 'src/app/core/mock-data/mileage-location.data';
 import { MileageRoute } from './mileage-route.interface';
-import { directionsResults1, directionsResults2 } from 'src/app/core/mock-data/directions-response.data';
+import { directionsResults1, directionsResults2 } from 'src/app/core/mock-data/directions-results.data';
 
 const positionData1: Position = {
   timestamp: Date.now(),

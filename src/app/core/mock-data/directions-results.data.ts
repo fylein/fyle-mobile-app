@@ -960,7 +960,5 @@ export const directionsResults1: any = {
 };
 
 export const directionsResults2: any = {
-  result: {
-    routes: [],
-  },
+  routes: [],
 };
