@@ -95,7 +95,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
     if (!this.loadDynamicMap) {
       this.directionsMapUrl$ = this.directions$.pipe(
-        filter((directionsResults) => directionsResults.routes?.length > 0),
+        filter((directionsResults) => directionsResults.routes.length > 0),
         map((directionsResults) => {
           mileageRoute.directions = directionsResults.routes[0];
           return mileageRoute;
