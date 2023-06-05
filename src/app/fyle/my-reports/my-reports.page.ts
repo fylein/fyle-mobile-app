@@ -38,12 +38,13 @@ import * as dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 type Filters = Partial<{
-  state: string[];
+  state: string | string[];
   date: string;
   customDateStart: Date;
   customDateEnd: Date;
   sortParam: string;
   sortDir: string;
+  rp_state: string;
 }>;
 @Component({
   selector: 'app-my-reports',
@@ -606,7 +607,7 @@ export class MyReportsPage implements OnInit {
 
   convertRptDtSortToSelectedFilters(
     filter: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
@@ -630,7 +631,7 @@ export class MyReportsPage implements OnInit {
 
   addSortToGeneatedFilters(
     filter: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
@@ -676,7 +677,7 @@ export class MyReportsPage implements OnInit {
 
   convertNameSortToSelectedFilters(
     filter: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
@@ -701,7 +702,7 @@ export class MyReportsPage implements OnInit {
   convertSelectedSortFitlersToFilters(
     sortBy: SelectedFilters<any>,
     generatedFilters: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
@@ -905,7 +906,7 @@ export class MyReportsPage implements OnInit {
 
   convertAmountSortToSelectedFilters(
     filter: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
