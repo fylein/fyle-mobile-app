@@ -258,15 +258,24 @@ export class MyReportsPage implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+      map((orgSettings) => ({
+        enabled:
+          orgSettings &&
+          orgSettings.simplified_report_closure_settings &&
+          orgSettings.simplified_report_closure_settings.enabled,
+      }))
     );
     this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.payment_mode_settings?.allowed &&
-          orgSettings.payment_mode_settings?.enabled &&
-          orgSettings.payment_mode_settings?.payment_modes_order?.length === 1 &&
-          orgSettings.payment_mode_settings?.payment_modes_order[0] ===
+          orgSettings.payment_mode_settings &&
+          orgSettings.payment_mode_settings.allowed &&
+          orgSettings.payment_mode_settings &&
+          orgSettings.payment_mode_settings.enabled &&
+          orgSettings.payment_mode_settings &&
+          orgSettings.payment_mode_settings.payment_modes_order &&
+          orgSettings.payment_mode_settings.payment_modes_order.length === 1 &&
+          orgSettings.payment_mode_settings.payment_modes_order[0] ===
             AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
       )
     );
