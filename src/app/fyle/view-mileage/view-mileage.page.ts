@@ -26,7 +26,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -94,8 +93,6 @@ export class ViewMileagePage implements OnInit {
 
   costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
 
-  loadDynamicMap = false;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -112,8 +109,7 @@ export class ViewMileagePage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService,
-    private launchDarklyService: LaunchDarklyService
+    private dependentFieldsService: DependentFieldsService
   ) {}
 
   get ExpenseView() {
@@ -420,9 +416,5 @@ export class ViewMileagePage implements OnInit {
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
 
-  ngOnInit() {
-    this.launchDarklyService.getVariation('load_dynamic_map', false).subscribe((loadDynamicMap) => {
-      this.loadDynamicMap = loadDynamicMap;
-    });
-  }
+  ngOnInit() {}
 }
