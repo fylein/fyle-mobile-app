@@ -54,6 +54,9 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
       );
 
       if (allLocationsInvalid) {
+        this.directions$ = of(null);
+        this.directionsMapUrl$ = of(null);
+
         this.showCurrentLocation = true;
       }
     }
