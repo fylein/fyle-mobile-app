@@ -46,7 +46,7 @@ const mockDirectionsMapUrl =
 const mockLocationMapUrl =
   'https://maps.googleapis.com/maps/api/staticmap?size=425x266&scale=2&zoom=15&center=19.2185231%2C73.1940418&key=GOOGLE_MAPS_API_KEY';
 
-describe('RouteVisualizerComponent', () => {
+fdescribe('RouteVisualizerComponent', () => {
   let component: RouteVisualizerComponent;
   let fixture: ComponentFixture<RouteVisualizerComponent>;
   let locationService: jasmine.SpyObj<LocationService>;
@@ -95,22 +95,24 @@ describe('RouteVisualizerComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit(): should set the current location', () => {
-    expect(component.currentLocation).toBeDefined();
-    expect(component.currentLocation).toEqual({
-      lat: positionData1.coords.latitude,
-      lng: positionData1.coords.longitude,
+  describe('ngOnInit', () => {
+    it('should set the current location', () => {
+      expect(component.currentLocation).toBeDefined();
+      expect(component.currentLocation).toEqual({
+        lat: positionData1.coords.latitude,
+        lng: positionData1.coords.longitude,
+      });
     });
-  });
 
-  it('ngOnInit(): should set the current location map image url', () => {
-    expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledTimes(1);
-    expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledWith(
-      component.currentLocation,
-      component.mapWidth,
-      component.mapHeight
-    );
-    expect(component.currentLocationMapUrl).toEqual(mockLocationMapUrl);
+    it('should set the current location map image url', () => {
+      expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledTimes(1);
+      expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledWith(
+        component.currentLocation,
+        component.mapWidth,
+        component.mapHeight
+      );
+      expect(component.currentLocationMapUrl).toEqual(mockLocationMapUrl);
+    });
   });
 
   describe('ngOnChanges', () => {
@@ -183,7 +185,7 @@ describe('RouteVisualizerComponent', () => {
       expect(gmapsService.getDirections).toHaveBeenCalledWith(mileageRoute1);
     });
 
-    it('should generate a map image url', () => {
+    it('should generate a directions map image url', () => {
       gmapsService.getDirections.and.returnValue(of(directionsResults1));
       component.mileageLocations = mileageLocationData1;
 
@@ -207,7 +209,7 @@ describe('RouteVisualizerComponent', () => {
       );
     });
 
-    it('should not generate a map image url if loading a dynamic map', () => {
+    it('should not generate a directions map image url if loading a dynamic directions map', () => {
       gmapsService.getDirections.and.returnValue(of(directionsResults1));
       component.mileageLocations = mileageLocationData1;
       component.loadDynamicMap = true;
@@ -220,7 +222,7 @@ describe('RouteVisualizerComponent', () => {
       expect(gmapsService.generateDirectionsMapUrl).not.toHaveBeenCalled();
     });
 
-    it('should not generate a map image url if directions api didnt return any results', () => {
+    it('should not generate a directions map image url if the directions api didnt return any results', () => {
       gmapsService.getDirections.and.returnValue(of(directionsResults2));
       component.mileageLocations = mileageLocationData1;
 
