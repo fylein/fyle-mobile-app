@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { MapDirectionsResponse, MapDirectionsService, MapGeocoder, MapGeocoderResponse } from '@angular/google-maps';
 import { Cacheable } from 'ts-cacheable';
 import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
-import { MileageMarkerParams } from 'src/app/shared/components/route-visualizer/mileage-marker-params.interface';
+import { MileageMarkerParams } from '../models/mileage-marker-params.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
