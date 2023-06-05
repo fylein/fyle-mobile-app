@@ -557,8 +557,7 @@ describe('AdvanceRequestService', () => {
       );
       expect(advanceRequestPolicyService.servicePost).toHaveBeenCalledOnceWith(
         '/policy_check/test',
-        checkPolicyAdvReqParam,
-        { timeout: 5000 }
+        checkPolicyAdvReqParam
       );
       done();
     });
