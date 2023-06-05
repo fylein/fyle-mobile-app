@@ -75,7 +75,7 @@ export class GmapsService {
   }
 
   // Used to generate static map image urls, for single location
-  generateLocationMapUrl(location: google.maps.LatLngLiteral, mapWidth: number, mapHeight: number) {
+  generateLocationMapUrl(location: google.maps.LatLngLiteral, mapWidth: number, mapHeight: number): string {
     const staticMapImageUrl = new URL(this.staticMapsApi);
 
     const size = `${mapWidth}x${mapHeight}`;
