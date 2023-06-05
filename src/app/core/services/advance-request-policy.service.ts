@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { PolicyViolationCheck } from '../models/policy-violation-check.model';
+import { AdvanceRequests } from '../models/advance-requests.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,7 @@ export class AdvanceRequestPolicyService {
       .map((desiredState) => desiredState.description);
   }
 
-  servicePost(url, data, config) {
+  servicePost(url: string, data: AdvanceRequests) {
     return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/advance_requests' + url, data);
   }
 }
