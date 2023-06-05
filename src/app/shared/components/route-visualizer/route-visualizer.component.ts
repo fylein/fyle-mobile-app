@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { Observable, catchError, of, map, filter } from 'rxjs';
+import { Observable, map, filter } from 'rxjs';
 
 import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { LocationService } from 'src/app/core/services/location.service';
