@@ -425,7 +425,7 @@ export class TransactionService {
   getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
-        const etxn = this.dataTransformService.unflatten(data);
+        const etxn = this.dataTransformService.unflatten<UnflattenedTransaction, Transaction>(data);
         this.dateService.fixDates(etxn.tx);
 
         // Adding a field categoryDisplayName in transaction object to save funciton calls
