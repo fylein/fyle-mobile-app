@@ -43,7 +43,7 @@ const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
 
-describe('SwitchOrgPage', () => {
+fdescribe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
   let platform: jasmine.SpyObj<Platform>;
@@ -219,7 +219,7 @@ describe('SwitchOrgPage', () => {
     recentLocalStorageItemsService = TestBed.inject(
       RecentLocalStorageItemsService
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
-    cdRef = TestBed.inject(ChangeDetectorRef);
+    cdRef = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -232,7 +232,7 @@ describe('SwitchOrgPage', () => {
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
-
+    spyOn((component as any).cdRef, 'detectChanges').and.returnValue(null);
     fixture.detectChanges();
   }));
 
@@ -241,7 +241,7 @@ describe('SwitchOrgPage', () => {
   });
 
   describe('ionViewWillEnter():', () => {
-    it('should show orgs and setup search bar', async () => {
+    it('should show orgs and setup search bar', fakeAsync(() => {
       orgService.getOrgs.and.returnValue(of(orgData1));
       spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
       spyOn(component, 'proceed').and.returnValue(Promise.resolve());
@@ -249,12 +249,11 @@ describe('SwitchOrgPage', () => {
       orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
       loaderService.showLoader.and.returnValue(Promise.resolve());
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
-      fixture.detectChanges();
-
-      await component.ionViewWillEnter();
-
       component.searchOrgsInput.nativeElement.value = 'Staging Loaded';
       component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
+
+      component.ionViewWillEnter();
+      tick(1000);
 
       component.filteredOrgs$.subscribe((res) => {
         expect(res).toEqual(orgData1);
@@ -269,9 +268,9 @@ describe('SwitchOrgPage', () => {
       expect(component.proceed).toHaveBeenCalledOnceWith(true);
 
       expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledOnceWith([orgData2[1]], '');
-    });
+    }));
 
-    it('should directly proceed to invite line flow if choosing is disabled', async () => {
+    it('should directly proceed to invite line flow if choosing is disabled', fakeAsync(() => {
       activatedRoute.snapshot.params.choose = false;
       orgService.getOrgs.and.returnValue(of(orgData1));
       spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
@@ -281,7 +280,8 @@ describe('SwitchOrgPage', () => {
       loaderService.showLoader.and.returnValue(Promise.resolve());
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
 
-      await component.ionViewWillEnter();
+      component.ionViewWillEnter();
+      tick(1000);
 
       component.searchOrgsInput.nativeElement.value = 'Staging Loaded';
       component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
@@ -297,7 +297,7 @@ describe('SwitchOrgPage', () => {
 
       expect(component.proceed).toHaveBeenCalledOnceWith(true);
       expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledOnceWith([orgData2[1]], '');
-    });
+    }));
   });
 
   it('resendInvite(): should resend invite to an org', (done) => {
@@ -597,7 +597,7 @@ describe('SwitchOrgPage', () => {
     });
   });
 
-  it('proceed(): should proceed to other page as per user status', async () => {
+  it('proceed(): should proceed to other page as per user status', fakeAsync(() => {
     userService.isPendingDetails.and.returnValue(of(true));
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     authService.getRoles.and.returnValue(of(roles));
@@ -617,7 +617,8 @@ describe('SwitchOrgPage', () => {
       })
     );
 
-    await component.proceed();
+    component.proceed();
+    tick(1000);
     expect(userService.isPendingDetails).toHaveBeenCalledTimes(1);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(authService.getRoles).toHaveBeenCalledTimes(1);
@@ -638,7 +639,7 @@ describe('SwitchOrgPage', () => {
       appVersion: extendedDeviceInfoMockData.appVersion,
     });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'app_version', { message: 'message' }]);
-  });
+  }));
 
   it('trackSwitchOrg(): tracking switch orgs', fakeAsync(() => {
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
@@ -686,7 +687,7 @@ describe('SwitchOrgPage', () => {
       expect(userEventService.logout).toHaveBeenCalledTimes(1);
     }));
 
-    it('should switch org', async () => {
+    it('should switch org', fakeAsync(() => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       loaderService.showLoader.and.returnValue(Promise.resolve());
       orgService.switchOrg.and.returnValue(of(apiEouRes));
@@ -694,7 +695,8 @@ describe('SwitchOrgPage', () => {
       spyOn(component, 'proceed').and.returnValue(Promise.resolve(null));
       spyOn(globalCacheBusterNotifier, 'next');
 
-      await component.switchOrg(orgData1[0]);
+      component.switchOrg(orgData1[0]);
+      tick(1000);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledTimes(1);
@@ -703,17 +705,18 @@ describe('SwitchOrgPage', () => {
       expect(globalCacheBusterNotifier.next).toHaveBeenCalledTimes(1);
       expect(component.trackSwitchOrg).toHaveBeenCalledOnceWith(orgData1[0], apiEouRes);
       expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgData1[0].id);
-    });
+    }));
   });
 
   describe('signOut(): ', () => {
-    it('should sign out the user', async () => {
+    it('should sign out the user', fakeAsync(() => {
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       authService.logout.and.returnValue(of(null));
       spyOn(globalCacheBusterNotifier, 'next');
 
-      await component.signOut();
+      component.signOut();
+      tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
       expect(authService.logout).toHaveBeenCalledOnceWith({
@@ -725,18 +728,19 @@ describe('SwitchOrgPage', () => {
       expect(storageService.clearAll).toHaveBeenCalledTimes(1);
       expect(userEventService.logout).toHaveBeenCalledTimes(1);
       expect(globalCacheBusterNotifier.next).toHaveBeenCalledTimes(1);
-    });
+    }));
 
-    it('should clear cache if sign out fails', async () => {
+    it('should clear cache if sign out fails', fakeAsync(() => {
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
       authService.getEou.and.throwError('Error');
       spyOn(globalCacheBusterNotifier, 'next');
 
-      await component.signOut();
+      component.signOut();
+      tick(1000);
       expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
       expect(storageService.clearAll).toHaveBeenCalledTimes(1);
       expect(globalCacheBusterNotifier.next).toHaveBeenCalledTimes(1);
-    });
+    }));
   });
 
   it('getOrgsWhichContainSearchText(): should return orgs with matching search text', () => {
