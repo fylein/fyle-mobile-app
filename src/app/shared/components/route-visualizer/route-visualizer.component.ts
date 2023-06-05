@@ -42,14 +42,16 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
     this.showCurrentLocationMap = false;
 
     // Only render the map if there are at least two locations and all locations have a valid latitude and longitude value
-    const hasValidLocations = this.mileageLocations.every((location) => location?.latitude && location?.longitude);
+    const hasValidLocations = this.mileageLocations.every(
+      (location) => location && location.latitude && location.longitude
+    );
 
     if (hasValidLocations && this.mileageLocations.length >= 2) {
       const mileageRoute = this.locationService.getMileageRoute(this.mileageLocations);
       this.renderMap(mileageRoute);
     } else {
       const allLocationsInvalid = this.mileageLocations.every(
-        (location) => !location?.latitude && !location?.longitude
+        (location) => !(location && location.latitude && location.longitude)
       );
       if (allLocationsInvalid) {
         this.showCurrentLocationMap = true;
