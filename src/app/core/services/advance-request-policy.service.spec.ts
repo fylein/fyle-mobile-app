@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { of } from 'rxjs';
 import { checkPolicyWithRulesData } from '../mock-data/policy-violation-check.data';
-import { advancedRequests } from '../mock-data/advance-requests.data';
+import { advanceRequests } from '../mock-data/advance-requests.data';
 
 describe('AdvanceRequestPolicyService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -48,11 +48,11 @@ describe('AdvanceRequestPolicyService', () => {
     };
     httpClient.post.and.returnValue(of(apiResponse));
 
-    advanceRequestPolicyService.servicePost('/policy_check', advancedRequests).subscribe((res) => {
+    advanceRequestPolicyService.servicePost('/policy_check', advanceRequests).subscribe((res) => {
       expect(res).toEqual(apiResponse);
       expect(httpClient.post).toHaveBeenCalledOnceWith(
         'https://staging.fyle.tech/policy/advance_requests/policy_check',
-        advancedRequests
+        advanceRequests
       );
       done();
     });
