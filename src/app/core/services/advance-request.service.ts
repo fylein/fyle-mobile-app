@@ -79,7 +79,7 @@ export class AdvanceRequestService {
   ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiv2Service.get('/advance_requests', {
+        this.apiv2Service.get<ExtendedAdvanceRequest, { params: Config }>('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -106,21 +106,24 @@ export class AdvanceRequestService {
           areq_id: `eq.${id}`,
         },
       })
-      .pipe(map((res) => this.fixDates(res.data[0]) as ExtendedAdvanceRequest));
+      .pipe(map((res: ApiV2Response<ExtendedAdvanceRequest>) => this.fixDates(res.data[0]) as ExtendedAdvanceRequest));
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
   delete(advanceRequestId: string): Observable<AdvanceRequests> {
-    return this.apiService.delete('/advance_requests/' + advanceRequestId);
+    return this.apiService.delete<AdvanceRequests>('/advance_requests/' + advanceRequestId);
   }
 
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
   pullBackadvanceRequest(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
-    return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
+    return this.apiService.post<AdvanceRequests>(
+      '/advance_requests/' + advanceRequestId + '/pull_back',
+      addStatusPayload
+    );
   }
 
   @CacheBuster({
@@ -289,7 +292,7 @@ export class AdvanceRequestService {
   modifyAdvanceRequestCustomFields(customFields: CustomField[]): CustomField[] {
     customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
-        customField.value = new Date(customField.value);
+        customField.value = new Date(customField.value as string);
       }
       return customField;
     });
