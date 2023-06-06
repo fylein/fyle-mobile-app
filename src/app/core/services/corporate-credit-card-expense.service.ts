@@ -12,7 +12,16 @@ import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
-import { DateService } from './date.service';
+
+type Config = Partial<{
+  offset: number;
+  queryParams: { state?: string; group_id?: string[] };
+  limit: number;
+  order?: string;
+}>;
+
+type CardDetails = { cardNumber: string; cardName: string };
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,18 +30,12 @@ export class CorporateCreditCardExpenseService {
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
-    private authService: AuthService,
-    private dateService: DateService
+    private authService: AuthService
   ) {}
 
-  getv2CardTransactions(config: {
-    offset: number;
-    queryParams: { state?: string; group_id?: string[] };
-    limit: number;
-    order?: string;
-  }): Observable<ApiV2Response<CorporateCardExpense>> {
+  getv2CardTransactions(config: Config): Observable<ApiV2Response<CorporateCardExpense>> {
     return this.apiV2Service
-      .get('/corporate_card_transactions', {
+      .get<CorporateCardExpense, { params: Config }>('/corporate_card_transactions', {
         params: {
           offset: config.offset,
           limit: config.limit,
@@ -85,18 +88,17 @@ export class CorporateCreditCardExpenseService {
     return queryString;
   }
 
-  getExpenseDetailsInCards(
-    uniqueCards: { cardNumber: string; cardName: string }[],
-    statsResponse: CardAggregateStat[]
-  ): UniqueCardStats[] {
-    const cardsCopy = JSON.parse(JSON.stringify(uniqueCards));
+  getExpenseDetailsInCards(uniqueCards: CardDetails[], statsResponse: CardAggregateStat[]): UniqueCardStats[] {
+    const cardsCopy = JSON.parse(JSON.stringify(uniqueCards)) as CardDetails[];
     const uniqueCardsCopy = [];
-    cardsCopy?.forEach((card) => {
-      if (uniqueCardsCopy.filter((uniqueCard) => uniqueCard.cardNumber === card.cardNumber).length === 0) {
+    cardsCopy?.forEach((card: { cardNumber: string; cardName: string }) => {
+      if (
+        uniqueCardsCopy.filter((uniqueCard: UniqueCardStats) => uniqueCard.cardNumber === card.cardNumber).length === 0
+      ) {
         uniqueCardsCopy.push(card);
       }
     });
-    uniqueCardsCopy.forEach((card) => {
+    uniqueCardsCopy.forEach((card: UniqueCardStats) => {
       card.totalDraftTxns = 0;
       card.totalDraftValue = 0;
       card.totalCompleteTxns = 0;
@@ -113,7 +115,7 @@ export class CorporateCreditCardExpenseService {
         card.totalAmountValue = card.totalDraftValue + card.totalCompleteExpensesValue;
       });
     });
-    return uniqueCardsCopy;
+    return uniqueCardsCopy as UniqueCardStats[];
   }
 
   getAssignedCards(): Observable<CCCDetails> {
