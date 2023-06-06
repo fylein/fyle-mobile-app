@@ -19,7 +19,7 @@ export class AdvanceService {
     cacheBusterObserver: advancesCacheBuster$,
   })
   getMyadvances(
-    config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+    config: Partial<{ offset: number; limit: number; queryParams: Record<string, string> }> = {
       offset: 0,
       limit: 10,
       queryParams: {},
