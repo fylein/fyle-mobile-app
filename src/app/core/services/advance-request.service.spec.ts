@@ -33,7 +33,7 @@ import { apiAdvanceRequestAction } from '../mock-data/advance-request-actions.da
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { apiAdvanceReqRes } from '../mock-data/stats-dimension-response.data';
 import {
-  advancedRequests,
+  advanceRequests,
   advancedRequests2,
   checkPolicyAdvReqParam,
   draftAdvancedRequestParam,
@@ -289,11 +289,11 @@ describe('AdvanceRequestService', () => {
   });
 
   it('submit(): should submit an advance request', (done) => {
-    apiService.post.and.returnValue(of(advancedRequests));
+    apiService.post.and.returnValue(of(advanceRequests));
 
-    advanceRequestService.submit(advancedRequests).subscribe((res) => {
-      expect(res).toEqual(advancedRequests);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', advancedRequests);
+    advanceRequestService.submit(advanceRequests).subscribe((res) => {
+      expect(res).toEqual(advanceRequests);
+      expect(apiService.post).toHaveBeenCalledOnceWith('/advance_requests/submit', advanceRequests);
       done();
     });
   });
@@ -393,11 +393,11 @@ describe('AdvanceRequestService', () => {
   });
 
   it('delete(): should delete an advance request', (done) => {
-    apiService.delete.and.returnValue(of(advancedRequests));
+    apiService.delete.and.returnValue(of(advanceRequests));
 
-    advanceRequestService.delete(advancedRequests.id).subscribe((res) => {
-      expect(res).toEqual(advancedRequests);
-      expect(apiService.delete).toHaveBeenCalledOnceWith(`/advance_requests/${advancedRequests.id}`);
+    advanceRequestService.delete(advanceRequests.id).subscribe((res) => {
+      expect(res).toEqual(advanceRequests);
+      expect(apiService.delete).toHaveBeenCalledOnceWith(`/advance_requests/${advanceRequests.id}`);
       done();
     });
   });
@@ -437,22 +437,22 @@ describe('AdvanceRequestService', () => {
   describe('createAdvReqWithFilesAndSubmit():', () => {
     it('should create advanced request and submit it with the file', (done) => {
       fileService.post.and.returnValue(of(fileObjectData3));
-      spyOn(advanceRequestService, 'submit').and.returnValue(of(advancedRequests));
+      spyOn(advanceRequestService, 'submit').and.returnValue(of(advanceRequests));
 
-      advanceRequestService.createAdvReqWithFilesAndSubmit(advancedRequests, of(fileData1)).subscribe((res) => {
+      advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(fileData1)).subscribe((res) => {
         expect(res).toEqual(advRequestFile);
-        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advancedRequests);
+        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advanceRequests);
         expect(fileService.post).toHaveBeenCalledOnceWith(fileData1[0]);
         done();
       });
     });
 
     it('should create advanced request and submit it without the file', (done) => {
-      spyOn(advanceRequestService, 'submit').and.returnValue(of(advancedRequests));
+      spyOn(advanceRequestService, 'submit').and.returnValue(of(advanceRequests));
 
-      advanceRequestService.createAdvReqWithFilesAndSubmit(advancedRequests, of(null)).subscribe((res) => {
+      advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(null)).subscribe((res) => {
         expect(res).toEqual({ ...advRequestFile, files: null });
-        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advancedRequests);
+        expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advanceRequests);
         done();
       });
     });
@@ -557,8 +557,7 @@ describe('AdvanceRequestService', () => {
       );
       expect(advanceRequestPolicyService.servicePost).toHaveBeenCalledOnceWith(
         '/policy_check/test',
-        checkPolicyAdvReqParam,
-        { timeout: 5000 }
+        checkPolicyAdvReqParam
       );
       done();
     });
