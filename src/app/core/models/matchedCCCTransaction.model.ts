@@ -1,9 +1,9 @@
 export interface MatchedCCCTransaction {
   amount: number;
-  balance_transfer_id: number;
+  balance_transfer_id: number | string;
   card_or_account_number: string;
   created_at: Date;
-  creator_id: number;
+  creator_id: number | string;
   currency: string;
   description: string;
   group_id: string;

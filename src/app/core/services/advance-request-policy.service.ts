@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { PolicyViolationCheck } from '../models/policy-violation-check.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,7 @@ export class AdvanceRequestPolicyService {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
-  getPolicyRules(result) {
+  getPolicyRules(result: PolicyViolationCheck) {
     return result.advance_request_policy_rule_desired_states
       .filter((desiredState) => desiredState.popup === true)
       .map((desiredState) => desiredState.description);

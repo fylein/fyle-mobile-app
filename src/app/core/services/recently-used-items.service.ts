@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { CostCenter } from '../models/v1/cost-center.model';
+import { CostCenter, CostCenters } from '../models/v1/cost-center.model';
 import { RecentlyUsed } from '../models/v1/recently_used.model';
 import { ApiService } from './api.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -16,7 +16,7 @@ export class RecentlyUsedItemsService {
   constructor(private apiService: ApiService, private projectService: ProjectsService) {}
 
   getRecentlyUsed(): Observable<RecentlyUsed> {
-    return this.apiService.get('/recently_used');
+    return this.apiService.get('/recently_used') as Observable<RecentlyUsed>;
   }
 
   getRecentlyUsedProjects(config: {
@@ -43,7 +43,7 @@ export class RecentlyUsedItemsService {
         })
         .pipe(
           map((project) => {
-            const projectsMap = {};
+            const projectsMap: { [key: string]: ExtendedProject } = {};
             project.forEach((item) => {
               projectsMap[item.project_id] = item;
             });
@@ -56,8 +56,8 @@ export class RecentlyUsedItemsService {
   }
 
   getRecentCostCenters(
-    costCenters,
-    recentValue
+    costCenters: CostCenters[],
+    recentValue: RecentlyUsed
   ): Observable<{ label: string; value: CostCenter; selected?: boolean }[]> {
     if (
       costCenters &&
@@ -66,7 +66,7 @@ export class RecentlyUsedItemsService {
       recentValue.recent_cost_center_ids &&
       recentValue.recent_cost_center_ids.length > 0
     ) {
-      const costCentersMap = {};
+      const costCentersMap: { [key: string]: CostCenters } = {};
       costCenters.forEach((item) => {
         costCentersMap[item.value.id] = item;
       });
@@ -96,7 +96,7 @@ export class RecentlyUsedItemsService {
       recentValues.recent_org_category_ids &&
       recentValues.recent_org_category_ids.length > 0
     ) {
-      const categoriesMap = {};
+      const categoriesMap: { [key: string]: OrgCategoryListItem } = {};
       filteredCategories.forEach((category) => {
         categoriesMap[category.value.id] = category;
       });
@@ -113,6 +113,6 @@ export class RecentlyUsedItemsService {
         return of(recentCurrenciesList.map((currency) => ({ shortCode: currency.id, longName: currency.value })));
       }
     }
-    return of([]);
+    return of([] as Currency[]);
   }
 }

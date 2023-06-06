@@ -10,6 +10,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ReportV1 } from 'src/app/core/models/report-v1.model';
 
 @Component({
   selector: 'app-create-new-report',
@@ -126,7 +127,7 @@ export class CreateNewReportComponent implements OnInit {
               Report_Value: this.selectedTotalAmount,
             })
           ),
-          switchMap((report) => {
+          switchMap((report: ReportV1) => {
             if (txnIds.length > 0) {
               return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
             } else {

@@ -1,20 +1,20 @@
 import { Aggregate, Value, Key } from '../models/v2/stats-response.model';
+import { StatsResponse } from '../models/v2/stats-response.model';
+// type StatsResponse = {
+//   data: {
+//     dimensions: string[];
+//     name: string;
+//     value?: Value[];
+//     aggregates?: Aggregate[];
+//     key?: Key[];
+//   }[];
+//   url: string;
+//   scalar?: boolean;
+//   dimension_1_1?: string;
+//   aggregates?: string;
+// };
 
-type StatsResponse = {
-  data: {
-    dimensions: string[];
-    name: string;
-    value?: Value[];
-    aggregates?: Aggregate[];
-    key?: Key[];
-  }[];
-  url: string;
-  scalar?: boolean;
-  dimension_1_1?: string;
-  aggregates?: string;
-};
-
-export const apiReportStatsRes: StatsResponse = {
+export const apiReportStatsRes = new StatsResponse({
   data: [
     {
       dimensions: ['rp_state'],
@@ -150,9 +150,9 @@ export const apiReportStatsRes: StatsResponse = {
     },
   ],
   url: '/v2/reports/stats',
-};
+});
 
-export const apiReportStatsEmptyRes: StatsResponse = {
+export const apiReportStatsEmptyRes = new StatsResponse({
   data: [
     {
       dimensions: ['rp_state'],
@@ -198,9 +198,9 @@ export const apiReportStatsEmptyRes: StatsResponse = {
     },
   ],
   url: '/v2/reports/stats',
-};
+});
 
-export const apiAssignedCardDetailsRes: StatsResponse = {
+export const apiAssignedCardDetailsRes = new StatsResponse({
   data: [
     {
       aggregates: [
@@ -276,9 +276,9 @@ export const apiAssignedCardDetailsRes: StatsResponse = {
     },
   ],
   url: '/v2/expenses_and_ccce/stats',
-};
+});
 
-export const apiReportStatsRawRes: StatsResponse = {
+export const apiReportStatsRawRes = new StatsResponse({
   data: [
     {
       aggregates: [
@@ -296,9 +296,9 @@ export const apiReportStatsRawRes: StatsResponse = {
     },
   ],
   url: '/v2/reports/stats',
-};
+});
 
-export const txnStats: StatsResponse = {
+export const txnStats = new StatsResponse({
   data: [
     {
       aggregates: [
@@ -316,4 +316,4 @@ export const txnStats: StatsResponse = {
     },
   ],
   url: '/v2/expenses/stats',
-};
+});
