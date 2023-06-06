@@ -20,6 +20,8 @@ import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mock-data/card-aggregate-stat.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { InfiniteScrollCustomEvent, IonInfiniteScrollCustomEvent } from '@ionic/core';
 
 fdescribe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -33,6 +35,7 @@ fdescribe('MyReportsPage', () => {
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let router: jasmine.SpyObj<Router>;
   let navController: jasmine.SpyObj<NavController>;
+  let networkService: jasmine.SpyObj<NetworkService>;
   let inputElement: HTMLInputElement;
 
   beforeEach(waitForAsync(() => {
@@ -43,6 +46,7 @@ fdescribe('MyReportsPage', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'connectivityWatcher']);
     const activatedRouteSpy = {
       snapshot: {
         params: {
@@ -67,6 +71,10 @@ fdescribe('MyReportsPage', () => {
           provide: NavController,
           useValue: navControllerSpy,
         },
+        {
+          provide: NetworkService,
+          useValue: networkServiceSpy,
+        },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -88,6 +96,7 @@ fdescribe('MyReportsPage', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
   }));
 
   it('should create', () => {
@@ -694,5 +703,36 @@ fdescribe('MyReportsPage', () => {
     component.onPageExit.subscribe((pageExit) => {
       expect(pageExit).toBe(null);
     });
+  });
+
+  describe('setupNetworkWatcher():', () => {
+    it('should setup network watcher', () => {
+      networkService.isOnline.and.returnValue(of(true));
+
+      component.setupNetworkWatcher();
+      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+    });
+
+    it('should navigate to dashboard if device is not online', () => {
+      networkService.isOnline.and.returnValue(of(false));
+
+      component.setupNetworkWatcher();
+      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+    });
+  });
+
+  xit('loadData(event): should increment pageNumber and update loadData$', () => {
+    const mockEvent = { target: { complete: jasmine.createSpy('complete') } };
+    component.currentPageNumber = 2;
+
+    component.loadData(mockEvent);
+
+    expect(component.currentPageNumber).toBe(3);
+    expect(component.loadData$.getValue().pageNumber).toBe(3);
+    tick(1000);
+    expect(mockEvent.target.complete).toHaveBeenCalled();
   });
 });
