@@ -46,22 +46,18 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
   ngOnChanges() {
     this.showCurrentLocation = false;
 
-    const allLocationsValid = this.mileageLocations.every(
+    const validLocations = this.mileageLocations.filter(
       (location) => location && location.latitude && location.longitude
     );
 
-    if (allLocationsValid && this.mileageLocations.length >= 2) {
+    if (validLocations.length === this.mileageLocations.length && this.mileageLocations.length >= 2) {
       const mileageRoute = this.locationService.getMileageRoute(this.mileageLocations);
       this.renderMap(mileageRoute);
     } else {
       this.directions$ = null;
       this.directionsMapUrl$ = null;
 
-      const allLocationsInvalid = this.mileageLocations.every(
-        (location) => !(location && location.latitude && location.longitude)
-      );
-
-      if (allLocationsInvalid) {
+      if (validLocations.length === 0) {
         this.showCurrentLocation = true;
       }
     }
