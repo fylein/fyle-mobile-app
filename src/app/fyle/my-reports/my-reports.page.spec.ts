@@ -885,20 +885,48 @@ describe('MyReportsPage', () => {
     });
   });
 
-  it('should increment currentPageNumber and emit updated params', fakeAsync(() => {
-    const mockEvent = { target: { complete: jasmine.createSpy('complete') } };
-    component.currentPageNumber = 2;
-    component.loadData$ = new BehaviorSubject({
-      pageNumber: 2,
+  describe('loadData(event): ', () => {
+    it('loadData(event): should increment currentPageNumber and emit updated params and call complete() after 1s', fakeAsync(() => {
+      const mockEvent = { target: { complete: jasmine.createSpy('complete') } };
+      component.currentPageNumber = 2;
+      component.loadData$ = new BehaviorSubject({
+        pageNumber: 2,
+      });
+
+      component.loadData(mockEvent);
+
+      expect(component.currentPageNumber).toBe(3);
+      expect(component.loadData$.getValue().pageNumber).toBe(3);
+      tick(1000);
+      expect(mockEvent.target.complete).toHaveBeenCalledTimes(1);
+    }));
+
+    it('loadData(event): should increment currentPageNumber and emit updated params if target is not defined', () => {
+      const mockEvent = {};
+      component.currentPageNumber = 2;
+      component.loadData$ = new BehaviorSubject({
+        pageNumber: 2,
+      });
+
+      component.loadData(mockEvent);
+
+      expect(component.currentPageNumber).toBe(3);
+      expect(component.loadData$.getValue().pageNumber).toBe(3);
     });
 
-    component.loadData(mockEvent);
+    it('loadData(event): should increment currentPageNumber and emit updated params if event if undefined', () => {
+      const mockEvent = undefined;
+      component.currentPageNumber = 2;
+      component.loadData$ = new BehaviorSubject({
+        pageNumber: 2,
+      });
 
-    expect(component.currentPageNumber).toBe(3);
-    expect(component.loadData$.getValue().pageNumber).toBe(3);
-    tick(1000);
-    expect(mockEvent.target.complete).toHaveBeenCalledTimes(1);
-  }));
+      component.loadData(mockEvent);
+
+      expect(component.currentPageNumber).toBe(3);
+      expect(component.loadData$.getValue().pageNumber).toBe(3);
+    });
+  });
 
   describe('doRefresh():', () => {
     it('should refresh data without event', () => {
@@ -926,6 +954,20 @@ describe('MyReportsPage', () => {
       expect(component.currentPageNumber).toBe(1);
       expect(component.loadData$.getValue().pageNumber).toBe(1);
       expect(mockEvent.target.complete).toHaveBeenCalledTimes(1);
+    });
+
+    it('should refresh data if target is not defined', () => {
+      reportService.clearTransactionCache.and.returnValue(of(null));
+      component.currentPageNumber = 2;
+      component.loadData$ = new BehaviorSubject({
+        pageNumber: 2,
+      });
+      const mockEvent = {};
+
+      component.doRefresh(mockEvent);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
+      expect(component.currentPageNumber).toBe(1);
+      expect(component.loadData$.getValue().pageNumber).toBe(1);
     });
   });
 
@@ -964,7 +1006,6 @@ describe('MyReportsPage', () => {
     });
 
     it('should generate custom date params with end date only', () => {
-      // Set up test data
       const newQueryParams: { or: string[]; and?: string } = { or: [] };
       const endDate = new Date('2022-01-31');
 

@@ -322,34 +322,32 @@ export class MyReportsPage implements OnInit {
     });
   }
 
-  loadData(event: { target: { complete: () => void } }): void {
+  loadData(event: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = this.currentPageNumber + 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     setTimeout(() => {
-      if (event && event.target && event.target.complete) {
-        event.target.complete();
-      }
+      event?.target?.complete();
     }, 1000);
   }
 
-  doRefresh(event?: { target: { complete: () => void } }): void {
+  doRefresh(event?: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.reportService.clearTransactionCache().subscribe(() => {
       this.loadData$.next(params);
-      if (event && event.target && event.target.complete) {
-        event.target.complete();
+      if (event) {
+        event.target?.complete();
       }
     });
   }
 
   generateCustomDateParams(newQueryParams: { or: string[]; and?: string }) {
     if (this.filters.date === DateFilters.custom) {
-      const startDate = this.filters && this.filters.customDateStart && this.filters.customDateStart.toISOString();
-      const endDate = this.filters && this.filters.customDateEnd && this.filters.customDateEnd.toISOString();
+      const startDate = this.filters.customDateStart?.toISOString();
+      const endDate = this.filters.customDateEnd?.toISOString();
       if (this.filters.customDateStart && this.filters.customDateEnd) {
         newQueryParams.and = `(rp_created_at.gte.${startDate},rp_created_at.lt.${endDate})`;
       } else if (this.filters.customDateStart) {
