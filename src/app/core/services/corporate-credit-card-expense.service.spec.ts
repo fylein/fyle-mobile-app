@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { AuthService } from './auth.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { DataTransformService } from './data-transform.service';
@@ -16,7 +15,7 @@ import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
 import { expectedAssignedCCCStats } from '../mock-data/ccc-expense.details.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { eCCCApiResponse } from '../mock-data/corporate-card-expense-flattened.data';
-import { platformCorporateCard } from '../mock-data/platform-corporate-card.data';
+import { StatsResponse } from '../models/v2/stats-response.model';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
@@ -24,14 +23,12 @@ describe('CorporateCreditCardExpenseService', () => {
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let authService: jasmine.SpyObj<AuthService>;
-  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let dataTransformService: DataTransformService;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
+    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -48,10 +45,6 @@ describe('CorporateCreditCardExpenseService', () => {
           provide: AuthService,
           useValue: authServiceSpy,
         },
-        {
-          provide: SpenderPlatformV1ApiService,
-          useValue: spenderPlatformV1ApiServiceSpy,
-        },
         DataTransformService,
         DateService,
       ],
@@ -61,9 +54,6 @@ describe('CorporateCreditCardExpenseService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
-    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     dataTransformService = TestBed.inject(DataTransformService);
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
   });
@@ -113,13 +103,13 @@ describe('CorporateCreditCardExpenseService', () => {
   it('getAssignedCards(): should get all assigned cards', (done) => {
     const queryParams = 'in.(COMPLETE,DRAFT)';
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    apiV2Service.get.and.returnValue(of(apiAssignedCardDetailsRes));
+    apiV2Service.getStats.and.returnValue(of(new StatsResponse(apiAssignedCardDetailsRes)));
     spyOn(cccExpenseService, 'constructInQueryParamStringForV2').and.returnValue(queryParams);
 
     cccExpenseService.getAssignedCards().subscribe((res) => {
       expect(res).toEqual(expectedAssignedCCCStats);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith(
+      expect(apiV2Service.getStats).toHaveBeenCalledOnceWith(
         '/expenses_and_ccce/stats?aggregates=count(tx_id),sum(tx_amount)&scalar=true&dimension_1_1=corporate_credit_card_bank_name,corporate_credit_card_account_number,tx_state&tx_state=' +
           queryParams +
           '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
@@ -155,20 +145,6 @@ describe('CorporateCreditCardExpenseService', () => {
           order: 'txn_dt.desc,id.desc',
         },
       });
-      done();
-    });
-  });
-
-  it('getCorporateCards(): should get all corporate cards', (done) => {
-    const apiResponse = {
-      data: [platformCorporateCard],
-      count: 1,
-    };
-    spenderPlatformV1ApiService.get.and.returnValue(of(apiResponse));
-
-    cccExpenseService.getCorporateCards().subscribe((res) => {
-      expect(res).toEqual([platformCorporateCard]);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/corporate_cards');
       done();
     });
   });

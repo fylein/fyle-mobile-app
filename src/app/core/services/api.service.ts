@@ -16,15 +16,15 @@ export class ApiService {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
-  post(url: string, data = {}, config = {}) {
-    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/api' + url, data, config);
+  post<T>(url: string, data = {}) {
+    return this.httpClient.post<T>(this.ROOT_ENDPOINT + '/api' + url, data);
   }
 
-  delete(url: string, data = {}) {
-    return this.httpClient.delete<any>(this.ROOT_ENDPOINT + '/api' + url, data);
+  delete<T>(url: string, data = {}) {
+    return this.httpClient.delete<T>(this.ROOT_ENDPOINT + '/api' + url, data);
   }
 
-  get(url: string, config: { params?: any } = {}) {
-    return this.httpClient.get<any>(this.ROOT_ENDPOINT + '/api' + url, config);
+  get<T>(url: string, config: { params?: any } = {}) {
+    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/api' + url, config);
   }
 }

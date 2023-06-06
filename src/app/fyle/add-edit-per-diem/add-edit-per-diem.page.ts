@@ -827,7 +827,7 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((costCenter) => this.selectedCostCenter$.next(costCenter));
 
     // If User has already clicked on See More he need not to click again and again
-    from(this.storageService.get('isExpandedViewPerDiem')).subscribe((expandedView) => {
+    from(this.storageService.get<boolean>('isExpandedViewPerDiem')).subscribe((expandedView) => {
       this.isExpandedView = this.mode !== 'add' || expandedView;
     });
 

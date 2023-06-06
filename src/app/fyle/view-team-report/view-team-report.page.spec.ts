@@ -46,6 +46,8 @@ import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ViewTeamReportPage } from './view-team-report.page';
+import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
+import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-export.data';
 
 describe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
@@ -297,10 +299,7 @@ describe('ViewTeamReportPage', () => {
       reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
       reportService.getExports.and.returnValue(
         of({
-          results: [
-            { created_at: '2023-01-17T06:35:06.814556', update_at: '2023-02-23T11:46:17.569Z' },
-            { created_at: '2023-02-24T12:03:57.680Z', update_at: '2023-02-23T11:46:17.569Z' },
-          ],
+          results: pdfExportData1,
         })
       );
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
@@ -366,7 +365,7 @@ describe('ViewTeamReportPage', () => {
       });
 
       component.sharedWith$.subscribe((res) => {
-        expect(res).toEqual([undefined]);
+        expect(res).toEqual(['ajain@fyle.in', 'arjun.m@fyle.in']);
       });
 
       component.reportApprovals$.subscribe((res) => {
@@ -417,11 +416,7 @@ describe('ViewTeamReportPage', () => {
       reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
       reportService.getExports.and.returnValue(
         of({
-          results: [
-            { created_at: '2023-02-24T12:28:18.700Z', update_at: '2023-01-19T07:27:33.235573Z' },
-            { created_at: '2023-01-17T06:35:06.814556', update_at: '2023-02-23T11:46:17.569Z' },
-            { created_at: '2023-02-24T12:03:57.680Z', update_at: '2023-02-23T11:46:17.569Z' },
-          ],
+          results: pdfExportData2,
         })
       );
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
@@ -488,7 +483,7 @@ describe('ViewTeamReportPage', () => {
       });
 
       component.sharedWith$.subscribe((res) => {
-        expect(res).toEqual([undefined]);
+        expect(res).toEqual(['arjun.m@fyle.in', 'ajain@fyle.in']);
       });
 
       component.reportApprovals$.subscribe((res) => {
@@ -945,7 +940,7 @@ describe('ViewTeamReportPage', () => {
   });
 
   it('addComment(): should add a comment', () => {
-    statusService.post.and.returnValue(of(true));
+    statusService.post.and.returnValue(of(txnStatusData));
     spyOn(component.content, 'scrollToBottom');
     spyOn(component.refreshEstatuses$, 'next');
     component.isCommentsView = true;

@@ -39,7 +39,7 @@ export class PersonalCardsService {
 
   getLinkedAccounts(): Observable<PersonalCard[]> {
     return this.apiv2Service
-      .get('/personal_bank_accounts', {
+      .get<PersonalCard, { params: { order: string } }>('/personal_bank_accounts', {
         params: {
           order: 'last_synced_at.desc',
         },
@@ -105,8 +105,18 @@ export class PersonalCardsService {
       limit: 10,
       queryParams: {},
     }
-  ): Observable<ApiV2Response<PersonalCardTxn>> {
-    return this.apiv2Service.get('/personal_bank_transactions', {
+  ): Observable<Partial<ApiV2Response<PersonalCardTxn>>> {
+    return this.apiv2Service.get<
+      PersonalCardTxn,
+      {
+        params: Partial<{
+          offset: number;
+          limit: number;
+          order: string;
+          queryParams: { btxn_status?: string; ba_id?: string };
+        }>;
+      }
+    >('/personal_bank_transactions', {
       params: {
         limit: config.limit,
         offset: config.offset,
@@ -121,7 +131,7 @@ export class PersonalCardsService {
 
   getExpenseDetails(transactionSplitGroupId: string): Observable<Expense> {
     return this.apiv2Service
-      .get('/expenses', {
+      .get<Expense, { params: { tx_split_group_id: string } }>('/expenses', {
         params: {
           tx_split_group_id: `eq.${transactionSplitGroupId}`,
         },

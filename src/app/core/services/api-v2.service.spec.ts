@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { ApiV2Service } from './api-v2.service';
 import { of } from 'rxjs';
+import { ExtendedReport } from '../models/report.model';
+import { apiReportRes } from '../mock-data/api-reports.data';
 
 describe('ApiV2Service', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -44,23 +46,23 @@ describe('ApiV2Service', () => {
 
   describe('get():', () => {
     it('should make GET request without params', (done) => {
-      httpClient.get.and.returnValue(of(apiResponse));
+      httpClient.get.and.returnValue(of(apiReportRes));
       apiV2Service.get('/reports').subscribe((res) => {
-        expect(res).toEqual(apiResponse);
+        expect(res).toEqual(apiReportRes);
         expect(httpClient.get).toHaveBeenCalledOnceWith('https://staging.fyle.tech/v2/reports', {});
         done();
       });
     });
 
     it('should make GET request with params', (done) => {
-      httpClient.get.and.returnValue(of(apiResponse));
+      httpClient.get.and.returnValue(of(apiReportRes));
 
       apiV2Service
-        .get('/reports', {
+        .get<ExtendedReport, {}>('/reports', {
           params: requestObj,
         })
         .subscribe((res) => {
-          expect(res).toEqual(apiResponse);
+          expect(res).toEqual(apiReportRes);
           expect(httpClient.get).toHaveBeenCalledOnceWith('https://staging.fyle.tech/v2/reports', {
             params: requestObj,
           });

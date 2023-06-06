@@ -362,23 +362,9 @@ export class TasksComponent implements OnInit {
       case TASKEVENT.openSentBackAdvance:
         this.onSentBackAdvanceTaskClick(taskCta, task);
         break;
-      case TASKEVENT.mobileNumberVerification:
-        this.onMobileNumberVerificationTaskClick(taskCta);
-        break;
       default:
         break;
     }
-  }
-
-  onMobileNumberVerificationTaskClick(taskCta: TaskCta) {
-    this.router.navigate([
-      '/',
-      'enterprise',
-      'my_profile',
-      {
-        openPopover: taskCta.content === 'Add' ? 'add_mobile_number' : 'verify_mobile_number',
-      },
-    ]);
   }
 
   onReviewExpensesTaskClick(taskCta: TaskCta, task: DashboardTask) {

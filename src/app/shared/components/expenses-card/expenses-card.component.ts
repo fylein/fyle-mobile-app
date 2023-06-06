@@ -469,7 +469,7 @@ export class ExpensesCardComponent implements OnInit {
           this.attachmentUploadInProgress = false;
         })
       )
-      .subscribe((fileObj) => {
+      .subscribe((fileObj: FileObject) => {
         this.setThumbnail(fileObj.id, attachmentType);
       });
   }

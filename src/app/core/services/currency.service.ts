@@ -7,7 +7,9 @@ import { from, Observable, of, Subject } from 'rxjs';
 import * as dayjs from 'dayjs';
 import { Cacheable } from 'ts-cacheable';
 import { getNumberOfCurrencyDigits } from '@angular/common';
-import { CurrencyName } from '../models/currency.model';
+import { Currency, CurrencyName } from '../models/currency.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +31,7 @@ export class CurrencyService {
     }
 
     return this.apiService
-      .get('/currency/exchange', {
+      .get<Partial<PublicPolicyExpense>>('/currency/exchange', {
         params: queryParams,
       })
       .pipe(
@@ -41,8 +43,8 @@ export class CurrencyService {
   @Cacheable()
   getAll(): Observable<CurrencyName> {
     return from(this.authService.getEou()).pipe(
-      switchMap((currentEou) =>
-        this.apiService.get('/currency/all', {
+      switchMap((currentEou: ExtendedOrgUser) =>
+        this.apiService.get<CurrencyName>('/currency/all', {
           params: {
             org_id: currentEou && currentEou.ou && currentEou.ou.org_id,
           },

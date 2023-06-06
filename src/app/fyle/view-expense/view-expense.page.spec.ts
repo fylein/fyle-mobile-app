@@ -46,6 +46,7 @@ import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expe
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -1029,7 +1030,7 @@ describe('ViewExpensePage', () => {
       popoverController.create.and.returnValue(flagPopoverSpy);
       const data = { comment: 'This is a comment for flagging' };
       flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(testComment));
+      statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualFlag.and.returnValue(of(expenseData2));
 
       component.flagUnflagExpense(expenseData1.tx_manual_flag);
@@ -1085,7 +1086,7 @@ describe('ViewExpensePage', () => {
       popoverController.create.and.returnValue(flagPopoverSpy);
       const data = { comment: 'This is a comment for flagging' };
       flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(testComment));
+      statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualUnflag.and.returnValue(of(expenseData1));
 
       component.flagUnflagExpense(mockExpenseData.tx_manual_flag);

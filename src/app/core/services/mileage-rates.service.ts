@@ -64,7 +64,7 @@ export class MileageRatesService {
   }
 
   formatMileageRateName(rateName: string): string {
-    const names = {
+    const names: Record<string, string> = {
       two_wheeler: 'Two Wheeler',
       four_wheeler: 'Four Wheeler - Type 1',
       four_wheeler1: 'Four Wheeler - Type 2',

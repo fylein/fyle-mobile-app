@@ -53,7 +53,7 @@ export class AdvanceService {
 
   getAdvance(id: string): Observable<ExtendedAdvance> {
     return this.apiv2Service
-      .get('/advances', {
+      .get<ExtendedAdvance, { params: { adv_id: string } }>('/advances', {
         params: {
           adv_id: `eq.${id}`,
         },

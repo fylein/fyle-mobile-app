@@ -1,4 +1,4 @@
-import { CurrencyName } from '../models/currency.model';
+import { Currency, CurrencyName } from '../models/currency.model';
 
 export const apiAllCurrencies: CurrencyName = {
   AED: 'United Arab Emirates Dirham',
@@ -172,3 +172,18 @@ export const apiAllCurrencies: CurrencyName = {
   ZMW: 'Zambian Kwacha',
   ZWL: 'Zimbabwean Dollar',
 };
+
+export const selectedCurrencies: Currency[] = [
+  {
+    shortCode: 'USD',
+    longName: 'US Dollar',
+  },
+  {
+    shortCode: 'EUR',
+    longName: 'Euro',
+  },
+  {
+    shortCode: 'JPY',
+    longName: 'JPY',
+  },
+];

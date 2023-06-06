@@ -32,7 +32,7 @@ export class AccountsService {
         const accounts: ExtendedAccount[] = [];
 
         accountsRaw.forEach((accountRaw) => {
-          const account = this.dataTransformService.unflatten(accountRaw);
+          const account = this.dataTransformService.unflatten<ExtendedAccount, {}>(accountRaw);
           accounts.push(account);
         });
 

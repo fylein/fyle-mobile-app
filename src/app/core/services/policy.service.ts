@@ -72,7 +72,7 @@ export class PolicyService {
   }
 
   getCriticalPolicyRules(expensePolicy: ExpensePolicy): string[] {
-    const criticalPopupRules = [];
+    const criticalPopupRules: string[] = [];
 
     if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
       expensePolicy.data.individual_desired_states.forEach((desiredState) => {
@@ -90,7 +90,7 @@ export class PolicyService {
   }
 
   getPolicyRules(expensePolicy: ExpensePolicy): string[] {
-    const popupRules = [];
+    const popupRules: string[] = [];
 
     if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
       expensePolicy.data.individual_desired_states.forEach((desiredState) => {

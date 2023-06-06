@@ -8,6 +8,7 @@ import { forkJoin, Observable, from, iif } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { JwtHelperService } from './jwt-helper.service';
 import { ResendEmailVerification } from '../models/resend-email-verification.model';
+import { AuthResponse } from '../models/auth-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -46,7 +47,7 @@ export class AuthService {
     ]).pipe(
       switchMap(() =>
         that.apiService
-          .post('/auth/access_token', {
+          .post<AuthResponse>('/auth/access_token', {
             refresh_token: token,
           })
           .pipe(

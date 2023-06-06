@@ -14,9 +14,6 @@ import { PreferenceSettingComponent } from './preference-setting/preference-sett
 import { EmployeeDetailsCardComponent } from './employee-details-card/employee-details-card.component';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
-import { InfoCardComponent } from './info-card/info-card.component';
-import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 
 @NgModule({
   imports: [
@@ -32,14 +29,6 @@ import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobil
     MatRippleModule,
     MatTooltipModule,
   ],
-  declarations: [
-    MyProfilePage,
-    SelectCurrencyComponent,
-    PreferenceSettingComponent,
-    EmployeeDetailsCardComponent,
-    VerifyNumberPopoverComponent,
-    InfoCardComponent,
-    UpdateMobileNumberComponent,
-  ],
+  declarations: [MyProfilePage, SelectCurrencyComponent, PreferenceSettingComponent, EmployeeDetailsCardComponent],
 })
 export class MyProfilePageModule {}

@@ -2676,10 +2676,10 @@ export const expenseData3 = {
   ou_org_name: 'Staging Loaded',
   tx_id: 'tx3qHxFNgRcZ',
   tx_org_user_id: 'ouX8dwsbLCLv',
-  tx_created_at: '2023-01-24T09:54:24.186Z',
+  tx_created_at: new Date('2023-01-24T09:54:24.186Z'),
   tx_receipt_required: false,
   tx_user_can_delete: true,
-  tx_txn_dt: '2023-01-24T17:00:00.000Z',
+  tx_txn_dt: new Date('2023-01-24T17:00:00.000Z'),
   tx_category: null,
   tx_amount: 344,
   tx_user_amount: 344,
@@ -5512,4 +5512,15 @@ export const expensesDataWithCC: Expense[] = [
     isCriticalPolicyViolated: false,
     vendorDetails: 'Nilesh As Vendor',
   },
+];
+
+export const newExpenseViewReport: Expense[] = [
+  { ...expenseData1, tx_report_id: 'rpkkdCNBFsJ2', tx_txn_dt: new Date('2023-01-24T17:00:00.000Z') },
+  {
+    ...expenseData2,
+    tx_report_id: 'rpkkdCNBFsJ2',
+    tx_txn_dt: new Date('2023-01-24T17:00:00.000Z'),
+    tx_id: 'txz2vohKxBXu',
+  },
+  { ...expenseData3, tx_report_id: 'rpkkdCNBFsJ2' },
 ];

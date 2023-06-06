@@ -9,7 +9,7 @@ import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 export class SecureStorageService {
   constructor() {}
 
-  async set(key: string, value: any) {
+  async set<T>(key: string, value: T): Promise<{ value: boolean }> {
     try {
       return await SecureStoragePlugin.set({
         key,
@@ -22,20 +22,20 @@ export class SecureStorageService {
     }
   }
 
-  async get(key: string) {
+  async get<T>(key: string): Promise<T> {
     try {
       const stringifiedObject = await SecureStoragePlugin.get({
         key,
       });
       if (stringifiedObject?.value) {
-        return JSON.parse(stringifiedObject.value);
+        return JSON.parse(stringifiedObject.value) as T;
       }
     } catch {
       return null;
     }
   }
 
-  async delete(key: string) {
+  async delete(key: string): Promise<{ value: boolean }> {
     try {
       return await SecureStoragePlugin.remove({ key });
     } catch {
@@ -43,7 +43,7 @@ export class SecureStorageService {
     }
   }
 
-  async clearAll() {
+  async clearAll(): Promise<{ value: boolean }> {
     try {
       return await SecureStoragePlugin.clear();
     } catch {
