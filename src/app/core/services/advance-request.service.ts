@@ -247,7 +247,7 @@ export class AdvanceRequestService {
             orgUserSettings.locale.offset
           );
         }
-        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, { timeout: 5000 });
+        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest);
       })
     );
   }
