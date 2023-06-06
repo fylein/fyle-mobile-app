@@ -9,7 +9,7 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -21,9 +21,8 @@ import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mo
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { InfiniteScrollCustomEvent, IonInfiniteScrollCustomEvent } from '@ionic/core';
 
-fdescribe('MyReportsPage', () => {
+describe('MyReportsPage', () => {
   let component: MyReportsPage;
   let fixture: ComponentFixture<MyReportsPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -83,11 +82,9 @@ fdescribe('MyReportsPage', () => {
     fixture = TestBed.createComponent(MyReportsPage);
     component = fixture.componentInstance;
 
-    const activatedRouteSnapshot = TestBed.inject(ActivatedRoute).snapshot;
-    activatedRouteSnapshot.params = {};
-    activatedRouteSnapshot.queryParams = {};
-
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    activatedRoute.snapshot.params = {};
+    activatedRoute.snapshot.queryParams = {};
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
@@ -722,17 +719,5 @@ fdescribe('MyReportsPage', () => {
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });
-  });
-
-  xit('loadData(event): should increment pageNumber and update loadData$', () => {
-    const mockEvent = { target: { complete: jasmine.createSpy('complete') } };
-    component.currentPageNumber = 2;
-
-    component.loadData(mockEvent);
-
-    expect(component.currentPageNumber).toBe(3);
-    expect(component.loadData$.getValue().pageNumber).toBe(3);
-    tick(1000);
-    expect(mockEvent.target.complete).toHaveBeenCalled();
   });
 });
