@@ -9,6 +9,8 @@ import { AuthService } from './auth.service';
 
 const advancesCacheBuster$ = new Subject<void>();
 
+type Config = Partial<{ offset: number; limit: number; assignee_ou_id?: string; queryParams: Record<string, string> }>;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -19,7 +21,7 @@ export class AdvanceService {
     cacheBusterObserver: advancesCacheBuster$,
   })
   getMyadvances(
-    config: Partial<{ offset: number; limit: number; queryParams: Record<string, string> }> = {
+    config: Config = {
       offset: 0,
       limit: 10,
       queryParams: {},
@@ -27,7 +29,12 @@ export class AdvanceService {
   ): Observable<ApiV2Response<ExtendedAdvance>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiv2Service.get('/advances', {
+        this.apiv2Service.get<
+          ExtendedAdvance,
+          {
+            params: Config;
+          }
+        >('/advances', {
           params: {
             offset: config.offset,
             limit: config.limit,
