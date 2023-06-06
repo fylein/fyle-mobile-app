@@ -142,7 +142,7 @@ export class ProjectsService {
     );
   }
 
-  getbyId(projectId: number): Observable<ExtendedProject> {
+  getbyId(projectId: number | string): Observable<ExtendedProject> {
     return this.apiV2Service
       .get('/projects', {
         params: {

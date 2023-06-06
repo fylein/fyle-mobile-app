@@ -115,7 +115,7 @@ export class ReportService {
   getERpt(rptId: string) {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map((data) => {
-        const erpt = this.dataTransformService.unflatten(data);
+        const erpt = this.dataTransformService.unflatten<UnflattenedReport, ReportV1>(data);
         this.dateService.fixDates(erpt.rp);
         if (erpt && erpt.rp && erpt.rp.created_at) {
           erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
@@ -229,7 +229,7 @@ export class ReportService {
     cacheBusterNotifier: reportsCacheBuster$,
   })
   updateReportDetails(erpt: ExtendedReport): Observable<ReportV1> {
-    const reportData = this.dataTransformService.unflatten(erpt);
+    const reportData = this.dataTransformService.unflatten<UnflattenedReport, ExtendedReport>(erpt);
     return this.apiService
       .post<ReportV1>('/reports', reportData.rp)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
