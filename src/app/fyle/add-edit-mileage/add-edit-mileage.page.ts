@@ -327,7 +327,7 @@ export class AddEditMileagePage implements OnInit {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
 
-    this.launchDarklyService.getVariation('load_dynamic_map', false).subscribe((loadDynamicMap) => {
+    this.launchDarklyService.getVariation('show_dynamic_maps', false).subscribe((loadDynamicMap) => {
       this.loadDynamicMap = loadDynamicMap;
     });
   }
