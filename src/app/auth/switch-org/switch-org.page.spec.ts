@@ -43,7 +43,7 @@ const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
 
-fdescribe('SwitchOrgPage', () => {
+describe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
   let platform: jasmine.SpyObj<Platform>;
@@ -232,7 +232,6 @@ fdescribe('SwitchOrgPage', () => {
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
-    spyOn((component as any).cdRef, 'detectChanges').and.returnValue(null);
     fixture.detectChanges();
   }));
 
@@ -251,6 +250,9 @@ fdescribe('SwitchOrgPage', () => {
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
       component.searchOrgsInput.nativeElement.value = 'Staging Loaded';
       component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
+      const changeDetectorRef = fixture.debugElement.injector.get(ChangeDetectorRef);
+      const detectChangesSpy = spyOn(changeDetectorRef.constructor.prototype, 'detectChanges');
+      fixture.detectChanges();
 
       component.ionViewWillEnter();
       tick(1000);
@@ -268,6 +270,7 @@ fdescribe('SwitchOrgPage', () => {
       expect(component.proceed).toHaveBeenCalledOnceWith(true);
 
       expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledOnceWith([orgData2[1]], '');
+      expect(detectChangesSpy).toHaveBeenCalledTimes(2);
     }));
 
     it('should directly proceed to invite line flow if choosing is disabled', fakeAsync(() => {
@@ -279,6 +282,9 @@ fdescribe('SwitchOrgPage', () => {
       orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
       loaderService.showLoader.and.returnValue(Promise.resolve());
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
+      const changeDetectorRef = fixture.debugElement.injector.get(ChangeDetectorRef);
+      const detectChangesSpy = spyOn(changeDetectorRef.constructor.prototype, 'detectChanges');
+      fixture.detectChanges();
 
       component.ionViewWillEnter();
       tick(1000);
@@ -297,6 +303,7 @@ fdescribe('SwitchOrgPage', () => {
 
       expect(component.proceed).toHaveBeenCalledOnceWith(true);
       expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledOnceWith([orgData2[1]], '');
+      expect(detectChangesSpy).toHaveBeenCalledTimes(2);
     }));
   });
 
