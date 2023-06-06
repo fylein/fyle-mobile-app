@@ -19,6 +19,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mock-data/card-aggregate-stat.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
+import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 
 fdescribe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -679,4 +680,19 @@ fdescribe('MyReportsPage', () => {
 
     discardPeriodicTasks();
   }));
+
+  it('get HeaderState(): should return the HeaderState', () => {
+    expect(component.HeaderState).toEqual(HeaderState);
+  });
+
+  it('ngOnInit():', () => {
+    component.ngOnInit();
+  });
+
+  it('ionViewWillLeave(): should set the onPageExit to null', () => {
+    component.ionViewWillLeave();
+    component.onPageExit.subscribe((pageExit) => {
+      expect(pageExit).toBe(null);
+    });
+  });
 });
