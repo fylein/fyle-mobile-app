@@ -115,7 +115,7 @@ export class ReportService {
   getERpt(rptId: string) {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map((data) => {
-        const erpt = this.dataTransformService.unflatten<UnflattenedReport, ReportV1>(data);
+        const erpt: UnflattenedReport = this.dataTransformService.unflatten(data);
         this.dateService.fixDates(erpt.rp);
         if (erpt && erpt.rp && erpt.rp.created_at) {
           erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
@@ -612,7 +612,7 @@ export class ReportService {
           },
         })
       ),
-      map((rawStatsResponse) => new StatsResponse(rawStatsResponse))
+      map((rawStatsResponse: StatsResponse) => new StatsResponse(rawStatsResponse))
     );
   }
 }

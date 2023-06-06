@@ -36,6 +36,7 @@ import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
+import { StatsResponse } from '../models/v2/stats-response.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -209,7 +210,7 @@ export class TransactionService {
   getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<any> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiV2Service.get('/expenses/stats', {
+        this.apiV2Service.getStats<StatsResponse>('/expenses/stats', {
           params: {
             aggregates,
             tx_org_user_id: 'eq.' + eou.ou.id,
@@ -354,7 +355,7 @@ export class TransactionService {
 
   getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
     return this.apiV2Service
-      .get('/expenses', {
+      .get<Expense, {}>('/expenses', {
         ...params,
       })
       .pipe(map((etxns) => etxns.data));
@@ -370,7 +371,7 @@ export class TransactionService {
 
   getExpenseV2(id: string): Observable<Expense> {
     return this.apiV2Service
-      .get('/expenses', {
+      .get<Expense, {}>('/expenses', {
         params: {
           tx_id: `eq.${id}`,
         },
@@ -425,7 +426,7 @@ export class TransactionService {
   getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
-        const etxn = this.dataTransformService.unflatten<UnflattenedTransaction, Transaction>(data);
+        const etxn: UnflattenedTransaction = this.dataTransformService.unflatten(data);
         this.dateService.fixDates(etxn.tx);
 
         // Adding a field categoryDisplayName in transaction object to save funciton calls

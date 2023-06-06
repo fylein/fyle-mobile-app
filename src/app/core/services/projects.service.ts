@@ -55,7 +55,7 @@ export class ProjectsService {
     this.addNameSearchFilter(searchNameText, params);
 
     return this.apiV2Service
-      .get('/projects', {
+      .get<ExtendedProject, {}>('/projects', {
         params,
       })
       .pipe(
@@ -144,7 +144,7 @@ export class ProjectsService {
 
   getbyId(projectId: number | string): Observable<ExtendedProject> {
     return this.apiV2Service
-      .get('/projects', {
+      .get<ExtendedProject, {}>('/projects', {
         params: {
           project_id: `eq.${projectId}`,
         },
