@@ -40,7 +40,8 @@ type Filters = Partial<{
 type Config = Partial<{
   offset: number;
   limit: number;
-  queryParams: any;
+  queryParams: Record<string, string | string[]>;
+  areq_org_user_id?: string;
   filter: Filters;
 }>;
 
@@ -79,7 +80,7 @@ export class AdvanceRequestService {
   ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiv2Service.get('/advance_requests', {
+        this.apiv2Service.get<ExtendedAdvanceRequest, { params: Config }>('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -289,7 +290,7 @@ export class AdvanceRequestService {
   modifyAdvanceRequestCustomFields(customFields: CustomField[]): CustomField[] {
     customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
-        customField.value = new Date(customField.value);
+        customField.value = new Date(customField.value as string);
       }
       return customField;
     });
