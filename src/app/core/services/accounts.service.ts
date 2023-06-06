@@ -27,12 +27,12 @@ export class AccountsService {
 
   @Cacheable()
   getEMyAccounts(): Observable<ExtendedAccount[]> {
-    return this.apiService.get('/eaccounts/').pipe(
+    return this.apiService.get<ExtendedAccount[]>('/eaccounts/').pipe(
       map((accountsRaw: ExtendedAccount[]) => {
         const accounts: ExtendedAccount[] = [];
 
         accountsRaw.forEach((accountRaw) => {
-          const account = this.dataTransformService.unflatten<ExtendedAccount, {}>(accountRaw);
+          const account = this.dataTransformService.unflatten(accountRaw) as ExtendedAccount;
           accounts.push(account);
         });
 
@@ -106,7 +106,7 @@ export class AccountsService {
       accountCopy.acc.displayName =
         paymentMode === AccountType.ADVANCE
           ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
-          : accountDisplayNameMapping[paymentMode];
+          : (accountDisplayNameMapping[paymentMode] as string);
       accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
     }
 
