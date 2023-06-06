@@ -98,7 +98,7 @@ export class TransactionService {
   })
   getEtxn(txnId: string): Observable<Expense> {
     // TODO api v2
-    return this.apiService.get('/etxns/' + txnId).pipe(
+    return this.apiService.get<Expense>('/etxns/' + txnId).pipe(
       map((transaction) => {
         let categoryDisplayName = transaction.tx_org_category;
         if (
@@ -226,7 +226,7 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$,
   })
   delete(txnId: string): Observable<Expense> {
-    return this.apiService.delete('/transactions/' + txnId);
+    return this.apiService.delete<Expense>('/transactions/' + txnId);
   }
 
   @CacheBuster({
@@ -238,7 +238,7 @@ export class TransactionService {
     return range(0, count).pipe(
       concatMap((page) => {
         const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
-        return this.apiService.post('/transactions/delete/bulk', {
+        return this.apiService.post<Transaction>('/transactions/delete/bulk', {
           txn_ids: filteredtxnIds,
         });
       }),
@@ -308,7 +308,7 @@ export class TransactionService {
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        return this.apiService.post('/transactions', transactionCopy);
+        return this.apiService.post<Transaction>('/transactions', transactionCopy);
       })
     );
   }
@@ -341,7 +341,7 @@ export class TransactionService {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
-          return this.apiService.get('/etxns/count').pipe(
+          return this.apiService.get<{ count: number }>('/etxns/count').pipe(
             tap((res) => {
               this.storageService.set('etxncCount', res);
             })
@@ -426,7 +426,7 @@ export class TransactionService {
   getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
-        const etxn = this.dataTransformService.unflatten(data);
+        const etxn: UnflattenedTransaction = this.dataTransformService.unflatten(data);
         this.dateService.fixDates(etxn.tx);
 
         // Adding a field categoryDisplayName in transaction object to save funciton calls

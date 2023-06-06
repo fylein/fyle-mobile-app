@@ -3,6 +3,7 @@ import { Observable, from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CardAggregateStat } from '../models/card-aggregate-stat.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
+import { CCCExpFlattened } from '../models/corporate-card-expense-flattened.model';
 import { UniqueCardStats } from '../models/unique-cards-stats.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
@@ -12,7 +13,6 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -70,7 +70,7 @@ export class CorporateCreditCardExpenseService {
     };
 
     return this.apiService
-      .get('/extended_corporate_credit_card_expenses', data)
+      .get<CCCExpFlattened[]>('/extended_corporate_credit_card_expenses', data)
       .pipe(map((res) => (res && res.length && res.map((elem) => this.dataTransformService.unflatten(elem))) || []));
   }
 

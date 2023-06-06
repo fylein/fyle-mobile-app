@@ -131,7 +131,7 @@ export class ProjectsService {
       },
     };
 
-    return this.apiService.get('/projects', data).pipe(
+    return this.apiService.get<ProjectV1[]>('/projects', data).pipe(
       map((res) =>
         res.map((datum) => ({
           ...datum,
@@ -142,7 +142,7 @@ export class ProjectsService {
     );
   }
 
-  getbyId(projectId: number): Observable<ExtendedProject> {
+  getbyId(projectId: number | string): Observable<ExtendedProject> {
     return this.apiV2Service
       .get<ExtendedProject, {}>('/projects', {
         params: {

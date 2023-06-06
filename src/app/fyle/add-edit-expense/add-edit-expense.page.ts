@@ -109,6 +109,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
+import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -2599,7 +2600,7 @@ export class AddEditExpensePage implements OnInit {
 
         this.corporateCreditCardExpenseService
           .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
-          .subscribe((matchedExpense) => {
+          .subscribe((matchedExpense: CCCExpUnflattened[]) => {
             this.matchedCCCTransaction = matchedExpense[0].ccce;
             this.selectedCCCTransaction = this.matchedCCCTransaction;
             this.cardEndingDigits = (

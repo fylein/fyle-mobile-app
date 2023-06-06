@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { CacheBuster, Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
+import { AuthResponse } from '../models/auth-response.model';
+import { EmployeeParams } from '../models/employee-params.model';
+import { EouApiResponse } from '../models/eou-api-response.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { OrgUser } from '../models/org-user.model';
+import { Employee } from '../models/spender/employee.model';
+import { User } from '../models/user.model';
+import { ApiV2Service } from './api-v2.service';
+import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
+import { DataTransformService } from './data-transform.service';
 import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
-import { ApiService } from './api.service';
-import { User } from '../models/user.model';
-import { map, switchMap, tap } from 'rxjs/operators';
-import { AuthService } from './auth.service';
-import { Observable, Subject } from 'rxjs';
-import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { DataTransformService } from './data-transform.service';
-import { Cacheable, globalCacheBusterNotifier, CacheBuster } from 'ts-cacheable';
 import { TrackingService } from './tracking.service';
-import { ApiV2Service } from './api-v2.service';
-import { Employee } from '../models/spender/employee.model';
-import { EmployeeParams } from '../models/employee-params.model';
-import { OrgUser } from '../models/org-user.model';
-import { EouApiResponse } from '../models/eou-api-response.model';
-import { ApiV2Response } from '../models/v2/api-v2-response.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -50,13 +50,13 @@ export class OrgUserService {
   })
   switchToDelegator(orgUser: OrgUser): Observable<ExtendedOrgUser> {
     return this.apiService
-      .post('/orgusers/delegator_refresh_token', orgUser)
+      .post<AuthResponse>('/orgusers/delegator_refresh_token', orgUser)
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 
   @Cacheable()
   findDelegatedAccounts(): Observable<ExtendedOrgUser[]> {
-    return this.apiService.get('/eous/current/delegated_eous').pipe(
+    return this.apiService.get<ExtendedOrgUser[]>('/eous/current/delegated_eous').pipe(
       map((delegatedAccounts) => {
         delegatedAccounts = delegatedAccounts.map((delegatedAccount) =>
           this.dataTransformService.unflatten(delegatedAccount)
@@ -109,7 +109,7 @@ export class OrgUserService {
 
   switchToDelegatee(): Observable<ExtendedOrgUser> {
     return this.apiService
-      .post('/orgusers/delegatee_refresh_token')
+      .post<AuthResponse>('/orgusers/delegatee_refresh_token')
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 

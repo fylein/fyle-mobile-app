@@ -27,6 +27,7 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { StatsDimensionResponse } from '../models/stats-dimension-response.model';
 import { AdvanceRequestActions } from '../models/advance-request-actions.model';
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
+import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -229,7 +230,8 @@ export class AdvanceRequestService {
   getEReq(advanceRequestId: string) {
     return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
       map((res) => {
-        const eAdvanceRequest = this.dataTransformService.unflatten(res);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         return eAdvanceRequest;
       })
