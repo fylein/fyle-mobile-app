@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { StaticMapPropertiesService } from './static-map-properties.service';
 import { staticMapPropertiesData } from '../mock-data/static-map-properties.data';
 
-fdescribe('StaticMapPropertiesService', () => {
+describe('StaticMapPropertiesService', () => {
   let service: StaticMapPropertiesService;
 
   beforeEach(() => {

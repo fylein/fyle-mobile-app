@@ -48,7 +48,7 @@ const mockDirectionsMapUrl =
 const mockLocationMapUrl =
   'https://maps.googleapis.com/maps/api/staticmap?size=425x266&scale=2&zoom=15&center=19.2185231%2C73.1940418&key=GOOGLE_MAPS_API_KEY';
 
-fdescribe('RouteVisualizerComponent', () => {
+describe('RouteVisualizerComponent', () => {
   let component: RouteVisualizerComponent;
   let fixture: ComponentFixture<RouteVisualizerComponent>;
   let locationService: jasmine.SpyObj<LocationService>;
@@ -184,7 +184,7 @@ fdescribe('RouteVisualizerComponent', () => {
       fixture.detectChanges();
       component.ngOnChanges();
 
-      expect(component.showCurrentLocation).toBe(true);
+      expect(component.showCurrentLocation).toBeTrue();
     });
   });
 
