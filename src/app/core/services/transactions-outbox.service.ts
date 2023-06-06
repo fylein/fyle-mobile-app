@@ -15,6 +15,7 @@ import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
 import { CurrencyService } from './currency.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
+import { File } from '../models/file.model';
 
 @Injectable({
   providedIn: 'root',
@@ -207,7 +208,7 @@ export class TransactionsOutboxService {
           receipt_coordinates: receiptCoordinates,
         })
         .toPromise()
-        .then((fileObj) =>
+        .then((fileObj: File) =>
           this.fileService
             .uploadUrl(fileObj.id)
             .toPromise()

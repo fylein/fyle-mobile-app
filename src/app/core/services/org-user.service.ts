@@ -15,6 +15,7 @@ import { Employee } from '../models/spender/employee.model';
 import { EmployeeParams } from '../models/employee-params.model';
 import { OrgUser } from '../models/org-user.model';
 import { EouApiResponse } from '../models/eou-api-response.model';
+import { AuthResponse } from '../models/auth-response.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -55,13 +56,13 @@ export class OrgUserService {
   })
   switchToDelegator(orgUser: OrgUser): Observable<ExtendedOrgUser> {
     return this.apiService
-      .post('/orgusers/delegator_refresh_token', orgUser)
+      .post<AuthResponse>('/orgusers/delegator_refresh_token', orgUser)
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 
   @Cacheable()
   findDelegatedAccounts(): Observable<ExtendedOrgUser[]> {
-    return this.apiService.get('/eous/current/delegated_eous').pipe(
+    return this.apiService.get<ExtendedOrgUser[]>('/eous/current/delegated_eous').pipe(
       map((delegatedAccounts) => {
         delegatedAccounts = delegatedAccounts.map((delegatedAccount) =>
           this.dataTransformService.unflatten(delegatedAccount)
@@ -114,7 +115,7 @@ export class OrgUserService {
 
   switchToDelegatee(): Observable<ExtendedOrgUser> {
     return this.apiService
-      .post('/orgusers/delegatee_refresh_token')
+      .post<AuthResponse>('/orgusers/delegatee_refresh_token')
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 

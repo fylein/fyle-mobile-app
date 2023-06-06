@@ -131,7 +131,7 @@ export class ProjectsService {
       },
     };
 
-    return this.apiService.get('/projects', data).pipe(
+    return this.apiService.get<ProjectV1[]>('/projects', data).pipe(
       map((res) =>
         res.map((datum) => ({
           ...datum,
