@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 import { LoginInfoService } from './login-info.service';
 import { AuthService } from './auth.service';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -76,7 +77,13 @@ export class AppVersionService {
       lastLoggedInVersion: this.loginInfoService.getLastLoggedInVersion(),
       eou: from(this.authService.getEou()),
     }).pipe(
-      filter((res) => !res.appSupportDetails.supported && environment.production),
+      filter(
+        (res: {
+          appSupportDetails: { supported: boolean; message?: string };
+          lastLoggedInVersion: string;
+          eou: ExtendedOrgUser;
+        }) => !res.appSupportDetails.supported && environment.production
+      ),
       map((res) => ({ ...res, deviceInfo }))
     );
   }
@@ -91,10 +98,10 @@ export class AppVersionService {
 
   get(os: string) {
     const operatingSystem = os.toUpperCase();
-    return this.apiService.get(`/version/app/${operatingSystem}`).pipe(map((res) => res as AppVersion));
+    return this.apiService.get<AppVersion>(`/version/app/${operatingSystem}`).pipe(map((res) => res as AppVersion));
   }
 
   post(data) {
-    return this.apiService.post('/version/app', data);
+    return this.apiService.post<AppVersion>('/version/app', data as AppVersion);
   }
 }
