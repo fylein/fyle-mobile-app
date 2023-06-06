@@ -8,7 +8,19 @@ import { ExtendedProject } from '../models/v2/extended-project.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
+import { OrgCategory } from '../models/v1/org-category.model';
 
+type ProjectParamsUnformatted = Partial<{
+  orgId: string;
+  active: boolean;
+  orgCategoryIds: number[] | string[];
+  searchNameText: string;
+  limit: number;
+  offset: number;
+  sortOrder: string;
+  sortDirection: string;
+  projectIds: number[];
+}>;
 @Injectable({
   providedIn: 'root',
 })
@@ -16,26 +28,14 @@ export class ProjectsService {
   constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
 
   @Cacheable()
-  getByParamsUnformatted(
-    projectParams: Partial<{
-      orgId;
-      active;
-      orgCategoryIds;
-      searchNameText;
-      limit;
-      offset;
-      sortOrder;
-      sortDirection;
-      projectIds;
-    }>
-  ): Observable<ExtendedProject[]> {
+  getByParamsUnformatted(projectParams: ProjectParamsUnformatted): Observable<ExtendedProject[]> {
     // eslint-disable-next-line prefer-const
     let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
       projectParams;
     sortOrder = sortOrder || 'project_updated_at';
     sortDirection = sortDirection || 'desc';
 
-    const params: any = {
+    const params = {
       project_org_id: 'eq.' + orgId,
       order: sortOrder + '.' + sortDirection,
       limit: limit || 200,
@@ -46,7 +46,7 @@ export class ProjectsService {
     this.addActiveFilter(active, params);
 
     // `orgCategoryIds` can be optional
-    this.addOrgCategoryIdsFilter(orgCategoryIds, params);
+    this.addOrgCategoryIdsFilter(orgCategoryIds as number[], params);
 
     // `projectIds` can be optional
     this.addProjectIdsFilter(projectIds, params);
@@ -55,7 +55,17 @@ export class ProjectsService {
     this.addNameSearchFilter(searchNameText, params);
 
     return this.apiV2Service
-      .get<ExtendedProject, {}>('/projects', {
+      .get<
+        ExtendedProject,
+        {
+          params: {
+            project_org_id: string;
+            order: string;
+            limit: number;
+            offset: number;
+          };
+        }
+      >('/projects', {
         params,
       })
       .pipe(
@@ -110,8 +120,8 @@ export class ProjectsService {
     }
   }
 
-  getAllowedOrgCategoryIds(project, activeCategoryList) {
-    let categoryList = [];
+  getAllowedOrgCategoryIds(project: ExtendedProject, activeCategoryList: OrgCategory[]) {
+    let categoryList: OrgCategory[] = [];
     if (project) {
       categoryList = activeCategoryList.filter(
         (category) => project.project_org_category_ids.indexOf(category.id) > -1
@@ -144,7 +154,7 @@ export class ProjectsService {
 
   getbyId(projectId: number | string): Observable<ExtendedProject> {
     return this.apiV2Service
-      .get<ExtendedProject, {}>('/projects', {
+      .get<ExtendedProject, { params: { project_id: string } }>('/projects', {
         params: {
           project_id: `eq.${projectId}`,
         },
