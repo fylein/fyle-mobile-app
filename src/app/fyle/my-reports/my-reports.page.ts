@@ -260,20 +260,16 @@ export class MyReportsPage implements OnInit {
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({
-        enabled:
-          orgSettings &&
-          orgSettings.simplified_report_closure_settings &&
-          orgSettings.simplified_report_closure_settings.enabled,
+        enabled: orgSettings?.simplified_report_closure_settings?.enabled,
       }))
     );
     this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
+          orgSettings &&
           orgSettings.payment_mode_settings &&
           orgSettings.payment_mode_settings.allowed &&
-          orgSettings.payment_mode_settings &&
           orgSettings.payment_mode_settings.enabled &&
-          orgSettings.payment_mode_settings &&
           orgSettings.payment_mode_settings.payment_modes_order &&
           orgSettings.payment_mode_settings.payment_modes_order.length === 1 &&
           orgSettings.payment_mode_settings.payment_modes_order[0] ===
@@ -326,32 +322,34 @@ export class MyReportsPage implements OnInit {
     });
   }
 
-  loadData(event) {
+  loadData(event: { target: { complete: () => void } }): void {
     this.currentPageNumber = this.currentPageNumber + 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     setTimeout(() => {
-      event?.target?.complete();
+      if (event && event.target && event.target.complete) {
+        event.target.complete();
+      }
     }, 1000);
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: { target: { complete: () => void } }): void {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.reportService.clearTransactionCache().subscribe(() => {
       this.loadData$.next(params);
-      if (event) {
-        event?.target?.complete();
+      if (event && event.target && event.target.complete) {
+        event.target.complete();
       }
     });
   }
 
-  generateCustomDateParams(newQueryParams: any) {
+  generateCustomDateParams(newQueryParams: { or: string[]; and?: string }) {
     if (this.filters.date === DateFilters.custom) {
-      const startDate = this.filters?.customDateStart?.toISOString();
-      const endDate = this.filters?.customDateEnd?.toISOString();
+      const startDate = this.filters && this.filters.customDateStart && this.filters.customDateStart.toISOString();
+      const endDate = this.filters && this.filters.customDateEnd && this.filters.customDateEnd.toISOString();
       if (this.filters.customDateStart && this.filters.customDateEnd) {
         newQueryParams.and = `(rp_created_at.gte.${startDate},rp_created_at.lt.${endDate})`;
       } else if (this.filters.customDateStart) {
@@ -362,7 +360,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateDateParams(newQueryParams) {
+  generateDateParams(newQueryParams: { or: string[]; and?: string }) {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
@@ -385,8 +383,8 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateStateFilters(newQueryParams) {
-    const stateOrFilter = [];
+  generateStateFilters(newQueryParams: { or: string[]; and?: string }) {
+    const stateOrFilter: string[] = [];
 
     if (this.filters.state) {
       if (this.filters.state.includes('DRAFT')) {
@@ -446,7 +444,7 @@ export class MyReportsPage implements OnInit {
   addNewFiltersToParams() {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: any = {
+    const newQueryParams: { or: string[]; and?: string } = {
       or: [],
     };
 
