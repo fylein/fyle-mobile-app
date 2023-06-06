@@ -9,6 +9,7 @@ import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { JwtHelperService } from './jwt-helper.service';
 import { ResendEmailVerification } from '../models/resend-email-verification.model';
 import { AuthResponse } from '../models/auth-response.model';
+import { AccessTokenData } from '../models/access-token-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,13 +24,13 @@ export class AuthService {
   ) {}
 
   getEou(): Promise<ExtendedOrgUser> {
-    return this.storageService.get('user');
+    return this.storageService.get<ExtendedOrgUser>('user');
   }
 
   refreshEou(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(
       switchMap((data) => {
-        const extendedOrgUser = this.dataTransformService.unflatten(data);
+        const extendedOrgUser = this.dataTransformService.unflatten(data) as ExtendedOrgUser;
         return from(this.storageService.set('user', extendedOrgUser)).pipe(
           map(() => extendedOrgUser as ExtendedOrgUser)
         );
@@ -64,11 +65,11 @@ export class AuthService {
 
   getRoles() {
     return from(this.tokenService.getAccessToken()).pipe(
-      map((accessToken) => {
+      map((accessToken: string) => {
         if (accessToken) {
-          const tokenPayload = this.jwtHelperService.decodeToken(accessToken);
+          const tokenPayload = this.jwtHelperService.decodeToken(accessToken) as AccessTokenData;
           try {
-            const roles = JSON.parse(tokenPayload.roles);
+            const roles = JSON.parse(tokenPayload.roles) as string[];
             return roles;
           } catch (e) {
             return [];
@@ -80,10 +81,10 @@ export class AuthService {
     );
   }
 
-  logout(logoutPayload?) {
+  logout(logoutPayload?: { device_id: string; user_id: string } | boolean) {
     // CacheService.clearAll();
     return iif(
-      () => logoutPayload,
+      () => logoutPayload as boolean,
       this.apiService.post('/auth/logout', logoutPayload),
       this.apiService.post('/auth/logout')
     ).pipe(
