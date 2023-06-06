@@ -40,7 +40,8 @@ type Filters = Partial<{
 type Config = Partial<{
   offset: number;
   limit: number;
-  queryParams: any;
+  queryParams: Record<string, string | string[]>;
+  areq_org_user_id?: string;
   filter: Filters;
 }>;
 
