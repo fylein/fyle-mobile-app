@@ -16,7 +16,8 @@ export interface Value {
 export interface Datum {
   dimensions: string[];
   name: string;
-  value: Value[];
+  value?: Value[];
+  aggregates?: Aggregate[];
 }
 
 export class StatsResponse {
@@ -32,13 +33,13 @@ export class StatsResponse {
 
   approved_by?: string;
 
-  rp_approval_state: string[];
+  rp_approval_state?: string[];
 
   rp_state?: string[];
 
   sequential_approval_turn?: string[];
 
-  constructor({ data, url }) {
+  constructor({ data, url }: { data: Datum[]; url: string }) {
     this.data = data;
     this.url = url;
   }

@@ -4,6 +4,7 @@ import { Observable, noop, from, fromEvent } from 'rxjs';
 import { tap, map, finalize, concatMap, shareReplay, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { Currency } from 'src/app/core/models/currency.model';
 
 @Component({
   selector: 'app-select-currency',
@@ -13,9 +14,9 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 export class SelectCurrencyComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  currencies$: Observable<{ shortCode: string; longName: string }[]>;
+  currencies$: Observable<Currency[]>;
 
-  filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
+  filteredCurrencies$: Observable<Currency[]>;
 
   constructor(
     private currencyService: CurrencyService,
@@ -53,7 +54,8 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
             )
           )
         )
-      )
+      ),
+      shareReplay(1)
     );
   }
 
@@ -61,7 +63,7 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onCurrencySelect(currency) {
+  onCurrencySelect(currency: Currency) {
     this.modalController.dismiss({
       currency,
     });

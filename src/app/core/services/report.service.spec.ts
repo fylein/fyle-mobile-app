@@ -104,7 +104,7 @@ describe('ReportService', () => {
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
-    const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'post']);
+    const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'post', 'getStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'getRoles']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkSpy', ['isOnline']);
@@ -1067,7 +1067,7 @@ describe('ReportService', () => {
 
     it('should get report stats data when default stats has been set to false', (done) => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(apiReportStatsRawRes));
+      apiv2Service.get.and.returnValue(of(new StatsResponse(apiReportStatsRawRes)));
 
       const params = {
         approved_by: 'cs.{ouCI4UQ2G0K1}',

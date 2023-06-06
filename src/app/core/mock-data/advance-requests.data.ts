@@ -1,6 +1,6 @@
 import { AdvanceRequests } from '../models/advance-requests.model';
 
-export const advancedRequests: AdvanceRequests = {
+export const advanceRequests: AdvanceRequests = {
   id: 'areqMP09oaYXBf',
   created_at: new Date('2023-02-23T16:24:01.335Z'),
   approved_at: null,
@@ -76,7 +76,7 @@ export const advancedRequests: AdvanceRequests = {
 };
 
 export const pullBackAdvancedRequests: AdvanceRequests = {
-  ...advancedRequests,
+  ...advanceRequests,
   is_pulled_back: true,
 };
 
@@ -105,7 +105,7 @@ export const expectedSingleErq = {
 };
 
 export const advancedRequests2: AdvanceRequests = {
-  ...advancedRequests,
+  ...advanceRequests,
   id: 'areq99bN9mZgu1',
 };
 

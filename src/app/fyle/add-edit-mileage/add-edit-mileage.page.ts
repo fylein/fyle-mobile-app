@@ -956,7 +956,7 @@ export class AddEditMileagePage implements OnInit {
     }
 
     // If User has already clicked on See More he need not to click again and again
-    from(this.storageService.get('isExpandedViewMileage')).subscribe((expandedView) => {
+    from(this.storageService.get<boolean>('isExpandedViewMileage')).subscribe((expandedView) => {
       this.isExpandedView = this.mode !== 'add' || expandedView;
     });
 
