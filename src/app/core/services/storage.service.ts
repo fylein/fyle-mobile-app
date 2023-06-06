@@ -15,13 +15,13 @@ export class StorageService {
     });
   }
 
-  async get(key: string) {
+  async get<T>(key: string): Promise<T> {
     const stringifiedObject = await Preferences.get({
       key,
     });
 
     if (stringifiedObject && stringifiedObject.value) {
-      return JSON.parse(stringifiedObject.value);
+      return JSON.parse(stringifiedObject.value) as T;
     } else {
       return null;
     }

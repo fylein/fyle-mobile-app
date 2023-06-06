@@ -325,7 +325,7 @@ export class ReportService {
             })
           );
         } else {
-          return from(this.storageService.get('erpts-count' + JSON.stringify(params)));
+          return from(this.storageService.get<{ count: number }>('erpts-count' + JSON.stringify(params)));
         }
       })
     );

@@ -346,7 +346,7 @@ export class TransactionService {
             })
           );
         } else {
-          return from(this.storageService.get('etxncCount'));
+          return from(this.storageService.get<{ count: number }>('etxncCount'));
         }
       })
     );
@@ -453,7 +453,7 @@ export class TransactionService {
   }
 
   getDefaultVehicleType(): Observable<string> {
-    return from(this.storageService.get('vehicle_preference'));
+    return from(this.storageService.get<string>('vehicle_preference'));
   }
 
   uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
