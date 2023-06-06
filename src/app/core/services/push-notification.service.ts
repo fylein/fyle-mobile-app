@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications, PushNotificationSchema, ActionPerformed, Token } from '@capacitor/push-notifications';
-import { forkJoin, iif, noop, of } from 'rxjs';
+import { Observable, forkJoin, iif, noop, of } from 'rxjs';
 import { concatMap, map, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { DeepLinkService } from './deep-link.service';
 import { DeviceService } from './device.service';
 import { UserService } from './user.service';
 import { PushNotificationData } from '../models/push-notification-data.model';
+import { UserProperty } from '../models/v1/user-property.model';
 
 @Injectable({
   providedIn: 'root',
@@ -25,17 +26,17 @@ export class PushNotificationService {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
-  setRoot(rootUrl: string) {
+  setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
-  initPush() {
+  initPush(): void {
     if (Capacitor.getPlatform() !== 'web') {
       this.registerPush();
     }
   }
 
-  registerPush() {
+  registerPush(): void {
     const that = this;
     // If we don't call removeAllListeners() then PushNotifications will start add listeners every time user open the app
     PushNotifications.removeAllListeners();
@@ -63,7 +64,7 @@ export class PushNotificationService {
     });
   }
 
-  postDeviceInfo(token: string) {
+  postDeviceInfo(token: string): Observable<UserProperty> {
     return forkJoin({
       userProperties$: this.userService.getProperties(),
       deviceInfo$: this.deviceService.getDeviceInfo(),
@@ -89,18 +90,24 @@ export class PushNotificationService {
     );
   }
 
-  updateDeliveryStatus(notification_id: number) {
-    return this.httpClient.post<any>(
+  updateDeliveryStatus(notification_id: number): Observable<PushNotificationData> {
+    return this.httpClient.post<PushNotificationData>(
       this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/delivered',
       ''
     );
   }
 
-  updateReadStatus(notification_id: number) {
-    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/read', '');
+  updateReadStatus(notification_id: number): Observable<PushNotificationData> {
+    return this.httpClient.post<PushNotificationData>(
+      this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/read',
+      ''
+    );
   }
 
-  updateNotificationStatusAndRedirect(notificationData: PushNotificationData, wasTapped?: boolean) {
+  updateNotificationStatusAndRedirect(
+    notificationData: PushNotificationData,
+    wasTapped?: boolean
+  ): Observable<PushNotificationData> {
     return this.updateDeliveryStatus(notificationData.notification_id).pipe(
       concatMap(() =>
         iif(
