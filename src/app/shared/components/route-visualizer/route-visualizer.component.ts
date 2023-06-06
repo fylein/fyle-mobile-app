@@ -5,6 +5,7 @@ import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { MileageLocation } from './mileage-locations.interface';
 import { MileageRoute } from './mileage-route.interface';
+import { StaticMapPropertiesService } from 'src/app/core/services/static-map-properties.service';
 
 @Component({
   selector: 'app-route-visualizer',
@@ -24,9 +25,9 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
   showCurrentLocation = false;
 
-  mapWidth = window.innerWidth;
+  mapWidth: number;
 
-  mapHeight = 266;
+  mapHeight: number;
 
   directions$: Observable<google.maps.DirectionsResult>;
 
@@ -36,7 +37,11 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
   currentLocationMapUrl: string;
 
-  constructor(private locationService: LocationService, private gmapsService: GmapsService) {}
+  constructor(
+    private locationService: LocationService,
+    private gmapsService: GmapsService,
+    private staticMapPropertiesService: StaticMapPropertiesService
+  ) {}
 
   ngOnChanges() {
     this.showCurrentLocation = false;
@@ -63,6 +68,11 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
   }
 
   ngOnInit() {
+    const mapProperties = this.staticMapPropertiesService.getProperties();
+
+    this.mapWidth = mapProperties.width;
+    this.mapHeight = mapProperties.height;
+
     this.locationService.getCurrentLocation().subscribe((geoLocationPosition) => {
       if (geoLocationPosition) {
         this.currentLocation = {
@@ -70,11 +80,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
           lng: geoLocationPosition.coords.longitude,
         };
 
-        this.currentLocationMapUrl = this.gmapsService.generateLocationMapUrl(
-          this.currentLocation,
-          this.mapWidth,
-          this.mapHeight
-        );
+        this.currentLocationMapUrl = this.gmapsService.generateLocationMapUrl(this.currentLocation);
       }
     });
   }
@@ -96,11 +102,11 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
     if (!this.loadDynamicMap) {
       this.directionsMapUrl$ = this.directions$.pipe(
         filter((directionsResults) => directionsResults.routes.length > 0),
-        map((directionsResults) => {
-          mileageRoute.directions = directionsResults.routes[0];
-          return mileageRoute;
-        }),
-        map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute, this.mapWidth, this.mapHeight))
+        map((directionsResults) => ({
+          ...mileageRoute,
+          directions: directionsResults.routes[0],
+        })),
+        map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute))
       );
     }
   }

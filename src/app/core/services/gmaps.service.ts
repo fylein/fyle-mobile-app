@@ -5,6 +5,7 @@ import { Cacheable } from 'ts-cacheable';
 import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
 import { MileageMarkerParams } from '../models/mileage-marker-params.interface';
 import { environment } from 'src/environments/environment';
+import { StaticMapPropertiesService } from './static-map-properties.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,41 +13,11 @@ import { environment } from 'src/environments/environment';
 export class GmapsService {
   private staticMapsApi = 'https://maps.googleapis.com/maps/api/staticmap';
 
-  private routeColor = '0x00BFFF';
-
-  // Scale of the map image, which multiplies the resolution of the image
-  private mapResolutionScale = '2';
-
-  private markers = [
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-    'O',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z',
-  ];
-
-  constructor(private geocoder: MapGeocoder, private mapDirectionsService: MapDirectionsService) {}
+  constructor(
+    private geocoder: MapGeocoder,
+    private mapDirectionsService: MapDirectionsService,
+    private staticMapPropertiesService: StaticMapPropertiesService
+  ) {}
 
   @Cacheable()
   getGeocode(latitude: number, longitude: number): Observable<MapGeocoderResponse> {
@@ -76,36 +47,36 @@ export class GmapsService {
   }
 
   // Used to generate static map image urls, for single location
-  generateLocationMapUrl(location: google.maps.LatLngLiteral, mapWidth: number, mapHeight: number): string {
+  generateLocationMapUrl(location: google.maps.LatLngLiteral): string {
     const staticMapImageUrl = new URL(this.staticMapsApi);
 
-    const size = `${mapWidth}x${mapHeight}`;
-    staticMapImageUrl.searchParams.append('size', size);
-    staticMapImageUrl.searchParams.append('scale', this.mapResolutionScale);
-    staticMapImageUrl.searchParams.append('zoom', '15');
+    const properties = this.staticMapPropertiesService.getProperties();
 
-    const locationParams = `${location.lat},${location.lng}`;
-    staticMapImageUrl.searchParams.append('center', locationParams);
-
+    staticMapImageUrl.searchParams.append('size', `${properties.width}x${properties.height}`);
+    staticMapImageUrl.searchParams.append('scale', properties.resolutionScale.toString());
+    staticMapImageUrl.searchParams.append('zoom', properties.zoom.toString());
+    staticMapImageUrl.searchParams.append('center', `${location.lat},${location.lng}`);
     staticMapImageUrl.searchParams.append('key', environment.GOOGLE_MAPS_API_KEY);
 
     return staticMapImageUrl.href;
   }
 
   // Used to generate static map image urls, for routes
-  generateDirectionsMapUrl(mileageRoute: MileageRoute, mapWidth: number, mapHeight: number): string {
+  generateDirectionsMapUrl(mileageRoute: MileageRoute): string {
     const staticMapImageUrl = new URL(this.staticMapsApi);
 
-    const size = `${mapWidth}x${mapHeight}`;
-    staticMapImageUrl.searchParams.append('size', size);
+    const properties = this.staticMapPropertiesService.getProperties();
 
-    staticMapImageUrl.searchParams.append('scale', this.mapResolutionScale);
+    staticMapImageUrl.searchParams.append('size', `${properties.width}x${properties.height}`);
+    staticMapImageUrl.searchParams.append('scale', properties.resolutionScale.toString());
 
-    const routePolyline = mileageRoute.directions.overview_polyline;
-    const path = `color:${this.routeColor}|enc:${routePolyline}`;
-    staticMapImageUrl.searchParams.append('path', path);
+    const encodedPolyline = mileageRoute.directions.overview_polyline;
+    staticMapImageUrl.searchParams.append('path', `color:${properties.routeColor}|enc:${encodedPolyline}`);
 
-    const { originParams, destinationParams, waypointsParams } = this.generateMarkerParams(mileageRoute);
+    const { originParams, destinationParams, waypointsParams } = this.generateMarkerParams(
+      mileageRoute,
+      properties.markers
+    );
 
     staticMapImageUrl.searchParams.append('markers', originParams);
     staticMapImageUrl.searchParams.append('markers', destinationParams);
@@ -121,7 +92,7 @@ export class GmapsService {
     return staticMapImageUrl.href;
   }
 
-  private generateMarkerParams(mileageRoute: MileageRoute): MileageMarkerParams {
+  private generateMarkerParams(mileageRoute: MileageRoute, markers: string[]): MileageMarkerParams {
     const { origin, destination, waypoints } = mileageRoute;
 
     const markerParams: MileageMarkerParams = {
@@ -130,18 +101,16 @@ export class GmapsService {
       waypointsParams: [],
     };
 
-    markerParams.originParams = `label:${this.markers[0]}|${origin.lat},${origin.lng}`;
+    markerParams.originParams = `label:${markers[0]}|${origin.lat},${origin.lng}`;
 
     if (waypoints.length > 0) {
       for (const [index, waypoint] of waypoints.entries()) {
-        const stop = `label:${this.markers[index + 1]}|${waypoint.lat},${waypoint.lng}`;
+        const stop = `label:${markers[index + 1]}|${waypoint.lat},${waypoint.lng}`;
         markerParams.waypointsParams.push(stop);
       }
     }
 
-    markerParams.destinationParams = `label:${this.markers[waypoints.length + 1]}|${destination.lat},${
-      destination.lng
-    }`;
+    markerParams.destinationParams = `label:${markers[waypoints.length + 1]}|${destination.lat},${destination.lng}`;
 
     return markerParams;
   }
