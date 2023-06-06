@@ -55,6 +55,7 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { MyViewReportPage } from './my-view-report.page';
 import { ShareReportComponent } from './share-report/share-report.component';
+import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -997,7 +998,7 @@ describe('MyViewReportPage', () => {
     component.segmentValue = ReportPageSegment.COMMENTS;
     fixture.detectChanges();
 
-    statusService.post.and.returnValue(of(true));
+    statusService.post.and.returnValue(of(txnStatusData));
     spyOn(component.content, 'scrollToBottom');
     spyOn(component.refreshEstatuses$, 'next');
     component.newComment = 'comment';
