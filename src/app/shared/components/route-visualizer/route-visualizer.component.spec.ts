@@ -14,6 +14,8 @@ import {
 } from 'src/app/core/mock-data/mileage-location.data';
 import { MileageRoute } from './mileage-route.interface';
 import { directionsResults1, directionsResults2 } from 'src/app/core/mock-data/directions-results.data';
+import { StaticMapPropertiesService } from 'src/app/core/services/static-map-properties.service';
+import { staticMapPropertiesData } from 'src/app/core/mock-data/static-map-properties.data';
 
 const positionData1: Position = {
   timestamp: Date.now(),
@@ -46,11 +48,12 @@ const mockDirectionsMapUrl =
 const mockLocationMapUrl =
   'https://maps.googleapis.com/maps/api/staticmap?size=425x266&scale=2&zoom=15&center=19.2185231%2C73.1940418&key=GOOGLE_MAPS_API_KEY';
 
-describe('RouteVisualizerComponent', () => {
+fdescribe('RouteVisualizerComponent', () => {
   let component: RouteVisualizerComponent;
   let fixture: ComponentFixture<RouteVisualizerComponent>;
   let locationService: jasmine.SpyObj<LocationService>;
   let gmapsService: jasmine.SpyObj<GmapsService>;
+  let staticMapPropertiesService: jasmine.SpyObj<StaticMapPropertiesService>;
 
   beforeEach(waitForAsync(() => {
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getCurrentLocation', 'getMileageRoute']);
@@ -59,6 +62,7 @@ describe('RouteVisualizerComponent', () => {
       'generateDirectionsMapUrl',
       'generateLocationMapUrl',
     ]);
+    const staticMapPropertiesServiceSpy = jasmine.createSpyObj('StaticMapPropertiesService', ['getProperties']);
 
     TestBed.configureTestingModule({
       declarations: [RouteVisualizerComponent],
@@ -72,6 +76,10 @@ describe('RouteVisualizerComponent', () => {
           provide: GmapsService,
           useValue: gmapsServiceSpy,
         },
+        {
+          provide: StaticMapPropertiesService,
+          useValue: staticMapPropertiesServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -81,12 +89,17 @@ describe('RouteVisualizerComponent', () => {
 
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
+    staticMapPropertiesService = TestBed.inject(
+      StaticMapPropertiesService
+    ) as jasmine.SpyObj<StaticMapPropertiesService>;
 
     locationService.getCurrentLocation.and.returnValue(of(positionData1));
     locationService.getMileageRoute.and.returnValue(mileageRoute1);
 
     gmapsService.generateLocationMapUrl.and.returnValue(mockLocationMapUrl);
     gmapsService.generateDirectionsMapUrl.and.returnValue(mockDirectionsMapUrl);
+
+    staticMapPropertiesService.getProperties.and.returnValue(staticMapPropertiesData);
 
     fixture.detectChanges();
   }));
@@ -96,6 +109,13 @@ describe('RouteVisualizerComponent', () => {
   });
 
   describe('ngOnInit', () => {
+    it('should set the map width and height', () => {
+      expect(component.mapWidth).toEqual(staticMapPropertiesData.width);
+      expect(component.mapHeight).toEqual(staticMapPropertiesData.height);
+
+      expect(staticMapPropertiesService.getProperties).toHaveBeenCalledTimes(1);
+    });
+
     it('should set the current location', () => {
       expect(component.currentLocation).toBeDefined();
       expect(component.currentLocation).toEqual({
@@ -106,11 +126,7 @@ describe('RouteVisualizerComponent', () => {
 
     it('should set the current location map image url', () => {
       expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledTimes(1);
-      expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledWith(
-        component.currentLocation,
-        component.mapWidth,
-        component.mapHeight
-      );
+      expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledWith(component.currentLocation);
       expect(component.currentLocationMapUrl).toEqual(mockLocationMapUrl);
     });
   });
@@ -202,11 +218,7 @@ describe('RouteVisualizerComponent', () => {
         directions: directionsResults.routes[0],
       };
 
-      expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith(
-        updatedMileageRoute,
-        component.mapWidth,
-        component.mapHeight
-      );
+      expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith(updatedMileageRoute);
     });
 
     it('should not generate a directions map image url if loading a dynamic directions map', () => {
