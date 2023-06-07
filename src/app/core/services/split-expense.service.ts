@@ -58,7 +58,7 @@ export class SplitExpenseService {
 
   getBase64Content(fileObjs: FileObject[]) {
     const fileObservables = [];
-    const newFileObjs: any[] = fileObjs.map((fileObj) => ({
+    const newFileObjs: FileObject[] = fileObjs.map((fileObj) => ({
       id: fileObj.id,
       name: fileObj.name,
       content: '',
@@ -69,8 +69,8 @@ export class SplitExpenseService {
     });
 
     return forkJoin(fileObservables).pipe(
-      map((data: any[]) => {
-        newFileObjs.forEach((fileObj, index) => {
+      map((data: FileObject[]) => {
+        newFileObjs.forEach((fileObj: FileObject, index) => {
           fileObj.content = data[index].content;
         });
 
@@ -121,7 +121,7 @@ export class SplitExpenseService {
     });
 
     return from(payloadData).pipe(
-      concatMap((payload) => this.postComment(payload)),
+      concatMap((payload: PolicyViolationComment) => this.postComment(payload)),
       toArray()
     );
   }
@@ -211,7 +211,7 @@ export class SplitExpenseService {
 
   runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<PolicyViolationTxn> {
     if (etxns?.length > 0) {
-      const platformExpensesList = [];
+      const platformExpensesList: PublicPolicyExpense[] = [];
       etxns.forEach((etxn) => {
         // transformTo method requires unflattend transaction object
         const platformExpense = this.dataTransformService.unflatten<{ tx: PublicPolicyExpense }, Expense>(etxn).tx;
@@ -228,7 +228,7 @@ export class SplitExpenseService {
     }
   }
 
-  createSplitTxns(sourceTxn, totalSplitAmount, splitExpenses) {
+  createSplitTxns(sourceTxn: Transaction, totalSplitAmount: number, splitExpenses: Transaction[]) {
     let splitGroupAmount = sourceTxn.split_group_user_amount || sourceTxn.amount;
     let splitGroupId = sourceTxn.split_group_id || sourceTxn.id;
 
@@ -255,8 +255,8 @@ export class SplitExpenseService {
   ): Observable<Transaction[]> {
     const txnsObservables = [];
 
-    splitExpenses.forEach((splitExpense, index) => {
-      const transaction = { ...sourceTxn };
+    splitExpenses.forEach((splitExpense: Transaction, index) => {
+      const transaction: Transaction = { ...sourceTxn };
 
       if (sourceTxn.orig_currency) {
         const exchangeRate = sourceTxn.amount / sourceTxn.orig_amount;
@@ -308,11 +308,11 @@ export class SplitExpenseService {
     }
   }
 
-  private setUpSplitExpenseBillable(sourceTxn, splitExpense) {
+  private setUpSplitExpenseBillable(sourceTxn: Transaction, splitExpense: Transaction) {
     return splitExpense.project_id ? splitExpense.billable : sourceTxn.billable;
   }
 
-  private setUpSplitExpenseTax(sourceTxn, splitExpense) {
+  private setUpSplitExpenseTax(sourceTxn: Transaction, splitExpense: Transaction) {
     return splitExpense.tax_amount ? splitExpense.tax_amount : sourceTxn.tax_amount;
   }
 }
