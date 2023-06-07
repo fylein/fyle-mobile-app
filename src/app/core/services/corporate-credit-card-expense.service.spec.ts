@@ -15,6 +15,7 @@ import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
 import { expectedAssignedCCCStats } from '../mock-data/ccc-expense.details.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { eCCCApiResponse } from '../mock-data/corporate-card-expense-flattened.data';
+import { StatsResponse } from '../models/v2/stats-response.model';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
@@ -26,7 +27,7 @@ describe('CorporateCreditCardExpenseService', () => {
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
+    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
@@ -102,13 +103,13 @@ describe('CorporateCreditCardExpenseService', () => {
   it('getAssignedCards(): should get all assigned cards', (done) => {
     const queryParams = 'in.(COMPLETE,DRAFT)';
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    apiV2Service.get.and.returnValue(of(apiAssignedCardDetailsRes));
+    apiV2Service.getStats.and.returnValue(of(new StatsResponse(apiAssignedCardDetailsRes)));
     spyOn(cccExpenseService, 'constructInQueryParamStringForV2').and.returnValue(queryParams);
 
     cccExpenseService.getAssignedCards().subscribe((res) => {
       expect(res).toEqual(expectedAssignedCCCStats);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith(
+      expect(apiV2Service.getStats).toHaveBeenCalledOnceWith(
         '/expenses_and_ccce/stats?aggregates=count(tx_id),sum(tx_amount)&scalar=true&dimension_1_1=corporate_credit_card_bank_name,corporate_credit_card_account_number,tx_state&tx_state=' +
           queryParams +
           '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +

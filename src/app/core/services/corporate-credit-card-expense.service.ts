@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
-import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
-import { from, Observable, range } from 'rxjs';
+import { Observable, from } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+import { CardAggregateStat } from '../models/card-aggregate-stat.model';
+import { CCCDetails } from '../models/ccc-expense-details.model';
+import { CCCExpFlattened } from '../models/corporate-card-expense-flattened.model';
+import { UniqueCardStats } from '../models/unique-cards-stats.model';
+import { ApiV2Response } from '../models/v2/api-v2-response.model';
+import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
+import { StatsResponse } from '../models/v2/stats-response.model';
 import { ApiV2Service } from './api-v2.service';
+import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
-import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
-import { CardAggregateStat } from '../models/card-aggregate-stat.model';
-import { UniqueCardStats } from '../models/unique-cards-stats.model';
-import { CCCDetails } from '../models/ccc-expense-details.model';
 import { DateService } from './date.service';
-import { ApiV2Response } from '../models/v2/api-v2-response.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -68,7 +70,7 @@ export class CorporateCreditCardExpenseService {
     };
 
     return this.apiService
-      .get('/extended_corporate_credit_card_expenses', data)
+      .get<CCCExpFlattened[]>('/extended_corporate_credit_card_expenses', data)
       .pipe(map((res) => (res && res.length && res.map((elem) => this.dataTransformService.unflatten(elem))) || []));
   }
 
@@ -117,7 +119,7 @@ export class CorporateCreditCardExpenseService {
   getAssignedCards(): Observable<CCCDetails> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiV2Service.get(
+        this.apiV2Service.getStats(
           '/expenses_and_ccce/stats?aggregates=count(tx_id),sum(tx_amount)&scalar=true&dimension_1_1=corporate_credit_card_bank_name,corporate_credit_card_account_number,tx_state&tx_state=' +
             this.constructInQueryParamStringForV2(['COMPLETE', 'DRAFT']) +
             '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
@@ -125,7 +127,7 @@ export class CorporateCreditCardExpenseService {
           {}
         )
       ),
-      map((statsResponse) => {
+      map((statsResponse: StatsResponse) => {
         const stats = {
           totalTxns: 0,
           totalAmount: 0,

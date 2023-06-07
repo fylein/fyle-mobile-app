@@ -31,6 +31,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 
 @Component({
   selector: 'app-view-expense',
@@ -322,7 +323,8 @@ export class ViewExpensePage implements OnInit {
           .getEccceByGroupId(etxn.tx_corporate_credit_card_expense_group_id)
           .pipe(
             map(
-              (matchedExpense) => matchedExpense[0] && (this.paymentModeIcon = 'fy-matched') && matchedExpense[0].ccce
+              (matchedExpense: CCCExpUnflattened[]) =>
+                matchedExpense[0] && (this.paymentModeIcon = 'fy-matched') && matchedExpense[0].ccce
             )
           );
         this.matchingCCCTransaction$.subscribe((cardTxn) => {
