@@ -99,7 +99,7 @@ export class TransactionService {
   getEtxn(txnId: string): Observable<Expense> {
     // TODO api v2
     return this.apiService.get<Expense>('/etxns/' + txnId).pipe(
-      map((transaction) => {
+      map((transaction: Expense) => {
         let categoryDisplayName = transaction.tx_org_category;
         if (
           transaction.tx_sub_category &&
@@ -109,7 +109,7 @@ export class TransactionService {
         }
         transaction.tx_categoryDisplayName = categoryDisplayName;
 
-        return this.dateService.fixDates(transaction);
+        return this.dateService.fixDates(transaction) as Expense;
       })
     );
   }
@@ -176,7 +176,7 @@ export class TransactionService {
       ),
       map((res) => ({
         ...res,
-        data: res.data.map((datum) => this.dateService.fixDatesV2(datum)),
+        data: res.data.map((datum: Expense) => this.dateService.fixDatesV2(datum)),
       }))
     );
   }
