@@ -91,7 +91,7 @@ export class CorporateCreditCardExpenseService {
   getExpenseDetailsInCards(uniqueCards: CardDetails[], statsResponse: CardAggregateStat[]): UniqueCardStats[] {
     const cardsCopy = JSON.parse(JSON.stringify(uniqueCards)) as CardDetails[];
     const uniqueCardsCopy = [];
-    cardsCopy?.forEach((card: { cardNumber: string; cardName: string }) => {
+    cardsCopy?.forEach((card: CardDetails) => {
       if (
         uniqueCardsCopy.filter((uniqueCard: UniqueCardStats) => uniqueCard.cardNumber === card.cardNumber).length === 0
       ) {
