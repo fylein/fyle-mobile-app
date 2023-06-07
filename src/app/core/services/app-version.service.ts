@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { forkJoin, noop, of, from } from 'rxjs';
+import { forkJoin, noop, of, from, Observable } from 'rxjs';
 import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
 import { environment } from 'src/environments/environment';
@@ -98,10 +98,10 @@ export class AppVersionService {
 
   get(os: string) {
     const operatingSystem = os.toUpperCase();
-    return this.apiService.get<AppVersion>(`/version/app/${operatingSystem}`).pipe(map((res) => res as AppVersion));
+    return this.apiService.get<AppVersion>(`/version/app/${operatingSystem}`).pipe(map((res: AppVersion) => res));
   }
 
-  post(data) {
-    return this.apiService.post<AppVersion>('/version/app', data as AppVersion);
+  post(data: Partial<AppVersion>): Observable<AppVersion> {
+    return this.apiService.post<AppVersion>('/version/app', data);
   }
 }
