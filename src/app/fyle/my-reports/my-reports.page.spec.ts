@@ -1127,4 +1127,132 @@ describe('MyReportsPage', () => {
       expect(component.generateCustomDateParams).toHaveBeenCalledOnceWith(newQueryParams);
     });
   });
+
+  describe('generateStateFilters(): ', () => {
+    it('should update the newQueryParams if stateOrFilter length is greater than 0', () => {
+      const newQueryParams = { or: [] };
+      component.filters = {
+        state: [
+          'DRAFT',
+          'APPROVER_PENDING',
+          'APPROVER_INQUIRY',
+          'APPROVED',
+          'PAYMENT_PENDING',
+          'PAYMENT_PROCESSING',
+          'PAID',
+        ],
+      };
+      component.generateStateFilters(newQueryParams);
+      expect(newQueryParams).toEqual({
+        or: [
+          '(rp_state.in.(DRAFT), rp_state.in.(APPROVER_PENDING), rp_state.in.(APPROVER_INQUIRY), rp_state.in.(APPROVED), rp_state.in.(PAYMENT_PENDING), rp_state.in.(PAYMENT_PROCESSING), rp_state.in.(PAID))',
+        ],
+      });
+    });
+
+    it('should not update the newQueryParams if stateOrFilter length is 0', () => {
+      const newQueryParams = { or: [] };
+      component.filters = {
+        state: [],
+      };
+      component.generateStateFilters(newQueryParams);
+      expect(newQueryParams).toEqual({
+        or: [],
+      });
+    });
+  });
+
+  describe('setSortParams(): ', () => {
+    it('should set sortParam and sortDir from filters if available', () => {
+      const currentParams: Partial<{
+        pageNumber: number;
+        queryParams: any;
+        sortParam: string;
+        sortDir: string;
+        searchString: string;
+      }> = {};
+
+      component.filters = {
+        sortParam: 'rp_amount',
+        sortDir: 'asc',
+      };
+
+      component.setSortParams(currentParams);
+
+      expect(currentParams.sortParam).toEqual('rp_amount');
+      expect(currentParams.sortDir).toEqual('asc');
+    });
+
+    it('should set default sortParam and sortDir if filters are not available', () => {
+      const currentParams: Partial<{
+        pageNumber: number;
+        queryParams: any;
+        sortParam: string;
+        sortDir: string;
+        searchString: string;
+      }> = {};
+      component.filters = {};
+
+      component.setSortParams(currentParams);
+
+      expect(currentParams.sortParam).toEqual('rp_created_at');
+      expect(currentParams.sortDir).toEqual('desc');
+    });
+  });
+
+  it('addNewFiltersToParams(): should update currentParams with new filters and return the updated currentParams', () => {
+    component.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+
+    spyOn(component, 'generateDateParams').and.callFake((newQueryParams) => {
+      newQueryParams.and = '(rp_created_at.gte.january,rp_created_at.lt.march)';
+    });
+
+    spyOn(component, 'generateStateFilters').and.callFake((newQueryParams) => {
+      newQueryParams.or.push('(rp_state.in.(DRAFT), rp_state.in.(APPROVER_PENDING))');
+    });
+
+    spyOn(component, 'setSortParams').and.callFake((currentParams) => {
+      currentParams.sortParam = 'rp_created_at';
+      currentParams.sortDir = 'desc';
+    });
+
+    const result = component.addNewFiltersToParams();
+
+    expect(result.pageNumber).toEqual(1);
+    expect(result.queryParams.and).toEqual('(rp_created_at.gte.january,rp_created_at.lt.march)');
+    expect(result.queryParams.or).toEqual(['(rp_state.in.(DRAFT), rp_state.in.(APPROVER_PENDING))']);
+    expect(result.sortParam).toEqual('rp_created_at');
+    expect(result.sortDir).toEqual('desc');
+  });
+
+  it('clearFilters(): should clear the filter and update loadData$ value', () => {
+    component.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+    spyOn(component, 'generateFilterPills').and.returnValue([{ label: 'Date', type: 'date', value: 'this Week' }]);
+    spyOn(component, 'addNewFiltersToParams').and.returnValue({ sortDir: 'desc', sortParam: 'approvalDate' });
+
+    component.clearFilters();
+    expect(component.filters).toEqual({});
+    expect(component.currentPageNumber).toBe(1);
+    component.loadData$.subscribe((data) => {
+      expect(data).toEqual({ sortDir: 'desc', sortParam: 'approvalDate' });
+    });
+    expect(component.filterPills).toEqual([{ label: 'Date', type: 'date', value: 'this Week' }]);
+  });
+
+  it('onReportClick(): should navigate to the view report page', () => {
+    const erpt = apiExtendedReportRes[0];
+
+    component.onReportClick(erpt);
+
+    expect(router.navigate).toHaveBeenCalledWith([
+      '/',
+      'enterprise',
+      'my_view_report',
+      { id: erpt.rp_id, navigateBack: true },
+    ]);
+  });
 });
