@@ -989,13 +989,13 @@ describe('ViewMileagePage', () => {
       activateRouteMock.snapshot.params = {
         id: 'tx3qwe4ty',
         view: ExpenseView.individual,
-        txnIds: '["tx3qwe4ty","tx6sd7gh"]',
-        activeIndex: '20',
+        txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
+        activeIndex: '2',
       };
       component.ionViewWillEnter();
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.numEtxnsInReport).toEqual(2);
-      expect(component.activeEtxnIndex).toEqual(20);
+      expect(component.numEtxnsInReport).toEqual(3);
+      expect(component.activeEtxnIndex).toEqual(2);
     });
   });
 
