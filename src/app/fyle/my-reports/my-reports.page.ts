@@ -469,6 +469,20 @@ export class MyReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.rp_id, navigateBack: true }]);
   }
 
+  getDeleteReportPopoverParams(erpt: ExtendedReport) {
+    return {
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: 'Delete Report',
+        body: 'Are you sure you want to delete this report?',
+        infoMessage: 'Deleting the report will not delete any of the expenses.',
+        deleteMethod: () => this.reportService.delete(erpt.rp_id),
+      },
+    };
+  }
+
   async onDeleteReportClick(erpt: ExtendedReport) {
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
       const cannotDeleteReportPopOver = await this.popoverController.create({
@@ -486,17 +500,7 @@ export class MyReportsPage implements OnInit {
 
       await cannotDeleteReportPopOver.present();
     } else {
-      const deleteReportPopover = await this.popoverController.create({
-        component: FyDeleteDialogComponent,
-        cssClass: 'delete-dialog',
-        backdropDismiss: false,
-        componentProps: {
-          header: 'Delete Report',
-          body: 'Are you sure you want to delete this report?',
-          infoMessage: 'Deleting the report will not delete any of the expenses.',
-          deleteMethod: () => this.reportService.delete(erpt.rp_id),
-        },
-      });
+      const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(erpt));
 
       await deleteReportPopover.present();
       const { data } = await deleteReportPopover.onDidDismiss();
@@ -545,7 +549,7 @@ export class MyReportsPage implements OnInit {
     // TODO: Add when view comments is done
   }
 
-  clearText(isFromCancel) {
+  clearText(isFromCancel: string) {
     this.simpleSearchText = '';
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';

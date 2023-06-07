@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonicModule, NavController, PopoverController } from '@ionic/angular';
 
 import { MyReportsPage } from './my-reports.page';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -24,8 +24,14 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from 'src/app/core/services/date.service';
 import * as dayjs from 'dayjs';
+import { cloneDeep } from 'lodash';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 
-describe('MyReportsPage', () => {
+fdescribe('MyReportsPage', () => {
   let component: MyReportsPage;
   let fixture: ComponentFixture<MyReportsPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -39,6 +45,9 @@ describe('MyReportsPage', () => {
   let navController: jasmine.SpyObj<NavController>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let dateService: jasmine.SpyObj<DateService>;
+  let popoverController: jasmine.SpyObj<PopoverController>;
+  let loaderService: jasmine.SpyObj<LoaderService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
   let inputElement: HTMLInputElement;
 
   beforeEach(waitForAsync(() => {
@@ -48,6 +57,7 @@ describe('MyReportsPage', () => {
       'getMyReportsCount',
       'getMyReports',
       'clearTransactionCache',
+      'delete',
     ]);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
@@ -66,6 +76,13 @@ describe('MyReportsPage', () => {
         },
       },
     };
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
+      'deleteReport',
+      'footerHomeTabClicked',
+      'tasksPageOpened',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [MyReportsPage, ReportState],
@@ -95,6 +112,18 @@ describe('MyReportsPage', () => {
           provide: DateService,
           useValue: dateServiceSpy,
         },
+        {
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
+        },
+        {
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
+        },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -117,6 +146,9 @@ describe('MyReportsPage', () => {
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
+    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
   }));
 
   it('should create', () => {
@@ -1254,5 +1286,406 @@ describe('MyReportsPage', () => {
       'my_view_report',
       { id: erpt.rp_id, navigateBack: true },
     ]);
+  });
+
+  it('getDeleteReportPopoverParams(): should get delete report popup props', (done) => {
+    const result = component.getDeleteReportPopoverParams(apiExtendedReportRes[0]);
+
+    reportService.delete.and.returnValue(of(true));
+
+    expect(result).toEqual({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: 'Delete Report',
+        body: 'Are you sure you want to delete this report?',
+        infoMessage: 'Deleting the report will not delete any of the expenses.',
+        deleteMethod: jasmine.any(Function),
+      },
+    });
+
+    result.componentProps.deleteMethod().subscribe(() => {
+      expect(reportService.delete).toHaveBeenCalledOnceWith(apiExtendedReportRes[0].rp_id);
+      done();
+    });
+  });
+
+  describe('onDeleteReportClick(): ', () => {
+    it('should present the popover in case if rp_state is not amongst DRAFT, APPROVER_PENDING, APPROVER_INQUIRY', fakeAsync(() => {
+      const cannotDeleteReportPopOverSpy = jasmine.createSpyObj('cannotDeleteReportPopOver', [
+        'present',
+        'onWillDismiss',
+      ]);
+      popoverController.create.and.returnValue(Promise.resolve(cannotDeleteReportPopOverSpy));
+      const mockErpt = cloneDeep({ ...apiExtendedReportRes[0], rp_state: 'APPROVED' });
+
+      component.onDeleteReportClick(mockErpt);
+      tick(200);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Cannot Delete Report',
+          message: `Approved report cannot be deleted.`,
+          primaryCta: {
+            text: 'Close',
+            action: 'continue',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+    }));
+
+    it('should call the deleteReport and do a refresh if rp_state consist any of DRAFT, APPROVER_PENDING, APPROVER_INQUIRY', fakeAsync(() => {
+      const deleteReportPopoverSpy = jasmine.createSpyObj('deleteReportPopover', ['present', 'onDidDismiss']);
+      deleteReportPopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.returnValue(Promise.resolve(deleteReportPopoverSpy));
+      spyOn(component, 'doRefresh');
+      const mockDeleteMethod = () => of(true);
+      spyOn(component, 'getDeleteReportPopoverParams').and.returnValue({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Report',
+          body: 'Are you sure you want to delete this report?',
+          infoMessage: 'Deleting the report will not delete any of the expenses.',
+          deleteMethod: mockDeleteMethod,
+        },
+      });
+      reportService.delete.and.returnValue(of(null));
+      loaderService.showLoader.and.resolveTo(null);
+      loaderService.hideLoader.and.resolveTo(null);
+      reportService.delete.and.returnValue(of(null));
+
+      component.onDeleteReportClick(apiExtendedReportRes[0]);
+      tick(200);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Report',
+          body: 'Are you sure you want to delete this report?',
+          infoMessage: 'Deleting the report will not delete any of the expenses.',
+          deleteMethod: mockDeleteMethod,
+        },
+      });
+      expect(component.getDeleteReportPopoverParams).toHaveBeenCalledOnceWith(apiExtendedReportRes[0]);
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  it('onHomeClicked(): should navigate to home dashboard and track event', () => {
+    component.onHomeClicked();
+
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+      queryParams: { state: 'home' },
+    });
+    expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({ page: 'Reports' });
+  });
+
+  it('onTaskClicked(): should navigate to home dashboard and track event', () => {
+    component.onTaskClicked();
+
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+      queryParams: { state: 'tasks', tasksFilters: 'reports' },
+    });
+    expect(trackingService.tasksPageOpened).toHaveBeenCalledOnceWith({
+      Asset: 'Mobile',
+      from: 'My Reports',
+    });
+  });
+
+  it('onCameraClicked(): should navigate to camera overlay', () => {
+    component.onCameraClicked();
+
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
+  });
+
+  it('onViewCommentsClick()', () => {
+    component.onViewCommentsClick({});
+  });
+
+  describe('clearText(): ', () => {
+    it('should clear the search text, input value, dispatch keyup event, and update search bar focus', () => {
+      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
+      inputElement = component.simpleSearchInput.nativeElement;
+      const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
+      component.simpleSearchText = 'some text';
+      inputElement.value = 'some text';
+      component.isSearchBarFocused = true;
+
+      component.clearText('');
+
+      expect(component.simpleSearchText).toEqual('');
+      expect(inputElement.value).toEqual('');
+      expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
+      expect(component.isSearchBarFocused).toEqual(true);
+    });
+
+    it('should clear the search text, input value, dispatch keyup event, and toggle search bar focus when called from onSimpleSearchCancel', () => {
+      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
+      inputElement = component.simpleSearchInput.nativeElement;
+      const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
+      component.simpleSearchText = 'some text';
+      inputElement.value = 'some text';
+      component.isSearchBarFocused = true;
+
+      component.clearText('onSimpleSearchCancel');
+
+      expect(component.simpleSearchText).toEqual('');
+      expect(inputElement.value).toEqual('');
+      expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
+      expect(component.isSearchBarFocused).toEqual(false);
+    });
+  });
+
+  it('onSimpleSearchCancel(): should set the header state to base and call clearText with "onSimpleSearchCancel"', () => {
+    spyOn(component, 'clearText');
+
+    component.onSimpleSearchCancel();
+
+    expect(component.headerState).toEqual(HeaderState.base);
+    expect(component.clearText).toHaveBeenCalledWith('onSimpleSearchCancel');
+  });
+
+  it('onSearchBarFocus(): should set isSearchBarFocused to true', () => {
+    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
+    inputElement = component.simpleSearchInput.nativeElement;
+    component.isSearchBarFocused = false;
+
+    inputElement.dispatchEvent(new Event('focus'));
+
+    expect(component.isSearchBarFocused).toEqual(true);
+  });
+
+  it('onFilterPillsClearAll(): should call clearFilters', () => {
+    spyOn(component, 'clearFilters');
+
+    component.onFilterPillsClearAll();
+
+    expect(component.clearFilters).toHaveBeenCalledTimes(1);
+  });
+
+  describe('onFilterClick(): ', () => {
+    it('should call openFilters with State if filterType is state', () => {
+      spyOn(component, 'openFilters');
+
+      component.onFilterClick('state');
+
+      expect(component.openFilters).toHaveBeenCalledOnceWith('State');
+    });
+
+    it('should call openFilters with Date if filterType is date', () => {
+      spyOn(component, 'openFilters');
+
+      component.onFilterClick('date');
+
+      expect(component.openFilters).toHaveBeenCalledOnceWith('Date');
+    });
+
+    it('should call openFilters with Date if filterType is date', () => {
+      spyOn(component, 'openFilters');
+
+      component.onFilterClick('sort');
+
+      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort By');
+    });
+  });
+
+  describe('onFilterClose', () => {
+    beforeEach(() => {
+      component.filters = {
+        sortDir: 'desc',
+        sortParam: 'rp_created_at',
+        rp_state: 'APPROVED',
+      };
+      component.currentPageNumber = 2;
+      component.loadData$ = new BehaviorSubject({
+        pageNumber: 1,
+      });
+      spyOn(component, 'addNewFiltersToParams').and.returnValue({
+        pageNumber: 1,
+        sortDir: 'desc',
+      });
+      spyOn(component, 'generateFilterPills').and.returnValue([{ label: 'Date', type: 'date', value: 'this Week' }]);
+    });
+
+    it('should remove sort filters and update data when filterType is "sort"', () => {
+      component.onFilterClose('sort');
+
+      expect(component.filters.sortDir).toBeUndefined();
+      expect(component.filters.sortParam).toBeUndefined();
+      expect(component.filters.rp_state).toBeDefined();
+      expect(component.currentPageNumber).toEqual(1);
+      component.loadData$.subscribe((data) => {
+        expect(data).toEqual({
+          pageNumber: 1,
+          sortDir: 'desc',
+        });
+      });
+      expect(component.generateFilterPills).toHaveBeenCalledTimes(1);
+      expect(component.filterPills).toEqual([{ label: 'Date', type: 'date', value: 'this Week' }]);
+    });
+
+    it('should remove other filters and update data when filterType is not "sort"', () => {
+      component.onFilterClose('rp_state');
+
+      expect(component.currentPageNumber).toEqual(1);
+      component.loadData$.subscribe((data) => {
+        expect(data).toEqual({
+          pageNumber: 1,
+          sortDir: 'desc',
+        });
+      });
+      expect(component.filters.sortDir).toBeDefined();
+      expect(component.filters.sortParam).toBeDefined();
+      expect(component.filters.rp_state).toBeUndefined();
+      expect(component.generateFilterPills).toHaveBeenCalledTimes(1);
+      expect(component.filterPills).toEqual([{ label: 'Date', type: 'date', value: 'this Week' }]);
+    });
+  });
+
+  it('searchClick(): should set headerState and call focus method on input', fakeAsync(() => {
+    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
+    inputElement = component.simpleSearchInput.nativeElement;
+    const mockFocus = spyOn(inputElement, 'focus');
+
+    component.searchClick();
+
+    tick(300);
+
+    expect(mockFocus).toHaveBeenCalledTimes(1);
+  }));
+
+  describe('convertRptDtSortToSelectedFilters(): ', () => {
+    it('should add "dateOldToNew" to generatedFilters when sortParam is "rp_created_at" and sortDir is "asc"', () => {
+      const filter = {
+        sortParam: 'rp_created_at',
+        sortDir: 'asc',
+      };
+      const generatedFilters: SelectedFilters<any>[] = [];
+
+      component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters.length).toEqual(1);
+      expect(generatedFilters[0].name).toEqual('Sort By');
+      expect(generatedFilters[0].value).toEqual('dateOldToNew');
+    });
+
+    it('should add "dateNewToOld" to generatedFilters when sortParam is "rp_created_at" and sortDir is "desc"', () => {
+      const filter = {
+        sortParam: 'rp_created_at',
+        sortDir: 'desc',
+      };
+      const generatedFilters: SelectedFilters<any>[] = [];
+
+      component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters.length).toEqual(1);
+      expect(generatedFilters[0].name).toEqual('Sort By');
+      expect(generatedFilters[0].value).toEqual('dateNewToOld');
+    });
+
+    it('should not modify generatedFilters when sortParam and sortDir are not "rp_created_at" and "asc" or "desc"', () => {
+      const filter = {
+        sortParam: 'other_sort_param',
+        sortDir: 'other_sort_dir',
+      };
+      const generatedFilters: SelectedFilters<any>[] = [
+        {
+          name: 'Sort By',
+          value: 'dateOldToNew',
+        },
+      ];
+
+      component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters.length).toEqual(1);
+      expect(generatedFilters[0].name).toEqual('Sort By');
+      expect(generatedFilters[0].value).toEqual('dateOldToNew');
+    });
+  });
+
+  it('should call convertRptDtSortToSelectedFilters, convertAmountSortToSelectedFilters, and convertNameSortToSelectedFilters', () => {
+    const filter = {
+      sortParam: 'rp_created_at',
+      sortDir: 'asc',
+    };
+    const generatedFilters: SelectedFilters<any>[] = [];
+
+    spyOn(component, 'convertRptDtSortToSelectedFilters');
+    spyOn(component, 'convertAmountSortToSelectedFilters');
+    spyOn(component, 'convertNameSortToSelectedFilters');
+
+    component.addSortToGeneatedFilters(filter, generatedFilters);
+
+    expect(component.convertRptDtSortToSelectedFilters).toHaveBeenCalledOnceWith(filter, generatedFilters);
+    expect(component.convertAmountSortToSelectedFilters).toHaveBeenCalledOnceWith(filter, generatedFilters);
+    expect(component.convertNameSortToSelectedFilters).toHaveBeenCalledOnceWith(filter, generatedFilters);
+  });
+
+  describe('generateSelectedFilters(): ', () => {
+    it('should generate selected filters based on the provided filter object', () => {
+      const filter = {
+        state: 'approved',
+        date: 'last_week',
+        customDateStart: new Date('2023-01-01'),
+        customDateEnd: new Date('2023-01-07'),
+        sortParam: 'rp_created_at',
+        sortDir: 'asc',
+      };
+
+      const generatedFilters = component.generateSelectedFilters(filter);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'State',
+          value: 'approved',
+        },
+        {
+          name: 'Date',
+          value: 'last_week',
+          associatedData: {
+            startDate: new Date('2023-01-01'),
+            endDate: new Date('2023-01-07'),
+          },
+        },
+        {
+          name: 'Sort By',
+          value: 'dateOldToNew',
+        },
+      ]);
+    });
+
+    it('should not include sort filters if sortParam and sortDir are not provided', () => {
+      const filter = {
+        state: 'draft',
+        date: 'this_month',
+      };
+
+      const generatedFilters = component.generateSelectedFilters(filter);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'State',
+          value: 'draft',
+        },
+        {
+          name: 'Date',
+          value: 'this_month',
+          associatedData: {
+            startDate: undefined,
+            endDate: undefined,
+          },
+        },
+      ]);
+    });
   });
 });
