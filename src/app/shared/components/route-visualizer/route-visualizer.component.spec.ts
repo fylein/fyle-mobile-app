@@ -212,10 +212,9 @@ describe('RouteVisualizerComponent', () => {
       expect(component.directionsMapUrl$).toBeDefined();
       expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledTimes(1);
 
-      const directionsResults: google.maps.DirectionsResult = directionsResults1;
       const updatedMileageRoute = {
         ...mileageRoute1,
-        directions: directionsResults.routes[0],
+        directions: directionsResults1.routes[0],
       };
 
       expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith(updatedMileageRoute);
