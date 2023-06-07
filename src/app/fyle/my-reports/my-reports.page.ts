@@ -755,12 +755,12 @@ export class MyReportsPage implements OnInit {
     return generatedFilters;
   }
 
-  generateStateFilterPills(filterPills: FilterPill[], filter) {
+  generateStateFilterPills(filterPills: FilterPill[], filter: Filters) {
     this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
       filterPills.push({
         label: 'State',
         type: 'state',
-        value: filter.state
+        value: (filter.state as string[])
           .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
@@ -792,7 +792,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+  generateDateFilterPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Date',
@@ -830,7 +830,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortRptDatePills(filter: any, filterPills: FilterPill[]) {
+  generateSortRptDatePills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -846,7 +846,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
+  generateSortAmountPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
@@ -862,7 +862,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortNamePills(filter: any, filterPills: FilterPill[]) {
+  generateSortNamePills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',

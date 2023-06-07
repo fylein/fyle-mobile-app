@@ -30,6 +30,8 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import { Filters } from '../my-expenses/my-expenses-filters.model';
 
 fdescribe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -1686,6 +1688,647 @@ fdescribe('MyReportsPage', () => {
           },
         },
       ]);
+    });
+  });
+
+  describe('convertNameSortToSelectedFilters(): ', () => {
+    it('should add the corresponding name sort filter when sortParam is "rp_purpose" and sortDir is "asc"', () => {
+      const filter = {
+        sortParam: 'rp_purpose',
+        sortDir: 'asc',
+      };
+      const generatedFilters = [];
+
+      component.convertNameSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'nameAToZ',
+        },
+      ]);
+    });
+
+    it('should add the corresponding name sort filter when sortParam is "rp_purpose" and sortDir is "desc"', () => {
+      const filter = {
+        sortParam: 'rp_purpose',
+        sortDir: 'desc',
+      };
+      const generatedFilters = [];
+
+      component.convertNameSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'nameZToA',
+        },
+      ]);
+    });
+
+    it('should not add name sort filters if sortParam is not "rp_purpose"', () => {
+      const filter = {
+        sortParam: 'rp_created_at',
+        sortDir: 'asc',
+      };
+      const generatedFilters = [];
+
+      component.convertNameSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([]);
+    });
+
+    it('should not add name sort filters if sortDir is not "asc" or "desc"', () => {
+      const filter = {
+        sortParam: 'rp_purpose',
+        sortDir: 'invalid',
+      };
+      const generatedFilters = [];
+
+      component.convertNameSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([]);
+    });
+  });
+
+  describe('convertSelectedSortFiltersToFilters(): ', () => {
+    it('should convert selected sort filter to corresponding sortParam and sortDir', () => {
+      const sortBy = {
+        name: 'Sort By',
+        value: 'dateNewToOld',
+      };
+      const generatedFilters = {};
+
+      component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+      expect(generatedFilters).toEqual({
+        sortParam: 'rp_created_at',
+        sortDir: 'desc',
+      });
+    });
+
+    it('should convert selected sort filter to corresponding sortParam and sortDir (dateOldToNew)', () => {
+      const sortBy = {
+        name: 'Sort By',
+        value: 'dateOldToNew',
+      };
+      const generatedFilters = {};
+
+      component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+      expect(generatedFilters).toEqual({
+        sortParam: 'rp_created_at',
+        sortDir: 'asc',
+      });
+    });
+
+    it('should convert selected sort filter to corresponding sortParam and sortDir (amountHighToLow)', () => {
+      const sortBy = {
+        name: 'Sort By',
+        value: 'amountHighToLow',
+      };
+      const generatedFilters = {};
+
+      component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+      expect(generatedFilters).toEqual({
+        sortParam: 'rp_amount',
+        sortDir: 'desc',
+      });
+    });
+
+    it('should convert selected sort filter to corresponding sortParam and sortDir (amountLowToHigh)', () => {
+      const sortBy = {
+        name: 'Sort By',
+        value: 'amountLowToHigh',
+      };
+      const generatedFilters = {};
+
+      component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+      expect(generatedFilters).toEqual({
+        sortParam: 'rp_amount',
+        sortDir: 'asc',
+      });
+    });
+
+    it('should convert selected sort filter to corresponding sortParam and sortDir (nameAToZ)', () => {
+      const sortBy = {
+        name: 'Sort By',
+        value: 'nameAToZ',
+      };
+      const generatedFilters = {};
+
+      // Call the method
+      component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+      expect(generatedFilters).toEqual({
+        sortParam: 'rp_purpose',
+        sortDir: 'asc',
+      });
+    });
+
+    it('should convert selected sort filter to corresponding sortParam and sortDir (nameZToA)', () => {
+      const sortBy = {
+        name: 'Sort By',
+        value: 'nameZToA',
+      };
+      const generatedFilters = {};
+
+      component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+      expect(generatedFilters).toEqual({
+        sortParam: 'rp_purpose',
+        sortDir: 'desc',
+      });
+    });
+
+    it('should not modify generatedFilters if sortBy is not provided', () => {
+      const sortBy = null;
+      const generatedFilters = {
+        sortParam: 'rp_purpose',
+        sortDir: 'asc',
+      };
+
+      component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+      expect(generatedFilters).toEqual({
+        sortParam: 'rp_purpose',
+        sortDir: 'asc',
+      });
+    });
+
+    it('should not modify generatedFilters if sortBy value is not recognized', () => {
+      const sortBy = {
+        name: 'Sort By',
+        value: 'invalid',
+      };
+      const generatedFilters = {
+        sortParam: 'rp_amount',
+        sortDir: 'desc',
+      };
+
+      component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+      expect(generatedFilters).toEqual({
+        sortParam: 'rp_amount',
+        sortDir: 'desc',
+      });
+    });
+  });
+
+  describe('convertFilters(): ', () => {
+    beforeEach(() => {
+      spyOn(component, 'convertSelectedSortFitlersToFilters');
+    });
+    it('should convert selected filters to corresponding Filters object', () => {
+      const selectedFilters = [
+        { name: 'State', value: 'Approved' },
+        {
+          name: 'Date',
+          value: 'Last 7 Days',
+          associatedData: { startDate: new Date('2023-04-01'), endDate: new Date('2023-04-04') },
+        },
+        { name: 'Sort By', value: 'dateNewToOld' },
+      ];
+
+      const generatedFilters = component.convertFilters(selectedFilters);
+
+      expect(generatedFilters).toEqual({
+        state: 'Approved',
+        date: 'Last 7 Days',
+        customDateStart: new Date('2023-04-01'),
+        customDateEnd: new Date('2023-04-04'),
+      });
+      expect(component.convertSelectedSortFitlersToFilters).toHaveBeenCalledTimes(1);
+    });
+
+    it('should convert selected filters to corresponding Filters object incase of associatedData is undefined', () => {
+      const selectedFilters = [
+        { name: 'State', value: 'Approved' },
+        { name: 'Date', value: 'Last 7 Days', associatedData: undefined },
+        { name: 'Sort By', value: 'dateNewToOld' },
+      ];
+
+      const generatedFilters = component.convertFilters(selectedFilters);
+
+      expect(generatedFilters).toEqual({
+        state: 'Approved',
+        date: 'Last 7 Days',
+        customDateStart: undefined,
+        customDateEnd: undefined,
+      });
+      expect(component.convertSelectedSortFitlersToFilters).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return an empty Filters object if no selected filters are provided', () => {
+      const selectedFilters = [];
+
+      const generatedFilters = component.convertFilters(selectedFilters);
+
+      expect(generatedFilters).toEqual({});
+      expect(component.convertSelectedSortFitlersToFilters).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return a Filters object with only state filter if state filter is selected', () => {
+      const selectedFilters = [{ name: 'State', value: 'Draft' }];
+
+      const generatedFilters = component.convertFilters(selectedFilters);
+
+      expect(generatedFilters).toEqual({
+        state: 'Draft',
+      });
+      expect(component.convertSelectedSortFitlersToFilters).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return a Filters object with only date filter if date filter is selected', () => {
+      const selectedFilters = [
+        {
+          name: 'Date',
+          value: 'Last Month',
+          associatedData: { startDate: new Date('2023-01-04'), endDate: new Date('2023-01-10') },
+        },
+      ];
+
+      const generatedFilters = component.convertFilters(selectedFilters);
+
+      expect(generatedFilters).toEqual({
+        date: 'Last Month',
+        customDateStart: new Date('2023-01-04'),
+        customDateEnd: new Date('2023-01-10'),
+      });
+      expect(component.convertSelectedSortFitlersToFilters).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('should generate state filter pills', () => {
+    const filterPills: FilterPill[] = [];
+    const filter: Filters = { state: ['APPROVED', 'SUBMITTED'] };
+    const simplifyReportsSettings = { enabled: true };
+
+    component.simplifyReportsSettings$ = of(simplifyReportsSettings);
+
+    component.generateStateFilterPills(filterPills, filter);
+
+    component.simplifyReportsSettings$.subscribe(() => {
+      expect(filterPills).toEqual([
+        {
+          label: 'State',
+          type: 'state',
+          value: 'approved, reported',
+        },
+      ]);
+    });
+  });
+
+  describe('generateCustomDatePill(): ', () => {
+    it('should generate custom date filter pill with start and end date', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        customDateStart: new Date('2023-01-21'),
+        customDateEnd: new Date('2023-01-31'),
+      };
+
+      component.generateCustomDatePill(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Date',
+          type: 'date',
+          value: '2023-01-21 to 2023-01-31',
+        },
+      ]);
+    });
+
+    it('should generate custom date filter pill with only start date', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        customDateStart: new Date('2023-01-21'),
+        customDateEnd: null,
+      };
+
+      component.generateCustomDatePill(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Date',
+          type: 'date',
+          value: '>= 2023-01-21',
+        },
+      ]);
+    });
+
+    it('should generate custom date filter pill with only end date', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        customDateStart: null,
+        customDateEnd: new Date('2023-01-31'),
+      };
+
+      component.generateCustomDatePill(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Date',
+          type: 'date',
+          value: '<= 2023-01-31',
+        },
+      ]);
+    });
+
+    it('should not generate custom date filter pill if start and end date are null', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        customDateStart: null,
+        customDateEnd: null,
+      };
+
+      component.generateCustomDatePill(filter, filterPills);
+
+      expect(filterPills).toEqual([]);
+    });
+  });
+
+  describe('generateDateFilterPills(): ', () => {
+    it('should generate filter pill for "this Week"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        date: DateFilters.thisWeek,
+      };
+
+      component.generateDateFilterPills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Date',
+          type: 'date',
+          value: 'this Week',
+        },
+      ]);
+    });
+
+    it('should generate filter pill for "this Month"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        date: DateFilters.thisMonth,
+      };
+
+      component.generateDateFilterPills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Date',
+          type: 'date',
+          value: 'this Month',
+        },
+      ]);
+    });
+
+    it('should generate filter pill for "All"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        date: DateFilters.all,
+      };
+
+      component.generateDateFilterPills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Date',
+          type: 'date',
+          value: 'All',
+        },
+      ]);
+    });
+
+    it('should generate filter pill for "Last Month"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        date: DateFilters.lastMonth,
+      };
+
+      component.generateDateFilterPills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Date',
+          type: 'date',
+          value: 'Last Month',
+        },
+      ]);
+    });
+
+    it('should generate custom date filter pill', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        date: DateFilters.custom,
+        customDateStart: new Date('2023-01-21'),
+        customDateEnd: new Date('2023-01-31'),
+      };
+      spyOn(component, 'generateCustomDatePill');
+
+      component.generateDateFilterPills(filter, filterPills);
+
+      expect(component.generateCustomDatePill).toHaveBeenCalledOnceWith(filter, filterPills);
+
+      expect(filterPills).toEqual([]);
+    });
+
+    it('should not generate filter pill if date filter is not set', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        date: null,
+      };
+
+      component.generateDateFilterPills(filter, filterPills);
+
+      expect(filterPills).toEqual([]);
+    });
+  });
+
+  describe('generateSortRptDatePills', () => {
+    it('should generate filter pill for "date - old to new"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_created_at',
+        sortDir: 'asc',
+      };
+
+      component.generateSortRptDatePills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Sort By',
+          type: 'sort',
+          value: 'date - old to new',
+        },
+      ]);
+    });
+
+    it('should generate filter pill for "date - new to old"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_created_at',
+        sortDir: 'desc',
+      };
+
+      component.generateSortRptDatePills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Sort By',
+          type: 'sort',
+          value: 'date - new to old',
+        },
+      ]);
+    });
+
+    it('should not generate filter pill if sortParam is not "rp_created_at"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'approvalDate',
+        sortDir: 'asc',
+      };
+
+      component.generateSortRptDatePills(filter, filterPills);
+
+      expect(filterPills).toEqual([]);
+    });
+
+    it('should not generate filter pill if sortDir is not "asc" or "desc"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_created_at',
+        sortDir: 'other_sort_dir',
+      };
+
+      component.generateSortRptDatePills(filter, filterPills);
+
+      expect(filterPills).toEqual([]);
+    });
+  });
+
+  describe('generateSortAmountPills', () => {
+    it('should generate filter pill for "amount - high to low"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_amount',
+        sortDir: 'desc',
+      };
+
+      component.generateSortAmountPills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Sort By',
+          type: 'sort',
+          value: 'amount - high to low',
+        },
+      ]);
+    });
+
+    it('should generate filter pill for "amount - low to high"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_amount',
+        sortDir: 'asc',
+      };
+
+      component.generateSortAmountPills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Sort By',
+          type: 'sort',
+          value: 'amount - low to high',
+        },
+      ]);
+    });
+
+    it('should not generate filter pill if sortParam is not "rp_amount"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_created_at',
+        sortDir: 'desc',
+      };
+
+      component.generateSortAmountPills(filter, filterPills);
+
+      expect(filterPills).toEqual([]);
+    });
+
+    it('should not generate filter pill if sortDir is not "asc" or "desc"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_amount',
+        sortDir: 'other_sort_dir',
+      };
+
+      component.generateSortAmountPills(filter, filterPills);
+
+      expect(filterPills).toEqual([]);
+    });
+  });
+
+  describe('generateSortNamePills', () => {
+    it('should generate filter pill for "Name - a to z"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_purpose',
+        sortDir: 'asc',
+      };
+
+      component.generateSortNamePills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Sort By',
+          type: 'sort',
+          value: 'Name - a to z',
+        },
+      ]);
+    });
+
+    it('should generate filter pill for "Name - z to a"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_purpose',
+        sortDir: 'desc',
+      };
+
+      component.generateSortNamePills(filter, filterPills);
+
+      expect(filterPills).toEqual([
+        {
+          label: 'Sort By',
+          type: 'sort',
+          value: 'Name - z to a',
+        },
+      ]);
+    });
+
+    it('should not generate filter pill if sortParam is not "rp_purpose"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'some_other_param',
+        sortDir: 'asc',
+      };
+
+      component.generateSortNamePills(filter, filterPills);
+
+      expect(filterPills).toEqual([]);
+    });
+
+    it('should not generate filter pill if sortDir is not "asc" or "desc"', () => {
+      const filterPills: FilterPill[] = [];
+      const filter = {
+        sortParam: 'rp_purpose',
+        sortDir: 'invalid',
+      };
+
+      component.generateSortNamePills(filter, filterPills);
+
+      expect(filterPills).toEqual([]);
     });
   });
 });
