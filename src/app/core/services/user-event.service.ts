@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observer, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +21,7 @@ export class UserEventService {
 
   constructor() {}
 
-  onLogout(callback) {
+  onLogout(callback: () => void) {
     return this.logoutSubject.subscribe(callback);
   }
 
@@ -29,7 +29,7 @@ export class UserEventService {
     return this.logoutSubject.next(null);
   }
 
-  onSetToken(callback) {
+  onSetToken(callback: () => void) {
     return this.tokenSubject.subscribe(callback);
   }
 
@@ -41,11 +41,11 @@ export class UserEventService {
     return this.taskCacheClearSubject.next(null);
   }
 
-  onTaskCacheClear(callback) {
+  onTaskCacheClear(callback: () => void) {
     return this.taskCacheClearSubject.subscribe(callback);
   }
 
-  onClearCache(callback) {
+  onClearCache(callback: () => void) {
     return this.clearCacheSubject.subscribe(callback);
   }
 
