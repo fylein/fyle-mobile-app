@@ -32,7 +32,7 @@ export class AccountsService {
         const accounts: ExtendedAccount[] = [];
 
         accountsRaw.forEach((accountRaw) => {
-          const account = this.dataTransformService.unflatten(accountRaw) as ExtendedAccount;
+          const account = this.dataTransformService.unflatten<ExtendedAccount, {}>(accountRaw);
           accounts.push(account);
         });
 
@@ -95,7 +95,7 @@ export class AccountsService {
     paymentMode: string,
     isMultipleAdvanceEnabled: boolean
   ): ExtendedAccount {
-    const accountDisplayNameMapping = {
+    const accountDisplayNameMapping: Record<string, string> = {
       PERSONAL_ACCOUNT: 'Personal Card/Cash',
       COMPANY_ACCOUNT: 'Paid by Company',
       PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
@@ -106,7 +106,7 @@ export class AccountsService {
       accountCopy.acc.displayName =
         paymentMode === AccountType.ADVANCE
           ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
-          : (accountDisplayNameMapping[paymentMode] as string);
+          : accountDisplayNameMapping[paymentMode];
       accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
     }
 
