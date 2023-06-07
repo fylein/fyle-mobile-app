@@ -43,6 +43,13 @@ describe('BankAccountCardsComponent', () => {
     });
   });
 
+  it('should emit undefined when the real Index is null', () => {
+    spyOn(component.changed, 'emit');
+    component.onCardChange([{ realIndex: null }]);
+    fixture.detectChanges();
+    expect(component.changed.emit).toHaveBeenCalledOnceWith(undefined);
+  });
+
   it('should set pagination to dynamic bullets', () => {
     const index = 1;
     const className = 'bank-accounts--swiper';
