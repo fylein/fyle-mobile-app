@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, NavController, PopoverController } from '@ionic/angular';
+import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 
 import { MyReportsPage } from './my-reports.page';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -32,6 +32,10 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { Filters } from '../my-expenses/my-expenses-filters.model';
+import { selectedFilters1 } from 'src/app/core/mock-data/selected-filters.data';
+import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
+import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 
 fdescribe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -50,6 +54,7 @@ fdescribe('MyReportsPage', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let modalController: jasmine.SpyObj<ModalController>;
   let inputElement: HTMLInputElement;
 
   beforeEach(waitForAsync(() => {
@@ -84,7 +89,9 @@ fdescribe('MyReportsPage', () => {
       'deleteReport',
       'footerHomeTabClicked',
       'tasksPageOpened',
+      'myReportsFilterApplied',
     ]);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
 
     TestBed.configureTestingModule({
       declarations: [MyReportsPage, ReportState],
@@ -126,6 +133,10 @@ fdescribe('MyReportsPage', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: ModalController,
+          useValue: modalControllerSpy,
+        },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -151,6 +162,7 @@ fdescribe('MyReportsPage', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
   }));
 
   it('should create', () => {
@@ -2331,4 +2343,328 @@ fdescribe('MyReportsPage', () => {
       expect(filterPills).toEqual([]);
     });
   });
+
+  it('generateSortFilterPills(): should call generateSortRptDatePills, generateSortAmountPills, and generateSortNamePills', () => {
+    spyOn(component, 'generateSortRptDatePills');
+    spyOn(component, 'generateSortAmountPills');
+    spyOn(component, 'generateSortNamePills');
+    const filter: Filters = {
+      sortParam: 'approvalDate',
+      sortDir: 'asc',
+    };
+    const filterPills: FilterPill[] = [];
+
+    component.generateSortFilterPills(filter, filterPills);
+
+    expect(component.generateSortRptDatePills).toHaveBeenCalledTimes(1);
+    expect(component.generateSortAmountPills).toHaveBeenCalledTimes(1);
+    expect(component.generateSortNamePills).toHaveBeenCalledTimes(1);
+  });
+
+  it('should generate filter pills for all filters', () => {
+    let filterPills: FilterPill[] = [];
+    const filter = {
+      state: ['active', 'completed'],
+      date: DateFilters.thisWeek,
+      sortParam: 'rp_created_at',
+      sortDir: 'asc',
+    };
+    spyOn(component, 'generateStateFilterPills').and.callFake((filterPills, filter) => {
+      filterPills.push({
+        label: 'State',
+        type: 'state',
+        value: 'active, completed',
+      });
+    });
+    spyOn(component, 'generateDateFilterPills').and.callFake((filter, filterPills) => {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'this Week',
+      });
+    });
+
+    spyOn(component, 'generateSortFilterPills').and.callFake((filter, filterPills) => {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'date - old to new',
+      });
+    });
+
+    filterPills = component.generateFilterPills(filter);
+
+    expect(component.generateStateFilterPills).toHaveBeenCalledOnceWith(filterPills, filter);
+    expect(component.generateDateFilterPills).toHaveBeenCalledOnceWith(filter, filterPills);
+    expect(component.generateSortFilterPills).toHaveBeenCalledOnceWith(filter, filterPills);
+    expect(filterPills).toEqual([
+      {
+        label: 'State',
+        type: 'state',
+        value: 'active, completed',
+      },
+      {
+        label: 'Date',
+        type: 'date',
+        value: 'this Week',
+      },
+      {
+        label: 'Sort By',
+        type: 'sort',
+        value: 'date - old to new',
+      },
+    ]);
+  });
+
+  describe('convertAmountSortToSelectedFilters(): ', () => {
+    it('should convert amount sort to selected filters for descending sort', () => {
+      const filter = {
+        sortParam: 'rp_amount',
+        sortDir: 'desc',
+      };
+      const generatedFilters = [];
+
+      component.convertAmountSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'amountHighToLow',
+        },
+      ]);
+    });
+
+    it('should convert amount sort to selected filters for ascending sort', () => {
+      const filter = {
+        sortParam: 'rp_amount',
+        sortDir: 'asc',
+      };
+      const generatedFilters = [];
+
+      component.convertAmountSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'amountLowToHigh',
+        },
+      ]);
+    });
+
+    it('should not convert amount sort to selected filters if sortParam is not "rp_amount"', () => {
+      const filter = {
+        sortParam: 'other_param',
+        sortDir: 'asc',
+      };
+      const generatedFilters = [];
+
+      component.convertAmountSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([]);
+    });
+
+    it('should not convert amount sort to selected filters if sortDir is not "desc" or "asc"', () => {
+      const filter = {
+        sortParam: 'rp_amount',
+        sortDir: 'invalid_dir',
+      };
+      const generatedFilters = [];
+
+      component.convertAmountSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([]);
+    });
+  });
+
+  it('openFilters(): should create a modal and update the filter if activeFilterInitialName is provided', fakeAsync(() => {
+    component.filters = { sortDir: 'desc' };
+    component.loadData$ = new BehaviorSubject({});
+    const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['present', 'onWillDismiss']);
+    spyOn(component, 'convertFilters').and.returnValue({ sortParam: 'approvalDate', sortDir: 'asc' });
+    spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 3 });
+    spyOn(component, 'generateFilterPills').and.returnValue([
+      {
+        label: 'Date',
+        type: 'date',
+        value: 'this Week',
+      },
+    ]);
+    spyOn(component, 'generateSelectedFilters').and.returnValue([{ name: 'state', value: 'PENDING' }]);
+    filterPopoverSpy.onWillDismiss.and.resolveTo({ data: selectedFilters1 });
+    modalController.create.and.returnValue(Promise.resolve(filterPopoverSpy));
+
+    component.openFilters('State');
+    tick(200);
+
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: FyFiltersComponent,
+      componentProps: {
+        filterOptions: [
+          {
+            name: 'State',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Reported',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Payment Pending',
+                value: 'PAYMENT_PENDING',
+              },
+              {
+                label: 'Payment Processing',
+                value: 'PAYMENT_PROCESSING',
+              },
+              {
+                label: 'Paid',
+                value: 'PAID',
+              },
+            ],
+            optionsNewFlow: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Processing',
+                value: 'PAYMENT_PROCESSING',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
+            optionsNewFlowCCCOnly: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Submitted',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Closed',
+                value: 'PAID',
+              },
+            ],
+          } as FilterOptions<string>,
+          {
+            name: 'Date',
+            optionType: FilterOptionType.date,
+            options: [
+              {
+                label: 'All',
+                value: DateFilters.all,
+              },
+              {
+                label: 'This Week',
+                value: DateFilters.thisWeek,
+              },
+              {
+                label: 'This Month',
+                value: DateFilters.thisMonth,
+              },
+              {
+                label: 'Last Month',
+                value: DateFilters.lastMonth,
+              },
+              {
+                label: 'Custom',
+                value: DateFilters.custom,
+              },
+            ],
+          } as FilterOptions<DateFilters>,
+          {
+            name: 'Sort By',
+            optionType: FilterOptionType.singleselect,
+            options: [
+              {
+                label: 'Date - New to Old',
+                value: 'dateNewToOld',
+              },
+              {
+                label: 'Date - Old to New',
+                value: 'dateOldToNew',
+              },
+              {
+                label: 'Amount - High to Low',
+                value: 'amountHighToLow',
+              },
+              {
+                label: 'Amount - Low to High',
+                value: 'amountLowToHigh',
+              },
+              {
+                label: 'Name - A to Z',
+                value: 'nameAToZ',
+              },
+              {
+                label: 'Name - Z to A',
+                value: 'nameZToA',
+              },
+            ],
+          } as FilterOptions<string>,
+        ],
+        simplifyReportsSettings$: component.simplifyReportsSettings$,
+        nonReimbursableOrg$: component.nonReimbursableOrg$,
+        selectedFilterValues: [{ name: 'state', value: 'PENDING' }],
+        activeFilterInitialName: 'State',
+      },
+      cssClass: 'dialog-popover',
+    });
+
+    expect(component.generateSelectedFilters).toHaveBeenCalledOnceWith({ sortDir: 'desc' });
+    expect(component.convertFilters).toHaveBeenCalledOnceWith(selectedFilters1);
+    expect(component.filters).toEqual({ sortParam: 'approvalDate', sortDir: 'asc' });
+    expect(component.currentPageNumber).toBe(1);
+    component.loadData$.subscribe((data) => {
+      expect(data).toEqual({ pageNumber: 3 });
+    });
+    expect(component.filterPills).toEqual([
+      {
+        label: 'Date',
+        type: 'date',
+        value: 'this Week',
+      },
+    ]);
+    expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortParam: 'approvalDate', sortDir: 'asc' });
+    expect(trackingService.myReportsFilterApplied).toHaveBeenCalledOnceWith({
+      sortParam: 'approvalDate',
+      sortDir: 'asc',
+    });
+  }));
 });
