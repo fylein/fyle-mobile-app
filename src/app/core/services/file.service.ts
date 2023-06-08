@@ -61,7 +61,7 @@ export class FileService {
   }
 
   getFileExtension(fileName: string): string {
-    let res = null;
+    let res: string | null = null;
 
     if (fileName) {
       fileName = fileName.toLowerCase();
@@ -88,7 +88,7 @@ export class FileService {
     return file;
   }
 
-  post(fileObj) {
+  post(fileObj: File | Record<string, string> | FileObject) {
     return this.apiService.post('/files', fileObj);
   }
 
@@ -177,7 +177,7 @@ export class FileService {
   }
 
   getReceiptExtension(url: string): string {
-    let receiptExtension = null;
+    let receiptExtension: string | null = null;
     const name = url.split('?')[0];
     if (name) {
       const filename = name.toLowerCase();
