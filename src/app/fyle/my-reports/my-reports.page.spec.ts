@@ -25,7 +25,7 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { DateService } from 'src/app/core/services/date.service';
 import * as dayjs from 'dayjs';
 
-fdescribe('MyReportsPage', () => {
+describe('MyReportsPage', () => {
   let component: MyReportsPage;
   let fixture: ComponentFixture<MyReportsPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
