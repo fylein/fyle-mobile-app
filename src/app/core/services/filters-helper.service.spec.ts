@@ -263,7 +263,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.descending,
     };
 
-    const testSelectedFilter: SelectedFilters<any>[] = [
+    const testSelectedFilter: SelectedFilters<string | string[] | number>[] = [
       {
         name: 'Sort By',
         value: 'projectZToA',
@@ -278,7 +278,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | Sort By - A to Z, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
-    const testSelectedFilters: SelectedFilters<any>[] = [
+    const testSelectedFilters: SelectedFilters<string | string[] | number>[] = [
       {
         name: 'Sort By',
         value: 'projectZToA',
@@ -303,7 +303,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | Sort By - Z to A, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
-    const testSelectedFilters: SelectedFilters<any>[] = [
+    const testSelectedFilters: SelectedFilters<string | string[] | number>[] = [
       {
         name: 'Sort By',
         value: 'projectZToA',
@@ -328,7 +328,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | Sort By - A to Z, Sort Direction - ASC', () => {
-    const testSelectedFilters: SelectedFilters<any>[] = [
+    const testSelectedFilters: SelectedFilters<string | string[] | number>[] = [
       {
         name: 'Sort By',
         value: 'projectAToZ',
@@ -344,7 +344,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | APPROVAL DATE - DESC', () => {
-    const testSelectedFilters: SelectedFilters<any>[] = [
+    const testSelectedFilters: SelectedFilters<string | string[] | number>[] = [
       {
         name: 'Sort By',
         value: 'appDateNewToOld',
@@ -360,7 +360,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | CREATION DATE - ASC', () => {
-    const testSelectedFilters: SelectedFilters<any>[] = [
+    const testSelectedFilters: SelectedFilters<string | string[] | number>[] = [
       {
         name: 'Sort By',
         value: 'crDateOldToNew',

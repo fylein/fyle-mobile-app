@@ -9,6 +9,7 @@ import { SortingValue } from '../models/sorting-value.model';
 import { Filters } from '../models/filters.model';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { AdvancesStates } from '../models/advances-states.model';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,7 @@ export class FiltersHelperService {
   generateFilterPills(filters: Filters, projectFieldName?: string) {
     const filterPills: FilterPill[] = [];
 
-    const filterPillsMap = {
+    const filterPillsMap: Record<string, string> = {
       [SortingValue.creationDateAsc]: 'created at - new to old',
       [SortingValue.creationDateDesc]: 'created at - old to new',
       [SortingValue.approvalDateAsc]: 'approved at - new to old',
@@ -56,26 +57,26 @@ export class FiltersHelperService {
     return filterPills;
   }
 
-  convertDataToFilters(selectedFilters: SelectedFilters<any>[]): Filters {
+  convertDataToFilters(selectedFilters: SelectedFilters<string | string[] | number>[]): Filters {
     const generatedFilters: Filters = {};
 
     const stateFilter = selectedFilters.find((filter) => filter.name === 'State');
     const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
 
     if (stateFilter) {
-      generatedFilters.state = stateFilter.value;
+      generatedFilters.state = stateFilter.value as AdvancesStates[];
     }
 
     if (sortBy && sortBy.value) {
-      generatedFilters.sortParam = this.getSortParam(sortBy.value);
-      generatedFilters.sortDir = this.getSortDir(sortBy.value);
+      generatedFilters.sortParam = this.getSortParam(sortBy.value as AdvancesStates);
+      generatedFilters.sortDir = this.getSortDir(sortBy.value as AdvancesStates);
     }
     return generatedFilters;
   }
 
-  generateSelectedFilters(filters: Filters): SelectedFilters<any>[] {
-    const generatedFilters: SelectedFilters<any>[] = [];
-    const filtersMap = {
+  generateSelectedFilters(filters: Filters): SelectedFilters<string | string[] | number>[] {
+    const generatedFilters: SelectedFilters<string | string[] | number>[] = [];
+    const filtersMap: Record<string, string> = {
       state: 'State',
       sortParam: 'Sort By',
       sortDir: 'Sort Direction',
@@ -91,7 +92,7 @@ export class FiltersHelperService {
         } else {
           generatedFilters.push({
             name: filtersMap[key],
-            value: filters[key],
+            value: filters[key] as AdvancesStates,
           });
         }
       }
