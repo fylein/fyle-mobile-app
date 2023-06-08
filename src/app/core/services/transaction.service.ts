@@ -109,7 +109,7 @@ export class TransactionService {
         }
         transaction.tx_categoryDisplayName = categoryDisplayName;
 
-        return this.dateService.fixDates(transaction) as Expense;
+        return this.dateService.fixDates(transaction);
       })
     );
   }
