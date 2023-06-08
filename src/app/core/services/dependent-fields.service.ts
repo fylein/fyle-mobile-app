@@ -59,16 +59,22 @@ export class DependentFieldsService {
     parentFieldId: number
   ): Observable<CustomProperty<string>[] | CustomInput[]> {
     return this.getDependentFieldsForBaseField(parentFieldId).pipe(
-      map((dependentExpenseFields) =>
-        dependentExpenseFields.reduce((dependentCustomProperties, dependentExpenseField) => {
-          const dependentFieldValue = txnCustomProperties.find(
-            (customProperty) => customProperty.name === dependentExpenseField.field_name
-          );
-          if (dependentFieldValue) {
-            dependentFieldValue.value = dependentFieldValue.value || '-';
-            return [...dependentCustomProperties, dependentFieldValue];
-          }
-        }, [])
+      map((dependentExpenseFields: ExpenseField[]) =>
+        dependentExpenseFields.reduce(
+          (
+            dependentCustomProperties: CustomProperty<string>[] | CustomInput[],
+            dependentExpenseField: ExpenseField
+          ) => {
+            const dependentFieldValue: CustomProperty<string> = txnCustomProperties.find(
+              (customProperty) => customProperty.name === dependentExpenseField.field_name
+            );
+            if (dependentFieldValue) {
+              dependentFieldValue.value = dependentFieldValue.value || '-';
+              return [...dependentCustomProperties, dependentFieldValue];
+            }
+          },
+          []
+        )
       ),
       shareReplay(1)
     );
@@ -77,8 +83,8 @@ export class DependentFieldsService {
   //This method returns array of dependent fields based on id of base field - Project, Cost center, etc.
   getDependentFieldsForBaseField(parentFieldId: number): Observable<ExpenseField[]> {
     return this.customInputsService.getAll(true).pipe(
-      map((expenseFields) => {
-        const dependentExpenseFields = [];
+      map((expenseFields: ExpenseField[]) => {
+        const dependentExpenseFields: ExpenseField[] = [];
         while (parentFieldId) {
           const nextDependentField = expenseFields.find(
             (expenseField) => expenseField.parent_field_id === parentFieldId

@@ -18,6 +18,11 @@ export class LocationService {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
+  @Cacheable()
+  get(url, config = {}) {
+    return this.httpClient.get(this.ROOT_ENDPOINT + '/location' + url, config);
+  }
+
   @Cacheable({
     cacheBusterObserver: currentLocationCacheBuster$,
     maxAge: 10 * 60 * 1000, // 10 minutes
@@ -40,10 +45,6 @@ export class LocationService {
 
   setRoot(rootUrl: string) {
     this.ROOT_ENDPOINT = rootUrl;
-  }
-
-  get(url, config = {}) {
-    return this.httpClient.get(this.ROOT_ENDPOINT + '/location' + url, config);
   }
 
   getAutocompletePredictions(text, userId, currentLocation?, types?) {
