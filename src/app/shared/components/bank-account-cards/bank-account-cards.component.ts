@@ -22,7 +22,7 @@ export class BankAccountCardsComponent implements OnInit {
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
   pagination = {
-    renderBullet(index, className) {
+    renderBullet(index, className): string {
       return '<span class="fyle ' + className + '"> </span>';
     },
   };
@@ -31,12 +31,12 @@ export class BankAccountCardsComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onDeleted() {
+  onDeleted(): void {
     this.deleted.emit();
   }
 
-  onCardChange(event) {
-    if (!this.minimal && event.length) {
+  onCardChange(event): void {
+    if (!this.minimal && event.length && this.linkedAccounts[event[0].realIndex]?.id) {
       this.changed.emit(this.linkedAccounts[event[0].realIndex]?.id);
     }
   }

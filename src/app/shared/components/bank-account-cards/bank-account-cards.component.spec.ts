@@ -47,7 +47,7 @@ describe('BankAccountCardsComponent', () => {
     spyOn(component.changed, 'emit');
     component.onCardChange([{ realIndex: null }]);
     fixture.detectChanges();
-    expect(component.changed.emit).toHaveBeenCalledOnceWith(undefined);
+    expect(component.changed.emit).not.toHaveBeenCalled();
   });
 
   it('should set pagination to dynamic bullets', () => {
