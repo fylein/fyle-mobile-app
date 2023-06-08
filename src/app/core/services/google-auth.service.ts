@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
 import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service';
 import { AuthResponse } from '../models/auth-response.model';
 
 @Injectable({
