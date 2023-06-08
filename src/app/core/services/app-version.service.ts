@@ -24,7 +24,7 @@ export class AppVersionService {
   // not fixing since copied from somewhere
   // not human readable at the moment
   // eslint-disable-next-line complexity
-  isVersionLower(version1: string, version2: string) {
+  isVersionLower(version1: string, version2: string): boolean {
     // https://gist.github.com/alexey-bass/1115557#file-compare-js
     // someone should shoot this person for writing this
     // TODO: Cleanup
@@ -96,9 +96,9 @@ export class AppVersionService {
     return this.routerApiService.post('/mobileapp/check', data);
   }
 
-  get(os: string) {
+  get(os: string): Observable<AppVersion> {
     const operatingSystem = os.toUpperCase();
-    return this.apiService.get<AppVersion>(`/version/app/${operatingSystem}`).pipe(map((res: AppVersion) => res));
+    return this.apiService.get<AppVersion>(`/version/app/${operatingSystem}`);
   }
 
   post(data: Partial<AppVersion>): Observable<AppVersion> {
