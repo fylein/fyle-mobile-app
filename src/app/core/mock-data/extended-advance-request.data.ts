@@ -297,7 +297,7 @@ export const singleErqRes: ExtendedAdvanceRequest = {
 export const singleErqUnflattened = {
   areq: {
     id: 'areqGzKF1Tne23',
-    created_at: '2023-02-23T13:16:15.260Z',
+    created_at: new Date('2023-02-23T13:16:15.260Z'),
     approved_at: null,
     purpose: 'some',
     notes: null,
@@ -311,7 +311,7 @@ export const singleErqUnflattened = {
     policy_state: 'SUCCESS',
     project_id: null,
     custom_field_values: null,
-    updated_at: '2023-02-23T14:16:52.396Z',
+    updated_at: new Date('2023-02-23T14:16:52.396Z'),
     source: 'MOBILE',
     advance_request_number: 'AR/2023/02/R/4',
     updated_by: null,

@@ -26,6 +26,7 @@ import {
   expensePolicyStatesData,
 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -375,7 +376,7 @@ describe('ViewMileagePage', () => {
       popoverController.create.and.returnValue(flagPopoverSpy);
       const data = { comment: 'This is a comment for flagging' };
       flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(testComment));
+      statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualFlag.and.returnValue(of(expenseData2));
 
       component.flagUnflagExpense(expenseData1.tx_manual_flag);
@@ -431,7 +432,7 @@ describe('ViewMileagePage', () => {
       popoverController.create.and.returnValue(flagPopoverSpy);
       const data = { comment: 'This is a comment for flagging' };
       flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
-      statusService.post.and.returnValue(of(testComment));
+      statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualUnflag.and.returnValue(of(expenseData1));
 
       component.flagUnflagExpense(mockExpenseData.tx_manual_flag);

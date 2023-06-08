@@ -10,6 +10,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { ReportV1 } from 'src/app/core/models/report-v1.model';
 
 @Component({
   selector: 'app-fy-add-to-report',
@@ -154,7 +155,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
         this.reportService
           .createDraft(report)
           .pipe(
-            concatMap((newReport) =>
+            concatMap((newReport: ReportV1) =>
               this.reportService.getFilteredPendingReports({ state: 'edit' }).pipe(
                 map((reports) => reports.map((report) => ({ label: report.rp.purpose, value: report }))),
                 tap((options) => {

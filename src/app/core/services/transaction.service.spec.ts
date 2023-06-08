@@ -81,7 +81,7 @@ describe('TransactionService', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
+    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'fixDates',
@@ -756,7 +756,7 @@ describe('TransactionService', () => {
 
   it('getTransactionStats(): should return transaction stats', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(eouRes2));
-    apiV2Service.get.and.returnValue(of(txnStats));
+    apiV2Service.getStats.and.returnValue(of(txnStats));
 
     const aggregates = 'count(tx_id),sum(tx_amount)';
     const queryParams = {
@@ -767,7 +767,7 @@ describe('TransactionService', () => {
 
     transactionService.getTransactionStats(aggregates, queryParams).subscribe((res) => {
       expect(res).toEqual(txnStats.data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses/stats', {
+      expect(apiV2Service.getStats).toHaveBeenCalledOnceWith('/expenses/stats', {
         params: {
           aggregates,
           tx_org_user_id: 'eq.' + eouRes2.ou.id,

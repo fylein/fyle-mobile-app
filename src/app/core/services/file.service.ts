@@ -15,7 +15,7 @@ export class FileService {
   constructor(private apiService: ApiService, private dateService: DateService) {}
 
   downloadUrl(fileId: string): Observable<string> {
-    return this.apiService.post('/files/' + fileId + '/download_url').pipe(map((res) => res.url));
+    return this.apiService.post<File>('/files/' + fileId + '/download_url').pipe(map((res) => res.url));
   }
 
   downloadThumbnailUrl(fileId: string): Observable<FileObject[]> {
@@ -43,7 +43,7 @@ export class FileService {
 
   findByAdvanceRequestId(advanceRequestId: string): Observable<FileObject[]> {
     return from(
-      this.apiService.get('/files', {
+      this.apiService.get<File[]>('/files', {
         params: {
           advance_request_id: advanceRequestId,
           skip_html: 'true',
@@ -61,7 +61,7 @@ export class FileService {
   }
 
   getFileExtension(fileName: string): string {
-    let res = null;
+    let res: string | null = null;
 
     if (fileName) {
       fileName = fileName.toLowerCase();
@@ -88,16 +88,16 @@ export class FileService {
     return file;
   }
 
-  post(fileObj) {
+  post(fileObj: File | Record<string, string> | FileObject) {
     return this.apiService.post('/files', fileObj);
   }
 
   uploadUrl(fileId: string): Observable<string> {
-    return this.apiService.post('/files/' + fileId + '/upload_url').pipe(map((data) => data.url));
+    return this.apiService.post<File>('/files/' + fileId + '/upload_url').pipe(map((data) => data.url));
   }
 
   uploadComplete(fileId: string) {
-    return this.apiService.post('/files/' + fileId + '/upload_completed');
+    return this.apiService.post<File>('/files/' + fileId + '/upload_completed');
   }
 
   findByTransactionId(txnId: string): Observable<FileObject[]> {
@@ -177,7 +177,7 @@ export class FileService {
   }
 
   getReceiptExtension(url: string): string {
-    let receiptExtension = null;
+    let receiptExtension: string | null = null;
     const name = url.split('?')[0];
     if (name) {
       const filename = name.toLowerCase();
