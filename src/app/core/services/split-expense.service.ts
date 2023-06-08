@@ -56,8 +56,8 @@ export class SplitExpenseService {
     return forkJoin(observables);
   }
 
-  getBase64Content(fileObjs: FileObject[]) {
-    const fileObservables = [];
+  getBase64Content(fileObjs: FileObject[]): Observable<FileObject[]> {
+    const fileObservables: Observable<{ content: string }>[] = [];
     const newFileObjs: FileObject[] = fileObjs.map((fileObj) => ({
       id: fileObj.id,
       name: fileObj.name,
@@ -69,7 +69,7 @@ export class SplitExpenseService {
     });
 
     return forkJoin(fileObservables).pipe(
-      map((data: FileObject[]) => {
+      map((data) => {
         newFileObjs.forEach((fileObj: FileObject, index) => {
           fileObj.content = data[index].content;
         });
@@ -228,7 +228,11 @@ export class SplitExpenseService {
     }
   }
 
-  createSplitTxns(sourceTxn: Transaction, totalSplitAmount: number, splitExpenses: Transaction[]) {
+  createSplitTxns(
+    sourceTxn: Transaction,
+    totalSplitAmount: number,
+    splitExpenses: Transaction[]
+  ): Observable<Transaction[]> {
     let splitGroupAmount = sourceTxn.split_group_user_amount || sourceTxn.amount;
     let splitGroupId = sourceTxn.split_group_id || sourceTxn.id;
 
@@ -295,7 +299,7 @@ export class SplitExpenseService {
     splitGroupId: string,
     index: number,
     totalSplitExpensesCount: number
-  ) {
+  ): void {
     if (transaction.purpose) {
       let splitIndex = 1;
 
@@ -308,11 +312,11 @@ export class SplitExpenseService {
     }
   }
 
-  private setUpSplitExpenseBillable(sourceTxn: Transaction, splitExpense: Transaction) {
+  private setUpSplitExpenseBillable(sourceTxn: Transaction, splitExpense: Transaction): boolean {
     return splitExpense.project_id ? splitExpense.billable : sourceTxn.billable;
   }
 
-  private setUpSplitExpenseTax(sourceTxn: Transaction, splitExpense: Transaction) {
+  private setUpSplitExpenseTax(sourceTxn: Transaction, splitExpense: Transaction): number {
     return splitExpense.tax_amount ? splitExpense.tax_amount : sourceTxn.tax_amount;
   }
 }
