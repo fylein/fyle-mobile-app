@@ -402,7 +402,7 @@ fdescribe('MyReportsPage', () => {
       discardPeriodicTasks();
     }));
 
-    it('should initialize component properties and set simplifyReportsSetting$ to undefined if orgSetting$.payment_mode_settings is undefined', fakeAsync(() => {
+    it('should initialize component properties and set simplifyReportsSetting$ to false if orgSetting$.payment_mode_setting.payment_modes_order is not defined', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
       const homeCurrency = 'USD';
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
@@ -420,7 +420,7 @@ fdescribe('MyReportsPage', () => {
       reportService.getMyReportsCount.and.returnValue(of(10));
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
-      orgSettingsService.get.and.returnValue(of({ payment_mode_settings: undefined }));
+      orgSettingsService.get.and.returnValue(of({ payment_mode_settings: { allowed: true, enabled: true } }));
       transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
@@ -522,7 +522,7 @@ fdescribe('MyReportsPage', () => {
       });
 
       component.nonReimbursableOrg$.subscribe((nonReimbursableOrg) => {
-        expect(nonReimbursableOrg).toBeUndefined();
+        expect(nonReimbursableOrg).toBeFalse();
       });
 
       expect(component.clearFilters).toHaveBeenCalledTimes(1);
