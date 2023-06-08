@@ -67,6 +67,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
@@ -206,7 +207,7 @@ export class MyExpensesPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private platform: Platform,
+    private platformHandlerService: PlatformHandlerService,
     private navController: NavController
   ) {}
 
@@ -423,17 +424,22 @@ export class MyExpensesPage implements OnInit {
     this.onPageExit$.next(null);
   }
 
+  backButtonAction() {
+    if (this.headerState === HeaderState.multiselect) {
+      this.switchSelectionMode();
+    } else if (this.headerState === HeaderState.simpleSearch) {
+      this.onSimpleSearchCancel();
+    } else {
+      this.navController.back();
+    }
+  }
+
   ionViewWillEnter() {
     this.isNewReportsFlowEnabled = false;
-    this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.MEDIUM, () => {
-      if (this.headerState === HeaderState.multiselect) {
-        this.switchSelectionMode();
-      } else if (this.headerState === HeaderState.simpleSearch) {
-        this.onSimpleSearchCancel();
-      } else {
-        this.navController.back();
-      }
-    });
+    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
+      BackButtonActionPriority.MEDIUM,
+      this.backButtonAction
+    );
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
