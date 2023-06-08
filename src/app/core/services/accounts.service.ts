@@ -12,7 +12,7 @@ import { ExpenseType } from '../enums/expense-type.enum';
 import { Observable } from 'rxjs';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { OrgSettings } from '../models/org-settings.model';
-import { DateService } from './date.service';
+import { FlattenedAccount } from '../models/flattened-account.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,18 +21,17 @@ export class AccountsService {
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private fyCurrencyPipe: FyCurrencyPipe,
-    private dateService: DateService
+    private fyCurrencyPipe: FyCurrencyPipe
   ) {}
 
   @Cacheable()
   getEMyAccounts(): Observable<ExtendedAccount[]> {
-    return this.apiService.get<ExtendedAccount[]>('/eaccounts/').pipe(
-      map((accountsRaw: ExtendedAccount[]) => {
+    return this.apiService.get<FlattenedAccount[]>('/eaccounts/').pipe(
+      map((accountsRaw: FlattenedAccount[]) => {
         const accounts: ExtendedAccount[] = [];
 
         accountsRaw.forEach((accountRaw) => {
-          const account = this.dataTransformService.unflatten<ExtendedAccount, {}>(accountRaw);
+          const account = this.dataTransformService.unflatten<ExtendedAccount, FlattenedAccount>(accountRaw);
           accounts.push(account);
         });
 
