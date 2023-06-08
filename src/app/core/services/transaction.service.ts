@@ -36,6 +36,7 @@ import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
+import { UnprocessedExpense } from '../models/unprocessed-expense.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -163,6 +164,10 @@ export class TransactionService {
           },
         })
       ),
+      map((res) => ({
+        ...res,
+        data: res.data.map((datum) => this.dateService.fixDatesV2(datum)),
+      })),
       map(
         (res) =>
           res as {
@@ -172,11 +177,7 @@ export class TransactionService {
             offset: number;
             url: string;
           }
-      ),
-      map((res) => ({
-        ...res,
-        data: res.data.map((datum) => this.dateService.fixDatesV2(datum)),
-      }))
+      )
     );
   }
 
