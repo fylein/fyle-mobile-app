@@ -26,6 +26,8 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -37,7 +39,7 @@ export class ViewMileagePage implements OnInit {
 
   extendedMileage$: Observable<Expense>;
 
-  orgSettings: any;
+  orgSettings: OrgSettings;
 
   mileageCustomFields$: Observable<CustomField[]>;
 
@@ -55,7 +57,7 @@ export class ViewMileagePage implements OnInit {
 
   reportId: string;
 
-  policyDetails;
+  policyDetails: IndividualExpensePolicyState[] | [];
 
   isConnected$: Observable<boolean>;
 
@@ -64,8 +66,6 @@ export class ViewMileagePage implements OnInit {
   comments$: Observable<ExtendedStatus[]>;
 
   isDeviceWidthSmall = window.innerWidth < 330;
-
-  isExpenseFlagged: boolean;
 
   numEtxnsInReport: number;
 
@@ -317,8 +317,8 @@ export class ViewMileagePage implements OnInit {
       }
 
       if (
-        extendedMileage.tx_mileage_vehicle_type?.indexOf('four') > -1 ||
-        extendedMileage.tx_mileage_vehicle_type?.indexOf('car') > -1
+        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('four') > -1 ||
+        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('car') > -1
       ) {
         this.vehicleType = 'car';
       } else {
@@ -362,6 +362,7 @@ export class ViewMileagePage implements OnInit {
     this.view = this.activatedRoute.snapshot.params.view;
 
     this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
+      take(1),
       filter(() => this.view === ExpenseView.team),
       map(
         (etxn) =>
@@ -370,6 +371,7 @@ export class ViewMileagePage implements OnInit {
     );
 
     this.canDelete$ = this.extendedMileage$.pipe(
+      take(1),
       filter(() => this.view === ExpenseView.team),
       switchMap((etxn) =>
         this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
