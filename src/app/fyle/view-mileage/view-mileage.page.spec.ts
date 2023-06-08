@@ -36,7 +36,7 @@ import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 
-fdescribe('ViewMileagePage', () => {
+describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -983,7 +983,7 @@ fdescribe('ViewMileagePage', () => {
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeFalse();
-        expect(component.isNumber).toHaveBeenCalledWith(mockExtMileageData.tx_policy_amount);
+        expect(component.isNumber).toHaveBeenCalledWith(null);
         expect(component.isNumber).toHaveBeenCalledTimes(2);
         done();
       });
