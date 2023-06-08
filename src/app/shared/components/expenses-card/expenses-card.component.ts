@@ -232,7 +232,6 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   handleScanStatus() {
-    console.log('METHOD CALLED');
     const that = this;
     that.isScanInProgress = false;
     that.isScanCompleted = false;
@@ -251,7 +250,6 @@ export class ExpensesCardComponent implements OnInit {
             that.pollDataExtractionStatus(function () {
               that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
                 const extractedData = etxn.tx.extracted_data;
-                console.log('extractedData is', extractedData);
                 if (extractedData.amount && extractedData.currency) {
                   that.isScanCompleted = true;
                   that.isScanInProgress = false;
