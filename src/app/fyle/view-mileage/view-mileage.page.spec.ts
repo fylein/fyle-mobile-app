@@ -36,7 +36,7 @@ import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 
-describe('ViewMileagePage', () => {
+fdescribe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -925,43 +925,47 @@ describe('ViewMileagePage', () => {
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
         expect(res).toBeTrue();
-        expect(component.isNumber).toHaveBeenCalledTimes(1);
+        expect(component.isNumber).toHaveBeenCalledOnceWith(-1);
         done();
       });
     });
 
     it('should return true if the policy amount value is of type number should check if the amount is capped', (done) => {
-      spyOn(component, 'isNumber').and.returnValue(true);
       const mockExtMileageData = {
         ...etxncData.data[0],
         tx_policy_amount: 1000,
         tx_admin_amount: null,
       };
 
+      spyOn(component, 'isNumber').and.callThrough();
+
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
       component.extendedMileage$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
-        expect(component.isNumber).toHaveBeenCalledTimes(1);
+        expect(component.isNumber).toHaveBeenCalledTimes(2);
+        expect(component.isNumber).toHaveBeenCalledWith(null);
+        expect(component.isNumber).toHaveBeenCalledWith(1000);
         done();
       });
     });
 
     it('should return true if the admin amount value is of type number should check if the amount is capped', (done) => {
-      spyOn(component, 'isNumber').and.returnValue(true);
       const mockExtMileageData = {
         ...etxncData.data[0],
         tx_admin_amount: 1000,
         tx_policy_amount: null,
       };
 
-      transactionService.getEtxn.and.returnValue(of(mockExtMileageData));
+      spyOn(component, 'isNumber').and.callThrough();
+
+      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
       component.extendedMileage$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
-        expect(component.isNumber).toHaveBeenCalledTimes(1);
+        expect(component.isNumber).toHaveBeenCalledOnceWith(1000);
         done();
       });
     });
