@@ -57,21 +57,6 @@
     }
   }
 
-  &__info-card-container {
-    background-color: $pure-white;
-    border-radius: 8px;
-    margin-bottom: 24px;
-
-    &__card {
-      margin: 0 16px;
-      border-bottom: 1px solid $grey;
-
-      &--last {
-        border-bottom: none;
-      }
-    }
-  }
-
   &__signout-container {
     font-weight: 500;
     color: $brand-primary;

@@ -22,7 +22,7 @@ export class MileageService {
   }
 
   getDistance(locations: Location[] = []): Observable<number> {
-    const chunks = [];
+    const chunks: Array<Location[]> = [];
 
     this.getChunks(locations, chunks);
 

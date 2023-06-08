@@ -51,7 +51,7 @@ describe('DashboardService', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportStats']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
+    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -201,7 +201,7 @@ describe('DashboardService', () => {
 
   it('getCCCDetails(): should get assigned card details', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    apiV2Service.get.and.returnValue(of(apiAssignedCardDetailsRes));
+    apiV2Service.getStats.and.returnValue(of(apiAssignedCardDetailsRes));
 
     const apiParams =
       '/expenses_and_ccce/stats?aggregates=count(tx_id),sum(tx_amount)&scalar=true&dimension_1_1=corporate_credit_card_bank_name,corporate_credit_card_account_number,tx_state&tx_state=' +
@@ -212,8 +212,7 @@ describe('DashboardService', () => {
     dashboardService.getCCCDetails().subscribe((res) => {
       expect(res).toEqual(expectedAssignedCCCStats);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(apiV2Service.get).toHaveBeenCalledTimes(1);
-      expect(apiV2Service.get).toHaveBeenCalledWith(apiParams, {});
+      expect(apiV2Service.getStats).toHaveBeenCalledOnceWith(apiParams, {});
       done();
     });
   });

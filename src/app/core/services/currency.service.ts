@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
-import { OrgService } from './org.service';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { AuthService } from './auth.service';
-import { ApiService } from './api.service';
-import { from, Observable, of, Subject } from 'rxjs';
-import * as dayjs from 'dayjs';
-import { Cacheable } from 'ts-cacheable';
 import { getNumberOfCurrencyDigits } from '@angular/common';
+import { Injectable } from '@angular/core';
+import * as dayjs from 'dayjs';
+import { Observable, from, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { Cacheable } from 'ts-cacheable';
 import { CurrencyName } from '../models/currency.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { PublicPolicyExpense } from '../models/public-policy-expense.model';
+import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
+import { OrgService } from './org.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +18,7 @@ export class CurrencyService {
   constructor(private orgService: OrgService, private authService: AuthService, private apiService: ApiService) {}
 
   @Cacheable()
-  getExchangeRate(fromCurrency, toCurrency, dt = new Date(), txnId?): Observable<number> {
+  getExchangeRate(fromCurrency: string, toCurrency: string, dt = new Date(), txnId?: string): Observable<number> {
     const txnDt = dayjs(dt).format('YYYY-MM-D');
     const queryParams = {
       from: fromCurrency,
@@ -29,7 +31,7 @@ export class CurrencyService {
     }
 
     return this.apiService
-      .get('/currency/exchange', {
+      .get<Partial<PublicPolicyExpense>>('/currency/exchange', {
         params: queryParams,
       })
       .pipe(
@@ -41,8 +43,8 @@ export class CurrencyService {
   @Cacheable()
   getAll(): Observable<CurrencyName> {
     return from(this.authService.getEou()).pipe(
-      switchMap((currentEou) =>
-        this.apiService.get('/currency/all', {
+      switchMap((currentEou: ExtendedOrgUser) =>
+        this.apiService.get<CurrencyName>('/currency/all', {
           params: {
             org_id: currentEou && currentEou.ou && currentEou.ou.org_id,
           },

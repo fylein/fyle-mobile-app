@@ -7,6 +7,16 @@ type DateRange = {
   to: Date | dayjs.Dayjs;
 };
 
+type DatesV2 = {
+  tx_txn_dt: string;
+  due_at: string;
+  updated_at: string;
+  invoice_dt: string;
+  approved_at: string;
+  paid_at: string;
+  reimbursed_at: string;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -139,17 +149,7 @@ export class DateService {
   }
 
   // Use this method if you are getting api response from V2.
-  fixDatesV2(
-    data: Partial<{
-      tx_txn_dt: string;
-      due_at: string;
-      updated_at: string;
-      invoice_dt: string;
-      approved_at: string;
-      paid_at: string;
-      reimbursed_at: string;
-    }>
-  ) {
+  fixDatesV2<T>(data: Partial<T> & Partial<DatesV2>): Partial<T> & Partial<DatesV2> & Record<string, Date> {
     const dateMap: Record<string, Date> = {};
     if (data.tx_txn_dt) {
       dateMap.tx_txn_dt = new Date(data.tx_txn_dt);

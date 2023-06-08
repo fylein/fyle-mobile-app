@@ -57,29 +57,25 @@ export const recentItemsRes: RecentLocalStorageItems[] = [
   },
 ];
 
-export const itemsRes: RecentLocalStorageItems[] = [
-  {
-    label: 'New New Mileage',
-    value: {
-      code: null,
-      created_at: new Date('2020-11-16T16:36:05.955705+00:00'),
-      displayName: 'Mileage / New New Mileage',
-      enabled: true,
-      fyle_category: 'Mileage',
-      id: 117013,
-      name: 'Mileage',
-      org_id: 'orNVthTo2Zyo',
-      sub_category: 'New New Mileage',
-      updated_at: new Date('2022-10-04T05:23:38.831460+00:00'),
-    },
-    selected: false,
-    custom: false,
+export const itemsRes: RecentLocalStorageItems = {
+  label: 'New New Mileage',
+  value: {
+    code: null,
+    created_at: new Date('2020-11-16T16:36:05.955705+00:00'),
+    displayName: 'Mileage / New New Mileage',
+    enabled: true,
+    fyle_category: 'Mileage',
+    id: 117013,
+    name: 'Mileage',
+    org_id: 'orNVthTo2Zyo',
+    sub_category: 'New New Mileage',
+    updated_at: new Date('2022-10-04T05:23:38.831460+00:00'),
   },
-];
-
-export const propertyRes = {
-  property: 'label',
+  selected: false,
+  custom: false,
 };
+
+export const propertyRes = 'label';
 
 export const postRecentItemsRes: RecentLocalStorageItems[] = [
   {

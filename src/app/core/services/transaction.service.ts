@@ -37,6 +37,7 @@ import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
 import { UnprocessedExpense } from '../models/unprocessed-expense.model';
+import { StatsResponse } from '../models/v2/stats-response.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -98,7 +99,7 @@ export class TransactionService {
   })
   getEtxn(txnId: string): Observable<Expense> {
     // TODO api v2
-    return this.apiService.get('/etxns/' + txnId).pipe(
+    return this.apiService.get<Expense>('/etxns/' + txnId).pipe(
       map((transaction) => {
         let categoryDisplayName = transaction.tx_org_category;
         if (
@@ -151,10 +152,10 @@ export class TransactionService {
       limit: 10,
       queryParams: {},
     }
-  ): Observable<ApiV2Response<Expense>> {
+  ): Observable<ApiV2Response<Partial<Expense>>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiV2Service.get('/expenses', {
+        this.apiV2Service.get<Expense, { params: Record<string, string | number | string[] | boolean> }>('/expenses', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -166,7 +167,7 @@ export class TransactionService {
       ),
       map((res) => ({
         ...res,
-        data: res.data.map((datum) => this.dateService.fixDatesV2(datum)),
+        data: res.data.map((datum) => this.dateService.fixDatesV2<UnprocessedExpense>(datum)),
       })),
       map(
         (res) =>
@@ -210,7 +211,7 @@ export class TransactionService {
   getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<any> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiV2Service.get('/expenses/stats', {
+        this.apiV2Service.getStats<StatsResponse>('/expenses/stats', {
           params: {
             aggregates,
             tx_org_user_id: 'eq.' + eou.ou.id,
@@ -226,7 +227,7 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$,
   })
   delete(txnId: string): Observable<Expense> {
-    return this.apiService.delete('/transactions/' + txnId);
+    return this.apiService.delete<Expense>('/transactions/' + txnId);
   }
 
   @CacheBuster({
@@ -238,7 +239,7 @@ export class TransactionService {
     return range(0, count).pipe(
       concatMap((page) => {
         const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
-        return this.apiService.post('/transactions/delete/bulk', {
+        return this.apiService.post<Transaction>('/transactions/delete/bulk', {
           txn_ids: filteredtxnIds,
         });
       }),
@@ -308,7 +309,7 @@ export class TransactionService {
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        return this.apiService.post('/transactions', transactionCopy);
+        return this.apiService.post<Transaction>('/transactions', transactionCopy);
       })
     );
   }
@@ -341,13 +342,13 @@ export class TransactionService {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
-          return this.apiService.get('/etxns/count').pipe(
+          return this.apiService.get<{ count: number }>('/etxns/count').pipe(
             tap((res) => {
               this.storageService.set('etxncCount', res);
             })
           );
         } else {
-          return from(this.storageService.get('etxncCount'));
+          return from(this.storageService.get<{ count: number }>('etxncCount'));
         }
       })
     );
@@ -355,7 +356,7 @@ export class TransactionService {
 
   getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
     return this.apiV2Service
-      .get('/expenses', {
+      .get<Expense, {}>('/expenses', {
         ...params,
       })
       .pipe(map((etxns) => etxns.data));
@@ -371,7 +372,7 @@ export class TransactionService {
 
   getExpenseV2(id: string): Observable<Expense> {
     return this.apiV2Service
-      .get('/expenses', {
+      .get<Expense, {}>('/expenses', {
         params: {
           tx_id: `eq.${id}`,
         },
@@ -426,7 +427,7 @@ export class TransactionService {
   getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
-        const etxn = this.dataTransformService.unflatten(data);
+        const etxn: UnflattenedTransaction = this.dataTransformService.unflatten(data);
         this.dateService.fixDates(etxn.tx);
 
         // Adding a field categoryDisplayName in transaction object to save funciton calls
@@ -454,7 +455,7 @@ export class TransactionService {
   }
 
   getDefaultVehicleType(): Observable<string> {
-    return from(this.storageService.get('vehicle_preference'));
+    return from(this.storageService.get<string>('vehicle_preference'));
   }
 
   uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
