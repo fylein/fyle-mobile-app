@@ -99,6 +99,7 @@
         <ng-container *ngIf="filteredOrgs.length; else zeroState">
           <ng-container *ngIf="primaryOrg$ | async as primaryOrg">
             <app-org-card
+              data-test="org-cards"
               *ngFor="let org of filteredOrgs"
               [org]="org"
               [isPrimaryOrg]="org.id === primaryOrg.id"

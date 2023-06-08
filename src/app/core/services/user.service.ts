@@ -16,7 +16,7 @@ export class UserService {
   constructor(private authService: AuthService, private apiService: ApiService) {}
 
   getCurrent(): Observable<User> {
-    return this.apiService.get('/users/current').pipe(
+    return this.apiService.get<User>('/users/current').pipe(
       map((userRaw) => ({
         ...userRaw,
         created_at: userRaw.created_at && new Date(userRaw.created_at),
@@ -33,7 +33,7 @@ export class UserService {
 
   getProperties(): Observable<UserProperty> {
     return this.getCurrent()
-      .pipe(switchMap((user) => this.apiService.get('/users/' + user.id + '/properties')))
+      .pipe(switchMap((user) => this.apiService.get<UserProperty>('/users/' + user.id + '/properties')))
       .pipe(
         map((userPropertiesRaw) => ({
           ...userPropertiesRaw,
@@ -43,9 +43,9 @@ export class UserService {
       );
   }
 
-  upsertProperties(userProperties: UserProperty) {
+  upsertProperties(userProperties: UserProperty): Observable<UserProperty> {
     return this.getCurrent().pipe(
-      switchMap((user) => this.apiService.post('/users/' + user.id + '/properties', userProperties))
+      switchMap((user) => this.apiService.post<UserProperty>('/users/' + user.id + '/properties', userProperties))
     );
   }
 

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { of } from 'rxjs';
 import { checkPolicyWithRulesData } from '../mock-data/policy-violation-check.data';
+import { advanceRequests } from '../mock-data/advance-requests.data';
 
 describe('AdvanceRequestPolicyService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -42,20 +43,16 @@ describe('AdvanceRequestPolicyService', () => {
   });
 
   it('servicePost(): should make POST request', (done) => {
-    const requestObj = {
-      someKey: 'someValue',
-    };
-
     const apiResponse = {
       message: 'SUCCESS',
     };
     httpClient.post.and.returnValue(of(apiResponse));
 
-    advanceRequestPolicyService.servicePost('/policy_check', requestObj, {}).subscribe((res) => {
+    advanceRequestPolicyService.servicePost('/policy_check', advanceRequests).subscribe((res) => {
       expect(res).toEqual(apiResponse);
       expect(httpClient.post).toHaveBeenCalledOnceWith(
         'https://staging.fyle.tech/policy/advance_requests/policy_check',
-        requestObj
+        advanceRequests
       );
       done();
     });

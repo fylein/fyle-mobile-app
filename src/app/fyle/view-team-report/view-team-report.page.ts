@@ -29,6 +29,7 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -287,7 +288,7 @@ export class ViewTeamReportPage implements OnInit {
     });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
-      map((pdfExports) =>
+      map((pdfExports: { results: PdfExport[] }) =>
         pdfExports.results
           .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
           .map((pdfExport) => pdfExport.sent_to)
