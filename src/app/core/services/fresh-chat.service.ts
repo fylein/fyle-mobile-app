@@ -44,9 +44,9 @@ export class FreshChatService {
     return (window as any) && (window as any).fcWidget && (window as any).fcWidget.open();
   }
 
-  destory() {
-    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destory) {
-      (window as any).fcWidget.destory();
+  destroy() {
+    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destroy) {
+      (window as any).fcWidget.destroy();
     }
   }
 
