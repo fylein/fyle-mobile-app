@@ -113,7 +113,7 @@ export class FiltersHelperService {
 
     await filterPopover.present();
 
-    const { data } = await filterPopover.onWillDismiss();
+    const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | number | string[]>[] };
     if (data) {
       const filters = this.convertDataToFilters(data);
       return filters;
