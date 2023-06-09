@@ -1,4 +1,5 @@
 import { ProjectV1 } from '../models/v1/extended-project.model';
+import { OrgCategory } from '../models/v1/org-category.model';
 import { ExtendedProject } from '../models/v2/extended-project.model';
 
 export const apiResponseActiveOnly = [
@@ -169,7 +170,7 @@ export const apiV2ResponseSingle = {
 export const testActiveCategoryList = [
   {
     code: '4060340',
-    created_at: '2018-01-31T23:50:27.215171+00:00',
+    created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
     displayName: 'Snacks',
     enabled: true,
     fyle_category: 'Food',
@@ -177,11 +178,11 @@ export const testActiveCategoryList = [
     name: 'Snacks',
     org_id: 'orNVthTo2Zyo',
     sub_category: 'Snacks',
-    updated_at: '2022-11-23T14:25:26.485891+00:00',
+    updated_at: new Date('2022-11-23T14:25:26.485891+00:00'),
   },
   {
     code: '4060337',
-    created_at: '2022-07-05T07:52:00.417939+00:00',
+    created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
     displayName: 'Train / Induction',
     enabled: true,
     fyle_category: 'Train',
@@ -189,11 +190,11 @@ export const testActiveCategoryList = [
     name: 'Train',
     org_id: 'orNVthTo2Zyo',
     sub_category: 'Induction',
-    updated_at: '2022-07-05T07:52:00.417939+00:00',
+    updated_at: new Date('2022-07-05T07:52:00.417939+00:00'),
   },
   {
     code: 'Cell phone',
-    created_at: '2021-03-19T04:44:55.627307+00:00',
+    created_at: new Date('2021-03-19T04:44:55.627307+00:00'),
     displayName: 'Cell phone',
     enabled: true,
     fyle_category: null,
@@ -201,14 +202,14 @@ export const testActiveCategoryList = [
     name: 'Cell phone',
     org_id: 'orNVthTo2Zyo',
     sub_category: 'Cell phone',
-    updated_at: '2022-05-05T17:46:15.434494+00:00',
+    updated_at: new Date('2022-05-05T17:46:15.434494+00:00'),
   },
 ];
 
 export const allowedActiveCategories = [
   {
     code: '4060340',
-    created_at: '2018-01-31T23:50:27.215171+00:00',
+    created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
     displayName: 'Snacks',
     enabled: true,
     fyle_category: 'Food',
@@ -216,11 +217,11 @@ export const allowedActiveCategories = [
     name: 'Snacks',
     org_id: 'orNVthTo2Zyo',
     sub_category: 'Snacks',
-    updated_at: '2022-11-23T14:25:26.485891+00:00',
+    updated_at: new Date('2022-11-23T14:25:26.485891+00:00'),
   },
   {
     code: '4060337',
-    created_at: '2022-07-05T07:52:00.417939+00:00',
+    created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
     displayName: 'Train / Induction',
     enabled: true,
     fyle_category: 'Train',
@@ -228,7 +229,7 @@ export const allowedActiveCategories = [
     name: 'Train',
     org_id: 'orNVthTo2Zyo',
     sub_category: 'Induction',
-    updated_at: '2022-07-05T07:52:00.417939+00:00',
+    updated_at: new Date('2022-07-05T07:52:00.417939+00:00'),
   },
 ];
 
