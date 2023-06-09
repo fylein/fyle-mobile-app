@@ -4,7 +4,7 @@ import { expectedTxnCustomProperties, txnCustomPropertiesData } from '../mock-da
 import { TimezoneService } from './timezone.service';
 import { UtilityService } from './utility.service';
 
-fdescribe('TimezoneService', () => {
+describe('TimezoneService', () => {
   let timezoneService: TimezoneService;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
