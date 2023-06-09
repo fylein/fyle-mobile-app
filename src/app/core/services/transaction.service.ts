@@ -155,19 +155,25 @@ export class TransactionService {
   ): Observable<ApiV2Response<Partial<Expense>>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiV2Service.get<Expense, { params: Record<string, string | number | string[] | boolean> }>('/expenses', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
-        })
+        this.apiV2Service.get<UnprocessedExpense, { params: Record<string, string | number | string[] | boolean> }>(
+          '/expenses',
+          {
+            params: {
+              offset: config.offset,
+              limit: config.limit,
+              order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
+              tx_org_user_id: 'eq.' + eou.ou.id,
+              ...config.queryParams,
+            },
+          }
+        )
       ),
       map((res) => ({
         ...res,
-        data: res.data.map((datum) => this.dateService.fixDatesV2<UnprocessedExpense>(datum)),
+        data: res.data.map((datum) => ({
+          ...datum,
+          ...this.dateService.fixDatesV2(datum),
+        })) as Expense[],
       })),
       map(
         (res) =>

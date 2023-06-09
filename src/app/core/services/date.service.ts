@@ -15,6 +15,7 @@ type DatesV2 = {
   approved_at: string;
   paid_at: string;
   reimbursed_at: string;
+  tx_created_at: string;
 };
 
 @Injectable({
@@ -149,7 +150,7 @@ export class DateService {
   }
 
   // Use this method if you are getting api response from V2.
-  fixDatesV2<T>(data: Partial<T> & Partial<DatesV2>): Partial<T> & Partial<DatesV2> & Record<string, Date> {
+  fixDatesV2<T>(data: Partial<T> & Partial<DatesV2>): Record<string, Date> {
     const dateMap: Record<string, Date> = {};
     if (data.tx_txn_dt) {
       dateMap.tx_txn_dt = new Date(data.tx_txn_dt);
@@ -179,7 +180,11 @@ export class DateService {
       dateMap.reimbursed_at = new Date(data.reimbursed_at);
     }
 
-    return Object.assign(data, dateMap);
+    if (data.tx_created_at) {
+      dateMap.tx_created_at = new Date(data.tx_created_at);
+    }
+
+    return dateMap;
   }
 
   addDaysToDate(fromDate: Date, numOfDays: number | string): Date {
