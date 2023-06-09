@@ -2934,6 +2934,7 @@ export class TimezoneService {
 
   constructor(private utilityService: UtilityService) {}
 
+  //TODO: Add proper types after utility service has been fixed
   convertAllDatesToProperLocale(object: TxnCustomProperties[], offset: string): TxnCustomProperties[] {
     const that = this;
     const copiedObject: TxnCustomProperties[] = cloneDeep(object);
