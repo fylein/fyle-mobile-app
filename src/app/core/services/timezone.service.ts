@@ -2934,10 +2934,10 @@ export class TimezoneService {
 
   constructor(private utilityService: UtilityService) {}
 
-  convertAllDatesToProperLocale(object, offset) {
+  convertAllDatesToProperLocale(object: TxnCustomProperties[], offset: string): TxnCustomProperties[] {
     const that = this;
     const copiedObject: TxnCustomProperties[] = cloneDeep(object);
-    return that.utilityService.traverse(copiedObject, function (prop) {
+    return that.utilityService.traverse(copiedObject, function (prop: Date) {
       if (prop instanceof Date) {
         prop.setHours(12);
         prop.setMinutes(0);
@@ -2981,7 +2981,7 @@ export class TimezoneService {
     return correctedDate;
   }
 
-  convertToUtc(date: Date, offset: string) {
+  convertToUtc(date: Date, offset: string): Date {
     return this.convertToTimezone(date, offset, true);
   }
 }
