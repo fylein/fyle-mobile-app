@@ -165,7 +165,7 @@ describe('FiltersHelperService', () => {
       state: [AdvancesStates.approved, AdvancesStates.draft],
     };
 
-    const testSelectedFilter: SelectedFilters<any>[] = [
+    const testSelectedFilter: SelectedFilters<string | number>[] = [
       {
         name: 'State',
         value: ['APPROVED', 'DRAFT'],
@@ -180,7 +180,7 @@ describe('FiltersHelperService', () => {
       state: [AdvancesStates.paid, AdvancesStates.cancelled],
     };
 
-    const testSelectedFilter: SelectedFilters<any>[] = [
+    const testSelectedFilter: SelectedFilters<string | number>[] = [
       {
         name: 'State',
         value: ['PAID', 'CANCELLED'],
@@ -195,7 +195,7 @@ describe('FiltersHelperService', () => {
       state: [AdvancesStates.sentBack, AdvancesStates.pending],
     };
 
-    const testSelectedFilter: SelectedFilters<any>[] = [
+    const testSelectedFilter: SelectedFilters<string | number>[] = [
       {
         name: 'State',
         value: ['SENT_BACK', 'APPROVAL_PENDING'],
@@ -211,7 +211,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.descending,
     };
 
-    const testSelectedFilter: SelectedFilters<any>[] = [
+    const testSelectedFilter: SelectedFilters<string | number>[] = [
       {
         name: 'Sort By',
         value: 'appDateNewToOld',
@@ -231,7 +231,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.ascending,
     };
 
-    const testSelectedFilter: SelectedFilters<any>[] = [
+    const testSelectedFilter: SelectedFilters<string | number>[] = [
       {
         name: 'Sort By',
         value: 'crDateOldToNew',
@@ -247,7 +247,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.ascending,
     };
 
-    const testSelectedFilter: SelectedFilters<any>[] = [
+    const testSelectedFilter: SelectedFilters<string | number>[] = [
       {
         name: 'Sort By',
         value: 'projectAToZ',
@@ -263,7 +263,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.descending,
     };
 
-    const testSelectedFilter: SelectedFilters<string | string[] | number>[] = [
+    const testSelectedFilter: SelectedFilters<string | number>[] = [
       {
         name: 'Sort By',
         value: 'projectZToA',
@@ -278,7 +278,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | Sort By - A to Z, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
-    const testSelectedFilters: SelectedFilters<string | string[] | number>[] = [
+    const testSelectedFilters: SelectedFilters<string | number>[] = [
       {
         name: 'Sort By',
         value: 'projectZToA',
@@ -303,7 +303,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | Sort By - Z to A, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
-    const testSelectedFilters: SelectedFilters<string | string[] | number>[] = [
+    const testSelectedFilters: SelectedFilters<string | number>[] = [
       {
         name: 'Sort By',
         value: 'projectZToA',
@@ -328,7 +328,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | Sort By - A to Z, Sort Direction - ASC', () => {
-    const testSelectedFilters: SelectedFilters<string | string[] | number>[] = [
+    const testSelectedFilters: SelectedFilters<string | number>[] = [
       {
         name: 'Sort By',
         value: 'projectAToZ',
@@ -344,7 +344,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | APPROVAL DATE - DESC', () => {
-    const testSelectedFilters: SelectedFilters<string | string[] | number>[] = [
+    const testSelectedFilters: SelectedFilters<string | number>[] = [
       {
         name: 'Sort By',
         value: 'appDateNewToOld',
