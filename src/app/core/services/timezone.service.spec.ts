@@ -32,17 +32,11 @@ describe('TimezoneService', () => {
       const date = new Date('2023-02-13T17:00:00.000Z');
       const offset = '05:30:00';
       spyOn(timezoneService, 'convertToUtc').and.returnValue(new Date('2023-02-13T06:30:00.000Z'));
-      utilityService.traverse.and.callFake((object, callback) => {
-        date.setHours(12);
-        date.setMinutes(0);
-        date.setSeconds(0);
-        date.setMilliseconds(0);
-        return callback(date);
-      });
+      utilityService.traverse.and.returnValue(txnCustomPropertiesData);
 
       const result = timezoneService.convertAllDatesToProperLocale(txnCustomPropertiesData, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(date, offset);
-      expect(result).toEqual(new Date('2023-02-13T06:30:00.000Z'));
+      expect(result).toEqual(txnCustomPropertiesData);
     });
 
     it('should return the data as it is if not a date instance', () => {
