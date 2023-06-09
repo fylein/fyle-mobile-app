@@ -824,6 +824,7 @@ describe('TasksService', () => {
   });
 
   it('should be able to refresh tasks on clearing task cache when automate report submission is scheduled', (done) => {
+    const refreshCallback = () => {};
     userEventService.onTaskCacheClear.and.callFake((refreshCallback) =>
       mockTaskClearSubject.subscribe(() => {
         refreshCallback();
