@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { forkJoin, noop, of, from } from 'rxjs';
+import { forkJoin, noop, of, from, Observable } from 'rxjs';
 import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
 import { environment } from 'src/environments/environment';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 import { LoginInfoService } from './login-info.service';
 import { AuthService } from './auth.service';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,7 @@ export class AppVersionService {
   // not fixing since copied from somewhere
   // not human readable at the moment
   // eslint-disable-next-line complexity
-  isVersionLower(version1: string, version2: string) {
+  isVersionLower(version1: string, version2: string): boolean {
     // https://gist.github.com/alexey-bass/1115557#file-compare-js
     // someone should shoot this person for writing this
     // TODO: Cleanup
@@ -76,7 +77,13 @@ export class AppVersionService {
       lastLoggedInVersion: this.loginInfoService.getLastLoggedInVersion(),
       eou: from(this.authService.getEou()),
     }).pipe(
-      filter((res) => !res.appSupportDetails.supported && environment.production),
+      filter(
+        (res: {
+          appSupportDetails: { supported: boolean; message?: string };
+          lastLoggedInVersion: string;
+          eou: ExtendedOrgUser;
+        }) => !res.appSupportDetails.supported && environment.production
+      ),
       map((res) => ({ ...res, deviceInfo }))
     );
   }
@@ -89,12 +96,12 @@ export class AppVersionService {
     return this.routerApiService.post('/mobileapp/check', data);
   }
 
-  get(os: string) {
+  get(os: string): Observable<AppVersion> {
     const operatingSystem = os.toUpperCase();
-    return this.apiService.get(`/version/app/${operatingSystem}`).pipe(map((res) => res as AppVersion));
+    return this.apiService.get<AppVersion>(`/version/app/${operatingSystem}`);
   }
 
-  post(data) {
-    return this.apiService.post('/version/app', data);
+  post(data: Partial<AppVersion>): Observable<AppVersion> {
+    return this.apiService.post<AppVersion>('/version/app', data);
   }
 }
