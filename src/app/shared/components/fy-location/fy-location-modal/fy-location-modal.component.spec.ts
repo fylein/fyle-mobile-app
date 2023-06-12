@@ -12,6 +12,7 @@ import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { locationData1, predictedLocation1 } from 'src/app/core/mock-data/location.data';
 
 describe('FyLocationModalComponent', () => {
   let component: FyLocationModalComponent;
@@ -128,16 +129,20 @@ describe('FyLocationModalComponent', () => {
     spyOn(component, 'checkPermissionStatus');
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     locationService.getCurrentLocation.and.returnValue(
-      of({ coords: { latitude: '10.12', longitude: '89.67' } }) as any
+      of({ coords: { latitude: '19.0748', longitude: '72.8856' } }) as any
     );
+
+    const text = 'Ben';
+    const userId = 'usvKA4X8Ugcr';
+    const location = '19.0748,72.8856';
 
     const event = new Event('keyup');
     const searchBarRef = fixture.debugElement.query(By.css('input')).nativeElement;
-    searchBarRef.value = 'location 1';
+    searchBarRef.value = 'Ben';
     searchBarRef.dispatchEvent(event);
-    locationService.getAutocompletePredictions.and.returnValue(of(false));
+    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
 
-    const mockRecentItemsFilteredList = [{ display: 'Location 1' }];
+    const mockRecentItemsFilteredList = [{ display: 'Bengaluru' }];
 
     const getRecentlyUsedItemsSpy = spyOn(component, 'getRecentlyUsedItems').and.returnValue(
       of(mockRecentItemsFilteredList)
@@ -157,29 +162,28 @@ describe('FyLocationModalComponent', () => {
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
     expect(component.checkPermissionStatus).toHaveBeenCalledTimes(1);
-    expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
-      'location 1',
-      'usvKA4X8Ugcr',
-      '10.12,89.67'
-    );
+    expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(text, userId, location);
     expect(component.loader).toBeFalse();
   }));
 
   it('ngAfterViewInit(): should call getRecentlyUsedItems and set recentItemsFilteredList$ on ngAfterViewInit if display in undefined', fakeAsync(() => {
-    const recentLocations = ['Location 1', 'Location 2'];
+    const recentLocations = ['Bengaluru', 'Bengal'];
     component.recentLocations = recentLocations;
     component.currentSelection = { display: 'Display1' };
     spyOn(component, 'checkPermissionStatus');
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     locationService.getCurrentLocation.and.returnValue(
-      of({ coords: { latitude: '10.12', longitude: '89.67' } }) as any
+      of({ coords: { latitude: '19.0748', longitude: '72.8856' } }) as any
     );
 
+    const text = 'Ben';
+    const userId = 'usvKA4X8Ugcr';
+    const location = '19.0748,72.8856';
     const event = new Event('keyup');
     const searchBarRef = fixture.debugElement.query(By.css('input')).nativeElement;
-    searchBarRef.value = 'location 1';
+    searchBarRef.value = 'Ben';
     searchBarRef.dispatchEvent(event);
-    locationService.getAutocompletePredictions.and.returnValue(of(false));
+    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
 
     const mockRecentItemsFilteredList = [{ display: undefined }];
 
@@ -201,11 +205,7 @@ describe('FyLocationModalComponent', () => {
     expect(authService.getEou).toHaveBeenCalledTimes(1);
     expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
     expect(component.checkPermissionStatus).toHaveBeenCalledTimes(1);
-    expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
-      'location 1',
-      'usvKA4X8Ugcr',
-      '10.12,89.67'
-    );
+    expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(text, userId, location);
     expect(component.loader).toBeFalse();
   }));
 
@@ -376,26 +376,29 @@ describe('FyLocationModalComponent', () => {
   });
 
   it('should call necessary services and dismiss the modal with location', fakeAsync(() => {
-    const predictedLocations = [{ place_id: 'examplePlaceId', description: 'Example Location' }];
-    const geocodedLocation = { display: 'Example Location' };
+    const placeId = 'ChIJbU60yXAWrjsR4E9-UejD3_g';
+    const displayName = 'Bengaluru, Karnataka, India';
+
+    const text = 'Example Location';
+    const userId = 'usvKA4X8Ugcr';
 
     loaderService.showLoader.and.returnValue(Promise.resolve());
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     locationService.getCurrentLocation.and.returnValue(of(null));
-    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocations));
-    locationService.getGeocode.and.returnValue(of(geocodedLocation));
+    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
+    locationService.getGeocode.and.returnValue(of(locationData1));
 
     component.onRecentItemSelect('Example Location');
 
     tick(5000);
 
-    expect(loaderService.showLoader).toHaveBeenCalledWith('Loading location...', 5000);
-    expect(authService.getEou).toHaveBeenCalled();
-    expect(locationService.getCurrentLocation).toHaveBeenCalledWith({ enableHighAccuracy: false });
-    expect(locationService.getAutocompletePredictions).toHaveBeenCalledWith('Example Location', 'usvKA4X8Ugcr');
-    expect(locationService.getGeocode).toHaveBeenCalledWith('examplePlaceId', 'Example Location');
-    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: geocodedLocation });
-    expect(loaderService.hideLoader).toHaveBeenCalled();
+    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading location...', 5000);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
+    expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(text, userId);
+    expect(locationService.getGeocode).toHaveBeenCalledOnceWith(placeId, displayName);
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: locationData1 });
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
   }));
 
   it('should handle error and dismiss the modal with the input location', fakeAsync(() => {
@@ -417,16 +420,13 @@ describe('FyLocationModalComponent', () => {
   }));
 
   it('should call necessary services and dismiss the modal if location is defined', fakeAsync(() => {
-    const predictedLocations = [{ place_id: 'examplePlaceId', description: 'Example Location' }];
-    const geocodedLocation = { display: 'Example Location' };
-
     loaderService.showLoader.and.returnValue(Promise.resolve());
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     locationService.getCurrentLocation.and.returnValue(
       of({ coords: { latitude: '10.12', longitude: '89.67' } }) as any
     );
-    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocations));
-    locationService.getGeocode.and.returnValue(of(geocodedLocation));
+    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
+    locationService.getGeocode.and.returnValue(of(locationData1));
 
     component.onRecentItemSelect('Example Location');
 
@@ -440,20 +440,21 @@ describe('FyLocationModalComponent', () => {
       'usvKA4X8Ugcr',
       '10.12,89.67'
     );
-    expect(locationService.getGeocode).toHaveBeenCalledWith('examplePlaceId', 'Example Location');
-    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: geocodedLocation });
+    expect(locationService.getGeocode).toHaveBeenCalledWith(
+      'ChIJbU60yXAWrjsR4E9-UejD3_g',
+      'Bengaluru, Karnataka, India'
+    );
+    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: locationData1 });
     expect(loaderService.hideLoader).toHaveBeenCalled();
   }));
 
   it('should call necessary services and dismiss the modal if locationService.getGeoCode returns null', fakeAsync(() => {
-    const predictedLocations = [{ place_id: 'examplePlaceId', description: 'Example Location' }];
-
     loaderService.showLoader.and.returnValue(Promise.resolve());
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     locationService.getCurrentLocation.and.returnValue(
       of({ coords: { latitude: '10.12', longitude: '89.67' } }) as any
     );
-    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocations));
+    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
     locationService.getGeocode.and.returnValue(of(undefined));
 
     component.onRecentItemSelect('Example Location');
@@ -468,13 +469,15 @@ describe('FyLocationModalComponent', () => {
       'usvKA4X8Ugcr',
       '10.12,89.67'
     );
-    expect(locationService.getGeocode).toHaveBeenCalledWith('examplePlaceId', 'Example Location');
+    expect(locationService.getGeocode).toHaveBeenCalledWith(
+      'ChIJbU60yXAWrjsR4E9-UejD3_g',
+      'Bengaluru, Karnataka, India'
+    );
     expect(modalController.dismiss).toHaveBeenCalled();
     expect(loaderService.hideLoader).toHaveBeenCalled();
   }));
 
   it('should catch errors if getGeoCode returns error', fakeAsync(() => {
-    const predictedLocations = [{ place_id: 'examplePlaceId', description: 'Example Location' }];
     const geocodedLocation = { display: 'Example Location' };
 
     loaderService.showLoader.and.returnValue(Promise.resolve());
@@ -482,7 +485,7 @@ describe('FyLocationModalComponent', () => {
     locationService.getCurrentLocation.and.returnValue(
       of({ coords: { latitude: '10.12', longitude: '89.67' } }) as any
     );
-    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocations));
+    locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
     locationService.getGeocode.and.returnValue(throwError(() => new Error('error message')));
 
     component.onRecentItemSelect('Example Location');
@@ -497,24 +500,30 @@ describe('FyLocationModalComponent', () => {
       'usvKA4X8Ugcr',
       '10.12,89.67'
     );
-    expect(locationService.getGeocode).toHaveBeenCalledWith('examplePlaceId', 'Example Location');
+    expect(locationService.getGeocode).toHaveBeenCalledWith(
+      'ChIJbU60yXAWrjsR4E9-UejD3_g',
+      'Bengaluru, Karnataka, India'
+    );
     expect(modalController.dismiss).toHaveBeenCalledWith({ selection: geocodedLocation });
     expect(loaderService.hideLoader).toHaveBeenCalled();
   }));
 
   it('onElementSelect(): should dismiss the modal', fakeAsync(() => {
-    const location = { place_id: 'examplePlaceId', description: 'Example Location' };
-    const geocodedLocation = { display: 'Example Location' };
+    const location = { place_id: 'examplePlaceId', description: 'Tollygunge, Kolkata, West Bengal, India' };
+
     component.cacheName = 'cache1';
 
-    locationService.getGeocode.and.returnValue(of(geocodedLocation));
+    locationService.getGeocode.and.returnValue(of(locationData1));
 
     component.onElementSelect(location);
     tick(1000);
 
-    expect(locationService.getGeocode).toHaveBeenCalledWith('examplePlaceId', 'Example Location');
-    expect(recentLocalStorageItemsService.post).toHaveBeenCalledWith(component.cacheName, geocodedLocation);
-    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: geocodedLocation });
+    expect(locationService.getGeocode).toHaveBeenCalledWith(
+      'examplePlaceId',
+      'Tollygunge, Kolkata, West Bengal, India'
+    );
+    expect(recentLocalStorageItemsService.post).toHaveBeenCalledWith(component.cacheName, locationData1);
+    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: locationData1 });
   }));
 
   it('deleteLocation(): should dismiss the modal', () => {

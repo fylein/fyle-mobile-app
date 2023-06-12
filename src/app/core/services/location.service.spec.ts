@@ -10,11 +10,11 @@ describe('LocationService', () => {
   let httpMock: HttpTestingController;
   const rootUrl = 'https://staging.fyle.tech';
 
-  const requestObj = {
+  const requestObj: Record<string, string> = {
     someKey: 'someValue',
   };
 
-  const apiResponse = {
+  const apiResponse: Record<string, string> = {
     message: 'SUCCESS',
   };
 
@@ -102,7 +102,31 @@ describe('LocationService', () => {
     const displayName = 'Tollygunge, Kolkata, West Bengal, India';
     const locationDetails = locationData1;
     locationService.getGeocode(placeId, displayName).subscribe((result) => {
-      expect(result).toEqual({ ...locationDetails, display: displayName });
+      console.log(result);
+      expect(result).toEqual(locationDetails);
+    });
+    const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
+    expect(req.request.body).toBeNull();
+    expect(req.request.method).toEqual('GET');
+    req.flush(locationDetails);
+  });
+
+  it('should not add the displayName to locationDetails when displayName is not provided', () => {
+    const placeId = '12345';
+    const displayName = '';
+
+    const locationDetails = {
+      city: 'Thane',
+      state: 'Maharashtra',
+      country: 'India',
+      formatted_address: 'Thane, Maharashtra, India',
+      latitude: 19.2183307,
+      longitude: 72.9780897,
+      display: 'Thane, Maharashtra, India',
+    };
+    locationService.getGeocode(placeId, displayName).subscribe((result) => {
+      console.log(result);
+      expect(result).toEqual(locationDetails);
     });
     const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
     expect(req.request.body).toBeNull();
