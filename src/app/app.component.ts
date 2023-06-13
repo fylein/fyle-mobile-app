@@ -9,7 +9,6 @@ import { DeviceService } from 'src/app/core/services/device.service';
 import { AppVersionService } from './core/services/app-version.service';
 import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
-import { GlobalCacheConfig } from 'ts-cacheable';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -135,10 +134,6 @@ export class AppComponent implements OnInit {
           });
           this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
         });
-
-      // Global cache config
-      GlobalCacheConfig.maxAge = 10 * 60 * 1000;
-      GlobalCacheConfig.maxCacheCount = 100;
     });
   }
 
