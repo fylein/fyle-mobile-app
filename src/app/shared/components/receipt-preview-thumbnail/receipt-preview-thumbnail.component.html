@@ -17,7 +17,7 @@
     <div class="receipt-preview-thumbnail--spinner-container">
       <ion-spinner class="receipt-preview-thumbnail--spinner" name="crescent"></ion-spinner>
       <div class="text-center receipt-preview-thumbnail--spinner-text">
-        {{ (isUploading ? 'Uploading' : 'Loading') + ' receipt' }}
+        {{ (isUploading ? 'Uploading' : 'Loading') + (isMileageExpense ? ' map' : ' receipt') }}
       </div>
     </div>
   </div>
