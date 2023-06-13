@@ -2,6 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angu
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
+import { Swiper } from 'swiper/types';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -35,7 +36,7 @@ export class BankAccountCardsComponent implements OnInit {
     this.deleted.emit();
   }
 
-  onCardChange(event): void {
+  onCardChange(event: Swiper[]): void {
     if (!this.minimal && event.length && this.linkedAccounts[event[0].realIndex]?.id) {
       this.changed.emit(this.linkedAccounts[event[0].realIndex]?.id);
     }
