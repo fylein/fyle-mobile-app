@@ -4,6 +4,7 @@ import { SwiperModule } from 'swiper/angular';
 import { BankAccountCardsComponent } from './bank-account-cards.component';
 import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import Swiper from 'swiper';
 
 describe('BankAccountCardsComponent', () => {
   let component: BankAccountCardsComponent;
@@ -37,7 +38,7 @@ describe('BankAccountCardsComponent', () => {
   describe('onCardChange():', () => {
     it('should emit the changed event with the ID of the selected card', () => {
       spyOn(component.changed, 'emit');
-      component.onCardChange([{ realIndex: 1 }]);
+      component.onCardChange([{ realIndex: 1 }] as Partial<Swiper[]>);
       fixture.detectChanges();
       expect(component.changed.emit).toHaveBeenCalledOnceWith('baccBlpSkgBbN0');
     });
@@ -45,7 +46,7 @@ describe('BankAccountCardsComponent', () => {
 
   it('should emit undefined when the real Index is null', () => {
     spyOn(component.changed, 'emit');
-    component.onCardChange([{ realIndex: null }]);
+    component.onCardChange([{ realIndex: null }] as Partial<Swiper[]>);
     fixture.detectChanges();
     expect(component.changed.emit).not.toHaveBeenCalled();
   });
