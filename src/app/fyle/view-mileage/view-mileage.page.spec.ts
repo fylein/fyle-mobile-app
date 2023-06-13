@@ -505,7 +505,7 @@ describe('ViewMileagePage', () => {
     it('should open modal with map attachment', fakeAsync(() => {
       const mapAttachment: FileObject = {
         id: '1',
-        type: 'img',
+        type: 'image',
         url: 'http://example.com/mileage-map.png',
         purpose: 'ORIGINAL',
       };
