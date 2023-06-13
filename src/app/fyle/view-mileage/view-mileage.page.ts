@@ -96,7 +96,7 @@ export class ViewMileagePage implements OnInit {
 
   costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
 
-  attachments$: Observable<FileObject[]>;
+  mapAttachment$: Observable<FileObject>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -275,22 +275,23 @@ export class ViewMileagePage implements OnInit {
       shareReplay(1)
     );
 
-    this.attachments$ = this.extendedMileage$.pipe(
+    this.mapAttachment$ = this.extendedMileage$.pipe(
       take(1),
       switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx_id)),
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: any) =>
+      map((fileObjs) => fileObjs[0]),
+      concatMap((fileObj) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
-            fileObj.url = downloadUrl;
             const details = this.fileService.getReceiptsDetails(fileObj);
+
+            fileObj.url = downloadUrl;
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
+
             return fileObj;
           })
         )
-      ),
-      reduce((acc: FileObject[], curr: FileObject) => acc.concat(curr), [])
+      )
     );
 
     this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
@@ -440,17 +441,17 @@ export class ViewMileagePage implements OnInit {
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
 
-  viewAttachments() {
+  viewAttachment() {
     from(this.loaderService.showLoader())
       .pipe(
-        switchMap(() => this.attachments$),
+        switchMap(() => this.mapAttachment$),
         finalize(() => from(this.loaderService.hideLoader()))
       )
-      .subscribe(async (attachments) => {
+      .subscribe(async (mapAttachment) => {
         const attachmentsModal = await this.modalController.create({
           component: FyViewAttachmentComponent,
           componentProps: {
-            attachments,
+            attachments: [mapAttachment],
             canEdit: false,
             isMileageExpense: true,
           },

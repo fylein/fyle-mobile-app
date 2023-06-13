@@ -94,11 +94,10 @@
     </div>
 
     <ng-container *ngIf="extendedMileage.tx_locations && extendedMileage.tx_locations.length">
-      <ng-container *ngIf="attachments$|async as attachments">
+      <ng-container *ngIf="mapAttachment$|async as mapAttachment">
         <app-receipt-preview-thumbnail
-          *ngIf="attachments.length > 0"
-          [attachments]="attachments"
-          (viewAttachments)="viewAttachments()"
+          [attachments]="[mapAttachment]"
+          (viewAttachments)="viewAttachment()"
           [canEdit]="false"
           [isMileageExpense]="true"
         >
