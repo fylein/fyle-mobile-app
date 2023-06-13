@@ -12,7 +12,12 @@ import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { locationData1, predictedLocation1 } from 'src/app/core/mock-data/location.data';
+import {
+  coordinatesData1,
+  coordinatesData2,
+  locationData1,
+  predictedLocation1,
+} from 'src/app/core/mock-data/location.data';
 
 describe('FyLocationModalComponent', () => {
   let component: FyLocationModalComponent;
@@ -128,9 +133,7 @@ describe('FyLocationModalComponent', () => {
     component.currentSelection = { display: 'Display1' };
     spyOn(component, 'checkPermissionStatus');
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    locationService.getCurrentLocation.and.returnValue(
-      of({ coords: { latitude: '19.0748', longitude: '72.8856' } }) as any
-    );
+    locationService.getCurrentLocation.and.returnValue(of(coordinatesData2));
 
     const text = 'Ben';
     const userId = 'usvKA4X8Ugcr';
@@ -172,9 +175,7 @@ describe('FyLocationModalComponent', () => {
     component.currentSelection = { display: 'Display1' };
     spyOn(component, 'checkPermissionStatus');
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    locationService.getCurrentLocation.and.returnValue(
-      of({ coords: { latitude: '19.0748', longitude: '72.8856' } }) as any
-    );
+    locationService.getCurrentLocation.and.returnValue(of(coordinatesData2));
 
     const text = 'Ben';
     const userId = 'usvKA4X8Ugcr';
@@ -215,9 +216,7 @@ describe('FyLocationModalComponent', () => {
     component.currentSelection = { display: 'Display1' };
     spyOn(component, 'checkPermissionStatus');
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    locationService.getCurrentLocation.and.returnValue(
-      of({ coords: { latitude: '10.12', longitude: '89.67' } }) as any
-    );
+    locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
 
     const event = new Event('keyup');
     const searchBarRef = fixture.debugElement.query(By.css('input')).nativeElement;
@@ -334,7 +333,7 @@ describe('FyLocationModalComponent', () => {
 
     expect(component.value).toBe('');
     expect(searchBarRef.nativeElement.value).toBe('');
-    expect(searchBarRef.nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event('keyup'));
+    expect(searchBarRef.nativeElement.dispatchEvent).toHaveBeenCalledOnceWith(new Event('keyup'));
   });
 
   describe('onDoneClick(): ', () => {
@@ -411,20 +410,18 @@ describe('FyLocationModalComponent', () => {
 
     tick(5000);
 
-    expect(loaderService.showLoader).toHaveBeenCalledWith('Loading location...', 5000);
-    expect(authService.getEou).toHaveBeenCalled();
-    expect(locationService.getCurrentLocation).toHaveBeenCalledWith({ enableHighAccuracy: false });
-    expect(locationService.getAutocompletePredictions).toHaveBeenCalledWith('Example Location', 'usvKA4X8Ugcr');
-    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: { display: 'Example Location' } });
-    expect(loaderService.hideLoader).toHaveBeenCalled();
+    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading location...', 5000);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
+    expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith('Example Location', 'usvKA4X8Ugcr');
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'Example Location' } });
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
   }));
 
   it('should call necessary services and dismiss the modal if location is defined', fakeAsync(() => {
     loaderService.showLoader.and.returnValue(Promise.resolve());
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    locationService.getCurrentLocation.and.returnValue(
-      of({ coords: { latitude: '10.12', longitude: '89.67' } }) as any
-    );
+    locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
     locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
     locationService.getGeocode.and.returnValue(of(locationData1));
 
@@ -432,28 +429,26 @@ describe('FyLocationModalComponent', () => {
 
     tick(5000);
 
-    expect(loaderService.showLoader).toHaveBeenCalledWith('Loading location...', 5000);
-    expect(authService.getEou).toHaveBeenCalled();
-    expect(locationService.getCurrentLocation).toHaveBeenCalledWith({ enableHighAccuracy: false });
-    expect(locationService.getAutocompletePredictions).toHaveBeenCalledWith(
+    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading location...', 5000);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
+    expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
       'Example Location',
       'usvKA4X8Ugcr',
       '10.12,89.67'
     );
-    expect(locationService.getGeocode).toHaveBeenCalledWith(
+    expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
       'ChIJbU60yXAWrjsR4E9-UejD3_g',
       'Bengaluru, Karnataka, India'
     );
-    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: locationData1 });
-    expect(loaderService.hideLoader).toHaveBeenCalled();
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: locationData1 });
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
   }));
 
   it('should call necessary services and dismiss the modal if locationService.getGeoCode returns null', fakeAsync(() => {
     loaderService.showLoader.and.returnValue(Promise.resolve());
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    locationService.getCurrentLocation.and.returnValue(
-      of({ coords: { latitude: '10.12', longitude: '89.67' } }) as any
-    );
+    locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
     locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
     locationService.getGeocode.and.returnValue(of(undefined));
 
@@ -461,20 +456,20 @@ describe('FyLocationModalComponent', () => {
 
     tick(5000);
 
-    expect(loaderService.showLoader).toHaveBeenCalledWith('Loading location...', 5000);
-    expect(authService.getEou).toHaveBeenCalled();
-    expect(locationService.getCurrentLocation).toHaveBeenCalledWith({ enableHighAccuracy: false });
-    expect(locationService.getAutocompletePredictions).toHaveBeenCalledWith(
+    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading location...', 5000);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
+    expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
       'Example Location',
       'usvKA4X8Ugcr',
       '10.12,89.67'
     );
-    expect(locationService.getGeocode).toHaveBeenCalledWith(
+    expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
       'ChIJbU60yXAWrjsR4E9-UejD3_g',
       'Bengaluru, Karnataka, India'
     );
-    expect(modalController.dismiss).toHaveBeenCalled();
-    expect(loaderService.hideLoader).toHaveBeenCalled();
+    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
   }));
 
   it('should catch errors if getGeoCode returns error', fakeAsync(() => {
@@ -482,9 +477,7 @@ describe('FyLocationModalComponent', () => {
 
     loaderService.showLoader.and.returnValue(Promise.resolve());
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    locationService.getCurrentLocation.and.returnValue(
-      of({ coords: { latitude: '10.12', longitude: '89.67' } }) as any
-    );
+    locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
     locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
     locationService.getGeocode.and.returnValue(throwError(() => new Error('error message')));
 
@@ -492,20 +485,20 @@ describe('FyLocationModalComponent', () => {
 
     tick(5000);
 
-    expect(loaderService.showLoader).toHaveBeenCalledWith('Loading location...', 5000);
-    expect(authService.getEou).toHaveBeenCalled();
-    expect(locationService.getCurrentLocation).toHaveBeenCalledWith({ enableHighAccuracy: false });
-    expect(locationService.getAutocompletePredictions).toHaveBeenCalledWith(
+    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading location...', 5000);
+    expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: false });
+    expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
       'Example Location',
       'usvKA4X8Ugcr',
       '10.12,89.67'
     );
-    expect(locationService.getGeocode).toHaveBeenCalledWith(
+    expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
       'ChIJbU60yXAWrjsR4E9-UejD3_g',
       'Bengaluru, Karnataka, India'
     );
-    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: geocodedLocation });
-    expect(loaderService.hideLoader).toHaveBeenCalled();
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: geocodedLocation });
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
   }));
 
   it('onElementSelect(): should dismiss the modal', fakeAsync(() => {
@@ -518,12 +511,12 @@ describe('FyLocationModalComponent', () => {
     component.onElementSelect(location);
     tick(1000);
 
-    expect(locationService.getGeocode).toHaveBeenCalledWith(
+    expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
       'examplePlaceId',
       'Tollygunge, Kolkata, West Bengal, India'
     );
-    expect(recentLocalStorageItemsService.post).toHaveBeenCalledWith(component.cacheName, locationData1);
-    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: locationData1 });
+    expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith(component.cacheName, locationData1);
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: locationData1 });
   }));
 
   it('deleteLocation(): should dismiss the modal', () => {
@@ -600,11 +593,11 @@ describe('FyLocationModalComponent', () => {
 
     tick(10000);
 
-    expect(loaderService.showLoader).toHaveBeenCalledWith('Loading current location...', 10000);
-    expect(locationService.getCurrentLocation).toHaveBeenCalledWith({ enableHighAccuracy: true });
-    expect(gmapsService.getGeocode).toHaveBeenCalledWith(12.345, 67.89);
-    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: { display: 'Example Address' } });
-    expect(loaderService.hideLoader).toHaveBeenCalled();
+    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading current location...', 10000);
+    expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: true });
+    expect(gmapsService.getGeocode).toHaveBeenCalledOnceWith(12.345, 67.89);
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'Example Address' } });
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
   }));
 
   it('should fetch current location and dismiss the modal with the formatted location', fakeAsync(() => {
@@ -618,11 +611,11 @@ describe('FyLocationModalComponent', () => {
 
     tick(10000);
 
-    expect(loaderService.showLoader).toHaveBeenCalledWith('Loading current location...', 10000);
-    expect(locationService.getCurrentLocation).toHaveBeenCalledWith({ enableHighAccuracy: true });
+    expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading current location...', 10000);
+    expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: true });
     expect(gmapsService.getGeocode).toHaveBeenCalledTimes(1);
-    expect(modalController.dismiss).toHaveBeenCalledWith({ selection: { display: 'Example Address' } });
-    expect(loaderService.hideLoader).toHaveBeenCalled();
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'Example Address' } });
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
   }));
 
   it('should handle error and set lookupFailed to true', fakeAsync(() => {
@@ -637,12 +630,12 @@ describe('FyLocationModalComponent', () => {
       component.getCurrentLocation();
       tick(10000);
     } catch (err) {
-      expect(loaderService.showLoader).toHaveBeenCalledWith('Loading current location...', 10000);
-      expect(locationService.getCurrentLocation).toHaveBeenCalledWith({ enableHighAccuracy: true });
-      expect(gmapsService.getGeocode).toHaveBeenCalled();
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading current location...', 10000);
+      expect(locationService.getCurrentLocation).toHaveBeenCalledOnceWith({ enableHighAccuracy: true });
+      expect(gmapsService.getGeocode).toHaveBeenCalledTimes(1);
       expect(modalController.dismiss).not.toHaveBeenCalled();
       expect(component.lookupFailed).toBeTrue();
-      expect(loaderService.hideLoader).toHaveBeenCalled();
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(err).toBe(error);
     }
   }));
