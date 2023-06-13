@@ -266,12 +266,9 @@ export class MyReportsPage implements OnInit {
     this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings &&
-          orgSettings.payment_mode_settings &&
-          orgSettings.payment_mode_settings.allowed &&
+          orgSettings?.payment_mode_settings?.allowed &&
           orgSettings.payment_mode_settings.enabled &&
-          orgSettings.payment_mode_settings.payment_modes_order &&
-          orgSettings.payment_mode_settings.payment_modes_order.length === 1 &&
+          orgSettings.payment_mode_settings.payment_modes_order?.length === 1 &&
           orgSettings.payment_mode_settings.payment_modes_order[0] ===
             AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
       )

@@ -11,7 +11,7 @@ export type Filters = Partial<{
   splitExpense: string;
 }>;
 
-export type ReportsFilters = Partial<{
+export type ReportFilters = Partial<{
   state: string | string[];
   date: string;
   customDateStart: Date;

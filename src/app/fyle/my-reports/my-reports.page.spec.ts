@@ -434,6 +434,145 @@ fdescribe('MyReportsPage', () => {
       discardPeriodicTasks();
     }));
 
+    it('should initialize component properties and set simplifyReportsSetting$ to false if orgSetting$.payment_mode_setting.payment_modes_order is not defined', fakeAsync(() => {
+      tasksService.getReportsTaskCount.and.returnValue(of(5));
+      const homeCurrency = 'USD';
+      currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+
+      component.filters = {
+        state: [AdvancesStates.paid, AdvancesStates.cancelled],
+      };
+
+      const paginatedPipeValue = { count: 2, offset: 0, data: apiExtendedReportRes };
+
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      });
+
+      reportService.getMyReportsCount.and.returnValue(of(10));
+
+      reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
+      orgSettingsService.get.and.returnValue(of({ payment_mode_settings: { allowed: true, enabled: true } }));
+      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
+
+      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
+
+      inputElement = component.simpleSearchInput.nativeElement;
+
+      spyOn(component, 'setupNetworkWatcher');
+
+      spyOn(component, 'clearFilters');
+
+      component.ionViewWillEnter();
+
+      expect(tasksService.getReportsTaskCount).toHaveBeenCalledTimes(1);
+
+      expect(component.reportsTaskCount).toBe(5);
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+
+      expect(component.searchText).toEqual('');
+
+      expect(component.navigateBack).toBeFalse();
+
+      component.homeCurrency$.subscribe((currency) => {
+        expect(currency).toEqual('USD');
+      });
+
+      expect(component.simpleSearchInput.nativeElement.value).toBe('');
+
+      inputElement.value = 'example';
+
+      inputElement.dispatchEvent(new Event('keyup'));
+
+      tick(1000);
+
+      expect(reportService.getMyReportsCount).toHaveBeenCalledTimes(4);
+      // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
+      expect(reportService.getMyReportsCount).toHaveBeenCalledWith({
+        rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      });
+
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
+        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
+        undefined
+      );
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
+        { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' },
+        'example'
+      );
+
+      component.expensesAmountStats$.subscribe((expenseAmountStates) => {
+        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          tx_report_id: 'is.null',
+          tx_state: 'in.(COMPLETE)',
+          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        });
+
+        expect(expenseAmountStates).toEqual({
+          sum: 3494,
+          count: 4,
+        });
+      });
+
+      component.count$.subscribe((count) => {
+        expect(count).toBe(10);
+      });
+
+      expect(reportService.getMyReports).toHaveBeenCalledTimes(2);
+
+      expect(reportService.getMyReports).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 10,
+        queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
+        order: null,
+      });
+
+      expect(component.acc).toEqual(apiExtendedReportRes);
+
+      component.myReports$.subscribe((myReports) => {
+        expect(myReports).toEqual(apiExtendedReportRes);
+      });
+
+      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
+        expect(isInfiniteScrollReq).toBeTrue();
+      });
+
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+
+      component.simplifyReportsSettings$.subscribe((simplifyReportSetting) => {
+        expect(simplifyReportSetting).toEqual({ enabled: undefined });
+      });
+
+      expect(router.navigate).toHaveBeenCalledTimes(2);
+      expect(router.navigate).toHaveBeenCalledWith([], {
+        relativeTo: activatedRoute,
+        queryParams: { filters: '{"state":["PAID","CANCELLED"]}' },
+        replaceUrl: true,
+      });
+
+      component.nonReimbursableOrg$.subscribe((nonReimbursableOrg) => {
+        expect(nonReimbursableOrg).toBeFalse();
+      });
+
+      expect(component.clearFilters).toHaveBeenCalledTimes(1);
+
+      component.loadData$.subscribe((data) => {
+        expect(data).toEqual({
+          pageNumber: 1,
+          searchString: 'example',
+        });
+      });
+
+      tick(500);
+
+      expect(component.isLoading).toBeFalse();
+
+      discardPeriodicTasks();
+    }));
+
     it('should initialize component properties and get report by order if sortParam and sortDir is defined, aggregates is empty array and simplified_report is enabled', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
       const homeCurrency = 'USD';
@@ -883,7 +1022,7 @@ fdescribe('MyReportsPage', () => {
     }));
   });
 
-  it('get HeaderState(): should return the HeaderState', () => {
+  it('HeaderState(): should return the HeaderState', () => {
     expect(component.HeaderState).toEqual(HeaderState);
   });
 
@@ -894,7 +1033,7 @@ fdescribe('MyReportsPage', () => {
   it('ionViewWillLeave(): should set the onPageExit to null', () => {
     component.ionViewWillLeave();
     component.onPageExit.subscribe((pageExit) => {
-      expect(pageExit).toBe(null);
+      expect(pageExit).toBeNull();
     });
   });
 
