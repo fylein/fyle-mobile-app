@@ -37,7 +37,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 
-fdescribe('MyReportsPage', () => {
+describe('MyReportsPage', () => {
   let component: MyReportsPage;
   let fixture: ComponentFixture<MyReportsPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
