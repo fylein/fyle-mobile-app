@@ -5,6 +5,8 @@ import { catchError, map, timeout } from 'rxjs/operators';
 import { from, Observable, of, Subject, OperatorFunction } from 'rxjs';
 import { Geolocation, Position } from '@capacitor/geolocation';
 import { Cacheable } from 'ts-cacheable';
+import { MileageLocation } from 'src/app/shared/components/route-visualizer/mileage-locations.interface';
+import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
 
 const currentLocationCacheBuster$ = new Subject<void>();
 
@@ -100,5 +102,20 @@ export class LocationService {
         return locationDetails;
       })
     );
+  }
+
+  getMileageRoute(mileageLocations: MileageLocation[]): MileageRoute {
+    const locations: google.maps.LatLngLiteral[] = mileageLocations.map((location) => ({
+      lat: location.latitude,
+      lng: location.longitude,
+    }));
+
+    const mileageRoute = {
+      origin: locations[0],
+      destination: locations[locations.length - 1],
+      waypoints: locations.slice(1, -1),
+    };
+
+    return mileageRoute;
   }
 }
