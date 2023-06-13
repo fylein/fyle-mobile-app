@@ -116,7 +116,6 @@ describe('LocationService', () => {
       const displayName = '';
       const locationDetails = locationData4;
       locationService.getGeocode(placeId, displayName).subscribe((result) => {
-        console.log(result);
         expect(result).toEqual(locationDetails);
       });
       const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
