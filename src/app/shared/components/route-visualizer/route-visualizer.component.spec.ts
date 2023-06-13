@@ -1,19 +1,23 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
+import { Position } from '@capacitor/geolocation';
+import { of } from 'rxjs';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
 import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { RouteVisualizerComponent } from './route-visualizer.component';
-import { Position } from '@capacitor/geolocation';
-import { of } from 'rxjs';
 import {
   mileageLocationData1,
-  mileageLocationData2,
-  mileageLocationData3,
+  mileageLocationData4,
+  mileageLocationData5,
 } from 'src/app/core/mock-data/mileage-location.data';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { MileageRoute } from './mileage-route.interface';
+import { directionsResults1, directionsResults2 } from 'src/app/core/mock-data/directions-results.data';
+import { StaticMapPropertiesService } from 'src/app/core/services/static-map-properties.service';
+import { staticMapPropertiesData } from 'src/app/core/mock-data/static-map-properties.data';
 
-// eslint-disable-next-line prefer-const
-let positionData1: Position = {
+const positionData1: Position = {
   timestamp: Date.now(),
   coords: {
     latitude: 22.4860708,
@@ -26,15 +30,39 @@ let positionData1: Position = {
   },
 };
 
+const mileageRoute1: MileageRoute = {
+  origin: {
+    lat: mileageLocationData1[0].latitude,
+    lng: mileageLocationData1[0].longitude,
+  },
+  destination: {
+    lat: mileageLocationData1[1].latitude,
+    lng: mileageLocationData1[1].longitude,
+  },
+  waypoints: [],
+};
+
+const mockDirectionsMapUrl =
+  'https://maps.googleapis.com/maps/api/staticmap?size=350x506&scale=2&path=color%3A0x00BFFF%7Cenc%3AoygtBwpx%7DLa%40LMHGPB%60%40AXNl%40BXC%5CWd%40k%40Y%5BQEIKg%40WwCKYt%40Wr%40Qb%40Ip%40%5Dv%40_%40h%40SIWOe%40XONK%40GE_%40Uq%40MOM%40&markers=label%3AA%7C19.2143774%2C73.20346099999999&markers=label%3AB%7C19.2142019%2C73.2053908&key=GOOGLE_MAPS_API_KEY';
+
+const mockLocationMapUrl =
+  'https://maps.googleapis.com/maps/api/staticmap?size=425x266&scale=2&zoom=15&center=19.2185231%2C73.1940418&key=GOOGLE_MAPS_API_KEY';
+
 describe('RouteVisualizerComponent', () => {
   let component: RouteVisualizerComponent;
   let fixture: ComponentFixture<RouteVisualizerComponent>;
   let locationService: jasmine.SpyObj<LocationService>;
   let gmapsService: jasmine.SpyObj<GmapsService>;
+  let staticMapPropertiesService: jasmine.SpyObj<StaticMapPropertiesService>;
 
   beforeEach(waitForAsync(() => {
-    const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getCurrentLocation']);
-    const gmapsServiceSpy = jasmine.createSpyObj('GmapsService', ['getDirections']);
+    const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getCurrentLocation', 'getMileageRoute']);
+    const gmapsServiceSpy = jasmine.createSpyObj('GmapsService', [
+      'getDirections',
+      'generateDirectionsMapUrl',
+      'generateLocationMapUrl',
+    ]);
+    const staticMapPropertiesServiceSpy = jasmine.createSpyObj('StaticMapPropertiesService', ['getProperties']);
 
     TestBed.configureTestingModule({
       declarations: [RouteVisualizerComponent],
@@ -48,15 +76,31 @@ describe('RouteVisualizerComponent', () => {
           provide: GmapsService,
           useValue: gmapsServiceSpy,
         },
+        {
+          provide: StaticMapPropertiesService,
+          useValue: staticMapPropertiesServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RouteVisualizerComponent);
     component = fixture.componentInstance;
+
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
+    staticMapPropertiesService = TestBed.inject(
+      StaticMapPropertiesService
+    ) as jasmine.SpyObj<StaticMapPropertiesService>;
+
     locationService.getCurrentLocation.and.returnValue(of(positionData1));
+    locationService.getMileageRoute.and.returnValue(mileageRoute1);
+
+    gmapsService.generateLocationMapUrl.and.returnValue(mockLocationMapUrl);
+    gmapsService.generateDirectionsMapUrl.and.returnValue(mockDirectionsMapUrl);
+
+    staticMapPropertiesService.getProperties.and.returnValue(staticMapPropertiesData);
+
     fixture.detectChanges();
   }));
 
@@ -64,51 +108,149 @@ describe('RouteVisualizerComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should show route on the map when ngOnChanges is triggered', () => {
-    component.mileageLocations = mileageLocationData1;
-    gmapsService.getDirections.and.returnValue(of(null));
-    fixture.detectChanges();
+  describe('ngOnInit', () => {
+    it('should set the map width and height', () => {
+      expect(component.mapWidth).toEqual(staticMapPropertiesData.width);
+      expect(component.mapHeight).toEqual(staticMapPropertiesData.height);
 
-    component.ngOnChanges();
-    expect(gmapsService.getDirections).toHaveBeenCalledOnceWith(component.origin, component.destination, []);
+      expect(staticMapPropertiesService.getProperties).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set the current location', () => {
+      expect(component.currentLocation).toBeDefined();
+      expect(component.currentLocation).toEqual({
+        lat: positionData1.coords.latitude,
+        lng: positionData1.coords.longitude,
+      });
+    });
+
+    it('should set the current location map image url', () => {
+      expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledTimes(1);
+      expect(gmapsService.generateLocationMapUrl).toHaveBeenCalledWith(component.currentLocation);
+      expect(component.currentLocationMapUrl).toEqual(mockLocationMapUrl);
+    });
   });
 
-  it('should show empty map when any one of the lat on lng is missing', () => {
-    component.mileageLocations = mileageLocationData2;
-    gmapsService.getDirections.and.returnValue(of(null));
-    component.ngOnChanges();
-    fixture.detectChanges();
+  describe('ngOnChanges', () => {
+    beforeEach(() => {
+      // @ts-ignore
+      spyOn(component, 'renderMap');
+    });
 
-    expect(gmapsService.getDirections).not.toHaveBeenCalled();
-    expect(component.showEmptyMap).toBeTrue();
+    it('should render the directions map when at least 2 mileage locations are provided and they contain valid coordinates', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults1));
+      component.mileageLocations = mileageLocationData1;
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+
+      expect(locationService.getMileageRoute).toHaveBeenCalledTimes(1);
+      expect(locationService.getMileageRoute).toHaveBeenCalledWith(component.mileageLocations);
+      // @ts-ignore
+      expect(component.renderMap).toHaveBeenCalledTimes(1);
+      // @ts-ignore
+      expect(component.renderMap).toHaveBeenCalledWith(mileageRoute1);
+    });
+
+    it('should not render the directions map when any of the provided mileage locations do not contain valid coordinates', () => {
+      component.mileageLocations = mileageLocationData5;
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+
+      expect(locationService.getMileageRoute).not.toHaveBeenCalledTimes(1);
+      // @ts-ignore
+      expect(component.renderMap).not.toHaveBeenCalled();
+      expect(component.directions$).toBeNull();
+      expect(component.directionsMapUrl$).toBeNull();
+    });
+
+    it('should not render the directions map when less than 2 mileage locations are provided', () => {
+      component.mileageLocations = mileageLocationData4;
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+
+      expect(locationService.getMileageRoute).not.toHaveBeenCalled();
+      // @ts-ignore
+      expect(component.renderMap).not.toHaveBeenCalled();
+      expect(component.directions$).toBeNull();
+      expect(component.directionsMapUrl$).toBeNull();
+    });
+
+    it('should display a current location map when no valid mileage locations are present', () => {
+      component.mileageLocations = [];
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+
+      expect(component.showCurrentLocation).toBeTrue();
+    });
   });
 
-  it('should empty map when list of location is empty', () => {
-    component.mileageLocations = [];
-    gmapsService.getDirections.and.returnValue(of(null));
-    component.ngOnChanges();
-    fixture.detectChanges();
+  describe('renderMap', () => {
+    it('should set the map directions based on the route provided to render the map', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults1));
+      component.mileageLocations = mileageLocationData1;
 
-    expect(gmapsService.getDirections).not.toHaveBeenCalled();
-    expect(component.showEmptyMap).toBeTrue();
+      fixture.detectChanges();
+      component.ngOnChanges();
+
+      expect(component.directions$).toBeDefined();
+      expect(gmapsService.getDirections).toHaveBeenCalledTimes(1);
+      expect(gmapsService.getDirections).toHaveBeenCalledWith(mileageRoute1);
+    });
+
+    it('should generate a directions map image url', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults1));
+      component.mileageLocations = mileageLocationData1;
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+      fixture.detectChanges();
+
+      expect(component.directionsMapUrl$).toBeDefined();
+      expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledTimes(1);
+
+      const updatedMileageRoute = {
+        ...mileageRoute1,
+        directions: directionsResults1.routes[0],
+      };
+
+      expect(gmapsService.generateDirectionsMapUrl).toHaveBeenCalledWith(updatedMileageRoute);
+    });
+
+    it('should not generate a directions map image url if loading a dynamic directions map', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults1));
+      component.mileageLocations = mileageLocationData1;
+      component.loadDynamicMap = true;
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+      fixture.detectChanges();
+
+      expect(component.directionsMapUrl$).toBeUndefined();
+      expect(gmapsService.generateDirectionsMapUrl).not.toHaveBeenCalled();
+    });
+
+    it('should not generate a directions map image url if the directions api didnt return any results', () => {
+      gmapsService.getDirections.and.returnValue(of(directionsResults2));
+      component.mileageLocations = mileageLocationData1;
+
+      fixture.detectChanges();
+      component.ngOnChanges();
+      fixture.detectChanges();
+
+      expect(gmapsService.generateDirectionsMapUrl).not.toHaveBeenCalled();
+    });
   });
 
-  it('should show route for multiple locations', () => {
-    component.mileageLocations = mileageLocationData3;
-    gmapsService.getDirections.and.returnValue(of(null));
-    component.ngOnChanges();
-    fixture.detectChanges();
+  it('handleMapLoadError(): should reset the map component', () => {
+    component.handleMapLoadError(new Event('error'));
 
-    expect(gmapsService.getDirections).toHaveBeenCalledOnceWith(component.origin, component.destination, [
-      {
-        location: {
-          location: {
-            lat: 22.532432,
-            lng: 88.3445775,
-          },
-        },
-      },
-    ]);
+    expect(component.showCurrentLocation).toBe(false);
+    expect(component.directions$).toBeNull();
+    expect(component.directionsMapUrl$).toBeNull();
   });
 
   it('mapClicked(): should emit event when the map is clicked on', () => {
