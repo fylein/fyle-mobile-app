@@ -1,22 +1,39 @@
-<google-map
-  (click)="mapClicked($event)"
-  class="route-visualizer--map"
-  [options]="mapOptions"
-  *ngIf="origin && destination"
->
-  <map-marker *ngFor="let markerPosition of markerPositions" [position]="markerPosition" [options]="markerOptions">
-  </map-marker>
-  <map-directions-renderer *ngIf="directionsResults$ | async as directionsResults" [directions]="directionsResults">
-  </map-directions-renderer>
-</google-map>
+<ng-container *ngIf="loadDynamicMap; else staticMap">
+  <ng-container *ngIf="directions$ | async as directions">
+    <google-map (mapClick)="mapClicked($event)" [width]="mapWidth" [height]="mapHeight" [options]="dynamicMapOptions">
+      <map-directions-renderer [directions]="directions"></map-directions-renderer>
+    </google-map>
+  </ng-container>
 
-<ng-container *ngIf="!(origin && destination) && showEmptyMap">
-  <ng-container *ngIf="currentLocation">
+  <ng-container *ngIf="showCurrentLocation && currentLocation">
     <google-map
       (mapClick)="mapClicked($event)"
-      class="route-visualizer--map"
+      [width]="mapWidth"
+      [height]="mapHeight"
       [center]="currentLocation"
-      [options]="mapOptions"
+      [options]="dynamicMapOptions"
     ></google-map>
   </ng-container>
 </ng-container>
+
+<ng-template #staticMap>
+  <ng-container *ngIf="directionsMapUrl$ | async as directionsMapUrl">
+    <img
+      (click)="mapClicked($event)"
+      (error)="handleMapLoadError($event)"
+      [src]="directionsMapUrl"
+      [style.width]="mapWidth + 'px'"
+      [style.height]="mapHeight + 'px'"
+    />
+  </ng-container>
+
+  <ng-container *ngIf="showCurrentLocation && currentLocation">
+    <img
+      (click)="mapClicked($event)"
+      (error)="handleMapLoadError($event)"
+      [src]="currentLocationMapUrl"
+      [style.width]="mapWidth + 'px'"
+      [style.height]="mapHeight + 'px'"
+    />
+  </ng-container>
+</ng-template>

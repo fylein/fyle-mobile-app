@@ -27,6 +27,9 @@ import {
 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { FileService } from 'src/app/core/services/file.service';
 import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
@@ -54,6 +57,7 @@ describe('ViewMileagePage', () => {
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
+  let fileService: jasmine.SpyObj<FileService>;
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
@@ -94,6 +98,7 @@ describe('ViewMileagePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId', 'downloadUrl']);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -160,6 +165,10 @@ describe('ViewMileagePage', () => {
           provide: DependentFieldsService,
         },
         {
+          useValue: fileServiceSpy,
+          provide: FileService,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -191,6 +200,7 @@ describe('ViewMileagePage', () => {
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
+    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -1034,5 +1044,35 @@ describe('ViewMileagePage', () => {
       const result = component.getDisplayValue(testProperty);
       expect(result).toEqual('Not Added');
     });
+  });
+
+  describe('viewAttachment', () => {
+    it('should open modal with map attachment', fakeAsync(() => {
+      const mapAttachment: FileObject = {
+        id: '1',
+        type: 'image',
+        url: 'http://example.com/mileage-map.png',
+        purpose: 'ORIGINAL',
+      };
+
+      component.mapAttachment$ = of(mapAttachment);
+      loaderService.showLoader.and.resolveTo();
+      const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present']);
+      modalController.create.and.returnValue(modalSpy);
+      component.viewAttachment();
+      tick(500);
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyViewAttachmentComponent,
+        componentProps: {
+          attachments: [mapAttachment],
+          canEdit: false,
+          isMileageExpense: true,
+        },
+      });
+
+      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    }));
   });
 });
