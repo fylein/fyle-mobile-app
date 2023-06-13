@@ -445,23 +445,25 @@ export class MyExpensesPage implements OnInit {
       this.expensesTaskCount = expensesTaskCount;
     });
 
-    this.isInstaFyleEnabled$ = this.orgUserSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgUserSettings) =>
-            orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled
-        )
-      );
+    const getOrgUserSettingsService$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
 
-    this.isBulkFyleEnabled$ = this.orgUserSettingsService
-      .get()
-      .pipe(map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled));
+    this.isInstaFyleEnabled$ = getOrgUserSettingsService$.pipe(
+      map(
+        (orgUserSettings) =>
+          orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings.insta_fyle_settings.enabled
+      )
+    );
 
-    this.isMileageEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage.enabled));
-    this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.per_diem.enabled));
+    this.isBulkFyleEnabled$ = getOrgUserSettingsService$.pipe(
+      map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled)
+    );
 
-    this.orgSettingsService.get().subscribe((orgSettings) => {
+    const getOrgSettingsService$ = this.orgSettingsService.get().pipe(shareReplay(1));
+
+    this.isMileageEnabled$ = getOrgSettingsService$.pipe(map((orgSettings) => orgSettings?.mileage?.enabled));
+    this.isPerDiemEnabled$ = getOrgSettingsService$.pipe(map((orgSettings) => orgSettings?.per_diem?.enabled));
+
+    getOrgSettingsService$.subscribe((orgSettings) => {
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       this.setupActionSheet(orgSettings);
     });
@@ -511,9 +513,11 @@ export class MyExpensesPage implements OnInit {
       }
     });
 
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    const getHomeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
-    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.homeCurrency$ = getHomeCurrency$;
+
+    getHomeCurrency$.subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
 
