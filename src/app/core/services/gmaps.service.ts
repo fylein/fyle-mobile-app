@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, from, map } from 'rxjs';
 import { MapDirectionsResponse, MapDirectionsService, MapGeocoder, MapGeocoderResponse } from '@angular/google-maps';
 import { Cacheable } from 'ts-cacheable';
 import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
 import { MileageMarkerParams } from '../models/mileage-marker-params.interface';
 import { environment } from 'src/environments/environment';
 import { StaticMapPropertiesService } from './static-map-properties.service';
+import { Loader } from '@googlemaps/js-api-loader';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +45,14 @@ export class GmapsService {
     };
 
     return this.mapDirectionsService.route(request).pipe(map((response: MapDirectionsResponse) => response.result));
+  }
+
+  initializeLibrary(): Observable<google.maps.MapsLibrary> {
+    const loader = new Loader({
+      apiKey: environment.GOOGLE_MAPS_API_KEY,
+    });
+
+    return from(loader.importLibrary('maps'));
   }
 
   // Used to generate static map image urls, for single location

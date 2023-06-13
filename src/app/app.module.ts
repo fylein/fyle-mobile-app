@@ -22,6 +22,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
 import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { Capacitor } from '@capacitor/core';
+import { GmapsService } from './core/services/gmaps.service';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -78,6 +79,12 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
       provide: APP_INITIALIZER,
       useFactory: (configService: ConfigService) => () => configService.loadConfigurationData(),
       deps: [ConfigService, RouterAuthService, TokenService, SecureStorageService, StorageService, Sentry.TraceService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (gmapsService: GmapsService) => () => gmapsService.initializeLibrary(),
+      deps: [GmapsService],
       multi: true,
     },
     {
