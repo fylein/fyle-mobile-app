@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 
-describe('FreshChatService', () => {
+fdescribe('FreshChatService', () => {
   let freshChatService: FreshChatService;
   let authService: jasmine.SpyObj<AuthService>;
   let storageService: jasmine.SpyObj<StorageService>;

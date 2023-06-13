@@ -7,6 +7,23 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { NetworkService } from './network.service';
 import { concat } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { OrgUserSettings } from '../models/org_user_settings.model';
+import { FreshChatResponse } from '../models/fresh-chat-response.model';
+
+declare global {
+  interface Window {
+    fcWidget: {
+      user: {
+        get(callback: (resp: FreshChatResponse) => void): void;
+        setProperties(properties: any): void;
+      };
+      open();
+      destroy();
+      init(config: any): void;
+      on(event: string, callback: (resp?: FreshChatResponse) => void): void;
+    };
+  }
+}
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +36,7 @@ export class FreshChatService {
     private networkService: NetworkService
   ) {}
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const that = this;
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
@@ -40,21 +57,21 @@ export class FreshChatService {
     });
   }
 
-  openLiveChatSupport() {
-    return (window as any) && (window as any).fcWidget && (window as any).fcWidget.open();
+  openLiveChatSupport(): boolean {
+    return !!(window.fcWidget && window.fcWidget.open && window.fcWidget.open());
   }
 
-  destroy() {
-    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destroy) {
-      (window as any).fcWidget.destroy();
+  destroy(): void {
+    if (window.fcWidget && window.fcWidget.destroy) {
+      window.fcWidget.destroy();
     }
   }
 
-  private getOrgUserSettings() {
+  private getOrgUserSettings(): Promise<OrgUserSettings> {
     return this.orgUserSettingsService.get().toPromise();
   }
 
-  private async initFreshChat() {
+  private async initFreshChat(): Promise<void> {
     const that = this;
     const eou = await that.authService.getEou();
     const inAppChatRestoreId = await that.storageService.get('inAppChatRestoreId');
@@ -68,7 +85,7 @@ export class FreshChatService {
       device = 'ANDROID';
     }
 
-    (window as any).fcWidget.init({
+    window.fcWidget.init({
       config: {
         disableNotifications: true,
       },
@@ -78,29 +95,29 @@ export class FreshChatService {
       restoreId: inAppChatRestoreId, // that id is used to restore chat for the user
     });
 
-    (window as any).fcWidget.on('widget:loaded', () => {
+    window.fcWidget.on('widget:loaded', () => {
       if (document.getElementById('fc_frame')) {
         document.getElementById('fc_frame').style.display = 'none';
       }
     });
-    (window as any).fcWidget.on('widget:closed', () => {
+    window.fcWidget.on('widget:closed', () => {
       if (document.getElementById('fc_frame')) {
         document.getElementById('fc_frame').style.display = 'none';
       }
     });
-    (window as any).fcWidget.on('widget:opened', () => {
+    window.fcWidget.on('widget:opened', () => {
       if (document.getElementById('fc_frame')) {
         document.getElementById('fc_frame').style.display = 'flex';
       }
     });
 
-    (window as any).fcWidget.user.get((resp) => {
+    window.fcWidget.user.get((resp) => {
       // Freshchat here calls an API to check if there is any user with the above externalId
       const status = resp && resp.status;
       const data = resp && resp.data;
       if (status !== 200) {
         // If there is no user with the above externalId; then set the below properties
-        (window as any).fcWidget.user.setProperties({
+        window.fcWidget.user.setProperties({
           firstName: eou.us.full_name, // user's first name
           email: eou.us.email, // user's email address
           orgName: eou.ou.org_name, // user's org name
@@ -108,7 +125,7 @@ export class FreshChatService {
           userId: eou.us.id, // user's user id
           device, // storing users device
         });
-        (window as any).fcWidget.on('user:created', async (resp) => {
+        window.fcWidget.on('user:created', async (resp: FreshChatResponse) => {
           // When that new user tries to initiate a chat Freshchat creates a users with above properties
           const status = resp && resp.status;
           const data = resp && resp.data;
@@ -126,7 +143,7 @@ export class FreshChatService {
     });
   }
 
-  private initialize(i, t) {
+  private initialize(i, t): void {
     const that = this;
     let e;
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -139,7 +156,7 @@ export class FreshChatService {
         i.head.appendChild(e));
   }
 
-  private initiateCall() {
+  private initiateCall(): void {
     this.initialize(document, 'freshchat-js-sdk');
   }
 }
