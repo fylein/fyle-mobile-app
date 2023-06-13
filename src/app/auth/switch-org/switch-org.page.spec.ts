@@ -618,6 +618,7 @@ describe('SwitchOrgPage', () => {
         deviceInfo: extendedDeviceInfoMockData,
         appSupportDetails: {
           message: 'message',
+          supported: true,
         },
         lastLoggedInVersion: '5.50.0',
         eou: apiEouRes,
