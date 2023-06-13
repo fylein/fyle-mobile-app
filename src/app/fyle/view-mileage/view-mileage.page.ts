@@ -7,7 +7,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap, takeUntil, take, filter, reduce } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, takeUntil, take, filter } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
