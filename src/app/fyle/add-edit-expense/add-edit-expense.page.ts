@@ -109,6 +109,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
+import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1032,7 +1033,7 @@ export class AddEditExpensePage implements OnInit {
       accounts: accounts$,
       eou: eou$,
       imageData: this.getInstaFyleImageData(),
-      recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
+      recentCurrency: from(this.recentLocalStorageItemsService.get<Currency>('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
       map((dependencies) => {
@@ -2482,7 +2483,7 @@ export class AddEditExpensePage implements OnInit {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
     // If User has already clicked on See More he need not to click again and again
-    from(this.storageService.get('isExpandedView')).subscribe((expandedView) => {
+    from(this.storageService.get<boolean>('isExpandedView')).subscribe((expandedView) => {
       this.isExpandedView = this.mode !== 'add' || expandedView;
     });
 
@@ -2599,7 +2600,7 @@ export class AddEditExpensePage implements OnInit {
 
         this.corporateCreditCardExpenseService
           .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
-          .subscribe((matchedExpense) => {
+          .subscribe((matchedExpense: CCCExpUnflattened[]) => {
             this.matchedCCCTransaction = matchedExpense[0].ccce;
             this.selectedCCCTransaction = this.matchedCCCTransaction;
             this.cardEndingDigits = (

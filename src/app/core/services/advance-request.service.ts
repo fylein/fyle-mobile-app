@@ -27,6 +27,7 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { StatsDimensionResponse } from '../models/stats-dimension-response.model';
 import { AdvanceRequestActions } from '../models/advance-request-actions.model';
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
+import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -39,7 +40,8 @@ type Filters = Partial<{
 type Config = Partial<{
   offset: number;
   limit: number;
-  queryParams: any;
+  queryParams: Record<string, string | string[]>;
+  areq_org_user_id?: string;
   filter: Filters;
 }>;
 
@@ -78,7 +80,7 @@ export class AdvanceRequestService {
   ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiv2Service.get('/advance_requests', {
+        this.apiv2Service.get<ExtendedAdvanceRequest, { params: Config }>('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -100,7 +102,7 @@ export class AdvanceRequestService {
   })
   getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
     return this.apiv2Service
-      .get('/advance_requests', {
+      .get<ExtendedAdvanceRequest, { params: { areq_id: string } }>('/advance_requests', {
         params: {
           areq_id: `eq.${id}`,
         },
@@ -207,7 +209,7 @@ export class AdvanceRequestService {
         }
 
         const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
-        return this.apiv2Service.get('/advance_requests', {
+        return this.apiv2Service.get<ExtendedAdvanceRequest, {}>('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -229,7 +231,8 @@ export class AdvanceRequestService {
   getEReq(advanceRequestId: string) {
     return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
       map((res) => {
-        const eAdvanceRequest = this.dataTransformService.unflatten(res);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         return eAdvanceRequest;
       })
@@ -245,7 +248,7 @@ export class AdvanceRequestService {
             orgUserSettings.locale.offset
           );
         }
-        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, { timeout: 5000 });
+        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest);
       })
     );
   }
@@ -287,7 +290,7 @@ export class AdvanceRequestService {
   modifyAdvanceRequestCustomFields(customFields: CustomField[]): CustomField[] {
     customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
-        customField.value = new Date(customField.value);
+        customField.value = new Date(customField.value as string);
       }
       return customField;
     });
@@ -411,7 +414,7 @@ export class AdvanceRequestService {
     eou: ExtendedOrgUser,
     params: advanceRequestStat
   ): Observable<Partial<ApiV2Response<StatsDimensionResponse>>> {
-    return this.apiv2Service.get('/advance_requests/stats', {
+    return this.apiv2Service.get<StatsDimensionResponse, {}>('/advance_requests/stats', {
       params: {
         areq_org_user_id: 'eq.' + eou.ou.id,
         ...params,

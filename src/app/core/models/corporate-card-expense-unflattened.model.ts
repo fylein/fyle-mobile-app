@@ -4,7 +4,7 @@ export interface CCCExpUnflattened {
     created_at: Date;
     updated_at: Date;
     txn_dt: Date;
-    creator_id: string;
+    creator_id: string | number;
     orig_currency: string;
     orig_amount: number;
     currency: string;
@@ -16,7 +16,7 @@ export interface CCCExpUnflattened {
     state: string;
     group_id: string;
     card_or_account_number: string;
-    balance_transfer_id: string;
+    balance_transfer_id: string | number;
   };
   personal: boolean;
   matched: {
