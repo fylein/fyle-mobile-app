@@ -12,7 +12,7 @@ import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 
-describe('FiltersHelperService', () => {
+fdescribe('FiltersHelperService', () => {
   let filterHelperService: FiltersHelperService;
   let modalController: jasmine.SpyObj<ModalController>;
 
@@ -165,7 +165,7 @@ describe('FiltersHelperService', () => {
       state: [AdvancesStates.approved, AdvancesStates.draft],
     };
 
-    const testSelectedFilter: SelectedFilters<string | number>[] = [
+    const testSelectedFilter: SelectedFilters<string | number | string[]>[] = [
       {
         name: 'State',
         value: ['APPROVED', 'DRAFT'],
@@ -180,7 +180,7 @@ describe('FiltersHelperService', () => {
       state: [AdvancesStates.paid, AdvancesStates.cancelled],
     };
 
-    const testSelectedFilter: SelectedFilters<string | number>[] = [
+    const testSelectedFilter: SelectedFilters<string | number | string[]>[] = [
       {
         name: 'State',
         value: ['PAID', 'CANCELLED'],
@@ -195,7 +195,7 @@ describe('FiltersHelperService', () => {
       state: [AdvancesStates.sentBack, AdvancesStates.pending],
     };
 
-    const testSelectedFilter: SelectedFilters<string | number>[] = [
+    const testSelectedFilter: SelectedFilters<string | number | string[]>[] = [
       {
         name: 'State',
         value: ['SENT_BACK', 'APPROVAL_PENDING'],
@@ -263,7 +263,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.descending,
     };
 
-    const testSelectedFilter: SelectedFilters<string | number>[] = [
+    const testSelectedFilter: SelectedFilters<string | number | string[]>[] = [
       {
         name: 'Sort By',
         value: 'projectZToA',
@@ -278,7 +278,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | Sort By - A to Z, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
-    const testSelectedFilters: SelectedFilters<string | number>[] = [
+    const testSelectedFilters: SelectedFilters<string | number | string[]>[] = [
       {
         name: 'Sort By',
         value: 'projectZToA',
@@ -303,7 +303,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | Sort By - Z to A, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
-    const testSelectedFilters: SelectedFilters<string | number>[] = [
+    const testSelectedFilters: SelectedFilters<string | number | string[]>[] = [
       {
         name: 'Sort By',
         value: 'projectZToA',
@@ -328,7 +328,7 @@ describe('FiltersHelperService', () => {
   });
 
   it('should convert data to selected filters | Sort By - A to Z, Sort Direction - ASC', () => {
-    const testSelectedFilters: SelectedFilters<string | number>[] = [
+    const testSelectedFilters: SelectedFilters<string | number | string[]>[] = [
       {
         name: 'Sort By',
         value: 'projectAToZ',

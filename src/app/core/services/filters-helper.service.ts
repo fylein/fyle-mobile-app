@@ -74,7 +74,7 @@ export class FiltersHelperService {
     return generatedFilters;
   }
 
-  generateSelectedFilters(filters: Filters): SelectedFilters<string | string[] | number>[] {
+  generateSelectedFilters(filters: Filters) {
     const generatedFilters: SelectedFilters<string | string[] | number>[] = [];
     const filtersMap: Record<string, string> = {
       state: 'State',
@@ -113,7 +113,7 @@ export class FiltersHelperService {
 
     await filterPopover.present();
 
-    const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | number | string[]>[] };
+    const { data } = await filterPopover.onWillDismiss();
     if (data) {
       const filters = this.convertDataToFilters(data);
       return filters;
