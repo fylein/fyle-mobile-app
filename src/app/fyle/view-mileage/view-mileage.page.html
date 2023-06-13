@@ -94,12 +94,15 @@
     </div>
 
     <ng-container *ngIf="extendedMileage.tx_locations && extendedMileage.tx_locations.length">
-      <ng-container *ngIf="isConnected$|async">
-        <div class="view-mileage--map-block">
-          <div class="view-mileage--map-block__map">
-            <app-route-visualizer [mileageLocations]="extendedMileage.tx_locations || []"></app-route-visualizer>
-          </div>
-        </div>
+      <ng-container *ngIf="attachments$|async as attachments">
+        <app-receipt-preview-thumbnail
+          *ngIf="attachments.length > 0"
+          [attachments]="attachments"
+          (viewAttachments)="viewAttachments()"
+          [canEdit]="false"
+          [isMileageExpense]="true"
+        >
+        </app-receipt-preview-thumbnail>
       </ng-container>
 
       <div class="view-mileage--route-block">

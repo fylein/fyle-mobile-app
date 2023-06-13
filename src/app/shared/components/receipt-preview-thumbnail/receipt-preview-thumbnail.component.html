@@ -1,6 +1,7 @@
 <div class="receipt-preview-thumbnail--actions" [ngClass]="{ 'mt-0': !canEdit }">
   <div class="receipt-preview-thumbnail--receipt-index" *ngIf="!hideLabel">
-    Receipt <ng-container *ngIf="attachments.length > 1">{{ activeIndex + 1 }}/{{ attachments.length }} </ng-container>
+    {{ isMileageExpense ? 'Map' : 'Receipt' }}
+    <ng-container *ngIf="attachments.length > 1">{{ activeIndex + 1 }}/{{ attachments.length }} </ng-container>
   </div>
   <div *ngIf="canEdit" (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
     <mat-icon class="receipt-preview-thumbnail--icon" svgIcon="plus"></mat-icon>

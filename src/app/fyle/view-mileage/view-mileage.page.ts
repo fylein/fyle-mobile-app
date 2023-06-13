@@ -7,7 +7,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap, takeUntil, take, filter } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, takeUntil, take, filter, reduce } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -26,6 +26,9 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-view-mileage',
@@ -93,6 +96,8 @@ export class ViewMileagePage implements OnInit {
 
   costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
 
+  attachments$: Observable<FileObject[]>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -109,7 +114,8 @@ export class ViewMileagePage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
+    private fileService: FileService
   ) {}
 
   get ExpenseView() {
@@ -269,6 +275,24 @@ export class ViewMileagePage implements OnInit {
       shareReplay(1)
     );
 
+    this.attachments$ = this.extendedMileage$.pipe(
+      take(1),
+      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx_id)),
+      switchMap((fileObjs) => from(fileObjs)),
+      concatMap((fileObj: any) =>
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
+            fileObj.url = downloadUrl;
+            const details = this.fileService.getReceiptsDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        )
+      ),
+      reduce((acc: FileObject[], curr: FileObject) => acc.concat(curr), [])
+    );
+
     this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     this.projectDependentCustomProperties$ = forkJoin({
@@ -414,6 +438,26 @@ export class ViewMileagePage implements OnInit {
   getDisplayValue(customProperties): boolean | string {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
+  }
+
+  viewAttachments() {
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.attachments$),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(async (attachments) => {
+        const attachmentsModal = await this.modalController.create({
+          component: FyViewAttachmentComponent,
+          componentProps: {
+            attachments,
+            canEdit: false,
+            isMileageExpense: true,
+          },
+        });
+
+        await attachmentsModal.present();
+      });
   }
 
   ngOnInit() {}
