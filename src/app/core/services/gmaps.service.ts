@@ -52,6 +52,7 @@ export class GmapsService {
       apiKey: environment.GOOGLE_MAPS_API_KEY,
     });
 
+    // importLibrary will add the specified library to the global namespace window.google.maps
     return forkJoin([
       from(loader.importLibrary('core')),
       from(loader.importLibrary('maps')),
