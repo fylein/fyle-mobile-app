@@ -1,7 +1,7 @@
 import { StaticMapProperties } from '../models/static-map-properties.interface';
 
 export const staticMapPropertiesData: StaticMapProperties = {
-  zoom: 15,
+  zoom: 18,
   routeColor: '0x00BFFF',
   markers: [
     'A',

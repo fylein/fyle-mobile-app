@@ -1,3 +1,4 @@
+import { AccessTokenData } from '../models/access-token-data.model';
 import { EouApiResponse } from '../models/eou-api-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
@@ -584,7 +585,7 @@ export const postOrgUser = {
   bank_routing_number: null,
 };
 
-export const accessTokenData = {
+export const accessTokenData: AccessTokenData = {
   allowed_CIDRs: '[]',
   cluster_domain: '"https://staging.fyle.tech"',
   exp: 1672915952,
@@ -598,7 +599,7 @@ export const accessTokenData = {
   version: '3',
 };
 
-export const accessTokenWithProxyOrgUserId = {
+export const accessTokenWithProxyOrgUserId: AccessTokenData = {
   allowed_CIDRs: '[]',
   cluster_domain: '"https://staging.fyle.tech"',
   exp: 1672915952,

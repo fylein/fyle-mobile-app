@@ -250,7 +250,7 @@ export class ExpensesCardComponent implements OnInit {
             that.pollDataExtractionStatus(function () {
               that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
                 const extractedData = etxn.tx.extracted_data;
-                if (extractedData.amount && extractedData.currency) {
+                if (!!extractedData) {
                   that.isScanCompleted = true;
                   that.isScanInProgress = false;
                   that.expense.tx_extracted_data = extractedData;
@@ -469,7 +469,7 @@ export class ExpensesCardComponent implements OnInit {
           this.attachmentUploadInProgress = false;
         })
       )
-      .subscribe((fileObj) => {
+      .subscribe((fileObj: FileObject) => {
         this.setThumbnail(fileObj.id, attachmentType);
       });
   }

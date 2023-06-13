@@ -7,7 +7,7 @@ import { StaticMapProperties } from '../models/static-map-properties.interface';
 export class StaticMapPropertiesService {
   getProperties(): StaticMapProperties {
     return {
-      zoom: 15,
+      zoom: 18,
       routeColor: '0x00BFFF',
       markers: [
         'A',
