@@ -80,3 +80,32 @@ export const cardAggregateStatParam: CardAggregateStat[] = [
     ],
   },
 ];
+
+export const cardAggregateStatParam2: CardAggregateStat[] = [
+  {
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 4,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: null,
+      },
+    ],
+    key: [
+      {
+        column_name: 'corporate_credit_card_bank_name',
+        column_value: 'DAMNA',
+      },
+      {
+        column_name: 'corporate_credit_card_account_number',
+        column_value: '8698',
+      },
+      {
+        column_name: 'tx_state',
+        column_value: 'COMPLETE',
+      },
+    ],
+  },
+];

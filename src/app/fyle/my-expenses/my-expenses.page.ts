@@ -62,12 +62,15 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { MyExpensesService } from './my-expenses.service';
-import { Filters } from './my-expenses-filters.model';
+import { ExpenseFilters, Filters } from './my-expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
@@ -99,7 +102,7 @@ export class MyExpensesPage implements OnInit {
 
   acc = [];
 
-  filters: Filters;
+  filters: ExpenseFilters;
 
   allExpensesStats$: Observable<{ count: number; amount: number }>;
 
@@ -115,7 +118,7 @@ export class MyExpensesPage implements OnInit {
 
   isPerDiemEnabled$: Observable<boolean>;
 
-  pendingTransactions = [];
+  pendingTransactions: Expense[] = [];
 
   selectionMode = false;
 
@@ -235,9 +238,9 @@ export class MyExpensesPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  formatTransactions(transactions) {
+  formatTransactions(transactions: Expense[]) {
     return transactions.map((transaction) => {
-      const formattedTxn = {};
+      const formattedTxn = {} as Expense;
       Object.keys(transaction).forEach((key) => {
         formattedTxn['tx_' + key] = transaction[key];
       });
@@ -245,7 +248,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  switchSelectionMode(expense?) {
+  switchSelectionMode(expense?: Expense) {
     this.selectionMode = !this.selectionMode;
     if (!this.selectionMode) {
       if (this.loadData$.getValue().searchString) {
@@ -306,7 +309,7 @@ export class MyExpensesPage implements OnInit {
           })
           .pipe(
             catchError((err) => EMPTY),
-            map((stats) => {
+            map((stats: CardAggregateStat[]) => {
               const count = stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
               const amount = stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
               return {
@@ -319,7 +322,21 @@ export class MyExpensesPage implements OnInit {
     );
   }
 
-  setupActionSheet(orgSettings) {
+  actionSheetButtonsHandler(action: string, route: string) {
+    this.trackingService.myExpensesActionSheetAction({
+      Action: action,
+    });
+    this.router.navigate([
+      '/',
+      'enterprise',
+      route,
+      {
+        navigate_back: true,
+      },
+    ]);
+  }
+
+  setupActionSheet(orgSettings: OrgSettings) {
     const that = this;
     const mileageEnabled = orgSettings.mileage.enabled;
     const isPerDiemEnabled = orgSettings.per_diem.enabled;
@@ -328,37 +345,13 @@ export class MyExpensesPage implements OnInit {
         text: 'Capture Receipt',
         icon: 'assets/svg/fy-camera.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'capture receipts',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'camera_overlay',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
         text: 'Add Manually',
         icon: 'assets/svg/fy-expense.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Expense',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_expense',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
       },
     ];
 
@@ -367,19 +360,7 @@ export class MyExpensesPage implements OnInit {
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Mileage',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_mileage',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
       });
     }
 
@@ -388,25 +369,13 @@ export class MyExpensesPage implements OnInit {
         text: 'Add Per Diem',
         icon: 'assets/svg/fy-calendar.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Per Diem',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_per_diem',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
       });
     }
   }
 
-  getCardDetail(statsResponses) {
-    const cardNames = [];
+  getCardDetail(statsResponses: CardAggregateStat[]) {
+    const cardNames: { cardNumber: string; cardName: string }[] = [];
     statsResponses.forEach((response) => {
       const cardDetail = {
         cardNumber: response.key[1].column_value,
@@ -694,7 +663,7 @@ export class MyExpensesPage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
-  loadData(event) {
+  loadData(event: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = this.currentPageNumber + 1;
 
     const params = this.loadData$.getValue();
@@ -725,7 +694,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
@@ -737,13 +706,13 @@ export class MyExpensesPage implements OnInit {
       this.loadData$.next(params);
       if (event) {
         setTimeout(() => {
-          event?.target?.complete();
+          event.target?.complete();
         }, 1000);
       }
     });
   }
 
-  generateFilterPills(filter: Filters) {
+  generateFilterPills(filter: ExpenseFilters) {
     const filterPills: FilterPill[] = [];
 
     if (filter.state?.length > 0) {
