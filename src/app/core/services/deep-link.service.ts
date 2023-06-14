@@ -15,9 +15,16 @@ export class DeepLinkService {
       const item = part.split('=');
       result[item[0]] = decodeURIComponent(item[1]);
     });
+
+    if (Object.keys(result).length === 0) {
+      return {
+        redirect_uri: url,
+      };
+    }
     return result;
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, complexity
   redirect(redirectionParam: Redirect) {
     const redirectUri: string = redirectionParam.redirect_uri;
     const verificationCode: string = redirectionParam.verification_code;
@@ -78,6 +85,17 @@ export class DeepLinkService {
           {
             sub_module: subModule,
             id: advReqId,
+          },
+        ]);
+      } else if (redirectUri.match('/tx')) {
+        const txnId = redirectUri.split('/').pop();
+        const subModule = 'expense';
+        this.router.navigate([
+          '/',
+          'deep_link_redirection',
+          {
+            sub_module: subModule,
+            id: txnId,
           },
         ]);
       } else {
