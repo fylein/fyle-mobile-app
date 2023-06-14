@@ -126,6 +126,8 @@ describe('MyReportsPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'createFirstExpense',
       'myExpensesActionSheetAction',
+      'tasksPageOpened',
+      'footerHomeTabClicked',
     ]);
 
     TestBed.configureTestingModule({
@@ -2557,6 +2559,78 @@ describe('MyReportsPage', () => {
 
       const filterPillRes = component.generateFilterPills(filters);
       expect(filterPillRes).toEqual(expectedFilterPill);
+    });
+  });
+
+  it('onHomeClicked(): should navigate to my_dashboard and call trackingService', () => {
+    component.onHomeClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+      queryParams: { state: 'home' },
+    });
+    expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({
+      page: 'Expenses',
+    });
+  });
+
+  it('onCameraClicked(): should navigate to camera_overlay', () => {
+    component.onCameraClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'camera_overlay',
+      {
+        navigate_back: true,
+      },
+    ]);
+  });
+
+  it('onTaskClicked(): should navigate to my_dashboard and call trackingService', () => {
+    component.onTaskClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+      queryParams: { state: 'tasks', tasksFilters: 'expenses' },
+    });
+    expect(trackingService.tasksPageOpened).toHaveBeenCalledOnceWith({
+      Asset: 'Mobile',
+      from: 'My Expenses',
+    });
+  });
+
+  it('searchClick(): should set headerState and call focus method on input', fakeAsync(() => {
+    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
+    inputElement = component.simpleSearchInput.nativeElement;
+    const mockFocus = spyOn(inputElement, 'focus');
+
+    component.searchClick();
+    expect(component.headerState).toEqual(HeaderState.simpleSearch);
+    tick(300);
+    expect(mockFocus).toHaveBeenCalledTimes(1);
+  }));
+
+  it('mergeExpense(): should navigate to merge_expenses with payload data', () => {
+    component.selectedElements = apiExpenseRes;
+    const strigifiedElements = JSON.stringify(apiExpenseRes);
+    component.mergeExpenses();
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'merge_expense',
+      {
+        selectedElements: strigifiedElements,
+        from: 'MY_EXPENSES',
+      },
+    ]);
+  });
+
+  describe('showCamera(): ', () => {
+    it('should set isCameraPreviewStarted to false if argument is false', () => {
+      component.isCameraPreviewStarted = true;
+      component.showCamera(false);
+      expect(component.isCameraPreviewStarted).toBeFalse();
+    });
+    it('should set isCameraPreviewStarted to true if argument is true', () => {
+      component.isCameraPreviewStarted = false;
+      component.showCamera(true);
+      expect(component.isCameraPreviewStarted).toBeTrue();
     });
   });
 });
