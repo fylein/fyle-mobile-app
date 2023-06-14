@@ -174,3 +174,32 @@ export const costCenterApiRes2: CostCenter[] = [
     updated_at: new Date('2022-05-19T11:58:29.364759+00:00'),
   },
 ];
+
+export const expectedCCdata = [
+  {
+    label: 'SMS1',
+    value: {
+      active: true,
+      code: null,
+      created_at: new Date('2019-06-24T15:12:04.002Z'),
+      description: null,
+      id: 2411,
+      name: 'SMS1',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2019-06-24T15:12:05.002Z'),
+    },
+  },
+  {
+    label: 'test cost',
+    value: {
+      active: true,
+      code: 'cost center code 2',
+      created_at: new Date('2019-08-13T14:18:54.500Z'),
+      description: 'cost centers data',
+      id: 2428,
+      name: 'test cost',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2019-08-13T14:18:55.500Z'),
+    },
+  },
+];
