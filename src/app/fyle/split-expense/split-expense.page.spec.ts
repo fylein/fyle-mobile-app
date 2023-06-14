@@ -17,7 +17,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { SplitExpensePage } from './split-expense.page';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -114,8 +114,14 @@ fdescribe('SplitExpensePage', () => {
       ],
       providers: [
         FormBuilder,
-        { provide: CategoriesService, useValue: categoriesServiceSpy },
-        { provide: DateService, useValue: dateServiceSpy },
+        {
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
+        },
+        {
+          provide: DateService,
+          useValue: dateServiceSpy,
+        },
         { provide: SplitExpenseService, useValue: splitExpenseServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
@@ -190,7 +196,66 @@ fdescribe('SplitExpensePage', () => {
     component.goBack();
     expect(navController.back).toHaveBeenCalledTimes(1);
   });
-  xit('getTotalSplitAmount', () => {});
+
+  describe('getTotalSplitAmount', () => {
+    it('should calculate total split amount and remaining amount correctly when there are two form groups', () => {
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(473.4),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(315.6),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      component.amount = 789;
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+
+      component.getTotalSplitAmount();
+
+      expect(component.totalSplitAmount).toEqual(789);
+      expect(component.remainingAmount).toEqual(0);
+    });
+
+    it('should calculate total split amount and remaining amount correctly when the expense is not evenly split in three', () => {
+      component.amount = 25000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(10000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(5000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm3 = new FormGroup({
+        amount: new FormControl(null),
+        currency: new FormControl(null),
+        percentage: new FormControl(null),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
+      component.getTotalSplitAmount();
+      expect(component.totalSplitAmount).toEqual(15000);
+      expect(component.remainingAmount).toEqual(10000);
+    });
+  });
+
   xit('setUpSplitExpenseBillable', () => {});
   xit('setUpSplitExpenseTax', () => {});
   xit('generateSplitEtxnFromFg', () => {});
