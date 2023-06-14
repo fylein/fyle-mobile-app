@@ -57,19 +57,23 @@ export class FiltersHelperService {
     return filterPills;
   }
 
-  convertDataToFilters(selectedFilters: SelectedFilters<string | string[] | number>[]): Filters {
+  convertDataToFilters(selectedFilters: SelectedFilters<string | AdvancesStates[]>[]): Filters {
     const generatedFilters: Filters = {};
 
-    const stateFilter = selectedFilters.find((filter) => filter.name === 'State');
-    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
+    const stateFilter = selectedFilters.find(
+      (filter): filter is SelectedFilters<AdvancesStates[]> => filter.name === 'State'
+    );
+    const sortBy = selectedFilters.find<SelectedFilters<string>>(
+      (filter): filter is SelectedFilters<string> => filter.name === 'Sort By'
+    );
 
     if (stateFilter) {
-      generatedFilters.state = stateFilter.value as AdvancesStates[];
+      generatedFilters.state = stateFilter.value;
     }
 
     if (sortBy && sortBy.value) {
-      generatedFilters.sortParam = this.getSortParam(sortBy.value as AdvancesStates);
-      generatedFilters.sortDir = this.getSortDir(sortBy.value as AdvancesStates);
+      generatedFilters.sortParam = this.getSortParam(sortBy.value);
+      generatedFilters.sortDir = this.getSortDir(sortBy.value);
     }
     return generatedFilters;
   }
@@ -113,7 +117,7 @@ export class FiltersHelperService {
 
     await filterPopover.present();
 
-    const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | number | string[]>[] };
+    const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | AdvancesStates[]>[] };
     if (data) {
       const filters = this.convertDataToFilters(data);
       return filters;
