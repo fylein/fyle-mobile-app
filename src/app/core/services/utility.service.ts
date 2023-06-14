@@ -75,8 +75,6 @@ export class UtilityService {
   }
 
   traverse(x, callback): TxnCustomProperties[] {
-    console.log(x);
-    console.log(callback);
     const that = this;
     if (isArray(x)) {
       return that.traverseArray(x, callback);
