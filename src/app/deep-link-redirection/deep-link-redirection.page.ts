@@ -61,14 +61,25 @@ export class DeepLinkRedirectionPage implements OnInit {
   async redirectToExpenseModule() {
     await this.loaderService.showLoader('Loading....');
     this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id).subscribe(
-      (res) => {
-        const category = res.tx.org_category && res.tx.org_category.toLowerCase();
+      (etxn) => {
+        const category = etxn.tx.org_category && etxn.tx.org_category.toLowerCase();
+        const canEditTxn = ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].includes(etxn.tx.state);
 
-        let route = ['/', 'enterprise', 'view_expense'];
-        if (category === 'mileage') {
-          route = ['/', 'enterprise', 'view_mileage'];
-        } else if (category === 'per diem') {
-          route = ['/', 'enterprise', 'view_per_diem'];
+        let route = [];
+        if (canEditTxn) {
+          route = ['/', 'enterprise', 'add_edit_expense'];
+          if (category === 'mileage') {
+            route = ['/', 'enterprise', 'add_edit_mileage'];
+          } else if (category === 'per diem') {
+            route = ['/', 'enterprise', 'add_edit_per_diem'];
+          }
+        } else {
+          route = ['/', 'enterprise', 'view_expense'];
+          if (category === 'mileage') {
+            route = ['/', 'enterprise', 'view_mileage'];
+          } else if (category === 'per diem') {
+            route = ['/', 'enterprise', 'view_per_diem'];
+          }
         }
 
         this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
