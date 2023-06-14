@@ -1,65 +1,67 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { TitleCasePipe } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import {
+  ActionSheetController,
+  IonicModule,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular';
+import { Subscription, of } from 'rxjs';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
+import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
+import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
+import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import { filterOrgCategoryParam } from 'src/app/core/mock-data/org-category.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { unflattenExp1, unflattenExp2 } from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { ProjectsService } from 'src/app/core/services/projects.service';
-import { DateService } from 'src/app/core/services/date.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { PolicyService } from 'src/app/core/services/policy.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { StatusService } from 'src/app/core/services/status.service';
-import { FileService } from 'src/app/core/services/file.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
+import { DateService } from 'src/app/core/services/date.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { StatusService } from 'src/app/core/services/status.service';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { TaxGroupService } from 'src/app/core/services/tax-group.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { accountsData, orgSettingsData, paymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
-import { TokenService } from 'src/app/core/services/token.service';
-import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
-import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { DomSanitizer } from '@angular/platform-browser';
-import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
-import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { TaxGroupService } from 'src/app/core/services/tax-group.service';
-import { StorageService } from 'src/app/core/services/storage.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
-import { RouterTestingModule } from '@angular/router/testing';
-import { Subscription, concatMap, of } from 'rxjs';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
-import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { accountsData, orgSettingsData, paymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { unflattenExp1, unflattenExp2 } from 'src/app/core/mock-data/unflattened-expense.data';
-import {
-  filterOrgCategoryParam,
-  orgCategoryData,
-  transformedOrgCategories,
-} from 'src/app/core/mock-data/org-category.data';
-import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 
-fdescribe('AddEditExpensePage', () => {
+describe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
