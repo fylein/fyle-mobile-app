@@ -18,6 +18,8 @@ import SwiperCore, { Pagination } from 'swiper';
 export class FyViewAttachmentComponent implements OnInit {
   @Input() attachments: any[];
 
+  @Input() isMileageExpense: boolean;
+
   @Input() canEdit: boolean;
 
   @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
