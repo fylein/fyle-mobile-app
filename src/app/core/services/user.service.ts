@@ -27,7 +27,7 @@ export class UserService {
     );
   }
 
-  isPendingDetails() {
+  isPendingDetails(): Observable<boolean> {
     return from(this.authService.getEou()).pipe(map((eou) => eou.ou.status === 'PENDING_DETAILS'));
   }
 

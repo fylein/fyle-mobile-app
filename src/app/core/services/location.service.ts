@@ -5,6 +5,11 @@ import { catchError, map, timeout } from 'rxjs/operators';
 import { from, Observable, of, Subject, OperatorFunction } from 'rxjs';
 import { Geolocation, Position } from '@capacitor/geolocation';
 import { Cacheable } from 'ts-cacheable';
+import { PredictedLocation } from '../models/predicted-location.model';
+import { PredictedLocations } from '../models/location.model';
+import { Location } from '../models/location.model';
+import { MileageLocation } from 'src/app/shared/components/route-visualizer/mileage-locations.interface';
+import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
 
 const currentLocationCacheBuster$ = new Subject<void>();
 
@@ -16,6 +21,11 @@ export class LocationService {
 
   constructor(private httpClient: HttpClient) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
+  }
+
+  @Cacheable()
+  get<T>(url: string, config = {}): Observable<T> {
+    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/location' + url, config);
   }
 
   @Cacheable({
@@ -38,16 +48,17 @@ export class LocationService {
     return (source) => (cond ? source.pipe(timeout(value)) : source);
   }
 
-  setRoot(rootUrl: string) {
+  setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
-  get(url, config = {}) {
-    return this.httpClient.get(this.ROOT_ENDPOINT + '/location' + url, config);
-  }
-
-  getAutocompletePredictions(text, userId, currentLocation?, types?) {
-    const data: any = {
+  getAutocompletePredictions(
+    text: string,
+    userId: string,
+    currentLocation?: string,
+    types?: string
+  ): Observable<PredictedLocation[]> {
+    const data: Record<string, Record<string, string>> = {
       params: {
         text,
         user_id: userId,
@@ -60,11 +71,10 @@ export class LocationService {
     if (types) {
       data.params.types = types;
     }
-
-    return this.get('/autocomplete', data).pipe(map((res: any) => res.predictions));
+    return this.get('/autocomplete', data).pipe(map((res: PredictedLocations) => res.predictions));
   }
 
-  getDistance(fromLocation, toLocation): Observable<number> {
+  getDistance(fromLocation: Location, toLocation: Location): Observable<number> {
     const data = {
       params: {
         origin_lat: fromLocation.latitude,
@@ -89,9 +99,9 @@ export class LocationService {
    * {"city": "Thane", "state": "Maharashtra", "country": "India", "display": "Thane, Maharashtra, India",
    * "formatted_address": "Thane, Maharashtra, India", "latitude": 19.2183307, "longitude": 72.9780897}
    */
-  getGeocode(placeId, displayName) {
+  getGeocode(placeId: string, displayName: string): Observable<Location> {
     return this.get('/geocode/' + placeId).pipe(
-      map((locationDetails: any) => {
+      map((locationDetails: Location) => {
         // locationDetails does not contain the `display` key
         if (displayName) {
           locationDetails.display = displayName;
@@ -99,5 +109,20 @@ export class LocationService {
         return locationDetails;
       })
     );
+  }
+
+  getMileageRoute(mileageLocations: MileageLocation[]): MileageRoute {
+    const locations: google.maps.LatLngLiteral[] = mileageLocations.map((location) => ({
+      lat: location.latitude,
+      lng: location.longitude,
+    }));
+
+    const mileageRoute = {
+      origin: locations[0],
+      destination: locations[locations.length - 1],
+      waypoints: locations.slice(1, -1),
+    };
+
+    return mileageRoute;
   }
 }
