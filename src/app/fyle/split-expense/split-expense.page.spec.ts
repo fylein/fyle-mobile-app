@@ -38,8 +38,9 @@ import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expe
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
+import { OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 
-describe('SplitExpensePage', () => {
+fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -395,25 +396,27 @@ describe('SplitExpensePage', () => {
     });
   });
 
-  xit('generateSplitEtxnFromFg', () => {});
-  xit('uploadNewFiles', () => {});
-  xit('uploadFiles', () => {});
-  xit('createAndLinkTxnsWithFiles', () => {});
-  xit('toastWithCTA', () => {});
-  xit('toastWithoutCTA', () => {});
-  xit('showSuccessToast', () => {});
-  xit('getAttachedFiles', () => {});
-  xit('showSplitExpenseViolations', () => {});
-  xit('handleSplitExpensePolicyViolations', () => {});
-  xit('save', () => {});
-  xit('getActiveCategories', () => {});
-  xit('ionViewWillEnter', () => {});
-  xit('setValuesForCCC', () => {});
-  xit('setAmountAndCurrency', () => {});
-  xit('customDateValidator', () => {});
-  xit('add', () => {});
-  xit('remove', () => {});
-  xit('splitEvenly', () => {});
-  xit('setEvenSplit', () => {});
-  xit('isEvenlySplit', () => {});
+  it('getCategoryList(): get the category list', () => {
+    const categories: OrgCategoryListItem[] = [
+      {
+        label: 'Accounts Payable - Employees',
+        value: expectedOrgCategoriesPaginated[0],
+      },
+      {
+        label: 'Capitalized Software Costs',
+        value: expectedOrgCategoriesPaginated[1],
+      },
+      {
+        label: 'COGS-Billable Hours',
+        value: expectedOrgCategoriesPaginated[2],
+      },
+      {
+        label: 'samp category',
+        value: expectedOrgCategoriesPaginated[3],
+      },
+    ];
+    component.categories$ = of(categories);
+    component.getCategoryList();
+    expect(component.categoryList).toEqual(expectedOrgCategoriesPaginated);
+  });
 });
