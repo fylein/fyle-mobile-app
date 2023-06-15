@@ -17,7 +17,7 @@ import { AdvancesStates } from '../models/advances-states.model';
 export class FiltersHelperService {
   constructor(private titleCasePipe: TitleCasePipe, private modalController: ModalController) {}
 
-  generateFilterPills(filters: Filters, projectFieldName?: string) {
+  generateFilterPills(filters: Filters, projectFieldName?: string): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
     const filterPillsMap: Record<string, string> = {
@@ -57,7 +57,7 @@ export class FiltersHelperService {
     return filterPills;
   }
 
-  convertDataToFilters(selectedFilters: SelectedFilters<string | AdvancesStates[]>[]): Filters {
+  convertDataToFilters(selectedFilters: SelectedFilters<string | AdvancesStates[] | SortingDirection>[]): Filters {
     const generatedFilters: Filters = {};
 
     const stateFilter = selectedFilters.find(
@@ -78,8 +78,8 @@ export class FiltersHelperService {
     return generatedFilters;
   }
 
-  generateSelectedFilters(filters: Filters) {
-    const generatedFilters: SelectedFilters<string | string[] | number>[] = [];
+  generateSelectedFilters(filters: Filters): SelectedFilters<string | AdvancesStates[] | SortingDirection>[] {
+    const generatedFilters: SelectedFilters<string | AdvancesStates[]>[] = [];
     const filtersMap: Record<string, string> = {
       state: 'State',
       sortParam: 'Sort By',
@@ -104,7 +104,11 @@ export class FiltersHelperService {
     return generatedFilters;
   }
 
-  async openFilterModal(filters: Filters, filterOptions: FilterOptions<string>[], activeFilterInitialName?: string) {
+  async openFilterModal(
+    filters: Filters,
+    filterOptions: FilterOptions<string>[],
+    activeFilterInitialName?: string
+  ): Promise<Filters> {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
@@ -124,7 +128,7 @@ export class FiltersHelperService {
     }
   }
 
-  private getSortParam(sortValue: string) {
+  private getSortParam(sortValue: string): SortingParam {
     let sortParam: SortingParam;
     if (sortValue.includes('crDate')) {
       sortParam = SortingParam.creationDate;
@@ -137,7 +141,7 @@ export class FiltersHelperService {
     return sortParam;
   }
 
-  private getSortDir(sortValue: string) {
+  private getSortDir(sortValue: string): SortingDirection {
     let sortDir: SortingDirection;
 
     if (sortValue.includes('NewToOld') || sortValue.includes('ZToA')) {
@@ -148,7 +152,7 @@ export class FiltersHelperService {
     return sortDir;
   }
 
-  private getSortString(sortParam: SortingParam, sortDir: SortingDirection) {
+  private getSortString(sortParam: SortingParam, sortDir: SortingDirection): string {
     //constructs a string that incorporates both sort param and direction which is the format understood
     //by the filter modal component
     let sortString = '';
