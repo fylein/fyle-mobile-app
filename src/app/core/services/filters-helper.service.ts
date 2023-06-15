@@ -60,20 +60,16 @@ export class FiltersHelperService {
   convertDataToFilters(selectedFilters: SelectedFilters<string | AdvancesStates[] | SortingDirection>[]): Filters {
     const generatedFilters: Filters = {};
 
-    const stateFilter = selectedFilters.find(
-      (filter): filter is SelectedFilters<AdvancesStates[]> => filter.name === 'State'
-    );
-    const sortBy = selectedFilters.find<SelectedFilters<string>>(
-      (filter): filter is SelectedFilters<string> => filter.name === 'Sort By'
-    );
+    const stateFilter = selectedFilters.find((filter) => filter.name === 'State');
+    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
 
     if (stateFilter) {
-      generatedFilters.state = stateFilter.value;
+      generatedFilters.state = stateFilter.value as AdvancesStates[];
     }
 
     if (sortBy && sortBy.value) {
-      generatedFilters.sortParam = this.getSortParam(sortBy.value);
-      generatedFilters.sortDir = this.getSortDir(sortBy.value);
+      generatedFilters.sortParam = this.getSortParam(sortBy.value as AdvancesStates);
+      generatedFilters.sortDir = this.getSortDir(sortBy.value as AdvancesStates);
     }
     return generatedFilters;
   }
