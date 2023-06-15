@@ -16,14 +16,17 @@ import {
 } from '@ionic/angular';
 import { Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
-import { filterOrgCategoryParam } from 'src/app/core/mock-data/org-category.data';
+import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { unflattenExp1, unflattenExp2 } from 'src/app/core/mock-data/unflattened-expense.data';
+import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
+import { txnList } from 'src/app/core/mock-data/transaction.data';
+import { unflattenExp1, unflattenExp2, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -54,14 +57,24 @@ import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { accountsData, orgSettingsData, paymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  accountsData,
+  orgSettingsData,
+  paymentModesData,
+  unflattenedAccount1Data,
+} from 'src/app/core/test-data/accounts.service.spec.data';
+import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 
-describe('AddEditExpensePage', () => {
+fdescribe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -247,7 +260,7 @@ describe('AddEditExpensePage', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditExpensePage],
+      declarations: [AddEditExpensePage, MaskNumber],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
       providers: [
         FormBuilder,
@@ -631,7 +644,60 @@ describe('AddEditExpensePage', () => {
 
   xit('setUpTaxCalculations', () => {});
 
-  xit('checkIfInvalidPaymentMode', () => {});
+  describe('checkIfInvalidPaymentMode():', () => {
+    it('should check for invalid payment mode', (done) => {
+      component.etxn$ = of(unflattenExp1);
+      component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
+      component.fg.controls.currencyObj.setValue({
+        currency: 'USD',
+        amount: 500,
+      });
+      fixture.detectChanges();
+
+      component.checkIfInvalidPaymentMode().subscribe((res) => {
+        expect(res).toBeFalse();
+        done();
+      });
+    });
+
+    it('should check for invalid payment in case of Advance accounts', (done) => {
+      component.etxn$ = of(unflattenExp1);
+      component.fg.controls.paymentMode.setValue({
+        ...unflattenedAccount1Data,
+        acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE },
+      });
+      component.fg.controls.currencyObj.setValue({
+        currency: 'USD',
+        amount: 500,
+      });
+      fixture.detectChanges();
+
+      component.checkIfInvalidPaymentMode().subscribe((res) => {
+        expect(res).toBeTrue();
+        expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should check for invalid payment mode if source account ID does match', (done) => {
+      component.etxn$ = of(unflattenExp1);
+      component.fg.controls.paymentMode.setValue({
+        ...unflattenedAccount1Data,
+        acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'acc5APeygFjRd' },
+      });
+      component.fg.controls.currencyObj.setValue({
+        currency: 'USD',
+        amount: 500,
+      });
+      fixture.detectChanges();
+
+      component.checkIfInvalidPaymentMode().subscribe((res) => {
+        expect(res).toBeTrue();
+        expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
 
   describe('unmatchExpense():', () => {
     it('should show popup and selected txns if primary action is selected', fakeAsync(() => {
@@ -755,15 +821,308 @@ describe('AddEditExpensePage', () => {
     });
   });
 
-  xit('removeCorporateCardExpense', () => {});
+  it('getRemoveCCCExpModalParams(): should return params for remove CCC expense modal', (done) => {
+    transactionService.removeCorporateCardExpense.and.returnValue(
+      of({
+        user_created_expense: txnList[0],
+        auto_created_expense: txnList[1],
+      })
+    );
+    const header = 'Remove Card Expense';
+    const body = 'removed';
+    const ctaText = 'Confirm';
+    const ctaLoadingText = 'Confirming';
 
-  xit('markPeronsalOrDismiss', () => {});
+    const result = component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText);
+    result.componentProps.deleteMethod().subscribe((res) => {
+      expect(res).toEqual({
+        user_created_expense: txnList[0],
+        auto_created_expense: txnList[1],
+      });
+      expect(transactionService.removeCorporateCardExpense).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      done();
+    });
+  });
+
+  describe('removeCorporateCardExpense():', () => {
+    it('should remove CCC expense', fakeAsync(() => {
+      component.etxn$ = of({ ...txnList[0] });
+      spyOn(component, 'goBack');
+      transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
+      spyOn(component, 'getRemoveCCCExpModalParams');
+      spyOn(component, 'showSnackBarToast');
+
+      const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+      popoverController.create.and.resolveTo(deletePopoverSpy);
+
+      component.removeCorporateCardExpense();
+      tick(500);
+
+      const header = 'Remove Card Expense';
+      const body = 'removed';
+      const ctaText = 'Confirm';
+      const ctaLoadingText = 'Confirming';
+
+      expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
+      expect(popoverController.create).toHaveBeenCalledOnceWith(
+        component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
+      );
+      expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledOnceWith({
+        Type: 'unlink corporate card expense',
+        transaction: undefined,
+      });
+      expect(component.goBack).toHaveBeenCalledTimes(1);
+      expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+        { message: 'Successfully removed the card details from the expense.' },
+        'information',
+        ['msb-info']
+      );
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Successfully removed the card details from the expense.',
+      });
+    }));
+
+    it('navigate back to report if redirected from report after removing txn', fakeAsync(() => {
+      const txn = { ...unflattenedTxn, tx: { ...unflattenedTxn.tx, report_id: 'rpFE5X1Pqi9P' } };
+      component.etxn$ = of(txn);
+      transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
+      spyOn(component, 'getRemoveCCCExpModalParams');
+      spyOn(component, 'showSnackBarToast');
+
+      const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+      popoverController.create.and.resolveTo(deletePopoverSpy);
+
+      component.removeCorporateCardExpense();
+      tick(500);
+
+      const header = 'Remove Card Expense';
+      const body = 'removed';
+      const ctaText = 'Confirm';
+      const ctaLoadingText = 'Confirming';
+
+      expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
+      expect(popoverController.create).toHaveBeenCalledOnceWith(
+        component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
+      );
+      expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledOnceWith({
+        Type: 'unlink corporate card expense',
+        transaction: txn.tx,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: 'rpFE5X1Pqi9P', navigateBack: true },
+      ]);
+      expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+        { message: 'Successfully removed the card details from the expense.' },
+        'information',
+        ['msb-info']
+      );
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Successfully removed the card details from the expense.',
+      });
+    }));
+  });
+
+  describe('markPeronsalOrDismiss(): ', () => {
+    it('should dismiss txn as specified', fakeAsync(() => {
+      spyOn(component, 'getMarkDismissModalParams');
+      spyOn(component, 'showSnackBarToast');
+      component.etxn$ = of(unflattenedTxn);
+
+      const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+      popoverController.create.and.resolveTo(deletePopoverSpy);
+
+      fixture.detectChanges();
+
+      component.markPeronsalOrDismiss('dismiss');
+      tick(500);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith(
+        component.getMarkDismissModalParams(
+          {
+            header: 'Dismiss this expense?',
+            body: "This corporate card expense will be dismissed and you won't be able to edit it.\nDo you wish to proceed?",
+            ctaText: 'Yes',
+            ctaLoadingText: 'Dismissing',
+          },
+          true
+        )
+      );
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      expect(component.showSnackBarToast).toHaveBeenCalledOnceWith({ message: 'Dismissed expense' }, 'information', [
+        'msb-info',
+      ]);
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: 'Dismissed expense' });
+    }));
+
+    it('should mark txn as personal', fakeAsync(() => {
+      spyOn(component, 'getMarkDismissModalParams');
+      spyOn(component, 'showSnackBarToast');
+      component.etxn$ = of(unflattenedTxn);
+
+      const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+      popoverController.create.and.resolveTo(deletePopoverSpy);
+      component.isExpenseMatchedForDebitCCCE = true;
+
+      fixture.detectChanges();
+
+      component.markPeronsalOrDismiss('personal');
+      tick(500);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith(
+        component.getMarkDismissModalParams(
+          {
+            header: 'Mark Expense as Personal',
+            body: "This corporate card expense will be marked as personal and you won't be able to edit it.\nDo you wish to proceed?",
+            ctaText: 'Yes',
+            ctaLoadingText: 'Marking',
+          },
+          true
+        )
+      );
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+        { message: 'Marked expense as Personal' },
+        'information',
+        ['msb-info']
+      );
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: 'Marked expense as Personal' });
+    }));
+  });
 
   xit('showFormValidationErrors', () => {});
 
-  xit('getActionSheetOptions', () => {});
+  describe('splitExpByCategoryHandler():', () => {
+    it('should show split expense modal', () => {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      spyOn(component, 'openSplitExpenseModal');
+      fixture.detectChanges();
 
-  xit('showMoreActions', () => {});
+      component.splitExpByCategoryHandler();
+      expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('categories');
+    });
+    it('should show validation errors', () => {
+      spyOn(component, 'showFormValidationErrors');
+      fixture.detectChanges();
+
+      component.splitExpByCategoryHandler();
+      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('splitExpByFieldHandler():', () => {
+    it('should show split expense modal', () => {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      spyOn(component, 'openSplitExpenseModal');
+      fixture.detectChanges();
+
+      component.splitExpByFieldHandler();
+      expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('projects');
+    });
+    it('should show validation errors', () => {
+      spyOn(component, 'showFormValidationErrors');
+      fixture.detectChanges();
+
+      component.splitExpByFieldHandler();
+      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('splitExpByCostCenterHandler():', () => {
+    it('should show split expense modal', () => {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      spyOn(component, 'openSplitExpenseModal');
+      fixture.detectChanges();
+
+      component.splitExpByCostCenterHandler();
+      expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('cost centers');
+    });
+    it('should show validation errors', () => {
+      spyOn(component, 'showFormValidationErrors');
+      fixture.detectChanges();
+
+      component.splitExpByCostCenterHandler();
+      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('markAsPersonalHandler(): should mark as personal', () => {
+    spyOn(component, 'markPeronsalOrDismiss');
+
+    component.markAsPersonalHandler();
+    expect(component.markPeronsalOrDismiss).toHaveBeenCalledOnceWith('personal');
+  });
+
+  it('dismissAsCardPaymentHandler(): should dismiss the card', () => {
+    spyOn(component, 'markPeronsalOrDismiss');
+
+    component.dismissAsCardPaymentHandler();
+    expect(component.markPeronsalOrDismiss).toHaveBeenCalledOnceWith('dismiss');
+  });
+
+  it('removeCCCHandler(): should call to remove CCC', () => {
+    spyOn(component, 'removeCorporateCardExpense');
+
+    component.removeCCCHandler();
+    expect(component.removeCorporateCardExpense).toHaveBeenCalledTimes(1);
+  });
+
+  it('getActionSheetOptions(): should return action sheet options', (done) => {
+    orgSettingsService.get.and.returnValue(
+      of({
+        ...orgSettingsData,
+        expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
+      })
+    );
+    component.costCenters$ = of(costCenterApiRes1);
+    projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+    component.txnFields$ = of({ project_id: 257528 });
+    component.isCccExpense = true;
+    component.canDismissCCCE = true;
+    component.isCorporateCreditCardEnabled = true;
+    component.canRemoveCardExpense = true;
+    component.isExpenseMatchedForDebitCCCE = true;
+    fixture.detectChanges();
+
+    component.getActionSheetOptions().subscribe((res) => {
+      expect(res.length).toEqual(6);
+      done();
+    });
+  });
+
+  it('showMoreActions(): should show action sheet', fakeAsync(() => {
+    component.actionSheetOptions$ = of(actionSheetOptionsData);
+
+    const actionSheetSpy = jasmine.createSpyObj('actionSheet', ['present']);
+    actionSheetController.create.and.resolveTo(actionSheetSpy);
+
+    component.showMoreActions();
+    tick(500);
+
+    expect(actionSheetController.create).toHaveBeenCalledOnceWith({
+      header: 'MORE ACTIONS',
+      mode: 'md',
+      cssClass: 'fy-action-sheet',
+      buttons: actionSheetOptionsData,
+    });
+  }));
 
   xit('getFormValidationErrors', () => {});
 
@@ -868,7 +1227,13 @@ describe('AddEditExpensePage', () => {
 
   xit('getAutofillCategory', () => {});
 
-  xit('setCategoryFromVendor', () => {});
+  it('setCategoryFromVendor(): should set category in the form', () => {
+    categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
+
+    component.setCategoryFromVendor(orgCategoryData.displayName);
+    expect(trackingService.setCategoryFromVendor).toHaveBeenCalledOnceWith(orgCategoryData);
+    expect(component.fg.controls.category.value).toEqual(orgCategoryData);
+  });
 
   xit('getCategoryOnEdit', () => {});
 
@@ -886,7 +1251,56 @@ describe('AddEditExpensePage', () => {
 
   xit('goToNext', () => {});
 
-  xit('goToTransaction', () => {});
+  describe('goToTransaction():', () => {
+    const txn_ids = ['txfCdl3TEZ7K'];
+    it('should go to add-edit mileage if category is mileage', () => {
+      const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'MILEAGE' } };
+      component.goToTransaction(expense, txn_ids, 0);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_mileage',
+        {
+          id: expense.tx.id,
+          txnIds: JSON.stringify(txn_ids),
+          activeIndex: 0,
+        },
+      ]);
+    });
+
+    it('should go to add-edit per diem if category is per diem', () => {
+      const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'PER DIEM' } };
+      component.goToTransaction(expense, txn_ids, 0);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_per_diem',
+        {
+          id: expense.tx.id,
+          txnIds: JSON.stringify(txn_ids),
+          activeIndex: 0,
+        },
+      ]);
+    });
+
+    it('should go to add-edit per diem if category is per diem', () => {
+      const expense = unflattenExp1;
+      component.goToTransaction(expense, txn_ids, 0);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        {
+          id: expense.tx.id,
+          txnIds: JSON.stringify(txn_ids),
+          activeIndex: 0,
+        },
+      ]);
+    });
+  });
 
   xit('customDateValidator', () => {});
 
@@ -906,7 +1320,7 @@ describe('AddEditExpensePage', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'add_edit_expense']);
   }));
 
-  xit('showAddToReportSuccessToast', () => {});
+  xit('showAddToReportSuccessToast(): should show toast if exp was added to report successfully', () => {});
 
   xit('saveExpense', () => {});
 
@@ -955,7 +1369,41 @@ describe('AddEditExpensePage', () => {
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
   });
 
-  xit('continueWithPolicyViolations', () => {});
+  it('continueWithPolicyViolations(): should display violations and relevant CTA in a modal', async () => {
+    const properties = {
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      canDismiss: true,
+      backdropDismiss: true,
+      animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
+    };
+    modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+    currencyModalSpy.onWillDismiss.and.resolveTo({
+      data: { action: 'primary' },
+    });
+    modalController.create.and.resolveTo(currencyModalSpy);
+
+    const result = await component.continueWithPolicyViolations(
+      criticalPolicyViolation2,
+      splitPolicyExp4.data.final_desired_state
+    );
+
+    expect(result).toEqual({ action: 'primary' });
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: FyPolicyViolationComponent,
+      componentProps: {
+        policyViolationMessages: criticalPolicyViolation2,
+        policyAction: splitPolicyExp4.data.final_desired_state,
+      },
+      mode: 'ios',
+      ...properties,
+    });
+    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+  });
 
   xit('trackPolicyCorrections', () => {});
 
@@ -987,9 +1435,23 @@ describe('AddEditExpensePage', () => {
 
   xit('openCommentsModal', () => {});
 
-  xit('hideFields', () => {});
+  it('hideFields(): should disable expanded view', () => {
+    component.hideFields();
 
-  xit('showFields', () => {});
+    expect(trackingService.hideMoreClicked).toHaveBeenCalledOnceWith({
+      source: 'Add Edit Expenses page',
+    });
+    expect(component.isExpandedView).toBeFalse();
+  });
+
+  it('showFields(): should show expanded view', () => {
+    component.showFields();
+
+    expect(trackingService.showMoreClicked).toHaveBeenCalledOnceWith({
+      source: 'Add Edit Expenses page',
+    });
+    expect(component.isExpandedView).toBeTrue();
+  });
 
   xit('getPolicyDetails', () => {});
 
@@ -1012,7 +1474,60 @@ describe('AddEditExpensePage', () => {
     expect(result).toEqual([expenseData1]);
   });
 
-  xit('showSuggestedDuplicates', () => {});
+  it('showSuggestedDuplicates(): should show potential duplicates', fakeAsync(() => {
+    spyOn(component, 'getDuplicateExpenses');
+
+    const properties = {
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      canDismiss: true,
+      backdropDismiss: true,
+      animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
+    };
+    modalProperties.getModalDefaultProperties.and.returnValue(properties);
+
+    const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+    currencyModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'dismissed' } });
+
+    modalController.create.and.resolveTo(currencyModalSpy);
+
+    component.showSuggestedDuplicates([expenseData1]);
+    tick(500);
+
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: SuggestedDuplicatesComponent,
+      componentProps: {
+        duplicateExpenses: [expenseData1],
+      },
+      mode: 'ios',
+      ...properties,
+    });
+    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    expect(component.getDuplicateExpenses).toHaveBeenCalledTimes(1);
+  }));
+
+  it('showSnackBarToast(): should show snackbar with relevant properties', () => {
+    const properties = {
+      data: {
+        icon: 'tick-square-filled',
+        showCloseButton: true,
+        message: 'Message',
+      },
+      duration: 3000,
+    };
+    snackbarProperties.setSnackbarProperties.and.returnValue(properties);
+
+    component.showSnackBarToast({ message: 'Message' }, 'success', ['panel-class']);
+
+    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+      ...properties,
+      panelClass: ['panel-class'],
+    });
+    expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message: 'Message' });
+  });
 
   xit('ionViewWillLeave(): should unsubscribe or clean up observables on page exits', () => {
     spyOn(component.hardwareBackButtonAction, 'unsubscribe');
