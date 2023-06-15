@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -33,12 +33,14 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { expenseFieldWithBillable } from 'src/app/core/mock-data/expense-field.data';
-import { splitTxns, txnList } from 'src/app/core/mock-data/transaction.data';
+import { createSourceTxn, splitTxn2, splitTxns, txnList } from 'src/app/core/mock-data/transaction.data';
 import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import { splitExpFile2, splitExpFile3, splitExpFileObj } from 'src/app/core/mock-data/file-object.data';
+import { fileTxns } from 'src/app/core/mock-data/file-txn.data';
 
 fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -75,6 +77,7 @@ fdescribe('SplitExpensePage', () => {
       'linkTxnWithFiles',
       'formatPolicyViolations',
       'checkForPolicyViolations',
+      'getBase64Content',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
@@ -418,5 +421,45 @@ fdescribe('SplitExpensePage', () => {
     component.categories$ = of(categories);
     component.getCategoryList();
     expect(component.categoryList).toEqual(expectedOrgCategoriesPaginated);
+  });
+
+  describe('createAndLinkTxnsWithFiles():', () => {
+    it('should link transaction with files when the receipt is attached and the report id is not present', fakeAsync(() => {
+      const splitExpData = splitTxn2;
+      component.fileObjs = splitExpFileObj;
+      component.transaction = createSourceTxn;
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitTxn2));
+      splitExpenseService.getBase64Content.and.returnValue(
+        of([
+          {
+            id: 'fic2q7DLgysQ',
+            name: '000.jpeg',
+            content: 'some content here',
+          },
+        ])
+      );
+      component.totalSplitAmount = 16428.56;
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of([splitExpFile2, splitExpFile3]));
+      const mockFileTxnsData1 = {
+        ...fileTxns,
+        txns: fileTxns.txns.map((txn) => ({
+          ...txn,
+          state: 'COMPLETE',
+        })),
+      };
+
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
+          createSourceTxn,
+          component.totalSplitAmount,
+          splitTxn2
+        );
+        expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(splitExpFileObj);
+        expect(component.completeTxnIds).toEqual(['tx4QhcvNHpuh', 'tx4QhcvNHpuh']);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledTimes(1);
+        expect(result).toEqual(['tx4QhcvNHpuh', 'tx4QhcvNHpuh']);
+      });
+      tick(500);
+    }));
   });
 });
