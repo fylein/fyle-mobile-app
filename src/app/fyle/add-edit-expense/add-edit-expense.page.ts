@@ -111,6 +111,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
 import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 
+const MAX_FILE_SIZE = 5000000;
 @Component({
   selector: 'app-add-edit-expense',
   templateUrl: './add-edit-expense.page.html',
@@ -3790,6 +3791,22 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  async showSizeLimitExceededPopover() {
+    const sizeLimitExceededPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Size limit exceeded',
+        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await sizeLimitExceededPopover.present();
+  }
+
   async addAttachments(event) {
     event.stopPropagation();
     let fileData;
@@ -3799,14 +3816,18 @@ export class AddEditExpensePage implements OnInit {
       nativeElement.onchange = async () => {
         const file = nativeElement.files[0];
         if (file) {
-          const dataUrl = await this.fileService.readFile(file);
-          this.trackingService.addAttachment({ type: file.type });
-          fileData = {
-            type: file.type,
-            dataUrl,
-            actionSource: 'gallery_upload',
-          };
-          this.attachReceipts(fileData);
+          if (file.size > MAX_FILE_SIZE) {
+            this.showSizeLimitExceededPopover();
+          } else {
+            const dataUrl = await this.fileService.readFile(file);
+            this.trackingService.addAttachment({ type: file.type });
+            fileData = {
+              type: file.type,
+              dataUrl,
+              actionSource: 'gallery_upload',
+            };
+            this.attachReceipts(fileData);
+          }
         }
       };
       nativeElement.click();
