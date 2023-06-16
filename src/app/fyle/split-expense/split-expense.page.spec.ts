@@ -54,11 +54,9 @@ import {
   splitExpFileObj,
 } from 'src/app/core/mock-data/file-object.data';
 import { fileTxns, fileTxns2, fileTxns3 } from 'src/app/core/mock-data/file-txn.data';
-import { D } from '@angular/cdk/keycodes';
-import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
-import { FileTransaction } from 'src/app/core/models/file-txn.model';
+import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
 
-fdescribe('SplitExpensePage', () => {
+describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -272,145 +270,38 @@ fdescribe('SplitExpensePage', () => {
 
   describe('setUpSplitExpenseBillable', () => {
     it('should setup split expense to billable when the expense is split by project and the transaction fileds have the billable property present', () => {
-      const splitExpense: SplitExpense = {
-        amount: 15000,
-        currency: 'INR',
-        percentage: 60,
-        txn_dt: new Date('2023-06-14'),
-        project: {
-          ap1_email: null,
-          ap1_full_name: null,
-          ap2_email: null,
-          ap2_full_name: null,
-          project_active: true,
-          project_approver1_id: null,
-          project_approver2_id: null,
-          project_code: '1397',
-          project_created_at: new Date('2021-04-14T01:59:24.553Z'),
-          project_description: 'NetSuite Customer / Project - 3M, Id - 1397',
-          project_id: 247935,
-          project_name: '3M',
-          project_org_category_ids: [16557, 16558, 16559, 16560, 16561],
-          project_org_id: 'orNVthTo2Zyo',
-          project_updated_at: new Date('2023-03-18T00:34:50.217Z'),
-          projectv2_name: '3M',
-          sub_project_name: null,
-        },
-      };
-
       component.txnFields = txnFieldData;
-      const result = component.setUpSplitExpenseBillable(splitExpense);
+      const result = component.setUpSplitExpenseBillable(splitExpense1);
       expect(result).toBeFalse();
     });
 
     it('should return false when the transaction in not billable and the expense is split by category', () => {
-      const splitExpense: SplitExpense = {
-        amount: 2160,
-        currency: 'INR',
-        percentage: 60,
-        txn_dt: new Date('2023-06-14'),
-        category: {
-          code: null,
-          created_at: new Date('2019-01-07T11:12:02.164897+00:00'),
-          displayName: '1',
-          enabled: true,
-          fyle_category: 'Airlines',
-          id: 51722,
-          name: '1',
-          org_id: 'orNVthTo2Zyo',
-          sub_category: '1',
-          updated_at: new Date('2023-04-17T12:55:49.475665+00:00'),
-        },
-      };
       component.transaction = txnList[0];
-      const result = component.setUpSplitExpenseBillable(splitExpense);
+      const result = component.setUpSplitExpenseBillable(splitExpense2);
       expect(result).toBeFalse();
     });
 
     it('should return true whan the transaction is billable and the expense is split by category', () => {
-      const splitExpense: SplitExpense = {
-        amount: 3600,
-        currency: 'INR',
-        percentage: 60,
-        txn_dt: new Date('2023-06-14'),
-        category: {
-          code: null,
-          created_at: new Date('2019-06-11T04:50:49.815818+00:00'),
-          displayName: '1 / 122',
-          enabled: true,
-          fyle_category: 'Others',
-          id: 58350,
-          name: '1',
-          org_id: 'orNVthTo2Zyo',
-          sub_category: '122',
-          updated_at: new Date('2023-04-15T07:01:03.169393+00:00'),
-        },
-      };
       component.transaction = splitTxns[0];
-      const result = component.setUpSplitExpenseBillable(splitExpense);
+      const result = component.setUpSplitExpenseBillable(splitExpense2);
       expect(result).toBeTrue();
     });
   });
 
   describe('setUpSplitExpenseTax()', () => {
     it('should return the correct value when the expense is split by tax', () => {
-      const splitExpense: SplitExpense = {
-        amount: 3000,
-        currency: 'ARS',
-        percentage: 60,
-        txn_dt: new Date('2023-01-22'),
-        category: {
-          code: null,
-          created_at: new Date('2020-05-25T12:14:58.361590+00:00'),
-          displayName: '1 / chumma2',
-          enabled: true,
-          fyle_category: 'Professional Services',
-          id: 110167,
-          name: '1',
-          org_id: 'orNVthTo2Zyo',
-          sub_category: 'chumma2',
-          updated_at: new Date('2022-10-18T05:20:21.488988+00:00'),
-        },
-      };
-
       component.transaction = splitTransactionData1;
-      const result = component.setUpSplitExpenseTax(splitExpense);
+      const result = component.setUpSplitExpenseTax(splitExpense2);
       expect(result).toEqual(202.386);
     });
 
     it('should return the tax amount when the expense is split by tax and the tax amount has a falsy value', () => {
-      const splitExpense: SplitExpense = {
-        amount: 10.32,
-        currency: 'ARS',
-        percentage: 60,
-        txn_dt: new Date('2022-10-25'),
-        project: {
-          ap1_email: null,
-          ap1_full_name: null,
-          ap2_email: null,
-          ap2_full_name: null,
-          project_active: true,
-          project_approver1_id: null,
-          project_approver2_id: null,
-          project_code: null,
-          project_created_at: new Date('2022-01-08T12:20:30.330Z'),
-          project_description: null,
-          project_id: 290054,
-          project_name: '1234564757',
-          project_org_category_ids: [],
-          project_org_id: 'orNVthTo2Zyo',
-          project_updated_at: new Date('2023-05-20T22:38:11.287Z'),
-          projectv2_name: '1234564757',
-          sub_project_name: null,
-        },
-      };
-
       const splitTransactionData = {
         ...splitTransactionData1,
         tax_amount: 0,
       };
       component.transaction = splitTransactionData;
-      const result = component.setUpSplitExpenseTax(splitExpense);
+      const result = component.setUpSplitExpenseTax(splitExpense1);
       expect(result).toBe(0);
     });
   });
