@@ -9,7 +9,9 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { ExpenseFilters, Filters } from './my-expenses-filters.model';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class MyExpensesService {
   maskNumber = new MaskNumber();
 

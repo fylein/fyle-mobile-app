@@ -71,11 +71,18 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
+type QueryParams = Partial<{
+  or: string[];
+  and: string;
+  tx_report_id: string;
+  tx_state: string;
+  corporate_credit_card_account_number: string;
+}>;
+
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
-  providers: [MyExpensesService],
 })
 export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
@@ -91,7 +98,7 @@ export class MyExpensesPage implements OnInit {
   loadData$: BehaviorSubject<
     Partial<{
       pageNumber: number;
-      queryParams: any;
+      queryParams: QueryParams;
       sortParam: string;
       sortDir: string;
       searchString: string;
@@ -749,7 +756,7 @@ export class MyExpensesPage implements OnInit {
   addNewFiltersToParams() {
     let currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    let newQueryParams: any = {
+    let newQueryParams: QueryParams = {
       or: [],
     };
 
