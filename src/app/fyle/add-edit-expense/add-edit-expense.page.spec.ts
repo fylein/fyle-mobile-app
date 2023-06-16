@@ -73,8 +73,9 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
 
-fdescribe('AddEditExpensePage', () => {
+describe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -1425,7 +1426,10 @@ fdescribe('AddEditExpensePage', () => {
 
   xit('addAttachments', () => {});
 
-  xit('getReceiptExtension', () => {});
+  it('getReceiptExtension(): should get file extension', () => {
+    const result = component.getReceiptExtension('name.pdf');
+    expect(result).toEqual('pdf');
+  });
 
   xit('getReceiptDetails', () => {});
 
