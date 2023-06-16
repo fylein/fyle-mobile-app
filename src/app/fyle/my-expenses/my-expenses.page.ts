@@ -886,16 +886,16 @@ export class MyExpensesPage implements OnInit {
   selectExpense(expense: Expense) {
     let isSelectedElementsIncludesExpense = false;
     if (expense.tx_id) {
-      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
+      isSelectedElementsIncludesExpense = this.selectedElements?.some((txn) => expense.tx_id === txn.tx_id);
     } else {
-      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => isEqual(txn, expense));
+      isSelectedElementsIncludesExpense = this.selectedElements?.some((txn) => isEqual(txn, expense));
     }
 
     if (isSelectedElementsIncludesExpense) {
       if (expense.tx_id) {
-        this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
+        this.selectedElements = this.selectedElements?.filter((txn) => txn.tx_id !== expense.tx_id);
       } else {
-        this.selectedElements = this.selectedElements.filter((txn) => !isEqual(txn, expense));
+        this.selectedElements = this.selectedElements?.filter((txn) => !isEqual(txn, expense));
       }
     } else {
       this.selectedElements.push(expense);
