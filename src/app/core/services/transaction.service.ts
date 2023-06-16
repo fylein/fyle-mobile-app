@@ -19,7 +19,8 @@ import { UndoMerge } from '../models/undo-merge.model';
 import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { ExpenseFilters, Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/expenses-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
@@ -669,7 +670,7 @@ export class TransactionService {
     }
   }
 
-  generateStateFilters(newQueryParams: FilterQueryParams, filters: ExpenseFilters): FilterQueryParams {
+  generateStateFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
 
@@ -682,7 +683,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateCardNumberParams(newQueryParams: FilterQueryParams, filters: ExpenseFilters): FilterQueryParams {
+  generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
@@ -696,7 +697,10 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateReceiptAttachedParams(newQueryParams: FilterQueryParams, filters: ExpenseFilters): FilterQueryParams {
+  generateReceiptAttachedParams(
+    newQueryParams: FilterQueryParams,
+    filters: Partial<ExpenseFilters>
+  ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.receiptsAttached) {
       if (filters.receiptsAttached === 'YES') {
@@ -710,7 +714,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: ExpenseFilters): FilterQueryParams {
+  generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
@@ -725,7 +729,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateDateParams(newQueryParams: FilterQueryParams, filters: ExpenseFilters): FilterQueryParams {
+  generateDateParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     let newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date) {
       filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
@@ -751,7 +755,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateTypeFilters(newQueryParams: FilterQueryParams, filters: ExpenseFilters): FilterQueryParams {
+  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const typeOrFilter = this.generateTypeOrFilter(filters);
 
@@ -764,7 +768,10 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  setSortParams(currentParams: Partial<SortFiltersParams>, filters: ExpenseFilters): Partial<SortFiltersParams> {
+  setSortParams(
+    currentParams: Partial<SortFiltersParams>,
+    filters: Partial<ExpenseFilters>
+  ): Partial<SortFiltersParams> {
     const currentParamsCopy = cloneDeep(currentParams);
     if (filters.sortParam && filters.sortDir) {
       currentParamsCopy.sortParam = filters.sortParam;
@@ -862,7 +869,7 @@ export class TransactionService {
     }
   }
 
-  private generateStateOrFilter(filters: ExpenseFilters, newQueryParamsCopy: FilterQueryParams): string[] {
+  private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {
     const stateOrFilter: string[] = [];
     if (filters.state) {
       newQueryParamsCopy.tx_report_id = 'is.null';
@@ -886,7 +893,10 @@ export class TransactionService {
     return stateOrFilter;
   }
 
-  private generateCustomDateParams(newQueryParams: FilterQueryParams, filters: ExpenseFilters): FilterQueryParams {
+  private generateCustomDateParams(
+    newQueryParams: FilterQueryParams,
+    filters: Partial<ExpenseFilters>
+  ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {
       const startDate = filters.customDateStart?.toISOString();
@@ -903,7 +913,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  private generateTypeOrFilter(filters: ExpenseFilters): string[] {
+  private generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
     const typeOrFilter: string[] = [];
     if (filters.type) {
       if (filters.type.includes('Mileage')) {

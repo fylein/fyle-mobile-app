@@ -7,9 +7,12 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { ExpenseFilters, Filters } from './my-expenses-filters.model';
+import { Filters } from './my-expenses-filters.model';
+import { ExpenseFilters } from './expenses-filters.model';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class MyExpensesService {
   maskNumber = new MaskNumber();
 
@@ -99,7 +102,7 @@ export class MyExpensesService {
     }
   }
 
-  generateTypeFilterPills(filter: ExpenseFilters, filterPills: FilterPill[]) {
+  generateTypeFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]) {
     const combinedValue = filter.type
       .map((type) => {
         if (type === 'RegularExpenses') {
@@ -121,7 +124,7 @@ export class MyExpensesService {
     });
   }
 
-  generateDateFilterPills(filter: ExpenseFilters, filterPills: FilterPill[]) {
+  generateDateFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]) {
     let filterPillsCopy = cloneDeep(filterPills);
     if (filter.date === DateFilters.thisWeek) {
       filterPillsCopy.push({
@@ -162,7 +165,7 @@ export class MyExpensesService {
     return filterPillsCopy;
   }
 
-  generateCustomDatePill(filter: ExpenseFilters, filterPills: FilterPill[]) {
+  generateCustomDatePill(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]) {
     const filterPillsCopy = cloneDeep(filterPills);
     const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
     const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
@@ -198,7 +201,7 @@ export class MyExpensesService {
     });
   }
 
-  generateSplitExpenseFilterPills(filterPills: FilterPill[], filter: ExpenseFilters) {
+  generateSplitExpenseFilterPills(filterPills: FilterPill[], filter: Partial<ExpenseFilters>) {
     filterPills.push({
       label: 'Split Expense',
       type: 'splitExpense',
@@ -400,7 +403,7 @@ export class MyExpensesService {
     ];
   }
 
-  generateSelectedFilters(filter: ExpenseFilters): SelectedFilters<any>[] {
+  generateSelectedFilters(filter: Partial<ExpenseFilters>): SelectedFilters<any>[] {
     const generatedFilters: SelectedFilters<any>[] = [];
 
     if (filter.state) {
@@ -456,7 +459,7 @@ export class MyExpensesService {
     return generatedFilters;
   }
 
-  addSortToGeneratedFilters(filter: ExpenseFilters, generatedFilters: SelectedFilters<any>[]) {
+  addSortToGeneratedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<any>[]) {
     this.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
 
     this.convertAmountSortToSelectedFilters(filter, generatedFilters);
@@ -464,7 +467,7 @@ export class MyExpensesService {
     this.convertCategorySortToSelectedFilters(filter, generatedFilters);
   }
 
-  convertCategorySortToSelectedFilters(filter: ExpenseFilters, generatedFilters: SelectedFilters<any>[]) {
+  convertCategorySortToSelectedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<any>[]) {
     if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -478,7 +481,7 @@ export class MyExpensesService {
     }
   }
 
-  convertAmountSortToSelectedFilters(filter: ExpenseFilters, generatedFilters: SelectedFilters<any>[]) {
+  convertAmountSortToSelectedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<any>[]) {
     if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -492,7 +495,7 @@ export class MyExpensesService {
     }
   }
 
-  convertTxnDtSortToSelectedFilters(filter: ExpenseFilters, generatedFilters: SelectedFilters<any>[]) {
+  convertTxnDtSortToSelectedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<any>[]) {
     if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
