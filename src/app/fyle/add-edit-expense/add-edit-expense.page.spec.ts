@@ -21,6 +21,8 @@ import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-c
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -64,6 +66,7 @@ import {
   unflattenedAccount1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -73,7 +76,17 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
+
+const properties = {
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
 
 describe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
@@ -273,15 +286,6 @@ describe('AddEditExpensePage', () => {
                 id: 'txyeiYbLDSOy',
                 bankTxn: '',
                 persist_filters: false,
-                dataUrl: '',
-                remove_from_report: true,
-                canExtractData: false,
-                personalCardTxn: '',
-                rp_id: '',
-                image: '',
-                activeIndex: 0,
-                navigate_back: true,
-                txnIds: [],
               },
             },
           },
@@ -1332,16 +1336,6 @@ describe('AddEditExpensePage', () => {
   xit('saveExpenseAndGotoNext', () => {});
 
   it('continueWithCriticalPolicyViolation(): should show critical policy violation modal', async () => {
-    const properties = {
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      canDismiss: true,
-      backdropDismiss: true,
-      animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
-    };
     modalProperties.getModalDefaultProperties.and.returnValue(properties);
     const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
       'present',
@@ -1371,16 +1365,6 @@ describe('AddEditExpensePage', () => {
   });
 
   it('continueWithPolicyViolations(): should display violations and relevant CTA in a modal', async () => {
-    const properties = {
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      canDismiss: true,
-      backdropDismiss: true,
-      animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
-    };
     modalProperties.getModalDefaultProperties.and.returnValue(properties);
     const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
     currencyModalSpy.onWillDismiss.and.resolveTo({
@@ -1431,13 +1415,83 @@ describe('AddEditExpensePage', () => {
     expect(result).toEqual('pdf');
   });
 
-  xit('getReceiptDetails', () => {});
+  describe('getReceiptDetails():', () => {
+    it('should get receipt details if file has pdf extension', () => {
+      spyOn(component, 'getReceiptExtension').and.returnValue('pdf');
+
+      const result = component.getReceiptDetails({ ...fileObjectData, name: '000.pdf' });
+
+      expect(result).toEqual({
+        type: 'pdf',
+        thumbnail: 'img/fy-pdf.svg',
+      });
+    });
+
+    it('should get receipt details if file is an image', () => {
+      spyOn(component, 'getReceiptExtension').and.returnValue('jpeg');
+
+      const result = component.getReceiptDetails(fileObjectData);
+
+      expect(result).toEqual({
+        type: 'image',
+        thumbnail: fileObjectData.url,
+      });
+    });
+  });
 
   xit('viewAttachments', () => {});
 
   xit('deleteExpense', () => {});
 
-  xit('openCommentsModal', () => {});
+  describe('openCommentsModal():', () => {
+    it('should add comment', fakeAsync(() => {
+      component.etxn$ = of(unflattenExp1);
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+
+      modalSpy.onDidDismiss.and.resolveTo({ data: { updated: 'comment' } });
+
+      modalController.create.and.resolveTo(modalSpy);
+
+      component.openCommentsModal();
+      tick(500);
+
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: ViewCommentComponent,
+        componentProps: {
+          objectType: 'transactions',
+          objectId: unflattenExp1.tx.id,
+        },
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+      expect(trackingService.addComment).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should view comment', fakeAsync(() => {
+      component.etxn$ = of(unflattenExp1);
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+
+      modalSpy.onDidDismiss.and.resolveTo({ data: {} });
+
+      modalController.create.and.resolveTo(modalSpy);
+
+      component.openCommentsModal();
+      tick(500);
+
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: ViewCommentComponent,
+        componentProps: {
+          objectType: 'transactions',
+          objectId: unflattenExp1.tx.id,
+        },
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+      expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
+    }));
+  });
 
   it('hideFields(): should disable expanded view', () => {
     component.hideFields();
@@ -1457,13 +1511,34 @@ describe('AddEditExpensePage', () => {
     expect(component.isExpandedView).toBeTrue();
   });
 
-  xit('getPolicyDetails', () => {});
+  it('getPolicyDetails(): should get policy details', () => {
+    policyService.getSpenderExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData2));
+
+    component.getPolicyDetails();
+
+    expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
+    expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+  });
 
   xit('saveAndMatchWithPersonalCardTxn', () => {});
 
   xit('uploadAttachments', () => {});
 
-  xit('addFileType', () => {});
+  describe('addFileType(): ', () => {
+    it('should add file type image to objects if the file is not a pdf', () => {
+      transactionOutboxService.isPDF.and.returnValue(false);
+      const result = component.addFileType([fileObjectData]);
+
+      expect(result).toEqual([{ ...fileObjectData, type: 'image' }]);
+    });
+
+    it('should add file type pdf to objects if the file is a pdf', () => {
+      transactionOutboxService.isPDF.and.returnValue(true);
+      const result = component.addFileType([{ ...fileObjectData, type: 'pdf' }]);
+
+      expect(result).toEqual([{ ...fileObjectData, type: 'pdf' }]);
+    });
+  });
 
   xit('uploadMultipleFiles', () => {});
 
@@ -1481,16 +1556,6 @@ describe('AddEditExpensePage', () => {
   it('showSuggestedDuplicates(): should show potential duplicates', fakeAsync(() => {
     spyOn(component, 'getDuplicateExpenses');
 
-    const properties = {
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      canDismiss: true,
-      backdropDismiss: true,
-      animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
-    };
     modalProperties.getModalDefaultProperties.and.returnValue(properties);
 
     const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
