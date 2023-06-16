@@ -33,14 +33,30 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { expenseFieldWithBillable } from 'src/app/core/mock-data/expense-field.data';
-import { createSourceTxn, splitTxn2, splitTxns, txnList } from 'src/app/core/mock-data/transaction.data';
+import {
+  createSourceTxn,
+  splitExpenseTxn1,
+  splitTxn2,
+  splitTxns,
+  txnAmount1,
+  txnList,
+} from 'src/app/core/mock-data/transaction.data';
 import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
-import { splitExpFile2, splitExpFile3, splitExpFileObj } from 'src/app/core/mock-data/file-object.data';
-import { fileTxns } from 'src/app/core/mock-data/file-txn.data';
+import {
+  fileObject6,
+  fileObject7,
+  splitExpFile2,
+  splitExpFile3,
+  splitExpFileObj,
+} from 'src/app/core/mock-data/file-object.data';
+import { fileTxns, fileTxns2, fileTxns3 } from 'src/app/core/mock-data/file-txn.data';
+import { D } from '@angular/cdk/keycodes';
+import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import { FileTransaction } from 'src/app/core/models/file-txn.model';
 
 fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -424,40 +440,33 @@ fdescribe('SplitExpensePage', () => {
   });
 
   describe('createAndLinkTxnsWithFiles():', () => {
-    it('should link transaction with files when the receipt is attached and the report id is not present', fakeAsync(() => {
-      const splitExpData = splitTxn2;
-      component.fileObjs = splitExpFileObj;
-      component.transaction = createSourceTxn;
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitTxn2));
+    it('should link transaction with files when the receipt is attached and, the txn state is COMPLETE but the report id is not present', fakeAsync(() => {
+      const splitExpData = splitExpenseTxn1;
+      component.fileObjs = fileObject6;
+      component.transaction = txnAmount1;
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
       splitExpenseService.getBase64Content.and.returnValue(
         of([
           {
-            id: 'fic2q7DLgysQ',
+            id: 'fiI9e9ZytdXM',
             name: '000.jpeg',
-            content: 'some content here',
+            content: 'someData',
           },
         ])
       );
-      component.totalSplitAmount = 16428.56;
-      splitExpenseService.linkTxnWithFiles.and.returnValue(of([splitExpFile2, splitExpFile3]));
-      const mockFileTxnsData1 = {
-        ...fileTxns,
-        txns: fileTxns.txns.map((txn) => ({
-          ...txn,
-          state: 'COMPLETE',
-        })),
-      };
-
+      component.splitExpenseTxn = [fileTxns2];
+      component.totalSplitAmount = 436342.464;
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject7));
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
         expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
-          createSourceTxn,
+          txnAmount1,
           component.totalSplitAmount,
-          splitTxn2
+          splitExpData
         );
-        expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(splitExpFileObj);
-        expect(component.completeTxnIds).toEqual(['tx4QhcvNHpuh', 'tx4QhcvNHpuh']);
-        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledTimes(1);
-        expect(result).toEqual(['tx4QhcvNHpuh', 'tx4QhcvNHpuh']);
+        expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
+        expect(component.completeTxnIds).toEqual(['txPazncEIY9Q', 'txPazncEIY9Q']);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
+        expect(result).toEqual(['txPazncEIY9Q', 'txPazncEIY9Q']);
       });
       tick(500);
     }));
