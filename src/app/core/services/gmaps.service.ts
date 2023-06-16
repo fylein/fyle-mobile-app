@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, catchError, forkJoin, from, map, of } from 'rxjs';
+import { Observable, forkJoin, from, ignoreElements, map } from 'rxjs';
 import { MapDirectionsResponse, MapDirectionsService, MapGeocoder, MapGeocoderResponse } from '@angular/google-maps';
 import { Cacheable } from 'ts-cacheable';
 import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
@@ -58,10 +58,7 @@ export class GmapsService {
       from(loader.importLibrary('maps')),
       from(loader.importLibrary('routes')),
       from(loader.importLibrary('geocoding')),
-    ]).pipe(
-      map(() => true),
-      catchError(() => of(false))
-    );
+    ]).pipe(ignoreElements());
   }
 
   // Used to generate static map image urls, for single location

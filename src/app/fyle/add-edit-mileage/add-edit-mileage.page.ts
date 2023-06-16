@@ -86,7 +86,6 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
-import { GmapsService } from 'src/app/core/services/gmaps.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -248,8 +247,6 @@ export class AddEditMileagePage implements OnInit {
 
   loadDynamicMap$: Observable<boolean>;
 
-  isGmapsApiLoaded$: Observable<boolean>;
-
   private _isExpandedView = false;
 
   constructor(
@@ -292,8 +289,7 @@ export class AddEditMileagePage implements OnInit {
     private categoriesService: CategoriesService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
-    private storageService: StorageService,
-    private gmapsService: GmapsService
+    private storageService: StorageService
   ) {}
 
   get showSaveAndNext() {
@@ -331,7 +327,6 @@ export class AddEditMileagePage implements OnInit {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
 
-    this.isGmapsApiLoaded$ = this.gmapsService.loadLibrary();
     this.loadDynamicMap$ = this.launchDarklyService.getVariation('show_dynamic_maps', false);
   }
 
