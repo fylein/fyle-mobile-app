@@ -40,7 +40,7 @@ import { environment } from 'src/environments/environment';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ExpenseFilters } from './my-expenses-filters.model';
+import { ExpenseFilters } from './expenses-filters.model';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
@@ -68,7 +68,7 @@ describe('MyReportsPage', () => {
   let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
   let matBottomsheet: jasmine.SpyObj<MatBottomSheet>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
-  let myExpensesService: jasmine.SpyObj<MyExpensesService>;
+  let myExpenseService: jasmine.SpyObj<MyExpensesService>;
   let tokenService: jasmine.SpyObj<TokenService>;
   let actionSheetController: jasmine.SpyObj<ActionSheetController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
@@ -271,7 +271,7 @@ describe('MyReportsPage', () => {
     transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
     matBottomsheet = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
-    myExpensesService = TestBed.inject(MyExpensesService) as jasmine.SpyObj<MyExpensesService>;
+    myExpenseService = TestBed.inject(MyExpensesService) as jasmine.SpyObj<MyExpensesService>;
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
@@ -298,9 +298,11 @@ describe('MyReportsPage', () => {
   });
 
   describe('ionViewWillEnter(): ', () => {
-    it('should set initial data', fakeAsync(() => {
+    let backButtonSubscription: Subscription;
+
+    beforeEach(() => {
       component.isConnected$ = of(true);
-      const backButtonSubscription = new Subscription();
+      backButtonSubscription = new Subscription();
       tasksService.getExpensesTaskCount.and.returnValue(of(10));
       platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
@@ -308,7 +310,6 @@ describe('MyReportsPage', () => {
       corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
       spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
       spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
       spyOn(component, 'setAllExpensesCountAndAmount');
       spyOn(component, 'clearFilters');
       spyOn(component, 'setupActionSheet');
@@ -327,16 +328,20 @@ describe('MyReportsPage', () => {
       reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
       spyOn(component, 'doRefresh');
       spyOn(component, 'backButtonAction');
+      transactionOutboxService.getPendingTransactions.and.returnValue(apiExpenseRes);
+      spyOn(component, 'formatTransactions').and.returnValue(apiExpenseRes);
+      spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1, sortDir: 'desc' });
+      spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
       inputElement = component.simpleSearchInput.nativeElement;
+    });
+
+    it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled correctly', fakeAsync(() => {
       component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.hardwareBackButton).toEqual(backButtonSubscription);
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
-      );
+      tick(500);
       expect(component.expensesTaskCount).toBe(10);
+      expect(component.isNewReportsFlowEnabled).toBeFalse();
+
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
@@ -351,158 +356,17 @@ describe('MyReportsPage', () => {
       component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
         expect(isPerDiemEnabled).toBeTrue();
       });
-
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
-      expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
-        { label: '****869', value: '869' },
-      ]);
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.reviewMode).toBeFalse();
-      expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.navigateBack).toBeFalse();
-      expect(component.simpleSearchText).toEqual('');
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.selectionMode).toBeFalse();
-      expect(component.selectedElements).toEqual([]);
-      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-      component.homeCurrency$.subscribe((currency) => {
-        expect(currency).toEqual('USD');
-      });
-      expect(component.homeCurrencySymbol).toEqual('$');
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(4);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(2);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: null,
-      });
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual(apiExpenseRes);
-      component.myExpenses$.subscribe((myExpenses) => {
-        expect(myExpenses).toEqual(apiExpenseRes);
-      });
-      component.count$.subscribe((count) => {
-        expect(count).toBe(10);
-      });
-      component.isNewUser$.subscribe((isNewUser) => {
-        expect(isNewUser).toBeFalse();
-      });
-      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
-        expect(isInfiniteScrollReq).toBeTrue();
-      });
-      expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
-        });
-        expect(allExpenseCountHeader).toBe(4);
-      });
-      component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
-        });
-        expect(draftExpensesCount).toBe(4);
-      });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: activatedRoute,
-        queryParams: {
-          filters: JSON.stringify(component.filters),
-        },
-        replaceUrl: true,
-      });
-      expect(component.clearFilters).toHaveBeenCalledTimes(1);
-      tick(500);
-      expect(component.isLoading).toBeFalse();
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-      });
-      component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(apiExtendedReportRes);
-      });
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
 
-    it('should set initial data if orgUserSettings and orgSettings is undefined', fakeAsync(() => {
-      component.isConnected$ = of(true);
-      const backButtonSubscription = new Subscription();
-      tasksService.getExpensesTaskCount.and.returnValue(of(10));
-      platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
+    it('should set isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to undefined if orgUserSettings and orgSettings are undefined', fakeAsync(() => {
       orgUserSettingsService.get.and.returnValue(of(undefined));
       orgSettingsService.get.and.returnValue(of(undefined));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
-      tokenService.getClusterDomain.and.resolveTo('https://staging.fyle.tech');
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
-      reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'backButtonAction');
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
+
       component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.hardwareBackButton).toEqual(backButtonSubscription);
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
-      );
+      tick(500);
       expect(component.expensesTaskCount).toBe(10);
+      expect(component.isNewReportsFlowEnabled).toBeFalse();
+
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
@@ -517,199 +381,154 @@ describe('MyReportsPage', () => {
       component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
         expect(isPerDiemEnabled).toBeUndefined();
       });
-
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(undefined);
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
-      expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
-        { label: '****869', value: '869' },
-      ]);
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.reviewMode).toBeFalse();
-      expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.navigateBack).toBeFalse();
-      expect(component.simpleSearchText).toEqual('');
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.selectionMode).toBeFalse();
-      expect(component.selectedElements).toEqual([]);
-      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-      component.homeCurrency$.subscribe((currency) => {
-        expect(currency).toEqual('USD');
-      });
-      expect(component.homeCurrencySymbol).toEqual('$');
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(4);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(2);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: null,
-      });
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual(apiExpenseRes);
-      component.myExpenses$.subscribe((myExpenses) => {
-        expect(myExpenses).toEqual(apiExpenseRes);
-      });
-      component.count$.subscribe((count) => {
-        expect(count).toBe(10);
-      });
-      component.isNewUser$.subscribe((isNewUser) => {
-        expect(isNewUser).toBeFalse();
-      });
-      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
-        expect(isInfiniteScrollReq).toBeTrue();
-      });
-      expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
-        });
-        expect(allExpenseCountHeader).toBe(4);
-      });
-      component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
-        });
-        expect(draftExpensesCount).toBe(4);
-      });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: activatedRoute,
-        queryParams: {
-          filters: JSON.stringify(component.filters),
-        },
-        replaceUrl: true,
-      });
-      expect(component.clearFilters).toHaveBeenCalledTimes(1);
-      tick(500);
-      expect(component.isLoading).toBeFalse();
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-      });
-      component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(apiExtendedReportRes);
-      });
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
 
-    it('should set initial data if simplified_report_closure_settings is present in orgSettings', fakeAsync(() => {
-      const backButtonSubscription = new Subscription();
-      tasksService.getExpensesTaskCount.and.returnValue(of(10));
-      component.isConnected$ = of(true);
-      platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
-      tokenService.getClusterDomain.and.resolveTo('https://staging.fyle.tech');
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
-      reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'backButtonAction');
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
+    it('should set hardwareBackButton and expenseTaskCount successfully', fakeAsync(() => {
       component.ionViewWillEnter();
+      tick(500);
       expect(component.hardwareBackButton).toEqual(backButtonSubscription);
       expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
         BackButtonActionPriority.MEDIUM,
         component.backButtonAction
       );
+      expect(tasksService.getExpensesTaskCount).toHaveBeenCalledTimes(1);
       expect(component.expensesTaskCount).toBe(10);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
-        expect(isInstaFyleEnabled).toBeTrue();
-      });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
-      component.isMileageEnabled$.subscribe((isMileageEnabled) => {
-        expect(isMileageEnabled).toBeTrue();
-      });
-      component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
-        expect(isPerDiemEnabled).toBeTrue();
-      });
+    }));
+
+    it('should set isNewReportFlowEnabled to true if simplified_report_closure_settings is defined ', fakeAsync(() => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+
+      component.ionViewWillEnter();
+      tick(500);
 
       expect(component.isNewReportsFlowEnabled).toBeTrue();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsParamsWithSimplifiedReport);
+    }));
+
+    it('should call setupActionSheet once', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
+    }));
+
+    it('should update cardNumbers by calling getCardDetail', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
       expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
       expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
       expect(component.cardNumbers).toEqual([
         { label: '****8698', value: '8698' },
         { label: '****869', value: '869' },
       ]);
+    }));
+
+    it('should update headerState, reviewMode and set isLoading to false after 500ms', fakeAsync(() => {
+      component.ionViewWillEnter();
+
       expect(component.headerState).toEqual(HeaderState.base);
       expect(component.reviewMode).toBeFalse();
+      expect(component.isLoading).toBeTrue();
+
+      tick(500);
+
+      expect(component.isLoading).toBeFalse();
+    }));
+
+    it('should set clusterDomain, ROUTER_API_ENDPOINT, navigateBack, simpleSearchText, currentPageNumber, selectionMode and selectedElements', fakeAsync(() => {
+      component.simpleSearchText = 'example';
+      component.currentPageNumber = 2;
+      component.selectionMode = true;
+      component.ionViewWillEnter();
+      tick(500);
+
       expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
       expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
       expect(component.navigateBack).toBeFalse();
       expect(component.simpleSearchText).toEqual('');
       expect(component.currentPageNumber).toBe(1);
       expect(component.selectionMode).toBeFalse();
       expect(component.selectedElements).toEqual([]);
+    }));
+
+    it('should call syncOutboxExpenses twice if isConnected is true', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
       expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
+    }));
+
+    it('should set homeCurrency and homeCurrencySymbol correctly', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
       expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
       component.homeCurrency$.subscribe((currency) => {
         expect(currency).toEqual('USD');
       });
       expect(component.homeCurrencySymbol).toEqual('$');
+    }));
+
+    it('should update loadData$ if user types something in input', fakeAsync(() => {
+      component.ionViewWillEnter();
       expect(inputElement.value).toEqual('');
       inputElement.value = 'example';
       inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
+      tick(500);
+
+      component.loadData$.subscribe((loadData) => {
+        expect(loadData).toEqual({ pageNumber: 1, searchString: 'example' });
+      });
+    }));
+
+    it('should call extendQueryParamsForTextSearch and getMyExpensesCount whenever loadData$ value changes', fakeAsync(() => {
+      component.ionViewWillEnter();
+      expect(inputElement.value).toEqual('');
+      inputElement.value = 'example';
+      inputElement.dispatchEvent(new Event('keyup'));
+      tick(500);
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
+        {
+          tx_report_id: 'is.null',
+          tx_state: 'in.(COMPLETE,DRAFT)',
+        },
+        undefined
+      );
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
+        {
+          tx_report_id: 'is.null',
+          tx_state: 'in.(COMPLETE,DRAFT)',
+        },
+        'example'
+      );
+      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(4);
+      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
+        tx_report_id: 'is.null',
+        tx_state: 'in.(COMPLETE,DRAFT)',
+      });
+      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(2);
+      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 10,
+        queryParams: {
+          tx_report_id: 'is.null',
+          tx_state: 'in.(COMPLETE,DRAFT)',
+        },
+        order: null,
+      });
+      expect(component.acc).toEqual(apiExpenseRes);
+    }));
+
+    it('should not call getMyExpenses if count is less than (params.pageNumber - 1) * 10', fakeAsync(() => {
+      transactionService.getMyExpensesCount.and.returnValue(of(0));
+      component.ionViewWillEnter();
+      expect(inputElement.value).toEqual('');
+      inputElement.value = 'example';
+      inputElement.dispatchEvent(new Event('keyup'));
+      tick(500);
+
       expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
       expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
         {
@@ -731,179 +550,20 @@ describe('MyReportsPage', () => {
         tx_state: 'in.(COMPLETE,DRAFT)',
       });
       expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(2);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: null,
-      });
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual(apiExpenseRes);
-      component.myExpenses$.subscribe((myExpenses) => {
-        expect(myExpenses).toEqual(apiExpenseRes);
-      });
-      component.count$.subscribe((count) => {
-        expect(count).toBe(10);
-      });
-      component.isNewUser$.subscribe((isNewUser) => {
-        expect(isNewUser).toBeFalse();
-      });
-      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
-        expect(isInfiniteScrollReq).toBeTrue();
-      });
-      expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
-        });
-        expect(allExpenseCountHeader).toBe(4);
-      });
-      component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
-        });
-        expect(draftExpensesCount).toBe(4);
-      });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: activatedRoute,
-        queryParams: {
-          filters: JSON.stringify(component.filters),
-        },
-        replaceUrl: true,
-      });
-      expect(component.clearFilters).toHaveBeenCalledTimes(1);
-      tick(500);
-      expect(component.isLoading).toBeFalse();
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-      });
-      component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(apiExtendedReportRes);
-      });
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
+      expect(transactionService.getMyExpenses).not.toHaveBeenCalled();
+      expect(component.acc).toEqual([]);
     }));
 
-    it('should set initial data if loadData contains sortParam and sortDir property', fakeAsync(() => {
-      const backButtonSubscription = new Subscription();
-      tasksService.getExpensesTaskCount.and.returnValue(of(10));
-      component.isConnected$ = of(true);
-      platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
-      tokenService.getClusterDomain.and.resolveTo('https://staging.fyle.tech');
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
-      reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'backButtonAction');
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
+    it('should call getMyExpenseCount with order if sortDir and sortParam are defined', fakeAsync(() => {
       component.ionViewWillEnter();
       component.loadData$.next({
         pageNumber: 1,
         sortDir: 'asc',
         sortParam: 'approvalDate',
       });
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.hardwareBackButton).toEqual(backButtonSubscription);
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
-      );
-      expect(component.expensesTaskCount).toBe(10);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
-        expect(isInstaFyleEnabled).toBeTrue();
-      });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
-      component.isMileageEnabled$.subscribe((isMileageEnabled) => {
-        expect(isMileageEnabled).toBeTrue();
-      });
-      component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
-        expect(isPerDiemEnabled).toBeTrue();
-      });
+      tick(500);
 
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
-      expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
-        { label: '****869', value: '869' },
-      ]);
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.reviewMode).toBeFalse();
-      expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.navigateBack).toBeFalse();
-      expect(component.simpleSearchText).toEqual('');
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.selectionMode).toBeFalse();
-      expect(component.selectedElements).toEqual([]);
-      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-      component.homeCurrency$.subscribe((currency) => {
-        expect(currency).toEqual('USD');
-      });
-      expect(component.homeCurrencySymbol).toEqual('$');
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
-      // As we have used next in this test case, that is why apiV2Service is called 6 times
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(6);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(6);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(3);
+      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(2);
       expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
@@ -913,8 +573,23 @@ describe('MyReportsPage', () => {
         },
         order: 'approvalDate.asc',
       });
+    }));
+
+    it('should set pendingTransactions by calling transactionOutboxService', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
       expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
       expect(component.acc).toEqual(apiExpenseRes);
+      expect(transactionOutboxService.getPendingTransactions).toHaveBeenCalledTimes(1);
+      expect(component.pendingTransactions).toEqual(apiExpenseRes);
+      expect(component.formatTransactions).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should set myExpenses$, count$ and isNewUser$ and isInfiniteScrollRequired', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
       component.myExpenses$.subscribe((myExpenses) => {
         expect(myExpenses).toEqual(apiExpenseRes);
       });
@@ -927,7 +602,19 @@ describe('MyReportsPage', () => {
       component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
         expect(isInfiniteScrollReq).toBeTrue();
       });
+    }));
+
+    it('should call setAllExpensesCountAndAmount once', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
       expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should update allExpenseCountHeader$ and draftExpensesCount$ based on loadData', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
       component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
         expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
           scalar: true,
@@ -945,17 +632,123 @@ describe('MyReportsPage', () => {
         expect(draftExpensesCount).toBe(4);
       });
       expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(3);
+    }));
+
+    it('should navigate relative to activatedRoute and call clearFilters if snapshot.params and queryParams are undefined', fakeAsync(() => {
+      component.filters = {
+        state: [AdvancesStates.paid, AdvancesStates.cancelled],
+      };
+      const stringifiedFilters = JSON.stringify(component.filters);
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(router.navigate).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: activatedRoute,
         queryParams: {
-          filters: JSON.stringify(component.filters),
+          filters: stringifiedFilters,
         },
         replaceUrl: true,
       });
       expect(component.clearFilters).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should update filters and filterPills if activatedRoute contains filters', fakeAsync(() => {
+      activatedRoute.snapshot.queryParams.filters = '{"sortDir": "desc"}';
+      component.ionViewWillEnter();
       tick(500);
-      expect(component.isLoading).toBeFalse();
+      expect(component.clearFilters).not.toHaveBeenCalled();
+      component.filters = {
+        state: [AdvancesStates.paid, AdvancesStates.cancelled],
+      };
+      expect(component.currentPageNumber).toBe(1);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      component.loadData$.subscribe((loadData) => {
+        expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc' });
+      });
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
+    }));
+
+    it('should update filters and filterPills if activatedRoute state is equal to needsreceipt', fakeAsync(() => {
+      activatedRoute.snapshot.params.state = 'needsreceipt';
+      component.filters = {
+        state: [AdvancesStates.paid, AdvancesStates.cancelled],
+      };
+      component.ionViewWillEnter();
+      tick(500);
+      expect(component.clearFilters).not.toHaveBeenCalled();
+      expect(component.filters).toEqual({
+        tx_receipt_required: 'eq.true',
+        state: 'NEEDS_RECEIPT',
+      });
+      expect(component.currentPageNumber).toBe(1);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      component.loadData$.subscribe((loadData) => {
+        expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc' });
+      });
+      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
+        state: 'NEEDS_RECEIPT',
+        tx_receipt_required: 'eq.true',
+      });
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
+    }));
+
+    it('should update filters and filterPills if activatedRoute state is equal to policyviolated', fakeAsync(() => {
+      activatedRoute.snapshot.params.state = 'policyviolated';
+      component.filters = {
+        state: [AdvancesStates.paid, AdvancesStates.cancelled],
+      };
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(component.clearFilters).not.toHaveBeenCalled();
+      expect(component.filters).toEqual({
+        tx_policy_flag: 'eq.true',
+        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        state: 'POLICY_VIOLATED',
+      });
+      expect(component.currentPageNumber).toBe(1);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      component.loadData$.subscribe((loadData) => {
+        expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc' });
+      });
+      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
+        tx_policy_flag: 'eq.true',
+        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        state: 'POLICY_VIOLATED',
+      });
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
+    }));
+
+    it('should update filters and filterPills if activatedRoute state is equal to cannotreport', fakeAsync(() => {
+      activatedRoute.snapshot.params.state = 'cannotreport';
+      component.filters = {
+        state: [AdvancesStates.paid, AdvancesStates.cancelled],
+      };
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(component.clearFilters).not.toHaveBeenCalled();
+      expect(component.filters).toEqual({
+        tx_policy_amount: 'lt.0.0001',
+        state: 'CANNOT_REPORT',
+      });
+      expect(component.currentPageNumber).toBe(1);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      component.loadData$.subscribe((loadData) => {
+        expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc' });
+      });
+      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
+        tx_policy_amount: 'lt.0.0001',
+        state: 'CANNOT_REPORT',
+      });
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
+    }));
+
+    it('should set openReports$ and call doRefresh', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(500);
+
       expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
         queryParams: {
           rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
@@ -967,162 +760,12 @@ describe('MyReportsPage', () => {
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
 
-    it('should set initial data if openReports has report_approvals property', fakeAsync(() => {
-      const backButtonSubscription = new Subscription();
-      component.isConnected$ = of(true);
-      tasksService.getExpensesTaskCount.and.returnValue(of(10));
-      platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
-      tokenService.getClusterDomain.and.resolveTo('https://staging.fyle.tech');
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
+    it('should set openReports$ and call doRefresh if report_approvals is defined', fakeAsync(() => {
       const extendedReportResWithReportApproval = [expectedReportSingleResponse];
       reportService.getAllExtendedReports.and.returnValue(of(extendedReportResWithReportApproval));
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'backButtonAction');
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
       component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.hardwareBackButton).toEqual(backButtonSubscription);
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
-      );
-      expect(component.expensesTaskCount).toBe(10);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
-        expect(isInstaFyleEnabled).toBeTrue();
-      });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
-      component.isMileageEnabled$.subscribe((isMileageEnabled) => {
-        expect(isMileageEnabled).toBeTrue();
-      });
-      component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
-        expect(isPerDiemEnabled).toBeTrue();
-      });
-
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
-      expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
-        { label: '****869', value: '869' },
-      ]);
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.reviewMode).toBeFalse();
-      expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.navigateBack).toBeFalse();
-      expect(component.simpleSearchText).toEqual('');
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.selectionMode).toBeFalse();
-      expect(component.selectedElements).toEqual([]);
-      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-      component.homeCurrency$.subscribe((currency) => {
-        expect(currency).toEqual('USD');
-      });
-      expect(component.homeCurrencySymbol).toEqual('$');
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(4);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(2);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: null,
-      });
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual(apiExpenseRes);
-      component.myExpenses$.subscribe((myExpenses) => {
-        expect(myExpenses).toEqual(apiExpenseRes);
-      });
-      component.count$.subscribe((count) => {
-        expect(count).toBe(10);
-      });
-      component.isNewUser$.subscribe((isNewUser) => {
-        expect(isNewUser).toBeFalse();
-      });
-      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
-        expect(isInfiniteScrollReq).toBeTrue();
-      });
-      expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
-        });
-        expect(allExpenseCountHeader).toBe(4);
-      });
-      component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
-        });
-        expect(draftExpensesCount).toBe(4);
-      });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: activatedRoute,
-        queryParams: {
-          filters: JSON.stringify(component.filters),
-        },
-        replaceUrl: true,
-      });
-      expect(component.clearFilters).toHaveBeenCalledTimes(1);
       tick(500);
-      expect(component.isLoading).toBeFalse();
+
       expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
         queryParams: {
           rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
@@ -1133,904 +776,6 @@ describe('MyReportsPage', () => {
       });
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
-
-    it('should set initial data incase if count is less than (params.pageNumber - 1) * 10', fakeAsync(() => {
-      component.isConnected$ = of(true);
-      const backButtonSubscription = new Subscription();
-      tasksService.getExpensesTaskCount.and.returnValue(of(10));
-      platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
-      tokenService.getClusterDomain.and.resolveTo('https://staging.fyle.tech');
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(0));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
-      reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'backButtonAction');
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.hardwareBackButton).toEqual(backButtonSubscription);
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
-      );
-      expect(component.expensesTaskCount).toBe(10);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
-        expect(isInstaFyleEnabled).toBeTrue();
-      });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
-      component.isMileageEnabled$.subscribe((isMileageEnabled) => {
-        expect(isMileageEnabled).toBeTrue();
-      });
-      component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
-        expect(isPerDiemEnabled).toBeTrue();
-      });
-
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
-      expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
-        { label: '****869', value: '869' },
-      ]);
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.reviewMode).toBeFalse();
-      expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.navigateBack).toBeFalse();
-      expect(component.simpleSearchText).toEqual('');
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.selectionMode).toBeFalse();
-      expect(component.selectedElements).toEqual([]);
-      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-      component.homeCurrency$.subscribe((currency) => {
-        expect(currency).toEqual('USD');
-      });
-      expect(component.homeCurrencySymbol).toEqual('$');
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(4);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual([]);
-      component.myExpenses$.subscribe((myExpenses) => {
-        expect(myExpenses).toEqual([]);
-      });
-      component.count$.subscribe((count) => {
-        expect(count).toBe(0);
-      });
-      component.isNewUser$.subscribe((isNewUser) => {
-        expect(isNewUser).toBeFalse();
-      });
-      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
-        expect(isInfiniteScrollReq).toBeFalse();
-      });
-      expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
-        });
-        expect(allExpenseCountHeader).toBe(4);
-      });
-      component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
-        });
-        expect(draftExpensesCount).toBe(4);
-      });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: activatedRoute,
-        queryParams: {
-          filters: JSON.stringify(component.filters),
-        },
-        replaceUrl: true,
-      });
-      expect(component.clearFilters).toHaveBeenCalledTimes(1);
-      tick(500);
-      expect(component.isLoading).toBeFalse();
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-      });
-      component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(apiExtendedReportRes);
-      });
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should set initial data if activatedRoute.snapshot contains filters', fakeAsync(() => {
-      component.isConnected$ = of(true);
-      const backButtonSubscription = new Subscription();
-      tasksService.getExpensesTaskCount.and.returnValue(of(10));
-      platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
-      tokenService.getClusterDomain.and.resolveTo('https://staging.fyle.tech');
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
-      reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'backButtonAction');
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
-      activatedRoute.snapshot.queryParams.filters = '{"sortDir": "desc"}';
-      component.filters = {
-        state: [AdvancesStates.paid, AdvancesStates.cancelled],
-      };
-      spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1, sortDir: 'desc' });
-      spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.hardwareBackButton).toEqual(backButtonSubscription);
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
-      );
-      expect(component.expensesTaskCount).toBe(10);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
-        expect(isInstaFyleEnabled).toBeTrue();
-      });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
-      component.isMileageEnabled$.subscribe((isMileageEnabled) => {
-        expect(isMileageEnabled).toBeTrue();
-      });
-      component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
-        expect(isPerDiemEnabled).toBeTrue();
-      });
-
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
-      expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
-        { label: '****869', value: '869' },
-      ]);
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.reviewMode).toBeFalse();
-      expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.navigateBack).toBeFalse();
-      expect(component.simpleSearchText).toEqual('');
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.selectionMode).toBeFalse();
-      expect(component.selectedElements).toEqual([]);
-      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-      component.homeCurrency$.subscribe((currency) => {
-        expect(currency).toEqual('USD');
-      });
-      expect(component.homeCurrencySymbol).toEqual('$');
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(6);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(6);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(3);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: null,
-      });
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual(apiExpenseRes);
-      component.myExpenses$.subscribe((myExpenses) => {
-        expect(myExpenses).toEqual(apiExpenseRes);
-      });
-      component.count$.subscribe((count) => {
-        expect(count).toBe(10);
-      });
-      component.isNewUser$.subscribe((isNewUser) => {
-        expect(isNewUser).toBeFalse();
-      });
-      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
-        expect(isInfiniteScrollReq).toBeTrue();
-      });
-      expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
-        });
-        expect(allExpenseCountHeader).toBe(4);
-      });
-      component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
-        });
-        expect(draftExpensesCount).toBe(4);
-      });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(3);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: activatedRoute,
-        queryParams: {
-          filters: JSON.stringify(component.filters),
-        },
-        replaceUrl: true,
-      });
-      expect(component.clearFilters).not.toHaveBeenCalled();
-      expect(component.filters).toEqual({
-        state: [AdvancesStates.paid, AdvancesStates.cancelled],
-        sortDir: 'desc',
-      });
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((loadData) => {
-        expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc', searchString: 'example' });
-      });
-      expect(component.filterPills).toEqual(creditTxnFilterPill);
-      tick(500);
-      expect(component.isLoading).toBeFalse();
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-      });
-      component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(apiExtendedReportRes);
-      });
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should set initial data if activatedRoute.snapshot contains state as needsreceipt', fakeAsync(() => {
-      component.isConnected$ = of(true);
-      const backButtonSubscription = new Subscription();
-      tasksService.getExpensesTaskCount.and.returnValue(of(10));
-      platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
-      tokenService.getClusterDomain.and.resolveTo('https://staging.fyle.tech');
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
-      reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'backButtonAction');
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
-      activatedRoute.snapshot.params.state = 'needsreceipt';
-      component.filters = {
-        state: [AdvancesStates.paid, AdvancesStates.cancelled],
-      };
-      spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1, sortDir: 'desc' });
-      spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.hardwareBackButton).toEqual(backButtonSubscription);
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
-      );
-      expect(component.expensesTaskCount).toBe(10);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
-        expect(isInstaFyleEnabled).toBeTrue();
-      });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
-      component.isMileageEnabled$.subscribe((isMileageEnabled) => {
-        expect(isMileageEnabled).toBeTrue();
-      });
-      component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
-        expect(isPerDiemEnabled).toBeTrue();
-      });
-
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
-      expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
-        { label: '****869', value: '869' },
-      ]);
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.reviewMode).toBeFalse();
-      expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.navigateBack).toBeFalse();
-      expect(component.simpleSearchText).toEqual('');
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.selectionMode).toBeFalse();
-      expect(component.selectedElements).toEqual([]);
-      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-      component.homeCurrency$.subscribe((currency) => {
-        expect(currency).toEqual('USD');
-      });
-      expect(component.homeCurrencySymbol).toEqual('$');
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(6);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(6);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(3);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: null,
-      });
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual(apiExpenseRes);
-      component.myExpenses$.subscribe((myExpenses) => {
-        expect(myExpenses).toEqual(apiExpenseRes);
-      });
-      component.count$.subscribe((count) => {
-        expect(count).toBe(10);
-      });
-      component.isNewUser$.subscribe((isNewUser) => {
-        expect(isNewUser).toBeFalse();
-      });
-      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
-        expect(isInfiniteScrollReq).toBeTrue();
-      });
-      expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
-        });
-        expect(allExpenseCountHeader).toBe(4);
-      });
-      component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
-        });
-        expect(draftExpensesCount).toBe(4);
-      });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(3);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: activatedRoute,
-        queryParams: {
-          filters: JSON.stringify(component.filters),
-        },
-        replaceUrl: true,
-      });
-      expect(component.clearFilters).not.toHaveBeenCalled();
-      expect(component.filters).toEqual({
-        tx_receipt_required: 'eq.true',
-        state: 'NEEDS_RECEIPT',
-      });
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((loadData) => {
-        expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc', searchString: 'example' });
-      });
-      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
-        state: 'NEEDS_RECEIPT',
-        tx_receipt_required: 'eq.true',
-      });
-      expect(component.filterPills).toEqual(creditTxnFilterPill);
-      tick(500);
-      expect(component.isLoading).toBeFalse();
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-      });
-      component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(apiExtendedReportRes);
-      });
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should set initial data if activatedRoute.snapshot contains state as policyviolated', fakeAsync(() => {
-      component.isConnected$ = of(true);
-      const backButtonSubscription = new Subscription();
-      tasksService.getExpensesTaskCount.and.returnValue(of(10));
-      platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
-      tokenService.getClusterDomain.and.resolveTo('https://staging.fyle.tech');
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
-      reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'backButtonAction');
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
-      activatedRoute.snapshot.params.state = 'policyviolated';
-      component.filters = {
-        state: [AdvancesStates.paid, AdvancesStates.cancelled],
-      };
-      spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1, sortDir: 'desc' });
-      spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.hardwareBackButton).toEqual(backButtonSubscription);
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
-      );
-      expect(component.expensesTaskCount).toBe(10);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
-        expect(isInstaFyleEnabled).toBeTrue();
-      });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
-      component.isMileageEnabled$.subscribe((isMileageEnabled) => {
-        expect(isMileageEnabled).toBeTrue();
-      });
-      component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
-        expect(isPerDiemEnabled).toBeTrue();
-      });
-
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
-      expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
-        { label: '****869', value: '869' },
-      ]);
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.reviewMode).toBeFalse();
-      expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.navigateBack).toBeFalse();
-      expect(component.simpleSearchText).toEqual('');
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.selectionMode).toBeFalse();
-      expect(component.selectedElements).toEqual([]);
-      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-      component.homeCurrency$.subscribe((currency) => {
-        expect(currency).toEqual('USD');
-      });
-      expect(component.homeCurrencySymbol).toEqual('$');
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(6);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(6);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(3);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: null,
-      });
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual(apiExpenseRes);
-      component.myExpenses$.subscribe((myExpenses) => {
-        expect(myExpenses).toEqual(apiExpenseRes);
-      });
-      component.count$.subscribe((count) => {
-        expect(count).toBe(10);
-      });
-      component.isNewUser$.subscribe((isNewUser) => {
-        expect(isNewUser).toBeFalse();
-      });
-      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
-        expect(isInfiniteScrollReq).toBeTrue();
-      });
-      expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
-        });
-        expect(allExpenseCountHeader).toBe(4);
-      });
-      component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
-        });
-        expect(draftExpensesCount).toBe(4);
-      });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(3);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: activatedRoute,
-        queryParams: {
-          filters: JSON.stringify(component.filters),
-        },
-        replaceUrl: true,
-      });
-      expect(component.clearFilters).not.toHaveBeenCalled();
-      expect(component.filters).toEqual({
-        tx_policy_flag: 'eq.true',
-        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-        state: 'POLICY_VIOLATED',
-      });
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((loadData) => {
-        expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc', searchString: 'example' });
-      });
-      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
-        tx_policy_flag: 'eq.true',
-        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-        state: 'POLICY_VIOLATED',
-      });
-      expect(component.filterPills).toEqual(creditTxnFilterPill);
-      tick(500);
-      expect(component.isLoading).toBeFalse();
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-      });
-      component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(apiExtendedReportRes);
-      });
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
-    }));
-
-    it('should set initial data if activatedRoute.snapshot contains state as cannotreport', fakeAsync(() => {
-      component.isConnected$ = of(true);
-      const backButtonSubscription = new Subscription();
-      tasksService.getExpensesTaskCount.and.returnValue(of(10));
-      platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
-      spyOn(component, 'syncOutboxExpenses');
-      spyOn(component, 'formatTransactions');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      spyOn(component, 'clearFilters');
-      spyOn(component, 'setupActionSheet');
-      tokenService.getClusterDomain.and.resolveTo('https://staging.fyle.tech');
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
-      reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-      spyOn(component, 'doRefresh');
-      spyOn(component, 'backButtonAction');
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
-      activatedRoute.snapshot.params.state = 'cannotreport';
-      component.filters = {
-        state: [AdvancesStates.paid, AdvancesStates.cancelled],
-      };
-      spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1, sortDir: 'desc' });
-      spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
-      component.ionViewWillEnter();
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.hardwareBackButton).toEqual(backButtonSubscription);
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        component.backButtonAction
-      );
-      expect(component.expensesTaskCount).toBe(10);
-      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      component.isInstaFyleEnabled$.subscribe((isInstaFyleEnabled) => {
-        expect(isInstaFyleEnabled).toBeTrue();
-      });
-      component.isBulkFyleEnabled$.subscribe((isBulkFyleEnabled) => {
-        expect(isBulkFyleEnabled).toBeTrue();
-      });
-      component.isMileageEnabled$.subscribe((isMileageEnabled) => {
-        expect(isMileageEnabled).toBeTrue();
-      });
-      component.isPerDiemEnabled$.subscribe((isPerDiemEnabled) => {
-        expect(isPerDiemEnabled).toBeTrue();
-      });
-
-      expect(component.isNewReportsFlowEnabled).toBeFalse();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
-      expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
-        { label: '****869', value: '869' },
-      ]);
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.reviewMode).toBeFalse();
-      expect(component.ROUTER_API_ENDPOINT).toEqual(environment.ROUTER_API_ENDPOINT);
-      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-      expect(component.navigateBack).toBeFalse();
-      expect(component.simpleSearchText).toEqual('');
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.selectionMode).toBeFalse();
-      expect(component.selectedElements).toEqual([]);
-      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
-      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-      component.homeCurrency$.subscribe((currency) => {
-        expect(currency).toEqual('USD');
-      });
-      expect(component.homeCurrencySymbol).toEqual('$');
-      expect(inputElement.value).toEqual('');
-      inputElement.value = 'example';
-      inputElement.dispatchEvent(new Event('keyup'));
-      tick(400);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(6);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(6);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(3);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: null,
-      });
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual(apiExpenseRes);
-      component.myExpenses$.subscribe((myExpenses) => {
-        expect(myExpenses).toEqual(apiExpenseRes);
-      });
-      component.count$.subscribe((count) => {
-        expect(count).toBe(10);
-      });
-      component.isNewUser$.subscribe((isNewUser) => {
-        expect(isNewUser).toBeFalse();
-      });
-      component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollReq) => {
-        expect(isInfiniteScrollReq).toBeTrue();
-      });
-      expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
-        });
-        expect(allExpenseCountHeader).toBe(4);
-      });
-      component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
-        });
-        expect(draftExpensesCount).toBe(4);
-      });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
-      expect(router.navigate).toHaveBeenCalledTimes(3);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: activatedRoute,
-        queryParams: {
-          filters: JSON.stringify(component.filters),
-        },
-        replaceUrl: true,
-      });
-      expect(component.clearFilters).not.toHaveBeenCalled();
-      expect(component.filters).toEqual({
-        tx_policy_amount: 'lt.0.0001',
-        state: 'CANNOT_REPORT',
-      });
-      expect(component.currentPageNumber).toBe(1);
-      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((loadData) => {
-        expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc', searchString: 'example' });
-      });
-      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
-        tx_policy_amount: 'lt.0.0001',
-        state: 'CANNOT_REPORT',
-      });
-      expect(component.filterPills).toEqual(creditTxnFilterPill);
-      tick(500);
-      expect(component.isLoading).toBeFalse();
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
-      });
-      component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(apiExtendedReportRes);
-      });
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
-    }));
   });
 
   it('HeaderState(): should return the headerState', () => {
@@ -2038,11 +783,14 @@ describe('MyReportsPage', () => {
   });
 
   describe('clearText', () => {
-    it('should clear the search text and dispatch keyup event', () => {
+    let dispatchEventSpy: jasmine.Spy;
+    beforeEach(() => {
       component.isSearchBarFocused = false;
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
       inputElement = component.simpleSearchInput.nativeElement;
-      const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
+      dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
+    });
+    it('should clear the search text and dispatch keyup event', () => {
       component.clearText('onSimpleSearchCancel');
 
       expect(component.simpleSearchText).toBe('');
@@ -2052,10 +800,6 @@ describe('MyReportsPage', () => {
     });
 
     it('should clear the search text and not toggle isSearchBarFocused when isFromCancel is not specified', () => {
-      component.isSearchBarFocused = false;
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
-      const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
       component.clearText('');
 
       expect(component.simpleSearchText).toBe('');
@@ -2081,13 +825,17 @@ describe('MyReportsPage', () => {
   });
 
   describe('switchSelectionMode(): ', () => {
-    it('should switch to selection mode', () => {
+    beforeEach(() => {
       component.selectionMode = true;
       component.loadData$ = new BehaviorSubject({
         searchString: 'example',
       });
+      component.headerState = HeaderState.simpleSearch;
+      component.allExpensesStats$ = of({ count: 10, amount: 1000 });
       spyOn(component, 'selectExpense');
       spyOn(component, 'setAllExpensesCountAndAmount');
+    });
+    it('should switch to selection mode', () => {
       component.switchSelectionMode();
 
       expect(component.selectionMode).toBeFalse();
@@ -2098,10 +846,7 @@ describe('MyReportsPage', () => {
     });
 
     it('should switch to multi-select mode and call selectExpense if expense is provided', () => {
-      component.selectionMode = true;
       component.loadData$ = new BehaviorSubject({});
-      spyOn(component, 'selectExpense');
-      spyOn(component, 'setAllExpensesCountAndAmount');
       const expense = apiExpenseRes[0];
 
       component.switchSelectionMode(expense);
@@ -2115,13 +860,6 @@ describe('MyReportsPage', () => {
 
     it('should switch back to normal mode', () => {
       component.selectionMode = false;
-      component.loadData$ = new BehaviorSubject({
-        searchString: 'example',
-      });
-      spyOn(component, 'selectExpense');
-      spyOn(component, 'setAllExpensesCountAndAmount');
-      component.headerState = HeaderState.simpleSearch;
-      component.allExpensesStats$ = of({ count: 10, amount: 1000 });
 
       component.switchSelectionMode();
 
@@ -2284,9 +1022,11 @@ describe('MyReportsPage', () => {
   });
 
   describe('backButtonAction(): ', () => {
-    it('should call switchSelectionMode when headerState is HeaderState.multiselect', () => {
+    beforeEach(() => {
       spyOn(component, 'switchSelectionMode');
       spyOn(component, 'onSimpleSearchCancel');
+    });
+    it('should call switchSelectionMode when headerState is HeaderState.multiselect', () => {
       component.headerState = HeaderState.multiselect;
 
       component.backButtonAction();
@@ -2297,8 +1037,6 @@ describe('MyReportsPage', () => {
     });
 
     it('should call onSimpleSearchCancel when headerState is HeaderState.simpleSearch', () => {
-      spyOn(component, 'switchSelectionMode');
-      spyOn(component, 'onSimpleSearchCancel');
       component.headerState = HeaderState.simpleSearch;
 
       component.backButtonAction();
@@ -2309,8 +1047,6 @@ describe('MyReportsPage', () => {
     });
 
     it('should call navController.back when headerState is neither HeaderState.multiselect nor HeaderState.simpleSearch', () => {
-      spyOn(component, 'switchSelectionMode');
-      spyOn(component, 'onSimpleSearchCancel');
       component.headerState = HeaderState.base;
 
       component.backButtonAction();
@@ -2332,12 +1068,14 @@ describe('MyReportsPage', () => {
   });
 
   describe('loadData(event): ', () => {
-    it('loadData(event): should increment currentPageNumber and emit updated params and call complete() after 1s', fakeAsync(() => {
-      const mockEvent = { target: { complete: jasmine.createSpy('complete') } };
+    beforeEach(() => {
       component.currentPageNumber = 2;
       component.loadData$ = new BehaviorSubject({
         pageNumber: 2,
       });
+    });
+    it('loadData(event): should increment currentPageNumber and emit updated params and call complete() after 1s', fakeAsync(() => {
+      const mockEvent = { target: { complete: jasmine.createSpy('complete') } };
 
       component.loadData(mockEvent);
 
@@ -2349,10 +1087,6 @@ describe('MyReportsPage', () => {
 
     it('loadData(event): should increment currentPageNumber and emit updated params if target is not defined', () => {
       const mockEvent = {};
-      component.currentPageNumber = 2;
-      component.loadData$ = new BehaviorSubject({
-        pageNumber: 2,
-      });
 
       component.loadData(mockEvent);
 
@@ -2362,10 +1096,6 @@ describe('MyReportsPage', () => {
 
     it('loadData(event): should increment currentPageNumber and emit updated params if event if undefined', () => {
       const mockEvent = undefined;
-      component.currentPageNumber = 2;
-      component.loadData$ = new BehaviorSubject({
-        pageNumber: 2,
-      });
 
       component.loadData(mockEvent);
 
@@ -2375,12 +1105,15 @@ describe('MyReportsPage', () => {
   });
 
   describe('doRefresh():', () => {
-    it('should refresh data without event', fakeAsync(() => {
+    beforeEach(() => {
       transactionService.clearCache.and.returnValue(of(null));
       component.currentPageNumber = 2;
       component.loadData$ = new BehaviorSubject({
         pageNumber: 2,
       });
+      spyOn(component, 'setExpenseStatsOnSelect');
+    });
+    it('should refresh data without event', fakeAsync(() => {
       component.doRefresh();
       tick(1000);
 
@@ -2391,12 +1124,6 @@ describe('MyReportsPage', () => {
     }));
 
     it('should refresh data and call complete if event if present and selectionMode is true', fakeAsync(() => {
-      transactionService.clearCache.and.returnValue(of(null));
-      component.currentPageNumber = 2;
-      component.loadData$ = new BehaviorSubject({
-        pageNumber: 2,
-      });
-      spyOn(component, 'setExpenseStatsOnSelect');
       component.selectionMode = true;
       const mockEvent = { target: { complete: jasmine.createSpy('complete') } };
 
@@ -2412,11 +1139,6 @@ describe('MyReportsPage', () => {
     }));
 
     it('should refresh data if target is not defined', fakeAsync(() => {
-      transactionService.clearCache.and.returnValue(of(null));
-      component.currentPageNumber = 2;
-      component.loadData$ = new BehaviorSubject({
-        pageNumber: 2,
-      });
       const mockEvent = {};
 
       component.doRefresh(mockEvent);
@@ -2447,8 +1169,60 @@ describe('MyReportsPage', () => {
   }));
 
   describe('generateFilterPills(): ', () => {
+    beforeEach(() => {
+      myExpenseService.generateStateFilterPills.and.callFake((filterPill, filters) => {
+        filterPill.push({
+          label: 'Type',
+          type: 'state',
+          value: 'Incomplete, Complete',
+        });
+      });
+
+      myExpenseService.generateReceiptsAttachedFilterPills.and.callFake((filterPill, filters) => {
+        filterPill.push({
+          label: 'Receipts Attached',
+          type: 'receiptsAttached',
+          value: 'yes',
+        });
+      });
+      myExpenseService.generateDateFilterPills.and.returnValue([
+        {
+          label: 'Date',
+          type: 'date',
+          value: 'this Week',
+        },
+      ]);
+      myExpenseService.generateTypeFilterPills.and.callFake((filters, filterPill) => {
+        filterPill.push({
+          label: 'Expense Type',
+          type: 'type',
+          value: 'Per Diem, Mileage',
+        });
+      });
+      myExpenseService.generateSortFilterPills.and.callFake((filters, filterPill) => {
+        filterPill.push({
+          label: 'Sort By',
+          type: 'sort',
+          value: 'category - a to z',
+        });
+      });
+      myExpenseService.generateCardFilterPills.and.callFake((filterPill, filters) => {
+        filterPill.push({
+          label: 'Cards',
+          type: 'cardNumbers',
+          value: '****1234, ****5678',
+        });
+      });
+      myExpenseService.generateSplitExpenseFilterPills.and.callFake((filterPill, filters) => {
+        filterPill.push({
+          label: 'Split Expense',
+          type: 'splitExpense',
+          value: 'yes',
+        });
+      });
+    });
     it('should return filterPills based on the property present in filters', () => {
-      const filters: ExpenseFilters = {
+      const filters: Partial<ExpenseFilters> = {
         state: ['DRAFT', 'READY_TO_REPORT'],
         date: DateFilters.thisWeek,
         receiptsAttached: 'YES',
@@ -2459,57 +1233,6 @@ describe('MyReportsPage', () => {
         splitExpense: 'YES',
       };
       const filterPill: FilterPill[] = [];
-
-      myExpensesService.generateStateFilterPills.and.callFake((filterPill, filters) => {
-        filterPill.push({
-          label: 'Type',
-          type: 'state',
-          value: 'Incomplete, Complete',
-        });
-      });
-
-      myExpensesService.generateReceiptsAttachedFilterPills.and.callFake((filterPill, filters) => {
-        filterPill.push({
-          label: 'Receipts Attached',
-          type: 'receiptsAttached',
-          value: 'yes',
-        });
-      });
-      myExpensesService.generateDateFilterPills.and.returnValue([
-        {
-          label: 'Date',
-          type: 'date',
-          value: 'this Week',
-        },
-      ]);
-      myExpensesService.generateTypeFilterPills.and.callFake((filters, filterPill) => {
-        filterPill.push({
-          label: 'Expense Type',
-          type: 'type',
-          value: 'Per Diem, Mileage',
-        });
-      });
-      myExpensesService.generateSortFilterPills.and.callFake((filters, filterPill) => {
-        filterPill.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - a to z',
-        });
-      });
-      myExpensesService.generateCardFilterPills.and.callFake((filterPill, filters) => {
-        filterPill.push({
-          label: 'Cards',
-          type: 'cardNumbers',
-          value: '****1234, ****5678',
-        });
-      });
-      myExpensesService.generateSplitExpenseFilterPills.and.callFake((filterPill, filters) => {
-        filterPill.push({
-          label: 'Split Expense',
-          type: 'splitExpense',
-          value: 'yes',
-        });
-      });
 
       const expectedFilterPill = [
         {
@@ -2549,7 +1272,7 @@ describe('MyReportsPage', () => {
     });
 
     it('should return filterPills based if state, type and cardNumbers are not present in filters', () => {
-      const filters: ExpenseFilters = {
+      const filters: Partial<ExpenseFilters> = {
         date: DateFilters.thisWeek,
         receiptsAttached: 'YES',
         sortParam: 'tx_org_category',
@@ -2557,35 +1280,6 @@ describe('MyReportsPage', () => {
         splitExpense: 'YES',
       };
       const filterPill: FilterPill[] = [];
-
-      myExpensesService.generateReceiptsAttachedFilterPills.and.callFake((filterPill, filters) => {
-        filterPill.push({
-          label: 'Receipts Attached',
-          type: 'receiptsAttached',
-          value: 'yes',
-        });
-      });
-      myExpensesService.generateDateFilterPills.and.returnValue([
-        {
-          label: 'Date',
-          type: 'date',
-          value: 'this Week',
-        },
-      ]);
-      myExpensesService.generateSortFilterPills.and.callFake((filters, filterPill) => {
-        filterPill.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - a to z',
-        });
-      });
-      myExpensesService.generateSplitExpenseFilterPills.and.callFake((filterPill, filters) => {
-        filterPill.push({
-          label: 'Split Expense',
-          type: 'splitExpense',
-          value: 'yes',
-        });
-      });
 
       const expectedFilterPill = [
         {
@@ -2909,19 +1603,19 @@ describe('MyReportsPage', () => {
 
   describe('openFilters(): ', () => {
     beforeEach(() => {
-      myExpensesService.getFilters.and.returnValue(cloneDeep(filterOptions1));
+      myExpenseService.getFilters.and.returnValue(cloneDeep(filterOptions1));
       const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['present', 'onWillDismiss']);
       filterPopoverSpy.onWillDismiss.and.resolveTo({ data: selectedFilters2 });
       modalController.create.and.resolveTo(filterPopoverSpy);
       component.filters = {
         state: [],
       };
-      myExpensesService.generateSelectedFilters.and.returnValue(selectedFilters1);
+      myExpenseService.generateSelectedFilters.and.returnValue(selectedFilters1);
       component.loadData$ = new BehaviorSubject({
         pageNumber: 1,
       });
       component.currentPageNumber = 2;
-      myExpensesService.convertFilters.and.returnValue({ sortDir: 'asc', splitExpense: 'YES' });
+      myExpenseService.convertFilters.and.returnValue({ sortDir: 'asc', splitExpense: 'YES' });
       spyOn(component, 'addNewFiltersToParams').and.returnValue({ searchString: 'example' });
       spyOn(component, 'generateFilterPills').and.returnValue([
         {
@@ -2959,7 +1653,7 @@ describe('MyReportsPage', () => {
         },
         cssClass: 'dialog-popover',
       });
-      expect(myExpensesService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
+      expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
       expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
@@ -2994,7 +1688,7 @@ describe('MyReportsPage', () => {
         cssClass: 'dialog-popover',
       });
 
-      expect(myExpensesService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
+      expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
       expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);

@@ -62,7 +62,8 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { MyExpensesService } from './my-expenses.service';
-import { ExpenseFilters, Filters } from './my-expenses-filters.model';
+import { Filters } from './my-expenses-filters.model';
+import { ExpenseFilters } from './expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
@@ -109,7 +110,7 @@ export class MyExpensesPage implements OnInit {
 
   acc = [];
 
-  filters: ExpenseFilters;
+  filters: Partial<ExpenseFilters>;
 
   allExpensesStats$: Observable<{ count: number; amount: number }>;
 
@@ -719,7 +720,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  generateFilterPills(filter: ExpenseFilters) {
+  generateFilterPills(filter: Partial<ExpenseFilters>) {
     const filterPills: FilterPill[] = [];
 
     if (filter.state?.length > 0) {
