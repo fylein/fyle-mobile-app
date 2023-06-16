@@ -16,6 +16,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { cloneDeep } from 'lodash';
 
 describe('SetupAccountPreferencesPage', () => {
   let component: SetupAccountPreferencesPage;
@@ -95,7 +96,7 @@ describe('SetupAccountPreferencesPage', () => {
     networkService.isOnline.and.returnValue(of(true));
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
-    orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+    orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsRes)));
     fixture.detectChanges();
   }));
   it('should create', () => {
