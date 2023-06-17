@@ -374,7 +374,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadData$.next(params);
 
     setTimeout(() => {
-      event?.target?.complete();
+      event?.target?.complete?.();
     }, 1000);
   }
 
@@ -766,8 +766,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.currentPageNumber = 1;
     currentParams.pageNumber = this.currentPageNumber;
     this.loadData$.next(currentParams);
-    if (event) {
-      event?.target?.complete();
-    }
+    event?.target?.complete?.();
   }
 }
