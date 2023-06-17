@@ -258,3 +258,21 @@ export const fileObject7: FileObject[] = [
     fyle_sub_url: '/api/files/firDjjutGXfT/download',
   },
 ];
+
+export const fileObject8: FileObject[] = [
+  {
+    id: 'fizBwnXhyZTp',
+    org_user_id: 'ou5tyO64Eg0L',
+    created_at: new Date('2023-06-16T14:00:57.421Z'),
+    name: '000.jpeg',
+    s3url: '2023-06-16/orYtMVz2qisQ/receipts/fizBwnXhyZTp.000.jpeg',
+    transaction_id: null,
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/fizBwnXhyZTp/download',
+  },
+];

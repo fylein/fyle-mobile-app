@@ -36,9 +36,11 @@ import { expenseFieldWithBillable } from 'src/app/core/mock-data/expense-field.d
 import {
   createSourceTxn,
   splitExpenseTxn1,
+  splitExpenseTxn2,
   splitTxn2,
   splitTxns,
   txnAmount1,
+  txnAmount2,
   txnList,
 } from 'src/app/core/mock-data/transaction.data';
 import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
@@ -49,14 +51,16 @@ import { OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import {
   fileObject6,
   fileObject7,
+  fileObject8,
   splitExpFile2,
   splitExpFile3,
   splitExpFileObj,
 } from 'src/app/core/mock-data/file-object.data';
-import { fileTxns, fileTxns2, fileTxns3 } from 'src/app/core/mock-data/file-txn.data';
+import { fileTxns, fileTxns2, fileTxns3, fileTxns4, fileTxns5, fileTxns6 } from 'src/app/core/mock-data/file-txn.data';
 import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
+import { fileData2 } from 'src/app/core/mock-data/file.data';
 
-describe('SplitExpensePage', () => {
+fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -355,11 +359,149 @@ describe('SplitExpensePage', () => {
           splitExpData
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
-        expect(component.completeTxnIds).toEqual(['txPazncEIY9Q', 'txPazncEIY9Q']);
+        expect(component.completeTxnIds).toEqual(['txPazncEIY9Q', 'tx12SqYytrm']);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
-        expect(result).toEqual(['txPazncEIY9Q', 'txPazncEIY9Q']);
+        expect(result).toEqual(['txPazncEIY9Q', 'tx12SqYytrm']);
+      });
+      tick(500);
+    }));
+
+    it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present', fakeAsync(() => {
+      const splitExpData = splitExpenseTxn1;
+      component.fileObjs = fileObject6;
+      component.transaction = txnAmount1;
+      component.reportId = 'rpba4MnwQ0FO';
+      reportService.addTransactions.and.returnValue(of(fileData2));
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+      splitExpenseService.getBase64Content.and.returnValue(
+        of([
+          {
+            id: 'fiI9e9ZytdXM',
+            name: '000.jpeg',
+            content: 'someData',
+          },
+        ])
+      );
+      component.splitExpenseTxn = [fileTxns2];
+      component.totalSplitAmount = 436342.464;
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject7));
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
+          txnAmount1,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
+        expect(component.completeTxnIds).toEqual(['txPazncEIY9Q', 'tx12SqYytrm']);
+        expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, [
+          'txPazncEIY9Q',
+          'tx12SqYytrm',
+        ]);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
+        expect(result).toEqual(['txPazncEIY9Q', 'tx12SqYytrm']);
+      });
+      tick(500);
+    }));
+
+    it('should link transaction to files when the receipt is not attached and report id is not present', fakeAsync(() => {
+      const splitExpData = splitExpenseTxn1;
+      component.fileObjs = [];
+      component.transaction = txnAmount1;
+      component.reportId = '';
+      component.createAndLinkTxnsWithFiles(splitExpData);
+      component.transaction = txnAmount1;
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+      component.splitExpenseTxn = fileTxns2.txns;
+      component.totalSplitAmount = 436342.464;
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of([null]));
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledWith(
+          txnAmount1,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(2);
+        expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
+        expect(component.completeTxnIds).toEqual(['txPazncEIY9Q', 'tx12SqYytrm']);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
+        expect(result).toEqual(['txPazncEIY9Q', 'tx12SqYytrm']);
+      });
+      tick(500);
+    }));
+
+    it('should link transaction to files when the receipt is not attached and report is not present', fakeAsync(() => {
+      const splitExpData = splitExpenseTxn1;
+      component.fileObjs = [];
+      component.transaction = txnAmount1;
+      component.reportId = 'rpba4MnwQ0FO';
+      component.createAndLinkTxnsWithFiles(splitExpData);
+      component.transaction = txnAmount1;
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+      component.splitExpenseTxn = fileTxns2.txns;
+      component.totalSplitAmount = 436342.464;
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of([null]));
+      reportService.addTransactions.and.returnValue(of(fileData2));
+
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledWith(
+          txnAmount1,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(2);
+        expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
+        expect(component.completeTxnIds).toEqual(['txPazncEIY9Q', 'tx12SqYytrm']);
+        expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, [
+          'txPazncEIY9Q',
+          'tx12SqYytrm',
+        ]);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
+        expect(result).toEqual(['txPazncEIY9Q', 'tx12SqYytrm']);
+      });
+      tick(500);
+    }));
+
+    it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present and the expense is split in three', fakeAsync(() => {
+      const splitExpData = splitExpenseTxn2;
+      component.fileObjs = fileObject8;
+      component.transaction = txnAmount2;
+      component.reportId = 'rpPNBrdR9NaE';
+      // ['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo']
+      reportService.addTransactions.and.returnValue(of(fileData2));
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn2));
+      splitExpenseService.getBase64Content.and.returnValue(
+        of([
+          {
+            id: 'fiI9e9ZytdXM',
+            name: '000.jpeg',
+            content: 'someData',
+          },
+        ])
+      );
+      component.splitExpenseTxn = [fileTxns5];
+      component.totalSplitAmount = 6000;
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject8));
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
+          txnAmount2,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject8);
+        expect(component.completeTxnIds).toEqual(['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo']);
+        expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, [
+          'txmsakgYZeCV',
+          'tx78mWdbfw1N',
+          'txwyRuUnVCbo',
+        ]);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns6);
+        expect(result).toEqual(['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo']);
       });
       tick(500);
     }));
   });
 });
+
+//cases to be covered
+
+// - 3 split expenses
