@@ -20,7 +20,7 @@ export class FiltersHelperService {
   generateFilterPills(filters: Filters, projectFieldName?: string): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
-    const filterPillsMap: Record<string, string> = {
+    const filterPillsMap: Record<SortingValue, string> = {
       [SortingValue.creationDateAsc]: 'created at - new to old',
       [SortingValue.creationDateDesc]: 'created at - old to new',
       [SortingValue.approvalDateAsc]: 'approved at - new to old',
