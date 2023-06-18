@@ -65,7 +65,7 @@ import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expen
 import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
-fdescribe('SplitExpensePage', () => {
+describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
