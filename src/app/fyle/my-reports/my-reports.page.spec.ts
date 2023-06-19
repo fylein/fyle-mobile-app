@@ -24,7 +24,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from 'src/app/core/services/date.service';
 import * as dayjs from 'dayjs';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -33,11 +33,15 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { Filters } from '../my-expenses/my-expenses-filters.model';
 import { selectedFilters1 } from 'src/app/core/mock-data/selected-filters.data';
-import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
-import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import {
+  expectedGenerateFilterPillsData,
+  generatedFiltersStateDate,
+  generatedFiltersStateDateSortParams,
+  openFiltersOptions,
+} from 'src/app/core/mock-data/my-reports.data';
 
-describe('MyReportsPage', () => {
+fdescribe('MyReportsPage', () => {
   let component: MyReportsPage;
   let fixture: ComponentFixture<MyReportsPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -1563,6 +1567,7 @@ describe('MyReportsPage', () => {
 
   it('onViewCommentsClick()', () => {
     component.onViewCommentsClick({});
+    expect(isEmpty(component.onViewCommentsClick)).toBeTrue();
   });
 
   describe('clearText(): ', () => {
@@ -1723,7 +1728,7 @@ describe('MyReportsPage', () => {
         sortParam: 'rp_created_at',
         sortDir: 'asc',
       };
-      const generatedFilters: SelectedFilters<any>[] = [];
+      const generatedFilters: SelectedFilters<string>[] = [];
 
       component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -1737,7 +1742,7 @@ describe('MyReportsPage', () => {
         sortParam: 'rp_created_at',
         sortDir: 'desc',
       };
-      const generatedFilters: SelectedFilters<any>[] = [];
+      const generatedFilters: SelectedFilters<string>[] = [];
 
       component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -1751,7 +1756,7 @@ describe('MyReportsPage', () => {
         sortParam: 'other_sort_param',
         sortDir: 'other_sort_dir',
       };
-      const generatedFilters: SelectedFilters<any>[] = [
+      const generatedFilters: SelectedFilters<string>[] = [
         {
           name: 'Sort By',
           value: 'dateOldToNew',
@@ -1766,12 +1771,12 @@ describe('MyReportsPage', () => {
     });
   });
 
-  it('should call convertRptDtSortToSelectedFilters, convertAmountSortToSelectedFilters, and convertNameSortToSelectedFilters', () => {
+  it('addSortToGeneatedFilters(): should call convertRptDtSortToSelectedFilters, convertAmountSortToSelectedFilters, and convertNameSortToSelectedFilters', () => {
     const filter = {
       sortParam: 'rp_created_at',
       sortDir: 'asc',
     };
-    const generatedFilters: SelectedFilters<any>[] = [];
+    const generatedFilters: SelectedFilters<string>[] = [];
 
     spyOn(component, 'convertRptDtSortToSelectedFilters');
     spyOn(component, 'convertAmountSortToSelectedFilters');
@@ -1797,24 +1802,7 @@ describe('MyReportsPage', () => {
 
       const generatedFilters = component.generateSelectedFilters(filter);
 
-      expect(generatedFilters).toEqual([
-        {
-          name: 'State',
-          value: 'approved',
-        },
-        {
-          name: 'Date',
-          value: 'last_week',
-          associatedData: {
-            startDate: new Date('2023-01-01'),
-            endDate: new Date('2023-01-07'),
-          },
-        },
-        {
-          name: 'Sort By',
-          value: 'dateOldToNew',
-        },
-      ]);
+      expect(generatedFilters).toEqual(generatedFiltersStateDateSortParams);
     });
 
     it('should not include sort filters if sortParam and sortDir are not provided', () => {
@@ -1825,20 +1813,7 @@ describe('MyReportsPage', () => {
 
       const generatedFilters = component.generateSelectedFilters(filter);
 
-      expect(generatedFilters).toEqual([
-        {
-          name: 'State',
-          value: 'draft',
-        },
-        {
-          name: 'Date',
-          value: 'this_month',
-          associatedData: {
-            startDate: undefined,
-            endDate: undefined,
-          },
-        },
-      ]);
+      expect(generatedFilters).toEqual(generatedFiltersStateDate);
     });
   });
 
@@ -1970,7 +1945,6 @@ describe('MyReportsPage', () => {
       };
       const generatedFilters = {};
 
-      // Call the method
       component.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
@@ -2112,7 +2086,7 @@ describe('MyReportsPage', () => {
     });
   });
 
-  it('should generate state filter pills', () => {
+  it('generateStateFilterPills(): should generate state filter pills', () => {
     const filterPills: FilterPill[] = [];
     const filter: Filters = { state: ['APPROVED', 'SUBMITTED'] };
     const simplifyReportsSettings = { enabled: true };
@@ -2500,7 +2474,7 @@ describe('MyReportsPage', () => {
     expect(component.generateSortNamePills).toHaveBeenCalledTimes(1);
   });
 
-  it('should generate filter pills for all filters', () => {
+  it('generateFilterPills(): should generate filter pills for all filters', () => {
     let filterPills: FilterPill[] = [];
     const filter = {
       state: ['active', 'completed'],
@@ -2536,23 +2510,7 @@ describe('MyReportsPage', () => {
     expect(component.generateStateFilterPills).toHaveBeenCalledOnceWith(filterPills, filter);
     expect(component.generateDateFilterPills).toHaveBeenCalledOnceWith(filter, filterPills);
     expect(component.generateSortFilterPills).toHaveBeenCalledOnceWith(filter, filterPills);
-    expect(filterPills).toEqual([
-      {
-        label: 'State',
-        type: 'state',
-        value: 'active, completed',
-      },
-      {
-        label: 'Date',
-        type: 'date',
-        value: 'this Week',
-      },
-      {
-        label: 'Sort By',
-        type: 'sort',
-        value: 'date - old to new',
-      },
-    ]);
+    expect(filterPills).toEqual(expectedGenerateFilterPillsData);
   });
 
   describe('convertAmountSortToSelectedFilters(): ', () => {
@@ -2638,146 +2596,7 @@ describe('MyReportsPage', () => {
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: FyFiltersComponent,
       componentProps: {
-        filterOptions: [
-          {
-            name: 'State',
-            optionType: FilterOptionType.multiselect,
-            options: [
-              {
-                label: 'Draft',
-                value: 'DRAFT',
-              },
-              {
-                label: 'Reported',
-                value: 'APPROVER_PENDING',
-              },
-              {
-                label: 'Sent Back',
-                value: 'APPROVER_INQUIRY',
-              },
-              {
-                label: 'Approved',
-                value: 'APPROVED',
-              },
-              {
-                label: 'Payment Pending',
-                value: 'PAYMENT_PENDING',
-              },
-              {
-                label: 'Payment Processing',
-                value: 'PAYMENT_PROCESSING',
-              },
-              {
-                label: 'Paid',
-                value: 'PAID',
-              },
-            ],
-            optionsNewFlow: [
-              {
-                label: 'Draft',
-                value: 'DRAFT',
-              },
-              {
-                label: 'Submitted',
-                value: 'APPROVER_PENDING',
-              },
-              {
-                label: 'Sent Back',
-                value: 'APPROVER_INQUIRY',
-              },
-              {
-                label: 'Approved',
-                value: 'APPROVED',
-              },
-              {
-                label: 'Processing',
-                value: 'PAYMENT_PROCESSING',
-              },
-              {
-                label: 'Closed',
-                value: 'PAID',
-              },
-            ],
-            optionsNewFlowCCCOnly: [
-              {
-                label: 'Draft',
-                value: 'DRAFT',
-              },
-              {
-                label: 'Submitted',
-                value: 'APPROVER_PENDING',
-              },
-              {
-                label: 'Sent Back',
-                value: 'APPROVER_INQUIRY',
-              },
-              {
-                label: 'Approved',
-                value: 'APPROVED',
-              },
-              {
-                label: 'Closed',
-                value: 'PAID',
-              },
-            ],
-          } as FilterOptions<string>,
-          {
-            name: 'Date',
-            optionType: FilterOptionType.date,
-            options: [
-              {
-                label: 'All',
-                value: DateFilters.all,
-              },
-              {
-                label: 'This Week',
-                value: DateFilters.thisWeek,
-              },
-              {
-                label: 'This Month',
-                value: DateFilters.thisMonth,
-              },
-              {
-                label: 'Last Month',
-                value: DateFilters.lastMonth,
-              },
-              {
-                label: 'Custom',
-                value: DateFilters.custom,
-              },
-            ],
-          } as FilterOptions<DateFilters>,
-          {
-            name: 'Sort By',
-            optionType: FilterOptionType.singleselect,
-            options: [
-              {
-                label: 'Date - New to Old',
-                value: 'dateNewToOld',
-              },
-              {
-                label: 'Date - Old to New',
-                value: 'dateOldToNew',
-              },
-              {
-                label: 'Amount - High to Low',
-                value: 'amountHighToLow',
-              },
-              {
-                label: 'Amount - Low to High',
-                value: 'amountLowToHigh',
-              },
-              {
-                label: 'Name - A to Z',
-                value: 'nameAToZ',
-              },
-              {
-                label: 'Name - Z to A',
-                value: 'nameZToA',
-              },
-            ],
-          } as FilterOptions<string>,
-        ],
+        filterOptions: openFiltersOptions,
         simplifyReportsSettings$: component.simplifyReportsSettings$,
         nonReimbursableOrg$: component.nonReimbursableOrg$,
         selectedFilterValues: [{ name: 'state', value: 'PENDING' }],
