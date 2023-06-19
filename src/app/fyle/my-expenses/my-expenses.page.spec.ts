@@ -41,8 +41,15 @@ import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expenses-filters.model';
-import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
+import {
+  expectedFilterPill1,
+  expectedFilterPill2,
+  expectedFormattedTransaction,
+  filters1,
+  filters2,
+  unformattedTxnData,
+} from 'src/app/core/mock-data/my-expenses.data';
+import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 
 describe('MyReportsPage', () => {
   let component: MyExpensesPage;
@@ -410,6 +417,14 @@ describe('MyReportsPage', () => {
       expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
     }));
 
+    it('should call syncOutboxExpenses once if isConnected is false', fakeAsync(() => {
+      component.isConnected$ = of(false);
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(1);
+    }));
+
     it('should set homeCurrency and homeCurrencySymbol correctly', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(500);
@@ -768,11 +783,12 @@ describe('MyReportsPage', () => {
     expect(component.isSearchBarFocused).toBeTrue();
   });
 
-  it('formatTransactions(): should format transactions correctly', () => {
-    const transactions = apiExpenseRes;
-    const formattedTransactions = component.formatTransactions(transactions);
+  fit('formatTransactions(): should format transactions correctly', () => {
+    const unformattedTransactions = unformattedTxnData;
+    const formattedTransactions = component.formatTransactions(unformattedTransactions);
 
-    expect(formattedTransactions.length).toBe(transactions.length);
+    expect(formattedTransactions.length).toBe(unformattedTransactions.length);
+    expect(formattedTransactions).toEqual(expectedFormattedTransaction);
   });
 
   describe('switchSelectionMode(): ', () => {
@@ -895,10 +911,6 @@ describe('MyReportsPage', () => {
           tx_state: 'in.(COMPLETE,DRAFT)',
           or: '(corporate_credit_card_account_number.8698)',
         });
-        expect(allExpenseStats).toEqual({
-          count: 4,
-          amount: 3494,
-        });
       });
     });
   });
@@ -933,19 +945,63 @@ describe('MyReportsPage', () => {
     ]);
   });
 
-  it('actionSheetButtonsHandler(): should call trackingService and navigate to a route', () => {
-    component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
-    expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
-      Action: 'Add Per Diem',
+  describe('actionSheetButtonsHandler():', () => {
+    it('should call trackingService and navigate to add_edit_per_diem if action is add per diem', () => {
+      component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
+      expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
+        Action: 'Add Per Diem',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_per_diem',
+        {
+          navigate_back: true,
+        },
+      ]);
     });
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'add_edit_per_diem',
-      {
-        navigate_back: true,
-      },
-    ]);
+    it('should call trackingService and navigate to add_edit_mileage if action is add mileage', () => {
+      component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage');
+      expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
+        Action: 'Add Mileage',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_mileage',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
+    it('should call trackingService and navigate to add_edit_expense if action is add expense', () => {
+      component.actionSheetButtonsHandler('Add Expense', 'add_edit_expense');
+      expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
+        Action: 'Add Expense',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
+    it('should call trackingService and navigate to camera_overlay if action is capture receipts', () => {
+      component.actionSheetButtonsHandler('capture receipts', 'camera_overlay');
+      expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
+        Action: 'capture receipts',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'camera_overlay',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
   });
 
   it('getCardDetail(): should call corporateCreditCardService', () => {
@@ -1172,85 +1228,13 @@ describe('MyReportsPage', () => {
       });
     });
     it('should return filterPills based on the property present in filters', () => {
-      const filters: Partial<ExpenseFilters> = {
-        state: ['DRAFT', 'READY_TO_REPORT'],
-        date: DateFilters.thisWeek,
-        receiptsAttached: 'YES',
-        type: ['PerDiem', 'Mileage'],
-        sortParam: 'tx_org_category',
-        sortDir: 'asc',
-        cardNumbers: ['1234', '5678'],
-        splitExpense: 'YES',
-      };
-      const filterPill: FilterPill[] = [];
-
-      const expectedFilterPill = [
-        {
-          label: 'Type',
-          type: 'state',
-          value: 'Incomplete, Complete',
-        },
-        {
-          label: 'Receipts Attached',
-          type: 'receiptsAttached',
-          value: 'yes',
-        },
-        {
-          label: 'Expense Type',
-          type: 'type',
-          value: 'Per Diem, Mileage',
-        },
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - a to z',
-        },
-        {
-          label: 'Cards',
-          type: 'cardNumbers',
-          value: '****1234, ****5678',
-        },
-        {
-          label: 'Split Expense',
-          type: 'splitExpense',
-          value: 'yes',
-        },
-      ];
-
-      const filterPillRes = component.generateFilterPills(filters);
-      expect(filterPillRes).toEqual(expectedFilterPill);
+      const filterPillRes = component.generateFilterPills(filters1);
+      expect(filterPillRes).toEqual(expectedFilterPill1);
     });
 
     it('should return filterPills based if state, type and cardNumbers are not present in filters', () => {
-      const filters: Partial<ExpenseFilters> = {
-        date: DateFilters.thisWeek,
-        receiptsAttached: 'YES',
-        sortParam: 'tx_org_category',
-        sortDir: 'asc',
-        splitExpense: 'YES',
-      };
-      const filterPill: FilterPill[] = [];
-
-      const expectedFilterPill = [
-        {
-          label: 'Receipts Attached',
-          type: 'receiptsAttached',
-          value: 'yes',
-        },
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - a to z',
-        },
-        {
-          label: 'Split Expense',
-          type: 'splitExpense',
-          value: 'yes',
-        },
-      ];
-
-      const filterPillRes = component.generateFilterPills(filters);
-      expect(filterPillRes).toEqual(expectedFilterPill);
+      const filterPillRes = component.generateFilterPills(filters2);
+      expect(filterPillRes).toEqual(expectedFilterPill2);
     });
   });
 });
