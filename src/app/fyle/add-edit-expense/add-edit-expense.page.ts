@@ -110,6 +110,7 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
 import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1513,6 +1514,7 @@ export class AddEditExpensePage implements OnInit {
            * 4. When there exists recently used project ids to auto-fill
            */
           if (
+            orgSettings.projects.enabled &&
             doRecentProjectIdsExist &&
             (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))
           ) {
@@ -3799,14 +3801,18 @@ export class AddEditExpensePage implements OnInit {
       nativeElement.onchange = async () => {
         const file = nativeElement.files[0];
         if (file) {
-          const dataUrl = await this.fileService.readFile(file);
-          this.trackingService.addAttachment({ type: file.type });
-          fileData = {
-            type: file.type,
-            dataUrl,
-            actionSource: 'gallery_upload',
-          };
-          this.attachReceipts(fileData);
+          if (file.size < MAX_FILE_SIZE) {
+            const dataUrl = await this.fileService.readFile(file);
+            this.trackingService.addAttachment({ type: file.type });
+            fileData = {
+              type: file.type,
+              dataUrl,
+              actionSource: 'gallery_upload',
+            };
+            this.attachReceipts(fileData);
+          } else {
+            this.showSizeLimitExceededPopover();
+          }
         }
       };
       nativeElement.click();
@@ -4276,5 +4282,21 @@ export class AddEditExpensePage implements OnInit {
     this.onPageExit$.next(null);
     this.onPageExit$.complete();
     this.selectedProject$.complete();
+  }
+
+  private async showSizeLimitExceededPopover() {
+    const sizeLimitExceededPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Size limit exceeded',
+        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await sizeLimitExceededPopover.present();
   }
 }
