@@ -70,6 +70,13 @@ import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { formattedTxnViolations } from 'src/app/core/mock-data/formatted-policy-violation.data';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
+import {
+  policyViolationData3,
+  policyVoilationData2,
+  splitPolicyExp4,
+} from 'src/app/core/mock-data/policy-violation.data';
+import { flattenedData } from 'src/app/core/mock-data/data-transform.data';
+import { orgData1 } from 'src/app/core/mock-data/org.data';
 
 fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -635,7 +642,7 @@ fdescribe('SplitExpensePage', () => {
       const files = fileObjectAdv;
       const dataUrl = fileObjectAdv[0].url;
       const attachmentType = 'image';
-      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
 
       component.uploadNewFiles(files).subscribe((result) => {
         expect(result).toEqual([fileObj]);
@@ -664,7 +671,7 @@ fdescribe('SplitExpensePage', () => {
       const files = [mockFile];
       const dataUrl = fileObjectAdv[0].url;
       const attachmentType = 'image';
-      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
 
       component.uploadNewFiles(files).subscribe((result) => {
         expect(result).toEqual([fileObj]);
@@ -688,7 +695,7 @@ fdescribe('SplitExpensePage', () => {
       };
       const dataUrl = fileObjectAdv1.url;
       const attachmentType = 'pdf';
-      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
       component.uploadNewFiles(files).subscribe((result) => {
         expect(result).toEqual([fileObj]);
         expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
@@ -744,30 +751,95 @@ fdescribe('SplitExpensePage', () => {
     });
   });
 
-  xdescribe('showSplitExpenseViolations():', () => {
-    it('should show the expense violations when the expense is split', () => {
-      const violations = formattedTxnViolations;
-      spyOn(component, 'showSuccessToast');
-      const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
-      modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: undefined }));
-      modalController.create.and.returnValue(Promise.resolve(modalSpy));
-      component.showSplitExpenseViolations(violations);
-      expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: SplitExpensePolicyViolationComponent,
-        componentProps: {
-          policyViolations: violations,
-        },
-        mode: 'ios',
-        presentingElement: null,
-        ...modalProperties.getModalDefaultProperties(),
-      });
+  it('showSplitExpenseViolations(): should show the expense violations when the expense is split', async () => {
+    const violations = formattedTxnViolations;
+    const properties = {
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      canDismiss: true,
+      backdropDismiss: true,
+      animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
+    };
+    spyOn(component, 'showSuccessToast');
+    modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+      'present',
+      'onWillDismiss',
+    ]);
+    fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+      data: {
+        action: 'primary',
+      },
+    });
 
-      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+    modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+    const result = await component.showSplitExpenseViolations(violations);
+    expect(result).toBeUndefined();
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: SplitExpensePolicyViolationComponent,
+      componentProps: {
+        policyViolations: violations,
+      },
+      mode: 'ios',
+      presentingElement: await modalController.getTop(),
+      ...properties,
+    });
+    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
+  });
+
+  describe('handleSplitExpensePolicyViolations():', () => {
+    it('should handle polciy violations when the expense is split', () => {
+      const violations = policyVoilationData2;
+      spyOn(component, 'showSplitExpenseViolations');
+      policyService.checkIfViolationsExist.and.returnValue(true);
+      splitExpenseService.formatPolicyViolations.and.returnValue(formattedTxnViolations);
+      component.handleSplitExpensePolicyViolations(violations);
+      expect(component.showSplitExpenseViolations).toHaveBeenCalledOnceWith(formattedTxnViolations);
+    });
+
+    it('should show success toast when the expense is split and there are no violations', () => {
+      policyService.checkIfViolationsExist.and.returnValue(false);
+      spyOn(component, 'showSuccessToast');
+      component.handleSplitExpensePolicyViolations(policyViolationData3);
       expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
     });
   });
-});
 
-//use resolveTo
-//improve test case description
-//check for done() in all test cases
+  describe('setAmountAndCurrency():', () => {
+    it('should set the amount and currency', () => {
+      const currencyObj = flattenedData;
+      const homeCurrency = orgData1[0].currency;
+      component.setAmountAndCurrency(currencyObj, homeCurrency);
+      expect(component.amount).toBe(2500);
+      expect(component.currency).toEqual('INR');
+    });
+
+    it('should set the amount and currency when org currency and amount are not present', () => {
+      const mockCurrencyObj = {
+        ...flattenedData,
+        orig_amount: null,
+        orig_currency: null,
+      };
+      const homeCurrency = orgData1[0].currency;
+      component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
+      expect(component.amount).toBe(2500);
+      expect(component.currency).toEqual('INR');
+    });
+
+    it('should set the currenct to homeCurrency when curency or orig currency is not present', () => {
+      const mockCurrencyObj = {
+        ...flattenedData,
+        currency: null,
+        orig_currency: null,
+      };
+      const homeCurrency = orgData1[0].currency;
+      component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
+      expect(component.amount).toBe(2500);
+      expect(component.currency).toEqual(homeCurrency);
+    });
+  });
+});
