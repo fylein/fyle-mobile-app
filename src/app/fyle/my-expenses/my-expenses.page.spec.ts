@@ -42,6 +42,7 @@ import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expenses-filters.model';
 import {
+  expectedActionSheetButtonRes,
   expectedFilterPill1,
   expectedFilterPill2,
   expectedFormattedTransaction,
@@ -783,7 +784,7 @@ describe('MyReportsPage', () => {
     expect(component.isSearchBarFocused).toBeTrue();
   });
 
-  fit('formatTransactions(): should format transactions correctly', () => {
+  it('formatTransactions(): should format transactions correctly', () => {
     const unformattedTransactions = unformattedTxnData;
     const formattedTransactions = component.formatTransactions(unformattedTransactions);
 
@@ -917,34 +918,8 @@ describe('MyReportsPage', () => {
   it('setupActionSheet(): should update actionSheetButtons', () => {
     spyOn(component, 'actionSheetButtonsHandler');
     component.setupActionSheet(orgSettingsRes);
-    expect(component.actionSheetButtons).toEqual([
-      {
-        text: 'Capture Receipt',
-        icon: 'assets/svg/fy-camera.svg',
-        cssClass: 'capture-receipt',
-        handler: component.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
-      },
-      {
-        text: 'Add Manually',
-        icon: 'assets/svg/fy-expense.svg',
-        cssClass: 'capture-receipt',
-        handler: component.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
-      },
-      {
-        text: 'Add Mileage',
-        icon: 'assets/svg/fy-mileage.svg',
-        cssClass: 'capture-receipt',
-        handler: component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
-      },
-      {
-        text: 'Add Per Diem',
-        icon: 'assets/svg/fy-calendar.svg',
-        cssClass: 'capture-receipt',
-        handler: component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
-      },
-    ]);
+    expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
   });
-
   describe('actionSheetButtonsHandler():', () => {
     it('should call trackingService and navigate to add_edit_per_diem if action is add per diem', () => {
       component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
