@@ -39,6 +39,15 @@ import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.mode
 import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import {
+  allowedActiveCategories,
+  testActiveCategoryList,
+  testProjectV2,
+} from 'src/app/core/test-data/projects.spec.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -63,6 +72,8 @@ describe('SplitExpensePage', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let projectsService: jasmine.SpyObj<ProjectsService>;
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
@@ -93,6 +104,9 @@ describe('SplitExpensePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getAllowedOrgCategoryIds']);
+
     TestBed.configureTestingModule({
       declarations: [SplitExpensePage, FyAlertInfoComponent],
       imports: [
@@ -133,6 +147,8 @@ describe('SplitExpensePage', () => {
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DependentFieldsService, useValue: dependentFieldsServiceSpy },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
+        { provide: ProjectsService, useValue: projectsServiceSpy },
         {
           provide: NavController,
           useValue: navControllerSpy,
@@ -144,10 +160,11 @@ describe('SplitExpensePage', () => {
               params: {
                 currencyObj: '{"currency":"USD","symbol":"$","id":"USD"}',
                 splitType: 'projects',
-                txnFields: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
-                fileObjs: ['{"url: mockUrl"}'],
-                selectedCCCTransaction: 'tx3qwe4ty',
-                selectedReportId: 'rpt3qwe4ty',
+                txnFields: '{"project_id":"test","cost_center_id":"test"}',
+                fileObjs: '[{"url":"mockUrl"}]',
+                txn: '{"project_id": "3943"}',
+                selectedCCCTransaction: '{"id":"tx3qwe4ty"}',
+                selectedReportId: '"rpt3qwe4ty"',
               },
             },
           },
@@ -177,6 +194,8 @@ describe('SplitExpensePage', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
@@ -286,6 +305,90 @@ describe('SplitExpensePage', () => {
       component.transaction = splitTransactionData;
       const result = component.setUpSplitExpenseTax(splitExpense1);
       expect(result).toBe(0);
+    });
+  });
+
+  describe('ionViewWillEnter', () => {
+    beforeEach(() => {
+      categoriesService.getAll.and.returnValue(of(testActiveCategoryList));
+      categoriesService.filterRequired.and.returnValue(testActiveCategoryList);
+
+      projectsService.getbyId.and.returnValue(of(testProjectV2));
+      projectsService.getAllowedOrgCategoryIds.and.returnValue(allowedActiveCategories);
+
+      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
+
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
+      dateService.addDaysToDate.and.returnValue(new Date());
+
+      spyOn(component, 'getActiveCategories').and.callThrough();
+    });
+
+    it('should should show all categories if show_project_mapped_categories_in_split_expense flag is false', () => {
+      launchDarklyService.getVariation.and.returnValue(of(false));
+
+      component.ionViewWillEnter();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+
+      expect(projectsService.getbyId).not.toHaveBeenCalled();
+      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
+
+      component.categories$.subscribe((categories) => {
+        expect(categories).toEqual(
+          testActiveCategoryList.map((category) => ({ label: category.displayName, value: category }))
+        );
+      });
+    });
+
+    it('should show only project mapped categories if show_project_mapped_categories_in_split_expense flag is true and expense has a project', () => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      component.ionViewWillEnter();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+
+      expect(projectsService.getbyId).toHaveBeenCalledOnceWith(component.transaction.project_id);
+      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(testProjectV2, testActiveCategoryList);
+
+      component.categories$.subscribe((categories) => {
+        expect(categories).toEqual(
+          allowedActiveCategories.map((category) => ({ label: category.displayName, value: category }))
+        );
+      });
+    });
+
+    it('should show all categories if show_project_mapped_categories_in_split_expense flag is true but expense does not have a project', () => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      activateRouteMock.snapshot.params.txn = '{"project_id": null}';
+
+      component.ionViewWillEnter();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+
+      expect(projectsService.getbyId).not.toHaveBeenCalled();
+      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
+
+      component.categories$.subscribe((categories) => {
+        expect(categories).toEqual(
+          testActiveCategoryList.map((category) => ({ label: category.displayName, value: category }))
+        );
+      });
     });
   });
 });
