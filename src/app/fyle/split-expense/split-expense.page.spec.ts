@@ -64,6 +64,7 @@ import { fileTxns, fileTxns2, fileTxns3, fileTxns4, fileTxns5, fileTxns6 } from 
 import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
 import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -316,31 +317,13 @@ describe('SplitExpensePage', () => {
   });
 
   it('getCategoryList(): get the category list', () => {
-    const categories: OrgCategoryListItem[] = [
-      {
-        label: 'Accounts Payable - Employees',
-        value: expectedOrgCategoriesPaginated[0],
-      },
-      {
-        label: 'Capitalized Software Costs',
-        value: expectedOrgCategoriesPaginated[1],
-      },
-      {
-        label: 'COGS-Billable Hours',
-        value: expectedOrgCategoriesPaginated[2],
-      },
-      {
-        label: 'samp category',
-        value: expectedOrgCategoriesPaginated[3],
-      },
-    ];
-    component.categories$ = of(categories);
+    component.categories$ = of(categorieListRes);
     component.getCategoryList();
     expect(component.categoryList).toEqual(expectedOrgCategoriesPaginated);
   });
 
   describe('createAndLinkTxnsWithFiles():', () => {
-    it('should link transaction with files when the receipt is attached and, the txn state is COMPLETE but the report id is not present', fakeAsync(() => {
+    it('should link transaction with files when the receipt is attached and, the txn state is COMPLETE but the report id is not present', (done) => {
       const splitExpData = splitExpenseTxn1;
       component.transaction = txnAmount1;
       component.totalSplitAmount = 436342.464;
@@ -369,11 +352,11 @@ describe('SplitExpensePage', () => {
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
         expect(result).toEqual(mockCompleteTxnIds);
+        done();
       });
-      tick(500);
-    }));
+    });
 
-    it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present', fakeAsync(() => {
+    it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present', (done) => {
       const splitExpData = splitExpenseTxn1;
       component.transaction = txnAmount1;
       component.reportId = 'rpba4MnwQ0FO';
@@ -405,15 +388,14 @@ describe('SplitExpensePage', () => {
         expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
         expect(result).toEqual(mockCompleteTxnIds);
+        done();
       });
-      tick(500);
-    }));
+    });
 
-    it('should link transaction to files when the receipt is not attached and report id is not present', fakeAsync(() => {
+    it('should link transaction to files when the receipt is not attached and report id is not present', (done) => {
       const splitExpData = splitExpenseTxn1;
       component.fileObjs = [];
       component.transaction = txnAmount1;
-      component.reportId = '';
       component.createAndLinkTxnsWithFiles(splitExpData);
       component.transaction = txnAmount1;
       splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
@@ -433,11 +415,11 @@ describe('SplitExpensePage', () => {
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
         expect(result).toEqual(mockCompleteTxnIds);
+        done();
       });
-      tick(500);
-    }));
+    });
 
-    it('should link transaction to files when the receipt is not attached and report is not present', fakeAsync(() => {
+    it('should link transaction to files when the receipt is not attached and report is not present', (done) => {
       const splitExpData = splitExpenseTxn1;
       component.fileObjs = [];
       component.transaction = txnAmount1;
@@ -463,11 +445,11 @@ describe('SplitExpensePage', () => {
         expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
         expect(result).toEqual(mockCompleteTxnIds);
+        done();
       });
-      tick(500);
-    }));
+    });
 
-    it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present and the expense is split in three', fakeAsync(() => {
+    it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present and the expense is split in three', (done) => {
       const splitExpData = splitExpenseTxn2;
       component.fileObjs = fileObject8;
       component.transaction = txnAmount2;
@@ -498,9 +480,9 @@ describe('SplitExpensePage', () => {
         expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns6);
         expect(result).toEqual(mockCompleteTxnIds);
+        done();
       });
-      tick(500);
-    }));
+    });
   });
 
   it('toastWithCTA(): should display the toast with CTA', () => {
@@ -553,11 +535,12 @@ describe('SplitExpensePage', () => {
       const toastMessage = 'Your expense was split successfully. All the split expenses were added to report';
       spyOn(component, 'toastWithCTA');
       component.showSuccessToast();
+      expect(component.completeTxnIds.length).toEqual(component.splitExpenseTxn.length);
       expect(component.toastWithCTA).toHaveBeenCalledOnceWith(toastMessage);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
     });
 
-    it('should show success toast along wiht the number of splits when all the expenses are not added to report', () => {
+    it('should show success toast along with the number of splits when all the expenses are not added to report', () => {
       component.reportId = 'rpPNBrdR9NaE';
       component.completeTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N'];
       component.splitExpenseTxn = fileTxns5.txns;
@@ -579,7 +562,7 @@ describe('SplitExpensePage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
     });
 
-    it('should show success toast when all the expenses were split successflully but report id was not present', () => {
+    it('should show success toast when all the expenses were split successflully but report id was not present and redirect it to my_expenses page', () => {
       component.completeTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo'];
       component.splitExpenseTxn = fileTxns5.txns;
       const toastMessage = 'Your expense was split successfully.';
@@ -594,22 +577,24 @@ describe('SplitExpensePage', () => {
     });
   });
 
-  it('getAttachedFiles: should get all the attached files', () => {
+  it('getAttachedFiles(): should get all the attached files', (done) => {
     const transactionId = 'fizBwnXhyZTp';
     fileService.findByTransactionId.and.returnValue(of(fileObject8));
     component.getAttachedFiles(transactionId).subscribe((result) => {
       expect(result).toEqual(fileObject8);
       expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
+      done();
     });
   });
 
-  it('getActiveCategories(): should get the active categories', () => {
+  it('getActiveCategories(): should get the active categories', (done) => {
     categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
     categoriesService.filterRequired.and.returnValue(expectedFilterOrgCategory);
     component.getActiveCategories().subscribe((res) => {
       expect(res).toEqual(expectedFilterOrgCategory);
       expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
       expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
+      done();
     });
   });
 });
