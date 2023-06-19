@@ -749,7 +749,7 @@ export class MyReportsPage implements OnInit {
 
     const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
     if (dateFilter) {
-      generatedFilters.date = dateFilter.value as string;
+      generatedFilters.date = <string>dateFilter.value;
       generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
@@ -766,7 +766,7 @@ export class MyReportsPage implements OnInit {
       filterPills.push({
         label: 'State',
         type: 'state',
-        value: (filter.state as string[])
+        value: (<string[]>filter.state)
           .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
