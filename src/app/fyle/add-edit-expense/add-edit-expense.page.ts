@@ -1513,6 +1513,7 @@ export class AddEditExpensePage implements OnInit {
            * 4. When there exists recently used project ids to auto-fill
            */
           if (
+            orgSettings.projects.enabled &&
             doRecentProjectIdsExist &&
             (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))
           ) {
