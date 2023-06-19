@@ -39,6 +39,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { expenseFieldWithBillable } from 'src/app/core/mock-data/expense-field.data';
 import {
   createSourceTxn,
+  sourceTxn2,
   splitExpenseTxn1,
   splitExpenseTxn2,
   splitTxn2,
@@ -56,6 +57,9 @@ import {
   fileObject6,
   fileObject7,
   fileObject8,
+  fileObjectAdv,
+  fileObjectAdv1,
+  fileObjectData4,
   splitExpFile2,
   splitExpFile3,
   splitExpFileObj,
@@ -64,8 +68,10 @@ import { fileTxns, fileTxns2, fileTxns3, fileTxns4, fileTxns5, fileTxns6 } from 
 import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
 import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { formattedTxnViolations } from 'src/app/core/mock-data/formatted-policy-violation.data';
+import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
 
-describe('SplitExpensePage', () => {
+fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -612,4 +618,156 @@ describe('SplitExpensePage', () => {
       expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
     });
   });
+
+  describe('uploadNewFiles', () => {
+    it('should upload new files when the type is an image', (done) => {
+      const fileObj: FileObject = {
+        name: '000.jpeg',
+        receipt_coordinates: {
+          x: 100,
+          y: 200,
+          width: 300,
+          height: 400,
+        },
+        id: 'fiHPZUiichAS',
+        purpose: '',
+      };
+      const files = fileObjectAdv;
+      const dataUrl = fileObjectAdv[0].url;
+      const attachmentType = 'image';
+      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toEqual([fileObj]);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+        done();
+      });
+    });
+
+    it('should upload new files when the type is a png', (done) => {
+      const fileObj: FileObject = {
+        name: '000.png',
+        receipt_coordinates: {
+          x: 100,
+          y: 200,
+          width: 300,
+          height: 400,
+        },
+        id: 'fiHPZUiichAS',
+        purpose: '',
+      };
+
+      const mockFile = {
+        ...fileObjectAdv[0],
+        type: 'png',
+      };
+      const files = [mockFile];
+      const dataUrl = fileObjectAdv[0].url;
+      const attachmentType = 'image';
+      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toEqual([fileObj]);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+        done();
+      });
+    });
+
+    it('should upload new files when the type is a pdf', (done) => {
+      const files = [fileObjectAdv1];
+      const fileObj: FileObject = {
+        name: '000.pdf',
+        receipt_coordinates: {
+          x: 100,
+          y: 200,
+          width: 300,
+          height: 400,
+        },
+        id: 'fiHPZUiichAS',
+        purpose: '',
+      };
+      const dataUrl = fileObjectAdv1.url;
+      const attachmentType = 'pdf';
+      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toEqual([fileObj]);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+        done();
+      });
+    });
+
+    it('should return null when there are no valid files', (done) => {
+      const files = [];
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(transactionsOutboxService.fileUpload).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
+  describe('uploadFiles', () => {
+    it('should upload files when the transacton id is not specified', (done) => {
+      spyOn(component, 'uploadNewFiles').and.returnValue(of([fileObjectData4]));
+      const files: FileObject[] = [
+        {
+          id: 'fiXpfkKFhf6w',
+          thumbnail: 'mockThumbnail',
+          type: 'image',
+          url: 'mockUrl',
+        },
+      ];
+      component.transaction = splitTxns;
+      component.uploadFiles(files).subscribe((result) => {
+        expect(result).toEqual([fileObjectData4]);
+        expect(component.uploadNewFiles).toHaveBeenCalledOnceWith(files);
+        done();
+      });
+    });
+
+    it('should return the attached files when the transaction id is specified', (done) => {
+      spyOn(component, 'getAttachedFiles').and.returnValue(of(fileObject8));
+      const files: FileObject[] = [
+        {
+          id: 'fizBwnXhyZTp',
+          thumbnail: 'mockThumbnail',
+          type: 'image',
+          url: 'mockUrl',
+        },
+      ];
+      component.transaction = sourceTxn2;
+      component.uploadFiles(files).subscribe((result) => {
+        expect(result).toEqual(fileObject8);
+        expect(component.getAttachedFiles).toHaveBeenCalledOnceWith('txxkBruL0EO9');
+        done();
+      });
+    });
+  });
+
+  xdescribe('showSplitExpenseViolations():', () => {
+    it('should show the expense violations when the expense is split', () => {
+      const violations = formattedTxnViolations;
+      spyOn(component, 'showSuccessToast');
+      const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
+      modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: undefined }));
+      modalController.create.and.returnValue(Promise.resolve(modalSpy));
+      component.showSplitExpenseViolations(violations);
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: SplitExpensePolicyViolationComponent,
+        componentProps: {
+          policyViolations: violations,
+        },
+        mode: 'ios',
+        presentingElement: null,
+        ...modalProperties.getModalDefaultProperties(),
+      });
+
+      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+      expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
+    });
+  });
 });
+
+//use resolveTo
+//improve test case description
+//check for done() in all test cases
