@@ -506,10 +506,10 @@ export class SplitExpensePage implements OnInit {
 
     this.launchDarklyService
       .getVariation('show_project_mapped_categories_in_split_expense', false)
-      .subscribe((variation) => {
+      .subscribe((showProjectMappedCategories) => {
         this.categories$ = this.getActiveCategories().pipe(
           switchMap((activeCategories) => {
-            if (variation) {
+            if (showProjectMappedCategories && this.transaction.project_id) {
               return this.projectsService
                 .getbyId(this.transaction.project_id)
                 .pipe(map((project) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories)));
