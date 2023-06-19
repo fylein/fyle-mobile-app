@@ -1,6 +1,9 @@
+import { of } from 'rxjs';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
 export const generatedFiltersStateDateSortParams = [
   {
@@ -194,3 +197,42 @@ export const openFiltersOptions = [
     ],
   } as FilterOptions<string>,
 ];
+
+export const deletePopoverParamsRes = {
+  component: FyDeleteDialogComponent,
+  cssClass: 'delete-dialog',
+  backdropDismiss: false,
+  componentProps: {
+    header: 'Delete Report',
+    body: 'Are you sure you want to delete this report?',
+    infoMessage: 'Deleting the report will not delete any of the expenses.',
+    deleteMethod: jasmine.any(Function),
+  },
+};
+
+export const popoverControllerParams = {
+  component: PopupAlertComponent,
+  componentProps: {
+    title: 'Cannot Delete Report',
+    message: `Approved report cannot be deleted.`,
+    primaryCta: {
+      text: 'Close',
+      action: 'continue',
+    },
+  },
+  cssClass: 'pop-up-in-center',
+};
+
+const mockDeleteMethod = () => of(true);
+
+export const deletePopoverParamsRes2 = {
+  component: FyDeleteDialogComponent,
+  cssClass: 'delete-dialog',
+  backdropDismiss: false,
+  componentProps: {
+    header: 'Delete Report',
+    body: 'Are you sure you want to delete this report?',
+    infoMessage: 'Deleting the report will not delete any of the expenses.',
+    deleteMethod: mockDeleteMethod,
+  },
+};

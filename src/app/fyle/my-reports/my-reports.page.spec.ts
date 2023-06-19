@@ -32,16 +32,37 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { Filters } from '../my-expenses/my-expenses-filters.model';
-import { selectedFilters1 } from 'src/app/core/mock-data/selected-filters.data';
+import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import {
+  deletePopoverParamsRes,
+  deletePopoverParamsRes2,
   expectedGenerateFilterPillsData,
   generatedFiltersStateDate,
   generatedFiltersStateDateSortParams,
   openFiltersOptions,
+  popoverControllerParams,
 } from 'src/app/core/mock-data/my-reports.data';
+import { loadData1, loadData2, loadData3 } from 'src/app/core/mock-data/my-reports-load-data.data';
+import {
+  filter1,
+  filter10,
+  filter11,
+  filter12,
+  filter13,
+  filter14,
+  filter2,
+  filter3,
+  filter4,
+  filter5,
+  filter6,
+  filter7,
+  filter8,
+  filter9,
+} from 'src/app/core/mock-data/my-reports-filters.data';
+import { selectedFilters3 } from 'src/app/core/mock-data/my-reports-selected-filters.data';
 
-fdescribe('MyReportsPage', () => {
+describe('MyReportsPage', () => {
   let component: MyReportsPage;
   let fixture: ComponentFixture<MyReportsPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -712,12 +733,7 @@ fdescribe('MyReportsPage', () => {
       expect(component.clearFilters).toHaveBeenCalledTimes(1);
 
       component.loadData$.subscribe((data) => {
-        expect(data).toEqual({
-          pageNumber: 1,
-          searchString: 'example',
-          sortParam: 'approvalDate',
-          sortDir: 'desc',
-        });
+        expect(data).toEqual(loadData1);
       });
 
       tick(500);
@@ -869,11 +885,7 @@ fdescribe('MyReportsPage', () => {
       expect(component.clearFilters).not.toHaveBeenCalled();
 
       component.loadData$.subscribe((data) => {
-        expect(data).toEqual({
-          pageNumber: 1,
-          searchString: 'example',
-          sortDir: 'desc',
-        });
+        expect(data).toEqual(loadData2);
       });
 
       tick(500);
@@ -1025,11 +1037,7 @@ fdescribe('MyReportsPage', () => {
       expect(component.clearFilters).not.toHaveBeenCalled();
 
       component.loadData$.subscribe((data) => {
-        expect(data).toEqual({
-          pageNumber: 1,
-          searchString: 'example',
-          sortDir: 'desc',
-        });
+        expect(data).toEqual(loadData3);
       });
 
       tick(500);
@@ -1166,11 +1174,7 @@ fdescribe('MyReportsPage', () => {
       const startDate = new Date('2022-01-01');
       const endDate = new Date('2022-01-31');
 
-      component.filters = {
-        date: DateFilters.custom,
-        customDateStart: startDate,
-        customDateEnd: endDate,
-      };
+      component.filters = filter4;
 
       component.generateCustomDateParams(newQueryParams);
 
@@ -1183,11 +1187,7 @@ fdescribe('MyReportsPage', () => {
       const newQueryParams: { or: string[]; and?: string } = { or: [] };
       const startDate = new Date('2022-01-01');
 
-      component.filters = {
-        date: DateFilters.custom,
-        customDateStart: startDate,
-        customDateEnd: null,
-      };
+      component.filters = filter5;
 
       component.generateCustomDateParams(newQueryParams);
 
@@ -1198,11 +1198,7 @@ fdescribe('MyReportsPage', () => {
       const newQueryParams: { or: string[]; and?: string } = { or: [] };
       const endDate = new Date('2022-01-31');
 
-      component.filters = {
-        date: DateFilters.custom,
-        customDateStart: null,
-        customDateEnd: endDate,
-      };
+      component.filters = filter6;
 
       component.generateCustomDateParams(newQueryParams);
 
@@ -1211,11 +1207,7 @@ fdescribe('MyReportsPage', () => {
 
     it('should not generate custom date params when date filter is not custom', () => {
       const newQueryParams: { or: string[]; and?: string } = { or: [] };
-      component.filters = {
-        date: DateFilters.thisWeek,
-        customDateStart: new Date(),
-        customDateEnd: new Date(),
-      };
+      component.filters = filter7;
 
       component.generateCustomDateParams(newQueryParams);
 
@@ -1233,11 +1225,7 @@ fdescribe('MyReportsPage', () => {
       };
       const expectedAndQuery = `(rp_created_at.gte.${thisMonthRange.from.toISOString()},rp_created_at.lt.${thisMonthRange.to.toISOString()})`;
       dateService.getThisMonthRange.and.returnValue(thisMonthRange);
-      component.filters = {
-        date: DateFilters.thisMonth,
-        customDateStart: null,
-        customDateEnd: null,
-      };
+      component.filters = filter8;
 
       component.generateDateParams(newQueryParams);
 
@@ -1254,11 +1242,7 @@ fdescribe('MyReportsPage', () => {
       };
       const expectedAndQuery = `(rp_created_at.gte.${thisWeekRange.from.toISOString()},rp_created_at.lt.${thisWeekRange.to.toISOString()})`;
       dateService.getThisWeekRange.and.returnValue(thisWeekRange);
-      component.filters = {
-        date: DateFilters.thisWeek,
-        customDateStart: null,
-        customDateEnd: null,
-      };
+      component.filters = filter9;
 
       component.generateDateParams(newQueryParams);
 
@@ -1275,11 +1259,7 @@ fdescribe('MyReportsPage', () => {
       };
       const expectedAndQuery = `(rp_created_at.gte.${lastMonthRange.from.toISOString()},rp_created_at.lt.${lastMonthRange.to.toISOString()})`;
       dateService.getLastMonthRange.and.returnValue(lastMonthRange);
-      component.filters = {
-        date: DateFilters.lastMonth,
-        customDateStart: null,
-        customDateEnd: null,
-      };
+      component.filters = filter10;
 
       component.generateDateParams(newQueryParams);
 
@@ -1290,11 +1270,7 @@ fdescribe('MyReportsPage', () => {
     it('should not generate date params when date filter is not set', () => {
       spyOn(component, 'generateCustomDateParams');
       const newQueryParams: { or: string[]; and?: string } = { or: [] };
-      component.filters = {
-        date: null,
-        customDateStart: null,
-        customDateEnd: null,
-      };
+      component.filters = filter11;
 
       component.generateDateParams(newQueryParams);
 
@@ -1304,11 +1280,7 @@ fdescribe('MyReportsPage', () => {
 
     it('should convert customDateStart and customDateEnd string to date', () => {
       spyOn(component, 'generateCustomDateParams');
-      component.filters = {
-        date: DateFilters.all,
-        customDateStart: new Date('2023-02-21T00:00:00.000Z'),
-        customDateEnd: new Date('2023-02-23T00:00:00.000Z'),
-      };
+      component.filters = filter12;
       const newQueryParams: { or: string[]; and?: string } = { or: [] };
 
       component.generateDateParams(newQueryParams);
@@ -1320,17 +1292,7 @@ fdescribe('MyReportsPage', () => {
   describe('generateStateFilters(): ', () => {
     it('should update the newQueryParams if stateOrFilter length is greater than 0', () => {
       const newQueryParams = { or: [] };
-      component.filters = {
-        state: [
-          'DRAFT',
-          'APPROVER_PENDING',
-          'APPROVER_INQUIRY',
-          'APPROVED',
-          'PAYMENT_PENDING',
-          'PAYMENT_PROCESSING',
-          'PAID',
-        ],
-      };
+      component.filters = filter13;
       component.generateStateFilters(newQueryParams);
       expect(newQueryParams).toEqual({
         or: [
@@ -1450,17 +1412,7 @@ fdescribe('MyReportsPage', () => {
 
     reportService.delete.and.returnValue(of(true));
 
-    expect(result).toEqual({
-      component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
-      backdropDismiss: false,
-      componentProps: {
-        header: 'Delete Report',
-        body: 'Are you sure you want to delete this report?',
-        infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: jasmine.any(Function),
-      },
-    });
+    expect(result).toEqual(deletePopoverParamsRes);
 
     result.componentProps.deleteMethod().subscribe(() => {
       expect(reportService.delete).toHaveBeenCalledOnceWith(apiExtendedReportRes[0].rp_id);
@@ -1480,18 +1432,7 @@ fdescribe('MyReportsPage', () => {
       component.onDeleteReportClick(mockErpt);
       tick(200);
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: PopupAlertComponent,
-        componentProps: {
-          title: 'Cannot Delete Report',
-          message: `Approved report cannot be deleted.`,
-          primaryCta: {
-            text: 'Close',
-            action: 'continue',
-          },
-        },
-        cssClass: 'pop-up-in-center',
-      });
+      expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams);
     }));
 
     it('should call the deleteReport and do a refresh if rp_state consist any of DRAFT, APPROVER_PENDING, APPROVER_INQUIRY', fakeAsync(() => {
@@ -1499,18 +1440,7 @@ fdescribe('MyReportsPage', () => {
       deleteReportPopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.returnValue(Promise.resolve(deleteReportPopoverSpy));
       spyOn(component, 'doRefresh');
-      const mockDeleteMethod = () => of(true);
-      spyOn(component, 'getDeleteReportPopoverParams').and.returnValue({
-        component: FyDeleteDialogComponent,
-        cssClass: 'delete-dialog',
-        backdropDismiss: false,
-        componentProps: {
-          header: 'Delete Report',
-          body: 'Are you sure you want to delete this report?',
-          infoMessage: 'Deleting the report will not delete any of the expenses.',
-          deleteMethod: mockDeleteMethod,
-        },
-      });
+      spyOn(component, 'getDeleteReportPopoverParams').and.returnValue(deletePopoverParamsRes2);
       reportService.delete.and.returnValue(of(null));
       loaderService.showLoader.and.resolveTo(null);
       loaderService.hideLoader.and.resolveTo(null);
@@ -1519,17 +1449,7 @@ fdescribe('MyReportsPage', () => {
       component.onDeleteReportClick(apiExtendedReportRes[0]);
       tick(200);
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: FyDeleteDialogComponent,
-        cssClass: 'delete-dialog',
-        backdropDismiss: false,
-        componentProps: {
-          header: 'Delete Report',
-          body: 'Are you sure you want to delete this report?',
-          infoMessage: 'Deleting the report will not delete any of the expenses.',
-          deleteMethod: mockDeleteMethod,
-        },
-      });
+      expect(popoverController.create).toHaveBeenCalledOnceWith(deletePopoverParamsRes2);
       expect(component.getDeleteReportPopoverParams).toHaveBeenCalledOnceWith(apiExtendedReportRes[0]);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
@@ -1659,11 +1579,7 @@ fdescribe('MyReportsPage', () => {
 
   describe('onFilterClose', () => {
     beforeEach(() => {
-      component.filters = {
-        sortDir: 'desc',
-        sortParam: 'rp_created_at',
-        rp_state: 'APPROVED',
-      };
+      component.filters = filter14;
       component.currentPageNumber = 2;
       component.loadData$ = new BehaviorSubject({
         pageNumber: 1,
@@ -1791,14 +1707,7 @@ fdescribe('MyReportsPage', () => {
 
   describe('generateSelectedFilters(): ', () => {
     it('should generate selected filters based on the provided filter object', () => {
-      const filter = {
-        state: 'approved',
-        date: 'last_week',
-        customDateStart: new Date('2023-01-01'),
-        customDateEnd: new Date('2023-01-07'),
-        sortParam: 'rp_created_at',
-        sortDir: 'asc',
-      };
+      const filter = filter1;
 
       const generatedFilters = component.generateSelectedFilters(filter);
 
@@ -2007,15 +1916,7 @@ fdescribe('MyReportsPage', () => {
       spyOn(component, 'convertSelectedSortFitlersToFilters');
     });
     it('should convert selected filters to corresponding Filters object', () => {
-      const selectedFilters = [
-        { name: 'State', value: 'Approved' },
-        {
-          name: 'Date',
-          value: 'Last 7 Days',
-          associatedData: { startDate: new Date('2023-04-01'), endDate: new Date('2023-04-04') },
-        },
-        { name: 'Sort By', value: 'dateNewToOld' },
-      ];
+      const selectedFilters = selectedFilters1;
 
       const generatedFilters = component.convertFilters(selectedFilters);
 
@@ -2029,11 +1930,7 @@ fdescribe('MyReportsPage', () => {
     });
 
     it('should convert selected filters to corresponding Filters object incase of associatedData is undefined', () => {
-      const selectedFilters = [
-        { name: 'State', value: 'Approved' },
-        { name: 'Date', value: 'Last 7 Days', associatedData: undefined },
-        { name: 'Sort By', value: 'dateNewToOld' },
-      ];
+      const selectedFilters = selectedFilters2;
 
       const generatedFilters = component.convertFilters(selectedFilters);
 
@@ -2067,13 +1964,7 @@ fdescribe('MyReportsPage', () => {
     });
 
     it('should return a Filters object with only date filter if date filter is selected', () => {
-      const selectedFilters = [
-        {
-          name: 'Date',
-          value: 'Last Month',
-          associatedData: { startDate: new Date('2023-01-04'), endDate: new Date('2023-01-10') },
-        },
-      ];
+      const selectedFilters = selectedFilters3;
 
       const generatedFilters = component.convertFilters(selectedFilters);
 
@@ -2245,11 +2136,7 @@ fdescribe('MyReportsPage', () => {
 
     it('should generate custom date filter pill', () => {
       const filterPills: FilterPill[] = [];
-      const filter = {
-        date: DateFilters.custom,
-        customDateStart: new Date('2023-01-21'),
-        customDateEnd: new Date('2023-01-31'),
-      };
+      const filter = filter2;
       spyOn(component, 'generateCustomDatePill');
 
       component.generateDateFilterPills(filter, filterPills);
@@ -2476,12 +2363,7 @@ fdescribe('MyReportsPage', () => {
 
   it('generateFilterPills(): should generate filter pills for all filters', () => {
     let filterPills: FilterPill[] = [];
-    const filter = {
-      state: ['active', 'completed'],
-      date: DateFilters.thisWeek,
-      sortParam: 'rp_created_at',
-      sortDir: 'asc',
-    };
+    const filter = filter3;
     spyOn(component, 'generateStateFilterPills').and.callFake((filterPills, filter) => {
       filterPills.push({
         label: 'State',
