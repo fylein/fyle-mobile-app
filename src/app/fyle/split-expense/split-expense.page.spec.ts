@@ -326,6 +326,7 @@ describe('SplitExpensePage', () => {
     it('should link transaction with files when the receipt is attached and, the txn state is COMPLETE but the report id is not present', (done) => {
       const splitExpData = splitExpenseTxn1;
       component.transaction = txnAmount1;
+      component.reportId = null;
       component.totalSplitAmount = 436342.464;
       splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
 
@@ -395,6 +396,7 @@ describe('SplitExpensePage', () => {
     it('should link transaction to files when the receipt is not attached and report id is not present', (done) => {
       const splitExpData = splitExpenseTxn1;
       component.fileObjs = [];
+      component.reportId = null;
       component.transaction = txnAmount1;
       component.createAndLinkTxnsWithFiles(splitExpData);
       component.transaction = txnAmount1;
