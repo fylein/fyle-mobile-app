@@ -765,8 +765,9 @@ export class AddEditExpensePage implements OnInit {
       costCenters: this.costCenters$,
       projects: this.projectsService.getAllActive(),
       txnFields: this.txnFields$.pipe(take(1)),
+      filteredCategories: this.filteredCategories$.pipe(take(1)),
     }).pipe(
-      map(({ orgSettings, costCenters, projects, txnFields }) => {
+      map(({ orgSettings, costCenters, projects, txnFields, filteredCategories }) => {
         const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
 
         const actionSheetOptions = [];
@@ -774,18 +775,21 @@ export class AddEditExpensePage implements OnInit {
         if (isSplitExpenseAllowed) {
           const areCostCentersAvailable = costCenters.length > 0;
           const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
+          const areCategoriesAvailable = filteredCategories.length > 1;
           const projectField = txnFields.project_id;
 
-          actionSheetOptions.push({
-            text: 'Split Expense By Category',
-            handler: () => {
-              if (this.fg.valid) {
-                this.openSplitExpenseModal('categories');
-              } else {
-                this.showFormValidationErrors();
-              }
-            },
-          });
+          if (areCategoriesAvailable) {
+            actionSheetOptions.push({
+              text: 'Split Expense By Category',
+              handler: () => {
+                if (this.fg.valid) {
+                  this.openSplitExpenseModal('categories');
+                } else {
+                  this.showFormValidationErrors();
+                }
+              },
+            });
+          }
 
           if (areProjectsAvailable) {
             actionSheetOptions.push({
