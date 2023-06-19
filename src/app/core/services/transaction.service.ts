@@ -510,17 +510,17 @@ export class TransactionService {
     return vendorDisplayName;
   }
 
-  getReportableExpenses(expenses: Expense[]): Expense[] {
+  getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter(
       (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
     );
   }
 
-  getIsCriticalPolicyViolated(expense: Expense): boolean {
+  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
     return typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001;
   }
 
-  getIsDraft(expense: Expense): boolean {
+  getIsDraft(expense: Partial<Expense>): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
@@ -582,21 +582,21 @@ export class TransactionService {
       .sort((a, b) => (a.amount < b.amount ? 1 : -1));
   }
 
-  excludeCCCExpenses(expenses: Expense[]): Expense[] {
+  excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
   }
 
-  getDeletableTxns(expenses: Expense[]): Expense[] {
+  getDeletableTxns(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
-  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
+  getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
     return `You are about to permanently delete ${
       expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
     }`;
   }
 
-  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number): string {
+  getCCCExpenseMessage(expensesToBeDeleted: Partial<Expense>[], cccExpenses: number): string {
     return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
@@ -605,7 +605,7 @@ export class TransactionService {
   }
 
   getDeleteDialogBody(
-    expensesToBeDeleted: Expense[],
+    expensesToBeDeleted: Partial<Expense>[],
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
@@ -655,7 +655,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/unlink_card_expense', data);
   }
 
-  isMergeAllowed(expenses: Expense[]): boolean {
+  isMergeAllowed(expenses: Partial<Expense>[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
