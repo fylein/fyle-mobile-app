@@ -3,6 +3,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
 export const generatedFiltersStateDateSortParams = [
@@ -198,16 +199,16 @@ export const openFiltersOptions = [
   } as FilterOptions<string>,
 ];
 
-export const deletePopoverParamsRes = {
-  component: FyDeleteDialogComponent,
-  cssClass: 'delete-dialog',
-  backdropDismiss: false,
+export const filterPopoverParams = {
+  component: FyFiltersComponent,
   componentProps: {
-    header: 'Delete Report',
-    body: 'Are you sure you want to delete this report?',
-    infoMessage: 'Deleting the report will not delete any of the expenses.',
-    deleteMethod: jasmine.any(Function),
+    filterOptions: openFiltersOptions,
+    simplifyReportsSettings$: undefined,
+    nonReimbursableOrg$: undefined,
+    selectedFilterValues: [{ name: 'state', value: 'PENDING' }],
+    activeFilterInitialName: 'State',
   },
+  cssClass: 'dialog-popover',
 };
 
 export const popoverControllerParams = {
@@ -225,7 +226,7 @@ export const popoverControllerParams = {
 
 const mockDeleteMethod = () => of(true);
 
-export const deletePopoverParamsRes2 = {
+export const deletePopoverParamsRes = {
   component: FyDeleteDialogComponent,
   cssClass: 'delete-dialog',
   backdropDismiss: false,

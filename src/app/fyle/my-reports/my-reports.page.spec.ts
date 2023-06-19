@@ -32,12 +32,18 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { Filters } from '../my-expenses/my-expenses-filters.model';
-import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import {
+  selectedFilters1,
+  selectedFilters2,
+  selectedFilters3,
+  selectedFilters4,
+  selectedFilters5,
+} from 'src/app/core/mock-data/selected-filters.data';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import {
   deletePopoverParamsRes,
-  deletePopoverParamsRes2,
   expectedGenerateFilterPillsData,
+  filterPopoverParams,
   generatedFiltersStateDate,
   generatedFiltersStateDateSortParams,
   openFiltersOptions,
@@ -60,7 +66,22 @@ import {
   filter8,
   filter9,
 } from 'src/app/core/mock-data/my-reports-filters.data';
-import { selectedFilters3 } from 'src/app/core/mock-data/my-reports-selected-filters.data';
+import {
+  expectedFilterPill1,
+  expectedFilterPill10,
+  expectedFilterPill11,
+  expectedFilterPill12,
+  expectedFilterPill13,
+  expectedFilterPill14,
+  expectedFilterPill2,
+  expectedFilterPill3,
+  expectedFilterPill4,
+  expectedFilterPill5,
+  expectedFilterPill6,
+  expectedFilterPill7,
+  expectedFilterPill8,
+  expectedFilterPill9,
+} from 'src/app/core/mock-data/my-reports-filterpills.data';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -1412,7 +1433,17 @@ describe('MyReportsPage', () => {
 
     reportService.delete.and.returnValue(of(true));
 
-    expect(result).toEqual(deletePopoverParamsRes);
+    expect(result).toEqual({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: 'Delete Report',
+        body: 'Are you sure you want to delete this report?',
+        infoMessage: 'Deleting the report will not delete any of the expenses.',
+        deleteMethod: jasmine.any(Function),
+      },
+    });
 
     result.componentProps.deleteMethod().subscribe(() => {
       expect(reportService.delete).toHaveBeenCalledOnceWith(apiExtendedReportRes[0].rp_id);
@@ -1440,7 +1471,7 @@ describe('MyReportsPage', () => {
       deleteReportPopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.returnValue(Promise.resolve(deleteReportPopoverSpy));
       spyOn(component, 'doRefresh');
-      spyOn(component, 'getDeleteReportPopoverParams').and.returnValue(deletePopoverParamsRes2);
+      spyOn(component, 'getDeleteReportPopoverParams').and.returnValue(deletePopoverParamsRes);
       reportService.delete.and.returnValue(of(null));
       loaderService.showLoader.and.resolveTo(null);
       loaderService.hideLoader.and.resolveTo(null);
@@ -1449,7 +1480,7 @@ describe('MyReportsPage', () => {
       component.onDeleteReportClick(apiExtendedReportRes[0]);
       tick(200);
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith(deletePopoverParamsRes2);
+      expect(popoverController.create).toHaveBeenCalledOnceWith(deletePopoverParamsRes);
       expect(component.getDeleteReportPopoverParams).toHaveBeenCalledOnceWith(apiExtendedReportRes[0]);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
@@ -1579,7 +1610,7 @@ describe('MyReportsPage', () => {
 
   describe('onFilterClose', () => {
     beforeEach(() => {
-      component.filters = filter14;
+      component.filters = cloneDeep(filter14);
       component.currentPageNumber = 2;
       component.loadData$ = new BehaviorSubject({
         pageNumber: 1,
@@ -1916,7 +1947,7 @@ describe('MyReportsPage', () => {
       spyOn(component, 'convertSelectedSortFitlersToFilters');
     });
     it('should convert selected filters to corresponding Filters object', () => {
-      const selectedFilters = selectedFilters1;
+      const selectedFilters = selectedFilters3;
 
       const generatedFilters = component.convertFilters(selectedFilters);
 
@@ -1930,7 +1961,7 @@ describe('MyReportsPage', () => {
     });
 
     it('should convert selected filters to corresponding Filters object incase of associatedData is undefined', () => {
-      const selectedFilters = selectedFilters2;
+      const selectedFilters = selectedFilters4;
 
       const generatedFilters = component.convertFilters(selectedFilters);
 
@@ -1964,7 +1995,7 @@ describe('MyReportsPage', () => {
     });
 
     it('should return a Filters object with only date filter if date filter is selected', () => {
-      const selectedFilters = selectedFilters3;
+      const selectedFilters = selectedFilters5;
 
       const generatedFilters = component.convertFilters(selectedFilters);
 
@@ -1987,13 +2018,7 @@ describe('MyReportsPage', () => {
     component.generateStateFilterPills(filterPills, filter);
 
     component.simplifyReportsSettings$.subscribe(() => {
-      expect(filterPills).toEqual([
-        {
-          label: 'State',
-          type: 'state',
-          value: 'approved, reported',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill1);
     });
   });
 
@@ -2007,13 +2032,7 @@ describe('MyReportsPage', () => {
 
       component.generateCustomDatePill(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Date',
-          type: 'date',
-          value: '2023-01-21 to 2023-01-31',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill2);
     });
 
     it('should generate custom date filter pill with only start date', () => {
@@ -2025,13 +2044,7 @@ describe('MyReportsPage', () => {
 
       component.generateCustomDatePill(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Date',
-          type: 'date',
-          value: '>= 2023-01-21',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill3);
     });
 
     it('should generate custom date filter pill with only end date', () => {
@@ -2043,13 +2056,7 @@ describe('MyReportsPage', () => {
 
       component.generateCustomDatePill(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Date',
-          type: 'date',
-          value: '<= 2023-01-31',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill4);
     });
 
     it('should not generate custom date filter pill if start and end date are null', () => {
@@ -2074,13 +2081,7 @@ describe('MyReportsPage', () => {
 
       component.generateDateFilterPills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Date',
-          type: 'date',
-          value: 'this Week',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill5);
     });
 
     it('should generate filter pill for "this Month"', () => {
@@ -2091,13 +2092,7 @@ describe('MyReportsPage', () => {
 
       component.generateDateFilterPills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Date',
-          type: 'date',
-          value: 'this Month',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill6);
     });
 
     it('should generate filter pill for "All"', () => {
@@ -2108,13 +2103,7 @@ describe('MyReportsPage', () => {
 
       component.generateDateFilterPills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Date',
-          type: 'date',
-          value: 'All',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill7);
     });
 
     it('should generate filter pill for "Last Month"', () => {
@@ -2125,13 +2114,7 @@ describe('MyReportsPage', () => {
 
       component.generateDateFilterPills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Date',
-          type: 'date',
-          value: 'Last Month',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill8);
     });
 
     it('should generate custom date filter pill', () => {
@@ -2168,13 +2151,7 @@ describe('MyReportsPage', () => {
 
       component.generateSortRptDatePills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'date - old to new',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill9);
     });
 
     it('should generate filter pill for "date - new to old"', () => {
@@ -2186,13 +2163,7 @@ describe('MyReportsPage', () => {
 
       component.generateSortRptDatePills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'date - new to old',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill10);
     });
 
     it('should not generate filter pill if sortParam is not "rp_created_at"', () => {
@@ -2230,13 +2201,7 @@ describe('MyReportsPage', () => {
 
       component.generateSortAmountPills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'amount - high to low',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill11);
     });
 
     it('should generate filter pill for "amount - low to high"', () => {
@@ -2248,13 +2213,7 @@ describe('MyReportsPage', () => {
 
       component.generateSortAmountPills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'amount - low to high',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill12);
     });
 
     it('should not generate filter pill if sortParam is not "rp_amount"', () => {
@@ -2292,13 +2251,7 @@ describe('MyReportsPage', () => {
 
       component.generateSortNamePills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'Name - a to z',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill13);
     });
 
     it('should generate filter pill for "Name - z to a"', () => {
@@ -2310,13 +2263,7 @@ describe('MyReportsPage', () => {
 
       component.generateSortNamePills(filter, filterPills);
 
-      expect(filterPills).toEqual([
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'Name - z to a',
-        },
-      ]);
+      expect(filterPills).toEqual(expectedFilterPill14);
     });
 
     it('should not generate filter pill if sortParam is not "rp_purpose"', () => {
@@ -2475,17 +2422,7 @@ describe('MyReportsPage', () => {
     component.openFilters('State');
     tick(200);
 
-    expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: FyFiltersComponent,
-      componentProps: {
-        filterOptions: openFiltersOptions,
-        simplifyReportsSettings$: component.simplifyReportsSettings$,
-        nonReimbursableOrg$: component.nonReimbursableOrg$,
-        selectedFilterValues: [{ name: 'state', value: 'PENDING' }],
-        activeFilterInitialName: 'State',
-      },
-      cssClass: 'dialog-popover',
-    });
+    expect(modalController.create).toHaveBeenCalledOnceWith(filterPopoverParams);
 
     expect(component.generateSelectedFilters).toHaveBeenCalledOnceWith({ sortDir: 'desc' });
     expect(component.convertFilters).toHaveBeenCalledOnceWith(selectedFilters1);
@@ -2494,13 +2431,7 @@ describe('MyReportsPage', () => {
     component.loadData$.subscribe((data) => {
       expect(data).toEqual({ pageNumber: 3 });
     });
-    expect(component.filterPills).toEqual([
-      {
-        label: 'Date',
-        type: 'date',
-        value: 'this Week',
-      },
-    ]);
+    expect(component.filterPills).toEqual(expectedFilterPill5);
     expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortParam: 'approvalDate', sortDir: 'asc' });
     expect(trackingService.myReportsFilterApplied).toHaveBeenCalledOnceWith({
       sortParam: 'approvalDate',
