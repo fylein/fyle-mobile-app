@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, NavController } from '@ionic/angular';
+import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 
 import { MyExpensesPage } from './my-expenses.page';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -57,9 +57,12 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { cloneDeep } from 'lodash';
+import { before, cloneDeep } from 'lodash';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
-describe('MyReportsPage', () => {
+fdescribe('MyReportsPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -87,6 +90,8 @@ describe('MyReportsPage', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let popupService: jasmine.SpyObj<PopupService>;
+  let popoverController: jasmine.SpyObj<PopoverController>;
+  let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let inputElement: HTMLInputElement;
 
   beforeEach(waitForAsync(() => {
@@ -117,6 +122,8 @@ describe('MyReportsPage', () => {
       'isMergeAllowed',
       'getDeletableTxns',
       'excludeCCCExpenses',
+      'getIsCriticalPolicyViolated',
+      'getIsDraft',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -165,10 +172,14 @@ describe('MyReportsPage', () => {
       'myExpensesFilterApplied',
       'deleteExpense',
       'clickAddToReport',
+      'showToastMessage',
+      'addToReport',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
 
     TestBed.configureTestingModule({
       declarations: [MyExpensesPage, ReportState, MaskNumber],
@@ -254,6 +265,14 @@ describe('MyReportsPage', () => {
           provide: PopupService,
           useValue: popupServiceSpy,
         },
+        {
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
+        },
+        {
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
+        },
         ReportState,
         MaskNumber,
       ],
@@ -293,6 +312,8 @@ describe('MyReportsPage', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
+    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
   }));
 
   it('should create', () => {
@@ -1850,6 +1871,128 @@ describe('MyReportsPage', () => {
       'my_create_report',
       { txn_ids: strigifiedTxnId },
     ]);
+  });
+
+  describe('openCriticalPolicyViolationPopOver():', () => {
+    beforeEach(() => {
+      const criticalPolicyViolationPopOverSpy = jasmine.createSpyObj('criticalPolicyViolationPopOver', [
+        'present',
+        'onWillDismiss',
+      ]);
+      criticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({ data: { action: 'continue' } });
+      popoverController.create.and.resolveTo(criticalPolicyViolationPopOverSpy);
+      spyOn(component, 'showOldReportsMatBottomSheet');
+      spyOn(component, 'showNewReportModal');
+    });
+    it('should open popoverController and call showOldReportsMatBottomSheet', fakeAsync(() => {
+      component.openCriticalPolicyViolationPopOver({
+        title: '2 Draft Expenses blocking the way',
+        message: '2 expenses are in draft state.',
+        reportType: 'oldReport',
+      });
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: '2 Draft Expenses blocking the way',
+          message: '2 expenses are in draft state.',
+          primaryCta: {
+            text: 'Exclude and Continue',
+            action: 'continue',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+
+      expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
+      expect(component.showNewReportModal).not.toHaveBeenCalled();
+    }));
+    it('should open popoverController and call showNewReportModal', fakeAsync(() => {
+      component.openCriticalPolicyViolationPopOver({
+        title: '2 Draft Expenses blocking the way',
+        message: '2 expenses are in draft state.',
+        reportType: 'newReport',
+      });
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: '2 Draft Expenses blocking the way',
+          message: '2 expenses are in draft state.',
+          primaryCta: {
+            text: 'Exclude and Continue',
+            action: 'continue',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+
+      expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
+      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  it('showNonReportableExpenseSelectedToast(): should call matSnackbar and call trackingService', () => {
+    snackbarProperties.setSnackbarProperties.and.returnValue({
+      data: {
+        icon: 'danger',
+        showCloseButton: true,
+        message: 'Please select one or more expenses to be reported',
+      },
+      duration: 3000,
+    });
+    component.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
+
+    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+      data: {
+        icon: 'danger',
+        showCloseButton: true,
+        message: 'Please select one or more expenses to be reported',
+      },
+      duration: 3000,
+      panelClass: ['msb-failure-with-report-btn'],
+    });
+    expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', {
+      message: 'Please select one or more expenses to be reported',
+    });
+    expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+      ToastContent: 'Please select one or more expenses to be reported',
+    });
+  });
+
+  fdescribe('openCreateReportWithSelectedIds(): ', () => {
+    beforeEach(() => {
+      spyOn(component, 'showNonReportableExpenseSelectedToast');
+      spyOn(component, 'openCriticalPolicyViolationPopOver');
+      spyOn(component, 'showOldReportsMatBottomSheet');
+      spyOn(component, 'showNewReportModal');
+    });
+    it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
+      component.selectedElements = cloneDeep(apiExpenseRes);
+      component.selectedElements[0].tx_id = undefined;
+
+      component.openCreateReportWithSelectedIds('oldReport');
+      tick(100);
+
+      expect(trackingService.addToReport).toHaveBeenCalledOnceWith({ count: 1 });
+
+      expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
+        'Please select one or more expenses to be reported'
+      );
+      expect(component.openCriticalPolicyViolationPopOver).not.toHaveBeenCalled();
+      expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
+      expect(component.showNewReportModal).not.toHaveBeenCalled();
+    }));
   });
 
   it('onSimpleSearchCancel(): should set headerState to base and call clearText', () => {

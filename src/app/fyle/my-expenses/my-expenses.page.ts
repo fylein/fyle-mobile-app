@@ -975,7 +975,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showNonReportableExpenseSelectedToast(message) {
+  showNonReportableExpenseSelectedToast(message: string) {
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
       panelClass: ['msb-failure-with-report-btn'],
