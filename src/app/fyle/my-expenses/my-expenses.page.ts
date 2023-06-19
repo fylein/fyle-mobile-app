@@ -893,12 +893,12 @@ export class MyExpensesPage implements OnInit {
 
     if (isSelectedElementsIncludesExpense) {
       if (expense.tx_id) {
-        this.selectedElements = this.selectedElements?.filter((txn) => txn.tx_id !== expense.tx_id);
+        this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
       } else {
-        this.selectedElements = this.selectedElements?.filter((txn) => !isEqual(txn, expense));
+        this.selectedElements = this.selectedElements.filter((txn) => !isEqual(txn, expense));
       }
     } else {
-      this.selectedElements.push(expense);
+      this.selectedElements?.push(expense);
     }
     this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
 
@@ -907,11 +907,11 @@ export class MyExpensesPage implements OnInit {
 
       this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
 
-      this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+      this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted?.length;
     }
 
     // setting Expenses count and amount stats on select
-    if (this.allExpensesCount === this.selectedElements.length) {
+    if (this.allExpensesCount === this.selectedElements?.length) {
       this.selectAll = true;
     } else {
       this.selectAll = false;
@@ -921,7 +921,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   goToTransaction({ etxn: expense, etxnIndex }) {
-    let category;
+    let category: string;
 
     if (expense.tx_org_category) {
       category = expense.tx_org_category.toLowerCase();
@@ -936,7 +936,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  onAddTransactionToNewReport(expense) {
+  onAddTransactionToNewReport(expense: Expense) {
     this.trackingService.clickAddToReport();
     const transactionIds = JSON.stringify([expense.tx_id]);
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);

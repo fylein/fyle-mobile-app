@@ -33,7 +33,14 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
 import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
-import { apiExpenseRes, expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import {
+  apiExpenseRes,
+  expenseData1,
+  expenseData2,
+  expenseData3,
+  mileageExpenseWithoutDistance,
+  perDiemExpenseSingleNumDays,
+} from 'src/app/core/mock-data/expense.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { environment } from 'src/environments/environment';
@@ -157,6 +164,7 @@ describe('MyReportsPage', () => {
       'footerHomeTabClicked',
       'myExpensesFilterApplied',
       'deleteExpense',
+      'clickAddToReport',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -1305,7 +1313,7 @@ describe('MyReportsPage', () => {
   });
 
   describe('addNewFiltersToParams(): ', () => {
-    it('should update queryParams if filter state is not defined', () => {
+    beforeEach(() => {
       component.loadData$ = new BehaviorSubject({
         pageNumber: 2,
       });
@@ -1339,7 +1347,8 @@ describe('MyReportsPage', () => {
         corporate_credit_card_account_number: 'in.(789)',
         and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
       });
-
+    });
+    it('should update queryParams if filter state is not defined', () => {
       component.filters = {};
 
       const expectedCurrentParams = component.addNewFiltersToParams();
@@ -1378,40 +1387,6 @@ describe('MyReportsPage', () => {
       expect(component.reviewMode).toBeFalse();
     });
     it('should update queryParams if filter state includes only DRAFT', () => {
-      component.loadData$ = new BehaviorSubject({
-        pageNumber: 2,
-      });
-      transactionService.generateCardNumberParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        or: [],
-      });
-      transactionService.generateDateParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.generateReceiptAttachedParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.generateStateFilters.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.generateTypeFilters.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.setSortParams.and.returnValue({ sortDir: 'asc' });
-      transactionService.generateSplitExpenseParams.and.returnValue({
-        or: ['(tx_is_split_expense.eq.true)'],
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-      });
-
       component.filters = {
         state: ['DRAFT'],
       };
@@ -1452,40 +1427,6 @@ describe('MyReportsPage', () => {
       expect(component.reviewMode).toBeTrue();
     });
     it('should update queryParams if filter state includes only CANNOT_REPORT', () => {
-      component.loadData$ = new BehaviorSubject({
-        pageNumber: 2,
-      });
-      transactionService.generateCardNumberParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        or: [],
-      });
-      transactionService.generateDateParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.generateReceiptAttachedParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.generateStateFilters.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.generateTypeFilters.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.setSortParams.and.returnValue({ sortDir: 'asc' });
-      transactionService.generateSplitExpenseParams.and.returnValue({
-        or: ['(tx_is_split_expense.eq.true)'],
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-      });
-
       component.filters = {
         state: ['CANNOT_REPORT'],
       };
@@ -1526,40 +1467,6 @@ describe('MyReportsPage', () => {
       expect(component.reviewMode).toBeTrue();
     });
     it('should update queryParams if filter state includes both DRAFT and CANNOT_REPORT', () => {
-      component.loadData$ = new BehaviorSubject({
-        pageNumber: 2,
-      });
-      transactionService.generateCardNumberParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        or: [],
-      });
-      transactionService.generateDateParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.generateReceiptAttachedParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.generateStateFilters.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.generateTypeFilters.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-        or: [],
-      });
-      transactionService.setSortParams.and.returnValue({ sortDir: 'asc' });
-      transactionService.generateSplitExpenseParams.and.returnValue({
-        or: ['(tx_is_split_expense.eq.true)'],
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-      });
-
       component.filters = {
         state: ['DRAFT', 'CANNOT_REPORT'],
       };
@@ -1797,11 +1704,12 @@ describe('MyReportsPage', () => {
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
   }));
 
-  xdescribe('selectExpense(): ', () => {
+  describe('selectExpense(): ', () => {
     beforeEach(() => {
       transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
       component.allExpensesCount = 1;
       spyOn(component, 'setExpenseStatsOnSelect');
+      component.selectedElements = cloneDeep(apiExpenseRes);
       transactionService.isMergeAllowed.and.returnValue(true);
       transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
       transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
@@ -1845,11 +1753,13 @@ describe('MyReportsPage', () => {
       expect(component.cccExpenses).toBe(1);
       expect(component.selectAll).toBeFalse();
     });
-    it('should remove an expense from selectedElements if it is present in selectedElements incase tx_id is not present in expense', () => {
+    it('should remove an expense from selectedElements if it is present in selectedElements and tx_id is not present in expense', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       component.allExpensesCount = 0;
-      const expense = apiExpenseRes[0];
+      const expense = cloneDeep(apiExpenseRes[0]);
+      expense.tx_id = undefined;
       component.selectedElements = cloneDeep(apiExpenseRes);
+      component.selectedElements[0].tx_id = undefined;
 
       component.selectExpense(expense);
 
@@ -1859,6 +1769,33 @@ describe('MyReportsPage', () => {
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
       expect(component.isMergeAllowed).toBeTrue();
+    });
+    it('should set selectAll to false if selectedElements is undefined', () => {
+      const expense = apiExpenseRes[0];
+      component.selectedElements = undefined;
+      component.selectAll = true;
+
+      component.selectExpense(expense);
+
+      expect(component.selectAll).toBeFalse();
+    });
+    it('should set selectAll to false if selectedElements is undefined and tx_id is not present in expense', () => {
+      const expense = cloneDeep(apiExpenseRes[0]);
+      expense.tx_id = undefined;
+      component.selectedElements = undefined;
+      component.selectAll = true;
+
+      component.selectExpense(expense);
+
+      expect(component.selectAll).toBeFalse();
+    });
+    it('should set cccExpense to undefined if expensedToBeDeleted is undefined', () => {
+      transactionService.getDeletableTxns.and.returnValue(undefined);
+      transactionService.excludeCCCExpenses.and.returnValue(undefined);
+      component.selectAll = true;
+
+      component.selectExpense(expenseData2);
+      expect(component.cccExpenses).toBeNaN();
     });
   });
 
@@ -1871,6 +1808,48 @@ describe('MyReportsPage', () => {
         amount: 3,
       });
     });
+  });
+
+  describe('goToTransaction():', () => {
+    it('should navigate to add_edit_mileage page if category is mileage', () => {
+      component.goToTransaction({ etxn: mileageExpenseWithoutDistance, etxnIndex: 1 });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_mileage',
+        { id: 'txEpXa1cd6oq', persist_filters: true },
+      ]);
+    });
+    it('should navigate to add_edit_per_diem if category is per diem', () => {
+      component.goToTransaction({ etxn: perDiemExpenseSingleNumDays, etxnIndex: 1 });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_per_diem',
+        { id: 'txWDbbZhNwdA', persist_filters: true },
+      ]);
+    });
+    it('should navigate to add_edit_expense if category is something else', () => {
+      component.goToTransaction({ etxn: expenseData3, etxnIndex: 1 });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        { id: 'tx3qHxFNgRcZ', persist_filters: true },
+      ]);
+    });
+  });
+
+  it('onAddTransactionToNewReport(): should navigate to my_create_report', () => {
+    const strigifiedTxnId = JSON.stringify(['tx3qHxFNgRcZ']);
+    component.onAddTransactionToNewReport(expenseData3);
+    expect(trackingService.clickAddToReport).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'my_create_report',
+      { txn_ids: strigifiedTxnId },
+    ]);
   });
 
   it('onSimpleSearchCancel(): should set headerState to base and call clearText', () => {
@@ -1890,17 +1869,16 @@ describe('MyReportsPage', () => {
   });
 
   describe('onFilterClick(): ', () => {
-    it('should call openFilters with Type if argument is state', fakeAsync(() => {
+    beforeEach(() => {
       spyOn(component, 'openFilters');
-
+    });
+    it('should call openFilters with Type if argument is state', fakeAsync(() => {
       component.onFilterClick('state');
       tick(100);
 
       expect(component.openFilters).toHaveBeenCalledOnceWith('Type');
     }));
     it('should call openFilters with Receipts Attached if argument is receiptsattached', fakeAsync(() => {
-      spyOn(component, 'openFilters');
-
       component.onFilterClick('receiptsAttached');
       tick(100);
 
@@ -1908,32 +1886,24 @@ describe('MyReportsPage', () => {
     }));
 
     it('should call openFilters with Expense Type if argument is type', fakeAsync(() => {
-      spyOn(component, 'openFilters');
-
       component.onFilterClick('type');
       tick(100);
 
       expect(component.openFilters).toHaveBeenCalledOnceWith('Expense Type');
     }));
     it('should call openFilters with Date if argument is date', fakeAsync(() => {
-      spyOn(component, 'openFilters');
-
       component.onFilterClick('date');
       tick(100);
 
       expect(component.openFilters).toHaveBeenCalledOnceWith('Date');
     }));
     it('should call openFilters with Sort By if argument is sort', fakeAsync(() => {
-      spyOn(component, 'openFilters');
-
       component.onFilterClick('sort');
       tick(100);
 
       expect(component.openFilters).toHaveBeenCalledOnceWith('Sort By');
     }));
     it('should call openFilters with Split Expense if argument is splitExpense', fakeAsync(() => {
-      spyOn(component, 'openFilters');
-
       component.onFilterClick('splitExpense');
       tick(100);
 
@@ -1949,7 +1919,7 @@ describe('MyReportsPage', () => {
         value: 'Credit',
       },
     ];
-    it('should remove sortDir and sortParam if filterType is sort', () => {
+    beforeEach(() => {
       component.loadData$ = new BehaviorSubject({});
       component.filters = {
         sortDir: 'asc',
@@ -1960,7 +1930,8 @@ describe('MyReportsPage', () => {
         pageNumber: 3,
       });
       spyOn(component, 'generateFilterPills').and.returnValue(mockFilterPill);
-
+    });
+    it('should remove sortDir and sortParam if filterType is sort', () => {
       component.onFilterClose('sort');
 
       expect(component.filters.sortDir).toBeUndefined();
@@ -1974,17 +1945,6 @@ describe('MyReportsPage', () => {
     });
 
     it('should remove property from filter if filterType is other than sort', () => {
-      component.loadData$ = new BehaviorSubject({});
-      component.filters = {
-        sortDir: 'asc',
-        sortParam: 'tx_org_category',
-      };
-      component.currentPageNumber = 2;
-      spyOn(component, 'addNewFiltersToParams').and.returnValue({
-        pageNumber: 3,
-      });
-      spyOn(component, 'generateFilterPills').and.returnValue(mockFilterPill);
-
       component.onFilterClose('sortDir');
       expect(component.filters).toEqual({
         sortParam: 'tx_org_category',
