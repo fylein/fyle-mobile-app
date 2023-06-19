@@ -296,6 +296,8 @@ export class MyProfilePage {
 
     await verificationSuccessfulPopover.present();
     await verificationSuccessfulPopover.onWillDismiss();
+
+    this.trackingService.mobileNumberVerified();
   }
 
   async verifyMobileNumber(eou: ExtendedOrgUser) {
@@ -323,6 +325,7 @@ export class MyProfilePage {
         }
       }
     }
+    this.trackingService.verifyMobileNumber();
   }
 
   async updateMobileNumber(eou: ExtendedOrgUser) {
@@ -349,5 +352,9 @@ export class MyProfilePage {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
       }
     }
+
+    this.trackingService.updateMobileNumber({
+      popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+    });
   }
 }

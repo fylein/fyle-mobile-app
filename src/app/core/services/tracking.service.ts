@@ -569,4 +569,16 @@ export class TrackingService {
   receiptLimitReached(properties = {}) {
     this.eventTrack('Popover shown since receipt limit exceeded', properties);
   }
+
+  updateMobileNumber(properties = {}) {
+    this.eventTrack('Update Mobile Number', properties);
+  }
+
+  verifyMobileNumber() {
+    this.eventTrack('Verify Mobile Number');
+  }
+
+  mobileNumberVerified() {
+    this.eventTrack('Mobile Number Verified');
+  }
 }
