@@ -776,42 +776,6 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  splitExpByCategoryHandler() {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('categories');
-    } else {
-      this.showFormValidationErrors();
-    }
-  }
-
-  splitExpByFieldHandler() {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('projects');
-    } else {
-      this.showFormValidationErrors();
-    }
-  }
-
-  splitExpByCostCenterHandler() {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('cost centers');
-    } else {
-      this.showFormValidationErrors();
-    }
-  }
-
-  markAsPersonalHandler() {
-    this.markPeronsalOrDismiss('personal');
-  }
-
-  dismissAsCardPaymentHandler() {
-    this.markPeronsalOrDismiss('dismiss');
-  }
-
-  removeCCCHandler() {
-    this.removeCorporateCardExpense();
-  }
-
   getActionSheetOptions() {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
@@ -846,7 +810,7 @@ export class AddEditExpensePage implements OnInit {
             if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By Category',
-                handler: this.splitExpByCategoryHandler,
+                handler: () => {},
               });
             }
 
@@ -875,35 +839,37 @@ export class AddEditExpensePage implements OnInit {
                 },
               });
             }
+          }
 
-            if (this.isCccExpense) {
-              if (this.isExpenseMatchedForDebitCCCE) {
-                actionSheetOptions.push({
-                  text: 'Mark as Personal',
-                  handler: () => {
-                    this.markPeronsalOrDismiss('personal');
-                  },
-                });
-              }
-
-              if (this.canDismissCCCE) {
-                actionSheetOptions.push({
-                  text: 'Dimiss as Card Payment',
-                  handler: () => {
-                    this.markPeronsalOrDismiss('dismiss');
-                  },
-                });
-              }
-            }
-
-            if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
+          if (this.isCccExpense) {
+            if (this.isExpenseMatchedForDebitCCCE) {
               actionSheetOptions.push({
-                text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
-                handler: this.splitExpByFieldHandler,
+                text: 'Mark as Personal',
+                handler: () => {
+                  this.markPeronsalOrDismiss('personal');
+                },
               });
             }
-            return actionSheetOptions;
+
+            if (this.canDismissCCCE) {
+              actionSheetOptions.push({
+                text: 'Dimiss as Card Payment',
+                handler: () => {
+                  this.markPeronsalOrDismiss('dismiss');
+                },
+              });
+            }
           }
+
+          if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
+            actionSheetOptions.push({
+              text: 'Remove Card Expense',
+              handler: () => {
+                this.removeCorporateCardExpense();
+              },
+            });
+          }
+          return actionSheetOptions;
         }
       )
     );

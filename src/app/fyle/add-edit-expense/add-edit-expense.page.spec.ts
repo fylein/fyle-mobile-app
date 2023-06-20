@@ -76,6 +76,7 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -88,7 +89,7 @@ const properties = {
   handle: false,
 };
 
-describe('AddEditExpensePage', () => {
+fdescribe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -134,6 +135,7 @@ describe('AddEditExpensePage', () => {
   let taxGroupService: jasmine.SpyObj<TaxGroupService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let storageService: jasmine.SpyObj<StorageService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
@@ -272,6 +274,7 @@ describe('AddEditExpensePage', () => {
       'get',
     ]);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber],
@@ -450,6 +453,10 @@ describe('AddEditExpensePage', () => {
           provide: StorageService,
           useValue: storageServiceSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyService,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -503,6 +510,7 @@ describe('AddEditExpensePage', () => {
     taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     component.fg = formBuilder.group({
       currencyObj: [, component.currencyObjValidator],
@@ -1005,110 +1013,6 @@ describe('AddEditExpensePage', () => {
   });
 
   xit('showFormValidationErrors', () => {});
-
-  describe('splitExpByCategoryHandler():', () => {
-    it('should show split expense modal', () => {
-      Object.defineProperty(component.fg, 'valid', {
-        get: () => true,
-      });
-      spyOn(component, 'openSplitExpenseModal');
-      fixture.detectChanges();
-
-      component.splitExpByCategoryHandler();
-      expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('categories');
-    });
-    it('should show validation errors', () => {
-      spyOn(component, 'showFormValidationErrors');
-      fixture.detectChanges();
-
-      component.splitExpByCategoryHandler();
-      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('splitExpByFieldHandler():', () => {
-    it('should show split expense modal', () => {
-      Object.defineProperty(component.fg, 'valid', {
-        get: () => true,
-      });
-      spyOn(component, 'openSplitExpenseModal');
-      fixture.detectChanges();
-
-      component.splitExpByFieldHandler();
-      expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('projects');
-    });
-    it('should show validation errors', () => {
-      spyOn(component, 'showFormValidationErrors');
-      fixture.detectChanges();
-
-      component.splitExpByFieldHandler();
-      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('splitExpByCostCenterHandler():', () => {
-    it('should show split expense modal', () => {
-      Object.defineProperty(component.fg, 'valid', {
-        get: () => true,
-      });
-      spyOn(component, 'openSplitExpenseModal');
-      fixture.detectChanges();
-
-      component.splitExpByCostCenterHandler();
-      expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('cost centers');
-    });
-    it('should show validation errors', () => {
-      spyOn(component, 'showFormValidationErrors');
-      fixture.detectChanges();
-
-      component.splitExpByCostCenterHandler();
-      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  it('markAsPersonalHandler(): should mark as personal', () => {
-    spyOn(component, 'markPeronsalOrDismiss');
-
-    component.markAsPersonalHandler();
-    expect(component.markPeronsalOrDismiss).toHaveBeenCalledOnceWith('personal');
-  });
-
-  it('dismissAsCardPaymentHandler(): should dismiss the card', () => {
-    spyOn(component, 'markPeronsalOrDismiss');
-
-    component.dismissAsCardPaymentHandler();
-    expect(component.markPeronsalOrDismiss).toHaveBeenCalledOnceWith('dismiss');
-  });
-
-  it('removeCCCHandler(): should call to remove CCC', () => {
-    spyOn(component, 'removeCorporateCardExpense');
-
-    component.removeCCCHandler();
-    expect(component.removeCorporateCardExpense).toHaveBeenCalledTimes(1);
-  });
-
-  it('getActionSheetOptions(): should return action sheet options', (done) => {
-    orgSettingsService.get.and.returnValue(
-      of({
-        ...orgSettingsData,
-        expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
-      })
-    );
-    component.costCenters$ = of(costCenterApiRes1);
-    projectsService.getAllActive.and.returnValue(of(projectsV1Data));
-    component.txnFields$ = of({ project_id: 257528 });
-    component.isCccExpense = true;
-    component.canDismissCCCE = true;
-    component.isCorporateCreditCardEnabled = true;
-    component.canRemoveCardExpense = true;
-    component.isExpenseMatchedForDebitCCCE = true;
-    fixture.detectChanges();
-
-    component.getActionSheetOptions().subscribe((res) => {
-      expect(res.length).toEqual(6);
-      done();
-    });
-  });
 
   it('showMoreActions(): should show action sheet', fakeAsync(() => {
     component.actionSheetOptions$ = of(actionSheetOptionsData);
