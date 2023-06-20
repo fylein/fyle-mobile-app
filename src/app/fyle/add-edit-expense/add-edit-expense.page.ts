@@ -362,7 +362,7 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
-  private _isExpandedView = false;
+  _isExpandedView = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -435,8 +435,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goBack() {
-    const bankTxn =
-      this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
