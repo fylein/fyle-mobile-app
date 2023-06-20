@@ -6,6 +6,10 @@ import { filterOptions1 } from './filter.data';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { selectedFilters1 } from './selected-filters.data';
+import { apiExpenseRes } from './expense.data';
+import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
+import { Mode } from '@ionic/core';
+import { AddTxnToReportDialogComponent } from 'src/app/fyle/my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 
 export const expectedFilterPill1 = [
   {
@@ -300,3 +304,72 @@ export const expectedFilterPill3 = [
     value: 'Credit',
   },
 ];
+
+export const expectedCriticalPolicyViolationPopoverParams = {
+  title: `2 Critical Policy and \
+              1 Draft Expenses blocking the way`,
+  message: `Critical policy blocking these 2 expenses worth \
+              $33700 from being submitted. \
+              Also 1 other expenses are in draft states.`,
+  reportType: 'newReport',
+};
+
+export const expectedCriticalPolicyViolationPopoverParams2 = {
+  title: '2 Critical Policy Expenses blocking the way',
+  message: `Critical policy blocking these 2 expenses worth \
+              $33700 from being submitted.`,
+  reportType: 'newReport',
+};
+
+export const expectedCriticalPolicyViolationPopoverParams3 = {
+  title: '1 Draft Expenses blocking the way',
+  message: '1 expenses are in draft states.',
+  reportType: 'newReport',
+};
+
+export const modalDefaultPropertiesRes = {
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const newReportModalParams = {
+  component: CreateNewReportComponent,
+  componentProps: {
+    selectedExpensesToReport: apiExpenseRes,
+  },
+  mode: <Mode>'ios',
+  ...modalDefaultPropertiesRes,
+};
+
+export const addExpenseToReportModalParams = {
+  component: AddTxnToReportDialogComponent,
+  componentProps: {
+    txId: '12345',
+  },
+  mode: <Mode>'ios',
+  ...modalDefaultPropertiesRes,
+};
+
+export const snackbarPropertiesRes = {
+  data: {
+    icon: 'danger',
+    showCloseButton: true,
+    message: 'Please select one or more expenses to be reported',
+  },
+  duration: 3000,
+};
+
+export const snackbarPropertiesRes2 = {
+  data: {
+    icon: 'success',
+    showCloseButton: true,
+    message: 'Expense added to report successfully',
+  },
+  duration: 3000,
+};

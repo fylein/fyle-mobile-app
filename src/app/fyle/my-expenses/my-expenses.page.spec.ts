@@ -38,6 +38,7 @@ import {
   expenseData1,
   expenseData2,
   expenseData3,
+  expenseList4,
   mileageExpenseWithoutDistance,
   perDiemExpenseSingleNumDays,
 } from 'src/app/core/mock-data/expense.data';
@@ -49,7 +50,11 @@ import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expenses-filters.model';
 import {
+  addExpenseToReportModalParams,
   expectedActionSheetButtonRes,
+  expectedCriticalPolicyViolationPopoverParams,
+  expectedCriticalPolicyViolationPopoverParams2,
+  expectedCriticalPolicyViolationPopoverParams3,
   expectedCurrentParams,
   expectedFilterPill1,
   expectedFilterPill2,
@@ -59,6 +64,10 @@ import {
   filters2,
   modalControllerParams,
   modalControllerParams2,
+  modalDefaultPropertiesRes,
+  newReportModalParams,
+  snackbarPropertiesRes,
+  snackbarPropertiesRes2,
   unformattedTxnData,
 } from 'src/app/core/mock-data/my-expenses.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
@@ -72,6 +81,8 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { Expense } from 'src/app/core/models/expense.model';
 
 fdescribe('MyReportsPage', () => {
   let component: MyExpensesPage;
@@ -135,6 +146,8 @@ fdescribe('MyReportsPage', () => {
       'excludeCCCExpenses',
       'getIsCriticalPolicyViolated',
       'getIsDraft',
+      'getETxnUnflattened',
+      'getAllExpenses',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -185,6 +198,7 @@ fdescribe('MyReportsPage', () => {
       'clickAddToReport',
       'showToastMessage',
       'addToReport',
+      'clickCreateReport',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -1830,14 +1844,7 @@ fdescribe('MyReportsPage', () => {
   });
 
   it('showNonReportableExpenseSelectedToast(): should call matSnackbar and call trackingService', () => {
-    snackbarProperties.setSnackbarProperties.and.returnValue({
-      data: {
-        icon: 'danger',
-        showCloseButton: true,
-        message: 'Please select one or more expenses to be reported',
-      },
-      duration: 3000,
-    });
+    snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes);
     component.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
 
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
@@ -1857,7 +1864,7 @@ fdescribe('MyReportsPage', () => {
     });
   });
 
-  fdescribe('openCreateReportWithSelectedIds(): ', () => {
+  describe('openCreateReportWithSelectedIds(): ', () => {
     beforeEach(() => {
       spyOn(component, 'showNonReportableExpenseSelectedToast');
       spyOn(component, 'openCriticalPolicyViolationPopOver');
@@ -1880,6 +1887,406 @@ fdescribe('MyReportsPage', () => {
       expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
       expect(component.showNewReportModal).not.toHaveBeenCalled();
     }));
+    it('should call showNonReportableExpenseSelectedToast if policyViolationExpenses length is equal to selectedElements length', fakeAsync(() => {
+      component.selectedElements = expenseList4;
+      transactionService.getIsCriticalPolicyViolated.and.returnValues(true, true, true);
+      transactionService.getIsDraft.and.returnValues(false, false, true);
+
+      component.openCreateReportWithSelectedIds('oldReport');
+      tick(100);
+
+      expect(trackingService.addToReport).toHaveBeenCalledOnceWith({ count: 3 });
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+
+      expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
+        'You cannot add critical policy violated expenses to a report'
+      );
+    }));
+    it('should call showNonReportableExpenseSelectedToast if expensesInDraftState length is equal to selectedElements length', fakeAsync(() => {
+      component.selectedElements = expenseList4;
+      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, true);
+      transactionService.getIsDraft.and.returnValues(true, true, true);
+
+      component.openCreateReportWithSelectedIds('oldReport');
+      tick(100);
+
+      expect(trackingService.addToReport).toHaveBeenCalledOnceWith({ count: 3 });
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+
+      expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
+        'You cannot add draft expenses to a report'
+      );
+    }));
+    it('should call showNonReportableExpenseSelectedToast if isReportableExpensesSelected is falsy', fakeAsync(() => {
+      component.isReportableExpensesSelected = false;
+      component.selectedElements = expenseList4;
+      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, true);
+      transactionService.getIsDraft.and.returnValues(false, true, false);
+
+      component.openCreateReportWithSelectedIds('oldReport');
+      tick(100);
+
+      expect(trackingService.addToReport).toHaveBeenCalledOnceWith({ count: 3 });
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+
+      expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
+        'You cannot add draft expenses and critical policy violated expenses to a report'
+      );
+    }));
+    it('should call trackingService and showOldReportsMatBottomSheet if report is oldReport and policyViolationExpenses and draftExpenses are zero', fakeAsync(() => {
+      component.isReportableExpensesSelected = true;
+      component.selectedElements = expenseList4;
+      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, false);
+      transactionService.getIsDraft.and.returnValues(false, false, false);
+
+      component.openCreateReportWithSelectedIds('oldReport');
+      tick(100);
+
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
+      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
+      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+
+      expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledOnceWith();
+    }));
+    it('should call trackingService and showNewReportModal if report is newReport and policyViolationExpenses and draftExpenses are zero', fakeAsync(() => {
+      component.isReportableExpensesSelected = true;
+      component.selectedElements = expenseList4;
+      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, false);
+      transactionService.getIsDraft.and.returnValues(false, false, false);
+
+      component.openCreateReportWithSelectedIds('newReport');
+      tick(100);
+
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
+      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
+      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+
+      expect(component.showNewReportModal).toHaveBeenCalledOnceWith();
+    }));
+    it('should call trackingService and openCriticalPolicyViolationPopOver if policyViolationExpenses and draftExpenses are present', fakeAsync(() => {
+      component.isReportableExpensesSelected = true;
+      const mockExpenseList = cloneDeep(expenseList4);
+      mockExpenseList[1].tx_amount = undefined;
+      mockExpenseList[1].tx_admin_amount = 34;
+      component.selectedElements = mockExpenseList;
+      transactionService.getIsCriticalPolicyViolated.and.returnValues(true, true, false);
+      transactionService.getIsDraft.and.returnValues(false, false, true);
+      component.homeCurrency$ = of('USD');
+      component.homeCurrencySymbol = '$';
+
+      component.openCreateReportWithSelectedIds('newReport');
+      tick(100);
+
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
+      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
+      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[0]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[1]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[2]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[1]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[2]);
+
+      expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
+        expectedCriticalPolicyViolationPopoverParams
+      );
+    }));
+    it('should call trackingService and openCriticalPolicyViolationPopOver if draftExpense is zero', fakeAsync(() => {
+      component.isReportableExpensesSelected = true;
+      const mockExpenseList = cloneDeep(expenseList4);
+      mockExpenseList[1].tx_amount = undefined;
+      mockExpenseList[1].tx_admin_amount = 34;
+      component.selectedElements = mockExpenseList;
+      transactionService.getIsCriticalPolicyViolated.and.returnValues(true, true, false);
+      transactionService.getIsDraft.and.returnValues(false, false, false);
+      component.homeCurrency$ = of('USD');
+      component.homeCurrencySymbol = '$';
+
+      component.openCreateReportWithSelectedIds('newReport');
+      tick(100);
+
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
+      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
+      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[0]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[1]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[2]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[1]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[2]);
+
+      expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
+        expectedCriticalPolicyViolationPopoverParams2
+      );
+    }));
+    it('should call trackingService and openCriticalPolicyViolationPopOver if policyViolationExpenses is zero', fakeAsync(() => {
+      component.isReportableExpensesSelected = true;
+      component.selectedElements = expenseList4;
+      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, false);
+      transactionService.getIsDraft.and.returnValues(false, true, false);
+      component.homeCurrency$ = of('USD');
+      component.homeCurrencySymbol = '$';
+
+      component.openCreateReportWithSelectedIds('newReport');
+      tick(100);
+
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
+      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
+      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+
+      expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
+        expectedCriticalPolicyViolationPopoverParams3
+      );
+    }));
+  });
+
+  it('showNewReportModal(): should open modalController and call showAddToReportSuccessToast', fakeAsync(() => {
+    component.selectedElements = apiExpenseRes;
+    transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
+    const addExpenseToNewReportModalSpy = jasmine.createSpyObj('addExpenseToNewReportModal', [
+      'present',
+      'onDidDismiss',
+    ]);
+    addExpenseToNewReportModalSpy.onDidDismiss.and.resolveTo({
+      data: { report: apiExtendedReportRes, message: 'new report is created' },
+    });
+    modalController.create.and.resolveTo(addExpenseToNewReportModalSpy);
+    modalProperties.getModalDefaultProperties.and.returnValue(modalDefaultPropertiesRes);
+    spyOn(component, 'showAddToReportSuccessToast');
+
+    component.showNewReportModal();
+    tick(100);
+
+    expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+
+    expect(modalController.create).toHaveBeenCalledOnceWith(newReportModalParams);
+    expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+      report: apiExtendedReportRes[0],
+      message: 'new report is created',
+    });
+  }));
+
+  it('openCreateReport(): should navigate to my_create_report', () => {
+    component.openCreateReport();
+
+    expect(trackingService.clickCreateReport).toHaveBeenCalledTimes(1);
+
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_create_report']);
+  });
+
+  describe('openReviewExpenses(): ', () => {
+    let mockExpense: Expense[];
+    beforeEach(() => {
+      component.loadData$ = new BehaviorSubject({ pageNumber: 1 });
+      mockExpense = cloneDeep(apiExpenseRes);
+      component.selectedElements = mockExpense;
+      transactionService.getAllExpenses.and.returnValue(of(mockExpense));
+      spyOn(component, 'filterExpensesBySearchString').and.returnValue(true);
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo(true);
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+    });
+
+    it('should call getAllExpenses if sortParams and sortDir is undefined in loadData$ and selectedElement length is zero', fakeAsync(() => {
+      component.selectedElements = [];
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
+        order: null,
+      });
+      expect(component.filterExpensesBySearchString).not.toHaveBeenCalled();
+    }));
+    it('should call getAllExpenses and filterExpensesBySearchString if searchString, sortParams and sortDir are defined in loadData$ and selectedElement length is zero', fakeAsync(() => {
+      component.loadData$ = new BehaviorSubject({
+        sortDir: 'asc',
+        sortParam: 'tx_org_category',
+        searchString: 'example',
+      });
+      component.selectedElements = [];
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
+        order: 'tx_org_category.asc',
+      });
+      expect(component.filterExpensesBySearchString).toHaveBeenCalledOnceWith(mockExpense[0], 'example');
+    }));
+    it('should navigate to add_edit_mileage if org_category is mileage and selectedElement length is greater than zero', fakeAsync(() => {
+      const mockUnflattedData = cloneDeep(unflattenedTxnData);
+      mockUnflattedData.tx.org_category = 'Mileage';
+      transactionService.getETxnUnflattened.and.returnValue(of(mockUnflattedData));
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('tx3nHShG60zq');
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_mileage',
+        {
+          id: 'tx3qHxFNgRcZ',
+          txnIds: JSON.stringify(['tx3nHShG60zq']),
+          activeIndex: 0,
+        },
+      ]);
+    }));
+    it('should navigate to add_edit_per_diem if org_category is Per Diem and selectedElement length is greater than zero', fakeAsync(() => {
+      const mockUnflattedData = cloneDeep(unflattenedTxnData);
+      mockUnflattedData.tx.org_category = 'Per Diem';
+      transactionService.getETxnUnflattened.and.returnValue(of(mockUnflattedData));
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('tx3nHShG60zq');
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_per_diem',
+        {
+          id: 'tx3qHxFNgRcZ',
+          txnIds: JSON.stringify(['tx3nHShG60zq']),
+          activeIndex: 0,
+        },
+      ]);
+    }));
+    it('should navigate to add_edit_expense if org_category is not amongst mileage and per diem and selectedElement length is greater than zero', fakeAsync(() => {
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('tx3nHShG60zq');
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        {
+          id: 'tx3qHxFNgRcZ',
+          txnIds: JSON.stringify(['tx3nHShG60zq']),
+          activeIndex: 0,
+        },
+      ]);
+    }));
+  });
+
+  describe('filterExpensesBySearchString(): ', () => {
+    it('should return true if expense consist of searchString', () => {
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData1, 'Groc');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
+    });
+    it('should return false if expense does not consist of searchString', () => {
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData1, 'Software');
+
+      expect(expectedFilteredExpenseRes).toBeFalse();
+    });
+  });
+
+  it('onAddTransactionToReport(): should open modalController and doRefresh', fakeAsync(() => {
+    const addExpenseToReportModalSpy = jasmine.createSpyObj('addExpenseToReportModal', ['present', 'onDidDismiss']);
+    addExpenseToReportModalSpy.onDidDismiss.and.resolveTo({ data: { reload: true } });
+    modalController.create.and.resolveTo(addExpenseToReportModalSpy);
+    modalProperties.getModalDefaultProperties.and.returnValue(modalDefaultPropertiesRes);
+    spyOn(component, 'doRefresh');
+
+    component.onAddTransactionToReport({ tx_id: '12345' });
+    tick(100);
+
+    expect(modalController.create).toHaveBeenCalledOnceWith(addExpenseToReportModalParams);
+    expect(component.doRefresh).toHaveBeenCalledTimes(1);
+  }));
+
+  xit('showAddToReportSuccessToast(): should navigate to my_view_report and open matSnackbar', () => {
+    const expensesAddedToReportSnackBarSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
+    expensesAddedToReportSnackBarSpy.onAction.and.returnValue(of(undefined));
+    matSnackBar.openFromComponent.and.returnValue(expensesAddedToReportSnackBarSpy);
+    snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
+    spyOn(component, 'doRefresh');
+
+    component.showAddToReportSuccessToast({
+      message: 'Expense added to report successfully',
+      report: apiExtendedReportRes[0],
+    });
+
+    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+      ...snackbarPropertiesRes2,
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+      message: 'Expense added to report successfully',
+      redirectiontext: 'View Report',
+    });
+    expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+      ToastContent: 'Expense added to report successfully',
+    });
+    expect(component.isReportableExpensesSelected).toBeFalse();
+    expect(component.selectionMode).toBeFalse();
+    expect(component.headerState).toEqual(HeaderState.base);
+    expect(component.doRefresh).toHaveBeenCalledTimes(1);
+
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'my_view_report',
+      { id: 'rprAfNrce73O', navigateBack: true },
+    ]);
   });
 
   it('onSimpleSearchCancel(): should set headerState to base and call clearText', () => {

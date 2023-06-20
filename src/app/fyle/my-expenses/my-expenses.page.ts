@@ -1123,7 +1123,7 @@ export class MyExpensesPage implements OnInit {
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(({ inital, allIds }) => {
-        let category;
+        let category: string;
 
         if (inital.tx.org_category) {
           category = inital.tx.org_category.toLowerCase();
@@ -1166,14 +1166,14 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  filterExpensesBySearchString(expense: any, searchString: string) {
+  filterExpensesBySearchString(expense: Expense, searchString: string) {
     return Object.values(expense)
       .map((value) => value && value.toString().toLowerCase())
       .filter((value) => !!value)
       .some((value) => value.toLowerCase().includes(searchString.toLowerCase()));
   }
 
-  async onAddTransactionToReport(event) {
+  async onAddTransactionToReport(event: { tx_id: string }) {
     const addExpenseToReportModal = await this.modalController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {
@@ -1190,7 +1190,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showAddToReportSuccessToast(config: { message: string; report }) {
+  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport }) {
     const toastMessageData = {
       message: config.message,
       redirectionText: 'View Report',
