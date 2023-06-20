@@ -110,6 +110,7 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
 import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -405,7 +406,8 @@ export class AddEditExpensePage implements OnInit {
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get isExpandedView() {
@@ -766,88 +768,101 @@ export class AddEditExpensePage implements OnInit {
       projects: this.projectsService.getAllActive(),
       txnFields: this.txnFields$.pipe(take(1)),
       filteredCategories: this.filteredCategories$.pipe(take(1)),
+      showProjectMappedCategoriesInSplitExpense: this.launchDarklyService.getVariation(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      ),
     }).pipe(
-      map(({ orgSettings, costCenters, projects, txnFields, filteredCategories }) => {
-        const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
+      map(
+        ({
+          orgSettings,
+          costCenters,
+          projects,
+          txnFields,
+          filteredCategories,
+          showProjectMappedCategoriesInSplitExpense,
+        }) => {
+          const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
 
-        const actionSheetOptions = [];
+          const actionSheetOptions = [];
 
-        if (isSplitExpenseAllowed) {
-          const areCostCentersAvailable = costCenters.length > 0;
-          const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
-          const areCategoriesAvailable = filteredCategories.length > 1;
-          const projectField = txnFields.project_id;
+          if (isSplitExpenseAllowed) {
+            const areCostCentersAvailable = costCenters.length > 0;
+            const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
+            const areCategoriesAvailable = filteredCategories.length > 1;
+            const projectField = txnFields.project_id;
 
-          if (areCategoriesAvailable) {
+            if (areCategoriesAvailable || !showProjectMappedCategoriesInSplitExpense) {
+              actionSheetOptions.push({
+                text: 'Split Expense By Category',
+                handler: () => {
+                  if (this.fg.valid) {
+                    this.openSplitExpenseModal('categories');
+                  } else {
+                    this.showFormValidationErrors();
+                  }
+                },
+              });
+            }
+
+            if (areProjectsAvailable) {
+              actionSheetOptions.push({
+                text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
+                handler: () => {
+                  if (this.fg.valid) {
+                    this.openSplitExpenseModal('projects');
+                  } else {
+                    this.showFormValidationErrors();
+                  }
+                },
+              });
+            }
+
+            if (areCostCentersAvailable) {
+              actionSheetOptions.push({
+                text: 'Split Expense By Cost Center',
+                handler: () => {
+                  if (this.fg.valid) {
+                    this.openSplitExpenseModal('cost centers');
+                  } else {
+                    this.showFormValidationErrors();
+                  }
+                },
+              });
+            }
+          }
+
+          if (this.isCccExpense) {
+            if (this.isExpenseMatchedForDebitCCCE) {
+              actionSheetOptions.push({
+                text: 'Mark as Personal',
+                handler: () => {
+                  this.markPeronsalOrDismiss('personal');
+                },
+              });
+            }
+
+            if (this.canDismissCCCE) {
+              actionSheetOptions.push({
+                text: 'Dimiss as Card Payment',
+                handler: () => {
+                  this.markPeronsalOrDismiss('dismiss');
+                },
+              });
+            }
+          }
+
+          if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
             actionSheetOptions.push({
-              text: 'Split Expense By Category',
+              text: 'Remove Card Expense',
               handler: () => {
-                if (this.fg.valid) {
-                  this.openSplitExpenseModal('categories');
-                } else {
-                  this.showFormValidationErrors();
-                }
+                this.removeCorporateCardExpense();
               },
             });
           }
-
-          if (areProjectsAvailable) {
-            actionSheetOptions.push({
-              text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
-              handler: () => {
-                if (this.fg.valid) {
-                  this.openSplitExpenseModal('projects');
-                } else {
-                  this.showFormValidationErrors();
-                }
-              },
-            });
-          }
-
-          if (areCostCentersAvailable) {
-            actionSheetOptions.push({
-              text: 'Split Expense By Cost Center',
-              handler: () => {
-                if (this.fg.valid) {
-                  this.openSplitExpenseModal('cost centers');
-                } else {
-                  this.showFormValidationErrors();
-                }
-              },
-            });
-          }
+          return actionSheetOptions;
         }
-
-        if (this.isCccExpense) {
-          if (this.isExpenseMatchedForDebitCCCE) {
-            actionSheetOptions.push({
-              text: 'Mark as Personal',
-              handler: () => {
-                this.markPeronsalOrDismiss('personal');
-              },
-            });
-          }
-
-          if (this.canDismissCCCE) {
-            actionSheetOptions.push({
-              text: 'Dimiss as Card Payment',
-              handler: () => {
-                this.markPeronsalOrDismiss('dismiss');
-              },
-            });
-          }
-        }
-
-        if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
-          actionSheetOptions.push({
-            text: 'Remove Card Expense',
-            handler: () => {
-              this.removeCorporateCardExpense();
-            },
-          });
-        }
-        return actionSheetOptions;
-      })
+      )
     );
   }
 
