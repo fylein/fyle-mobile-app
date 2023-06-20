@@ -342,9 +342,11 @@ describe('SplitExpensePage', () => {
       expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
 
       component.categories$.subscribe((categories) => {
-        expect(categories).toEqual(
-          testActiveCategoryList.map((category) => ({ label: category.displayName, value: category }))
-        );
+        const expectedData = testActiveCategoryList.map((category) => ({
+          label: category.displayName,
+          value: category,
+        }));
+        expect(categories).toEqual(expectedData);
       });
     });
 
@@ -363,9 +365,11 @@ describe('SplitExpensePage', () => {
       expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(testProjectV2, testActiveCategoryList);
 
       component.categories$.subscribe((categories) => {
-        expect(categories).toEqual(
-          allowedActiveCategories.map((category) => ({ label: category.displayName, value: category }))
-        );
+        const expectedData = allowedActiveCategories.map((category) => ({
+          label: category.displayName,
+          value: category,
+        }));
+        expect(categories).toEqual(expectedData);
       });
     });
 
@@ -385,9 +389,12 @@ describe('SplitExpensePage', () => {
       expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
 
       component.categories$.subscribe((categories) => {
-        expect(categories).toEqual(
-          testActiveCategoryList.map((category) => ({ label: category.displayName, value: category }))
-        );
+        const expectedData = testActiveCategoryList.map((category) => ({
+          label: category.displayName,
+          value: category,
+        }));
+
+        expect(categories).toEqual(expectedData);
       });
     });
   });
