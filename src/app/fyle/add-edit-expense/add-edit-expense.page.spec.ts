@@ -17,7 +17,7 @@ import {
 import { Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
-import { costCenterApiRes1, costCentersData, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
+import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
@@ -31,7 +31,12 @@ import {
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
+import {
+  getMarkDismissModalParamsData1,
+  getMarkDismissModalParamsData2,
+} from 'src/app/core/mock-data/popover-params.data';
 import { txnList } from 'src/app/core/mock-data/transaction.data';
+import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
 import { unflattenExp1, unflattenExp2, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -43,6 +48,7 @@ import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -80,7 +86,6 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -93,7 +98,7 @@ const properties = {
   handle: false,
 };
 
-fdescribe('AddEditExpensePage', () => {
+describe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -837,12 +842,7 @@ fdescribe('AddEditExpensePage', () => {
   });
 
   it('getRemoveCCCExpModalParams(): should return params for remove CCC expense modal', (done) => {
-    transactionService.removeCorporateCardExpense.and.returnValue(
-      of({
-        user_created_expense: txnList[0],
-        auto_created_expense: txnList[1],
-      })
-    );
+    transactionService.removeCorporateCardExpense.and.returnValue(of(UndoMergeData2));
     const header = 'Remove Card Expense';
     const body = 'removed';
     const ctaText = 'Confirm';
@@ -850,10 +850,7 @@ fdescribe('AddEditExpensePage', () => {
 
     const result = component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText);
     result.componentProps.deleteMethod().subscribe((res) => {
-      expect(res).toEqual({
-        user_created_expense: txnList[0],
-        auto_created_expense: txnList[1],
-      });
+      expect(res).toEqual(UndoMergeData2);
       expect(transactionService.removeCorporateCardExpense).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       done();
     });
@@ -888,7 +885,7 @@ fdescribe('AddEditExpensePage', () => {
         Type: 'unlink corporate card expense',
         transaction: undefined,
       });
-      expect(component.goBack).toHaveBeenCalledTimes(1);
+      expect(component.goBack).toHaveBeenCalledOnceWith();
       expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
         { message: 'Successfully removed the card details from the expense.' },
         'information',
@@ -962,15 +959,7 @@ fdescribe('AddEditExpensePage', () => {
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith(
-        component.getMarkDismissModalParams(
-          {
-            header: 'Dismiss this expense?',
-            body: "This corporate card expense will be dismissed and you won't be able to edit it.\nDo you wish to proceed?",
-            ctaText: 'Yes',
-            ctaLoadingText: 'Dismissing',
-          },
-          true
-        )
+        component.getMarkDismissModalParams(getMarkDismissModalParamsData1, true)
       );
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
       expect(component.showSnackBarToast).toHaveBeenCalledOnceWith({ message: 'Dismissed expense' }, 'information', [
@@ -996,15 +985,7 @@ fdescribe('AddEditExpensePage', () => {
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith(
-        component.getMarkDismissModalParams(
-          {
-            header: 'Mark Expense as Personal',
-            body: "This corporate card expense will be marked as personal and you won't be able to edit it.\nDo you wish to proceed?",
-            ctaText: 'Yes',
-            ctaLoadingText: 'Marking',
-          },
-          true
-        )
+        component.getMarkDismissModalParams(getMarkDismissModalParamsData2, true)
       );
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
       expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
