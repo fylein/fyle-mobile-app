@@ -52,7 +52,7 @@ import {
 } from 'src/app/core/mock-data/my-expenses.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 
-describe('MyReportsPage', () => {
+describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
