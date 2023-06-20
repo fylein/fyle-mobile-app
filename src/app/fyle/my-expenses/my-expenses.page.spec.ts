@@ -50,11 +50,15 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expenses-filters.model';
 import {
   expectedActionSheetButtonRes,
+  expectedCurrentParams,
   expectedFilterPill1,
   expectedFilterPill2,
+  expectedFilterPill3,
   expectedFormattedTransaction,
   filters1,
   filters2,
+  modalControllerParams,
+  modalControllerParams2,
   unformattedTxnData,
 } from 'src/app/core/mock-data/my-expenses.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
@@ -1309,7 +1313,7 @@ describe('MyReportsPage', () => {
     it('should update queryParams if filter state is not defined', () => {
       component.filters = {};
 
-      const expectedCurrentParams = component.addNewFiltersToParams();
+      const currentParams = component.addNewFiltersToParams();
 
       expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
@@ -1334,14 +1338,7 @@ describe('MyReportsPage', () => {
         component.filters
       );
 
-      expect(expectedCurrentParams).toEqual({
-        sortDir: 'asc',
-        queryParams: {
-          corporate_credit_card_account_number: 'in.(789)',
-          and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-          or: ['(tx_is_split_expense.eq.true)'],
-        },
-      });
+      expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeFalse();
     });
     it('should update queryParams if filter state includes only DRAFT', () => {
@@ -1349,7 +1346,7 @@ describe('MyReportsPage', () => {
         state: ['DRAFT'],
       };
 
-      const expectedCurrentParams = component.addNewFiltersToParams();
+      const currentParams = component.addNewFiltersToParams();
 
       expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
@@ -1374,14 +1371,7 @@ describe('MyReportsPage', () => {
         component.filters
       );
 
-      expect(expectedCurrentParams).toEqual({
-        sortDir: 'asc',
-        queryParams: {
-          corporate_credit_card_account_number: 'in.(789)',
-          and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-          or: ['(tx_is_split_expense.eq.true)'],
-        },
-      });
+      expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeTrue();
     });
     it('should update queryParams if filter state includes only CANNOT_REPORT', () => {
@@ -1389,7 +1379,7 @@ describe('MyReportsPage', () => {
         state: ['CANNOT_REPORT'],
       };
 
-      const expectedCurrentParams = component.addNewFiltersToParams();
+      const currentParams = component.addNewFiltersToParams();
 
       expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
@@ -1414,14 +1404,7 @@ describe('MyReportsPage', () => {
         component.filters
       );
 
-      expect(expectedCurrentParams).toEqual({
-        sortDir: 'asc',
-        queryParams: {
-          corporate_credit_card_account_number: 'in.(789)',
-          and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-          or: ['(tx_is_split_expense.eq.true)'],
-        },
-      });
+      expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeTrue();
     });
     it('should update queryParams if filter state includes both DRAFT and CANNOT_REPORT', () => {
@@ -1429,7 +1412,7 @@ describe('MyReportsPage', () => {
         state: ['DRAFT', 'CANNOT_REPORT'],
       };
 
-      const expectedCurrentParams = component.addNewFiltersToParams();
+      const currentParams = component.addNewFiltersToParams();
 
       expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
@@ -1454,14 +1437,7 @@ describe('MyReportsPage', () => {
         component.filters
       );
 
-      expect(expectedCurrentParams).toEqual({
-        sortDir: 'asc',
-        queryParams: {
-          corporate_credit_card_account_number: 'in.(789)',
-          and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-          or: ['(tx_is_split_expense.eq.true)'],
-        },
-      });
+      expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeTrue();
     });
   });
@@ -1502,22 +1478,7 @@ describe('MyReportsPage', () => {
       component.openFilters('approvalDate');
       tick(200);
 
-      expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: FyFiltersComponent,
-        componentProps: {
-          filterOptions: [
-            ...filterOptions1,
-            {
-              name: 'Cards',
-              optionType: FilterOptionType.multiselect,
-              options: component.cardNumbers,
-            },
-          ],
-          selectedFilterValues: selectedFilters1,
-          activeFilterInitialName: 'approvalDate',
-        },
-        cssClass: 'dialog-popover',
-      });
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams);
       expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
       expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.currentPageNumber).toBe(1);
@@ -1527,13 +1488,7 @@ describe('MyReportsPage', () => {
       });
 
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
-      expect(component.filterPills).toEqual([
-        {
-          label: 'Transactions Type',
-          type: 'string',
-          value: 'Credit',
-        },
-      ]);
+      expect(component.filterPills).toEqual(expectedFilterPill3);
       expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
     }));
 
@@ -1543,15 +1498,7 @@ describe('MyReportsPage', () => {
       component.openFilters('approvalDate');
       tick(200);
 
-      expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: FyFiltersComponent,
-        componentProps: {
-          filterOptions: filterOptions1,
-          selectedFilterValues: selectedFilters1,
-          activeFilterInitialName: 'approvalDate',
-        },
-        cssClass: 'dialog-popover',
-      });
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams2);
 
       expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
       expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
@@ -1561,13 +1508,7 @@ describe('MyReportsPage', () => {
         expect(loadData).toEqual({ searchString: 'example' });
       });
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
-      expect(component.filterPills).toEqual([
-        {
-          label: 'Transactions Type',
-          type: 'string',
-          value: 'Credit',
-        },
-      ]);
+      expect(component.filterPills).toEqual(expectedFilterPill3);
       expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
     }));
   });
@@ -1583,13 +1524,7 @@ describe('MyReportsPage', () => {
       searchString: 'example',
     });
     component.loadData$ = new BehaviorSubject({});
-    spyOn(component, 'generateFilterPills').and.returnValue([
-      {
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Credit',
-      },
-    ]);
+    spyOn(component, 'generateFilterPills').and.returnValue(expectedFilterPill3);
 
     component.clearFilters();
 
@@ -1603,13 +1538,7 @@ describe('MyReportsPage', () => {
       });
     });
     expect(component.generateFilterPills).toHaveBeenCalledOnceWith({});
-    expect(component.filterPills).toEqual([
-      {
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Credit',
-      },
-    ]);
+    expect(component.filterPills).toEqual(expectedFilterPill3);
   });
 
   it('setState(): should set state and update isLoading correctly', fakeAsync(() => {
