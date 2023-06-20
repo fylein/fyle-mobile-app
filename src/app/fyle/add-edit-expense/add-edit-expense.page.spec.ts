@@ -559,7 +559,7 @@ describe('AddEditExpensePage', () => {
       expect(navController.back).toHaveBeenCalledTimes(1);
     });
 
-    it('should back to txn if it is not redirected from report and filters are not persistent', () => {
+    it('should back to expense page if it is not redirected from report and filters are not persistent', () => {
       activatedRoute.snapshot.params.persist_filters = false;
       component.isRedirectedFromReport = false;
       fixture.detectChanges();
@@ -608,7 +608,7 @@ describe('AddEditExpensePage', () => {
       expect(navController.back).toHaveBeenCalledTimes(1);
     }));
 
-    it('should show popup and go back to txn if navigate back is false', fakeAsync(() => {
+    it('should show close popup and go back to expense page if navigate back is false', fakeAsync(() => {
       const unsavedChangesPopOverSpy = jasmine.createSpyObj('unsavedChangesPopOver', ['present', 'onWillDismiss']);
       unsavedChangesPopOverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -684,7 +684,7 @@ describe('AddEditExpensePage', () => {
       });
     });
 
-    it('should check for invalid payment mode if source account ID does match', (done) => {
+    it('should check for invalid payment mode if the source account ID matches with the account type', (done) => {
       component.etxn$ = of(unflattenExp1);
       component.fg.controls.paymentMode.setValue({
         ...unflattenedAccount1Data,
