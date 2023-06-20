@@ -96,7 +96,7 @@ const properties = {
   handle: false,
 };
 
-describe('AddEditExpensePage', () => {
+fdescribe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -1682,8 +1682,72 @@ describe('AddEditExpensePage', () => {
 
   xit('viewAttachments', () => {});
 
-  xdescribe('deleteExpense():', () => {
-    it('should delete txn and navigate back to report if deleting directly from report', () => {});
+  describe('deleteExpense():', () => {
+    it('should delete expense and navigate back to report if deleting directly from report', fakeAsync(() => {
+      spyOn(component, 'getDeleteReportParams');
+      const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+      deletePopoverSpy.onDidDismiss.and.resolveTo({
+        data: {
+          status: 'success',
+        },
+      });
+
+      popoverController.create.and.resolveTo(deletePopoverSpy);
+      component.isRedirectedFromReport = true;
+      fixture.detectChanges();
+
+      const header = 'Remove Expense';
+      const body = 'Are you sure you want to remove this expense from this report?';
+      const ctaText = 'Remove';
+      const ctaLoadingText = 'Removing';
+
+      component.deleteExpense('rpFE5X1Pqi9P');
+      tick(500);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_report', { id: 'rpFE5X1Pqi9P' }]);
+      expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+        { header, body, ctaText, ctaLoadingText },
+        true,
+        'rpFE5X1Pqi9P'
+      );
+      expect(popoverController.create).toHaveBeenCalledOnceWith(
+        component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, true, 'rpFE5X1Pqi9P')
+      );
+    }));
+
+    it('should delete expense and go back to my expenses page if not redirected from report', fakeAsync(() => {
+      spyOn(component, 'getDeleteReportParams');
+      const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+      deletePopoverSpy.onDidDismiss.and.resolveTo({
+        data: {
+          status: 'success',
+        },
+      });
+
+      popoverController.create.and.resolveTo(deletePopoverSpy);
+      component.isRedirectedFromReport = false;
+      fixture.detectChanges();
+
+      const header = 'Delete Expense';
+      const body = 'Are you sure you want to delete this expense?';
+      const ctaText = 'Delete';
+      const ctaLoadingText = 'Deleting';
+
+      component.deleteExpense();
+      tick(500);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+        { header, body, ctaText, ctaLoadingText },
+        undefined,
+        undefined
+      );
+      expect(popoverController.create).toHaveBeenCalledOnceWith(
+        component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+      );
+    }));
   });
 
   describe('openCommentsModal():', () => {

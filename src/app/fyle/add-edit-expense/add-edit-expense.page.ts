@@ -3977,8 +3977,31 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
+  getDeleteReportParams(
+    config: { header: string; body: string; ctaText: string; ctaLoadingText: string },
+    removeExpenseFromReport: boolean,
+    reportId?: string
+  ) {
+    return {
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: config.header,
+        body: config.body,
+        ctaText: config.ctaText,
+        ctaLoadingText: config.ctaLoadingText,
+        deleteMethod: () => {
+          if (removeExpenseFromReport) {
+            return this.reportService.removeTransaction(reportId, this.activatedRoute.snapshot.params.id);
+          }
+          return this.transactionService.delete(this.activatedRoute.snapshot.params.id);
+        },
+      },
+    };
+  }
+
   async deleteExpense(reportId?: string) {
-    const id = this.activatedRoute.snapshot.params.id;
     const removeExpenseFromReport = reportId && this.isRedirectedFromReport;
     const header = removeExpenseFromReport ? 'Remove Expense' : 'Delete Expense';
     const body = removeExpenseFromReport
@@ -3987,23 +4010,18 @@ export class AddEditExpensePage implements OnInit {
     const ctaText = removeExpenseFromReport ? 'Remove' : 'Delete';
     const ctaLoadingText = removeExpenseFromReport ? 'Removing' : 'Deleting';
 
-    const deletePopover = await this.popoverController.create({
-      component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
-      backdropDismiss: false,
-      componentProps: {
-        header,
-        body,
-        ctaText,
-        ctaLoadingText,
-        deleteMethod: () => {
-          if (removeExpenseFromReport) {
-            return this.reportService.removeTransaction(reportId, id);
-          }
-          return this.transactionService.delete(id);
+    const deletePopover = await this.popoverController.create(
+      this.getDeleteReportParams(
+        {
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
         },
-      },
-    });
+        removeExpenseFromReport,
+        reportId
+      )
+    );
 
     await deletePopover.present();
     const { data } = await deletePopover.onDidDismiss();
