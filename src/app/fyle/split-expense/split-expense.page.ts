@@ -504,11 +504,10 @@ export class SplitExpensePage implements OnInit {
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
 
-    this.launchDarklyService
-      .getVariation('show_project_mapped_categories_in_split_expense', false)
-      .subscribe((showProjectMappedCategories) => {
-        this.categories$ = this.getActiveCategories().pipe(
-          switchMap((activeCategories) => {
+    this.categories$ = this.getActiveCategories().pipe(
+      switchMap((activeCategories) =>
+        this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
+          switchMap((showProjectMappedCategories) => {
             if (showProjectMappedCategories && this.transaction.project_id) {
               return this.projectsService
                 .getbyId(this.transaction.project_id)
@@ -518,10 +517,11 @@ export class SplitExpensePage implements OnInit {
             return of(activeCategories);
           }),
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-        );
+        )
+      )
+    );
 
-        this.getCategoryList();
-      });
+    this.getCategoryList();
 
     let parentFieldId: number;
     if (this.splitType === 'projects') {
