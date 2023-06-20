@@ -534,7 +534,6 @@ describe('AddEditExpensePage', () => {
       cost_center_dependent_fields: formBuilder.array([]),
     });
 
-    //@ts-ignore
     component._isExpandedView = true;
     component.navigateBack = true;
     component.hardwareBackButtonAction = new Subscription();
@@ -548,9 +547,8 @@ describe('AddEditExpensePage', () => {
   xit('scrollInputIntoView', () => {});
 
   describe('goBack():', () => {
-    it('should back to the report automatically', () => {
-      activatedRoute.snapshot.params.bankTxn = JSON.stringify(['btxnSrrehKHsAg']);
-      activatedRoute.snapshot.params.persist_filters = true;
+    it('should back to the report if redirected from the report page', () => {
+      component.isRedirectedFromReport = true;
       fixture.detectChanges();
 
       navController.back.and.returnValue(null);
@@ -559,7 +557,7 @@ describe('AddEditExpensePage', () => {
       expect(navController.back).toHaveBeenCalledTimes(1);
     });
 
-    it('should back to expense page if it is not redirected from report and filters are not persistent', () => {
+    it('should go back to my expenses page if it is not redirected from report and no filters are applied', () => {
       activatedRoute.snapshot.params.persist_filters = false;
       component.isRedirectedFromReport = false;
       fixture.detectChanges();
@@ -1325,7 +1323,7 @@ describe('AddEditExpensePage', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'add_edit_expense']);
   }));
 
-  xit('showAddToReportSuccessToast(): should show toast if exp was added to report successfully', () => {});
+  xit('showAddToReportSuccessToast', () => {});
 
   xit('saveExpense', () => {});
 

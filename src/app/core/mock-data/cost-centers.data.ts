@@ -1,4 +1,4 @@
-import { CostCenter } from '../models/v1/cost-center.model';
+import { CostCenter, CostCenters } from '../models/v1/cost-center.model';
 
 export const costCentersData: CostCenter[] = [
   {
@@ -175,7 +175,7 @@ export const costCenterApiRes2: CostCenter[] = [
   },
 ];
 
-export const expectedCCdata = [
+export const expectedCCdata: CostCenters[] = [
   {
     label: 'SMS1',
     value: {
