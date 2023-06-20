@@ -28,9 +28,9 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
-import { FileObject } from 'src/app/core/models/file-obj.model';
 
 @Component({
   selector: 'app-split-expense',
