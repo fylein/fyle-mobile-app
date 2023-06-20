@@ -185,7 +185,9 @@ export const unflattenedData = {
   },
   advance: {
     purpose: 'Testing',
-    number1: '1234',
+
+    // eslint-disable-next-line id-blacklist
+    number: 1234,
     id: 'aDvId123',
   },
   orig: {
