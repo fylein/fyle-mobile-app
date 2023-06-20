@@ -3,9 +3,8 @@ import { PopoverController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
-//Restrict file size to 5MB
-const MAX_FILE_SIZE = 5000000;
 @Component({
   selector: 'app-camera-options-popup',
   templateUrl: './camera-options-popup.component.html',
