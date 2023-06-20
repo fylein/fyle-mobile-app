@@ -61,7 +61,7 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 
-fdescribe('AddEditExpensePage', () => {
+describe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -507,7 +507,6 @@ fdescribe('AddEditExpensePage', () => {
       cost_center_dependent_fields: formBuilder.array([]),
     });
 
-    //@ts-ignore
     component._isExpandedView = true;
     component.navigateBack = true;
     component.hardwareBackButtonAction = new Subscription();
@@ -521,9 +520,8 @@ fdescribe('AddEditExpensePage', () => {
   xit('scrollInputIntoView', () => {});
 
   describe('goBack():', () => {
-    it('should back to the report automatically', () => {
-      activatedRoute.snapshot.params.bankTxn = JSON.stringify(['btxnSrrehKHsAg']);
-      activatedRoute.snapshot.params.persist_filters = true;
+    it('should back to the report if redirected from the report page', () => {
+      component.isRedirectedFromReport = true;
       fixture.detectChanges();
 
       navController.back.and.returnValue(null);
@@ -532,7 +530,7 @@ fdescribe('AddEditExpensePage', () => {
       expect(navController.back).toHaveBeenCalledTimes(1);
     });
 
-    it('should go back to my expenses page if it is not redirected from report and filters are not persistent', () => {
+    it('should go back to my expenses page if it is not redirected from report and no filters are applied', () => {
       activatedRoute.snapshot.params.persist_filters = false;
       component.isRedirectedFromReport = false;
       fixture.detectChanges();

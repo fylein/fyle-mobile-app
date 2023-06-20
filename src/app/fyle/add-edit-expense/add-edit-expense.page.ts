@@ -360,7 +360,7 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
-  private _isExpandedView = false;
+  _isExpandedView = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
