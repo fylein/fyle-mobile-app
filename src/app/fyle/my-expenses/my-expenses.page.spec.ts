@@ -15,7 +15,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, TemplateRef } from '@angular/core';
 import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
 import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mock-data/card-aggregate-stat.data';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
@@ -83,6 +83,8 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { Expense } from 'src/app/core/models/expense.model';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { ComponentType } from '@angular/cdk/portal';
 
 fdescribe('MyReportsPage', () => {
   let component: MyExpensesPage;
@@ -124,6 +126,7 @@ fdescribe('MyReportsPage', () => {
       'getMyReports',
       'clearTransactionCache',
       'getAllExtendedReports',
+      'addTransactions',
     ]);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
@@ -164,7 +167,7 @@ fdescribe('MyReportsPage', () => {
       'sync',
       'deleteOfflineExpense',
     ]);
-    const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
+    const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss', 'open']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const myExpensesServiceSpy = jasmine.createSpyObj('MyExpensesService', [
       'generateStateFilterPills',
@@ -2253,41 +2256,161 @@ fdescribe('MyReportsPage', () => {
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
   }));
 
-  xit('showAddToReportSuccessToast(): should navigate to my_view_report and open matSnackbar', () => {
-    const expensesAddedToReportSnackBarSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
-    expensesAddedToReportSnackBarSpy.onAction.and.returnValue(of(undefined));
-    matSnackBar.openFromComponent.and.returnValue(expensesAddedToReportSnackBarSpy);
-    snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
-    spyOn(component, 'doRefresh');
+  describe('showAddToReportSuccessToast(): ', () => {
+    it('should navigate to my_view_report and open matSnackbar', () => {
+      const expensesAddedToReportSnackBarSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
+      expensesAddedToReportSnackBarSpy.onAction.and.returnValue(of(undefined));
+      matSnackBar.openFromComponent.and.returnValue(expensesAddedToReportSnackBarSpy);
+      snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
+      spyOn(component, 'doRefresh');
 
-    component.showAddToReportSuccessToast({
-      message: 'Expense added to report successfully',
-      report: apiExtendedReportRes[0],
-    });
+      component.showAddToReportSuccessToast({
+        message: 'Expense added to report successfully',
+        report: apiExtendedReportRes[0],
+      });
 
-    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
-      ...snackbarPropertiesRes2,
-      panelClass: ['msb-success-with-camera-icon'],
-    });
-    expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
-      message: 'Expense added to report successfully',
-      redirectiontext: 'View Report',
-    });
-    expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
-      ToastContent: 'Expense added to report successfully',
-    });
-    expect(component.isReportableExpensesSelected).toBeFalse();
-    expect(component.selectionMode).toBeFalse();
-    expect(component.headerState).toEqual(HeaderState.base);
-    expect(component.doRefresh).toHaveBeenCalledTimes(1);
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesRes2,
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: 'Expense added to report successfully',
+        redirectiontext: 'View Report',
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Expense added to report successfully',
+      });
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toEqual(HeaderState.base);
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
 
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'my_view_report',
-      { id: 'rprAfNrce73O', navigateBack: true },
-    ]);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: 'rprAfNrce73O', navigateBack: true },
+      ]);
+    });
+    it('should navigate to my_view_report and open matSnackbar if rp_id is undefined', () => {
+      const expensesAddedToReportSnackBarSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
+      expensesAddedToReportSnackBarSpy.onAction.and.returnValue(of(undefined));
+      matSnackBar.openFromComponent.and.returnValue(expensesAddedToReportSnackBarSpy);
+      snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
+      spyOn(component, 'doRefresh');
+      const mockExtendedReport = cloneDeep(apiExtendedReportRes[0]);
+      mockExtendedReport.rp_id = undefined;
+      mockExtendedReport.id = '12345';
+
+      component.showAddToReportSuccessToast({
+        message: 'Expense added to report successfully',
+        report: mockExtendedReport,
+      });
+
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesRes2,
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: 'Expense added to report successfully',
+        redirectiontext: 'View Report',
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Expense added to report successfully',
+      });
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toEqual(HeaderState.base);
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: 'rprAfNrce73O', navigateBack: true },
+      ]);
+    });
   });
+
+  xit('addTransactionsToReport(): should show loader call reportService and hide the loader', (done) => {
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo(true);
+
+    reportService.addTransactions.and.returnValue(of(apiExtendedReportRes));
+    component.addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv']).subscribe((updatedReport) => {
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Adding transaction to report');
+      expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  xdescribe('showOldReportsMatBottomSheet(): ', () => {
+    beforeEach(() => {
+      component.selectedElements = apiExpenseRes;
+      component.isNewReportsFlowEnabled = true;
+      component.openReports$ = of(apiExtendedReportRes);
+      transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
+      spyOn(component, 'addTransactionsToReport').and.returnValue(of(apiExtendedReportRes[0]));
+      spyOn(component, 'showAddToReportSuccessToast');
+    });
+    it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined', fakeAsync(() => {
+      const addTxnToReportDialogSpy = jasmine.createSpyObj('addTxnToReportDialog', ['afterDismissed']);
+      addTxnToReportDialogSpy.afterDismissed.and.returnValue(of({ data: { report: apiExtendedReportRes[0] } }));
+      matBottomsheet.open.and.returnValue(addTxnToReportDialogSpy);
+
+      component.showOldReportsMatBottomSheet();
+      tick(100);
+
+      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+      // expect(matBottomsheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent, {
+      //   data: { apiExtendedReportRes, isNewReportsFlowEnabled: true },
+      //   panelClass: ['mat-bottom-sheet-1'],
+      // });
+      expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(apiExtendedReportRes[0], ['tx5fBcPBAxLv']);
+      expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+        message: 'Expenses added to report successfully',
+        report: apiExtendedReportRes[0],
+      });
+    }));
+    it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and rp_state is draft', (done) => {
+      const addTxnToReportDialogSpy = jasmine.createSpyObj('addTxnToReportDialog', ['afterDismissed']);
+      const mockReportData = cloneDeep(apiExtendedReportRes[0]);
+      mockReportData.rp_state = 'DRAFT';
+      addTxnToReportDialogSpy.afterDismissed.and.returnValue(of({ data: { report: mockReportData } }));
+      matBottomsheet.open.and.returnValue(addTxnToReportDialogSpy);
+
+      component.showOldReportsMatBottomSheet();
+      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+      // expect(matBottomsheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent, {
+      //   data: { apiExtendedReportRes, isNewReportsFlowEnabled: true },
+      //   panelClass: ['mat-bottom-sheet-1'],
+      // });
+
+      expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockReportData, ['tx5fBcPBAxLv']);
+      expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+        message: 'Expenses added to an existing draft report',
+        report: mockReportData,
+      });
+      done();
+    });
+  });
+
+  fit('openActionSheet(): should open actionSheetController', fakeAsync(() => {
+    const actionSheetSpy = jasmine.createSpyObj('actionSheet', ['present']);
+    component.actionSheetButtons = [];
+    actionSheetController.create.and.returnValue(actionSheetSpy);
+
+    component.openActionSheet();
+    tick(100);
+
+    expect(actionSheetController.create).toHaveBeenCalledOnceWith({
+      header: 'ADD EXPENSE',
+      mode: 'md',
+      cssClass: 'fy-action-sheet',
+      buttons: [],
+    });
+  }));
 
   it('onSimpleSearchCancel(): should set headerState to base and call clearText', () => {
     component.headerState = HeaderState.simpleSearch;
