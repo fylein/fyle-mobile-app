@@ -17,7 +17,15 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { SplitExpensePage } from './split-expense.page';
-import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -46,6 +54,7 @@ import {
   splitTxns,
   txnAmount1,
   txnAmount2,
+  txnData,
   txnList,
 } from 'src/app/core/mock-data/transaction.data';
 import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
@@ -75,10 +84,11 @@ import {
   policyVoilationData2,
   splitPolicyExp4,
 } from 'src/app/core/mock-data/policy-violation.data';
-import { flattenedData } from 'src/app/core/mock-data/data-transform.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
+import * as dayjs from 'dayjs';
+import { unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 
-fdescribe('SplitExpensePage', () => {
+describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -104,6 +114,7 @@ fdescribe('SplitExpensePage', () => {
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
+    //const formBuilderSpy = jasmine.createSpyObj('FormBuilder', ['group']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'filterRequired']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['getUTCDate', 'addDaysToDate']);
@@ -350,6 +361,131 @@ fdescribe('SplitExpensePage', () => {
     component.categories$ = of(categories);
     component.getCategoryList();
     expect(component.categoryList).toEqual(expectedOrgCategoriesPaginated);
+  });
+
+  describe('uploadNewFiles(): ', () => {
+    it('should upload new files when the type is an image', (done) => {
+      const fileObj: FileObject = {
+        name: '000.jpeg',
+        receipt_coordinates: {
+          x: 100,
+          y: 200,
+          width: 300,
+          height: 400,
+        },
+        id: 'fiHPZUiichAS',
+        purpose: '',
+      };
+      const files = fileObjectAdv;
+      const dataUrl = fileObjectAdv[0].url;
+      const attachmentType = 'image';
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toEqual([fileObj]);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+        done();
+      });
+    });
+
+    it('should upload new files when the type is a png', (done) => {
+      const fileObj: FileObject = {
+        name: '000.png',
+        receipt_coordinates: {
+          x: 100,
+          y: 200,
+          width: 300,
+          height: 400,
+        },
+        id: 'fiHPZUiichAS',
+        purpose: '',
+      };
+
+      const mockFile = {
+        ...fileObjectAdv[0],
+        type: 'png',
+      };
+      const files = [mockFile];
+      const dataUrl = fileObjectAdv[0].url;
+      const attachmentType = 'image';
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toEqual([fileObj]);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+        done();
+      });
+    });
+
+    it('should upload new files when the type is a pdf', (done) => {
+      const files = [fileObjectAdv1];
+      const fileObj: FileObject = {
+        name: '000.pdf',
+        receipt_coordinates: {
+          x: 100,
+          y: 200,
+          width: 300,
+          height: 400,
+        },
+        id: 'fiHPZUiichAS',
+        purpose: '',
+      };
+      const dataUrl = fileObjectAdv1.url;
+      const attachmentType = 'pdf';
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toEqual([fileObj]);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+        done();
+      });
+    });
+
+    it('should return null when there are no valid files', (done) => {
+      const files = [];
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(transactionsOutboxService.fileUpload).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
+  describe('uploadFiles', () => {
+    it('should upload files when the transacton id is not specified', (done) => {
+      spyOn(component, 'uploadNewFiles').and.returnValue(of([fileObjectData4]));
+      const files: FileObject[] = [
+        {
+          id: 'fiXpfkKFhf6w',
+          thumbnail: 'mockThumbnail',
+          type: 'image',
+          url: 'mockUrl',
+        },
+      ];
+      component.transaction = splitTxns;
+      component.uploadFiles(files).subscribe((result) => {
+        expect(result).toEqual([fileObjectData4]);
+        expect(component.uploadNewFiles).toHaveBeenCalledOnceWith(files);
+        done();
+      });
+    });
+
+    it('should return the attached files when the transaction id is specified', (done) => {
+      spyOn(component, 'getAttachedFiles').and.returnValue(of(fileObject8));
+      const files: FileObject[] = [
+        {
+          id: 'fizBwnXhyZTp',
+          thumbnail: 'mockThumbnail',
+          type: 'image',
+          url: 'mockUrl',
+        },
+      ];
+      component.transaction = sourceTxn2;
+      component.uploadFiles(files).subscribe((result) => {
+        expect(result).toEqual(fileObject8);
+        expect(component.getAttachedFiles).toHaveBeenCalledOnceWith('txxkBruL0EO9');
+        done();
+      });
+    });
   });
 
   describe('createAndLinkTxnsWithFiles():', () => {
@@ -607,7 +743,7 @@ fdescribe('SplitExpensePage', () => {
     });
   });
 
-  it('getAttachedFiles: should get all the attached files', () => {
+  it('getAttachedFiles(): should get all the attached files', () => {
     const transactionId = 'fizBwnXhyZTp';
     fileService.findByTransactionId.and.returnValue(of(fileObject8));
     component.getAttachedFiles(transactionId).subscribe((result) => {
@@ -616,155 +752,9 @@ fdescribe('SplitExpensePage', () => {
     });
   });
 
-  it('getActiveCategories(): should get the active categories', () => {
-    categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
-    categoriesService.filterRequired.and.returnValue(expectedFilterOrgCategory);
-    component.getActiveCategories().subscribe((res) => {
-      expect(res).toEqual(expectedFilterOrgCategory);
-      expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
-      expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
-    });
-  });
-
-  describe('uploadNewFiles', () => {
-    it('should upload new files when the type is an image', (done) => {
-      const fileObj: FileObject = {
-        name: '000.jpeg',
-        receipt_coordinates: {
-          x: 100,
-          y: 200,
-          width: 300,
-          height: 400,
-        },
-        id: 'fiHPZUiichAS',
-        purpose: '',
-      };
-      const files = fileObjectAdv;
-      const dataUrl = fileObjectAdv[0].url;
-      const attachmentType = 'image';
-      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
-
-      component.uploadNewFiles(files).subscribe((result) => {
-        expect(result).toEqual([fileObj]);
-        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
-        done();
-      });
-    });
-
-    it('should upload new files when the type is a png', (done) => {
-      const fileObj: FileObject = {
-        name: '000.png',
-        receipt_coordinates: {
-          x: 100,
-          y: 200,
-          width: 300,
-          height: 400,
-        },
-        id: 'fiHPZUiichAS',
-        purpose: '',
-      };
-
-      const mockFile = {
-        ...fileObjectAdv[0],
-        type: 'png',
-      };
-      const files = [mockFile];
-      const dataUrl = fileObjectAdv[0].url;
-      const attachmentType = 'image';
-      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
-
-      component.uploadNewFiles(files).subscribe((result) => {
-        expect(result).toEqual([fileObj]);
-        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
-        done();
-      });
-    });
-
-    it('should upload new files when the type is a pdf', (done) => {
-      const files = [fileObjectAdv1];
-      const fileObj: FileObject = {
-        name: '000.pdf',
-        receipt_coordinates: {
-          x: 100,
-          y: 200,
-          width: 300,
-          height: 400,
-        },
-        id: 'fiHPZUiichAS',
-        purpose: '',
-      };
-      const dataUrl = fileObjectAdv1.url;
-      const attachmentType = 'pdf';
-      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
-      component.uploadNewFiles(files).subscribe((result) => {
-        expect(result).toEqual([fileObj]);
-        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
-        done();
-      });
-    });
-
-    it('should return null when there are no valid files', (done) => {
-      const files = [];
-      component.uploadNewFiles(files).subscribe((result) => {
-        expect(result).toBeNull();
-        expect(transactionsOutboxService.fileUpload).not.toHaveBeenCalled();
-        done();
-      });
-    });
-  });
-
-  describe('uploadFiles', () => {
-    it('should upload files when the transacton id is not specified', (done) => {
-      spyOn(component, 'uploadNewFiles').and.returnValue(of([fileObjectData4]));
-      const files: FileObject[] = [
-        {
-          id: 'fiXpfkKFhf6w',
-          thumbnail: 'mockThumbnail',
-          type: 'image',
-          url: 'mockUrl',
-        },
-      ];
-      component.transaction = splitTxns;
-      component.uploadFiles(files).subscribe((result) => {
-        expect(result).toEqual([fileObjectData4]);
-        expect(component.uploadNewFiles).toHaveBeenCalledOnceWith(files);
-        done();
-      });
-    });
-
-    it('should return the attached files when the transaction id is specified', (done) => {
-      spyOn(component, 'getAttachedFiles').and.returnValue(of(fileObject8));
-      const files: FileObject[] = [
-        {
-          id: 'fizBwnXhyZTp',
-          thumbnail: 'mockThumbnail',
-          type: 'image',
-          url: 'mockUrl',
-        },
-      ];
-      component.transaction = sourceTxn2;
-      component.uploadFiles(files).subscribe((result) => {
-        expect(result).toEqual(fileObject8);
-        expect(component.getAttachedFiles).toHaveBeenCalledOnceWith('txxkBruL0EO9');
-        done();
-      });
-    });
-  });
-
   it('showSplitExpenseViolations(): should show the expense violations when the expense is split', async () => {
     const violations = formattedTxnViolations;
-    const properties = {
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      canDismiss: true,
-      backdropDismiss: true,
-      animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
-    };
     spyOn(component, 'showSuccessToast');
-    modalProperties.getModalDefaultProperties.and.returnValue(properties);
     const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
       'present',
       'onWillDismiss',
@@ -785,9 +775,9 @@ fdescribe('SplitExpensePage', () => {
       },
       mode: 'ios',
       presentingElement: await modalController.getTop(),
-      ...properties,
+      ...modalProperties.getModalDefaultProperties(),
     });
-    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(2);
     expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
   });
 
@@ -809,37 +799,250 @@ fdescribe('SplitExpensePage', () => {
     });
   });
 
+  it('getActiveCategories(): should get the active categories', () => {
+    categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
+    categoriesService.filterRequired.and.returnValue(expectedFilterOrgCategory);
+    component.getActiveCategories().subscribe((res) => {
+      expect(res).toEqual(expectedFilterOrgCategory);
+      expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+      expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
+    });
+  });
+
   describe('setAmountAndCurrency():', () => {
-    it('should set the amount and currency', () => {
-      const currencyObj = flattenedData;
+    it('should set the amount and currency when orig currency and amount are present', () => {
+      const currencyObj = unflattenedAccount3Data;
       const homeCurrency = orgData1[0].currency;
       component.setAmountAndCurrency(currencyObj, homeCurrency);
-      expect(component.amount).toBe(2500);
-      expect(component.currency).toEqual('INR');
+      expect(component.amount).toBe(800000);
+      expect(component.currency).toEqual('USD');
     });
 
-    it('should set the amount and currency when org currency and amount are not present', () => {
+    it('should set the amount and currency when orig currency and amount are not present', () => {
       const mockCurrencyObj = {
-        ...flattenedData,
+        ...unflattenedAccount3Data,
         orig_amount: null,
         orig_currency: null,
       };
       const homeCurrency = orgData1[0].currency;
       component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
-      expect(component.amount).toBe(2500);
-      expect(component.currency).toEqual('INR');
+      expect(component.amount).toBe(800000);
+      expect(component.currency).toEqual('USD');
     });
 
-    it('should set the currenct to homeCurrency when curency or orig currency is not present', () => {
+    it('should set the currency to homeCurrency when curency or orig currency is not present', () => {
       const mockCurrencyObj = {
-        ...flattenedData,
+        ...unflattenedAccount3Data,
         currency: null,
         orig_currency: null,
       };
       const homeCurrency = orgData1[0].currency;
       component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
-      expect(component.amount).toBe(2500);
+      expect(component.amount).toBe(800000);
       expect(component.currency).toEqual(homeCurrency);
+    });
+  });
+
+  describe('add()', () => {
+    it('should set the date of when the expense was created if not provided while splitting an expense and all', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      component.splitType = 'categories';
+      component.transaction = txnData;
+
+      const splitExpenseField = {
+        amount: 2000,
+        currency: 'INR',
+        percentage: 50,
+        txn_dt: '2023-02-08',
+        category: '',
+      };
+
+      component.add(amount, currency, percentage);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set the date of when the expense was created to today if not provided while splitting an expense', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      const txnDate = null;
+
+      component.splitType = 'categories';
+      component.transaction = null;
+
+      const splitExpenseField = {
+        amount: 2000,
+        currency: 'INR',
+        percentage: 50,
+        txn_dt: dayjs(new Date()).format('YYYY-MM-DD'),
+        category: '',
+      };
+
+      component.add(amount, currency, percentage, txnDate);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should add the form control to the form array when the split type is projects', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      component.splitType = 'projects';
+      component.transaction = txnData;
+
+      const splitExpenseField = {
+        amount: 2000,
+        currency: 'INR',
+        percentage: 50,
+        txn_dt: '2023-02-08',
+        project: '',
+      };
+
+      component.add(amount, currency, percentage);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should add the form control to the form array when the split type is const centers', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      component.splitType = 'cost centers';
+      component.transaction = txnData;
+
+      const splitExpenseField = {
+        amount: 2000,
+        currency: 'INR',
+        percentage: 50,
+        txn_dt: '2023-02-08',
+        cost_center: '',
+      };
+
+      component.add(amount, currency, percentage);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('remove()', () => {
+    it('should remove the expense at the 1st index', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(10000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(5000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.remove(1);
+
+      expect(component.splitExpensesFormArray.length).toBe(1);
+      expect(component.splitExpensesFormArray.controls[0].value.amount).toBe(10000);
+      expect(component.splitExpensesFormArray.controls[0].value.percentage).toBe(60);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should recalculate the amount and percentage for the last split expense form when there are more than 2 splits', () => {
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(9000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(4000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(26.667),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm3 = new FormGroup({
+        amount: new FormControl(2000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(13.333),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
+      component.amount = 15000;
+      component.remove(2);
+      expect(component.splitExpensesFormArray.length).toBe(2);
+      expect(component.splitExpensesFormArray.controls[0].value.amount).toBe(9000);
+      expect(component.splitExpensesFormArray.controls[0].value.percentage).toBe(60);
+      expect(component.splitExpensesFormArray.controls[1].value.amount).toBe(6000);
+      expect(component.splitExpensesFormArray.controls[1].value.percentage).toBe(40);
+    });
+  });
+
+  describe('isEvenlySplit():', () => {
+    it('should return true if the split expenses are evenly split', () => {
+      component.amount = 1000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(500),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(500),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      //@ts-ignore
+      const result = component.isEvenlySplit();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if the split expenses are not evenly split', () => {
+      component.amount = 1000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(800),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(80),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(200),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(20),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      //@ts-ignore
+      const result = component.isEvenlySplit();
+      expect(result).toBeFalse();
     });
   });
 });
