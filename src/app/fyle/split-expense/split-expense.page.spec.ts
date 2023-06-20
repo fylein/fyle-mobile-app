@@ -827,309 +827,307 @@ describe('SplitExpensePage', () => {
     });
   });
 
-  it('getAttachedFiles(): should get all the attached files', () => {
-    it('getAttachedFiles(): should get all the attached files', (done) => {
-      const transactionId = 'fizBwnXhyZTp';
-      fileService.findByTransactionId.and.returnValue(of(fileObject8));
-      component.getAttachedFiles(transactionId).subscribe((result) => {
-        expect(result).toEqual(fileObject8);
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
-        done();
-      });
+  it('getAttachedFiles(): should get all the attached files', (done) => {
+    const transactionId = 'fizBwnXhyZTp';
+    fileService.findByTransactionId.and.returnValue(of(fileObject8));
+    component.getAttachedFiles(transactionId).subscribe((result) => {
+      expect(result).toEqual(fileObject8);
+      expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
+      done();
+    });
+  });
+
+  it('showSplitExpenseViolations(): should show the expense violations when the expense is split', async () => {
+    const violations = formattedTxnViolations;
+    spyOn(component, 'showSuccessToast');
+    const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+      'present',
+      'onWillDismiss',
+    ]);
+    fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+      data: {
+        action: 'primary',
+      },
     });
 
-    it('showSplitExpenseViolations(): should show the expense violations when the expense is split', async () => {
-      const violations = formattedTxnViolations;
-      spyOn(component, 'showSuccessToast');
-      const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
-        'present',
-        'onWillDismiss',
-      ]);
-      fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
-        data: {
-          action: 'primary',
-        },
-      });
+    modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+    const result = await component.showSplitExpenseViolations(violations);
+    expect(result).toBeUndefined();
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: SplitExpensePolicyViolationComponent,
+      componentProps: {
+        policyViolations: violations,
+      },
+      mode: 'ios',
+      presentingElement: await modalController.getTop(),
+      ...modalProperties.getModalDefaultProperties(),
+    });
+    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(2);
+    expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
+  });
 
-      modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
-      const result = await component.showSplitExpenseViolations(violations);
-      expect(result).toBeUndefined();
-      expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: SplitExpensePolicyViolationComponent,
-        componentProps: {
-          policyViolations: violations,
-        },
-        mode: 'ios',
-        presentingElement: await modalController.getTop(),
-        ...modalProperties.getModalDefaultProperties(),
-      });
-      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(2);
+  describe('handleSplitExpensePolicyViolations():', () => {
+    it('should handle polciy violations when the expense is split', () => {
+      const violations = policyVoilationData2;
+      spyOn(component, 'showSplitExpenseViolations');
+      policyService.checkIfViolationsExist.and.returnValue(true);
+      splitExpenseService.formatPolicyViolations.and.returnValue(formattedTxnViolations);
+      component.handleSplitExpensePolicyViolations(violations);
+      expect(component.showSplitExpenseViolations).toHaveBeenCalledOnceWith(formattedTxnViolations);
+    });
+
+    it('should show success toast when the expense is split and there are no violations', () => {
+      policyService.checkIfViolationsExist.and.returnValue(false);
+      spyOn(component, 'showSuccessToast');
+      component.handleSplitExpensePolicyViolations(policyViolationData3);
       expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
     });
+  });
 
-    describe('handleSplitExpensePolicyViolations():', () => {
-      it('should handle polciy violations when the expense is split', () => {
-        const violations = policyVoilationData2;
-        spyOn(component, 'showSplitExpenseViolations');
-        policyService.checkIfViolationsExist.and.returnValue(true);
-        splitExpenseService.formatPolicyViolations.and.returnValue(formattedTxnViolations);
-        component.handleSplitExpensePolicyViolations(violations);
-        expect(component.showSplitExpenseViolations).toHaveBeenCalledOnceWith(formattedTxnViolations);
-      });
+  it('getActiveCategories(): should get the active categories', (done) => {
+    categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
+    categoriesService.filterRequired.and.returnValue(expectedFilterOrgCategory);
+    component.getActiveCategories().subscribe((res) => {
+      expect(res).toEqual(expectedFilterOrgCategory);
+      expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+      expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
+    });
+  });
 
-      it('should show success toast when the expense is split and there are no violations', () => {
-        policyService.checkIfViolationsExist.and.returnValue(false);
-        spyOn(component, 'showSuccessToast');
-        component.handleSplitExpensePolicyViolations(policyViolationData3);
-        expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
-      });
+  describe('setAmountAndCurrency():', () => {
+    it('should set the amount and currency when orig currency and amount are present', () => {
+      const currencyObj = unflattenedAccount3Data;
+      const homeCurrency = orgData1[0].currency;
+      component.setAmountAndCurrency(currencyObj, homeCurrency);
+      expect(component.amount).toBe(800000);
+      expect(component.currency).toEqual('USD');
     });
 
-    it('getActiveCategories(): should get the active categories', (done) => {
-      categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
-      categoriesService.filterRequired.and.returnValue(expectedFilterOrgCategory);
-      component.getActiveCategories().subscribe((res) => {
-        expect(res).toEqual(expectedFilterOrgCategory);
-        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
-        expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
-      });
+    it('should set the amount and currency when orig currency and amount are not present', () => {
+      const mockCurrencyObj = {
+        ...unflattenedAccount3Data,
+        orig_amount: null,
+        orig_currency: null,
+      };
+      const homeCurrency = orgData1[0].currency;
+      component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
+      expect(component.amount).toBe(800000);
+      expect(component.currency).toEqual('USD');
     });
 
-    describe('setAmountAndCurrency():', () => {
-      it('should set the amount and currency when orig currency and amount are present', () => {
-        const currencyObj = unflattenedAccount3Data;
-        const homeCurrency = orgData1[0].currency;
-        component.setAmountAndCurrency(currencyObj, homeCurrency);
-        expect(component.amount).toBe(800000);
-        expect(component.currency).toEqual('USD');
-      });
+    it('should set the currency to homeCurrency when curency or orig currency is not present', () => {
+      const mockCurrencyObj = {
+        ...unflattenedAccount3Data,
+        currency: null,
+        orig_currency: null,
+      };
+      const homeCurrency = orgData1[0].currency;
+      component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
+      expect(component.amount).toBe(800000);
+      expect(component.currency).toEqual(homeCurrency);
+    });
+  });
 
-      it('should set the amount and currency when orig currency and amount are not present', () => {
-        const mockCurrencyObj = {
-          ...unflattenedAccount3Data,
-          orig_amount: null,
-          orig_currency: null,
-        };
-        const homeCurrency = orgData1[0].currency;
-        component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
-        expect(component.amount).toBe(800000);
-        expect(component.currency).toEqual('USD');
-      });
+  describe('add()', () => {
+    it('should set the date of when the expense was created if not provided while splitting an expense and all', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      component.splitType = 'categories';
+      component.transaction = txnData;
 
-      it('should set the currency to homeCurrency when curency or orig currency is not present', () => {
-        const mockCurrencyObj = {
-          ...unflattenedAccount3Data,
-          currency: null,
-          orig_currency: null,
-        };
-        const homeCurrency = orgData1[0].currency;
-        component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
-        expect(component.amount).toBe(800000);
-        expect(component.currency).toEqual(homeCurrency);
-      });
+      const splitExpenseField = {
+        amount: 2000,
+        currency: 'INR',
+        percentage: 50,
+        txn_dt: '2023-02-08',
+        category: '',
+      };
+
+      component.add(amount, currency, percentage);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
 
-    describe('add()', () => {
-      it('should set the date of when the expense was created if not provided while splitting an expense and all', () => {
-        spyOn(component, 'getTotalSplitAmount');
-        const amount = 2000;
-        const currency = 'INR';
-        const percentage = 50;
-        component.splitType = 'categories';
-        component.transaction = txnData;
+    it('should set the date of when the expense was created to today if not provided while splitting an expense', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      const txnDate = null;
 
-        const splitExpenseField = {
-          amount: 2000,
-          currency: 'INR',
-          percentage: 50,
-          txn_dt: '2023-02-08',
-          category: '',
-        };
+      component.splitType = 'categories';
+      component.transaction = null;
 
-        component.add(amount, currency, percentage);
-        expect(component.splitExpensesFormArray.length).toEqual(1);
-        expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
-        expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
-      });
+      const splitExpenseField = {
+        amount: 2000,
+        currency: 'INR',
+        percentage: 50,
+        txn_dt: dayjs(new Date()).format('YYYY-MM-DD'),
+        category: '',
+      };
 
-      it('should set the date of when the expense was created to today if not provided while splitting an expense', () => {
-        spyOn(component, 'getTotalSplitAmount');
-        const amount = 2000;
-        const currency = 'INR';
-        const percentage = 50;
-        const txnDate = null;
-
-        component.splitType = 'categories';
-        component.transaction = null;
-
-        const splitExpenseField = {
-          amount: 2000,
-          currency: 'INR',
-          percentage: 50,
-          txn_dt: dayjs(new Date()).format('YYYY-MM-DD'),
-          category: '',
-        };
-
-        component.add(amount, currency, percentage, txnDate);
-        expect(component.splitExpensesFormArray.length).toEqual(1);
-        expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
-        expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
-      });
-
-      it('should add the form control to the form array when the split type is projects', () => {
-        spyOn(component, 'getTotalSplitAmount');
-        const amount = 2000;
-        const currency = 'INR';
-        const percentage = 50;
-        component.splitType = 'projects';
-        component.transaction = txnData;
-
-        const splitExpenseField = {
-          amount: 2000,
-          currency: 'INR',
-          percentage: 50,
-          txn_dt: '2023-02-08',
-          project: '',
-        };
-
-        component.add(amount, currency, percentage);
-        expect(component.splitExpensesFormArray.length).toEqual(1);
-        expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
-        expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
-      });
-
-      it('should add the form control to the form array when the split type is const centers', () => {
-        spyOn(component, 'getTotalSplitAmount');
-        const amount = 2000;
-        const currency = 'INR';
-        const percentage = 50;
-        component.splitType = 'cost centers';
-        component.transaction = txnData;
-
-        const splitExpenseField = {
-          amount: 2000,
-          currency: 'INR',
-          percentage: 50,
-          txn_dt: '2023-02-08',
-          cost_center: '',
-        };
-
-        component.add(amount, currency, percentage);
-        expect(component.splitExpensesFormArray.length).toEqual(1);
-        expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
-        expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
-      });
+      component.add(amount, currency, percentage, txnDate);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
 
-    describe('remove()', () => {
-      it('should remove the expense at the 1st index', () => {
-        spyOn(component, 'getTotalSplitAmount');
-        const splitExpenseForm1 = new FormGroup({
-          amount: new FormControl(10000),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(60),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
-        });
+    it('should add the form control to the form array when the split type is projects', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      component.splitType = 'projects';
+      component.transaction = txnData;
 
-        const splitExpenseForm2 = new FormGroup({
-          amount: new FormControl(5000),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(40),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
-        });
-        component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
-        component.remove(1);
+      const splitExpenseField = {
+        amount: 2000,
+        currency: 'INR',
+        percentage: 50,
+        txn_dt: '2023-02-08',
+        project: '',
+      };
 
-        expect(component.splitExpensesFormArray.length).toBe(1);
-        expect(component.splitExpensesFormArray.controls[0].value.amount).toBe(10000);
-        expect(component.splitExpensesFormArray.controls[0].value.percentage).toBe(60);
-        expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
-      });
-
-      it('should recalculate the amount and percentage for the last split expense form when there are more than 2 splits', () => {
-        const splitExpenseForm1 = new FormGroup({
-          amount: new FormControl(9000),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(60),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
-        });
-
-        const splitExpenseForm2 = new FormGroup({
-          amount: new FormControl(4000),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(26.667),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
-        });
-
-        const splitExpenseForm3 = new FormGroup({
-          amount: new FormControl(2000),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(13.333),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
-        });
-
-        component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
-        component.amount = 15000;
-        component.remove(2);
-        expect(component.splitExpensesFormArray.length).toBe(2);
-        expect(component.splitExpensesFormArray.controls[0].value.amount).toBe(9000);
-        expect(component.splitExpensesFormArray.controls[0].value.percentage).toBe(60);
-        expect(component.splitExpensesFormArray.controls[1].value.amount).toBe(6000);
-        expect(component.splitExpensesFormArray.controls[1].value.percentage).toBe(40);
-      });
+      component.add(amount, currency, percentage);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
 
-    describe('isEvenlySplit():', () => {
-      it('should return true if the split expenses are evenly split', () => {
-        component.amount = 1000;
-        const splitExpenseForm1 = new FormGroup({
-          amount: new FormControl(500),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(50),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
-        });
+    it('should add the form control to the form array when the split type is const centers', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      component.splitType = 'cost centers';
+      component.transaction = txnData;
 
-        const splitExpenseForm2 = new FormGroup({
-          amount: new FormControl(500),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(50),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
-        });
-        component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
-        //@ts-ignore
-        const result = component.isEvenlySplit();
-        expect(result).toBeTrue();
+      const splitExpenseField = {
+        amount: 2000,
+        currency: 'INR',
+        percentage: 50,
+        txn_dt: '2023-02-08',
+        cost_center: '',
+      };
+
+      component.add(amount, currency, percentage);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('remove()', () => {
+    it('should remove the expense at the 1st index', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(10000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
       });
 
-      it('should return false if the split expenses are not evenly split', () => {
-        component.amount = 1000;
-        const splitExpenseForm1 = new FormGroup({
-          amount: new FormControl(800),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(80),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
-        });
-
-        const splitExpenseForm2 = new FormGroup({
-          amount: new FormControl(200),
-          currency: new FormControl('INR'),
-          percentage: new FormControl(20),
-          txn_dt: new FormControl('2023-01-11'),
-          category: new FormControl(''),
-        });
-        component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
-        //@ts-ignore
-        const result = component.isEvenlySplit();
-        expect(result).toBeFalse();
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(5000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
       });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.remove(1);
+
+      expect(component.splitExpensesFormArray.length).toBe(1);
+      expect(component.splitExpensesFormArray.controls[0].value.amount).toBe(10000);
+      expect(component.splitExpensesFormArray.controls[0].value.percentage).toBe(60);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should recalculate the amount and percentage for the last split expense form when there are more than 2 splits', () => {
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(9000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(4000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(26.667),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm3 = new FormGroup({
+        amount: new FormControl(2000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(13.333),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
+      component.amount = 15000;
+      component.remove(2);
+      expect(component.splitExpensesFormArray.length).toBe(2);
+      expect(component.splitExpensesFormArray.controls[0].value.amount).toBe(9000);
+      expect(component.splitExpensesFormArray.controls[0].value.percentage).toBe(60);
+      expect(component.splitExpensesFormArray.controls[1].value.amount).toBe(6000);
+      expect(component.splitExpensesFormArray.controls[1].value.percentage).toBe(40);
+    });
+  });
+
+  describe('isEvenlySplit():', () => {
+    it('should return true if the split expenses are evenly split', () => {
+      component.amount = 1000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(500),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(500),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      //@ts-ignore
+      const result = component.isEvenlySplit();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if the split expenses are not evenly split', () => {
+      component.amount = 1000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(800),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(80),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(200),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(20),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      //@ts-ignore
+      const result = component.isEvenlySplit();
+      expect(result).toBeFalse();
     });
   });
 });
