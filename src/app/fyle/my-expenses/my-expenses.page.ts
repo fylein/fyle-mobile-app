@@ -39,7 +39,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { cloneDeep, isEqual } from 'lodash';
+import { assign, cloneDeep, isEqual } from 'lodash';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -1268,6 +1268,26 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
+  selectedExpensesPopoverDeleteMethod(
+    offlineExpenses: Partial<Expense>[],
+    expensesToBeDeleted: Partial<Expense>[],
+    pendingTransactions: Partial<Expense>[],
+    selectedElements: Partial<Expense>[]
+  ) {
+    return () => {
+      offlineExpenses = expensesToBeDeleted.filter((expense) => !expense.tx_id);
+
+      this.transactionOutboxService.deleteBulkOfflineExpenses(pendingTransactions, offlineExpenses);
+
+      selectedElements = expensesToBeDeleted.filter((expense) => expense.tx_id);
+      if (selectedElements?.length > 0) {
+        return this.transactionService.deleteBulk(selectedElements.map((selectedExpense) => selectedExpense.tx_id));
+      } else {
+        return of(null);
+      }
+    };
+  }
+
   async deleteSelectedExpenses() {
     let offlineExpenses: Partial<Expense>[];
 
@@ -1289,20 +1309,13 @@ export class MyExpensesPage implements OnInit {
         ),
         ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
         disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
-        deleteMethod: () => {
-          offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
-
-          this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
-
-          this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
-          if (this.selectedElements?.length > 0) {
-            return this.transactionService.deleteBulk(
-              this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
-            );
-          } else {
-            return of(null);
-          }
-        },
+        deleteMethod: this.selectedExpensesPopoverDeleteMethod.bind(
+          this,
+          offlineExpenses,
+          this.expensesToBeDeleted,
+          this.pendingTransactions,
+          this.selectedElements
+        ),
       },
     });
 

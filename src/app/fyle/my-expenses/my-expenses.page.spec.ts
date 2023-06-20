@@ -70,7 +70,7 @@ import {
   snackbarPropertiesRes2,
   unformattedTxnData,
 } from 'src/app/core/mock-data/my-expenses.data';
-import { txnData2 } from 'src/app/core/mock-data/transaction.data';
+import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import { cloneDeep } from 'lodash';
@@ -85,6 +85,7 @@ import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data'
 import { Expense } from 'src/app/core/models/expense.model';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { ComponentType } from '@angular/cdk/portal';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
 fdescribe('MyReportsPage', () => {
   let component: MyExpensesPage;
@@ -151,6 +152,10 @@ fdescribe('MyReportsPage', () => {
       'getIsDraft',
       'getETxnUnflattened',
       'getAllExpenses',
+      'getDeleteDialogBody',
+      'getExpenseDeletionMessage',
+      'getCCCExpenseMessage',
+      'deleteBulk',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -166,6 +171,7 @@ fdescribe('MyReportsPage', () => {
       'getPendingTransactions',
       'sync',
       'deleteOfflineExpense',
+      'deleteBulkOfflineExpenses',
     ]);
     const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss', 'open']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -202,6 +208,7 @@ fdescribe('MyReportsPage', () => {
       'showToastMessage',
       'addToReport',
       'clickCreateReport',
+      'myExpensesBulkDeleteExpenses',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -2396,7 +2403,7 @@ fdescribe('MyReportsPage', () => {
     });
   });
 
-  fit('openActionSheet(): should open actionSheetController', fakeAsync(() => {
+  it('openActionSheet(): should open actionSheetController', fakeAsync(() => {
     const actionSheetSpy = jasmine.createSpyObj('actionSheet', ['present']);
     component.actionSheetButtons = [];
     actionSheetController.create.and.returnValue(actionSheetSpy);
@@ -2411,6 +2418,42 @@ fdescribe('MyReportsPage', () => {
       buttons: [],
     });
   }));
+
+  fdescribe('deleteSelectedExpenses(): ', () => {
+    beforeEach(() => {
+      transactionService.getExpenseDeletionMessage.and.returnValue('You are about to delete this expense');
+      transactionService.getCCCExpenseMessage.and.returnValue(
+        'There are 2 corporate credit cards which can be deleted'
+      );
+      transactionService.getDeleteDialogBody.and.returnValue('Once deleted, the action cannot be undone');
+      component.expensesToBeDeleted = apiExpenseRes;
+      component.cccExpenses = 1;
+      transactionService.deleteBulk.and.returnValue(of(txnList));
+      spyOn(component, 'doRefresh');
+    });
+
+    it('should open a popover and extract on dismiss', fakeAsync(() => {
+      const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.resolveTo(deletePopOverSpy);
+
+      component.deleteSelectedExpenses();
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Expense',
+          body: 'Once deleted, the action cannot be undone',
+          ctaText: 'Exclude and Delete',
+          disableDelete: false,
+          deleteMethod: jasmine.any(Function),
+        },
+      });
+    }));
+  });
 
   it('onSimpleSearchCancel(): should set headerState to base and call clearText', () => {
     component.headerState = HeaderState.simpleSearch;
