@@ -3,7 +3,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter, NO_ERRORS_SCHEMA, Sanitizer } fro
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DomSanitizer } from '@angular/platform-browser';
+import { By, DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import {
@@ -14,7 +14,7 @@ import {
   Platform,
   PopoverController,
 } from '@ionic/angular';
-import { Subscription, of } from 'rxjs';
+import { Observable, Subscription, empty, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
@@ -27,7 +27,7 @@ import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
-import { txnList } from 'src/app/core/mock-data/transaction.data';
+import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
 import { unflattenExp1, unflattenExp2, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -76,6 +76,14 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { recentUsedCategoriesRes, recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
+import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
+import { instaFyleData1, instaFyleData2, parsedReceiptData1 } from 'src/app/core/mock-data/parsed-receipt.data';
+import {
+  expectedUnflattendedTxnData1,
+  unflattenedTxnData,
+  unflattenedTxnWithExtractedData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -643,7 +651,15 @@ describe('AddEditExpensePage', () => {
     }));
   });
 
-  xit('merchantValidator', () => {});
+  describe('merchantValidator():', () => {
+    it('should check field value and return null if name less 250 characters', () => {
+      component.fg.controls.vendor_id.setValue({
+        display_name: 'name',
+      });
+      const result = component.merchantValidator(component.fg.controls.vendor_id.value);
+      expect(result).toBeNull();
+    });
+  });
 
   xit('currencyObjValidator', () => {});
 
@@ -935,6 +951,30 @@ describe('AddEditExpensePage', () => {
     }));
   });
 
+  xdescribe('getMarkDismissModalParams():', () => {
+    it('should get delete method to unmatch personal expense', (done) => {
+      transactionService.unmatchCCCExpense.and.returnValue(of(null));
+      spyOn(component, 'markCCCAsPersonal');
+      const result = component.getMarkDismissModalParams(
+        {
+          header: 'Header',
+          body: 'This is body',
+          ctaText: 'Done',
+          ctaLoadingText: 'Loading',
+        },
+        true
+      );
+
+      result.componentProps.deleteMethod().subscribe(() => {
+        expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith(
+          activatedRoute.snapshot.params.id,
+          component.corporateCreditCardExpenseGroupId
+        );
+        done();
+      });
+    });
+  });
+
   describe('markPeronsalOrDismiss(): ', () => {
     it('should dismiss txn as specified', fakeAsync(() => {
       spyOn(component, 'getMarkDismissModalParams');
@@ -1224,13 +1264,81 @@ describe('AddEditExpensePage', () => {
     });
   });
 
-  xit('getInstaFyleImageData', () => {});
+  describe('getInstaFyleImageData():', () => {
+    it('should return image data if parsed from a receipt', (done) => {
+      activatedRoute.snapshot.params.dataUrl = 'data-url';
+      activatedRoute.snapshot.params.canExtractData = 'true';
+      currencyService.getHomeCurrency.and.returnValue(of('INR'));
+      currencyService.getExchangeRate.and.returnValue(of(82));
+      transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData1);
+
+      component.getInstaFyleImageData().subscribe((res) => {
+        expect(res).toEqual(instaFyleData1);
+        expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('data-url');
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+        expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
+          'USD',
+          'INR',
+          new Date('2023-02-15T06:30:00.000Z')
+        );
+        done();
+      });
+    });
+
+    it('should return extracted data if both extracted and home currencies are same', (done) => {
+      activatedRoute.snapshot.params.dataUrl = 'data-url';
+      activatedRoute.snapshot.params.canExtractData = 'true';
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
+      transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData1);
+
+      component.getInstaFyleImageData().subscribe((res) => {
+        expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('data-url');
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+        expect(res).toEqual(instaFyleData2);
+        done();
+      });
+    });
+
+    it('should return data from URL if data extraction is not allowed', (done) => {
+      activatedRoute.snapshot.params.dataUrl = 'data-url';
+      activatedRoute.snapshot.params.canExtractData = 'false';
+      component.getInstaFyleImageData().subscribe((res) => {
+        expect(res).toEqual({
+          thumbnail: 'data-url',
+          type: 'image',
+          url: 'data-url',
+        });
+        done();
+      });
+    });
+
+    it('should get null if there is no data in URL', (done) => {
+      component.getInstaFyleImageData().subscribe((res) => {
+        expect(res).toBeNull();
+        done();
+      });
+    });
+  });
 
   xit('getNewExpenseObservable', () => {});
 
   xit('setupFormInit', () => {});
 
-  xit('getAutofillCategory', () => {});
+  xdescribe('getAutofillCategory(): ', () => {
+    it('should populate the auto fill category list', () => {
+      const result = component.getAutofillCategory({
+        isAutofillsEnabled: true,
+        recentValue: recentlyUsedRes,
+        recentCategories: recentUsedCategoriesRes,
+        etxn: unflattenExp1,
+        category: orgCategoryData[0],
+      });
+
+      console.log(result);
+    });
+
+    it('');
+  });
 
   it('setCategoryFromVendor(): should set category in the form', () => {
     categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
@@ -1250,11 +1358,61 @@ describe('AddEditExpensePage', () => {
 
   xit('setupFilteredCategories', () => {});
 
-  xit('getEditExpenseObservable', () => {});
+  describe('getEditExpenseObservable(): ', () => {
+    it('should get editable expense observable if the txn is in DRAFT state', (done) => {
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnWithExtractedData));
+      categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
+      dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
 
-  xit('goToPrev', () => {});
+      component.getEditExpenseObservable().subscribe((res) => {
+        expect(res).toEqual(expectedUnflattendedTxnData1);
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+        expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(
+          unflattenedTxnWithExtractedData.tx.extracted_data.category
+        );
+        expect(dateService.getUTCDate).toHaveBeenCalledWith(
+          new Date(unflattenedTxnWithExtractedData.tx.extracted_data.date)
+        );
+        expect(component.isIncompleteExpense).toBeTrue();
+        done();
+      });
+    });
 
-  xit('goToNext', () => {});
+    it('should return txn if state is not DRAFT', (done) => {
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+
+      component.getEditExpenseObservable().subscribe((res) => {
+        expect(res).toEqual(unflattenedTxnData);
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+        done();
+      });
+    });
+  });
+
+  it('goToPrev(): should go to the previous txn', () => {
+    spyOn(component, 'goToTransaction');
+    activatedRoute.snapshot.params.activeIndex = 1;
+    component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
+    transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+    fixture.detectChanges();
+
+    component.goToPrev();
+    expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txSEM4DtjyKR');
+    expect(component.goToTransaction).toHaveBeenCalledOnceWith(unflattenedTxnData, component.reviewList, 0);
+  });
+
+  it('goToNext(): should got to the next txn', () => {
+    const etxn = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, id: 'txNyI8ot5CuJ' } };
+    spyOn(component, 'goToTransaction');
+    activatedRoute.snapshot.params.activeIndex = 0;
+    component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
+    transactionService.getETxnUnflattened.and.returnValue(of(etxn));
+    fixture.detectChanges();
+
+    component.goToNext();
+    expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txNyI8ot5CuJ');
+    expect(component.goToTransaction).toHaveBeenCalledOnceWith(etxn, component.reviewList, 1);
+  });
 
   describe('goToTransaction():', () => {
     const txn_ids = ['txfCdl3TEZ7K'];
@@ -1329,7 +1487,42 @@ describe('AddEditExpensePage', () => {
 
   xit('saveExpense', () => {});
 
-  xit('saveAndNewExpense', () => {});
+  describe('saveAndNewExpense():', () => {
+    it('should save and create expense if the form is valid and is in add mode', () => {
+      spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'reloadCurrentRoute');
+      spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      component.mode = 'add';
+      component.fg.clearValidators();
+      component.fg.updateValueAndValidity();
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
+
+      component.saveAndNewExpense();
+      expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
+      expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+      expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
+      expect(component.reloadCurrentRoute).toHaveBeenCalledTimes(1);
+    });
+
+    it('should save an edited expense if the form is valid and is in edit mode ', () => {
+      spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'goBack');
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
+
+      component.saveAndNewExpense();
+      expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
+      expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+      expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
+      expect(component.goBack).toHaveBeenCalledTimes(1);
+    });
+  });
 
   xit('saveExpenseAndGotoPrev', () => {});
 
@@ -1390,19 +1583,67 @@ describe('AddEditExpensePage', () => {
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
   });
 
-  xit('trackPolicyCorrections', () => {});
+  it('trackPolicyCorrections(): should track policy corrections', () => {
+    component.isCriticalPolicyViolated$ = of(true);
+    component.comments$ = of(estatusData1);
+    component.fg.markAsDirty();
+
+    fixture.detectChanges();
+
+    component.trackPolicyCorrections();
+    expect(trackingService.policyCorrection).toHaveBeenCalledWith({ Violation: 'Critical', Mode: 'Edit Expense' });
+    expect(trackingService.policyCorrection).toHaveBeenCalledWith({ Violation: 'Regular', Mode: 'Edit Expense' });
+  });
 
   xit('editExpense', () => {});
 
-  xit('getTimeSpentOnPage', () => {});
+  it('getTimeSpentOnPage(): should get time spent on page', () => {
+    component.expenseStartTime = 164577000;
+    fixture.detectChanges();
+
+    const result = component.getTimeSpentOnPage();
+    expect(result).toEqual((new Date().getTime() - component.expenseStartTime) / 1000);
+  });
 
   xit('trackAddExpense', () => {});
 
   xit('addExpense', () => {});
 
-  xit('closeAddEditExpenses', () => {});
+  it('closeAddEditExpenses(): should close the form and navigate back to my_expenses page', () => {
+    component.closeAddEditExpenses();
 
-  xit('getParsedReceipt', () => {});
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+  });
+
+  it('getParsedReceipt(): should get parsed receipt', fakeAsync(() => {
+    transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData1);
+    currencyService.getHomeCurrency.and.returnValue(of('INR'));
+    currencyService.getExchangeRate.and.returnValue(of(82));
+
+    const result = component.getParsedReceipt('base64encoded', 'jpeg');
+    tick(500);
+
+    result.then((res) => {
+      expect(res).toEqual({
+        data: {
+          category: 'SYSTEM',
+          currency: 'USD',
+          amount: 100,
+          date: new Date('2023-02-15T06:30:00.000Z'),
+          invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+          vendor_name: 'vendor',
+        },
+        exchangeRate: 82,
+      });
+      expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('base64encoded', 'jpeg');
+      expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+      expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
+        'USD',
+        'INR',
+        new Date('2023-02-15T06:30:00.000Z')
+      );
+    });
+  }));
 
   xit('parseFile', () => {});
 
@@ -1441,7 +1682,9 @@ describe('AddEditExpensePage', () => {
 
   xit('viewAttachments', () => {});
 
-  xit('deleteExpense', () => {});
+  xdescribe('deleteExpense():', () => {
+    it('should delete txn and navigate back to report if deleting directly from report', () => {});
+  });
 
   describe('openCommentsModal():', () => {
     it('should add comment', fakeAsync(() => {
@@ -1540,11 +1783,23 @@ describe('AddEditExpensePage', () => {
     });
   });
 
-  xit('uploadMultipleFiles', () => {});
+  it('postToFileService(): should post files to file service', () => {
+    fileService.post.and.returnValue(of(null));
 
-  xit('postToFileService', () => {});
+    component.postToFileService(fileObjectData, 'tx5fBcPBAxLv');
 
-  xit('uploadFileAndPostToFileService', () => {});
+    expect(fileService.post).toHaveBeenCalledOnceWith({ ...fileObjectData, transaction_id: 'tx5fBcPBAxLv' });
+  });
+
+  it('uploadFileAndPostToFileService(): should upload to file service', () => {
+    transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
+    spyOn(component, 'postToFileService');
+
+    component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
+      expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
+      expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
+    });
+  });
 
   xit('getDuplicateExpenses', () => {});
 
