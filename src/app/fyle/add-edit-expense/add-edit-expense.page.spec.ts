@@ -17,13 +17,17 @@ import {
 import { Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
-import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
+import { costCenterApiRes1, costCentersData, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
+import {
+  filterOrgCategoryParam,
+  orgCategoryData,
+  transformedOrgCategories,
+} from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
@@ -455,7 +459,7 @@ fdescribe('AddEditExpensePage', () => {
         },
         {
           provide: LaunchDarklyService,
-          useValue: launchDarklyService,
+          useValue: launchDarklyServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
@@ -1013,6 +1017,118 @@ fdescribe('AddEditExpensePage', () => {
   });
 
   xit('showFormValidationErrors', () => {});
+
+  it('removeCCCHandler(): should call method to remove CCC expense', () => {
+    spyOn(component, 'removeCorporateCardExpense');
+
+    component.removeCCCHandler();
+    expect(component.removeCorporateCardExpense).toHaveBeenCalledTimes(1);
+  });
+
+  it('markPersonalHandler(): should call method to mark expense as personal', () => {
+    spyOn(component, 'markPeronsalOrDismiss');
+
+    component.markPersonalHandler();
+    expect(component.markPeronsalOrDismiss).toHaveBeenCalledOnceWith('personal');
+  });
+
+  it('markDismissHandler(): should call method to dismiss the expense', () => {
+    spyOn(component, 'markPeronsalOrDismiss');
+
+    component.markDismissHandler();
+    expect(component.markPeronsalOrDismiss).toHaveBeenCalledOnceWith('dismiss');
+  });
+
+  describe('splitExpCategoryHandler():', () => {
+    it('should call method to display split expense modal and split by category', () => {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+
+      spyOn(component, 'openSplitExpenseModal');
+
+      component.splitExpCategoryHandler();
+      expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('categories');
+    });
+
+    it('should validation errors if any inside the form', () => {
+      spyOn(component, 'showFormValidationErrors');
+
+      component.splitExpCategoryHandler();
+      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('splitExpProjectHandler():', () => {
+    it('should call method to display split expense modal and split by project', () => {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+
+      spyOn(component, 'openSplitExpenseModal');
+
+      component.splitExpProjectHandler();
+      expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('projects');
+    });
+
+    it('should validation errors if any inside the form', () => {
+      spyOn(component, 'showFormValidationErrors');
+
+      component.splitExpProjectHandler();
+      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('splitExpCostCenterHandler():', () => {
+    it('should call method to display split expense modal and split by cost centers', () => {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+
+      spyOn(component, 'openSplitExpenseModal');
+
+      component.splitExpCostCenterHandler();
+      expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('cost centers');
+    });
+
+    it('should validation errors if any inside the form', () => {
+      spyOn(component, 'showFormValidationErrors');
+
+      component.splitExpCostCenterHandler();
+      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('getActionSheetOptions(): should get action sheet options', (done) => {
+    orgSettingsService.get.and.returnValue(
+      of({
+        ...orgSettingsData,
+        expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
+      })
+    );
+    component.costCenters$ = of(costCenterApiRes1);
+    projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+    component.filteredCategories$ = of(transformedOrgCategories);
+    component.txnFields$ = of({ project_id: 257528 });
+    component.isCccExpense = true;
+    component.canDismissCCCE = true;
+    component.isCorporateCreditCardEnabled = true;
+    component.canRemoveCardExpense = true;
+    component.isExpenseMatchedForDebitCCCE = true;
+    launchDarklyService.getVariation.and.returnValue(of(true));
+    fixture.detectChanges();
+
+    component.getActionSheetOptions().subscribe((res) => {
+      expect(res.length).toEqual(6);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      done();
+    });
+  });
 
   it('showMoreActions(): should show action sheet', fakeAsync(() => {
     component.actionSheetOptions$ = of(actionSheetOptionsData);
