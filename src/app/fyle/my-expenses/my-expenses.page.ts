@@ -60,9 +60,7 @@ import { SnackbarPropertiesService } from '../../core/services/snackbar-properti
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { MyExpensesService } from './my-expenses.service';
-import { Filters } from './my-expenses-filters.model';
 import { ExpenseFilters } from './expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -71,6 +69,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { UnformattedTransaction } from 'src/app/core/models/my-expenses.model';
 
 type QueryParams = Partial<{
   or: string[];
@@ -126,11 +125,11 @@ export class MyExpensesPage implements OnInit {
 
   isPerDiemEnabled$: Observable<boolean>;
 
-  pendingTransactions: Expense[] = [];
+  pendingTransactions: Partial<Expense>[] = [];
 
   selectionMode = false;
 
-  selectedElements: Expense[];
+  selectedElements: Partial<Expense>[];
 
   syncing = false;
 
@@ -182,7 +181,7 @@ export class MyExpensesPage implements OnInit {
 
   maskNumber = new MaskNumber();
 
-  expensesToBeDeleted: Expense[];
+  expensesToBeDeleted: Partial<Expense>[];
 
   cccExpenses: number;
 
@@ -246,9 +245,9 @@ export class MyExpensesPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  formatTransactions(transactions: Expense[]) {
+  formatTransactions(transactions: UnformattedTransaction[]): Partial<Expense>[] {
     return transactions.map((transaction) => {
-      const formattedTxn = {} as Expense;
+      const formattedTxn = <Partial<Expense>>{};
       Object.keys(transaction).forEach((key) => {
         formattedTxn['tx_' + key] = transaction[key];
       });
@@ -1270,7 +1269,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async deleteSelectedExpenses() {
-    let offlineExpenses: Expense[];
+    let offlineExpenses: Partial<Expense>[];
 
     const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
 

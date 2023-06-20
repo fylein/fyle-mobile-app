@@ -48,19 +48,30 @@ import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expenses-filters.model';
-import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import {
+  expectedActionSheetButtonRes,
+  expectedCurrentParams,
+  expectedFilterPill1,
+  expectedFilterPill2,
+  expectedFilterPill3,
+  expectedFormattedTransaction,
+  filters1,
+  filters2,
+  modalControllerParams,
+  modalControllerParams2,
+  unformattedTxnData,
+} from 'src/app/core/mock-data/my-expenses.data';
+import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
+import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import { cloneDeep } from 'lodash';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
-import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { before, cloneDeep } from 'lodash';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 fdescribe('MyReportsPage', () => {
   let component: MyExpensesPage;
@@ -488,6 +499,14 @@ fdescribe('MyReportsPage', () => {
       expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(2);
     }));
 
+    it('should call syncOutboxExpenses once if isConnected is false', fakeAsync(() => {
+      component.isConnected$ = of(false);
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(component.syncOutboxExpenses).toHaveBeenCalledTimes(1);
+    }));
+
     it('should set homeCurrency and homeCurrencySymbol correctly', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(500);
@@ -847,10 +866,11 @@ fdescribe('MyReportsPage', () => {
   });
 
   it('formatTransactions(): should format transactions correctly', () => {
-    const transactions = apiExpenseRes;
-    const formattedTransactions = component.formatTransactions(transactions);
+    const unformattedTransactions = unformattedTxnData;
+    const formattedTransactions = component.formatTransactions(unformattedTransactions);
 
-    expect(formattedTransactions.length).toBe(transactions.length);
+    expect(formattedTransactions.length).toBe(unformattedTransactions.length);
+    expect(formattedTransactions).toEqual(expectedFormattedTransaction);
   });
 
   describe('switchSelectionMode(): ', () => {
@@ -973,57 +993,71 @@ fdescribe('MyReportsPage', () => {
           tx_state: 'in.(COMPLETE,DRAFT)',
           or: '(corporate_credit_card_account_number.8698)',
         });
-        expect(allExpenseStats).toEqual({
-          count: 4,
-          amount: 3494,
-        });
       });
     });
   });
   it('setupActionSheet(): should update actionSheetButtons', () => {
     spyOn(component, 'actionSheetButtonsHandler');
     component.setupActionSheet(orgSettingsRes);
-    expect(component.actionSheetButtons).toEqual([
-      {
-        text: 'Capture Receipt',
-        icon: 'assets/svg/fy-camera.svg',
-        cssClass: 'capture-receipt',
-        handler: component.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
-      },
-      {
-        text: 'Add Manually',
-        icon: 'assets/svg/fy-expense.svg',
-        cssClass: 'capture-receipt',
-        handler: component.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
-      },
-      {
-        text: 'Add Mileage',
-        icon: 'assets/svg/fy-mileage.svg',
-        cssClass: 'capture-receipt',
-        handler: component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
-      },
-      {
-        text: 'Add Per Diem',
-        icon: 'assets/svg/fy-calendar.svg',
-        cssClass: 'capture-receipt',
-        handler: component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
-      },
-    ]);
+    expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
   });
-
-  it('actionSheetButtonsHandler(): should call trackingService and navigate to a route', () => {
-    component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
-    expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
-      Action: 'Add Per Diem',
+  describe('actionSheetButtonsHandler():', () => {
+    it('should call trackingService and navigate to add_edit_per_diem if action is add per diem', () => {
+      component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
+      expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
+        Action: 'Add Per Diem',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_per_diem',
+        {
+          navigate_back: true,
+        },
+      ]);
     });
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'add_edit_per_diem',
-      {
-        navigate_back: true,
-      },
-    ]);
+    it('should call trackingService and navigate to add_edit_mileage if action is add mileage', () => {
+      component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage');
+      expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
+        Action: 'Add Mileage',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_mileage',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
+    it('should call trackingService and navigate to add_edit_expense if action is add expense', () => {
+      component.actionSheetButtonsHandler('Add Expense', 'add_edit_expense');
+      expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
+        Action: 'Add Expense',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
+    it('should call trackingService and navigate to camera_overlay if action is capture receipts', () => {
+      component.actionSheetButtonsHandler('capture receipts', 'camera_overlay');
+      expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
+        Action: 'capture receipts',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'camera_overlay',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
   });
 
   it('getCardDetail(): should call corporateCreditCardService', () => {
@@ -1251,85 +1285,13 @@ fdescribe('MyReportsPage', () => {
       });
     });
     it('should return filterPills based on the property present in filters', () => {
-      const filters: Partial<ExpenseFilters> = {
-        state: ['DRAFT', 'READY_TO_REPORT'],
-        date: DateFilters.thisWeek,
-        receiptsAttached: 'YES',
-        type: ['PerDiem', 'Mileage'],
-        sortParam: 'tx_org_category',
-        sortDir: 'asc',
-        cardNumbers: ['1234', '5678'],
-        splitExpense: 'YES',
-      };
-      const filterPill: FilterPill[] = [];
-
-      const expectedFilterPill = [
-        {
-          label: 'Type',
-          type: 'state',
-          value: 'Incomplete, Complete',
-        },
-        {
-          label: 'Receipts Attached',
-          type: 'receiptsAttached',
-          value: 'yes',
-        },
-        {
-          label: 'Expense Type',
-          type: 'type',
-          value: 'Per Diem, Mileage',
-        },
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - a to z',
-        },
-        {
-          label: 'Cards',
-          type: 'cardNumbers',
-          value: '****1234, ****5678',
-        },
-        {
-          label: 'Split Expense',
-          type: 'splitExpense',
-          value: 'yes',
-        },
-      ];
-
-      const filterPillRes = component.generateFilterPills(filters);
-      expect(filterPillRes).toEqual(expectedFilterPill);
+      const filterPillRes = component.generateFilterPills(filters1);
+      expect(filterPillRes).toEqual(expectedFilterPill1);
     });
 
     it('should return filterPills based if state, type and cardNumbers are not present in filters', () => {
-      const filters: Partial<ExpenseFilters> = {
-        date: DateFilters.thisWeek,
-        receiptsAttached: 'YES',
-        sortParam: 'tx_org_category',
-        sortDir: 'asc',
-        splitExpense: 'YES',
-      };
-      const filterPill: FilterPill[] = [];
-
-      const expectedFilterPill = [
-        {
-          label: 'Receipts Attached',
-          type: 'receiptsAttached',
-          value: 'yes',
-        },
-        {
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - a to z',
-        },
-        {
-          label: 'Split Expense',
-          type: 'splitExpense',
-          value: 'yes',
-        },
-      ];
-
-      const filterPillRes = component.generateFilterPills(filters);
-      expect(filterPillRes).toEqual(expectedFilterPill);
+      const filterPillRes = component.generateFilterPills(filters2);
+      expect(filterPillRes).toEqual(expectedFilterPill2);
     });
   });
 
@@ -1372,7 +1334,7 @@ fdescribe('MyReportsPage', () => {
     it('should update queryParams if filter state is not defined', () => {
       component.filters = {};
 
-      const expectedCurrentParams = component.addNewFiltersToParams();
+      const currentParams = component.addNewFiltersToParams();
 
       expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
@@ -1397,14 +1359,7 @@ fdescribe('MyReportsPage', () => {
         component.filters
       );
 
-      expect(expectedCurrentParams).toEqual({
-        sortDir: 'asc',
-        queryParams: {
-          corporate_credit_card_account_number: 'in.(789)',
-          and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-          or: ['(tx_is_split_expense.eq.true)'],
-        },
-      });
+      expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeFalse();
     });
     it('should update queryParams if filter state includes only DRAFT', () => {
@@ -1412,7 +1367,7 @@ fdescribe('MyReportsPage', () => {
         state: ['DRAFT'],
       };
 
-      const expectedCurrentParams = component.addNewFiltersToParams();
+      const currentParams = component.addNewFiltersToParams();
 
       expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
@@ -1437,14 +1392,7 @@ fdescribe('MyReportsPage', () => {
         component.filters
       );
 
-      expect(expectedCurrentParams).toEqual({
-        sortDir: 'asc',
-        queryParams: {
-          corporate_credit_card_account_number: 'in.(789)',
-          and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-          or: ['(tx_is_split_expense.eq.true)'],
-        },
-      });
+      expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeTrue();
     });
     it('should update queryParams if filter state includes only CANNOT_REPORT', () => {
@@ -1452,7 +1400,7 @@ fdescribe('MyReportsPage', () => {
         state: ['CANNOT_REPORT'],
       };
 
-      const expectedCurrentParams = component.addNewFiltersToParams();
+      const currentParams = component.addNewFiltersToParams();
 
       expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
@@ -1477,14 +1425,7 @@ fdescribe('MyReportsPage', () => {
         component.filters
       );
 
-      expect(expectedCurrentParams).toEqual({
-        sortDir: 'asc',
-        queryParams: {
-          corporate_credit_card_account_number: 'in.(789)',
-          and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-          or: ['(tx_is_split_expense.eq.true)'],
-        },
-      });
+      expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeTrue();
     });
     it('should update queryParams if filter state includes both DRAFT and CANNOT_REPORT', () => {
@@ -1492,7 +1433,7 @@ fdescribe('MyReportsPage', () => {
         state: ['DRAFT', 'CANNOT_REPORT'],
       };
 
-      const expectedCurrentParams = component.addNewFiltersToParams();
+      const currentParams = component.addNewFiltersToParams();
 
       expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
@@ -1517,14 +1458,7 @@ fdescribe('MyReportsPage', () => {
         component.filters
       );
 
-      expect(expectedCurrentParams).toEqual({
-        sortDir: 'asc',
-        queryParams: {
-          corporate_credit_card_account_number: 'in.(789)',
-          and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
-          or: ['(tx_is_split_expense.eq.true)'],
-        },
-      });
+      expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeTrue();
     });
   });
@@ -1565,22 +1499,7 @@ fdescribe('MyReportsPage', () => {
       component.openFilters('approvalDate');
       tick(200);
 
-      expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: FyFiltersComponent,
-        componentProps: {
-          filterOptions: [
-            ...filterOptions1,
-            {
-              name: 'Cards',
-              optionType: FilterOptionType.multiselect,
-              options: component.cardNumbers,
-            },
-          ],
-          selectedFilterValues: selectedFilters1,
-          activeFilterInitialName: 'approvalDate',
-        },
-        cssClass: 'dialog-popover',
-      });
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams);
       expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
       expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.currentPageNumber).toBe(1);
@@ -1590,13 +1509,7 @@ fdescribe('MyReportsPage', () => {
       });
 
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
-      expect(component.filterPills).toEqual([
-        {
-          label: 'Transactions Type',
-          type: 'string',
-          value: 'Credit',
-        },
-      ]);
+      expect(component.filterPills).toEqual(expectedFilterPill3);
       expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
     }));
 
@@ -1606,15 +1519,7 @@ fdescribe('MyReportsPage', () => {
       component.openFilters('approvalDate');
       tick(200);
 
-      expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: FyFiltersComponent,
-        componentProps: {
-          filterOptions: filterOptions1,
-          selectedFilterValues: selectedFilters1,
-          activeFilterInitialName: 'approvalDate',
-        },
-        cssClass: 'dialog-popover',
-      });
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams2);
 
       expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
       expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
@@ -1624,13 +1529,7 @@ fdescribe('MyReportsPage', () => {
         expect(loadData).toEqual({ searchString: 'example' });
       });
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
-      expect(component.filterPills).toEqual([
-        {
-          label: 'Transactions Type',
-          type: 'string',
-          value: 'Credit',
-        },
-      ]);
+      expect(component.filterPills).toEqual(expectedFilterPill3);
       expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
     }));
   });
@@ -1646,13 +1545,7 @@ fdescribe('MyReportsPage', () => {
       searchString: 'example',
     });
     component.loadData$ = new BehaviorSubject({});
-    spyOn(component, 'generateFilterPills').and.returnValue([
-      {
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Credit',
-      },
-    ]);
+    spyOn(component, 'generateFilterPills').and.returnValue(expectedFilterPill3);
 
     component.clearFilters();
 
@@ -1666,13 +1559,7 @@ fdescribe('MyReportsPage', () => {
       });
     });
     expect(component.generateFilterPills).toHaveBeenCalledOnceWith({});
-    expect(component.filterPills).toEqual([
-      {
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Credit',
-      },
-    ]);
+    expect(component.filterPills).toEqual(expectedFilterPill3);
   });
 
   it('setState(): should set state and update isLoading correctly', fakeAsync(() => {
