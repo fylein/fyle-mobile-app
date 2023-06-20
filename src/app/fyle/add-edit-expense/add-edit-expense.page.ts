@@ -432,8 +432,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goBack() {
-    const bankTxn =
-      this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {

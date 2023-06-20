@@ -61,7 +61,7 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 
-describe('AddEditExpensePage', () => {
+fdescribe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -532,7 +532,7 @@ describe('AddEditExpensePage', () => {
       expect(navController.back).toHaveBeenCalledTimes(1);
     });
 
-    it('should back to txn if it is not redirected from report and filters are not persistent', () => {
+    it('should go back to my expenses page if it is not redirected from report and filters are not persistent', () => {
       activatedRoute.snapshot.params.persist_filters = false;
       component.isRedirectedFromReport = false;
       fixture.detectChanges();
