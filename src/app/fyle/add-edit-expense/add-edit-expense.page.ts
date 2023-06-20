@@ -790,10 +790,10 @@ export class AddEditExpensePage implements OnInit {
           if (isSplitExpenseAllowed) {
             const areCostCentersAvailable = costCenters.length > 0;
             const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
-            const areCategoriesAvailable = filteredCategories.length > 1;
+            const areProjectDependentCategoriesAvailable = filteredCategories.length > 1;
             const projectField = txnFields.project_id;
 
-            if (areCategoriesAvailable || !showProjectMappedCategoriesInSplitExpense) {
+            if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By Category',
                 handler: () => {

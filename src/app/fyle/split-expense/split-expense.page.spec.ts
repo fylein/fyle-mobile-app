@@ -45,7 +45,9 @@ import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.da
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import {
   allowedActiveCategories,
+  allowedActiveCategoriesListOptions,
   testActiveCategoryList,
+  testActiveCategoryListOptions,
   testProjectV2,
 } from 'src/app/core/test-data/projects.spec.data';
 
@@ -342,11 +344,7 @@ describe('SplitExpensePage', () => {
       expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
 
       component.categories$.subscribe((categories) => {
-        const expectedData = testActiveCategoryList.map((category) => ({
-          label: category.displayName,
-          value: category,
-        }));
-        expect(categories).toEqual(expectedData);
+        expect(categories).toEqual(testActiveCategoryListOptions);
       });
     });
 
@@ -365,11 +363,7 @@ describe('SplitExpensePage', () => {
       expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(testProjectV2, testActiveCategoryList);
 
       component.categories$.subscribe((categories) => {
-        const expectedData = allowedActiveCategories.map((category) => ({
-          label: category.displayName,
-          value: category,
-        }));
-        expect(categories).toEqual(expectedData);
+        expect(categories).toEqual(allowedActiveCategoriesListOptions);
       });
     });
 
@@ -389,12 +383,7 @@ describe('SplitExpensePage', () => {
       expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
 
       component.categories$.subscribe((categories) => {
-        const expectedData = testActiveCategoryList.map((category) => ({
-          label: category.displayName,
-          value: category,
-        }));
-
-        expect(categories).toEqual(expectedData);
+        expect(categories).toEqual(testActiveCategoryListOptions);
       });
     });
   });

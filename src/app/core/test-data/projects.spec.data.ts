@@ -1,5 +1,5 @@
 import { ProjectV1 } from '../models/v1/extended-project.model';
-import { OrgCategory } from '../models/v1/org-category.model';
+import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
 import { ExtendedProject } from '../models/v2/extended-project.model';
 
 export const apiResponseActiveOnly = [
@@ -206,6 +206,54 @@ export const testActiveCategoryList: OrgCategory[] = [
   },
 ];
 
+export const testActiveCategoryListOptions: OrgCategoryListItem[] = [
+  {
+    label: 'Snacks',
+    value: {
+      code: '4060340',
+      created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
+      displayName: 'Snacks',
+      enabled: true,
+      fyle_category: 'Food',
+      id: 16560,
+      name: 'Snacks',
+      org_id: 'orNVthTo2Zyo',
+      sub_category: 'Snacks',
+      updated_at: new Date('2022-11-23T14:25:26.485891+00:00'),
+    },
+  },
+  {
+    label: 'Train / Induction',
+    value: {
+      code: '4060337',
+      created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
+      displayName: 'Train / Induction',
+      enabled: true,
+      fyle_category: 'Train',
+      id: 201949,
+      name: 'Train',
+      org_id: 'orNVthTo2Zyo',
+      sub_category: 'Induction',
+      updated_at: new Date('2022-07-05T07:52:00.417939+00:00'),
+    },
+  },
+  {
+    label: 'Cell phone',
+    value: {
+      code: 'Cell phone',
+      created_at: new Date('2021-03-19T04:44:55.627307+00:00'),
+      displayName: 'Cell phone',
+      enabled: true,
+      fyle_category: null,
+      id: 130361,
+      name: 'Cell phone',
+      org_id: 'orNVthTo2Zyo',
+      sub_category: 'Cell phone',
+      updated_at: new Date('2022-05-05T17:46:15.434494+00:00'),
+    },
+  },
+];
+
 export const allowedActiveCategories: OrgCategory[] = [
   {
     code: '4060340',
@@ -230,6 +278,39 @@ export const allowedActiveCategories: OrgCategory[] = [
     org_id: 'orNVthTo2Zyo',
     sub_category: 'Induction',
     updated_at: new Date('2022-07-05T07:52:00.417939+00:00'),
+  },
+];
+
+export const allowedActiveCategoriesListOptions: OrgCategoryListItem[] = [
+  {
+    label: 'Snacks',
+    value: {
+      code: '4060340',
+      created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
+      displayName: 'Snacks',
+      enabled: true,
+      fyle_category: 'Food',
+      id: 16560,
+      name: 'Snacks',
+      org_id: 'orNVthTo2Zyo',
+      sub_category: 'Snacks',
+      updated_at: new Date('2022-11-23T14:25:26.485891+00:00'),
+    },
+  },
+  {
+    label: 'Train / Induction',
+    value: {
+      code: '4060337',
+      created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
+      displayName: 'Train / Induction',
+      enabled: true,
+      fyle_category: 'Train',
+      id: 201949,
+      name: 'Train',
+      org_id: 'orNVthTo2Zyo',
+      sub_category: 'Induction',
+      updated_at: new Date('2022-07-05T07:52:00.417939+00:00'),
+    },
   },
 ];
 
