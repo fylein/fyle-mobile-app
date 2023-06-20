@@ -28,7 +28,7 @@ import {
   orgCategoryData,
   transformedOrgCategories,
 } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsCCCDisabled, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import {
@@ -1131,7 +1131,7 @@ describe('AddEditExpensePage', () => {
   xit('getFormValidationErrors', () => {});
 
   describe('setupCostCenters():', () => {
-    it('should setup cost centers', () => {
+    it('should return list of cost centers if enabled', () => {
       component.orgUserSettings$ = of(orgUserSettingsData);
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCenterApiRes1));
@@ -1181,16 +1181,7 @@ describe('AddEditExpensePage', () => {
       tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: false },
     });
     accountsService.getEMyAccounts.and.returnValue(of(accountsData));
-    orgSettingsService.get.and.returnValue(
-      of({
-        ...orgSettingsData,
-        corporate_credit_card_settings: {
-          ...orgSettingsData.corporate_credit_card_settings,
-          allowed: false,
-          enabled: false,
-        },
-      })
-    );
+    orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
     orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
       of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
     );
