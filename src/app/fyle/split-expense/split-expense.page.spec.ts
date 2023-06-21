@@ -63,6 +63,7 @@ import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import {
+  fileObjectData5,
   fileObject6,
   fileObject7,
   fileObject8,
@@ -72,6 +73,7 @@ import {
   splitExpFile2,
   splitExpFile3,
   splitExpFileObj,
+  thumbnailUrlMockData,
 } from 'src/app/core/mock-data/file-object.data';
 import { fileTxns, fileTxns2, fileTxns3, fileTxns4, fileTxns5, fileTxns6 } from 'src/app/core/mock-data/file-txn.data';
 import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
@@ -361,203 +363,25 @@ fdescribe('SplitExpensePage', () => {
     });
   });
 
-  describe('ionViewWillEnter', () => {
-    beforeEach(() => {
-      categoriesService.getAll.and.returnValue(of(testActiveCategoryList));
-      categoriesService.filterRequired.and.returnValue(testActiveCategoryList);
-
-      projectsService.getbyId.and.returnValue(of(testProjectV2));
-      projectsService.getAllowedOrgCategoryIds.and.returnValue(allowedActiveCategories);
-
-      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-
-      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
-
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      dateService.addDaysToDate.and.returnValue(new Date());
-
-      spyOn(component, 'getActiveCategories').and.callThrough();
-    });
-
-    it('should should show all categories if show_project_mapped_categories_in_split_expense flag is false', () => {
-      launchDarklyService.getVariation.and.returnValue(of(false));
-
-      component.ionViewWillEnter();
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
-        'show_project_mapped_categories_in_split_expense',
-        false
-      );
-      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
-
-      expect(projectsService.getbyId).not.toHaveBeenCalled();
-      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
-
-      component.categories$.subscribe((categories) => {
-        expect(categories).toEqual(testActiveCategoryListOptions);
-      });
-    });
-
-    it('should show only project mapped categories if show_project_mapped_categories_in_split_expense flag is true and expense has a project', () => {
-      launchDarklyService.getVariation.and.returnValue(of(true));
-
-      component.ionViewWillEnter();
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
-        'show_project_mapped_categories_in_split_expense',
-        false
-      );
-      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
-
-      expect(projectsService.getbyId).toHaveBeenCalledOnceWith(component.transaction.project_id);
-      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(testProjectV2, testActiveCategoryList);
-
-      component.categories$.subscribe((categories) => {
-        expect(categories).toEqual(allowedActiveCategoriesListOptions);
-      });
-    });
-
-    it('should show all categories if show_project_mapped_categories_in_split_expense flag is true but expense does not have a project', () => {
-      launchDarklyService.getVariation.and.returnValue(of(true));
-      activateRouteMock.snapshot.params.txn = '{"project_id": null}';
-
-      component.ionViewWillEnter();
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
-        'show_project_mapped_categories_in_split_expense',
-        false
-      );
-      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
-
-      expect(projectsService.getbyId).not.toHaveBeenCalled();
-      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
-
-      component.categories$.subscribe((categories) => {
-        expect(categories).toEqual(testActiveCategoryListOptions);
-      });
-    });
-  });
-
-  describe('setValuesForCCC():', () => {
-    it('should set the values for CCC split expenses when coporate credit cards is enabled', () => {
-      dateService.addDaysToDate.and.returnValue(new Date());
-      component.amount = 2000;
-      spyOn(component, 'setAmountAndCurrency').and.callThrough();
-      spyOn(component, 'add').and.callThrough();
-      spyOn(component, 'getTotalSplitAmount').and.callThrough();
-      const mockUnFlattenedDate = {
-        ...unflattenedAccount2Data,
-        amount: 2000,
-        currency: 'INR',
-      };
-      const currencyObj = mockUnFlattenedDate;
-      const homeCurrency = 'INR';
-      const isCorporateCardsEnabled = true;
-
-      const amount1 = 1200;
-      const amount2 = 800;
-      const percentage1 = 60;
-      const percentage2 = 40;
-
-      const today = new Date();
-      const minDate = new Date('Jan 1, 2001');
-      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
-      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
-
-      component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
-      expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
-      expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
-      expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
-      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
-      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
-      expect(component.minDate).toEqual(expectedMinDate);
-      //expect(component.maxDate).toEqual(expectedMaxDate);
-    });
-
-    it('should set the values to null if coporate credit cards is disabled and the amount is less than 0.0001', () => {
-      dateService.addDaysToDate.and.returnValue(new Date());
-      component.amount = 0.00001;
-      spyOn(component, 'setAmountAndCurrency').and.callThrough();
-      spyOn(component, 'add').and.callThrough();
-      spyOn(component, 'getTotalSplitAmount').and.callThrough();
-      const mockUnFlattenedDate = {
-        ...unflattenedAccount2Data,
-        amount: 0.00001,
-        currency: 'INR',
-      };
-      const currencyObj = mockUnFlattenedDate;
-      const homeCurrency = 'INR';
-      const isCorporateCardsEnabled = false;
-
-      const amount1 = null;
-      const amount2 = null;
-      //as these will be null only if amount is not present
-      const percentage1 = 60;
-      const percentage2 = 40;
-
-      const today = new Date();
-      const minDate = new Date('Jan 1, 2001');
-      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
-      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
-
-      component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
-      expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
-      expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
-      expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
-      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
-      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
-      expect(component.minDate).toEqual(expectedMinDate);
-      //expect(component.maxDate).toEqual(expectedMaxDate);
-    });
-  });
-
-  it('getCategoryList(): get the category list', () => {
-    component.categories$ = of(categorieListRes);
-    component.getCategoryList();
-    expect(component.categoryList).toEqual(expectedOrgCategoriesPaginated);
-  });
-
   describe('uploadNewFiles(): ', () => {
     it('should upload new files when the type is an image', (done) => {
-      const fileObj: FileObject = {
+      const mockFileObject = {
+        ...fileObjectData5,
         name: '000.jpeg',
-        receipt_coordinates: {
-          x: 100,
-          y: 200,
-          width: 300,
-          height: 400,
-        },
-        id: 'fiHPZUiichAS',
-        purpose: '',
       };
       const files = fileObjectAdv;
       const dataUrl = fileObjectAdv[0].url;
       const attachmentType = 'image';
-      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+      transactionsOutboxService.fileUpload.and.resolveTo(mockFileObject);
 
       component.uploadNewFiles(files).subscribe((result) => {
-        expect(result).toEqual([fileObj]);
+        expect(result).toEqual([mockFileObject]);
         expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
         done();
       });
     });
 
     it('should upload new files when the type is a png', (done) => {
-      const fileObj: FileObject = {
-        name: '000.png',
-        receipt_coordinates: {
-          x: 100,
-          y: 200,
-          width: 300,
-          height: 400,
-        },
-        id: 'fiHPZUiichAS',
-        purpose: '',
-      };
-
       const mockFile = {
         ...fileObjectAdv[0],
         type: 'png',
@@ -565,10 +389,10 @@ fdescribe('SplitExpensePage', () => {
       const files = [mockFile];
       const dataUrl = fileObjectAdv[0].url;
       const attachmentType = 'image';
-      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObjectData5);
 
       component.uploadNewFiles(files).subscribe((result) => {
-        expect(result).toEqual([fileObj]);
+        expect(result).toEqual([fileObjectData5]);
         expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
         done();
       });
@@ -576,22 +400,15 @@ fdescribe('SplitExpensePage', () => {
 
     it('should upload new files when the type is a pdf', (done) => {
       const files = [fileObjectAdv1];
-      const fileObj: FileObject = {
+      const mockFileObject = {
+        ...fileObjectData5,
         name: '000.pdf',
-        receipt_coordinates: {
-          x: 100,
-          y: 200,
-          width: 300,
-          height: 400,
-        },
-        id: 'fiHPZUiichAS',
-        purpose: '',
       };
       const dataUrl = fileObjectAdv1.url;
       const attachmentType = 'pdf';
-      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+      transactionsOutboxService.fileUpload.and.resolveTo(mockFileObject);
       component.uploadNewFiles(files).subscribe((result) => {
-        expect(result).toEqual([fileObj]);
+        expect(result).toEqual([mockFileObject]);
         expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
         done();
       });
@@ -610,39 +427,34 @@ fdescribe('SplitExpensePage', () => {
   describe('uploadFiles', () => {
     it('should upload files when the transacton id is not specified', (done) => {
       spyOn(component, 'uploadNewFiles').and.returnValue(of([fileObjectData4]));
-      const files: FileObject[] = [
-        {
-          id: 'fiXpfkKFhf6w',
-          thumbnail: 'mockThumbnail',
-          type: 'image',
-          url: 'mockUrl',
-        },
-      ];
       component.transaction = splitTxns;
-      component.uploadFiles(files).subscribe((result) => {
+      component.uploadFiles(fileObjectData4).subscribe((result) => {
+        expect(component.fileObjs).toEqual([fileObjectData4]);
         expect(result).toEqual([fileObjectData4]);
-        expect(component.uploadNewFiles).toHaveBeenCalledOnceWith(files);
+        expect(component.uploadNewFiles).toHaveBeenCalledOnceWith(fileObjectData4);
         done();
       });
     });
 
     it('should return the attached files when the transaction id is specified', (done) => {
       spyOn(component, 'getAttachedFiles').and.returnValue(of(fileObject8));
-      const files: FileObject[] = [
-        {
-          id: 'fizBwnXhyZTp',
-          thumbnail: 'mockThumbnail',
-          type: 'image',
-          url: 'mockUrl',
-        },
-      ];
+      const FileObject9: FileObject[] = thumbnailUrlMockData.map((fileObject) => ({
+        ...fileObject,
+        id: 'fizBwnXhyZTp',
+      }));
       component.transaction = sourceTxn2;
-      component.uploadFiles(files).subscribe((result) => {
+      component.uploadFiles(FileObject9).subscribe((result) => {
         expect(result).toEqual(fileObject8);
         expect(component.getAttachedFiles).toHaveBeenCalledOnceWith('txxkBruL0EO9');
         done();
       });
     });
+  });
+
+  it('getCategoryList(): get the category list', () => {
+    component.categories$ = of(categorieListRes);
+    component.getCategoryList();
+    expect(component.categoryList).toEqual(expectedOrgCategoriesPaginated);
   });
 
   describe('createAndLinkTxnsWithFiles():', () => {
@@ -663,7 +475,7 @@ fdescribe('SplitExpensePage', () => {
           },
         ])
       );
-      component.splitExpenseTxn = [fileTxns2];
+
       const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
       splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject7));
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
@@ -673,6 +485,7 @@ fdescribe('SplitExpensePage', () => {
           splitExpData
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
+        expect(component.splitExpenseTxn).toEqual(fileTxns3.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
         expect(result).toEqual(mockCompleteTxnIds);
@@ -708,6 +521,7 @@ fdescribe('SplitExpensePage', () => {
           splitExpData
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
+        expect(component.splitExpenseTxn).toEqual(fileTxns3.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
@@ -721,8 +535,6 @@ fdescribe('SplitExpensePage', () => {
       component.fileObjs = [];
       component.reportId = null;
       component.transaction = txnAmount1;
-      component.createAndLinkTxnsWithFiles(splitExpData);
-      component.transaction = txnAmount1;
       splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
       component.splitExpenseTxn = fileTxns2.txns;
       component.totalSplitAmount = 436342.464;
@@ -735,8 +547,9 @@ fdescribe('SplitExpensePage', () => {
           component.totalSplitAmount,
           splitExpData
         );
-        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(2);
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(1);
         expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
+        expect(component.splitExpenseTxn).toEqual(fileTxns4.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
         expect(result).toEqual(mockCompleteTxnIds);
@@ -744,7 +557,7 @@ fdescribe('SplitExpensePage', () => {
       });
     });
 
-    it('should link transaction to files when the receipt is not attached and report is not present', (done) => {
+    it('should link transaction to files when the receipt is not attached and report not present', (done) => {
       const splitExpData = splitExpenseTxn1;
       component.fileObjs = [];
       component.transaction = txnAmount1;
@@ -907,6 +720,7 @@ fdescribe('SplitExpensePage', () => {
     fileService.findByTransactionId.and.returnValue(of(fileObject8));
     component.getAttachedFiles(transactionId).subscribe((result) => {
       expect(result).toEqual(fileObject8);
+      expect(component.fileObjs).toEqual(fileObject8);
       expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
       done();
     });
@@ -970,6 +784,159 @@ fdescribe('SplitExpensePage', () => {
     });
   });
 
+  describe('ionViewWillEnter', () => {
+    beforeEach(() => {
+      categoriesService.getAll.and.returnValue(of(testActiveCategoryList));
+      categoriesService.filterRequired.and.returnValue(testActiveCategoryList);
+
+      projectsService.getbyId.and.returnValue(of(testProjectV2));
+      projectsService.getAllowedOrgCategoryIds.and.returnValue(allowedActiveCategories);
+
+      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
+
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
+      dateService.addDaysToDate.and.returnValue(new Date());
+
+      spyOn(component, 'getActiveCategories').and.callThrough();
+    });
+
+    it('should should show all categories if show_project_mapped_categories_in_split_expense flag is false', () => {
+      launchDarklyService.getVariation.and.returnValue(of(false));
+
+      component.ionViewWillEnter();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+
+      expect(projectsService.getbyId).not.toHaveBeenCalled();
+      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
+
+      component.categories$.subscribe((categories) => {
+        expect(categories).toEqual(testActiveCategoryListOptions);
+      });
+    });
+
+    it('should show only project mapped categories if show_project_mapped_categories_in_split_expense flag is true and expense has a project', () => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      component.ionViewWillEnter();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+
+      expect(projectsService.getbyId).toHaveBeenCalledOnceWith(component.transaction.project_id);
+      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(testProjectV2, testActiveCategoryList);
+
+      component.categories$.subscribe((categories) => {
+        expect(categories).toEqual(allowedActiveCategoriesListOptions);
+      });
+    });
+
+    it('should show all categories if show_project_mapped_categories_in_split_expense flag is true but expense does not have a project', () => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      activateRouteMock.snapshot.params.txn = '{"project_id": null}';
+
+      component.ionViewWillEnter();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+
+      expect(projectsService.getbyId).not.toHaveBeenCalled();
+      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
+
+      component.categories$.subscribe((categories) => {
+        expect(categories).toEqual(testActiveCategoryListOptions);
+      });
+    });
+  });
+
+  describe('setValuesForCCC():', () => {
+    it('should set the values for CCC split expenses when coporate credit cards is enabled', () => {
+      dateService.addDaysToDate.and.returnValue(new Date());
+      component.amount = 2000;
+      spyOn(component, 'setAmountAndCurrency').and.callThrough();
+      spyOn(component, 'add').and.callThrough();
+      spyOn(component, 'getTotalSplitAmount').and.callThrough();
+      const mockUnFlattenedDate = {
+        ...unflattenedAccount2Data,
+        amount: 2000,
+        currency: 'INR',
+      };
+      const currencyObj = mockUnFlattenedDate;
+      const homeCurrency = 'INR';
+      const isCorporateCardsEnabled = true;
+
+      const amount1 = 1200;
+      const amount2 = 800;
+      const percentage1 = 60;
+      const percentage2 = 40;
+
+      const today = new Date();
+      const minDate = new Date('Jan 1, 2001');
+      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
+      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
+
+      component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
+      expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
+      expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
+      expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
+      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
+      expect(component.minDate).toEqual(expectedMinDate);
+      //expect(component.maxDate).toEqual(expectedMaxDate);
+    });
+
+    it('should set the values to null if coporate credit cards is disabled and the amount is less than 0.0001', () => {
+      dateService.addDaysToDate.and.returnValue(new Date());
+      component.amount = 0.00001;
+      spyOn(component, 'setAmountAndCurrency').and.callThrough();
+      spyOn(component, 'add').and.callThrough();
+      spyOn(component, 'getTotalSplitAmount').and.callThrough();
+      const mockUnFlattenedDate = {
+        ...unflattenedAccount2Data,
+        amount: 0.00001,
+        currency: 'INR',
+      };
+      const currencyObj = mockUnFlattenedDate;
+      const homeCurrency = 'INR';
+      const isCorporateCardsEnabled = false;
+
+      const amount1 = null;
+      const amount2 = null;
+      //as these will be null only if amount is not present
+      const percentage1 = 60;
+      const percentage2 = 40;
+
+      const today = new Date();
+      const minDate = new Date('Jan 1, 2001');
+      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
+      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
+
+      component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
+      expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
+      expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
+      expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
+      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
+      expect(component.minDate).toEqual(expectedMinDate);
+      //expect(component.maxDate).toEqual(expectedMaxDate);
+    });
+  });
+
   describe('setAmountAndCurrency():', () => {
     it('should set the amount and currency when orig currency and amount are present', () => {
       const currencyObj = unflattenedAccount3Data;
@@ -991,7 +958,7 @@ fdescribe('SplitExpensePage', () => {
       expect(component.currency).toEqual('USD');
     });
 
-    it('should set the currency to homeCurrency when curency or orig currency is not present', () => {
+    it('should set the currency to homeCurrency when curency and orig currency is not present', () => {
       const mockCurrencyObj = {
         ...unflattenedAccount3Data,
         currency: null,
@@ -1004,9 +971,26 @@ fdescribe('SplitExpensePage', () => {
     });
   });
 
+  describe('customDateValidator():', () => {
+    it('should return null when the date is within the valid range', () => {
+      const control = new FormControl('2023-06-15');
+      const result = component.customDateValidator(control);
+      expect(result).toBeNull();
+    });
+
+    it('should return an error object when the date is after the upper bound of the valid range', () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 2);
+      const control = new FormControl(tomorrow.toISOString().substring(0, 10));
+      const result = component.customDateValidator(control);
+      expect(result).toEqual({ invalidDateSelection: true });
+    });
+  });
+
   describe('add()', () => {
     it('should set the date of when the expense was created if not provided while splitting an expense and all', () => {
       spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
       const amount = 2000;
       const currency = 'INR';
       const percentage = 50;
@@ -1024,11 +1008,13 @@ fdescribe('SplitExpensePage', () => {
       component.add(amount, currency, percentage);
       expect(component.splitExpensesFormArray.length).toEqual(1);
       expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
 
     it('should set the date of when the expense was created to today if not provided while splitting an expense', () => {
       spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
       const amount = 2000;
       const currency = 'INR';
       const percentage = 50;
@@ -1048,11 +1034,13 @@ fdescribe('SplitExpensePage', () => {
       component.add(amount, currency, percentage, txnDate);
       expect(component.splitExpensesFormArray.length).toEqual(1);
       expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
 
     it('should add the form control to the form array when the split type is projects', () => {
       spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
       const amount = 2000;
       const currency = 'INR';
       const percentage = 50;
@@ -1070,11 +1058,13 @@ fdescribe('SplitExpensePage', () => {
       component.add(amount, currency, percentage);
       expect(component.splitExpensesFormArray.length).toEqual(1);
       expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
 
-    it('should add the form control to the form array when the split type is const centers', () => {
+    it('should add the form control to the form array when the split type is cost centers', () => {
       spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
       const amount = 2000;
       const currency = 'INR';
       const percentage = 50;
@@ -1092,6 +1082,7 @@ fdescribe('SplitExpensePage', () => {
       component.add(amount, currency, percentage);
       expect(component.splitExpensesFormArray.length).toEqual(1);
       expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
   });
