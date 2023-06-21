@@ -653,13 +653,13 @@ export class MyReportsPage implements OnInit {
     this.convertNameSortToSelectedFilters(filter, generatedFilters);
   }
 
-  generateSelectedFilters(filter: Filters): SelectedFilters<string>[] {
-    const generatedFilters: SelectedFilters<string>[] = [];
+  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
+    const generatedFilters: SelectedFilters<any>[] = [];
 
     if (filter.state) {
       generatedFilters.push({
         name: 'State',
-        value: filter.state,
+        value: <string>filter.state,
       });
     }
 
