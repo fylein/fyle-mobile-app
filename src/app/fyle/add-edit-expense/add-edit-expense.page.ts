@@ -4308,7 +4308,7 @@ export class AddEditExpensePage implements OnInit {
     this.selectedProject$.complete();
   }
 
-  private async showSizeLimitExceededPopover() {
+  async showSizeLimitExceededPopover() {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {

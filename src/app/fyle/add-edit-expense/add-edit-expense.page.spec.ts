@@ -3,7 +3,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter, NO_ERRORS_SCHEMA, Sanitizer } fro
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import {
@@ -14,7 +14,7 @@ import {
   Platform,
   PopoverController,
 } from '@ionic/angular';
-import { Observable, Subscription, empty, of } from 'rxjs';
+import { Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
@@ -30,14 +30,21 @@ import {
 } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { instaFyleData1, instaFyleData2, parsedReceiptData1 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import {
   getMarkDismissModalParamsData1,
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
+import { recentUsedCategoriesRes, recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
 import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
 import { unflattenExp1, unflattenExp2, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
+import {
+  expectedUnflattendedTxnData1,
+  unflattenedTxnData,
+  unflattenedTxnWithExtractedData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -76,6 +83,7 @@ import {
   unflattenedAccount1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
+import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
@@ -86,14 +94,6 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { recentUsedCategoriesRes, recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
-import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
-import { instaFyleData1, instaFyleData2, parsedReceiptData1 } from 'src/app/core/mock-data/parsed-receipt.data';
-import {
-  expectedUnflattendedTxnData1,
-  unflattenedTxnData,
-  unflattenedTxnWithExtractedData,
-} from 'src/app/core/mock-data/unflattened-txn.data';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -106,7 +106,7 @@ const properties = {
   handle: false,
 };
 
-fdescribe('AddEditExpensePage', () => {
+describe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -1323,8 +1323,6 @@ fdescribe('AddEditExpensePage', () => {
         etxn: unflattenExp1,
         category: orgCategoryData[0],
       });
-
-      console.log(result);
     });
 
     it('');
@@ -1473,9 +1471,23 @@ fdescribe('AddEditExpensePage', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'add_edit_expense']);
   }));
 
-  xit('showAddToReportSuccessToast', () => {});
+  xit('showAddToReportSuccessToast');
 
-  xit('saveExpense', () => {});
+  describe('saveExpense():', () => {
+    it('should save an expense and match as personal if created from a personal card', () => {
+      spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      component.isCreatedFromPersonalCard = true;
+      component.mode = 'add';
+      spyOn(component, 'saveAndMatchWithPersonalCardTxn');
+
+      component.saveExpense();
+      expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+      expect(component.saveAndMatchWithPersonalCardTxn).toHaveBeenCalledTimes(1);
+    });
+  });
 
   describe('saveAndNewExpense():', () => {
     it('should save and create expense if the form is valid and is in add mode', () => {
@@ -1624,7 +1636,6 @@ fdescribe('AddEditExpensePage', () => {
       });
       fixture.detectChanges();
 
-      console.log(component.reviewList.length - 1);
       component.saveExpenseAndGotoNext();
       expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
       expect(component.goToNext).toHaveBeenCalledTimes(1);
@@ -2008,7 +2019,32 @@ fdescribe('AddEditExpensePage', () => {
     });
   });
 
-  xit('getDuplicateExpenses', () => {});
+  describe('getDuplicateExpenses():', () => {
+    it('should get duplicate expenses', () => {
+      activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
+      handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData1]));
+      transactionService.getETxnc.and.returnValue(of([expenseData1]));
+      spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
+
+      component.getDuplicateExpenses();
+      expect(handleDuplicates.getDuplicatesByExpense).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
+        offset: 0,
+        limit: 100,
+        params: { tx_id: `in.(${['tx5fBcPBAxLv'].join(',')})` },
+      });
+      expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData1, [expenseData1]);
+    });
+
+    it('should return empty array if no duplicate is found', () => {
+      activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
+      handleDuplicates.getDuplicatesByExpense.and.returnValue(of([]));
+
+      component.getDuplicateExpenses();
+      expect(handleDuplicates.getDuplicatesByExpense).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(component.duplicateExpenses).toBeUndefined();
+    });
+  });
 
   it('addExpenseDetailsToDuplicateSets(): should add expense to duplicate sets if there exists a duplicate expense', () => {
     const result = component.addExpenseDetailsToDuplicateSets(duplicateSetData1, [expenseData1, expenseData2]);
@@ -2063,4 +2099,25 @@ fdescribe('AddEditExpensePage', () => {
   xit('ionViewWillLeave(): should unsubscribe or clean up observables on page exits', () => {
     spyOn(component.hardwareBackButtonAction, 'unsubscribe');
   });
+
+  it('showSizeLimitExceededPopover(): should show a warning popover if size of the file increases', fakeAsync(() => {
+    const sizeLimitExceededPopoverSpy = jasmine.createSpyObj('sizeLimitExceededPopover', ['present']);
+
+    popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
+
+    component.showSizeLimitExceededPopover();
+    tick(500);
+
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Size limit exceeded',
+        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+  }));
 });
