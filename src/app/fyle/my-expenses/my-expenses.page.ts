@@ -1309,8 +1309,7 @@ export class MyExpensesPage implements OnInit {
         ),
         ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
         disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
-        deleteMethod: this.selectedExpensesPopoverDeleteMethod.bind(
-          this,
+        deleteMethod: this.selectedExpensesPopoverDeleteMethod(
           offlineExpenses,
           this.expensesToBeDeleted,
           this.pendingTransactions,

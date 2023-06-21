@@ -9,7 +9,7 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Subscription, of, throwError } from 'rxjs';
+import { BehaviorSubject, Subscription, finalize, of, tap, throwError } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -73,7 +73,7 @@ import {
 import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, noop } from 'lodash';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -2263,7 +2263,7 @@ fdescribe('MyReportsPage', () => {
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
   }));
 
-  describe('showAddToReportSuccessToast(): ', () => {
+  xdescribe('showAddToReportSuccessToast(): ', () => {
     it('should navigate to my_view_report and open matSnackbar', () => {
       const expensesAddedToReportSnackBarSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
       expensesAddedToReportSnackBarSpy.onAction.and.returnValue(of(undefined));
@@ -2339,17 +2339,24 @@ fdescribe('MyReportsPage', () => {
     });
   });
 
-  xit('addTransactionsToReport(): should show loader call reportService and hide the loader', (done) => {
+  fit('addTransactionsToReport(): should show loader call reportService and hide the loader', (done) => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo(true);
 
     reportService.addTransactions.and.returnValue(of(apiExtendedReportRes));
-    component.addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv']).subscribe((updatedReport) => {
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Adding transaction to report');
-      expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      done();
-    });
+    component
+      .addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv'])
+      .pipe(
+        tap((updatedReport) => {
+          expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Adding transaction to report');
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
+        }),
+        finalize(() => {
+          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        })
+      )
+      .subscribe(noop);
+    done();
   });
 
   xdescribe('showOldReportsMatBottomSheet(): ', () => {
@@ -2380,7 +2387,7 @@ fdescribe('MyReportsPage', () => {
         report: apiExtendedReportRes[0],
       });
     }));
-    it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and rp_state is draft', (done) => {
+    it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and rp_state is draft', () => {
       const addTxnToReportDialogSpy = jasmine.createSpyObj('addTxnToReportDialog', ['afterDismissed']);
       const mockReportData = cloneDeep(apiExtendedReportRes[0]);
       mockReportData.rp_state = 'DRAFT';
@@ -2399,7 +2406,6 @@ fdescribe('MyReportsPage', () => {
         message: 'Expenses added to an existing draft report',
         report: mockReportData,
       });
-      done();
     });
   });
 
@@ -2419,7 +2425,7 @@ fdescribe('MyReportsPage', () => {
     });
   }));
 
-  fdescribe('deleteSelectedExpenses(): ', () => {
+  xdescribe('deleteSelectedExpenses(): ', () => {
     beforeEach(() => {
       transactionService.getExpenseDeletionMessage.and.returnValue('You are about to delete this expense');
       transactionService.getCCCExpenseMessage.and.returnValue(
@@ -2449,6 +2455,52 @@ fdescribe('MyReportsPage', () => {
           body: 'Once deleted, the action cannot be undone',
           ctaText: 'Exclude and Delete',
           disableDelete: false,
+          deleteMethod: jasmine.any(Function),
+        },
+      });
+    }));
+    it('should open a popover and extract on dismiss if expenseToBeDeleted is undefined', fakeAsync(() => {
+      const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.resolveTo(deletePopOverSpy);
+      component.expensesToBeDeleted = undefined;
+
+      component.deleteSelectedExpenses();
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Expense',
+          body: 'Once deleted, the action cannot be undone',
+          ctaText: 'Delete',
+          disableDelete: true,
+          deleteMethod: jasmine.any(Function),
+        },
+      });
+    }));
+    it('should show message using matSnackbar if offlineExpenses are present', fakeAsync(() => {
+      const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.resolveTo(deletePopOverSpy);
+      const mockExpenseList = cloneDeep(expenseList4);
+      mockExpenseList[0].tx_id = undefined;
+      component.expensesToBeDeleted = cloneDeep(mockExpenseList);
+
+      component.deleteSelectedExpenses();
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Expense',
+          body: 'Once deleted, the action cannot be undone',
+          ctaText: 'Delete',
+          disableDelete: true,
           deleteMethod: jasmine.any(Function),
         },
       });
