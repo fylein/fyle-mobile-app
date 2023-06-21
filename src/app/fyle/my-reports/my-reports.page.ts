@@ -640,8 +640,8 @@ export class MyReportsPage implements OnInit {
     this.convertNameSortToSelectedFilters(filter, generatedFilters);
   }
 
-  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
-    const generatedFilters: SelectedFilters<any>[] = [];
+  generateSelectedFilters(filter: Filters): SelectedFilters<string>[] {
+    const generatedFilters: SelectedFilters<string>[] = [];
 
     if (filter.state) {
       generatedFilters.push({
