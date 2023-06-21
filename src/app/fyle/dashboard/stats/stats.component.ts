@@ -12,7 +12,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { CardDetail } from 'src/app/core/models/card-detail.model';
-import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
+import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stat.model';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';

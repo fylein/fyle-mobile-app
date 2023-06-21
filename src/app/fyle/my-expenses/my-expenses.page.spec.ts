@@ -33,24 +33,22 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
 import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
-import { apiExpenseRes, expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { apiExpenseRes, expectedFormattedTransaction, expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { environment } from 'src/environments/environment';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
-import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
-import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ExpenseFilters } from './expenses-filters.model';
 import {
-  expectedActionSheetButtonRes,
+  creditTxnFilterPill,
   expectedFilterPill1,
   expectedFilterPill2,
-  expectedFormattedTransaction,
-  filters1,
-  filters2,
-  unformattedTxnData,
-} from 'src/app/core/mock-data/my-expenses.data';
+} from 'src/app/core/mock-data/filter-pills.data';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ExpenseFilters } from './expenses-filters.model';
+import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/my-expenses.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
+import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
+import { filters1, filters2 } from 'src/app/core/mock-data/expenses-filters.data';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;

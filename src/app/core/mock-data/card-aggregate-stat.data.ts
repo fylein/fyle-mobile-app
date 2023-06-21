@@ -1,6 +1,6 @@
-import { CardAggregateStat } from '../models/card-aggregate-stat.model';
+import { CardAggregateStats } from '../models/card-aggregate-stat.model';
 
-export const cardAggregateStatParam: CardAggregateStat[] = [
+export const cardAggregateStatParam: CardAggregateStats[] = [
   {
     aggregates: [
       {
@@ -81,7 +81,7 @@ export const cardAggregateStatParam: CardAggregateStat[] = [
   },
 ];
 
-export const cardAggregateStatParam2: CardAggregateStat[] = [
+export const cardAggregateStatParam2: CardAggregateStats[] = [
   {
     aggregates: [],
     key: [
@@ -153,7 +153,7 @@ export const cardAggregateStatParam2: CardAggregateStat[] = [
   },
 ];
 
-export const cardAggregateStatParam3: CardAggregateStat[] = [
+export const cardAggregateStatParam3: CardAggregateStats[] = [
   {
     aggregates: [
       {

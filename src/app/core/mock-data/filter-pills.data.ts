@@ -33,3 +33,54 @@ export const allFilterPills: FilterPill[] = [
     value: 'Debit',
   },
 ];
+
+export const expectedFilterPill1: FilterPill[] = [
+  {
+    label: 'Type',
+    type: 'state',
+    value: 'Incomplete, Complete',
+  },
+  {
+    label: 'Receipts Attached',
+    type: 'receiptsAttached',
+    value: 'yes',
+  },
+  {
+    label: 'Expense Type',
+    type: 'type',
+    value: 'Per Diem, Mileage',
+  },
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'category - a to z',
+  },
+  {
+    label: 'Cards',
+    type: 'cardNumbers',
+    value: '****1234, ****5678',
+  },
+  {
+    label: 'Split Expense',
+    type: 'splitExpense',
+    value: 'yes',
+  },
+];
+
+export const expectedFilterPill2: FilterPill[] = [
+  {
+    label: 'Receipts Attached',
+    type: 'receiptsAttached',
+    value: 'yes',
+  },
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'category - a to z',
+  },
+  {
+    label: 'Split Expense',
+    type: 'splitExpense',
+    value: 'yes',
+  },
+];

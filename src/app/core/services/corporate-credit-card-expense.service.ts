@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { CardAggregateStat } from '../models/card-aggregate-stat.model';
+import { CardAggregateStats } from '../models/card-aggregate-stat.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
 import { CCCExpFlattened } from '../models/corporate-card-expense-flattened.model';
 import { UniqueCardStats } from '../models/unique-cards-stats.model';
@@ -88,7 +88,7 @@ export class CorporateCreditCardExpenseService {
     return queryString;
   }
 
-  getExpenseDetailsInCards(uniqueCards: CardDetails[], statsResponse: CardAggregateStat[]): UniqueCardStats[] {
+  getExpenseDetailsInCards(uniqueCards: CardDetails[], statsResponse: CardAggregateStats[]): UniqueCardStats[] {
     const cardsCopy = JSON.parse(JSON.stringify(uniqueCards)) as CardDetails[];
     const uniqueCardsCopy = [];
     cardsCopy?.forEach((card: CardDetails) => {
