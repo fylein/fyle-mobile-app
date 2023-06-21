@@ -45,10 +45,10 @@ import {
 } from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expenses-filters.model';
-import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/my-expenses.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
 import { filters1, filters2 } from 'src/app/core/mock-data/expenses-filters.data';
+import { expectedActionSheetButtonRes } from 'src/app/core/test-data/my-expenses.page.spec.data';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
