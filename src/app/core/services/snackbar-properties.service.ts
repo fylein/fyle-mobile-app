@@ -16,7 +16,7 @@ export class SnackbarPropertiesService {
 
   setSnackbarProperties(
     toastMessageType: 'success' | 'failure' | 'information',
-    toastMessageData: { message: string; redirectiontext?: string }
+    toastMessageData: { message: string; redirectionText?: string }
   ): SnackbarProperties {
     let snackbarIcon: string;
     if (toastMessageType === 'success') {

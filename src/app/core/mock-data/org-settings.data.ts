@@ -1197,3 +1197,11 @@ export const orgSettingsCCCDisabled: OrgSettings = {
     enabled: false,
   },
 };
+
+export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
+  ...orgSettingsRes,
+  simplified_report_closure_settings: {
+    allowed: true,
+    enabled: true,
+  },
+};
