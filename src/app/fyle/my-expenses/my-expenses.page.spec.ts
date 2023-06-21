@@ -2271,7 +2271,7 @@ describe('MyExpensesPage', () => {
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
   }));
 
-  xdescribe('showAddToReportSuccessToast(): ', () => {
+  describe('showAddToReportSuccessToast(): ', () => {
     it('should navigate to my_view_report and open matSnackbar', () => {
       const expensesAddedToReportSnackBarSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
       expensesAddedToReportSnackBarSpy.onAction.and.returnValue(of(undefined));
@@ -2342,7 +2342,7 @@ describe('MyExpensesPage', () => {
         '/',
         'enterprise',
         'my_view_report',
-        { id: 'rprAfNrce73O', navigateBack: true },
+        { id: '12345', navigateBack: true },
       ]);
     });
   });
@@ -2368,7 +2368,7 @@ describe('MyExpensesPage', () => {
     done();
   });
 
-  fdescribe('showOldReportsMatBottomSheet(): ', () => {
+  describe('showOldReportsMatBottomSheet(): ', () => {
     beforeEach(() => {
       component.selectedElements = apiExpenseRes;
       component.isNewReportsFlowEnabled = true;
@@ -2478,21 +2478,6 @@ describe('MyExpensesPage', () => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
-      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
-        ...snackbarPropertiesRes2,
-        panelClass: ['msb-success-with-camera-icon'],
-      });
-      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
-        message: 'Expense added to report successfully',
-        redirectionText: 'View Report',
-      });
-      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
-        ToastContent: 'Expense added to report successfully',
-      });
-      expect(component.isReportableExpensesSelected).toBeFalse();
-      expect(component.selectionMode).toBeFalse();
-      expect(component.headerState).toEqual(HeaderState.base);
-      expect(component.doRefresh).toHaveBeenCalledTimes(1);
 
       component.deleteSelectedExpenses();
       tick(100);
@@ -2613,13 +2598,69 @@ describe('MyExpensesPage', () => {
 
   describe('onSelectAll(): ', () => {
     beforeEach(() => {
-      // transactionService.getAllExpenses.and.returnValue(cloneDeep(apiExpenseRes));
+      transactionService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenseRes)));
       transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
       transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
       transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        tx_report_id: 'is.null',
+        tx_state: 'in.(COMPLETE,DRAFT)',
+      });
       spyOn(component, 'setExpenseStatsOnSelect');
     });
-    it('should set selectedElement to empty array if checked is false', () => {});
+    it('should set selectedElement to empty array if checked is false', () => {
+      component.selectedElements = cloneDeep(apiExpenseRes);
+      component.isReportableExpensesSelected = false;
+      component.onSelectAll(false);
+      expect(component.selectedElements).toEqual([]);
+      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith([]);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+    });
+    it('should update selectedElements, allExpensesCount and call apiV2Service', () => {
+      transactionService.getAllExpenses.and.returnValue(of(cloneDeep(expenseList4)));
+      component.loadData$ = new BehaviorSubject({ pageNumber: 1 });
+      component.pendingTransactions = cloneDeep(apiExpenseRes);
+      component.onSelectAll(true);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledOnceWith(
+        { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
+        undefined
+      );
+      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
+      });
+      expect(transactionService.excludeCCCExpenses).toHaveBeenCalledOnceWith([...apiExpenseRes, ...expenseList4]);
+      expect(transactionService.getDeletableTxns).toHaveBeenCalledOnceWith([...apiExpenseRes, ...expenseList4]);
+      expect(component.cccExpenses).toBe(3);
+      expect(component.selectedElements).toEqual([...apiExpenseRes, ...expenseList4]);
+      expect(component.allExpensesCount).toBe(4);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(2);
+    });
+    it('should update selectedElements, allExpensesCount and call apiV2Service if getDeletableTxns, excludeCCCExpenses and pendingTransactions are undefined', () => {
+      transactionService.getDeletableTxns.and.returnValue(undefined);
+      transactionService.excludeCCCExpenses.and.returnValue(undefined);
+      transactionService.getAllExpenses.and.returnValue(of(cloneDeep(expenseList4)));
+      component.loadData$ = new BehaviorSubject({ pageNumber: 1 });
+      component.pendingTransactions = undefined;
+      component.onSelectAll(true);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledOnceWith(
+        { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
+        undefined
+      );
+      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
+      });
+      expect(transactionService.excludeCCCExpenses).toHaveBeenCalledOnceWith(expenseList4);
+      expect(transactionService.getDeletableTxns).toHaveBeenCalledOnceWith(expenseList4);
+      expect(component.cccExpenses).toBeNaN();
+      expect(component.selectedElements).toEqual(expenseList4);
+      expect(component.allExpensesCount).toBe(3);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('onSimpleSearchCancel(): should set headerState to base and call clearText', () => {

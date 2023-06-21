@@ -1347,7 +1347,7 @@ export class MyExpensesPage implements OnInit {
   onSelectAll(checked: boolean) {
     if (checked) {
       this.selectedElements = [];
-      if (this.pendingTransactions.length > 0) {
+      if (this.pendingTransactions?.length > 0) {
         this.selectedElements = this.pendingTransactions;
         this.allExpensesCount = this.selectedElements.length;
         this.isReportableExpensesSelected =
@@ -1370,12 +1370,12 @@ export class MyExpensesPage implements OnInit {
         )
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
-          if (this.selectedElements?.length > 0) {
+          if (this.selectedElements.length > 0) {
             this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
 
             this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
 
-            this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+            this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted?.length;
           }
           this.allExpensesCount = this.selectedElements.length;
           this.isReportableExpensesSelected =
