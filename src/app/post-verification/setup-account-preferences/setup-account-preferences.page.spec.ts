@@ -16,6 +16,8 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { cloneDeep } from 'lodash';
 
 describe('SetupAccountPreferencesPage', () => {
   let component: SetupAccountPreferencesPage;
@@ -29,6 +31,7 @@ describe('SetupAccountPreferencesPage', () => {
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let mockOrgSettingsRes: OrgSettings;
 
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -95,7 +98,8 @@ describe('SetupAccountPreferencesPage', () => {
     networkService.isOnline.and.returnValue(of(true));
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
-    orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+    mockOrgSettingsRes = cloneDeep(orgSettingsRes);
+    orgSettingsService.get.and.returnValue(of(mockOrgSettingsRes));
     fixture.detectChanges();
   }));
   it('should create', () => {
@@ -122,7 +126,7 @@ describe('SetupAccountPreferencesPage', () => {
     fixture.detectChanges();
 
     component.continueEnterprise();
-    expect(orgSettingsService.post).toHaveBeenCalledOnceWith(orgSettingsRes);
+    expect(orgSettingsService.post).toHaveBeenCalledOnceWith(mockOrgSettingsRes);
     expect(component.markActiveAndRedirect).toHaveBeenCalledTimes(1);
     expect(trackingService.updateSegmentProfile).toHaveBeenCalledOnceWith({
       'Enable Mileage': component.fg.controls.mileage.value,
