@@ -17,7 +17,7 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { NO_ERRORS_SCHEMA, TemplateRef } from '@angular/core';
 import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
-import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mock-data/card-aggregate-stat.data';
+import { cardAggregateStatParam, cardAggregateStatParam3 } from 'src/app/core/mock-data/card-aggregate-stat.data';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -90,7 +90,7 @@ import { ComponentType } from '@angular/cdk/portal';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 
-fdescribe('MyReportsPage', () => {
+describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -990,7 +990,7 @@ fdescribe('MyReportsPage', () => {
       component.loadData$ = new BehaviorSubject({
         queryParams: null,
       });
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam2));
+      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam3));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
         expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
@@ -1028,9 +1028,11 @@ fdescribe('MyReportsPage', () => {
     component.setupActionSheet(orgSettingsRes);
     expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
   });
+
   describe('actionSheetButtonsHandler():', () => {
     it('should call trackingService and navigate to add_edit_per_diem if action is add per diem', () => {
-      component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
+      const handler = component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
+      handler();
       expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
         Action: 'Add Per Diem',
       });
@@ -1044,7 +1046,8 @@ fdescribe('MyReportsPage', () => {
       ]);
     });
     it('should call trackingService and navigate to add_edit_mileage if action is add mileage', () => {
-      component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage');
+      const handler = component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage');
+      handler();
       expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
         Action: 'Add Mileage',
       });
@@ -1058,7 +1061,8 @@ fdescribe('MyReportsPage', () => {
       ]);
     });
     it('should call trackingService and navigate to add_edit_expense if action is add expense', () => {
-      component.actionSheetButtonsHandler('Add Expense', 'add_edit_expense');
+      const handler = component.actionSheetButtonsHandler('Add Expense', 'add_edit_expense');
+      handler();
       expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
         Action: 'Add Expense',
       });
@@ -1072,7 +1076,8 @@ fdescribe('MyReportsPage', () => {
       ]);
     });
     it('should call trackingService and navigate to camera_overlay if action is capture receipts', () => {
-      component.actionSheetButtonsHandler('capture receipts', 'camera_overlay');
+      const handler = component.actionSheetButtonsHandler('capture receipts', 'camera_overlay');
+      handler();
       expect(trackingService.myExpensesActionSheetAction).toHaveBeenCalledOnceWith({
         Action: 'capture receipts',
       });
@@ -2285,7 +2290,7 @@ fdescribe('MyReportsPage', () => {
       });
       expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
         message: 'Expense added to report successfully',
-        redirectiontext: 'View Report',
+        redirectionText: 'View Report',
       });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: 'Expense added to report successfully',
@@ -2323,7 +2328,7 @@ fdescribe('MyReportsPage', () => {
       });
       expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
         message: 'Expense added to report successfully',
-        redirectiontext: 'View Report',
+        redirectionText: 'View Report',
       });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: 'Expense added to report successfully',
@@ -2473,6 +2478,21 @@ fdescribe('MyReportsPage', () => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesRes2,
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: 'Expense added to report successfully',
+        redirectionText: 'View Report',
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Expense added to report successfully',
+      });
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toEqual(HeaderState.base);
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
 
       component.deleteSelectedExpenses();
       tick(100);
