@@ -2258,7 +2258,7 @@ describe('MyExpensesPage', () => {
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
   }));
 
-  xit('showAddToReportSuccessToast(): should navigate to my_view_report and open matSnackbar', () => {
+  it('showAddToReportSuccessToast(): should navigate to my_view_report and open matSnackbar', () => {
     const expensesAddedToReportSnackBarSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
     expensesAddedToReportSnackBarSpy.onAction.and.returnValue(of(undefined));
     matSnackBar.openFromComponent.and.returnValue(expensesAddedToReportSnackBarSpy);
@@ -2276,7 +2276,7 @@ describe('MyExpensesPage', () => {
     });
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
       message: 'Expense added to report successfully',
-      redirectiontext: 'View Report',
+      redirectionText: 'View Report',
     });
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
       ToastContent: 'Expense added to report successfully',
