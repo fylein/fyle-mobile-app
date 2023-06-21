@@ -330,17 +330,19 @@ export class MyExpensesPage implements OnInit {
   }
 
   actionSheetButtonsHandler(action: string, route: string) {
-    this.trackingService.myExpensesActionSheetAction({
-      Action: action,
-    });
-    this.router.navigate([
-      '/',
-      'enterprise',
-      route,
-      {
-        navigate_back: true,
-      },
-    ]);
+    return () => {
+      this.trackingService.myExpensesActionSheetAction({
+        Action: action,
+      });
+      this.router.navigate([
+        '/',
+        'enterprise',
+        route,
+        {
+          navigate_back: true,
+        },
+      ]);
+    };
   }
 
   setupActionSheet(orgSettings: OrgSettings) {

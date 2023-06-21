@@ -38,12 +38,13 @@ import * as dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 type Filters = Partial<{
-  state: string[];
+  state: string | string[];
   date: string;
   customDateStart: Date;
   customDateEnd: Date;
   sortParam: string;
   sortDir: string;
+  rp_state: string;
 }>;
 @Component({
   selector: 'app-my-reports',
@@ -64,7 +65,7 @@ export class MyReportsPage implements OnInit {
   loadData$: BehaviorSubject<
     Partial<{
       pageNumber: number;
-      queryParams: any;
+      queryParams: Partial<{ or: string[]; and: string }>;
       sortParam: string;
       sortDir: string;
       searchString: string;
@@ -258,15 +259,17 @@ export class MyReportsPage implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+      map((orgSettings) => ({
+        enabled: orgSettings?.simplified_report_closure_settings?.enabled,
+      }))
     );
     this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.payment_mode_settings?.allowed &&
-          orgSettings.payment_mode_settings?.enabled &&
-          orgSettings.payment_mode_settings?.payment_modes_order?.length === 1 &&
-          orgSettings.payment_mode_settings?.payment_modes_order[0] ===
+          orgSettings?.payment_mode_settings?.allowed &&
+          orgSettings.payment_mode_settings.enabled &&
+          orgSettings.payment_mode_settings.payment_modes_order?.length === 1 &&
+          orgSettings.payment_mode_settings.payment_modes_order[0] ===
             AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
       )
     );
@@ -316,7 +319,7 @@ export class MyReportsPage implements OnInit {
     });
   }
 
-  loadData(event) {
+  loadData(event: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = this.currentPageNumber + 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
@@ -326,22 +329,22 @@ export class MyReportsPage implements OnInit {
     }, 1000);
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.reportService.clearTransactionCache().subscribe(() => {
       this.loadData$.next(params);
       if (event) {
-        event?.target?.complete();
+        event.target?.complete();
       }
     });
   }
 
-  generateCustomDateParams(newQueryParams: any) {
+  generateCustomDateParams(newQueryParams: { or: string[]; and?: string }) {
     if (this.filters.date === DateFilters.custom) {
-      const startDate = this.filters?.customDateStart?.toISOString();
-      const endDate = this.filters?.customDateEnd?.toISOString();
+      const startDate = this.filters.customDateStart?.toISOString();
+      const endDate = this.filters.customDateEnd?.toISOString();
       if (this.filters.customDateStart && this.filters.customDateEnd) {
         newQueryParams.and = `(rp_created_at.gte.${startDate},rp_created_at.lt.${endDate})`;
       } else if (this.filters.customDateStart) {
@@ -352,7 +355,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateDateParams(newQueryParams) {
+  generateDateParams(newQueryParams: { or: string[]; and?: string }) {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
@@ -375,8 +378,8 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateStateFilters(newQueryParams) {
-    const stateOrFilter = [];
+  generateStateFilters(newQueryParams: { or: string[]; and?: string }) {
+    const stateOrFilter: string[] = [];
 
     if (this.filters.state) {
       if (this.filters.state.includes('DRAFT')) {
@@ -418,7 +421,7 @@ export class MyReportsPage implements OnInit {
   setSortParams(
     currentParams: Partial<{
       pageNumber: number;
-      queryParams: any;
+      queryParams: Partial<{ or: string[]; and: string }>;
       sortParam: string;
       sortDir: string;
       searchString: string;
@@ -433,10 +436,19 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  addNewFiltersToParams() {
+  addNewFiltersToParams(): Partial<{
+    pageNumber: number;
+    queryParams: Partial<{
+      or: string[];
+      and: string;
+    }>;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
+  }> {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: any = {
+    const newQueryParams: { or: string[]; and?: string } = {
       or: [],
     };
 
@@ -463,6 +475,20 @@ export class MyReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.rp_id, navigateBack: true }]);
   }
 
+  getDeleteReportPopoverParams(erpt: ExtendedReport) {
+    return {
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: 'Delete Report',
+        body: 'Are you sure you want to delete this report?',
+        infoMessage: 'Deleting the report will not delete any of the expenses.',
+        deleteMethod: () => this.reportService.delete(erpt.rp_id),
+      },
+    };
+  }
+
   async onDeleteReportClick(erpt: ExtendedReport) {
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
       const cannotDeleteReportPopOver = await this.popoverController.create({
@@ -480,17 +506,7 @@ export class MyReportsPage implements OnInit {
 
       await cannotDeleteReportPopOver.present();
     } else {
-      const deleteReportPopover = await this.popoverController.create({
-        component: FyDeleteDialogComponent,
-        cssClass: 'delete-dialog',
-        backdropDismiss: false,
-        componentProps: {
-          header: 'Delete Report',
-          body: 'Are you sure you want to delete this report?',
-          infoMessage: 'Deleting the report will not delete any of the expenses.',
-          deleteMethod: () => this.reportService.delete(erpt.rp_id),
-        },
-      });
+      const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(erpt));
 
       await deleteReportPopover.present();
       const { data } = await deleteReportPopover.onDidDismiss();
@@ -539,7 +555,7 @@ export class MyReportsPage implements OnInit {
     // TODO: Add when view comments is done
   }
 
-  clearText(isFromCancel) {
+  clearText(isFromCancel: string) {
     this.simpleSearchText = '';
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
@@ -597,14 +613,14 @@ export class MyReportsPage implements OnInit {
 
   convertRptDtSortToSelectedFilters(
     filter: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<any>[]
+    generatedFilters: SelectedFilters<string>[]
   ) {
     if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -621,14 +637,14 @@ export class MyReportsPage implements OnInit {
 
   addSortToGeneatedFilters(
     filter: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<any>[]
+    generatedFilters: SelectedFilters<string>[]
   ) {
     this.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -643,7 +659,7 @@ export class MyReportsPage implements OnInit {
     if (filter.state) {
       generatedFilters.push({
         name: 'State',
-        value: filter.state,
+        value: <string>filter.state,
       });
     }
 
@@ -667,14 +683,14 @@ export class MyReportsPage implements OnInit {
 
   convertNameSortToSelectedFilters(
     filter: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<any>[]
+    generatedFilters: SelectedFilters<string>[]
   ) {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -690,9 +706,9 @@ export class MyReportsPage implements OnInit {
   }
 
   convertSelectedSortFitlersToFilters(
-    sortBy: SelectedFilters<any>,
+    sortBy: SelectedFilters<string>,
     generatedFilters: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
@@ -723,7 +739,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
+  convertFilters(selectedFilters: SelectedFilters<string>[]): Filters {
     const generatedFilters: Filters = {};
 
     const stateFilter = selectedFilters.find((filter) => filter.name === 'State');
@@ -733,7 +749,7 @@ export class MyReportsPage implements OnInit {
 
     const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
     if (dateFilter) {
-      generatedFilters.date = dateFilter.value;
+      generatedFilters.date = <string>dateFilter.value;
       generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
@@ -745,19 +761,19 @@ export class MyReportsPage implements OnInit {
     return generatedFilters;
   }
 
-  generateStateFilterPills(filterPills: FilterPill[], filter) {
+  generateStateFilterPills(filterPills: FilterPill[], filter: Filters) {
     this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
       filterPills.push({
         label: 'State',
         type: 'state',
-        value: filter.state
+        value: (<string[]>filter.state)
           .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });
   }
 
-  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
+  generateCustomDatePill(filter: Filters, filterPills: FilterPill[]) {
     const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
     const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
 
@@ -782,7 +798,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+  generateDateFilterPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Date',
@@ -820,7 +836,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortRptDatePills(filter: any, filterPills: FilterPill[]) {
+  generateSortRptDatePills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -836,7 +852,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
+  generateSortAmountPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
@@ -852,7 +868,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortNamePills(filter: any, filterPills: FilterPill[]) {
+  generateSortNamePills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -868,7 +884,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortFilterPills(filter, filterPills: FilterPill[]) {
+  generateSortFilterPills(filter: Filters, filterPills: FilterPill[]) {
     this.generateSortRptDatePills(filter, filterPills);
 
     this.generateSortAmountPills(filter, filterPills);
@@ -876,7 +892,7 @@ export class MyReportsPage implements OnInit {
     this.generateSortNamePills(filter, filterPills);
   }
 
-  generateFilterPills(filter: Filters) {
+  generateFilterPills(filter: Filters): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
     if (filter.state && filter.state.length) {
@@ -896,14 +912,14 @@ export class MyReportsPage implements OnInit {
 
   convertAmountSortToSelectedFilters(
     filter: Partial<{
-      state: string[];
+      state: string | string[];
       date: string;
       customDateStart: Date;
       customDateEnd: Date;
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<any>[]
+    generatedFilters: SelectedFilters<string>[]
   ) {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
