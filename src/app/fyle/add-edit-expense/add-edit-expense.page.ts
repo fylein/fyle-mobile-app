@@ -507,7 +507,7 @@ export class AddEditExpensePage implements OnInit {
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax_group.valueChanges).subscribe(() => {
       if (
         this.fg.controls.tax_group.value &&
-        this.fg.controls.tax_group.value.percentage &&
+        isNumber(this.fg.controls.tax_group.value.percentage) &&
         this.fg.controls.currencyObj.value
       ) {
         const amount =
@@ -2843,7 +2843,7 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: this.fg.value?.currencyObj?.orig_currency,
             orig_amount: this.fg.value?.currencyObj?.orig_amount,
             project_id: this.fg.value?.project?.project_id,
-            tax_amount: this.fg.value?.tax_amount || 0,
+            tax_amount: this.fg.value?.tax_amount,
             tax_group_id: this.fg.value?.tax_group?.id,
             org_category_id: this.fg.value?.category?.id,
             fyle_category: this.fg.value?.category?.fyle_category,
