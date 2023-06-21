@@ -26,6 +26,8 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
+import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -366,7 +368,7 @@ export class ExpensesCardComponent implements OnInit {
   async onFileUpload(nativeElement: HTMLInputElement) {
     const file = nativeElement.files[0];
     let receiptDetails;
-    if (file) {
+    if (file?.size < MAX_FILE_SIZE) {
       const dataUrl = await this.fileService.readFile(file);
       this.trackingService.addAttachment({ type: file.type });
       receiptDetails = {
@@ -375,6 +377,8 @@ export class ExpensesCardComponent implements OnInit {
         actionSource: 'gallery_upload',
       };
       this.attachReceipt(receiptDetails);
+    } else {
+      this.showSizeLimitExceededPopover();
     }
   }
 
@@ -485,5 +489,21 @@ export class ExpensesCardComponent implements OnInit {
     event.stopPropagation();
     event.preventDefault();
     this.dismissed.emit(this.expense);
+  }
+
+  async showSizeLimitExceededPopover() {
+    const sizeLimitExceededPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Size limit exceeded',
+        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await sizeLimitExceededPopover.present();
   }
 }
