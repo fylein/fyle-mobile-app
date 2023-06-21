@@ -17,7 +17,7 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
-import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mock-data/card-aggregate-stat.data';
+import { cardAggregateStatParam, cardAggregateStatParam3 } from 'src/app/core/mock-data/card-aggregate-stat.data';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -882,7 +882,7 @@ describe('MyExpensesPage', () => {
       component.loadData$ = new BehaviorSubject({
         queryParams: false,
       });
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam2));
+      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam3));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
         expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
