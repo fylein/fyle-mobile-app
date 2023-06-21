@@ -1512,11 +1512,164 @@ fdescribe('AddEditExpensePage', () => {
       expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
       expect(component.goBack).toHaveBeenCalledTimes(1);
     });
+
+    it('should show validation errors if payment mode is invalid', fakeAsync(() => {
+      spyOn(component, 'showFormValidationErrors');
+      spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+
+      component.saveAndNewExpense();
+      tick(3000);
+
+      expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
+      expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      expect(component.invalidPaymentMode).toBeFalse();
+    }));
   });
 
-  xit('saveExpenseAndGotoPrev', () => {});
+  describe('saveExpenseAndGotoPrev():', () => {
+    it('should add a new expense and close the form', () => {
+      spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'closeAddEditExpenses');
+      component.activeIndex = 0;
+      component.mode = 'add';
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
 
-  xit('saveExpenseAndGotoNext', () => {});
+      component.saveExpenseAndGotoPrev();
+      expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
+      expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
+    });
+
+    it('should add a new expense and go to the previous expense if not the first one in list', () => {
+      spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'goToPrev');
+      component.activeIndex = 1;
+      component.mode = 'add';
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
+
+      component.saveExpenseAndGotoPrev();
+      expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
+      expect(component.goToPrev).toHaveBeenCalledOnceWith();
+    });
+
+    it('should save an edited expense and close the form', () => {
+      spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'closeAddEditExpenses');
+      component.activeIndex = 0;
+      component.mode = 'edit';
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
+
+      component.saveExpenseAndGotoPrev();
+      expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
+      expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
+    });
+
+    it('should save an edited expense and go to the previous expense', () => {
+      spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'goToPrev');
+      component.activeIndex = 1;
+      component.mode = 'edit';
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
+
+      component.saveExpenseAndGotoPrev();
+      expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
+      expect(component.goToPrev).toHaveBeenCalledOnceWith();
+    });
+
+    it('should show validation errors if the form is not valid', () => {
+      spyOn(component, 'showFormValidationErrors');
+
+      component.saveExpenseAndGotoPrev();
+
+      expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+    });
+  });
+
+  describe('saveExpenseAndGotoNext():', () => {
+    it('should add a new expense and close the form', () => {
+      spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'closeAddEditExpenses');
+      component.activeIndex = 0;
+      component.reviewList = ['id1'];
+      component.mode = 'add';
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
+
+      component.saveExpenseAndGotoNext();
+      expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+      expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
+    });
+
+    it('should add a new expense and go to the next expense if not the first one in list', () => {
+      spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'goToNext');
+      component.activeIndex = 0;
+      component.mode = 'add';
+      component.reviewList = ['id1', 'id2'];
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
+
+      console.log(component.reviewList.length - 1);
+      component.saveExpenseAndGotoNext();
+      expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+      expect(component.goToNext).toHaveBeenCalledTimes(1);
+    });
+
+    it('should save an edited expense and close the form', () => {
+      spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'closeAddEditExpenses');
+      component.activeIndex = 0;
+      component.mode = 'edit';
+      component.reviewList = ['id1'];
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
+
+      component.saveExpenseAndGotoNext();
+      expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+      expect(component.closeAddEditExpenses).toHaveBeenCalledTimes(1);
+    });
+
+    it('should save an edited expense and go to the next expense', () => {
+      spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+      spyOn(component, 'goToNext');
+      component.activeIndex = 0;
+      component.mode = 'edit';
+      component.reviewList = ['id1', 'id2'];
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+      fixture.detectChanges();
+
+      component.saveExpenseAndGotoNext();
+      expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+      expect(component.goToNext).toHaveBeenCalledTimes(1);
+    });
+
+    it('should show validation errors if the form is not valid', () => {
+      spyOn(component, 'showFormValidationErrors');
+
+      component.saveExpenseAndGotoNext();
+
+      expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+    });
+  });
 
   it('continueWithCriticalPolicyViolation(): should show critical policy violation modal', async () => {
     modalProperties.getModalDefaultProperties.and.returnValue(properties);
