@@ -1268,28 +1268,8 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
-  selectedExpensesPopoverDeleteMethod(
-    offlineExpenses: Partial<Expense>[],
-    expensesToBeDeleted: Partial<Expense>[],
-    pendingTransactions: Partial<Expense>[],
-    selectedElements: Partial<Expense>[]
-  ) {
-    return () => {
-      offlineExpenses = expensesToBeDeleted.filter((expense) => !expense.tx_id);
-
-      this.transactionOutboxService.deleteBulkOfflineExpenses(pendingTransactions, offlineExpenses);
-
-      selectedElements = expensesToBeDeleted.filter((expense) => expense.tx_id);
-      if (selectedElements?.length > 0) {
-        return this.transactionService.deleteBulk(selectedElements.map((selectedExpense) => selectedExpense.tx_id));
-      } else {
-        return of(null);
-      }
-    };
-  }
-
   async deleteSelectedExpenses() {
-    let offlineExpenses: Partial<Expense>[];
+    let offlineExpenses: Partial<Expense>[] = [];
 
     const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
 
@@ -1309,12 +1289,20 @@ export class MyExpensesPage implements OnInit {
         ),
         ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
         disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
-        deleteMethod: this.selectedExpensesPopoverDeleteMethod(
-          offlineExpenses,
-          this.expensesToBeDeleted,
-          this.pendingTransactions,
-          this.selectedElements
-        ),
+        deleteMethod: () => {
+          offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
+
+          this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
+
+          this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
+          if (this.selectedElements?.length > 0) {
+            return this.transactionService.deleteBulk(
+              this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
+            );
+          } else {
+            return of(null);
+          }
+        },
       },
     });
 
