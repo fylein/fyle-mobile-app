@@ -65,7 +65,7 @@ export class MyReportsPage implements OnInit {
   loadData$: BehaviorSubject<
     Partial<{
       pageNumber: number;
-      queryParams: any;
+      queryParams: Partial<{ or: string[]; and: string }>;
       sortParam: string;
       sortDir: string;
       searchString: string;
@@ -421,7 +421,7 @@ export class MyReportsPage implements OnInit {
   setSortParams(
     currentParams: Partial<{
       pageNumber: number;
-      queryParams: any;
+      queryParams: Partial<{ or: string[]; and: string }>;
       sortParam: string;
       sortDir: string;
       searchString: string;
@@ -436,7 +436,16 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  addNewFiltersToParams() {
+  addNewFiltersToParams(): Partial<{
+    pageNumber: number;
+    queryParams: Partial<{
+      or: string[];
+      and: string;
+    }>;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
+  }> {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
     const newQueryParams: { or: string[]; and?: string } = {
@@ -466,6 +475,20 @@ export class MyReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.rp_id, navigateBack: true }]);
   }
 
+  getDeleteReportPopoverParams(erpt: ExtendedReport) {
+    return {
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: 'Delete Report',
+        body: 'Are you sure you want to delete this report?',
+        infoMessage: 'Deleting the report will not delete any of the expenses.',
+        deleteMethod: () => this.reportService.delete(erpt.rp_id),
+      },
+    };
+  }
+
   async onDeleteReportClick(erpt: ExtendedReport) {
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
       const cannotDeleteReportPopOver = await this.popoverController.create({
@@ -483,17 +506,7 @@ export class MyReportsPage implements OnInit {
 
       await cannotDeleteReportPopOver.present();
     } else {
-      const deleteReportPopover = await this.popoverController.create({
-        component: FyDeleteDialogComponent,
-        cssClass: 'delete-dialog',
-        backdropDismiss: false,
-        componentProps: {
-          header: 'Delete Report',
-          body: 'Are you sure you want to delete this report?',
-          infoMessage: 'Deleting the report will not delete any of the expenses.',
-          deleteMethod: () => this.reportService.delete(erpt.rp_id),
-        },
-      });
+      const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(erpt));
 
       await deleteReportPopover.present();
       const { data } = await deleteReportPopover.onDidDismiss();
@@ -542,7 +555,7 @@ export class MyReportsPage implements OnInit {
     // TODO: Add when view comments is done
   }
 
-  clearText(isFromCancel) {
+  clearText(isFromCancel: string) {
     this.simpleSearchText = '';
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
@@ -607,7 +620,7 @@ export class MyReportsPage implements OnInit {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<any>[]
+    generatedFilters: SelectedFilters<string>[]
   ) {
     if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -631,7 +644,7 @@ export class MyReportsPage implements OnInit {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<any>[]
+    generatedFilters: SelectedFilters<string>[]
   ) {
     this.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -677,7 +690,7 @@ export class MyReportsPage implements OnInit {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<any>[]
+    generatedFilters: SelectedFilters<string>[]
   ) {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -693,7 +706,7 @@ export class MyReportsPage implements OnInit {
   }
 
   convertSelectedSortFitlersToFilters(
-    sortBy: SelectedFilters<any>,
+    sortBy: SelectedFilters<string>,
     generatedFilters: Partial<{
       state: string | string[];
       date: string;
@@ -726,7 +739,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
+  convertFilters(selectedFilters: SelectedFilters<string>[]): Filters {
     const generatedFilters: Filters = {};
 
     const stateFilter = selectedFilters.find((filter) => filter.name === 'State');
@@ -736,7 +749,7 @@ export class MyReportsPage implements OnInit {
 
     const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
     if (dateFilter) {
-      generatedFilters.date = dateFilter.value;
+      generatedFilters.date = <string>dateFilter.value;
       generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
@@ -748,19 +761,19 @@ export class MyReportsPage implements OnInit {
     return generatedFilters;
   }
 
-  generateStateFilterPills(filterPills: FilterPill[], filter) {
+  generateStateFilterPills(filterPills: FilterPill[], filter: Filters) {
     this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
       filterPills.push({
         label: 'State',
         type: 'state',
-        value: filter.state
+        value: (<string[]>filter.state)
           .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });
   }
 
-  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
+  generateCustomDatePill(filter: Filters, filterPills: FilterPill[]) {
     const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
     const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
 
@@ -785,7 +798,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+  generateDateFilterPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Date',
@@ -823,7 +836,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortRptDatePills(filter: any, filterPills: FilterPill[]) {
+  generateSortRptDatePills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -839,7 +852,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
+  generateSortAmountPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
@@ -855,7 +868,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortNamePills(filter: any, filterPills: FilterPill[]) {
+  generateSortNamePills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -871,7 +884,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortFilterPills(filter, filterPills: FilterPill[]) {
+  generateSortFilterPills(filter: Filters, filterPills: FilterPill[]) {
     this.generateSortRptDatePills(filter, filterPills);
 
     this.generateSortAmountPills(filter, filterPills);
@@ -879,7 +892,7 @@ export class MyReportsPage implements OnInit {
     this.generateSortNamePills(filter, filterPills);
   }
 
-  generateFilterPills(filter: Filters) {
+  generateFilterPills(filter: Filters): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
     if (filter.state && filter.state.length) {
@@ -906,7 +919,7 @@ export class MyReportsPage implements OnInit {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<any>[]
+    generatedFilters: SelectedFilters<string>[]
   ) {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
