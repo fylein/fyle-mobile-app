@@ -2102,7 +2102,7 @@ describe('MyExpensesPage', () => {
       'onDidDismiss',
     ]);
     addExpenseToNewReportModalSpy.onDidDismiss.and.resolveTo({
-      data: { report: apiExtendedReportRes, message: 'new report is created' },
+      data: { report: apiExtendedReportRes[0], message: 'new report is created' },
     });
     modalController.create.and.resolveTo(addExpenseToNewReportModalSpy);
     modalProperties.getModalDefaultProperties.and.returnValue(modalDefaultPropertiesRes);
