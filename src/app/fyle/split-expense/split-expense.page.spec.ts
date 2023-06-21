@@ -97,8 +97,9 @@ import {
 } from 'src/app/core/mock-data/policy-violation.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import * as dayjs from 'dayjs';
-import { unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
+import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { last } from 'lodash';
 
 fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -128,7 +129,6 @@ fdescribe('SplitExpensePage', () => {
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
-    //const formBuilderSpy = jasmine.createSpyObj('FormBuilder', ['group']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'filterRequired']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['getUTCDate', 'addDaysToDate']);
@@ -436,6 +436,81 @@ fdescribe('SplitExpensePage', () => {
       component.categories$.subscribe((categories) => {
         expect(categories).toEqual(testActiveCategoryListOptions);
       });
+    });
+  });
+
+  describe('setValuesForCCC():', () => {
+    it('should set the values for CCC split expenses when coporate credit cards is enabled', () => {
+      dateService.addDaysToDate.and.returnValue(new Date());
+      component.amount = 2000;
+      spyOn(component, 'setAmountAndCurrency').and.callThrough();
+      spyOn(component, 'add').and.callThrough();
+      spyOn(component, 'getTotalSplitAmount').and.callThrough();
+      const mockUnFlattenedDate = {
+        ...unflattenedAccount2Data,
+        amount: 2000,
+        currency: 'INR',
+      };
+      const currencyObj = mockUnFlattenedDate;
+      const homeCurrency = 'INR';
+      const isCorporateCardsEnabled = true;
+
+      const amount1 = 1200;
+      const amount2 = 800;
+      const percentage1 = 60;
+      const percentage2 = 40;
+
+      const today = new Date();
+      const minDate = new Date('Jan 1, 2001');
+      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
+      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
+
+      component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
+      expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
+      expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
+      expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
+      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
+      expect(component.minDate).toEqual(expectedMinDate);
+      //expect(component.maxDate).toEqual(expectedMaxDate);
+    });
+
+    it('should set the values to null if coporate credit cards is disabled and the amount is less than 0.0001', () => {
+      dateService.addDaysToDate.and.returnValue(new Date());
+      component.amount = 0.00001;
+      spyOn(component, 'setAmountAndCurrency').and.callThrough();
+      spyOn(component, 'add').and.callThrough();
+      spyOn(component, 'getTotalSplitAmount').and.callThrough();
+      const mockUnFlattenedDate = {
+        ...unflattenedAccount2Data,
+        amount: 0.00001,
+        currency: 'INR',
+      };
+      const currencyObj = mockUnFlattenedDate;
+      const homeCurrency = 'INR';
+      const isCorporateCardsEnabled = false;
+
+      const amount1 = null;
+      const amount2 = null;
+      //as these will be null only if amount is not present
+      const percentage1 = 60;
+      const percentage2 = 40;
+
+      const today = new Date();
+      const minDate = new Date('Jan 1, 2001');
+      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
+      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
+
+      component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
+      expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
+      expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
+      expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
+      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
+      expect(component.minDate).toEqual(expectedMinDate);
+      //expect(component.maxDate).toEqual(expectedMaxDate);
     });
   });
 
@@ -1081,6 +1156,117 @@ fdescribe('SplitExpensePage', () => {
       expect(component.splitExpensesFormArray.controls[0].value.percentage).toBe(60);
       expect(component.splitExpensesFormArray.controls[1].value.amount).toBe(6000);
       expect(component.splitExpensesFormArray.controls[1].value.percentage).toBe(40);
+    });
+  });
+
+  describe('splitEvenly():', () => {
+    it('should split the amount evenly between the number of splits', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      //@ts-ignore
+      spyOn(component, 'setEvenSplit');
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(327.5),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(327.5),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.amount = 655;
+      const evenAmount = 327.5;
+      const evenPercentage = 50;
+      const lastSplitIndex = 1;
+      const lastSplitAmount = 327.5;
+      const lastSplitPercentage = 50;
+
+      component.splitEvenly();
+      expect(component.splitExpensesFormArray.length - 1).toBe(lastSplitIndex);
+      //@ts-ignore
+      expect(component.setEvenSplit).toHaveBeenCalledWith(
+        evenAmount,
+        evenPercentage,
+        lastSplitAmount,
+        lastSplitPercentage
+      );
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('setEvenSplit()', () => {
+    it('should set the amount and percentage for the last split when last split is true', () => {
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(327.5),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(327.5),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.amount = 655;
+      const evenAmount = 327.5;
+      const evenPercentage = 50;
+      const lastSplitIndex = 1;
+      const lastSplitAmount = 327.5;
+      const lastSplitPercentage = 50;
+
+      //@ts-ignore
+      component.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
+      expect(component.splitExpensesFormArray.controls[lastSplitIndex].value.amount).toBe(evenAmount);
+      expect(component.splitExpensesFormArray.controls[lastSplitIndex].value.percentage).toBe(evenPercentage);
+    });
+
+    it('should set amount and parcentage accordingly when isLastSplit is false', () => {
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(218.333),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(33.333),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(218.333),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(33.333),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm3 = new FormGroup({
+        amount: new FormControl(218.333),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(33.334),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const evenAmount = 218.333;
+      const evenPercentage = 33.333;
+      const lastSplitAmount = 218.334;
+      const lastSplitIndex = 2;
+      const lastSplitPercentage = 33.334;
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
+      component.amount = 655;
+      //@ts-ignore
+      component.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
+      expect(component.splitExpensesFormArray.controls[lastSplitIndex].value.amount).toBe(lastSplitAmount);
+      expect(component.splitExpensesFormArray.controls[lastSplitIndex].value.percentage).toBe(lastSplitPercentage);
     });
   });
 
