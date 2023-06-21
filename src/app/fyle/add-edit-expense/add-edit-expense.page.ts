@@ -110,6 +110,7 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
 import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 
 @Component({
@@ -361,7 +362,7 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
-  private _isExpandedView = false;
+  _isExpandedView = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -406,7 +407,8 @@ export class AddEditExpensePage implements OnInit {
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get isExpandedView() {
@@ -433,8 +435,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   goBack() {
-    const bankTxn =
-      this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
@@ -507,7 +507,7 @@ export class AddEditExpensePage implements OnInit {
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax_group.valueChanges).subscribe(() => {
       if (
         this.fg.controls.tax_group.value &&
-        this.fg.controls.tax_group.value.percentage &&
+        isNumber(this.fg.controls.tax_group.value.percentage) &&
         this.fg.controls.currencyObj.value
       ) {
         const amount =
@@ -766,85 +766,102 @@ export class AddEditExpensePage implements OnInit {
       costCenters: this.costCenters$,
       projects: this.projectsService.getAllActive(),
       txnFields: this.txnFields$.pipe(take(1)),
+      filteredCategories: this.filteredCategories$.pipe(take(1)),
+      showProjectMappedCategoriesInSplitExpense: this.launchDarklyService.getVariation(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      ),
     }).pipe(
-      map(({ orgSettings, costCenters, projects, txnFields }) => {
-        const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
+      map(
+        ({
+          orgSettings,
+          costCenters,
+          projects,
+          txnFields,
+          filteredCategories,
+          showProjectMappedCategoriesInSplitExpense,
+        }) => {
+          const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
 
-        const actionSheetOptions = [];
+          const actionSheetOptions = [];
 
-        if (isSplitExpenseAllowed) {
-          const areCostCentersAvailable = costCenters.length > 0;
-          const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
-          const projectField = txnFields.project_id;
+          if (isSplitExpenseAllowed) {
+            const areCostCentersAvailable = costCenters.length > 0;
+            const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
+            const areProjectDependentCategoriesAvailable = filteredCategories.length > 1;
+            const projectField = txnFields.project_id;
 
-          actionSheetOptions.push({
-            text: 'Split Expense By Category',
-            handler: () => {
-              if (this.fg.valid) {
-                this.openSplitExpenseModal('categories');
-              } else {
-                this.showFormValidationErrors();
-              }
-            },
-          });
+            if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
+              actionSheetOptions.push({
+                text: 'Split Expense By Category',
+                handler: () => {
+                  if (this.fg.valid) {
+                    this.openSplitExpenseModal('categories');
+                  } else {
+                    this.showFormValidationErrors();
+                  }
+                },
+              });
+            }
 
-          if (areProjectsAvailable) {
+            if (areProjectsAvailable) {
+              actionSheetOptions.push({
+                text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
+                handler: () => {
+                  if (this.fg.valid) {
+                    this.openSplitExpenseModal('projects');
+                  } else {
+                    this.showFormValidationErrors();
+                  }
+                },
+              });
+            }
+
+            if (areCostCentersAvailable) {
+              actionSheetOptions.push({
+                text: 'Split Expense By Cost Center',
+                handler: () => {
+                  if (this.fg.valid) {
+                    this.openSplitExpenseModal('cost centers');
+                  } else {
+                    this.showFormValidationErrors();
+                  }
+                },
+              });
+            }
+          }
+
+          if (this.isCccExpense) {
+            if (this.isExpenseMatchedForDebitCCCE) {
+              actionSheetOptions.push({
+                text: 'Mark as Personal',
+                handler: () => {
+                  this.markPeronsalOrDismiss('personal');
+                },
+              });
+            }
+
+            if (this.canDismissCCCE) {
+              actionSheetOptions.push({
+                text: 'Dimiss as Card Payment',
+                handler: () => {
+                  this.markPeronsalOrDismiss('dismiss');
+                },
+              });
+            }
+          }
+
+          if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
             actionSheetOptions.push({
-              text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
+              text: 'Remove Card Expense',
               handler: () => {
-                if (this.fg.valid) {
-                  this.openSplitExpenseModal('projects');
-                } else {
-                  this.showFormValidationErrors();
-                }
+                this.removeCorporateCardExpense();
               },
             });
           }
-
-          if (areCostCentersAvailable) {
-            actionSheetOptions.push({
-              text: 'Split Expense By Cost Center',
-              handler: () => {
-                if (this.fg.valid) {
-                  this.openSplitExpenseModal('cost centers');
-                } else {
-                  this.showFormValidationErrors();
-                }
-              },
-            });
-          }
+          return actionSheetOptions;
         }
-
-        if (this.isCccExpense) {
-          if (this.isExpenseMatchedForDebitCCCE) {
-            actionSheetOptions.push({
-              text: 'Mark as Personal',
-              handler: () => {
-                this.markPeronsalOrDismiss('personal');
-              },
-            });
-          }
-
-          if (this.canDismissCCCE) {
-            actionSheetOptions.push({
-              text: 'Dimiss as Card Payment',
-              handler: () => {
-                this.markPeronsalOrDismiss('dismiss');
-              },
-            });
-          }
-        }
-
-        if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
-          actionSheetOptions.push({
-            text: 'Remove Card Expense',
-            handler: () => {
-              this.removeCorporateCardExpense();
-            },
-          });
-        }
-        return actionSheetOptions;
-      })
+      )
     );
   }
 
@@ -2807,7 +2824,7 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: this.fg.value?.currencyObj?.orig_currency,
             orig_amount: this.fg.value?.currencyObj?.orig_amount,
             project_id: this.fg.value?.project?.project_id,
-            tax_amount: this.fg.value?.tax_amount || 0,
+            tax_amount: this.fg.value?.tax_amount,
             tax_group_id: this.fg.value?.tax_group?.id,
             org_category_id: this.fg.value?.category?.id,
             fyle_category: this.fg.value?.category?.fyle_category,
