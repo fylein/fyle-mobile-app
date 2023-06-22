@@ -84,11 +84,3 @@ export const expectedFilterPill2: FilterPill[] = [
     value: 'yes',
   },
 ];
-
-export const expectedFilterPill3 = [
-  {
-    label: 'Transactions Type',
-    type: 'string',
-    value: 'Credit',
-  },
-];
