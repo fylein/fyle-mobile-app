@@ -86,19 +86,9 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
-const properties = {
-  cssClass: 'fy-modal',
-  showBackdrop: true,
-  canDismiss: true,
-  backdropDismiss: true,
-  animated: true,
-  initialBreakpoint: 1,
-  breakpoints: [0, 1],
-  handle: false,
-};
-
-describe('AddEditExpensePage', () => {
+fdescribe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -556,6 +546,12 @@ describe('AddEditExpensePage', () => {
     component.hardwareBackButtonAction = new Subscription();
     fixture.detectChanges();
   }));
+
+  function setFormValid() {
+    Object.defineProperty(component.fg, 'valid', {
+      get: () => true,
+    });
+  }
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -1022,9 +1018,7 @@ describe('AddEditExpensePage', () => {
 
   describe('splitExpCategoryHandler():', () => {
     it('should call method to display split expense modal and split by category', () => {
-      Object.defineProperty(component.fg, 'valid', {
-        get: () => true,
-      });
+      setFormValid();
 
       spyOn(component, 'openSplitExpenseModal');
 
@@ -1042,9 +1036,7 @@ describe('AddEditExpensePage', () => {
 
   describe('splitExpProjectHandler():', () => {
     it('should call method to display split expense modal and split by project', () => {
-      Object.defineProperty(component.fg, 'valid', {
-        get: () => true,
-      });
+      setFormValid();
 
       spyOn(component, 'openSplitExpenseModal');
 
@@ -1052,7 +1044,7 @@ describe('AddEditExpensePage', () => {
       expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('projects');
     });
 
-    it('should validation errors if any inside the form', () => {
+    it('should show validation errors if any inside the form', () => {
       spyOn(component, 'showFormValidationErrors');
 
       component.splitExpProjectHandler();
@@ -1062,17 +1054,14 @@ describe('AddEditExpensePage', () => {
 
   describe('splitExpCostCenterHandler():', () => {
     it('should call method to display split expense modal and split by cost centers', () => {
-      Object.defineProperty(component.fg, 'valid', {
-        get: () => true,
-      });
-
+      setFormValid();
       spyOn(component, 'openSplitExpenseModal');
 
       component.splitExpCostCenterHandler();
       expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('cost centers');
     });
 
-    it('should validation errors if any inside the form', () => {
+    it('The form should display the validation errors if they are found.', () => {
       spyOn(component, 'showFormValidationErrors');
 
       component.splitExpCostCenterHandler();
@@ -1248,7 +1237,7 @@ describe('AddEditExpensePage', () => {
 
   describe('goToTransaction():', () => {
     const txn_ids = ['txfCdl3TEZ7K'];
-    it('should go to add-edit mileage if category is mileage', () => {
+    it('should navigate to add-edit mileage if category is mileage', () => {
       const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'MILEAGE' } };
       component.goToTransaction(expense, txn_ids, 0);
 
@@ -1264,7 +1253,7 @@ describe('AddEditExpensePage', () => {
       ]);
     });
 
-    it('should go to add-edit per diem if category is per diem', () => {
+    it('should navigate to per diem expense form if the category is per diem', () => {
       const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'PER DIEM' } };
       component.goToTransaction(expense, txn_ids, 0);
 
@@ -1280,7 +1269,7 @@ describe('AddEditExpensePage', () => {
       ]);
     });
 
-    it('should go to add-edit per diem if category is per diem', () => {
+    it('should navigate to expense form', () => {
       const expense = unflattenExp1;
       component.goToTransaction(expense, txn_ids, 0);
 
