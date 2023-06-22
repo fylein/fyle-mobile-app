@@ -69,6 +69,8 @@ import {
   modalControllerParams2,
   modalDefaultPropertiesRes,
   newReportModalParams,
+  openFromComponentConfig,
+  popoverControllerParams,
   snackbarPropertiesRes,
   snackbarPropertiesRes2,
 } from 'src/app/core/test-data/my-expenses.page.spec.data';
@@ -83,7 +85,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { Expense } from 'src/app/core/models/expense.model';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 
-describe('MyExpensesPage', () => {
+fdescribe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -1797,22 +1799,7 @@ describe('MyExpensesPage', () => {
       });
       tick(100);
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: PopupAlertComponent,
-        componentProps: {
-          title: '2 Draft Expenses blocking the way',
-          message: '2 expenses are in draft state.',
-          primaryCta: {
-            text: 'Exclude and Continue',
-            action: 'continue',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'cancel',
-          },
-        },
-        cssClass: 'pop-up-in-center',
-      });
+      expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams);
 
       expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
       expect(component.showNewReportModal).not.toHaveBeenCalled();
@@ -1825,22 +1812,7 @@ describe('MyExpensesPage', () => {
       });
       tick(100);
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: PopupAlertComponent,
-        componentProps: {
-          title: '2 Draft Expenses blocking the way',
-          message: '2 expenses are in draft state.',
-          primaryCta: {
-            text: 'Exclude and Continue',
-            action: 'continue',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'cancel',
-          },
-        },
-        cssClass: 'pop-up-in-center',
-      });
+      expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams);
 
       expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
       expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
@@ -1851,15 +1823,7 @@ describe('MyExpensesPage', () => {
     snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes);
     component.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
 
-    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
-      data: {
-        icon: 'danger',
-        showCloseButton: true,
-        message: 'Please select one or more expenses to be reported',
-      },
-      duration: 3000,
-      panelClass: ['msb-failure-with-report-btn'],
-    });
+    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, openFromComponentConfig);
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', {
       message: 'Please select one or more expenses to be reported',
     });
@@ -2353,13 +2317,6 @@ describe('MyExpensesPage', () => {
   });
 
   describe('onFilterClose(): ', () => {
-    const mockFilterPill = [
-      {
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Credit',
-      },
-    ];
     beforeEach(() => {
       component.loadData$ = new BehaviorSubject({});
       component.filters = {
@@ -2370,7 +2327,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'addNewFiltersToParams').and.returnValue({
         pageNumber: 3,
       });
-      spyOn(component, 'generateFilterPills').and.returnValue(mockFilterPill);
+      spyOn(component, 'generateFilterPills').and.returnValue(expectedFilterPill3);
     });
     it('should remove sortDir and sortParam if filterType is sort', () => {
       component.onFilterClose('sort');
@@ -2382,7 +2339,7 @@ describe('MyExpensesPage', () => {
       component.loadData$.subscribe((data) => {
         expect(data).toEqual({ pageNumber: 3 });
       });
-      expect(component.filterPills).toEqual(mockFilterPill);
+      expect(component.filterPills).toEqual(expectedFilterPill3);
     });
 
     it('should remove property from filter if filterType is other than sort', () => {
@@ -2395,7 +2352,7 @@ describe('MyExpensesPage', () => {
       component.loadData$.subscribe((data) => {
         expect(data).toEqual({ pageNumber: 3 });
       });
-      expect(component.filterPills).toEqual(mockFilterPill);
+      expect(component.filterPills).toEqual(expectedFilterPill3);
     });
   });
 

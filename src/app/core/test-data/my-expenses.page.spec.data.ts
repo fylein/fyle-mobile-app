@@ -6,6 +6,7 @@ import { AddTxnToReportDialogComponent } from 'src/app/fyle/my-expenses/add-txn-
 import { Mode } from '@ionic/core';
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
 export const expectedActionSheetButtonRes = [
   {
@@ -142,4 +143,31 @@ export const snackbarPropertiesRes2 = {
     message: 'Expense added to report successfully',
   },
   duration: 3000,
+};
+
+export const popoverControllerParams = {
+  component: PopupAlertComponent,
+  componentProps: {
+    title: '2 Draft Expenses blocking the way',
+    message: '2 expenses are in draft state.',
+    primaryCta: {
+      text: 'Exclude and Continue',
+      action: 'continue',
+    },
+    secondaryCta: {
+      text: 'Cancel',
+      action: 'cancel',
+    },
+  },
+  cssClass: 'pop-up-in-center',
+};
+
+export const openFromComponentConfig = {
+  data: {
+    icon: 'danger',
+    showCloseButton: true,
+    message: 'Please select one or more expenses to be reported',
+  },
+  duration: 3000,
+  panelClass: ['msb-failure-with-report-btn'],
 };
