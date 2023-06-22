@@ -2326,7 +2326,7 @@ fdescribe('MyExpensesPage', () => {
       spyOn(component, 'addNewFiltersToParams').and.returnValue({
         pageNumber: 3,
       });
-      spyOn(component, 'generateFilterPills').and.returnValue(expectedFilterPill3);
+      spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
     });
     it('should remove sortDir and sortParam if filterType is sort', () => {
       component.onFilterClose('sort');
@@ -2338,7 +2338,7 @@ fdescribe('MyExpensesPage', () => {
       component.loadData$.subscribe((data) => {
         expect(data).toEqual({ pageNumber: 3 });
       });
-      expect(component.filterPills).toEqual(expectedFilterPill3);
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
     });
 
     it('should remove property from filter if filterType is other than sort', () => {
@@ -2351,7 +2351,7 @@ fdescribe('MyExpensesPage', () => {
       component.loadData$.subscribe((data) => {
         expect(data).toEqual({ pageNumber: 3 });
       });
-      expect(component.filterPills).toEqual(expectedFilterPill3);
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
     });
   });
 
