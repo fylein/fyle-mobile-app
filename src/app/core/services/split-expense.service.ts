@@ -294,7 +294,7 @@ export class SplitExpenseService {
     return forkJoin(txnsObservables);
   }
 
-  private setupSplitExpensePurpose(
+  setupSplitExpensePurpose(
     transaction: Transaction,
     splitGroupId: string,
     index: number,
@@ -312,11 +312,11 @@ export class SplitExpenseService {
     }
   }
 
-  private setUpSplitExpenseBillable(sourceTxn: Transaction, splitExpense: Transaction): boolean {
+  setUpSplitExpenseBillable(sourceTxn: Transaction, splitExpense: Transaction): boolean {
     return splitExpense.project_id ? splitExpense.billable : sourceTxn.billable;
   }
 
-  private setUpSplitExpenseTax(sourceTxn: Transaction, splitExpense: Transaction): number {
+  setUpSplitExpenseTax(sourceTxn: Transaction, splitExpense: Transaction): number {
     return splitExpense.tax_amount ? splitExpense.tax_amount : sourceTxn.tax_amount;
   }
 }
