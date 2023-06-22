@@ -88,7 +88,7 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
-fdescribe('AddEditExpensePage', () => {
+describe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
