@@ -1,6 +1,6 @@
 import { UnformattedTransaction } from '../models/unformatted-transaction.model';
 
-export const unformattedTxnData: UnformattedTransaction[] = [
+export const unformattedTxnData: Partial<UnformattedTransaction>[] = [
   {
     created_at: new Date('2023-02-08T06:47:48.414Z'),
     updated_at: new Date('2023-02-08T06:47:48.414Z'),

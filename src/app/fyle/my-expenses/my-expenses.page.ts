@@ -61,7 +61,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { MyExpensesService } from './my-expenses.service';
-import { ExpenseFilters } from './expenses-filters.model';
+import { ExpenseFilters } from './expense-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
@@ -237,7 +237,7 @@ export class MyExpensesPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  formatTransactions(transactions: UnformattedTransaction[]): Partial<Expense>[] {
+  formatTransactions(transactions: Partial<UnformattedTransaction>[]): Partial<Expense>[] {
     return transactions.map((transaction) => {
       const formattedTxn = <Partial<Expense>>{};
       Object.keys(transaction).forEach((key) => {
