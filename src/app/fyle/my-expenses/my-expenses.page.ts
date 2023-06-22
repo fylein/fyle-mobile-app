@@ -1282,8 +1282,21 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
+  helper() {
+    const offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
+
+    this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
+
+    this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
+    if (this.selectedElements?.length > 0) {
+      return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.tx_id));
+    } else {
+      return of(null);
+    }
+  }
+
   async deleteSelectedExpenses() {
-    let offlineExpenses: Expense[];
+    const offlineExpenses: Expense[] = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
 
     const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
 
@@ -1303,20 +1316,7 @@ export class MyExpensesPage implements OnInit {
         ),
         ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
         disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
-        deleteMethod: () => {
-          offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
-
-          this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
-
-          this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
-          if (this.selectedElements?.length > 0) {
-            return this.transactionService.deleteBulk(
-              this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
-            );
-          } else {
-            return of(null);
-          }
-        },
+        deleteMethod: this.helper,
       },
     });
 
