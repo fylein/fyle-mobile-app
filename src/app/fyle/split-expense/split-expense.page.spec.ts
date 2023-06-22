@@ -91,7 +91,15 @@ import {
   fileTxns6,
   fileTxns7,
 } from 'src/app/core/mock-data/file-txn.data';
-import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
+import {
+  splitExpense1,
+  splitExpense2,
+  splitExpense3,
+  splitExpense4,
+  splitExpense5,
+  splitExpense6,
+  splitExpense7,
+} from 'src/app/core/mock-data/split-expense-data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -1027,7 +1035,7 @@ fdescribe('SplitExpensePage', () => {
     });
   });
 
-  describe('add()', () => {
+  describe('add():', () => {
     it('should set the date of when the expense was created if not provided while splitting an expense and all', () => {
       spyOn(component, 'getTotalSplitAmount');
       spyOn(component, 'customDateValidator').and.returnValue(null);
@@ -1037,17 +1045,9 @@ fdescribe('SplitExpensePage', () => {
       component.splitType = 'categories';
       component.transaction = txnData;
 
-      const splitExpenseField = {
-        amount: 2000,
-        currency: 'INR',
-        percentage: 50,
-        txn_dt: '2023-02-08',
-        category: '',
-      };
-
       component.add(amount, currency, percentage);
       expect(component.splitExpensesFormArray.length).toEqual(1);
-      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpense3);
       expect(component.customDateValidator).toHaveBeenCalledTimes(1);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
@@ -1063,17 +1063,9 @@ fdescribe('SplitExpensePage', () => {
       component.splitType = 'categories';
       component.transaction = null;
 
-      const splitExpenseField = {
-        amount: 2000,
-        currency: 'INR',
-        percentage: 50,
-        txn_dt: dayjs(new Date()).format('YYYY-MM-DD'),
-        category: '',
-      };
-
       component.add(amount, currency, percentage, txnDate);
       expect(component.splitExpensesFormArray.length).toEqual(1);
-      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpense4);
       expect(component.customDateValidator).toHaveBeenCalledTimes(1);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
@@ -1087,17 +1079,9 @@ fdescribe('SplitExpensePage', () => {
       component.splitType = 'projects';
       component.transaction = txnData;
 
-      const splitExpenseField = {
-        amount: 2000,
-        currency: 'INR',
-        percentage: 50,
-        txn_dt: '2023-02-08',
-        project: '',
-      };
-
       component.add(amount, currency, percentage);
       expect(component.splitExpensesFormArray.length).toEqual(1);
-      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpense5);
       expect(component.customDateValidator).toHaveBeenCalledTimes(1);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
@@ -1111,17 +1095,39 @@ fdescribe('SplitExpensePage', () => {
       component.splitType = 'cost centers';
       component.transaction = txnData;
 
-      const splitExpenseField = {
-        amount: 2000,
-        currency: 'INR',
-        percentage: 50,
-        txn_dt: '2023-02-08',
-        cost_center: '',
-      };
-
       component.add(amount, currency, percentage);
       expect(component.splitExpensesFormArray.length).toEqual(1);
-      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpenseField);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpense6);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should add the form control to the form array when no arg is provided in case the expense is split in three', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
+
+      component.splitType = 'categories';
+      component.transaction = txnData;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(10000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-02-08'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(5000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-02-08'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+
+      component.add();
+      expect(component.splitExpensesFormArray.length).toEqual(3);
+      expect(component.splitExpensesFormArray.controls[2].value).toEqual(splitExpense7);
       expect(component.customDateValidator).toHaveBeenCalledTimes(1);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     });
@@ -1346,6 +1352,28 @@ fdescribe('SplitExpensePage', () => {
       //@ts-ignore
       const result = component.isEvenlySplit();
       expect(result).toBeFalse();
+    });
+
+    it('should consider splits with a difference of 0.01 as evenly split', () => {
+      component.splitExpensesFormArray = new FormArray([
+        new FormGroup({
+          amount: new FormControl(10.0),
+          currency: new FormControl('INR'),
+          percentage: new FormControl(20),
+          txn_dt: new FormControl('2023-01-11'),
+          category: new FormControl(''),
+        }),
+        new FormGroup({
+          amount: new FormControl(10.01),
+          currency: new FormControl('INR'),
+          percentage: new FormControl(20),
+          txn_dt: new FormControl('2023-01-11'),
+          category: new FormControl(''),
+        }),
+      ]);
+      //@ts-ignore
+      const isEvenSplit = component.isEvenlySplit();
+      expect(isEvenSplit).toBe(true);
     });
   });
 });

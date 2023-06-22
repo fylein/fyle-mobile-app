@@ -1,3 +1,4 @@
+import * as dayjs from 'dayjs';
 import { SplitExpense } from '../models/split-expense.model';
 
 export const splitExpense1: SplitExpense = {
@@ -43,4 +44,43 @@ export const splitExpense2: SplitExpense = {
     sub_category: '1',
     updated_at: new Date('2023-04-17T12:55:49.475665+00:00'),
   },
+};
+
+export const splitExpense3 = {
+  amount: 2000,
+  currency: 'INR',
+  percentage: 50,
+  txn_dt: '2023-02-08',
+  category: '',
+};
+
+export const splitExpense4 = {
+  amount: 2000,
+  currency: 'INR',
+  percentage: 50,
+  txn_dt: dayjs(new Date()).format('YYYY-MM-DD'),
+  category: '',
+};
+
+export const splitExpense5 = {
+  amount: 2000,
+  currency: 'INR',
+  percentage: 50,
+  txn_dt: '2023-02-08',
+  project: '',
+};
+
+export const splitExpense6 = {
+  amount: 2000,
+  currency: 'INR',
+  percentage: 50,
+  txn_dt: '2023-02-08',
+  cost_center: '',
+};
+
+export const splitExpense7 = {
+  ...splitExpense3,
+  amount: null,
+  currency: null,
+  percentage: null,
 };
