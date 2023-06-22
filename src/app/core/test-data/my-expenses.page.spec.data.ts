@@ -171,3 +171,21 @@ export const openFromComponentConfig = {
   duration: 3000,
   panelClass: ['msb-failure-with-report-btn'],
 };
+
+export const snackbarPropertiesRes3 = {
+  data: {
+    icon: 'success',
+    showCloseButton: true,
+    message: '1 expense has been deleted',
+  },
+  duration: 3000,
+};
+
+export const snackbarPropertiesRes4 = {
+  data: {
+    icon: 'danger',
+    showCloseButton: true,
+    message: 'We could not delete the expenses. Please try again',
+  },
+  duration: 3000,
+};
