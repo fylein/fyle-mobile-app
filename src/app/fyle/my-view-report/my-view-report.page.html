@@ -73,7 +73,10 @@
                     <span class="view-reports--submitted-date__text"
                       >{{erpt.rp_state === "DRAFT" ? "Created on : " : "Submitted on : " }}
                     </span>
-                    <span class="view-reports--submitted-date__date"
+                    <span *ngIf="erpt.rp_state === 'DRAFT'" class="view-reports--submitted-date__date"
+                      >{{erpt.rp_created_at | date: 'MMM dd, YYYY'}}</span
+                    >
+                    <span *ngIf="erpt.rp_state !== 'DRAFT'" class="view-reports--submitted-date__date"
                       >{{erpt.rp_submitted_at | date: 'MMM dd, YYYY'}}</span
                     >
                   </div>
