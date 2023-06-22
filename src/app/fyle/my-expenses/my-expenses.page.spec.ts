@@ -50,7 +50,6 @@ import {
   creditTxnFilterPill,
   expectedFilterPill1,
   expectedFilterPill2,
-  expectedFilterPill3,
 } from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expenses-filters.model';
@@ -1492,7 +1491,7 @@ describe('MyExpensesPage', () => {
       });
 
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
-      expect(component.filterPills).toEqual(expectedFilterPill3);
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
       expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
     }));
 
@@ -1512,7 +1511,7 @@ describe('MyExpensesPage', () => {
         expect(loadData).toEqual({ searchString: 'example' });
       });
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
-      expect(component.filterPills).toEqual(expectedFilterPill3);
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
       expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
     }));
   });
@@ -1528,7 +1527,7 @@ describe('MyExpensesPage', () => {
       searchString: 'example',
     });
     component.loadData$ = new BehaviorSubject({});
-    spyOn(component, 'generateFilterPills').and.returnValue(expectedFilterPill3);
+    spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
 
     component.clearFilters();
 
@@ -1542,7 +1541,7 @@ describe('MyExpensesPage', () => {
       });
     });
     expect(component.generateFilterPills).toHaveBeenCalledOnceWith({});
-    expect(component.filterPills).toEqual(expectedFilterPill3);
+    expect(component.filterPills).toEqual(creditTxnFilterPill);
   });
 
   it('setState(): should set state and update isLoading correctly', fakeAsync(() => {
