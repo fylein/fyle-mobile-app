@@ -18,6 +18,7 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { SplitExpensePage } from './split-expense.page';
 import {
+  AbstractControlOptions,
   FormArray,
   FormBuilder,
   FormControl,
@@ -124,10 +125,8 @@ import { orgData1 } from 'src/app/core/mock-data/org.data';
 import * as dayjs from 'dayjs';
 import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
-import { last } from 'lodash';
-import { A } from '@angular/cdk/keycodes';
 
-fdescribe('SplitExpensePage', () => {
+describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -290,7 +289,82 @@ fdescribe('SplitExpensePage', () => {
     expect(navController.back).toHaveBeenCalledTimes(1);
   });
 
-  describe('getTotalSplitAmount', () => {
+  describe('onChangeAmount():', () => {
+    it('should get the new amount and percentage value after amount is changed for first split', fakeAsync(() => {
+      spyOn(component, 'getTotalSplitAmount');
+      component.amount = 2000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(120),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const otherSplitExpenseForm = new FormGroup({
+        amount: new FormControl(800),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      Object.defineProperty(splitExpenseForm1.controls.amount, '_pendingChange', { value: true });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+
+      component.onChangeAmount(splitExpenseForm1, 0);
+      tick(500);
+
+      expect(splitExpenseForm1.controls.amount.value).toEqual(120);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(6);
+
+      component.onChangeAmount(otherSplitExpenseForm, 1);
+      tick(500);
+      expect(component.splitExpensesFormArray.controls[1].value.amount).toEqual(1880);
+      expect(component.splitExpensesFormArray.controls[1].value.percentage).toEqual(94);
+      expect(otherSplitExpenseForm.controls.amount.value).toEqual(1880);
+      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(94);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should get the new amount and percentage value after amount is changed for second split', fakeAsync(() => {
+      spyOn(component, 'getTotalSplitAmount');
+      component.amount = 2000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(1200),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const otherSplitExpenseForm = new FormGroup({
+        amount: new FormControl(80),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      Object.defineProperty(otherSplitExpenseForm.controls.amount, '_pendingChange', { value: true });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+
+      component.onChangeAmount(otherSplitExpenseForm, 1);
+      tick(500);
+
+      expect(otherSplitExpenseForm.controls.amount.value).toEqual(80);
+      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(4);
+
+      component.onChangeAmount(splitExpenseForm1, 0);
+      tick(500);
+      expect(component.splitExpensesFormArray.controls[0].value.amount).toEqual(1920);
+      expect(component.splitExpensesFormArray.controls[0].value.percentage).toEqual(96);
+      expect(splitExpenseForm1.controls.amount.value).toEqual(1920);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(96);
+      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(4);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('getTotalSplitAmount():', () => {
     it('should calculate total split amount and remaining amount correctly when there are two form groups', () => {
       const splitExpenseForm1 = new FormGroup({
         amount: new FormControl(473.4),
@@ -349,7 +423,7 @@ fdescribe('SplitExpensePage', () => {
     });
   });
 
-  describe('setUpSplitExpenseBillable', () => {
+  describe('setUpSplitExpenseBillable():', () => {
     it('should setup split expense to billable when the expense is split by project and the transaction fileds have the billable property present', () => {
       component.txnFields = txnFieldData;
       const result = component.setUpSplitExpenseBillable(splitExpense1);
@@ -580,7 +654,7 @@ fdescribe('SplitExpensePage', () => {
       });
     });
 
-    it('should link transaction to files when the receipt is not attached and report not present', (done) => {
+    it('should link transaction to files when the receipt is not attached and report is present', (done) => {
       const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.fileObjs = [];
       component.transaction = txnAmount1;
@@ -944,7 +1018,6 @@ fdescribe('SplitExpensePage', () => {
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
       expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
       expect(component.minDate).toEqual(expectedMinDate);
-      //expect(component.maxDate).toEqual(expectedMaxDate);
     });
 
     it('should set the values to null if coporate credit cards is disabled and the amount is less than 0.0001', () => {
@@ -981,7 +1054,6 @@ fdescribe('SplitExpensePage', () => {
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
       expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
       expect(component.minDate).toEqual(expectedMinDate);
-      //expect(component.maxDate).toEqual(expectedMaxDate);
     });
   });
 
