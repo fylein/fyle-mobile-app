@@ -46,10 +46,17 @@ import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { expenseFieldWithBillable } from 'src/app/core/mock-data/expense-field.data';
 import {
+  amtTxn3,
   createSourceTxn,
+  sourceSplitTxn,
   sourceTxn2,
   splitExpenseTxn1,
+  splitExpenseTxn1_1,
   splitExpenseTxn2,
+  splitExpenseTxn2_2,
+  splitExpenseTxn2_3,
+  splitExpenseTxn3,
+  splitPurposeTxn,
   splitTxn2,
   splitTxns,
   txnAmount1,
@@ -75,7 +82,15 @@ import {
   splitExpFileObj,
   thumbnailUrlMockData,
 } from 'src/app/core/mock-data/file-object.data';
-import { fileTxns, fileTxns2, fileTxns3, fileTxns4, fileTxns5, fileTxns6 } from 'src/app/core/mock-data/file-txn.data';
+import {
+  fileTxns,
+  fileTxns2,
+  fileTxns3,
+  fileTxns4,
+  fileTxns5,
+  fileTxns6,
+  fileTxns7,
+} from 'src/app/core/mock-data/file-txn.data';
 import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -102,6 +117,7 @@ import * as dayjs from 'dayjs';
 import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { last } from 'lodash';
+import { A } from '@angular/cdk/keycodes';
 
 fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -459,11 +475,11 @@ fdescribe('SplitExpensePage', () => {
 
   describe('createAndLinkTxnsWithFiles():', () => {
     it('should link transaction with files when the receipt is attached and, the txn state is COMPLETE but the report id is not present', (done) => {
-      const splitExpData = splitExpenseTxn1;
+      const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.transaction = txnAmount1;
       component.reportId = null;
       component.totalSplitAmount = 436342.464;
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns3.txns));
 
       component.fileObjs = fileObject6;
       splitExpenseService.getBase64Content.and.returnValue(
@@ -494,11 +510,11 @@ fdescribe('SplitExpensePage', () => {
     });
 
     it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present', (done) => {
-      const splitExpData = splitExpenseTxn1;
+      const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.transaction = txnAmount1;
       component.reportId = 'rpba4MnwQ0FO';
       component.totalSplitAmount = 436342.464;
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns3.txns));
 
       component.fileObjs = fileObject6;
       reportService.addTransactions.and.returnValue(of(fileData2));
@@ -511,7 +527,7 @@ fdescribe('SplitExpensePage', () => {
           },
         ])
       );
-      component.splitExpenseTxn = [fileTxns2];
+
       const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
       splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject7));
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
@@ -531,12 +547,11 @@ fdescribe('SplitExpensePage', () => {
     });
 
     it('should link transaction to files when the receipt is not attached and report id is not present', (done) => {
-      const splitExpData = splitExpenseTxn1;
+      const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.fileObjs = [];
       component.reportId = null;
       component.transaction = txnAmount1;
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
-      component.splitExpenseTxn = fileTxns2.txns;
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns4.txns));
       component.totalSplitAmount = 436342.464;
 
       const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
@@ -558,27 +573,25 @@ fdescribe('SplitExpensePage', () => {
     });
 
     it('should link transaction to files when the receipt is not attached and report not present', (done) => {
-      const splitExpData = splitExpenseTxn1;
+      const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.fileObjs = [];
       component.transaction = txnAmount1;
       component.reportId = 'rpba4MnwQ0FO';
-      component.createAndLinkTxnsWithFiles(splitExpData);
-      component.transaction = txnAmount1;
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
-      component.splitExpenseTxn = fileTxns2.txns;
+
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns4.txns));
       component.totalSplitAmount = 436342.464;
       splitExpenseService.linkTxnWithFiles.and.returnValue(of([null]));
       reportService.addTransactions.and.returnValue(of(fileData2));
 
       const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
-        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledWith(
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
           txnAmount1,
           component.totalSplitAmount,
           splitExpData
         );
-        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(2);
         expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
+        expect(component.splitExpenseTxn).toEqual(fileTxns4.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
@@ -588,13 +601,13 @@ fdescribe('SplitExpensePage', () => {
     });
 
     it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present and the expense is split in three', (done) => {
-      const splitExpData = splitExpenseTxn2;
+      const splitExpData = [splitExpenseTxn2, splitExpenseTxn2_2, splitExpenseTxn2_3];
       component.fileObjs = fileObject8;
       component.transaction = txnAmount2;
       component.reportId = 'rpPNBrdR9NaE';
       component.totalSplitAmount = 6000;
       reportService.addTransactions.and.returnValue(of(fileData2));
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn2));
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns6.txns));
       splitExpenseService.getBase64Content.and.returnValue(
         of([
           {
@@ -604,7 +617,6 @@ fdescribe('SplitExpensePage', () => {
           },
         ])
       );
-      component.splitExpenseTxn = [fileTxns5];
       const mockCompleteTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo'];
       splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject8));
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
@@ -614,10 +626,38 @@ fdescribe('SplitExpensePage', () => {
           splitExpData
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject8);
+        expect(component.splitExpenseTxn).toEqual(fileTxns6.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns6);
         expect(result).toEqual(mockCompleteTxnIds);
+        done();
+      });
+    });
+
+    it('should link transaction with files when only one of the txn state is COMPLETE and should only add this transaction to report', (done) => {
+      const splitExpData = splitExpenseTxn3;
+      component.transaction = amtTxn3;
+
+      component.reportId = 'rpPNBrdR9NaE';
+      component.totalSplitAmount = 635;
+      reportService.addTransactions.and.returnValue(of(fileTxns7.txns));
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns7.txns));
+
+      const mockCompleteTxnIds = ['txegSZ66da1T'];
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of([null]));
+
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
+          amtTxn3,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(component.splitExpenseTxn).toEqual(fileTxns7.txns);
+        expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
+        expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns7);
+        expect(result).toEqual(['tx5qtWJTXRcj', 'txegSZ66da1T']);
         done();
       });
     });
