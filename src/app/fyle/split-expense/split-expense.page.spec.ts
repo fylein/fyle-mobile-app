@@ -851,6 +851,17 @@ describe('SplitExpensePage', () => {
   it('showSplitExpenseViolations(): should show the expense violations when the expense is split', async () => {
     const violations = formattedTxnViolations;
     spyOn(component, 'showSuccessToast');
+    const properties = {
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      canDismiss: true,
+      backdropDismiss: true,
+      animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
+    };
+    modalProperties.getModalDefaultProperties.and.returnValue(properties);
     const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
       'present',
       'onWillDismiss',
@@ -871,9 +882,9 @@ describe('SplitExpensePage', () => {
       },
       mode: 'ios',
       presentingElement: await modalController.getTop(),
-      ...modalProperties.getModalDefaultProperties(),
+      ...properties,
     });
-    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(2);
+    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
   });
 
