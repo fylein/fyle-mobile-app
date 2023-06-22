@@ -2460,6 +2460,28 @@ describe('MyExpensesPage', () => {
     });
   }));
 
+  describe('selectedExpensesPopoverDeleteMethod(): ', () => {
+    beforeEach(() => {
+      transactionService.deleteBulk.and.returnValue(of(txnList));
+    });
+    it('should update selectedElements and call deleteBulk method if expenseToBeDeleted is defined', () => {
+      component.pendingTransactions = [];
+      component.expensesToBeDeleted = expenseList4;
+      component.selectedExpensesPopoverDeleteMethod();
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith([], []);
+      expect(component.selectedElements).toEqual(expenseList4);
+      expect(transactionService.deleteBulk).toHaveBeenCalledOnceWith(['txKFqMRPNLsa', 'txc5zbIpTGMU', 'txo3tuIb7em4']);
+    });
+    it('should update selectedElements and should not invoke deleteBulk method if expenseToBeDeleted is undefined', () => {
+      component.pendingTransactions = [];
+      component.expensesToBeDeleted = undefined;
+      component.selectedExpensesPopoverDeleteMethod();
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith([], undefined);
+      expect(component.selectedElements).toEqual(undefined);
+      expect(transactionService.deleteBulk).not.toHaveBeenCalled();
+    });
+  });
+
   describe('deleteSelectedExpenses(): ', () => {
     beforeEach(() => {
       transactionService.getExpenseDeletionMessage.and.returnValue('You are about to delete this expense');
@@ -2478,6 +2500,9 @@ describe('MyExpensesPage', () => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
+
+      const mockExpenseList = cloneDeep(expenseList4);
+      component.expensesToBeDeleted = cloneDeep(mockExpenseList);
 
       component.deleteSelectedExpenses();
       tick(100);

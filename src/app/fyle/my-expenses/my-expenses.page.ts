@@ -70,6 +70,7 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { UnformattedTransaction } from 'src/app/core/models/my-expenses.model';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
 
 type QueryParams = Partial<{
   or: string[];
@@ -1270,8 +1271,21 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
+  selectedExpensesPopoverDeleteMethod(): Observable<Transaction[]> {
+    const offlineExpenses = this.expensesToBeDeleted?.filter((expense) => !expense.tx_id);
+
+    this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
+
+    this.selectedElements = this.expensesToBeDeleted?.filter((expense) => expense.tx_id);
+    if (this.selectedElements?.length > 0) {
+      return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.tx_id));
+    } else {
+      return of(null);
+    }
+  }
+
   async deleteSelectedExpenses() {
-    let offlineExpenses: Partial<Expense>[] = [];
+    const offlineExpenses = this.expensesToBeDeleted?.filter((expense) => !expense.tx_id);
 
     const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
 
@@ -1291,20 +1305,7 @@ export class MyExpensesPage implements OnInit {
         ),
         ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
         disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
-        deleteMethod: () => {
-          offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
-
-          this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
-
-          this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
-          if (this.selectedElements?.length > 0) {
-            return this.transactionService.deleteBulk(
-              this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
-            );
-          } else {
-            return of(null);
-          }
-        },
+        deleteMethod: this.selectedExpensesPopoverDeleteMethod.bind(this),
       },
     });
 
