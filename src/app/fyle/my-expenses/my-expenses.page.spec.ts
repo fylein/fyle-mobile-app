@@ -9,7 +9,7 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription, finalize, of, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -35,6 +35,7 @@ import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.det
 import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
 import {
   apiExpenseRes,
+  expectedFormattedTransaction,
   expenseData1,
   expenseData2,
   expenseData3,
@@ -46,9 +47,16 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { environment } from 'src/environments/environment';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
-import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
+import {
+  creditTxnFilterPill,
+  expectedFilterPill1,
+  expectedFilterPill2,
+} from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expenses-filters.model';
+import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
+import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
+import { filters1, filters2 } from 'src/app/core/mock-data/expenses-filters.data';
 import {
   addExpenseToReportModalParams,
   expectedActionSheetButtonRes,
@@ -56,39 +64,30 @@ import {
   expectedCriticalPolicyViolationPopoverParams2,
   expectedCriticalPolicyViolationPopoverParams3,
   expectedCurrentParams,
-  expectedFilterPill1,
-  expectedFilterPill2,
-  expectedFilterPill3,
-  expectedFormattedTransaction,
-  filters1,
-  filters2,
   modalControllerParams,
   modalControllerParams2,
   modalDefaultPropertiesRes,
   newReportModalParams,
+  openFromComponentConfig,
+  popoverControllerParams,
   snackbarPropertiesRes,
   snackbarPropertiesRes2,
   snackbarPropertiesRes3,
   snackbarPropertiesRes4,
-  unformattedTxnData,
-} from 'src/app/core/mock-data/my-expenses.data';
-import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
-import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
-import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
-import { cloneDeep, noop } from 'lodash';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
-import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
+} from 'src/app/core/test-data/my-expenses.page.spec.data';
+import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { cloneDeep } from 'lodash';
+import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { Expense } from 'src/app/core/models/expense.model';
-import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
-import { ComponentType } from '@angular/cdk/portal';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { ExtendedReport } from 'src/app/core/models/report.model';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -1541,7 +1540,7 @@ describe('MyExpensesPage', () => {
       });
 
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
-      expect(component.filterPills).toEqual(expectedFilterPill3);
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
       expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
     }));
 
@@ -1561,7 +1560,7 @@ describe('MyExpensesPage', () => {
         expect(loadData).toEqual({ searchString: 'example' });
       });
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
-      expect(component.filterPills).toEqual(expectedFilterPill3);
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
       expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
     }));
   });
@@ -1577,7 +1576,7 @@ describe('MyExpensesPage', () => {
       searchString: 'example',
     });
     component.loadData$ = new BehaviorSubject({});
-    spyOn(component, 'generateFilterPills').and.returnValue(expectedFilterPill3);
+    spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
 
     component.clearFilters();
 
@@ -1591,7 +1590,7 @@ describe('MyExpensesPage', () => {
       });
     });
     expect(component.generateFilterPills).toHaveBeenCalledOnceWith({});
-    expect(component.filterPills).toEqual(expectedFilterPill3);
+    expect(component.filterPills).toEqual(creditTxnFilterPill);
   });
 
   it('setState(): should set state and update isLoading correctly', fakeAsync(() => {
@@ -1811,22 +1810,7 @@ describe('MyExpensesPage', () => {
       });
       tick(100);
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: PopupAlertComponent,
-        componentProps: {
-          title: '2 Draft Expenses blocking the way',
-          message: '2 expenses are in draft state.',
-          primaryCta: {
-            text: 'Exclude and Continue',
-            action: 'continue',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'cancel',
-          },
-        },
-        cssClass: 'pop-up-in-center',
-      });
+      expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams);
 
       expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
       expect(component.showNewReportModal).not.toHaveBeenCalled();
@@ -1839,22 +1823,7 @@ describe('MyExpensesPage', () => {
       });
       tick(100);
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: PopupAlertComponent,
-        componentProps: {
-          title: '2 Draft Expenses blocking the way',
-          message: '2 expenses are in draft state.',
-          primaryCta: {
-            text: 'Exclude and Continue',
-            action: 'continue',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'cancel',
-          },
-        },
-        cssClass: 'pop-up-in-center',
-      });
+      expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams);
 
       expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
       expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
@@ -1865,15 +1834,7 @@ describe('MyExpensesPage', () => {
     snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes);
     component.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
 
-    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
-      data: {
-        icon: 'danger',
-        showCloseButton: true,
-        message: 'Please select one or more expenses to be reported',
-      },
-      duration: 3000,
-      panelClass: ['msb-failure-with-report-btn'],
-    });
+    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, openFromComponentConfig);
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', {
       message: 'Please select one or more expenses to be reported',
     });
@@ -2748,13 +2709,6 @@ describe('MyExpensesPage', () => {
   });
 
   describe('onFilterClose(): ', () => {
-    const mockFilterPill = [
-      {
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Credit',
-      },
-    ];
     beforeEach(() => {
       component.loadData$ = new BehaviorSubject({});
       component.filters = {
@@ -2765,7 +2719,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'addNewFiltersToParams').and.returnValue({
         pageNumber: 3,
       });
-      spyOn(component, 'generateFilterPills').and.returnValue(mockFilterPill);
+      spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
     });
     it('should remove sortDir and sortParam if filterType is sort', () => {
       component.onFilterClose('sort');
@@ -2777,7 +2731,7 @@ describe('MyExpensesPage', () => {
       component.loadData$.subscribe((data) => {
         expect(data).toEqual({ pageNumber: 3 });
       });
-      expect(component.filterPills).toEqual(mockFilterPill);
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
     });
 
     it('should remove property from filter if filterType is other than sort', () => {
@@ -2790,7 +2744,7 @@ describe('MyExpensesPage', () => {
       component.loadData$.subscribe((data) => {
         expect(data).toEqual({ pageNumber: 3 });
       });
-      expect(component.filterPills).toEqual(mockFilterPill);
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
     });
   });
 
