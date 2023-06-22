@@ -2,13 +2,15 @@ import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DomSanitizer } from '@angular/platform-browser';
+import { By, DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
+import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
+import { defaultTxnFieldValuesData } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -17,9 +19,15 @@ import {
   getMarkDismissModalParamsData1,
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
+import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { txnList } from 'src/app/core/mock-data/transaction.data';
 import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
-import { unflattenExp1, unflattenExp2, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
+import {
+  unflattenExp1,
+  unflattenExp2,
+  unflattenedTxn,
+  unflattenedTxnData,
+} from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -296,6 +304,45 @@ export function TestCases1(getTestBed) {
         });
         expect(component.goBack).toHaveBeenCalledTimes(1);
       }));
+
+      it('should navigate back to previous page if form is not valid', fakeAsync(() => {
+        component.presetCategoryId = null;
+        component.presetProjectId = null;
+        component.presetCostCenterId = null;
+        component.presetCurrency = null;
+        activatedRoute.snapshot.params.dataUrl = null;
+        Object.defineProperty(component.fg, 'touched', {
+          get: () => false,
+        });
+
+        fixture.detectChanges();
+
+        component.showClosePopup();
+        tick(500);
+
+        expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Receipt' });
+        expect(navController.back).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should navigate back to my expenses if the form in not valid', fakeAsync(() => {
+        component.presetCategoryId = null;
+        component.presetProjectId = null;
+        component.presetCostCenterId = null;
+        component.presetCurrency = null;
+        component.navigateBack = false;
+        activatedRoute.snapshot.params.dataUrl = null;
+        spyOn(component, 'goBack');
+        Object.defineProperty(component.fg, 'touched', {
+          get: () => false,
+        });
+
+        fixture.detectChanges();
+
+        component.showClosePopup();
+        tick(500);
+
+        expect(component.goBack).toHaveBeenCalledTimes(1);
+      }));
     });
 
     describe('merchantValidator():', () => {
@@ -419,6 +466,59 @@ export function TestCases1(getTestBed) {
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();
         done();
+      });
+    });
+
+    describe('openSplitExpenseModal():', () => {
+      it('should open split expense modal by navigating to split expense', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        component.txnFields$ = of(defaultTxnFieldValuesData);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'split_expense',
+          {
+            splitType: 'projects',
+            txnFields: JSON.stringify(defaultTxnFieldValuesData),
+            txn: JSON.stringify(unflattenedTxnData.tx),
+            currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
+            fileObjs: JSON.stringify(unflattenedTxnData.dataUrls),
+            selectedCCCTransaction: null,
+            selectedReportId: null,
+          },
+        ]);
+      });
+
+      it('should navigate to split expense with selected CCC txns and report ID', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        component.txnFields$ = of(defaultTxnFieldValuesData);
+        component.selectedCCCTransaction = 'txID';
+        component.fg.controls.report.setValue(expectedErpt[0]);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+        fixture.detectChanges();
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'split_expense',
+          {
+            splitType: 'projects',
+            txnFields: JSON.stringify(defaultTxnFieldValuesData),
+            txn: JSON.stringify(unflattenedTxnData.tx),
+            currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
+            fileObjs: JSON.stringify(unflattenedTxnData.dataUrls),
+            selectedCCCTransaction: JSON.stringify(component.selectedCCCTransaction),
+            selectedReportId: JSON.stringify(component.fg.value.report.rp.id),
+          },
+        ]);
       });
     });
 
@@ -836,6 +936,15 @@ export function TestCases1(getTestBed) {
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       });
+    });
+
+    it('showFormValidationErrors(): should show form validation errors', () => {
+      spyOn(component.fg, 'markAllAsTouched');
+      component.formContainer = fixture.debugElement.query(By.css('.add-edit-expense--form'));
+      fixture.detectChanges();
+
+      component.showFormValidationErrors();
+      expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
     });
   });
 }

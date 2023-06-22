@@ -43,6 +43,7 @@ import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { TestCases1 } from './add-edit-expense-1.spec';
 import { TestCases2 } from './add-edit-expense-2.spec';
+import { TestCases3 } from './add-edit-expense-3.spec';
 
 describe('AddEditExpensePage', () => {
   const getTestBed = () => {
@@ -374,4 +375,5 @@ describe('AddEditExpensePage', () => {
 
   TestCases1(getTestBed);
   TestCases2(getTestBed);
+  TestCases3(getTestBed);
 });

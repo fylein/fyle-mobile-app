@@ -802,6 +802,38 @@ export function TestCases2(getTestBed) {
       });
     });
 
+    describe('getDeleteReportParams():', () => {
+      it('should return modal params and method to remove expense from report', (done) => {
+        reportService.removeTransaction.and.returnValue(of(null));
+
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            true,
+            'rpId'
+          )
+          .componentProps.deleteMethod()
+          .subscribe(() => {
+            expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpId', activatedRoute.snapshot.params.id);
+            done();
+          });
+      });
+
+      it('should  return modal params and method to delete expense', (done) => {
+        transactionService.delete.and.returnValue(of(expenseData1));
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            false
+          )
+          .componentProps.deleteMethod()
+          .subscribe(() => {
+            expect(transactionService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+            done();
+          });
+      });
+    });
+
     describe('deleteExpense():', () => {
       it('should delete expense and navigate back to report if deleting directly from report', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
