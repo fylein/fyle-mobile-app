@@ -67,9 +67,9 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
-import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
+import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stat.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { UnformattedTransaction } from 'src/app/core/models/my-expenses.model';
+import { UnformattedTransaction } from 'src/app/core/models/unformatted-transaction.model';
 
 type QueryParams = Partial<{
   or: string[];
@@ -316,7 +316,7 @@ export class MyExpensesPage implements OnInit {
           })
           .pipe(
             catchError((err) => EMPTY),
-            map((stats: CardAggregateStat[]) => {
+            map((stats: CardAggregateStats[]) => {
               const count = stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
               const amount = stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
               return {
@@ -383,7 +383,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  getCardDetail(statsResponses: CardAggregateStat[]) {
+  getCardDetail(statsResponses: CardAggregateStats[]) {
     const cardNames: { cardNumber: string; cardName: string }[] = [];
     statsResponses.forEach((response) => {
       const cardDetail = {

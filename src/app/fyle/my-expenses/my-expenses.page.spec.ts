@@ -35,6 +35,7 @@ import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.det
 import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
 import {
   apiExpenseRes,
+  expectedFormattedTransaction,
   expenseData1,
   expenseData2,
   expenseData3,
@@ -46,9 +47,17 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { environment } from 'src/environments/environment';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
-import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
+import {
+  creditTxnFilterPill,
+  expectedFilterPill1,
+  expectedFilterPill2,
+  expectedFilterPill3,
+} from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expenses-filters.model';
+import { txnData2 } from 'src/app/core/mock-data/transaction.data';
+import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
+import { filters1, filters2 } from 'src/app/core/mock-data/expenses-filters.data';
 import {
   addExpenseToReportModalParams,
   expectedActionSheetButtonRes,
@@ -56,33 +65,23 @@ import {
   expectedCriticalPolicyViolationPopoverParams2,
   expectedCriticalPolicyViolationPopoverParams3,
   expectedCurrentParams,
-  expectedFilterPill1,
-  expectedFilterPill2,
-  expectedFilterPill3,
-  expectedFormattedTransaction,
-  filters1,
-  filters2,
   modalControllerParams,
   modalControllerParams2,
   modalDefaultPropertiesRes,
   newReportModalParams,
   snackbarPropertiesRes,
   snackbarPropertiesRes2,
-  unformattedTxnData,
-} from 'src/app/core/mock-data/my-expenses.data';
-import { txnData2 } from 'src/app/core/mock-data/transaction.data';
-import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
-import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
-import { cloneDeep } from 'lodash';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
-import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
+} from 'src/app/core/test-data/my-expenses.page.spec.data';
+import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { cloneDeep } from 'lodash';
+import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { Expense } from 'src/app/core/models/expense.model';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
