@@ -84,7 +84,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { Expense } from 'src/app/core/models/expense.model';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 
-fdescribe('MyExpensesPage', () => {
+describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
