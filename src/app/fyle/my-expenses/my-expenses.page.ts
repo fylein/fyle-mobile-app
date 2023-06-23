@@ -70,14 +70,8 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stat.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { UnformattedTransaction } from 'src/app/core/models/unformatted-transaction.model';
-
-type QueryParams = Partial<{
-  or: string[];
-  and: string;
-  tx_report_id: string;
-  tx_state: string;
-  corporate_credit_card_account_number: string;
-}>;
+import { ExpensesData } from 'src/app/core/models/expenses-data.model';
+import { ExpensesQueryParams } from 'src/app/core/models/expenses-query-params.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -95,15 +89,7 @@ export class MyExpensesPage implements OnInit {
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  loadData$: BehaviorSubject<
-    Partial<{
-      pageNumber: number;
-      queryParams: QueryParams;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  >;
+  loadData$: BehaviorSubject<Partial<ExpensesData>>;
 
   currentPageNumber = 1;
 
@@ -758,7 +744,7 @@ export class MyExpensesPage implements OnInit {
   addNewFiltersToParams() {
     let currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    let newQueryParams: QueryParams = {
+    let newQueryParams: Partial<ExpensesQueryParams> = {
       or: [],
     };
 

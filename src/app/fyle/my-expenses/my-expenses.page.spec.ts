@@ -63,12 +63,7 @@ import { ExpenseFilters } from './expense-filters.model';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
 import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
-import {
-  expectedActionSheetButtonRes,
-  expectedCurrentParams,
-  modalControllerParams,
-  modalControllerParams2,
-} from 'src/app/core/test-data/my-expenses.page.spec.data';
+import { expectedActionSheetButtonRes } from 'src/app/core/test-data/my-expenses.page.spec.data';
 import { cloneDeep } from 'lodash';
 import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
 import { cardDetailsData1 } from 'src/app/core/mock-data/card-details.data';
@@ -76,6 +71,8 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import { modalControllerParams, modalControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
+import { expectedCurrentParams } from 'src/app/core/mock-data/expenses-data.data';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
