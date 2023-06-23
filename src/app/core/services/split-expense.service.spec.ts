@@ -527,7 +527,7 @@ describe('SplitExpenseService', () => {
       spyOn(splitExpenseService, 'setupSplitExpensePurpose');
     });
 
-    it('should return observable of transactions if orig_currency is defined in source transactions', () => {
+    it('should set orig_amount of splitter expense and amount equals to (splitter amount * exchangeRate) if orig_currency is set', () => {
       const mockTxn = cloneDeep(txnData5);
       mockTxn.split_group_id = undefined;
       mockTxn.split_group_user_amount = undefined;
@@ -567,7 +567,7 @@ describe('SplitExpenseService', () => {
       expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams2);
     });
 
-    it('should return observable of transactions if orig_currency is undefined in source transactions', () => {
+    it('should set amount of the splitter expenses if orig_currency is not set', () => {
       const mockTxn = cloneDeep(txnData5);
       mockTxn.orig_currency = undefined;
       const mockSplitExpenses = cloneDeep(txnList);
@@ -602,7 +602,7 @@ describe('SplitExpenseService', () => {
       expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams4);
     });
 
-    it('should return observable of transactions if transactions.source is undefined', () => {
+    it('should create expenses with source as mobile app if source is undefined', () => {
       const mockTxn = cloneDeep(txnData5);
       mockTxn.source = undefined;
       const mockSplitExpenses = cloneDeep(txnList);

@@ -2332,7 +2332,7 @@ export const expectedTxnParams4: Transaction = {
 
 export const expectedTxnParams5: Transaction = {
   ...txnData5,
-  source: 'WEBAPP',
+  source: 'MOBILE_SPLIT',
   orig_amount: null,
   amount: 0,
 };

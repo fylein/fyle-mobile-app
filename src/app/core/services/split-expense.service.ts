@@ -275,7 +275,7 @@ export class SplitExpenseService {
       transaction.split_group_user_amount = sourceTxn.split_group_user_amount || splitGroupAmount;
 
       transaction.id = null;
-      transaction.source = transaction.source || 'WEBAPP';
+      transaction.source = transaction.source || 'MOBILE_SPLIT';
 
       transaction.txn_dt = splitExpense.txn_dt || sourceTxn.txn_dt;
       transaction.txn_dt = new Date(transaction.txn_dt);
