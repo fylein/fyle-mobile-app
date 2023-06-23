@@ -3,7 +3,7 @@ export interface SnackbarProperties {
     icon: string;
     showCloseButton: boolean;
     message: string;
-    redirectiontext?: string;
+    redirectionText?: string;
   };
   duration: number;
 }

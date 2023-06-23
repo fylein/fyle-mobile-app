@@ -466,12 +466,7 @@ describe('ExpensesCardComponent', () => {
         ...unflattenedTxnData,
         tx_id: 'tx5fBcPBAxLv',
         tx: {
-          extracted_data: {
-            category: 'Software',
-            date: null,
-            vendor: null,
-            invoice_dt: null,
-          },
+          extracted_data: null,
         },
       };
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));

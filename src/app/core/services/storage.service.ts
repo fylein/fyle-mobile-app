@@ -8,7 +8,7 @@ import { Preferences } from '@capacitor/preferences';
 export class StorageService {
   constructor() {}
 
-  async set(key: string, value: any) {
+  async set(key: string, value: any): Promise<void> {
     return await Preferences.set({
       key,
       value: JSON.stringify(value),
@@ -27,11 +27,11 @@ export class StorageService {
     }
   }
 
-  async delete(key: string) {
+  async delete(key: string): Promise<void> {
     return await Preferences.remove({ key });
   }
 
-  async clearAll() {
+  async clearAll(): Promise<void> {
     return await Preferences.clear();
   }
 }

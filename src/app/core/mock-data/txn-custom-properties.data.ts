@@ -378,3 +378,59 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     parent_field_id: null,
   },
 ];
+
+export const expectedTxnCustomProperties: TxnCustomProperties[] = [
+  {
+    id: 200227,
+    mandatory: false,
+    name: 'userlist',
+    options: [],
+    placeholder: 'userlist_custom_field',
+    prefix: '',
+    type: 'USER_LIST',
+    value: [],
+  },
+  {
+    id: 210281,
+    mandatory: false,
+    name: 'test',
+    options: [
+      {
+        label: 'asd',
+        value: 'asd',
+      },
+      {
+        label: 'asdf',
+        value: 'asdf',
+      },
+      {
+        label: 'asdff',
+        value: 'asdff',
+      },
+    ],
+    placeholder: '123test',
+    prefix: '',
+    type: 'MULTI_SELECT',
+    value: '',
+  },
+  {
+    id: 206206,
+    mandatory: false,
+    name: 'pub create hola 1',
+    options: [],
+    placeholder: 'pub create hola 1',
+    prefix: '',
+    type: 'LOCATION',
+    value: null,
+  },
+  {
+    id: 211326,
+    mandatory: false,
+    name: 'select all 2',
+    options: [],
+    placeholder: 'helo date',
+    prefix: '',
+    type: 'DATE',
+    value: new Date('2023-02-13T17:00:00.000Z'),
+  },
+];

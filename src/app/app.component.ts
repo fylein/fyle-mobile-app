@@ -25,6 +25,7 @@ import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
 import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
 import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
+import { GmapsService } from './core/services/gmaps.service';
 
 @Component({
   selector: 'app-root',
@@ -69,7 +70,8 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private navController: NavController,
-    private backButtonService: BackButtonService
+    private backButtonService: BackButtonService,
+    private gmapsService: GmapsService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -215,6 +217,8 @@ export class AppComponent implements OnInit {
         }
       }
     });
+
+    this.gmapsService.loadLibrary();
   }
 
   switchDelegator(isSwitchedToDelegator: boolean) {

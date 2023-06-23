@@ -2,6 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angu
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
+import { Swiper } from 'swiper/types';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -22,7 +23,7 @@ export class BankAccountCardsComponent implements OnInit {
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
   pagination = {
-    renderBullet(index, className) {
+    renderBullet(index, className): string {
       return '<span class="fyle ' + className + '"> </span>';
     },
   };
@@ -31,12 +32,12 @@ export class BankAccountCardsComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onDeleted() {
+  onDeleted(): void {
     this.deleted.emit();
   }
 
-  onCardChange(event) {
-    if (!this.minimal && event.length) {
+  onCardChange(event: Swiper[]): void {
+    if (!this.minimal && event.length && event[0].realIndex && this.linkedAccounts[event[0].realIndex]) {
       this.changed.emit(this.linkedAccounts[event[0].realIndex].id);
     }
   }

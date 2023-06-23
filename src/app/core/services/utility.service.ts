@@ -7,6 +7,7 @@ import * as dayjs from 'dayjs';
 import { CustomField } from '../models/custom_field.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 @Injectable({
   providedIn: 'root',
@@ -73,7 +74,7 @@ export class UtilityService {
     });
   }
 
-  traverse(x, callback) {
+  traverse(x, callback): TxnCustomProperties[] {
     const that = this;
     if (isArray(x)) {
       return that.traverseArray(x, callback);

@@ -16,6 +16,7 @@ import { DataTransformService } from './data-transform.service';
 import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { TrackingService } from './tracking.service';
+import { AccessTokenData } from '../models/access-token-data.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -114,7 +115,8 @@ export class OrgUserService {
   }
 
   async isSwitchedToDelegator(): Promise<boolean> {
-    const accessToken = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
+    const accessTokenPromise = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
+    const accessToken: AccessTokenData = await accessTokenPromise;
     return accessToken && !!accessToken.proxy_org_user_id;
   }
 }

@@ -40,10 +40,10 @@ describe('SnackbarPropertiesService', () => {
   it('should return redirection text in data', () => {
     const properties = service.setSnackbarProperties('success', {
       message: 'Success message',
-      redirectiontext: 'redirection',
+      redirectionText: 'redirection',
     });
     expect(properties.data.message).toEqual('Success message');
-    expect(properties.data.redirectiontext).toEqual('redirection');
+    expect(properties.data.redirectionText).toEqual('redirection');
   });
 
   it('should return showCloseButton as true', () => {

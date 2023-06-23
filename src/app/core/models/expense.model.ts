@@ -52,7 +52,7 @@ export interface Expense {
   tx_cost_center_name?: any;
   tx_created_at: Date;
   tx_creator_id: string;
-  tx_currency?: any;
+  tx_currency?: string;
   tx_custom_attributes?: any;
   tx_custom_properties?: any;
   tx_decimal_column1?: any;
@@ -104,8 +104,8 @@ export interface Expense {
   tx_org_category_code?: any;
   tx_org_category_id: number;
   tx_org_user_id: string;
-  tx_orig_amount?: any;
-  tx_orig_currency?: any;
+  tx_orig_amount?: number;
+  tx_orig_currency?: string;
   tx_payment_id?: any;
   tx_per_diem_rate_id?: any;
   tx_physical_bill: boolean;

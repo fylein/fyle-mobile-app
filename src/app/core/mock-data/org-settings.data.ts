@@ -1187,3 +1187,11 @@ export const orgSettingsParamWoCCC: OrgSettings = {
     enabled: true,
   },
 };
+
+export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
+  ...orgSettingsRes,
+  simplified_report_closure_settings: {
+    allowed: true,
+    enabled: true,
+  },
+};

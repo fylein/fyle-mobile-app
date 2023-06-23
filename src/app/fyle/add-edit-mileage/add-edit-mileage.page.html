@@ -78,13 +78,16 @@
             </div>
           </ng-container>
 
-          <ng-container *ngIf="isConnected$|async">
-            <div class="add-edit-mileage--map">
-              <app-route-visualizer
-                [mileageLocations]="fg.controls.route.value?.mileageLocations || []"
-                (mapClick)="onRouteVisualizerClick()"
-              ></app-route-visualizer>
-            </div>
+          <ng-container *ngIf="isConnected$ | async">
+            <ng-container *ngIf="{ loadDynamicMap: loadDynamicMap$ | async } as data">
+              <div class="add-edit-mileage--map" *ngIf="data.loadDynamicMap !== null">
+                <app-route-visualizer
+                  [mileageLocations]="fg.controls.route.value?.mileageLocations || []"
+                  [loadDynamicMap]="data.loadDynamicMap"
+                  (mapClick)="onRouteVisualizerClick()"
+                ></app-route-visualizer>
+              </div>
+            </ng-container>
           </ng-container>
 
           <form #formContainer [formGroup]="fg" class="add-edit-mileage--form">

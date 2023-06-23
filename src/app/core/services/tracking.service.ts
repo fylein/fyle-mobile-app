@@ -26,7 +26,7 @@ import {
   SwitchOrgLaunchTimeProperties,
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
-import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { Filters, ReportFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 
@@ -379,7 +379,7 @@ export class TrackingService {
     this.eventTrack('my expenses filters applied', properties);
   }
 
-  myReportsFilterApplied(properties: Filters) {
+  myReportsFilterApplied(properties: ReportFilters) {
     this.eventTrack('my reports filters applied', properties);
   }
 

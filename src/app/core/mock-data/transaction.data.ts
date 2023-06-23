@@ -2264,3 +2264,75 @@ export const txnParam2: Transaction = {
   categoryDisplayName: 'Food / Travelling - Inland',
   custom_attributes: null,
 };
+
+export const txnData5: Transaction = {
+  ...txnData,
+  orig_currency: 'USD',
+  orig_amount: 200,
+  amount: 2000,
+  split_group_id: 'txOJVaaPxo9O',
+  split_group_user_amount: 100,
+  id: null,
+  source: 'MOBILE_DASHCAM_BULK',
+  txn_dt: new Date('2023-01-31T17:00:00.000Z'),
+  project_id: null,
+  cost_center_id: null,
+  org_category_id: 117013,
+  billable: true,
+  tax_amount: 45,
+  custom_properties: [
+    {
+      name: 'userlist',
+      value: [],
+    },
+    {
+      name: 'User List',
+      value: [],
+    },
+  ],
+};
+
+export const expectedTxnParams: Transaction = {
+  ...txnData5,
+  split_group_id: 'txOJVaaPxo9O',
+  split_group_user_amount: 100,
+  orig_amount: 100,
+  amount: 1000,
+};
+
+export const expectedTxnParams2: Transaction = {
+  ...txnData5,
+  orig_amount: 100,
+  amount: 1000,
+  split_group_id: 'txOJVaaPxo9O',
+  split_group_user_amount: 100,
+  cost_center_id: 13795,
+  org_category_id: 123032,
+};
+
+export const expectedTxnParams3: Transaction = {
+  ...txnData5,
+  orig_currency: undefined,
+  split_group_user_amount: 100,
+  orig_amount: 200,
+  amount: null,
+  cost_center_id: null,
+  org_category_id: 117013,
+};
+
+export const expectedTxnParams4: Transaction = {
+  ...txnData5,
+  orig_currency: undefined,
+  split_group_user_amount: 100,
+  orig_amount: 200,
+  amount: null,
+  cost_center_id: 13795,
+  org_category_id: 123032,
+};
+
+export const expectedTxnParams5: Transaction = {
+  ...txnData5,
+  source: 'MOBILE_SPLIT',
+  orig_amount: null,
+  amount: 0,
+};

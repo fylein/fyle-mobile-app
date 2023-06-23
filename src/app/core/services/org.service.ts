@@ -52,7 +52,7 @@ export class OrgService {
     return this.apiService.get<CurrencyIp>('/currency/ip').pipe(
       map((data) => {
         data.currency = data.currency || 'USD';
-        return data.currency as string;
+        return data.currency;
       }),
       catchError(() => 'USD')
     );
