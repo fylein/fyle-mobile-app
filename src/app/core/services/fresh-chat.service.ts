@@ -44,9 +44,9 @@ export class FreshChatService {
     return (window as any) && (window as any).fcWidget && (window as any).fcWidget.open();
   }
 
-  destory() {
-    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destory) {
-      (window as any).fcWidget.destory();
+  destroy() {
+    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destroy) {
+      (window as any).fcWidget.destroy();
     }
   }
 
@@ -126,17 +126,17 @@ export class FreshChatService {
     });
   }
 
-  private initialize(i, t) {
+  private initialize(document, elementId) {
     const that = this;
-    let e;
+    let scriptElement;
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    i.getElementById(t)
+    document.getElementById(elementId)
       ? that.initFreshChat.call(that)
-      : (((e = i.createElement('script')).id = t),
-        (e.async = !0),
-        (e.src = 'https://wchat.in.freshchat.com/js/widget.js'),
-        (e.onload = that.initFreshChat.bind(that)),
-        i.head.appendChild(e));
+      : (((scriptElement = document.createElement('script')).id = elementId),
+        (scriptElement.async = !0),
+        (scriptElement.src = 'https://wchat.in.freshchat.com/js/widget.js'),
+        (scriptElement.onload = that.initFreshChat.bind(that)),
+        document.head.appendChild(scriptElement));
   }
 
   private initiateCall() {
