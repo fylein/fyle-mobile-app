@@ -70,8 +70,8 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stat.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { UnformattedTransaction } from 'src/app/core/models/unformatted-transaction.model';
-import { ExpensesData } from 'src/app/core/models/expenses-data.model';
-import { ExpensesQueryParams } from 'src/app/core/models/expenses-query-params.model';
+import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expenses-query-params-with-filters.model';
+import { GetExpensesQueryParams } from 'src/app/core/models/get-expenses-query-params.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -89,7 +89,7 @@ export class MyExpensesPage implements OnInit {
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  loadData$: BehaviorSubject<Partial<ExpensesData>>;
+  loadData$: BehaviorSubject<Partial<GetExpensesQueryParamsWithFilters>>;
 
   currentPageNumber = 1;
 
@@ -744,7 +744,7 @@ export class MyExpensesPage implements OnInit {
   addNewFiltersToParams() {
     let currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    let newQueryParams: Partial<ExpensesQueryParams> = {
+    let newQueryParams: Partial<GetExpensesQueryParams> = {
       or: [],
     };
 
@@ -824,7 +824,7 @@ export class MyExpensesPage implements OnInit {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  async setState(state: string) {
+  async setState() {
     this.isLoading = true;
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -832,35 +832,6 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       this.isLoading = false;
     }, 500);
-  }
-
-  async onDeleteExpenseClick(etxn: Expense, index?: number) {
-    const popupResults = await this.popupService.showPopup({
-      header: 'Delete Expense',
-      message: 'Are you sure you want to delete this expense?',
-      primaryCta: {
-        text: 'Delete',
-      },
-    });
-
-    if (popupResults === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense', 2500))
-        .pipe(
-          switchMap(() =>
-            iif(
-              () => !etxn.tx_id,
-              of(this.transactionOutboxService.deleteOfflineExpense(index)),
-              this.transactionService.delete(etxn.tx_id)
-            )
-          ),
-          tap(() => this.trackingService.deleteExpense()),
-          finalize(async () => {
-            await this.loaderService.hideLoader();
-            this.doRefresh();
-          })
-        )
-        .subscribe(noop);
-    }
   }
 
   setExpenseStatsOnSelect() {
@@ -873,9 +844,9 @@ export class MyExpensesPage implements OnInit {
   selectExpense(expense: Expense) {
     let isSelectedElementsIncludesExpense = false;
     if (expense.tx_id) {
-      isSelectedElementsIncludesExpense = this.selectedElements?.some((txn) => expense.tx_id === txn.tx_id);
+      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
     } else {
-      isSelectedElementsIncludesExpense = this.selectedElements?.some((txn) => isEqual(txn, expense));
+      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => isEqual(txn, expense));
     }
 
     if (isSelectedElementsIncludesExpense) {
@@ -885,20 +856,20 @@ export class MyExpensesPage implements OnInit {
         this.selectedElements = this.selectedElements.filter((txn) => !isEqual(txn, expense));
       }
     } else {
-      this.selectedElements?.push(expense);
+      this.selectedElements.push(expense);
     }
     this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
 
-    if (this.selectedElements?.length > 0) {
+    if (this.selectedElements.length > 0) {
       this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
 
       this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
 
-      this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted?.length;
+      this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
     }
 
     // setting Expenses count and amount stats on select
-    if (this.allExpensesCount === this.selectedElements?.length) {
+    if (this.allExpensesCount === this.selectedElements.length) {
       this.selectAll = true;
     } else {
       this.selectAll = false;
@@ -907,7 +878,7 @@ export class MyExpensesPage implements OnInit {
     this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedElements);
   }
 
-  goToTransaction({ etxn: expense, etxnIndex }) {
+  goToTransaction({ etxn: expense }) {
     let category: string;
 
     if (expense.tx_org_category) {
@@ -921,12 +892,6 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id, persist_filters: true }]);
     }
-  }
-
-  onAddTransactionToNewReport(expense: Expense) {
-    this.trackingService.clickAddToReport();
-    const transactionIds = JSON.stringify([expense.tx_id]);
-    this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
   async openCriticalPolicyViolationPopOver(config: { title: string; message: string; reportType: string }) {

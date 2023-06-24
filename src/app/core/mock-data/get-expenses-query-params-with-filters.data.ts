@@ -1,6 +1,6 @@
-import { ExpensesData } from '../models/expenses-data.model';
+import { GetExpensesQueryParamsWithFilters } from '../models/get-expenses-query-params-with-filters.model';
 
-export const expectedCurrentParams: Partial<ExpensesData> = {
+export const expectedCurrentParams: Partial<GetExpensesQueryParamsWithFilters> = {
   sortDir: 'asc',
   queryParams: {
     corporate_credit_card_account_number: 'in.(789)',

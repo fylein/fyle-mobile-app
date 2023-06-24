@@ -1,4 +1,4 @@
-export type ExpensesQueryParams = {
+export type GetExpensesQueryParams = {
   or: string[];
   and: string;
   tx_report_id: string;
