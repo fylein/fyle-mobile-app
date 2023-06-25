@@ -2440,31 +2440,29 @@ describe('MyExpensesPage', () => {
     });
   }));
 
-  describe('selectedExpensesPopoverDeleteMethod(): ', () => {
+  describe('deleteSelectedExpenses(): ', () => {
     beforeEach(() => {
-      transactionService.deleteBulk.and.returnValue(of(txnList));
-    });
-
-    it('should update selectedElements and call deleteBulk method if expenseToBeDeleted is defined', () => {
       component.pendingTransactions = [];
       component.expensesToBeDeleted = expenseList4;
-      component.selectedExpensesPopoverDeleteMethod();
+    });
+    it('should update selectedElements and call deleteBulk method if expenseToBeDeleted is defined', () => {
+      component.deleteSelectedExpenses([]);
       expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith([], []);
       expect(component.selectedElements).toEqual(expenseList4);
       expect(transactionService.deleteBulk).toHaveBeenCalledOnceWith(['txKFqMRPNLsa', 'txc5zbIpTGMU', 'txo3tuIb7em4']);
     });
-
-    it('should update selectedElements and should not invoke deleteBulk method if expenseToBeDeleted is undefined', () => {
-      component.pendingTransactions = [];
-      component.expensesToBeDeleted = undefined;
-      component.selectedExpensesPopoverDeleteMethod();
-      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith([], undefined);
-      expect(component.selectedElements).toEqual(undefined);
+    it('should not call deleteBulk method if tx_id is not present in expensesToBeDeleted', () => {
+      const mockExpensesWithoutId = cloneDeep(apiExpenseRes);
+      mockExpensesWithoutId[0].tx_id = undefined;
+      component.expensesToBeDeleted = mockExpensesWithoutId;
+      component.deleteSelectedExpenses([]);
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith([], []);
+      expect(component.selectedElements).toEqual([]);
       expect(transactionService.deleteBulk).not.toHaveBeenCalled();
     });
   });
 
-  describe('deleteSelectedExpenses(): ', () => {
+  describe('openDeleteExpensesPopover(): ', () => {
     beforeEach(() => {
       transactionService.getExpenseDeletionMessage.and.returnValue('You are about to delete this expense');
       transactionService.getCCCExpenseMessage.and.returnValue(
@@ -2476,17 +2474,16 @@ describe('MyExpensesPage', () => {
       transactionService.deleteBulk.and.returnValue(of(txnList));
       snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes3);
       spyOn(component, 'doRefresh');
+      component.expensesToBeDeleted = cloneDeep(expenseList4);
+      component.selectedElements = cloneDeep(expenseList4);
     });
 
-    it('should open a popover and extract on dismiss', fakeAsync(() => {
+    it('should open a popover and get data of expenses on dismiss', fakeAsync(() => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
 
-      const mockExpenseList = cloneDeep(expenseList4);
-      component.expensesToBeDeleted = cloneDeep(mockExpenseList);
-
-      component.deleteSelectedExpenses();
+      component.openDeleteExpensesPopover();
       tick(100);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -2503,13 +2500,15 @@ describe('MyExpensesPage', () => {
       });
     }));
 
-    it('should open a popover and extract on dismiss if expenseToBeDeleted is undefined', fakeAsync(() => {
+    it('should open a popover and get data of expenses on dismiss if expensesToBeDeleted and cccExpenses are zero', fakeAsync(() => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
-      component.expensesToBeDeleted = undefined;
+      component.cccExpenses = 0;
+      component.expensesToBeDeleted = [];
+      spyOn(component, 'deleteSelectedExpenses').and.callThrough();
 
-      component.deleteSelectedExpenses();
+      component.openDeleteExpensesPopover();
       tick(100);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -2530,11 +2529,8 @@ describe('MyExpensesPage', () => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
-      const mockExpenseList = cloneDeep(expenseList4);
-      component.expensesToBeDeleted = cloneDeep(mockExpenseList);
-      component.selectedElements = cloneDeep(mockExpenseList);
 
-      component.deleteSelectedExpenses();
+      component.openDeleteExpensesPopover();
       tick(100);
 
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
@@ -2561,7 +2557,7 @@ describe('MyExpensesPage', () => {
       component.expensesToBeDeleted = cloneDeep(mockExpenseList);
       component.selectedElements = cloneDeep([mockExpenseList[0]]);
 
-      component.deleteSelectedExpenses();
+      component.openDeleteExpensesPopover();
       tick(100);
 
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
@@ -2587,7 +2583,7 @@ describe('MyExpensesPage', () => {
       component.expensesToBeDeleted = cloneDeep(mockExpenseList);
       component.selectedElements = cloneDeep([mockExpenseList[0]]);
 
-      component.deleteSelectedExpenses();
+      component.openDeleteExpensesPopover();
       tick(100);
 
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
@@ -2618,6 +2614,7 @@ describe('MyExpensesPage', () => {
         tx_state: 'in.(COMPLETE,DRAFT)',
       });
       spyOn(component, 'setExpenseStatsOnSelect');
+      component.loadData$ = new BehaviorSubject({ pageNumber: 1 });
     });
 
     it('should set selectedElement to empty array if checked is false', () => {
@@ -2630,9 +2627,8 @@ describe('MyExpensesPage', () => {
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
     });
 
-    it('should update selectedElements, allExpensesCount and call apiV2Service', () => {
+    it('should update selectedElements, allExpensesCount and call apiV2Service if checked is true', () => {
       transactionService.getAllExpenses.and.returnValue(of(cloneDeep(expenseList4)));
-      component.loadData$ = new BehaviorSubject({ pageNumber: 1 });
       component.pendingTransactions = cloneDeep(apiExpenseRes);
       component.onSelectAll(true);
       expect(component.isReportableExpensesSelected).toBeTrue();
@@ -2650,30 +2646,6 @@ describe('MyExpensesPage', () => {
       expect(component.allExpensesCount).toBe(4);
       expect(component.isReportableExpensesSelected).toBeTrue();
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(2);
-    });
-
-    it('should update selectedElements, allExpensesCount and call apiV2Service if getDeletableTxns, excludeCCCExpenses and pendingTransactions are undefined', () => {
-      transactionService.getDeletableTxns.and.returnValue(undefined);
-      transactionService.excludeCCCExpenses.and.returnValue(undefined);
-      transactionService.getAllExpenses.and.returnValue(of(cloneDeep(expenseList4)));
-      component.loadData$ = new BehaviorSubject({ pageNumber: 1 });
-      component.pendingTransactions = undefined;
-      component.onSelectAll(true);
-      expect(component.isReportableExpensesSelected).toBeTrue();
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledOnceWith(
-        { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
-        undefined
-      );
-      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
-      });
-      expect(transactionService.excludeCCCExpenses).toHaveBeenCalledOnceWith(expenseList4);
-      expect(transactionService.getDeletableTxns).toHaveBeenCalledOnceWith(expenseList4);
-      expect(component.cccExpenses).toBeNaN();
-      expect(component.selectedElements).toEqual(expenseList4);
-      expect(component.allExpensesCount).toBe(3);
-      expect(component.isReportableExpensesSelected).toBeTrue();
-      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
     });
   });
 
