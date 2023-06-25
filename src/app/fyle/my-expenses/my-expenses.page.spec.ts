@@ -2283,6 +2283,7 @@ fdescribe('MyExpensesPage', () => {
         { id: 'rprAfNrce73O', navigateBack: true },
       ]);
     });
+
     it('should navigate to my_view_report and open matSnackbar if rp_id is undefined', () => {
       const expensesAddedToReportSnackBarSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
       expensesAddedToReportSnackBarSpy.onAction.and.returnValue(of(undefined));
@@ -2352,6 +2353,7 @@ fdescribe('MyExpensesPage', () => {
       transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
       spyOn(component, 'showAddToReportSuccessToast');
     });
+
     it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined', () => {
       spyOn(component, 'addTransactionsToReport').and.returnValue(of(apiExtendedReportRes[0]));
       matBottomsheet.open.and.returnValue({
@@ -2374,6 +2376,7 @@ fdescribe('MyExpensesPage', () => {
         report: apiExtendedReportRes[0],
       });
     });
+
     it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and rp_state is draft', () => {
       const mockReportData = cloneDeep(apiExtendedReportRes);
       mockReportData[0].rp_state = 'DRAFT';
@@ -2399,6 +2402,7 @@ fdescribe('MyExpensesPage', () => {
         report: mockReportData[0],
       });
     });
+
     it('should call matBottomSheet.open and should not call showAddToReportSuccessToast if data.report is null', () => {
       spyOn(component, 'addTransactionsToReport');
       matBottomsheet.open.and.returnValue({
@@ -2440,6 +2444,7 @@ fdescribe('MyExpensesPage', () => {
     beforeEach(() => {
       transactionService.deleteBulk.and.returnValue(of(txnList));
     });
+
     it('should update selectedElements and call deleteBulk method if expenseToBeDeleted is defined', () => {
       component.pendingTransactions = [];
       component.expensesToBeDeleted = expenseList4;
@@ -2448,6 +2453,7 @@ fdescribe('MyExpensesPage', () => {
       expect(component.selectedElements).toEqual(expenseList4);
       expect(transactionService.deleteBulk).toHaveBeenCalledOnceWith(['txKFqMRPNLsa', 'txc5zbIpTGMU', 'txo3tuIb7em4']);
     });
+
     it('should update selectedElements and should not invoke deleteBulk method if expenseToBeDeleted is undefined', () => {
       component.pendingTransactions = [];
       component.expensesToBeDeleted = undefined;
@@ -2496,6 +2502,7 @@ fdescribe('MyExpensesPage', () => {
         },
       });
     }));
+
     it('should open a popover and extract on dismiss if expenseToBeDeleted is undefined', fakeAsync(() => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
@@ -2518,6 +2525,7 @@ fdescribe('MyExpensesPage', () => {
         },
       });
     }));
+
     it('should show message using matSnackbar if data is successfully deleted and selectedElements are greater than 1', fakeAsync(() => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
@@ -2544,6 +2552,7 @@ fdescribe('MyExpensesPage', () => {
       expect(component.headerState).toEqual(HeaderState.base);
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
+
     it('should show message using matSnackbar if data is successfully deleted and selectedElements is 1', fakeAsync(() => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
@@ -2568,6 +2577,7 @@ fdescribe('MyExpensesPage', () => {
       expect(component.headerState).toEqual(HeaderState.base);
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
+
     it('should show message using matSnackbar if data cannot be deleted', fakeAsync(() => {
       snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes4);
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
@@ -2609,6 +2619,7 @@ fdescribe('MyExpensesPage', () => {
       });
       spyOn(component, 'setExpenseStatsOnSelect');
     });
+
     it('should set selectedElement to empty array if checked is false', () => {
       component.selectedElements = cloneDeep(apiExpenseRes);
       component.isReportableExpensesSelected = false;
@@ -2618,6 +2629,7 @@ fdescribe('MyExpensesPage', () => {
       expect(component.isReportableExpensesSelected).toBeTrue();
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
     });
+
     it('should update selectedElements, allExpensesCount and call apiV2Service', () => {
       transactionService.getAllExpenses.and.returnValue(of(cloneDeep(expenseList4)));
       component.loadData$ = new BehaviorSubject({ pageNumber: 1 });
@@ -2639,6 +2651,7 @@ fdescribe('MyExpensesPage', () => {
       expect(component.isReportableExpensesSelected).toBeTrue();
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(2);
     });
+
     it('should update selectedElements, allExpensesCount and call apiV2Service if getDeletableTxns, excludeCCCExpenses and pendingTransactions are undefined', () => {
       transactionService.getDeletableTxns.and.returnValue(undefined);
       transactionService.excludeCCCExpenses.and.returnValue(undefined);
