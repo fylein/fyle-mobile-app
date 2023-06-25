@@ -1854,7 +1854,7 @@ fdescribe('MyExpensesPage', () => {
       component.openCreateReportWithSelectedIds('oldReport');
       tick(100);
 
-      expect(trackingService.addToReport).toHaveBeenCalledOnceWith({ count: 1 });
+      expect(trackingService.addToReport).not.toHaveBeenCalled();
 
       expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
         'Please select one or more expenses to be reported'
@@ -1872,7 +1872,7 @@ fdescribe('MyExpensesPage', () => {
       component.openCreateReportWithSelectedIds('oldReport');
       tick(100);
 
-      expect(trackingService.addToReport).toHaveBeenCalledOnceWith({ count: 3 });
+      expect(trackingService.addToReport).not.toHaveBeenCalled();
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
@@ -1895,7 +1895,7 @@ fdescribe('MyExpensesPage', () => {
       component.openCreateReportWithSelectedIds('oldReport');
       tick(100);
 
-      expect(trackingService.addToReport).toHaveBeenCalledOnceWith({ count: 3 });
+      expect(trackingService.addToReport).not.toHaveBeenCalled();
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
@@ -1919,7 +1919,7 @@ fdescribe('MyExpensesPage', () => {
       component.openCreateReportWithSelectedIds('oldReport');
       tick(100);
 
-      expect(trackingService.addToReport).toHaveBeenCalledOnceWith({ count: 3 });
+      expect(trackingService.addToReport).not.toHaveBeenCalled();
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
@@ -1943,9 +1943,7 @@ fdescribe('MyExpensesPage', () => {
       component.openCreateReportWithSelectedIds('oldReport');
       tick(100);
 
-      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
-      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
-      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
@@ -1967,9 +1965,7 @@ fdescribe('MyExpensesPage', () => {
       component.openCreateReportWithSelectedIds('newReport');
       tick(100);
 
-      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
-      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
-      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
@@ -1996,9 +1992,7 @@ fdescribe('MyExpensesPage', () => {
       component.openCreateReportWithSelectedIds('newReport');
       tick(100);
 
-      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
-      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
-      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[0]);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[1]);
@@ -2027,9 +2021,7 @@ fdescribe('MyExpensesPage', () => {
       component.openCreateReportWithSelectedIds('newReport');
       tick(100);
 
-      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
-      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
-      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[0]);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[1]);
@@ -2055,9 +2047,7 @@ fdescribe('MyExpensesPage', () => {
       component.openCreateReportWithSelectedIds('newReport');
       tick(100);
 
-      expect(trackingService.addToReport).toHaveBeenCalledTimes(2);
-      expect(trackingService.addToReport).toHaveBeenCalledWith({ count: 3 });
-      expect(trackingService.addToReport).toHaveBeenCalledWith();
+      expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
       expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);

@@ -936,7 +936,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport') {
-    this.trackingService.addToReport({ count: this.selectedElements.length });
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
     selectedElements = selectedElements.filter((expense) => expense.tx_id);
