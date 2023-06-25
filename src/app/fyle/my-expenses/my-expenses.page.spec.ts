@@ -1349,6 +1349,7 @@ describe('MyExpensesPage', () => {
         and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
       });
     });
+
     it('should update queryParams if filter state is not defined', () => {
       component.filters = {};
 
@@ -1380,6 +1381,7 @@ describe('MyExpensesPage', () => {
       expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeFalse();
     });
+
     it('should update queryParams if filter state includes only DRAFT', () => {
       component.filters = {
         state: ['DRAFT'],
@@ -1413,6 +1415,7 @@ describe('MyExpensesPage', () => {
       expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeTrue();
     });
+
     it('should update queryParams if filter state includes only CANNOT_REPORT', () => {
       component.filters = {
         state: ['CANNOT_REPORT'],
@@ -1446,6 +1449,7 @@ describe('MyExpensesPage', () => {
       expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeTrue();
     });
+
     it('should update queryParams if filter state includes both DRAFT and CANNOT_REPORT', () => {
       component.filters = {
         state: ['DRAFT', 'CANNOT_REPORT'],
@@ -1479,6 +1483,7 @@ describe('MyExpensesPage', () => {
       expect(currentParams).toEqual(expectedCurrentParams);
       expect(component.reviewMode).toBeTrue();
     });
+
     it('should set reviewMode to false if filter state is APPROVED', () => {
       component.filters = {
         state: ['APPROVED'],
@@ -1621,6 +1626,7 @@ describe('MyExpensesPage', () => {
       transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
       transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
     });
+
     it('should remove an expense from selectedElements if it is present in selectedElements', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       const expense = apiExpenseRes[0];
@@ -1635,6 +1641,7 @@ describe('MyExpensesPage', () => {
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
       expect(component.isMergeAllowed).toBeTrue();
     });
+
     it('should remove an expense from selectedElements if it is present in selectedElements', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       component.allExpensesCount = 4;
@@ -1650,6 +1657,7 @@ describe('MyExpensesPage', () => {
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([...expenseList4, expense]);
       expect(component.isMergeAllowed).toBeTrue();
     });
+
     it('should remove an expense from selectedElements if it is present in selectedElements and allExpenseCount is not equal to length of selectedElements', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       const expense = apiExpenseRes[0];
@@ -1664,6 +1672,7 @@ describe('MyExpensesPage', () => {
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
       expect(component.isMergeAllowed).toBeTrue();
     });
+
     it('should update expenseToBeDeleted if selectedElements is an array of atleast 1', () => {
       component.selectedElements = cloneDeep(apiExpenseRes);
       component.selectExpense(expenseData2);
@@ -1674,6 +1683,7 @@ describe('MyExpensesPage', () => {
       expect(component.cccExpenses).toBe(1);
       expect(component.selectAll).toBeFalse();
     });
+
     it('should remove an expense from selectedElements if it is present in selectedElements and tx_id is not present in expense', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       component.allExpensesCount = 0;
@@ -1714,6 +1724,7 @@ describe('MyExpensesPage', () => {
         { id: 'txEpXa1cd6oq', persist_filters: true },
       ]);
     });
+
     it('should navigate to add_edit_per_diem if category is per diem', () => {
       component.goToTransaction({ etxn: perDiemExpenseSingleNumDays });
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -1723,6 +1734,7 @@ describe('MyExpensesPage', () => {
         { id: 'txWDbbZhNwdA', persist_filters: true },
       ]);
     });
+
     it('should navigate to add_edit_expense if category is something else', () => {
       component.goToTransaction({ etxn: expenseData3 });
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -1784,6 +1796,7 @@ describe('MyExpensesPage', () => {
       });
       spyOn(component, 'generateFilterPills').and.returnValue(mockFilterPill);
     });
+
     it('should remove sortDir and sortParam if filterType is sort', () => {
       component.onFilterClose('sort');
 
@@ -1876,6 +1889,7 @@ describe('MyExpensesPage', () => {
       component.showCamera(false);
       expect(component.isCameraPreviewStarted).toBeFalse();
     });
+
     it('should set isCameraPreviewStarted to true if argument is true', () => {
       component.isCameraPreviewStarted = false;
       component.showCamera(true);
