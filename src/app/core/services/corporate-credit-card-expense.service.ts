@@ -12,6 +12,7 @@ import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
+import { CardDetails } from '../models/card-details.model';
 
 type Config = Partial<{
   offset: number;
@@ -19,8 +20,6 @@ type Config = Partial<{
   limit: number;
   order?: string;
 }>;
-
-type CardDetails = { cardNumber: string; cardName: string };
 
 @Injectable({
   providedIn: 'root',
