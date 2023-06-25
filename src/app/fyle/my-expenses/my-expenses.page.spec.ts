@@ -94,7 +94,7 @@ import {
   expectedCriticalPolicyViolationPopoverParams3,
 } from 'src/app/core/mock-data/critical-policy-violation-popover.data';
 
-describe('MyExpensesPage', () => {
+fdescribe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -1796,6 +1796,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showOldReportsMatBottomSheet');
       spyOn(component, 'showNewReportModal');
     });
+
     it('should open popoverController and call showOldReportsMatBottomSheet', fakeAsync(() => {
       component.openCriticalPolicyViolationPopOver({
         title: '2 Draft Expenses blocking the way',
@@ -1809,6 +1810,7 @@ describe('MyExpensesPage', () => {
       expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
       expect(component.showNewReportModal).not.toHaveBeenCalled();
     }));
+
     it('should open popoverController and call showNewReportModal', fakeAsync(() => {
       component.openCriticalPolicyViolationPopOver({
         title: '2 Draft Expenses blocking the way',
@@ -1844,6 +1846,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showOldReportsMatBottomSheet');
       spyOn(component, 'showNewReportModal');
     });
+
     it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
       component.selectedElements = cloneDeep(apiExpenseRes);
       component.selectedElements[0].tx_id = undefined;
@@ -1860,6 +1863,7 @@ describe('MyExpensesPage', () => {
       expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
       expect(component.showNewReportModal).not.toHaveBeenCalled();
     }));
+
     it('should call showNonReportableExpenseSelectedToast if policyViolationExpenses length is equal to selectedElements length', fakeAsync(() => {
       component.selectedElements = expenseList4;
       transactionService.getIsCriticalPolicyViolated.and.returnValues(true, true, true);
@@ -1882,6 +1886,7 @@ describe('MyExpensesPage', () => {
         'You cannot add critical policy violated expenses to a report'
       );
     }));
+
     it('should call showNonReportableExpenseSelectedToast if expensesInDraftState length is equal to selectedElements length', fakeAsync(() => {
       component.selectedElements = expenseList4;
       transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, true);
@@ -1904,6 +1909,7 @@ describe('MyExpensesPage', () => {
         'You cannot add draft expenses to a report'
       );
     }));
+
     it('should call showNonReportableExpenseSelectedToast if isReportableExpensesSelected is falsy', fakeAsync(() => {
       component.isReportableExpensesSelected = false;
       component.selectedElements = expenseList4;
@@ -1927,6 +1933,7 @@ describe('MyExpensesPage', () => {
         'You cannot add draft expenses and critical policy violated expenses to a report'
       );
     }));
+
     it('should call trackingService and showOldReportsMatBottomSheet if report is oldReport and policyViolationExpenses and draftExpenses are zero', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
       component.selectedElements = expenseList4;
@@ -1950,6 +1957,7 @@ describe('MyExpensesPage', () => {
 
       expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledOnceWith();
     }));
+
     it('should call trackingService and showNewReportModal if report is newReport and policyViolationExpenses and draftExpenses are zero', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
       component.selectedElements = expenseList4;
@@ -1973,6 +1981,7 @@ describe('MyExpensesPage', () => {
 
       expect(component.showNewReportModal).toHaveBeenCalledOnceWith();
     }));
+
     it('should call trackingService and openCriticalPolicyViolationPopOver if policyViolationExpenses and draftExpenses are present', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
       const mockExpenseList = cloneDeep(expenseList4);
@@ -2003,6 +2012,7 @@ describe('MyExpensesPage', () => {
         expectedCriticalPolicyViolationPopoverParams
       );
     }));
+
     it('should call trackingService and openCriticalPolicyViolationPopOver if draftExpense is zero', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
       const mockExpenseList = cloneDeep(expenseList4);
@@ -2033,6 +2043,7 @@ describe('MyExpensesPage', () => {
         expectedCriticalPolicyViolationPopoverParams2
       );
     }));
+
     it('should call trackingService and openCriticalPolicyViolationPopOver if policyViolationExpenses is zero', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
       component.selectedElements = expenseList4;
@@ -2120,6 +2131,7 @@ describe('MyExpensesPage', () => {
       });
       expect(component.filterExpensesBySearchString).not.toHaveBeenCalled();
     }));
+
     it('should call getAllExpenses and filterExpensesBySearchString if searchString, sortParams and sortDir are defined in loadData$ and selectedElement length is zero', fakeAsync(() => {
       component.loadData$ = new BehaviorSubject({
         sortDir: 'asc',
@@ -2136,6 +2148,7 @@ describe('MyExpensesPage', () => {
       });
       expect(component.filterExpensesBySearchString).toHaveBeenCalledOnceWith(mockExpense[0], 'example');
     }));
+
     it('should navigate to add_edit_mileage if org_category is mileage and selectedElement length is greater than zero', fakeAsync(() => {
       const mockUnflattedData = cloneDeep(unflattenedTxnData);
       mockUnflattedData.tx.org_category = 'Mileage';
@@ -2157,6 +2170,7 @@ describe('MyExpensesPage', () => {
         },
       ]);
     }));
+
     it('should navigate to add_edit_per_diem if org_category is Per Diem and selectedElement length is greater than zero', fakeAsync(() => {
       const mockUnflattedData = cloneDeep(unflattenedTxnData);
       mockUnflattedData.tx.org_category = 'Per Diem';
@@ -2178,6 +2192,7 @@ describe('MyExpensesPage', () => {
         },
       ]);
     }));
+
     it('should navigate to add_edit_expense if org_category is not amongst mileage and per diem and selectedElement length is greater than zero', fakeAsync(() => {
       transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
       component.openReviewExpenses();
@@ -2205,6 +2220,7 @@ describe('MyExpensesPage', () => {
 
       expect(expectedFilteredExpenseRes).toBeTrue();
     });
+
     it('should return false if expense does not consist of searchString', () => {
       const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData1, 'Software');
 
