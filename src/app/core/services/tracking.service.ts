@@ -26,7 +26,7 @@ import {
   SwitchOrgLaunchTimeProperties,
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/expenses-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { Filters, ReportFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
