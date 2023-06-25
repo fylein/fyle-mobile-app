@@ -974,7 +974,7 @@ export class MyExpensesPage implements OnInit {
       let message = '';
 
       if (noOfExpensesWithCriticalPolicyViolations > 0 || noOfExpensesInDraftState > 0) {
-        this.homeCurrency$.subscribe((homeCurrency) => {
+        this.homeCurrency$.subscribe(() => {
           if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
             title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
               ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
