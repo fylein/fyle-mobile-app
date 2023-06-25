@@ -94,7 +94,7 @@ import {
   expectedCriticalPolicyViolationPopoverParams3,
 } from 'src/app/core/mock-data/critical-policy-violation-popover.data';
 
-fdescribe('MyExpensesPage', () => {
+describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
