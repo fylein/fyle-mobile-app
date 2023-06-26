@@ -57,6 +57,7 @@ import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { EventEmitter } from '@angular/core';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -198,6 +199,12 @@ export function TestCases1(getTestBed) {
       component.hardwareBackButtonAction = new Subscription();
       fixture.detectChanges();
     });
+
+    function setFormValid() {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+    }
 
     it('should create', () => {
       expect(component).toBeTruthy();
@@ -415,6 +422,7 @@ export function TestCases1(getTestBed) {
       networkService.isOnline.and.returnValue(of(true));
 
       component.setupNetworkWatcher();
+      expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -689,9 +697,7 @@ export function TestCases1(getTestBed) {
 
     describe('splitExpCategoryHandler():', () => {
       it('should call method to display split expense modal and split by category', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setFormValid();
 
         spyOn(component, 'openSplitExpenseModal');
 
@@ -709,9 +715,7 @@ export function TestCases1(getTestBed) {
 
     describe('splitExpProjectHandler():', () => {
       it('should call method to display split expense modal and split by project', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setFormValid();
 
         spyOn(component, 'openSplitExpenseModal');
 
@@ -719,7 +723,7 @@ export function TestCases1(getTestBed) {
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('projects');
       });
 
-      it('should validation errors if any inside the form', () => {
+      it('should show validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
 
         component.splitExpProjectHandler();
@@ -729,17 +733,14 @@ export function TestCases1(getTestBed) {
 
     describe('splitExpCostCenterHandler():', () => {
       it('should call method to display split expense modal and split by cost centers', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
-
+        setFormValid();
         spyOn(component, 'openSplitExpenseModal');
 
         component.splitExpCostCenterHandler();
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('cost centers');
       });
 
-      it('should validation errors if any inside the form', () => {
+      it('The form should display the validation errors if they are found.', () => {
         spyOn(component, 'showFormValidationErrors');
 
         component.splitExpCostCenterHandler();

@@ -396,7 +396,7 @@ export function TestCases2(getTestBed) {
 
     describe('goToTransaction():', () => {
       const txn_ids = ['txfCdl3TEZ7K'];
-      it('should go to add-edit mileage if category is mileage', () => {
+      it('should navigate to add-edit mileage if category is mileage', () => {
         const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'MILEAGE' } };
         component.goToTransaction(expense, txn_ids, 0);
 
@@ -412,7 +412,7 @@ export function TestCases2(getTestBed) {
         ]);
       });
 
-      it('should go to add-edit per diem if category is per diem', () => {
+      it('should navigate to per diem expense form if the category is per diem', () => {
         const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'PER DIEM' } };
         component.goToTransaction(expense, txn_ids, 0);
 
@@ -428,7 +428,7 @@ export function TestCases2(getTestBed) {
         ]);
       });
 
-      it('should go to add-edit per diem if category is per diem', () => {
+      it('should navigate to expense form', () => {
         const expense = unflattenExp1;
         component.goToTransaction(expense, txn_ids, 0);
 
