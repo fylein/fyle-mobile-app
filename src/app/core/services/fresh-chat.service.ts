@@ -34,12 +34,7 @@ export class FreshChatService {
       const eou = await this.authService.getEou();
       if (eou && isOnline) {
         const orgUserSettings = await this.getOrgUserSettings();
-        if (
-          orgUserSettings &&
-          orgUserSettings.in_app_chat_settings &&
-          orgUserSettings.in_app_chat_settings.allowed &&
-          orgUserSettings.in_app_chat_settings.enabled
-        ) {
+        if (orgUserSettings?.in_app_chat_settings?.allowed && orgUserSettings.in_app_chat_settings.enabled) {
           await this.storageService.set('inAppChatRestoreId', orgUserSettings.in_app_chat_settings.restore_id);
           this.initiateCall();
         }
