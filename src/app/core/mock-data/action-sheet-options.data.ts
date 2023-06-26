@@ -4,7 +4,7 @@ export const actionSheetOptionsData = [
     handler: () => {},
   },
   {
-    text: 'Split Expense By undefined',
+    text: 'Split Expense By Project',
     handler: () => {},
   },
   {
@@ -12,7 +12,7 @@ export const actionSheetOptionsData = [
     handler: () => {},
   },
   {
-    text: 'Dimiss as Card Payment',
+    text: 'Dismiss as Card Payment',
     handler: () => {},
   },
   {
