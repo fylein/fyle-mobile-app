@@ -19,7 +19,7 @@ import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.da
 import { extractedData } from 'src/app/core/mock-data/parsed-receipt.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { expensePolicyData, publicPolicyExpenseData1 } from 'src/app/core/mock-data/public-policy-expense.data';
-import { recentUsedCategoriesRes, recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
+import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
   draftUnflattendedTxn,
   unflattenedTxn,
@@ -67,6 +67,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {

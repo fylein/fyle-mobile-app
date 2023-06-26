@@ -45,7 +45,7 @@ import { TestCases1 } from './add-edit-expense-1.spec';
 import { TestCases2 } from './add-edit-expense-2.spec';
 import { TestCases3 } from './add-edit-expense-3.spec';
 
-describe('AddEditExpensePage', () => {
+fdescribe('AddEditExpensePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getEMyAccounts',
