@@ -1,4 +1,4 @@
-import { CardAggregateStats } from '../models/card-aggregate-stat.model';
+import { CardAggregateStats } from '../models/card-aggregate-stats.model';
 
 export const cardAggregateStatParam: CardAggregateStats[] = [
   {

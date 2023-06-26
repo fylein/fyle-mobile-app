@@ -495,7 +495,7 @@ export class MyExpensesService {
     }
   }
 
-  convertTxnDtSortToSelectedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<any>[]) {
+  convertTxnDtSortToSelectedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<string>[]) {
     if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
