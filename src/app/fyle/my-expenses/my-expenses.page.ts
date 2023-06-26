@@ -1159,12 +1159,7 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'my_view_report',
-        { id: config.report.rp_id || config.report.id, navigateBack: true },
-      ]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.rp_id, navigateBack: true }]);
     });
   }
 
