@@ -6,8 +6,32 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Subscription, of } from 'rxjs';
+import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
+import { customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
+import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import {
+  expectedAutoFillCategory,
+  expectedAutoFillCategory2,
+  filteredCategoriesData,
+  orgCategoryData,
+} from 'src/app/core/mock-data/org-category.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { extractedData } from 'src/app/core/mock-data/parsed-receipt.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { expensePolicyData, publicPolicyExpenseData1 } from 'src/app/core/mock-data/public-policy-expense.data';
+import { recentUsedCategoriesRes, recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
+import {
+  draftUnflattendedTxn,
+  unflattenedTxn,
+  unflattenedExpData,
+} from 'src/app/core/mock-data/unflattened-expense.data';
+import {
+  expectedUnflattendedTxnData2,
+  expectedUnflattendedTxnData3,
+  unflattenedTxnData,
+  unflattenedTxnData2,
+  unflattenedTxnDataWithoutCategoryData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -42,13 +66,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { orgCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
-import { unflattenExp1, unflattenedTxn, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-expense.data';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -227,34 +245,201 @@ export function TestCases3(getTestBed) {
       });
     });
 
-    xit('getCustomFields(): should get custom fields', (done) => {
-      component.dependentFields$ = of(expenseFieldResponse);
-      customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
-      component.customInputs$ = of(projectDependentFields);
+    describe('parseFile(): ', () => {
+      it('should parse a pdf for expense information', () => {
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        spyOn(component, 'getParsedReceipt').and.resolveTo(extractedData);
+        component.filteredCategories$ = of(filteredCategoriesData);
+        currencyService.getHomeCurrency.and.returnValue(of('INR'));
+        component.inpageExtractedData = null;
+        dateService.isSameDate.and.returnValue(true);
+        component.fg.controls.dateOfSpend.setValue(new Date('2023-02-24T12:03:57.680Z'));
+        component.fg.controls.currencyObj.setValue({
+          amount: null,
+          currency: 'USD',
+        });
 
-      fixture.detectChanges();
+        fixture.detectChanges();
 
-      component.getCustomFields().subscribe((res) => {
-        console.log(res);
-        done();
+        component.parseFile({
+          url: ';base64,url1',
+          type: 'pdf',
+        });
+
+        expect(component.getParsedReceipt).toHaveBeenCalledOnceWith('url1', 'pdf');
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+        expect(component.inpageExtractedData).toEqual(null);
+        expect(component.fg.controls.currencyObj.value).toEqual({
+          amount: null,
+          currency: 'USD',
+        });
+        expect(component.fg.controls.category.value).toEqual(null);
+      });
+
+      it('should parse an image for expense information given there is pre-existing data', () => {
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        spyOn(component, 'getParsedReceipt').and.resolveTo(extractedData);
+        component.filteredCategories$ = of(filteredCategoriesData);
+        currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        component.inpageExtractedData = {
+          amount: 100,
+        };
+        dateService.isSameDate.and.returnValue(true);
+        component.fg.controls.dateOfSpend.setValue(new Date('2023-02-24T12:03:57.680Z'));
+        component.fg.controls.currencyObj.setValue({
+          amount: null,
+          currency: 'USD',
+        });
+
+        fixture.detectChanges();
+
+        component.parseFile({
+          url: ';base64,url1',
+          type: 'image',
+        });
+        expect(component.getParsedReceipt).toHaveBeenCalledOnceWith('url1', 'image');
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+        expect(component.inpageExtractedData).toEqual({ amount: 100 });
+        expect(component.fg.controls.currencyObj.value).toEqual({
+          amount: null,
+          currency: 'USD',
+        });
+        expect(component.fg.controls.category.value).toEqual(null);
       });
     });
 
-    xdescribe('addExpense():', () => {
-      it('should add expense', (done) => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
-        spyOn(component, 'trackAddExpense');
-        component.etxn$ = of(unflattenExp1);
-        const generateTxnSpy = spyOn(component, 'generateEtxnFromFg');
-        generateTxnSpy.withArgs(of(unflattenExp1), of(customFieldData1), true).and.returnValue(of(unflattenedTxnData));
-        generateTxnSpy.withArgs(of(unflattenExp1), of(customFieldData1)).and.returnValue(of(unflattenedTxnData));
-        authService.getEou.and.resolveTo(apiEouRes);
-        activatedRoute.snapshot.params.dataUrl = 'url1';
-        spyOn(component, 'getTimeSpentOnPage').and.returnValue(100);
+    describe('getAutofillCategory():', () => {
+      it('should get auto fill category for an expense', () => {
+        {
+          const result = component.getAutofillCategory({
+            isAutofillsEnabled: true,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedTxn,
+            category: orgCategoryData,
+          });
+
+          expect(result).toEqual(expectedAutoFillCategory);
+        }
+      });
+
+      it('should get auto fill category for DRAFT expense', () => {
+        const result = component.getAutofillCategory({
+          isAutofillsEnabled: true,
+          recentValue: recentlyUsedRes,
+          recentCategories: recentUsedCategoriesRes,
+          etxn: draftUnflattendedTxn,
+          category: orgCategoryData,
+        });
+
+        expect(result).toEqual(expectedAutoFillCategory2);
+      });
+    });
+
+    describe('generateEtxnFromFg():', () => {
+      it('should generate expense object from input in the form', (done) => {
+        fileService.findByTransactionId.and.returnValue(of(fileObject4));
+        fileService.downloadUrl.and.returnValue(of('url1'));
+        spyOn(component, 'getReceiptDetails').and.returnValue({
+          type: 'pdf',
+          thumbnail: 'thumbnail',
+        });
+        component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
+        component.fg.controls.location_1.setValue('loc1');
+        component.fg.controls.location_2.setValue('loc2');
+        component.fg.controls.currencyObj.setValue({
+          amount: 500,
+          currency: 'USD',
+        });
+        component.inpageExtractedData = extractedData.data;
         fixture.detectChanges();
 
-        component.addExpense('SAVE_EXPENSE').subscribe((res) => {
-          console.log(res);
+        component
+          .generateEtxnFromFg(of(unflattenedExpData), of([expectedCustomField[0], expectedCustomField[2]]))
+          .subscribe((res) => {
+            expect(res).toEqual(expectedUnflattendedTxnData2);
+            expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
+            expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject4[0].id);
+            expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+            done();
+          });
+      });
+
+      it('should generate expense object from form if the expense is a policy txn and has location data', (done) => {
+        fileService.findByTransactionId.and.returnValue(of(fileObject4));
+        fileService.downloadUrl.and.returnValue(of('url1'));
+        dateService.getUTCDate.and.returnValue(new Date('2017-07-25T00:00:00.000Z'));
+        spyOn(component, 'getReceiptDetails').and.returnValue({
+          type: 'pdf',
+          thumbnail: 'thumbnail',
+        });
+        component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
+        component.fg.controls.location_1.setValue('loc1');
+        component.fg.controls.category.setValue({
+          name: 'TRAVEL',
+          sub_category: 'TAXI',
+        });
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+          currency: 'USD',
+        });
+
+        component.generateEtxnFromFg(of(unflattenedTxnData2), of(customFieldData2), true).subscribe((res) => {
+          expect(res).toEqual(expectedUnflattendedTxnData3);
+          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData2.tx.id);
+          expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject4[0].id);
+          expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+          expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
+          done();
+        });
+      });
+    });
+
+    describe('getCategoryOnAdd():', () => {
+      it('should return category if provided as parameter', (done) => {
+        component.getCategoryOnAdd(orgCategoryData).subscribe((res) => {
+          expect(res).toEqual(orgCategoryData);
+          done();
+        });
+      });
+
+      it('should return null if category is not extracted', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedTxnData);
+        spyOn(component, 'getAutofillCategory').and.returnValue(expectedAutoFillCategory);
+        fixture.detectChanges();
+
+        component.getCategoryOnAdd(undefined).subscribe((res) => {
+          expect(res).toBeNull();
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return the extracted category', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedTxnDataWithoutCategoryData);
+        spyOn(component, 'getAutofillCategory').and.returnValue(expectedAutoFillCategory);
+        fixture.detectChanges();
+
+        component.getCategoryOnAdd(undefined).subscribe((res) => {
+          expect(res).toEqual(expectedAutoFillCategory);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+            isAutofillsEnabled: true,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedTxnDataWithoutCategoryData,
+            category: null,
+          });
           done();
         });
       });

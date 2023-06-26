@@ -26,7 +26,7 @@ import {
   unflattenExp1,
   unflattenExp2,
   unflattenedTxn,
-  unflattenedTxnData,
+  unflattenedExpData,
 } from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -61,10 +61,17 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  multiplePaymentModesData,
+  orgSettingsData,
+  unflattenedAccount1Data,
+} from 'src/app/core/test-data/accounts.service.spec.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
+import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
+import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -410,6 +417,37 @@ export function TestCases1(getTestBed) {
       });
     });
 
+    describe('setUpTaxCalculations(): ', () => {
+      it('should setup tax amount in the form if currency changes', fakeAsync(() => {
+        currencyService.getAmountWithCurrencyFraction.and.returnValue(82.5);
+        component.setUpTaxCalculations();
+        tick(500);
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+          currency: 'USD',
+        });
+
+        component.fg.controls.tax_group.setValue({
+          percentage: 5,
+        });
+
+        expect(component.fg.controls.tax_amount.value).toEqual(82.5);
+        expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledOnceWith(83.33333333333333, 'USD');
+      }));
+
+      it('should set tax amount to null if tax group not specified', fakeAsync(() => {
+        component.setUpTaxCalculations();
+        tick(500);
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+          currency: 'USD',
+        });
+
+        component.fg.controls.tax_group.setValue(null);
+        expect(component.fg.controls.tax_amount.value).toBeNull();
+      }));
+    });
+
     describe('unmatchExpense():', () => {
       it('should show popup and selected txns if primary action is selected', fakeAsync(() => {
         popupService.showPopup.and.resolveTo('primary');
@@ -473,7 +511,7 @@ export function TestCases1(getTestBed) {
       it('should open split expense modal by navigating to split expense', () => {
         spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
         component.txnFields$ = of(defaultTxnFieldValuesData);
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
 
         component.openSplitExpenseModal('projects');
         expect(component.getCustomFields).toHaveBeenCalledTimes(1);
@@ -485,9 +523,9 @@ export function TestCases1(getTestBed) {
           {
             splitType: 'projects',
             txnFields: JSON.stringify(defaultTxnFieldValuesData),
-            txn: JSON.stringify(unflattenedTxnData.tx),
+            txn: JSON.stringify(unflattenedExpData.tx),
             currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
-            fileObjs: JSON.stringify(unflattenedTxnData.dataUrls),
+            fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
             selectedCCCTransaction: null,
             selectedReportId: null,
           },
@@ -499,7 +537,7 @@ export function TestCases1(getTestBed) {
         component.txnFields$ = of(defaultTxnFieldValuesData);
         component.selectedCCCTransaction = 'txID';
         component.fg.controls.report.setValue(expectedErpt[0]);
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
         fixture.detectChanges();
 
         component.openSplitExpenseModal('projects');
@@ -512,9 +550,9 @@ export function TestCases1(getTestBed) {
           {
             splitType: 'projects',
             txnFields: JSON.stringify(defaultTxnFieldValuesData),
-            txn: JSON.stringify(unflattenedTxnData.tx),
+            txn: JSON.stringify(unflattenedExpData.tx),
             currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
-            fileObjs: JSON.stringify(unflattenedTxnData.dataUrls),
+            fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
             selectedCCCTransaction: JSON.stringify(component.selectedCCCTransaction),
             selectedReportId: JSON.stringify(component.fg.value.report.rp.id),
           },

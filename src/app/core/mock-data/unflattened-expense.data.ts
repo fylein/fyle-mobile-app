@@ -334,7 +334,7 @@ export const unflattenedTxn = {
   },
 };
 
-export const unflattenedTxnData = {
+export const unflattenedExpData = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -503,4 +503,15 @@ export const unflattenedTxnData = {
     test_call: null,
   },
   dataUrls: [],
+};
+
+export const draftUnflattendedTxn = {
+  ...unflattenedExpData,
+  tx: {
+    ...unflattenedExpData.tx,
+    id: null,
+    state: 'DRAFT',
+    org_category_id: null,
+    fyle_category: 'unspecified',
+  },
 };

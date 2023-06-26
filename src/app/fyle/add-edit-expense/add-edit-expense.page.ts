@@ -3966,7 +3966,7 @@ export class AddEditExpensePage implements OnInit {
 
   getDeleteReportParams(
     config: { header: string; body: string; ctaText: string; ctaLoadingText: string },
-    removeExpenseFromReport: boolean,
+    removeExpenseFromReport: boolean = false,
     reportId?: string
   ) {
     return {

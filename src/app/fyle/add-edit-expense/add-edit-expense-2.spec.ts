@@ -900,6 +900,51 @@ export function TestCases2(getTestBed) {
           component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
         );
       }));
+
+      it('should go to next expense if delete successful', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        spyOn(component, 'goToTransaction');
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+        component.activeIndex = 0;
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = true;
+        fixture.detectChanges();
+
+        const header = 'Delete Expense';
+        const body = 'Are you sure you want to delete this expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(500);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          undefined,
+          undefined
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+        );
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
+          component.reviewList[+component.activeIndex]
+        );
+        expect(component.goToTransaction).toHaveBeenCalledOnceWith(
+          unflattenedTxnData,
+          component.reviewList,
+          +component.activeIndex
+        );
+      }));
     });
 
     describe('openCommentsModal():', () => {
