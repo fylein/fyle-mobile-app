@@ -1,5 +1,6 @@
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import { OrgSettings } from '../models/org-settings.model';
+import { orgSettingsData } from '../test-data/accounts.service.spec.data';
 
 export const orgSettingsRes: OrgSettings = {
   org_id: 'orrjqbDbeP9p',
@@ -1183,6 +1184,22 @@ export const orgSettingsParamWoCCC: OrgSettings = {
     enabled: true,
   },
   company_expenses_beta_settings: {
+    allowed: true,
+    enabled: true,
+  },
+};
+
+export const orgSettingsCCCDisabled: OrgSettings = {
+  ...orgSettingsData,
+  corporate_credit_card_settings: {
+    ...orgSettingsData.corporate_credit_card_settings,
+    allowed: false,
+    enabled: false,
+  },
+};
+export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
+  ...orgSettingsRes,
+  simplified_report_closure_settings: {
     allowed: true,
     enabled: true,
   },

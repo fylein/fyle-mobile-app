@@ -507,7 +507,7 @@ export class AddEditExpensePage implements OnInit {
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax_group.valueChanges).subscribe(() => {
       if (
         this.fg.controls.tax_group.value &&
-        this.fg.controls.tax_group.value.percentage &&
+        isNumber(this.fg.controls.tax_group.value.percentage) &&
         this.fg.controls.currencyObj.value
       ) {
         const amount =
@@ -641,13 +641,8 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  async removeCorporateCardExpense() {
-    const id = this.activatedRoute.snapshot.params.id;
-    const header = 'Remove Card Expense';
-    const body = this.transactionService.getRemoveCardExpenseDialogBody(this.isSplitExpensesPresent);
-    const ctaText = 'Confirm';
-    const ctaLoadingText = 'Confirming';
-    const deletePopover = await this.popoverController.create({
+  getRemoveCCCExpModalParams(header: string, body: string, ctaText: string, ctaLoadingText: string) {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
@@ -656,9 +651,19 @@ export class AddEditExpensePage implements OnInit {
         body,
         ctaText,
         ctaLoadingText,
-        deleteMethod: () => this.transactionService.removeCorporateCardExpense(id),
+        deleteMethod: () => this.transactionService.removeCorporateCardExpense(this.activatedRoute.snapshot.params.id),
       },
-    });
+    };
+  }
+
+  async removeCorporateCardExpense() {
+    const header = 'Remove Card Expense';
+    const body = this.transactionService.getRemoveCardExpenseDialogBody(this.isSplitExpensesPresent);
+    const ctaText = 'Confirm';
+    const ctaLoadingText = 'Confirming';
+    const deletePopover = await this.popoverController.create(
+      this.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
+    );
 
     await deletePopover.present();
     const { data } = await deletePopover.onDidDismiss();
@@ -685,37 +690,26 @@ export class AddEditExpensePage implements OnInit {
       const toastMessageData = {
         message: toastMessage,
       };
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
-        panelClass: ['msb-info'],
-      });
+
+      this.showSnackBarToast(toastMessageData, 'information', ['msb-info']);
       this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
     }
   }
 
-  async markPeronsalOrDismiss(type: string) {
+  getMarkDismissModalParams(
+    componentPropsParam: { header: string; body: string; ctaText: string; ctaLoadingText: string },
+    isMarkPersonal: boolean
+  ) {
     const id = this.activatedRoute.snapshot.params.id;
-    this.etxn$.subscribe(
-      (etxn) => (this.corporateCreditCardExpenseGroupId = etxn?.tx?.corporate_credit_card_expense_group_id)
-    );
-    const isMarkPersonal = type === 'personal' && this.isExpenseMatchedForDebitCCCE;
-    const isDismiss = type === 'dismiss' && this.canDismissCCCE;
-    const header = isMarkPersonal ? 'Mark Expense as Personal' : 'Dismiss this expense?';
-    const body = isMarkPersonal
-      ? "This corporate card expense will be marked as personal and you won't be able to edit it.\nDo you wish to proceed?"
-      : "This corporate card expense will be dismissed and you won't be able to edit it.\nDo you wish to proceed?";
-    const ctaText = 'Yes';
-    const ctaLoadingText = isMarkPersonal ? 'Marking' : 'Dismissing';
-
-    const deletePopover = await this.popoverController.create({
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
-        header,
-        body,
-        ctaText,
-        ctaLoadingText,
+        header: componentPropsParam.header,
+        body: componentPropsParam.body,
+        ctaText: componentPropsParam.ctaText,
+        ctaLoadingText: componentPropsParam.ctaLoadingText,
         deleteMethod: () => {
           if (isMarkPersonal) {
             return this.transactionService
@@ -728,7 +722,32 @@ export class AddEditExpensePage implements OnInit {
           }
         },
       },
-    });
+    };
+  }
+
+  async markPeronsalOrDismiss(type: string) {
+    this.etxn$.subscribe(
+      (etxn) => (this.corporateCreditCardExpenseGroupId = etxn?.tx?.corporate_credit_card_expense_group_id)
+    );
+    const isMarkPersonal = type === 'personal' && this.isExpenseMatchedForDebitCCCE;
+    const header = isMarkPersonal ? 'Mark Expense as Personal' : 'Dismiss this expense?';
+    const body = isMarkPersonal
+      ? "This corporate card expense will be marked as personal and you won't be able to edit it.\nDo you wish to proceed?"
+      : "This corporate card expense will be dismissed and you won't be able to edit it.\nDo you wish to proceed?";
+    const ctaText = 'Yes';
+    const ctaLoadingText = isMarkPersonal ? 'Marking' : 'Dismissing';
+
+    const deletePopover = await this.popoverController.create(
+      this.getMarkDismissModalParams(
+        {
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
+        },
+        isMarkPersonal
+      )
+    );
 
     await deletePopover.present();
     const { data } = await deletePopover.onDidDismiss();
@@ -739,11 +758,8 @@ export class AddEditExpensePage implements OnInit {
       const toastMessageData = {
         message: toastMessage,
       };
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
-        panelClass: ['msb-info'],
-      });
-      this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+      this.showSnackBarToast(toastMessageData, 'information', ['msb-info']);
+      this.trackingService.showToastMessage({ ToastContent: toastMessage });
     }
   }
 
@@ -757,6 +773,42 @@ export class AddEditExpensePage implements OnInit {
           behavior: 'smooth',
         });
       }
+    }
+  }
+
+  removeCCCHandler() {
+    this.removeCorporateCardExpense();
+  }
+
+  markPersonalHandler() {
+    this.markPeronsalOrDismiss('personal');
+  }
+
+  markDismissHandler() {
+    this.markPeronsalOrDismiss('dismiss');
+  }
+
+  splitExpCategoryHandler() {
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('categories');
+    } else {
+      this.showFormValidationErrors();
+    }
+  }
+
+  splitExpProjectHandler() {
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('projects');
+    } else {
+      this.showFormValidationErrors();
+    }
+  }
+
+  splitExpCostCenterHandler() {
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('cost centers');
+    } else {
+      this.showFormValidationErrors();
     }
   }
 
@@ -794,39 +846,21 @@ export class AddEditExpensePage implements OnInit {
             if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By Category',
-                handler: () => {
-                  if (this.fg.valid) {
-                    this.openSplitExpenseModal('categories');
-                  } else {
-                    this.showFormValidationErrors();
-                  }
-                },
+                handler: this.splitExpCategoryHandler,
               });
             }
 
             if (areProjectsAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
-                handler: () => {
-                  if (this.fg.valid) {
-                    this.openSplitExpenseModal('projects');
-                  } else {
-                    this.showFormValidationErrors();
-                  }
-                },
+                handler: this.splitExpProjectHandler,
               });
             }
 
             if (areCostCentersAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By Cost Center',
-                handler: () => {
-                  if (this.fg.valid) {
-                    this.openSplitExpenseModal('cost centers');
-                  } else {
-                    this.showFormValidationErrors();
-                  }
-                },
+                handler: this.splitExpCostCenterHandler,
               });
             }
           }
@@ -835,18 +869,14 @@ export class AddEditExpensePage implements OnInit {
             if (this.isExpenseMatchedForDebitCCCE) {
               actionSheetOptions.push({
                 text: 'Mark as Personal',
-                handler: () => {
-                  this.markPeronsalOrDismiss('personal');
-                },
+                handler: this.markPersonalHandler,
               });
             }
 
             if (this.canDismissCCCE) {
               actionSheetOptions.push({
                 text: 'Dimiss as Card Payment',
-                handler: () => {
-                  this.markPeronsalOrDismiss('dismiss');
-                },
+                handler: this.markDismissHandler,
               });
             }
           }
@@ -854,9 +884,7 @@ export class AddEditExpensePage implements OnInit {
           if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
             actionSheetOptions.push({
               text: 'Remove Card Expense',
-              handler: () => {
-                this.removeCorporateCardExpense();
-              },
+              handler: this.removeCCCHandler,
             });
           }
           return actionSheetOptions;
@@ -884,15 +912,6 @@ export class AddEditExpensePage implements OnInit {
   ngOnInit() {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-  }
-
-  getFormValidationErrors() {
-    Object.keys(this.fg.controls).forEach((key) => {
-      const controlErrors: ValidationErrors = this.fg.get(key).errors;
-      if (controlErrors != null) {
-        Object.keys(controlErrors).forEach((keyError) => {});
-      }
-    });
   }
 
   setupCostCenters() {
@@ -2824,7 +2843,7 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: this.fg.value?.currencyObj?.orig_currency,
             orig_amount: this.fg.value?.currencyObj?.orig_amount,
             project_id: this.fg.value?.project?.project_id,
-            tax_amount: this.fg.value?.tax_amount || 0,
+            tax_amount: this.fg.value?.tax_amount,
             tax_group_id: this.fg.value?.tax_group?.id,
             org_category_id: this.fg.value?.category?.id,
             fyle_category: this.fg.value?.category?.fyle_category,
@@ -2947,10 +2966,10 @@ export class AddEditExpensePage implements OnInit {
       message: 'Expense added to report successfully',
       redirectionText: 'View Report',
     };
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-      panelClass: ['msb-success-with-camera-icon'],
-    });
+    const expensesAddedToReportSnackBar = this.showSnackBarToast(toastMessageData, 'success', [
+      'msb-success-with-camera-icon',
+    ]);
+
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
@@ -3871,10 +3890,8 @@ export class AddEditExpensePage implements OnInit {
       if (receiptDetails && receiptDetails.dataUrl) {
         this.attachReceipts(receiptDetails);
         const message = 'Receipt added to Expense successfully';
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-          panelClass: ['msb-success-with-camera-icon'],
-        });
+        this.showSnackBarToast({ message }, 'success', ['msb-success-with-camera-icon']);
+
         this.trackingService.showToastMessage({ ToastContent: message });
       }
     }
@@ -4190,10 +4207,7 @@ export class AddEditExpensePage implements OnInit {
         })
       )
       .subscribe(() => {
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Expense created successfully.' }),
-          panelClass: ['msb-success'],
-        });
+        this.showSnackBarToast({ message: 'Expense created successfully.' }, 'success', ['msb-success']);
         this.router.navigate(['/', 'enterprise', 'personal_cards']);
         this.trackingService.newExpenseCreatedFromPersonalCard();
       });
@@ -4290,6 +4304,17 @@ export class AddEditExpensePage implements OnInit {
     if (data?.action === 'dismissed') {
       this.getDuplicateExpenses();
     }
+  }
+
+  showSnackBarToast(
+    toastMessageData: { message: string; redirectionText?: string },
+    type: 'success' | 'information' | 'failure',
+    panelClass: string[]
+  ) {
+    return this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(type, toastMessageData),
+      panelClass,
+    });
   }
 
   ionViewWillLeave() {
