@@ -24,8 +24,8 @@ export class MyExpensesService {
     this.generateSortCategoryPills(filter, filterPills);
   }
 
-  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
-    const generatedFilters: Filters = {};
+  convertFilters(selectedFilters: SelectedFilters<string | string[]>[]): Partial<ExpenseFilters> {
+    const generatedFilters: Partial<ExpenseFilters> = {};
 
     const typeFilter = selectedFilters.find((filter) => filter.name === 'Type');
     if (typeFilter) {
@@ -34,7 +34,7 @@ export class MyExpensesService {
 
     const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
     if (dateFilter) {
-      generatedFilters.date = dateFilter.value;
+      generatedFilters.date = <string>dateFilter.value;
       generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
@@ -42,19 +42,19 @@ export class MyExpensesService {
     const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts Attached');
 
     if (receiptAttachedFilter) {
-      generatedFilters.receiptsAttached = receiptAttachedFilter.value;
+      generatedFilters.receiptsAttached = <string>receiptAttachedFilter.value;
     }
 
     const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense Type');
 
     if (expenseTypeFilter) {
-      generatedFilters.type = expenseTypeFilter.value;
+      generatedFilters.type = <string[]>expenseTypeFilter.value;
     }
 
     const cardsFilter = selectedFilters.find((filter) => filter.name === 'Cards');
 
     if (cardsFilter) {
-      generatedFilters.cardNumbers = cardsFilter.value;
+      generatedFilters.cardNumbers = <string[]>cardsFilter.value;
     }
 
     const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
@@ -64,7 +64,7 @@ export class MyExpensesService {
     const splitExpenseFilter = selectedFilters.find((filter) => filter.name === 'Split Expense');
 
     if (splitExpenseFilter) {
-      generatedFilters.splitExpense = splitExpenseFilter.value;
+      generatedFilters.splitExpense = <string>splitExpenseFilter.value;
     }
 
     return generatedFilters;
@@ -238,18 +238,8 @@ export class MyExpensesService {
   }
 
   convertSelectedSortFitlersToFilters(
-    sortBy: SelectedFilters<any>,
-    generatedFilters: Partial<{
-      state: string[];
-      date: string;
-      customDateStart: Date;
-      customDateEnd: Date;
-      receiptsAttached: string;
-      type: string[];
-      sortParam: string;
-      sortDir: string;
-      cardNumbers: string[];
-    }>
+    sortBy: SelectedFilters<string | string[]>,
+    generatedFilters: Partial<ExpenseFilters>
   ) {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
@@ -403,8 +393,8 @@ export class MyExpensesService {
     ];
   }
 
-  generateSelectedFilters(filter: Partial<ExpenseFilters>): SelectedFilters<any>[] {
-    const generatedFilters: SelectedFilters<any>[] = [];
+  generateSelectedFilters(filter: Partial<ExpenseFilters>): SelectedFilters<string | string[]>[] {
+    const generatedFilters: SelectedFilters<string | string[]>[] = [];
 
     if (filter.state) {
       generatedFilters.push({
@@ -459,7 +449,7 @@ export class MyExpensesService {
     return generatedFilters;
   }
 
-  addSortToGeneratedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<any>[]) {
+  addSortToGeneratedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<string | string[]>[]) {
     this.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
 
     this.convertAmountSortToSelectedFilters(filter, generatedFilters);
@@ -467,7 +457,10 @@ export class MyExpensesService {
     this.convertCategorySortToSelectedFilters(filter, generatedFilters);
   }
 
-  convertCategorySortToSelectedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<any>[]) {
+  convertCategorySortToSelectedFilters(
+    filter: Partial<ExpenseFilters>,
+    generatedFilters: SelectedFilters<string | string[]>[]
+  ) {
     if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -481,7 +474,10 @@ export class MyExpensesService {
     }
   }
 
-  convertAmountSortToSelectedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<any>[]) {
+  convertAmountSortToSelectedFilters(
+    filter: Partial<ExpenseFilters>,
+    generatedFilters: SelectedFilters<string | string[]>[]
+  ) {
     if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -495,7 +491,10 @@ export class MyExpensesService {
     }
   }
 
-  convertTxnDtSortToSelectedFilters(filter: Partial<ExpenseFilters>, generatedFilters: SelectedFilters<string>[]) {
+  convertTxnDtSortToSelectedFilters(
+    filter: Partial<ExpenseFilters>,
+    generatedFilters: SelectedFilters<string | string[]>[]
+  ) {
     if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
