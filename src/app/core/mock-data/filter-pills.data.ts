@@ -128,12 +128,3 @@ export const splitExpenseFilterPill: FilterPill = {
   type: 'splitExpense',
   value: 'yes',
 };
-
-export const filterTypeMappings: FilterPill[] = [
-  stateFilterPill,
-  receiptsAttachedFilterPill,
-  typeFilterPill,
-  dateFilterPill[0],
-  sortFilterPill,
-  splitExpenseFilterPill,
-];
