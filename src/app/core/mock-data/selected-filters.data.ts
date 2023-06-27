@@ -77,3 +77,18 @@ export const selectedFilters5 = [
     associatedData: { startDate: new Date('2023-01-04'), endDate: new Date('2023-01-10') },
   },
 ];
+
+export const taskSelectedFiltersData: SelectedFilters<string[]>[] = [
+  {
+    name: 'Expenses',
+    value: ['DRAFT'],
+  },
+  {
+    name: 'Reports',
+    value: ['DRAFT'],
+  },
+  {
+    name: 'Advances',
+    value: ['SENT_BACK'],
+  },
+];

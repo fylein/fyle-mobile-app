@@ -9,7 +9,7 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
-import { DashboardTask } from 'src/app/core/models/task.model';
+import { DashboardTask } from 'src/app/core/models/dashboard-task.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -24,6 +24,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 
 @Component({
   selector: 'app-tasks',
@@ -45,7 +46,7 @@ export class TasksComponent implements OnInit {
 
   isConnected$: Observable<boolean>;
 
-  filterPills = [];
+  filterPills: FilterPill[] = [];
 
   taskCount = 0;
 
@@ -192,12 +193,12 @@ export class TasksComponent implements OnInit {
     );
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: { target?: { complete?: () => void } }) {
     forkJoin([this.transactionService.clearCache(), this.reportService.clearCache()]).subscribe(() => {
       this.loadData$.next(this.loadData$.getValue());
       if (event) {
         setTimeout(() => {
-          event?.target?.complete();
+          event.target?.complete();
         }, 1500);
       }
     });
@@ -321,10 +322,13 @@ export class TasksComponent implements OnInit {
 
   onFilterPillsClearAll() {
     this.applyFilters({
-      draftExpenses: false,
-      draftReports: false,
       sentBackReports: false,
+      draftReports: false,
+      draftExpenses: false,
       unreportedExpenses: false,
+      potentialDuplicates: false,
+      teamReports: false,
+      sentBackAdvances: false,
     });
 
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());

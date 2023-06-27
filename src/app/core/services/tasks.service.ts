@@ -8,7 +8,7 @@ import { ExtendedReport } from '../models/report.model';
 import { TASKEVENT } from '../models/task-event.enum';
 import { TaskFilters } from '../models/task-filters.model';
 import { TaskIcon } from '../models/task-icon.enum';
-import { DashboardTask } from '../models/task.model';
+import { DashboardTask } from '../models/dashboard-task.model';
 import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
 import { ReportService } from './report.service';
