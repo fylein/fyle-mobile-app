@@ -211,12 +211,11 @@ export class TeamReportsPage implements OnInit {
       switchMap((params) => iif(() => params.searchString && params.searchString !== '', of(false), paginatedScroll$))
     );
 
-    this.loadData$.subscribe(noop);
     this.teamReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
 
-    this.loadData$.subscribe((params) => {
+    this.loadData$.subscribe(() => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -225,26 +224,11 @@ export class TeamReportsPage implements OnInit {
       });
     });
 
-    if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
-    } else if (this.activatedRoute.snapshot.params.state) {
-      const filters = {
-        rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
-        state: this.activatedRoute.snapshot.params.state.toUpperCase(),
-      };
-
-      this.filters = Object.assign({}, this.filters, filters);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
-    } else {
-      this.clearFilters();
-    }
+    this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
+    this.filterPills = this.generateFilterPills(this.filters);
 
     setTimeout(() => {
       this.isLoading = false;
