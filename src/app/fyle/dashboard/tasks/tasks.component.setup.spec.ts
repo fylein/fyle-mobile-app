@@ -18,7 +18,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases1 } from './tasks-1.component.spec';
 
-fdescribe('TasksComponent', () => {
+describe('TasksComponent', () => {
   const getTestBed = () => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', [
       'getTasks',
