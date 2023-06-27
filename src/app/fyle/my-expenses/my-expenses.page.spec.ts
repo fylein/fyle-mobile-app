@@ -1324,7 +1324,6 @@ describe('MyExpensesPage', () => {
       myExpenseService.generateStateFilterPills.and.callFake((filterPill, filters) => {
         filterPill.push(stateFilterPill);
       });
-
       myExpenseService.generateReceiptsAttachedFilterPills.and.callFake((filterPill, filters) => {
         filterPill.push(receiptsAttachedFilterPill);
       });
