@@ -1,5 +1,4 @@
 import { UndoMerge } from '../models/undo-merge.model';
-import { txnList } from './transaction.data';
 
 export const UndoMergeData: UndoMerge = {
   user_created_expense: {
@@ -152,9 +151,4 @@ export const UndoMergeData: UndoMerge = {
     policy_amount: null,
     locations: [],
   },
-};
-
-export const UndoMergeData2: UndoMerge = {
-  user_created_expense: txnList[0],
-  auto_created_expense: txnList[1],
 };
