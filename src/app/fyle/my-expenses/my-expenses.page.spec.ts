@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, NavController } from '@ionic/angular';
+import { ActionSheetController, IonicModule, ModalController, NavController } from '@ionic/angular';
 
 import { MyExpensesPage } from './my-expenses.page';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -33,7 +33,16 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
 import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
-import { apiExpenseRes, expectedFormattedTransaction, expenseData1 } from 'src/app/core/mock-data/expense.data';
+import {
+  apiExpenseRes,
+  expectedFormattedTransaction,
+  expenseData1,
+  expenseData2,
+  expenseData3,
+  expenseList4,
+  mileageExpenseWithoutDistance,
+  perDiemExpenseSingleNumDays,
+} from 'src/app/core/mock-data/expense.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { environment } from 'src/environments/environment';
@@ -44,6 +53,7 @@ import {
   dateFilterPill,
   expectedFilterPill1,
   expectedFilterPill2,
+  filterTypeMappings,
   receiptsAttachedFilterPill,
   sortFilterPill,
   splitExpenseFilterPill,
@@ -59,6 +69,12 @@ import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-shee
 import { cloneDeep } from 'lodash';
 import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
 import { cardDetailsData1 } from 'src/app/core/mock-data/card-details.data';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
+import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import { modalControllerParams, modalControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
+import { expectedCurrentParams } from 'src/app/core/mock-data/get-expenses-query-params-with-filters.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 
 describe('MyExpensesPage', () => {
@@ -86,6 +102,9 @@ describe('MyExpensesPage', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let modalController: jasmine.SpyObj<ModalController>;
+  let loaderService: jasmine.SpyObj<LoaderService>;
+  let popupService: jasmine.SpyObj<PopupService>;
   let inputElement: HTMLInputElement;
 
   beforeEach(waitForAsync(() => {
@@ -104,6 +123,18 @@ describe('MyExpensesPage', () => {
       'getMyExpenses',
       'getPaginatedETxncCount',
       'clearCache',
+      'generateCardNumberParams',
+      'generateDateParams',
+      'generateReceiptAttachedParams',
+      'generateStateFilters',
+      'generateTypeFilters',
+      'setSortParams',
+      'generateSplitExpenseParams',
+      'delete',
+      'getReportableExpenses',
+      'isMergeAllowed',
+      'getDeletableTxns',
+      'excludeCCCExpenses',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -118,6 +149,7 @@ describe('MyExpensesPage', () => {
     const transactionOutboxServiceSpy = jasmine.createSpyObj('TransactionOutboxService', [
       'getPendingTransactions',
       'sync',
+      'deleteOfflineExpense',
     ]);
     const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -129,6 +161,9 @@ describe('MyExpensesPage', () => {
       'generateSortFilterPills',
       'generateCardFilterPills',
       'generateSplitExpenseFilterPills',
+      'convertFilters',
+      'generateSelectedFilters',
+      'getFilters',
     ]);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
@@ -143,7 +178,15 @@ describe('MyExpensesPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'createFirstExpense',
       'myExpensesActionSheetAction',
+      'tasksPageOpened',
+      'footerHomeTabClicked',
+      'myExpensesFilterApplied',
+      'deleteExpense',
+      'clickAddToReport',
     ]);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
+    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
 
     TestBed.configureTestingModule({
       declarations: [MyExpensesPage, ReportState, MaskNumber],
@@ -217,6 +260,18 @@ describe('MyExpensesPage', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: ModalController,
+          useValue: modalControllerSpy,
+        },
+        {
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
+        },
+        {
+          provide: PopupService,
+          useValue: popupServiceSpy,
+        },
         ReportState,
         MaskNumber,
       ],
@@ -253,6 +308,10 @@ describe('MyExpensesPage', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
+    component.loadData$ = new BehaviorSubject({});
   }));
 
   it('should create', () => {
@@ -947,7 +1006,7 @@ describe('MyExpensesPage', () => {
 
     it('should call transactionService.getTransactionStats and initialize queryParams to empty object if loadData.queryParams is falsy', () => {
       component.loadData$ = new BehaviorSubject({
-        queryParams: false,
+        queryParams: null,
       });
       transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam3));
       component.setAllExpensesCountAndAmount();
@@ -1226,6 +1285,7 @@ describe('MyExpensesPage', () => {
       myExpenseService.generateStateFilterPills.and.callFake((filterPill, filters) => {
         filterPill.push(stateFilterPill);
       });
+
       myExpenseService.generateReceiptsAttachedFilterPills.and.callFake((filterPill, filters) => {
         filterPill.push(receiptsAttachedFilterPill);
       });
@@ -1251,6 +1311,590 @@ describe('MyExpensesPage', () => {
     it('should return filterPills if state, type and cardNumbers properties are not present in filters passed as argument', () => {
       const filterPillRes = component.generateFilterPills(expenseFiltersData2);
       expect(filterPillRes).toEqual(expectedFilterPill2);
+    });
+  });
+
+  describe('addNewFiltersToParams(): ', () => {
+    beforeEach(() => {
+      component.loadData$ = new BehaviorSubject({
+        pageNumber: 2,
+      });
+      transactionService.generateCardNumberParams.and.returnValue({
+        corporate_credit_card_account_number: 'in.(789)',
+        or: [],
+      });
+      transactionService.generateDateParams.and.returnValue({
+        corporate_credit_card_account_number: 'in.(789)',
+        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+        or: [],
+      });
+      transactionService.generateReceiptAttachedParams.and.returnValue({
+        corporate_credit_card_account_number: 'in.(789)',
+        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+        or: [],
+      });
+      transactionService.generateStateFilters.and.returnValue({
+        corporate_credit_card_account_number: 'in.(789)',
+        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+        or: [],
+      });
+      transactionService.generateTypeFilters.and.returnValue({
+        corporate_credit_card_account_number: 'in.(789)',
+        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+        or: [],
+      });
+      transactionService.setSortParams.and.returnValue({ sortDir: 'asc' });
+      transactionService.generateSplitExpenseParams.and.returnValue({
+        or: ['(tx_is_split_expense.eq.true)'],
+        corporate_credit_card_account_number: 'in.(789)',
+        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+      });
+    });
+
+    it('should update queryParams if filter state is not defined', () => {
+      component.filters = {};
+
+      const currentParams = component.addNewFiltersToParams();
+
+      expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
+      expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateStateFilters).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateTypeFilters).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
+      expect(transactionService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+
+      expect(currentParams).toEqual(expectedCurrentParams);
+      expect(component.reviewMode).toBeFalse();
+    });
+
+    it('should update queryParams if filter state includes only DRAFT', () => {
+      component.filters = {
+        state: ['DRAFT'],
+      };
+
+      const currentParams = component.addNewFiltersToParams();
+
+      expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
+      expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateStateFilters).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateTypeFilters).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
+      expect(transactionService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+
+      expect(currentParams).toEqual(expectedCurrentParams);
+      expect(component.reviewMode).toBeTrue();
+    });
+
+    it('should update queryParams if filter state includes only CANNOT_REPORT', () => {
+      component.filters = {
+        state: ['CANNOT_REPORT'],
+      };
+
+      const currentParams = component.addNewFiltersToParams();
+
+      expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
+      expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateStateFilters).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateTypeFilters).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
+      expect(transactionService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+
+      expect(currentParams).toEqual(expectedCurrentParams);
+      expect(component.reviewMode).toBeTrue();
+    });
+
+    it('should update queryParams if filter state includes both DRAFT and CANNOT_REPORT', () => {
+      component.filters = {
+        state: ['DRAFT', 'CANNOT_REPORT'],
+      };
+
+      const currentParams = component.addNewFiltersToParams();
+
+      expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
+      expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateStateFilters).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.generateTypeFilters).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+      expect(transactionService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
+      expect(transactionService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
+        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        component.filters
+      );
+
+      expect(currentParams).toEqual(expectedCurrentParams);
+      expect(component.reviewMode).toBeTrue();
+    });
+
+    it('should set reviewMode to false if filter state is APPROVED', () => {
+      component.filters = {
+        state: ['APPROVED'],
+      };
+
+      const currentParams = component.addNewFiltersToParams();
+      expect(component.reviewMode).toBeFalse();
+    });
+  });
+
+  describe('openFilters(): ', () => {
+    beforeEach(() => {
+      myExpenseService.getFilters.and.returnValue(cloneDeep(filterOptions1));
+      const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['present', 'onWillDismiss']);
+      filterPopoverSpy.onWillDismiss.and.resolveTo({ data: selectedFilters2 });
+      modalController.create.and.resolveTo(filterPopoverSpy);
+      component.filters = {
+        state: [],
+      };
+      myExpenseService.generateSelectedFilters.and.returnValue(selectedFilters1);
+      component.loadData$ = new BehaviorSubject({
+        pageNumber: 1,
+      });
+      component.currentPageNumber = 2;
+      myExpenseService.convertFilters.and.returnValue({ sortDir: 'asc', splitExpense: 'YES' });
+      spyOn(component, 'addNewFiltersToParams').and.returnValue({ searchString: 'example' });
+      spyOn(component, 'generateFilterPills').and.returnValue([
+        {
+          label: 'Transactions Type',
+          type: 'string',
+          value: 'Credit',
+        },
+      ]);
+    });
+
+    it('should call modalController and myExpensesService', fakeAsync(() => {
+      component.cardNumbers = [
+        {
+          label: 'ABC',
+          value: '1234',
+        },
+      ];
+
+      component.openFilters('approvalDate');
+      tick(200);
+
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams);
+      expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
+      expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
+      expect(component.currentPageNumber).toBe(1);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      component.loadData$.subscribe((loadData) => {
+        expect(loadData).toEqual({ searchString: 'example' });
+      });
+
+      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
+      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
+    }));
+
+    it('should call modalController and myExpensesService if cardNumbers is undefined', fakeAsync(() => {
+      component.cardNumbers = undefined;
+
+      component.openFilters('approvalDate');
+      tick(200);
+
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams2);
+
+      expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
+      expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
+      expect(component.currentPageNumber).toBe(1);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      component.loadData$.subscribe((loadData) => {
+        expect(loadData).toEqual({ searchString: 'example' });
+      });
+      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
+      expect(component.filterPills).toEqual(creditTxnFilterPill);
+      expect(trackingService.myExpensesFilterApplied).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
+    }));
+  });
+
+  it('clearFilters(): should clear the filters and call generateFilterPills', () => {
+    component.filters = {
+      sortDir: 'asc',
+      sortParam: 'tx_org_category',
+    };
+    component.currentPageNumber = 3;
+    spyOn(component, 'addNewFiltersToParams').and.returnValue({
+      pageNumber: 1,
+      searchString: 'example',
+    });
+
+    spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
+
+    component.clearFilters();
+
+    expect(component.filters).toEqual({});
+    expect(component.currentPageNumber).toBe(1);
+    expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+    component.loadData$.subscribe((data) => {
+      expect(data).toEqual({
+        pageNumber: 1,
+        searchString: 'example',
+      });
+    });
+    expect(component.generateFilterPills).toHaveBeenCalledOnceWith({});
+    expect(component.filterPills).toEqual(creditTxnFilterPill);
+  });
+
+  it('setState(): should pageNumber to 1 and update isLoading correctly', fakeAsync(() => {
+    spyOn(component, 'addNewFiltersToParams').and.returnValue({
+      pageNumber: 1,
+      searchString: 'example',
+    });
+    component.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+
+    component.setState();
+
+    expect(component.isLoading).toBeTrue();
+    expect(component.currentPageNumber).toBe(1);
+    component.loadData$.subscribe((data) => {
+      expect(data).toEqual({
+        pageNumber: 1,
+        searchString: 'example',
+      });
+    });
+    tick(500);
+    expect(component.isLoading).toBeFalse();
+  }));
+
+  describe('selectExpense(): ', () => {
+    beforeEach(() => {
+      transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
+      component.allExpensesCount = 1;
+      spyOn(component, 'setExpenseStatsOnSelect');
+      component.selectedElements = cloneDeep(apiExpenseRes);
+      transactionService.isMergeAllowed.and.returnValue(true);
+      transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
+      transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
+    });
+
+    it('should remove an expense from selectedElements if it is present in selectedElements', () => {
+      transactionService.getReportableExpenses.and.returnValue([]);
+      const expense = apiExpenseRes[0];
+      component.selectedElements = cloneDeep(apiExpenseRes);
+
+      component.selectExpense(expense);
+
+      expect(component.selectedElements).toEqual([]);
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectAll).toBeFalse();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
+      expect(component.isMergeAllowed).toBeTrue();
+    });
+
+    it('should remove an expense from selectedElements if it is present in selectedElements', () => {
+      transactionService.getReportableExpenses.and.returnValue([]);
+      component.allExpensesCount = 4;
+      const expense = apiExpenseRes[0];
+      component.selectedElements = cloneDeep(cloneDeep(expenseList4));
+
+      component.selectExpense(expense);
+
+      expect(component.selectedElements).toEqual([...expenseList4, expense]);
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectAll).toBeTrue();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([...expenseList4, expense]);
+      expect(component.isMergeAllowed).toBeTrue();
+    });
+
+    it('should remove an expense from selectedElements if it is present in selectedElements and allExpenseCount is not equal to length of selectedElements', () => {
+      transactionService.getReportableExpenses.and.returnValue([]);
+      const expense = apiExpenseRes[0];
+      component.selectedElements = cloneDeep(apiExpenseRes);
+
+      component.selectExpense(expense);
+
+      expect(component.selectedElements).toEqual([]);
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectAll).toBeFalse();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
+      expect(component.isMergeAllowed).toBeTrue();
+    });
+
+    it('should update expenseToBeDeleted if selectedElements is an array of atleast 1', () => {
+      component.selectedElements = cloneDeep(apiExpenseRes);
+      component.selectExpense(expenseData2);
+
+      const expectedSelectedElements = [...apiExpenseRes, expenseData2];
+      expect(component.selectedElements).toEqual(expectedSelectedElements);
+      expect(component.expensesToBeDeleted).toEqual(apiExpenseRes);
+      expect(component.cccExpenses).toBe(1);
+      expect(component.selectAll).toBeFalse();
+    });
+
+    it('should remove an expense from selectedElements if it is present in selectedElements and tx_id is not present in expense', () => {
+      transactionService.getReportableExpenses.and.returnValue([]);
+      component.allExpensesCount = 0;
+      const expense = cloneDeep(apiExpenseRes[0]);
+      expense.tx_id = undefined;
+      component.selectedElements = cloneDeep(apiExpenseRes);
+      component.selectedElements[0].tx_id = undefined;
+
+      component.selectExpense(expense);
+
+      expect(component.selectedElements).toEqual([]);
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectAll).toBeTrue();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
+      expect(component.isMergeAllowed).toBeTrue();
+    });
+  });
+
+  it('setExpenseStatsOnSelect(): should update allExpenseStats$', () => {
+    component.selectedElements = expenseList4;
+    component.setExpenseStatsOnSelect();
+    component.allExpensesStats$.subscribe((expenseStats) => {
+      expect(expenseStats).toEqual({
+        count: 3,
+        amount: 49475.76,
+      });
+    });
+  });
+
+  describe('goToTransaction():', () => {
+    it('should navigate to add_edit_mileage page if category is mileage', () => {
+      component.goToTransaction({ etxn: mileageExpenseWithoutDistance });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_mileage',
+        { id: 'txEpXa1cd6oq', persist_filters: true },
+      ]);
+    });
+
+    it('should navigate to add_edit_per_diem if category is per diem', () => {
+      component.goToTransaction({ etxn: perDiemExpenseSingleNumDays });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_per_diem',
+        { id: 'txWDbbZhNwdA', persist_filters: true },
+      ]);
+    });
+
+    it('should navigate to add_edit_expense if category is something else', () => {
+      component.goToTransaction({ etxn: expenseData3 });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        { id: 'tx3qHxFNgRcZ', persist_filters: true },
+      ]);
+    });
+  });
+
+  it('onSimpleSearchCancel(): should set headerState to base and call clearText', () => {
+    component.headerState = HeaderState.simpleSearch;
+    spyOn(component, 'clearText');
+
+    component.onSimpleSearchCancel();
+
+    expect(component.headerState).toEqual(HeaderState.base);
+    expect(component.clearText).toHaveBeenCalledOnceWith('onSimpleSearchCancel');
+  });
+
+  it('onFilterPillsClearAll(): should call clearFilters', () => {
+    spyOn(component, 'clearFilters');
+    component.onFilterPillsClearAll();
+    expect(component.clearFilters).toHaveBeenCalledTimes(1);
+  });
+
+  describe('onFilterClick(): ', () => {
+    beforeEach(() => {
+      spyOn(component, 'openFilters');
+    });
+    filterTypeMappings.forEach((filterTypeMapping) => {
+      it('should call openFilters with Type if argument is state', fakeAsync(() => {
+        component.onFilterClick(filterTypeMapping.type);
+        tick(100);
+
+        expect(component.openFilters).toHaveBeenCalledOnceWith(filterTypeMapping.label);
+      }));
+    });
+  });
+
+  describe('onFilterClose(): ', () => {
+    const mockFilterPill = [
+      {
+        label: 'Transactions Type',
+        type: 'string',
+        value: 'Credit',
+      },
+    ];
+    beforeEach(() => {
+      component.loadData$ = new BehaviorSubject({});
+      component.filters = {
+        sortDir: 'asc',
+        sortParam: 'tx_org_category',
+      };
+      component.currentPageNumber = 2;
+      spyOn(component, 'addNewFiltersToParams').and.returnValue({
+        pageNumber: 3,
+      });
+      spyOn(component, 'generateFilterPills').and.returnValue(mockFilterPill);
+    });
+
+    it('should remove sortDir and sortParam if filterType is sort', () => {
+      component.onFilterClose('sort');
+
+      expect(component.filters.sortDir).toBeUndefined();
+      expect(component.filters.sortParam).toBeUndefined();
+      expect(component.currentPageNumber).toBe(1);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      component.loadData$.subscribe((data) => {
+        expect(data).toEqual({ pageNumber: 3 });
+      });
+      expect(component.filterPills).toEqual(mockFilterPill);
+    });
+
+    it('should remove property from filter if filterType is other than sort', () => {
+      component.onFilterClose('sortDir');
+      expect(component.filters).toEqual({
+        sortParam: 'tx_org_category',
+      });
+      expect(component.currentPageNumber).toBe(1);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      component.loadData$.subscribe((data) => {
+        expect(data).toEqual({ pageNumber: 3 });
+      });
+      expect(component.filterPills).toEqual(mockFilterPill);
+    });
+  });
+
+  it('onHomeClicked(): should navigate to my_dashboard and call trackingService', () => {
+    component.onHomeClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+      queryParams: { state: 'home' },
+    });
+    expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({
+      page: 'Expenses',
+    });
+  });
+
+  it('onCameraClicked(): should navigate to camera_overlay', () => {
+    component.onCameraClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'camera_overlay',
+      {
+        navigate_back: true,
+      },
+    ]);
+  });
+
+  it('onTaskClicked(): should navigate to my_dashboard and call trackingService', () => {
+    component.onTaskClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+      queryParams: { state: 'tasks', tasksFilters: 'expenses' },
+    });
+    expect(trackingService.tasksPageOpened).toHaveBeenCalledOnceWith({
+      Asset: 'Mobile',
+      from: 'My Expenses',
+    });
+  });
+
+  it('searchClick(): should set headerState and call focus method on input', fakeAsync(() => {
+    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
+    inputElement = component.simpleSearchInput.nativeElement;
+    const mockFocus = spyOn(inputElement, 'focus');
+
+    component.searchClick();
+    expect(component.headerState).toEqual(HeaderState.simpleSearch);
+    tick(300);
+    expect(mockFocus).toHaveBeenCalledTimes(1);
+  }));
+
+  it('mergeExpense(): should navigate to merge_expenses with payload data', () => {
+    component.selectedElements = apiExpenseRes;
+    const strigifiedElements = JSON.stringify(apiExpenseRes);
+    component.mergeExpenses();
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'merge_expense',
+      {
+        selectedElements: strigifiedElements,
+        from: 'MY_EXPENSES',
+      },
+    ]);
+  });
+
+  describe('showCamera(): ', () => {
+    it('should set isCameraPreviewStarted to false if argument is false', () => {
+      component.isCameraPreviewStarted = true;
+      component.showCamera(false);
+      expect(component.isCameraPreviewStarted).toBeFalse();
+    });
+
+    it('should set isCameraPreviewStarted to true if argument is true', () => {
+      component.isCameraPreviewStarted = false;
+      component.showCamera(true);
+      expect(component.isCameraPreviewStarted).toBeTrue();
     });
   });
 });
