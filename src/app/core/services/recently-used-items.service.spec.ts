@@ -11,11 +11,11 @@ import {
   recentlyUsedCostCentersRes,
   recentlyUsedResWithoutCostCenterId,
   recentlyUsedCategoryWithoutId,
-  recentUsedCategoriesRes,
   costCentersResWithNonMatchingIds,
 } from '../mock-data/recently-used.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { of } from 'rxjs';
+import { recentUsedCategoriesRes } from '../mock-data/org-category-list-item.data';
 
 describe('RecentlyUsedItemsService', () => {
   let recentlyUsedItemsService: RecentlyUsedItemsService;
