@@ -17,7 +17,7 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
-import { cardAggregateStatParam, cardAggregateStatParam3 } from 'src/app/core/mock-data/card-aggregate-stat.data';
+import { cardAggregateStatParam, cardAggregateStatParam3 } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -65,7 +65,7 @@ import { ExpenseFilters } from './expense-filters.model';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
 import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
-import { expectedActionSheetButtonRes } from 'src/app/core/test-data/my-expenses.page.spec.data';
+import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
 import { cloneDeep } from 'lodash';
 import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
 import { cardDetailsData1 } from 'src/app/core/mock-data/card-details.data';
@@ -93,6 +93,7 @@ import {
   expectedCriticalPolicyViolationPopoverParams2,
   expectedCriticalPolicyViolationPopoverParams3,
 } from 'src/app/core/mock-data/critical-policy-violation-popover.data';
+import { getElementRef } from 'src/app/core/dom-helpers';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -397,7 +398,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'formatTransactions').and.returnValue(apiExpenseRes);
       spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1, sortDir: 'desc' });
       spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
+      component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
       inputElement = component.simpleSearchInput.nativeElement;
     });
 
@@ -917,7 +918,7 @@ describe('MyExpensesPage', () => {
     let dispatchEventSpy: jasmine.Spy;
     beforeEach(() => {
       component.isSearchBarFocused = false;
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
+      component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
       inputElement = component.simpleSearchInput.nativeElement;
       dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
     });
@@ -942,7 +943,7 @@ describe('MyExpensesPage', () => {
 
   it('onSearchBarFocus(): should set isSearchBarFocused to true', () => {
     component.isSearchBarFocused = false;
-    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
+    component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
     inputElement = component.simpleSearchInput.nativeElement;
     inputElement.dispatchEvent(new Event('focus'));
     expect(component.isSearchBarFocused).toBeTrue();

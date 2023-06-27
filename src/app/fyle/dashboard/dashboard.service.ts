@@ -5,7 +5,7 @@ import { StatsResponse } from '../../core/models/v2/stats-response.model';
 import { TransactionService } from '../../core/services/transaction.service';
 import { Observable } from 'rxjs';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stat.model';
+import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Stats } from '../../core/models/stats.model';
 import { ReportStats } from 'src/app/core/models/report-stats.model';
