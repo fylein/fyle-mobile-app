@@ -3455,6 +3455,27 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  trackCreateExpense(etxn, isInstaFyleExpense) {
+    this.trackingService.createExpense({
+      Type: 'Receipt',
+      Amount: etxn.tx.amount,
+      Currency: etxn.tx.currency,
+      Category: etxn.tx.org_category,
+      Time_Spent: this.getTimeSpentOnPage() + ' secs',
+      Used_Autofilled_Category:
+        etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
+      Used_Autofilled_Project:
+        etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
+      Used_Autofilled_CostCenter:
+        etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
+      Used_Autofilled_Currency:
+        (etxn.tx.currency || etxn.tx.orig_currency) &&
+        this.presetCurrency &&
+        (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
+      Instafyle: isInstaFyleExpense,
+    });
+  }
+
   addExpense(redirectedFrom) {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
@@ -3530,25 +3551,7 @@ export class AddEditExpensePage implements OnInit {
           switchMap((eou) => {
             const comments = [];
             const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
-            this.trackingService.createExpense({
-              Type: 'Receipt',
-              Amount: etxn.tx.amount,
-              Currency: etxn.tx.currency,
-              Category: etxn.tx.org_category,
-              Time_Spent: this.getTimeSpentOnPage() + ' secs',
-              Used_Autofilled_Category:
-                etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
-              Used_Autofilled_Project:
-                etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
-              Used_Autofilled_CostCenter:
-                etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
-              Used_Autofilled_Currency:
-                (etxn.tx.currency || etxn.tx.orig_currency) &&
-                this.presetCurrency &&
-                (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
-              Instafyle: isInstaFyleExpense,
-            });
-
+            this.trackCreateExpense(etxn, isInstaFyleExpense);
             if (comment) {
               comments.push(comment);
             }

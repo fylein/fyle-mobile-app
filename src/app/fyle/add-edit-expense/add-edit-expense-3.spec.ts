@@ -1,14 +1,14 @@
 import { TitleCasePipe } from '@angular/common';
-import { ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Subscription, of } from 'rxjs';
+import { Subscription, catchError, of } from 'rxjs';
 import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
 import { customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
-import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import { fileObject4, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
@@ -26,6 +26,7 @@ import {
   unflattenedExpData,
 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
+  expWithCriticalViolation,
   expectedUnflattendedTxnData2,
   expectedUnflattendedTxnData3,
   unflattenedTxnData,
@@ -68,6 +69,9 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
+import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -444,6 +448,129 @@ export function TestCases3(getTestBed) {
           done();
         });
       });
+    });
+
+    it('trackCreateExpense(): should track create expense event', () => {
+      component.presetCategoryId = unflattenedExpData.tx.project_id;
+      component.presetCostCenterId = unflattenedExpData.tx.cost_center_id;
+      component.presetCurrency = unflattenedExpData.tx.orig_currency;
+      spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
+      fixture.detectChanges();
+
+      component.trackCreateExpense(unflattenedExpData, true);
+      expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
+        Type: 'Receipt',
+        Amount: unflattenedExpData.tx.amount,
+        Currency: unflattenedExpData.tx.currency,
+        Category: unflattenedExpData.tx.org_category,
+        Time_Spent: '30 secs',
+        Used_Autofilled_Category: null,
+        Used_Autofilled_Project: null,
+        Used_Autofilled_CostCenter: null,
+        Used_Autofilled_Currency: null,
+        Instafyle: true,
+      });
+    });
+
+    describe('criticalPolicyViolationErrorHandler():', () => {
+      it('should return txn with permission to continue with critical violations from user', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithCriticalPolicyViolation').and.resolveTo(true);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
+
+        component
+          .criticalPolicyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+            },
+            of(customFieldData2)
+          )
+          .subscribe(() => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+            expect(component.continueWithCriticalPolicyViolation).toHaveBeenCalledOnceWith(criticalPolicyViolation1);
+            expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+            done();
+          });
+      });
+    });
+
+    describe('policyViolationErrorHandler():', () => {
+      it('should return txn if user wants to continue with violations', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo(true);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
+
+        component
+          .policyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+              policyAction: policyViolation1.data.final_desired_state,
+            },
+            of(customFieldData2)
+          )
+          .subscribe(() => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+            expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
+              criticalPolicyViolation1,
+              policyViolation1.data.final_desired_state
+            );
+            expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+            done();
+          });
+      });
+    });
+
+    describe('viewAttachments():', () => {
+      it('should upload receipts and increment count if not in add mode', fakeAsync(() => {
+        component.etxn$ = of(unflattenedTxnData);
+        component.mode = 'edit';
+        component.attachedReceiptsCount = 0;
+        fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
+        fileService.downloadUrl.and.returnValue(of('url1'));
+        spyOn(component.loadAttachments$, 'next');
+        spyOn(component, 'getReceiptDetails').and.returnValue({
+          type: 'pdf',
+          thumbnail: 'thumbnail1',
+        });
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+
+        const attachmentsModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
+        attachmentsModalSpy.onWillDismiss.and.resolveTo({
+          data: {
+            attachments: ['attachment1', 'attachment2'],
+          },
+        });
+
+        modalController.create.and.resolveTo(attachmentsModalSpy);
+        fixture.detectChanges();
+
+        component.viewAttachments();
+        tick(500);
+
+        expect(fileService.findByTransactionId).toHaveBeenCalledWith(unflattenedTxnData.tx.id);
+        expect(fileService.findByTransactionId).toHaveBeenCalledTimes(2);
+        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjectData.id);
+        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObjectData);
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: FyViewAttachmentComponent,
+          componentProps: {
+            attachments: [fileObjectData],
+            canEdit: true,
+          },
+          mode: 'ios',
+        });
+        expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
+        expect(component.attachedReceiptsCount).toEqual(1);
+      }));
     });
   });
 }
