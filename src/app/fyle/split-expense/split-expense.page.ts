@@ -20,7 +20,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -28,6 +28,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 
@@ -53,7 +54,7 @@ export class SplitExpensePage implements OnInit {
 
   remainingAmount: number;
 
-  categories$: Observable<any>;
+  categories$: Observable<OrgCategoryListItem[]>;
 
   costCenters$: Observable<any>;
 
@@ -61,7 +62,7 @@ export class SplitExpensePage implements OnInit {
 
   transaction: any;
 
-  fileObjs: any[];
+  fileObjs: FileObject[];
 
   fileUrls: any[];
 
