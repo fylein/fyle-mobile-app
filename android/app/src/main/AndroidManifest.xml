@@ -21,6 +21,7 @@
             android:taskAffinity=""
             android:screenOrientation="portrait"
             android:exported="true"
+            android:noHistory="true"
             >
 
             <intent-filter android:autoVerify="true">
