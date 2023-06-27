@@ -70,6 +70,8 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { UnformattedTransaction } from 'src/app/core/models/unformatted-transaction.model';
+import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expenses-query-params-with-filters.model';
+import { GetExpensesQueryParams } from 'src/app/core/models/get-expenses-query-params.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -87,15 +89,7 @@ export class MyExpensesPage implements OnInit {
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  loadData$: BehaviorSubject<
-    Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  >;
+  loadData$: BehaviorSubject<Partial<GetExpensesQueryParamsWithFilters>>;
 
   currentPageNumber = 1;
 
@@ -750,7 +744,7 @@ export class MyExpensesPage implements OnInit {
   addNewFiltersToParams() {
     let currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    let newQueryParams: any = {
+    let newQueryParams: Partial<GetExpensesQueryParams> = {
       or: [],
     };
 
@@ -830,7 +824,7 @@ export class MyExpensesPage implements OnInit {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  async setState(state: string) {
+  async setState() {
     this.isLoading = true;
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -838,35 +832,6 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       this.isLoading = false;
     }, 500);
-  }
-
-  async onDeleteExpenseClick(etxn: Expense, index?: number) {
-    const popupResults = await this.popupService.showPopup({
-      header: 'Delete Expense',
-      message: 'Are you sure you want to delete this expense?',
-      primaryCta: {
-        text: 'Delete',
-      },
-    });
-
-    if (popupResults === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense', 2500))
-        .pipe(
-          switchMap(() =>
-            iif(
-              () => !etxn.tx_id,
-              of(this.transactionOutboxService.deleteOfflineExpense(index)),
-              this.transactionService.delete(etxn.tx_id)
-            )
-          ),
-          tap(() => this.trackingService.deleteExpense()),
-          finalize(async () => {
-            await this.loaderService.hideLoader();
-            this.doRefresh();
-          })
-        )
-        .subscribe(noop);
-    }
   }
 
   setExpenseStatsOnSelect() {
@@ -895,12 +860,12 @@ export class MyExpensesPage implements OnInit {
     }
     this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
 
-    if (this.selectedElements?.length > 0) {
+    if (this.selectedElements.length > 0) {
       this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
 
       this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
 
-      this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+      this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
     }
 
     // setting Expenses count and amount stats on select
@@ -913,8 +878,8 @@ export class MyExpensesPage implements OnInit {
     this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedElements);
   }
 
-  goToTransaction({ etxn: expense, etxnIndex }) {
-    let category;
+  goToTransaction({ etxn: expense }) {
+    let category: string;
 
     if (expense.tx_org_category) {
       category = expense.tx_org_category.toLowerCase();
@@ -927,12 +892,6 @@ export class MyExpensesPage implements OnInit {
     } else {
       this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id, persist_filters: true }]);
     }
-  }
-
-  onAddTransactionToNewReport(expense) {
-    this.trackingService.clickAddToReport();
-    const transactionIds = JSON.stringify([expense.tx_id]);
-    this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
   async openCriticalPolicyViolationPopOver(config: { title: string; message: string; reportType: string }) {
@@ -968,7 +927,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showNonReportableExpenseSelectedToast(message) {
+  showNonReportableExpenseSelectedToast(message: string) {
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
       panelClass: ['msb-failure-with-report-btn'],
@@ -977,7 +936,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport') {
-    this.trackingService.addToReport({ count: this.selectedElements.length });
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
     selectedElements = selectedElements.filter((expense) => expense.tx_id);
@@ -1015,7 +973,7 @@ export class MyExpensesPage implements OnInit {
       let message = '';
 
       if (noOfExpensesWithCriticalPolicyViolations > 0 || noOfExpensesInDraftState > 0) {
-        this.homeCurrency$.subscribe((homeCurrency) => {
+        this.homeCurrency$.subscribe(() => {
           if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
             title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
               ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
@@ -1117,7 +1075,7 @@ export class MyExpensesPage implements OnInit {
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(({ inital, allIds }) => {
-        let category;
+        let category: string;
 
         if (inital.tx.org_category) {
           category = inital.tx.org_category.toLowerCase();
@@ -1160,14 +1118,14 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  filterExpensesBySearchString(expense: any, searchString: string) {
+  filterExpensesBySearchString(expense: Expense, searchString: string) {
     return Object.values(expense)
       .map((value) => value && value.toString().toLowerCase())
       .filter((value) => !!value)
       .some((value) => value.toLowerCase().includes(searchString.toLowerCase()));
   }
 
-  async onAddTransactionToReport(event) {
+  async onAddTransactionToReport(event: { tx_id: string }) {
     const addExpenseToReportModal = await this.modalController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {
@@ -1184,7 +1142,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showAddToReportSuccessToast(config: { message: string; report }) {
+  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport }) {
     const toastMessageData = {
       message: config.message,
       redirectionText: 'View Report',
@@ -1201,12 +1159,7 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'my_view_report',
-        { id: config.report.rp_id || config.report.id, navigateBack: true },
-      ]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.rp_id, navigateBack: true }]);
     });
   }
 
