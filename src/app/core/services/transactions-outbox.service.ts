@@ -271,7 +271,7 @@ export class TransactionsOutboxService {
     return null;
   }
 
-  deleteBulkOfflineExpenses(pendingTransactions: Expense[], deleteExpenses: Expense[]) {
+  deleteBulkOfflineExpenses(pendingTransactions: Partial<Expense>[], deleteExpenses: Partial<Expense>[]) {
     const indexes = deleteExpenses.map((offlineExpense) => indexOf(pendingTransactions, offlineExpense));
     // We need to delete last element of this list first
     indexes.sort((a, b) => b - a);

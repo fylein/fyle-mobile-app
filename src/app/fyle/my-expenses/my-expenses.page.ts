@@ -60,18 +60,21 @@ import { SnackbarPropertiesService } from '../../core/services/snackbar-properti
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { MyExpensesService } from './my-expenses.service';
-import { Filters } from './my-expenses-filters.model';
+import { ExpenseFilters } from './expense-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { UnformattedTransaction } from 'src/app/core/models/unformatted-transaction.model';
+
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
-  providers: [MyExpensesService],
 })
 export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
@@ -98,7 +101,7 @@ export class MyExpensesPage implements OnInit {
 
   acc = [];
 
-  filters: Filters;
+  filters: Partial<ExpenseFilters>;
 
   allExpensesStats$: Observable<{ count: number; amount: number }>;
 
@@ -114,11 +117,11 @@ export class MyExpensesPage implements OnInit {
 
   isPerDiemEnabled$: Observable<boolean>;
 
-  pendingTransactions = [];
+  pendingTransactions: Partial<Expense>[] = [];
 
   selectionMode = false;
 
-  selectedElements: Expense[];
+  selectedElements: Partial<Expense>[];
 
   syncing = false;
 
@@ -170,7 +173,7 @@ export class MyExpensesPage implements OnInit {
 
   maskNumber = new MaskNumber();
 
-  expensesToBeDeleted: Expense[];
+  expensesToBeDeleted: Partial<Expense>[];
 
   cccExpenses: number;
 
@@ -206,7 +209,7 @@ export class MyExpensesPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private platform: Platform,
+    private platformHandlerService: PlatformHandlerService,
     private navController: NavController
   ) {}
 
@@ -234,9 +237,9 @@ export class MyExpensesPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  formatTransactions(transactions) {
+  formatTransactions(transactions: Partial<UnformattedTransaction>[]): Partial<Expense>[] {
     return transactions.map((transaction) => {
-      const formattedTxn = {};
+      const formattedTxn = <Partial<Expense>>{};
       Object.keys(transaction).forEach((key) => {
         formattedTxn['tx_' + key] = transaction[key];
       });
@@ -244,7 +247,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  switchSelectionMode(expense?) {
+  switchSelectionMode(expense?: Expense) {
     this.selectionMode = !this.selectionMode;
     if (!this.selectionMode) {
       if (this.loadData$.getValue().searchString) {
@@ -305,7 +308,7 @@ export class MyExpensesPage implements OnInit {
           })
           .pipe(
             catchError((err) => EMPTY),
-            map((stats) => {
+            map((stats: CardAggregateStats[]) => {
               const count = stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
               const amount = stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
               return {
@@ -318,7 +321,23 @@ export class MyExpensesPage implements OnInit {
     );
   }
 
-  setupActionSheet(orgSettings) {
+  actionSheetButtonsHandler(action: string, route: string) {
+    return () => {
+      this.trackingService.myExpensesActionSheetAction({
+        Action: action,
+      });
+      this.router.navigate([
+        '/',
+        'enterprise',
+        route,
+        {
+          navigate_back: true,
+        },
+      ]);
+    };
+  }
+
+  setupActionSheet(orgSettings: OrgSettings) {
     const that = this;
     const mileageEnabled = orgSettings.mileage.enabled;
     const isPerDiemEnabled = orgSettings.per_diem.enabled;
@@ -327,37 +346,13 @@ export class MyExpensesPage implements OnInit {
         text: 'Capture Receipt',
         icon: 'assets/svg/fy-camera.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'capture receipts',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'camera_overlay',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
         text: 'Add Manually',
         icon: 'assets/svg/fy-expense.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Expense',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_expense',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
       },
     ];
 
@@ -366,19 +361,7 @@ export class MyExpensesPage implements OnInit {
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Mileage',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_mileage',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
       });
     }
 
@@ -387,25 +370,13 @@ export class MyExpensesPage implements OnInit {
         text: 'Add Per Diem',
         icon: 'assets/svg/fy-calendar.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Per Diem',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_per_diem',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
       });
     }
   }
 
-  getCardDetail(statsResponses) {
-    const cardNames = [];
+  getCardDetail(statsResponses: CardAggregateStats[]) {
+    const cardNames: { cardNumber: string; cardName: string }[] = [];
     statsResponses.forEach((response) => {
       const cardDetail = {
         cardNumber: response.key[1].column_value,
@@ -423,39 +394,46 @@ export class MyExpensesPage implements OnInit {
     this.onPageExit$.next(null);
   }
 
+  backButtonAction() {
+    if (this.headerState === HeaderState.multiselect) {
+      this.switchSelectionMode();
+    } else if (this.headerState === HeaderState.simpleSearch) {
+      this.onSimpleSearchCancel();
+    } else {
+      this.navController.back();
+    }
+  }
+
   ionViewWillEnter() {
     this.isNewReportsFlowEnabled = false;
-    this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.MEDIUM, () => {
-      if (this.headerState === HeaderState.multiselect) {
-        this.switchSelectionMode();
-      } else if (this.headerState === HeaderState.simpleSearch) {
-        this.onSimpleSearchCancel();
-      } else {
-        this.navController.back();
-      }
-    });
+    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
+      BackButtonActionPriority.MEDIUM,
+      this.backButtonAction
+    );
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
     });
 
-    this.isInstaFyleEnabled$ = this.orgUserSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgUserSettings) =>
-            orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled
-        )
-      );
+    const getOrgUserSettingsService$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
 
-    this.isBulkFyleEnabled$ = this.orgUserSettingsService
-      .get()
-      .pipe(map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled));
+    this.isInstaFyleEnabled$ = getOrgUserSettingsService$.pipe(
+      map(
+        (orgUserSettings) =>
+          orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings.insta_fyle_settings.enabled
+      )
+    );
 
-    this.isMileageEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage.enabled));
-    this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.per_diem.enabled));
+    this.isBulkFyleEnabled$ = getOrgUserSettingsService$.pipe(
+      map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled)
+    );
 
-    this.orgSettingsService.get().subscribe((orgSettings) => {
+    const getOrgSettingsService$ = this.orgSettingsService.get().pipe(shareReplay(1));
+
+    this.isMileageEnabled$ = getOrgSettingsService$.pipe(map((orgSettings) => orgSettings?.mileage?.enabled));
+    this.isPerDiemEnabled$ = getOrgSettingsService$.pipe(map((orgSettings) => orgSettings?.per_diem?.enabled));
+
+    getOrgSettingsService$.subscribe((orgSettings) => {
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       this.setupActionSheet(orgSettings);
     });
@@ -505,9 +483,11 @@ export class MyExpensesPage implements OnInit {
       }
     });
 
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    const getHomeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
-    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.homeCurrency$ = getHomeCurrency$;
+
+    getHomeCurrency$.subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
 
@@ -684,7 +664,7 @@ export class MyExpensesPage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
-  loadData(event) {
+  loadData(event: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = this.currentPageNumber + 1;
 
     const params = this.loadData$.getValue();
@@ -715,7 +695,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
@@ -727,13 +707,13 @@ export class MyExpensesPage implements OnInit {
       this.loadData$.next(params);
       if (event) {
         setTimeout(() => {
-          event?.target?.complete();
+          event.target?.complete();
         }, 1000);
       }
     });
   }
 
-  generateFilterPills(filter: Filters) {
+  generateFilterPills(filter: Partial<ExpenseFilters>) {
     const filterPills: FilterPill[] = [];
 
     if (filter.state?.length > 0) {
@@ -1283,7 +1263,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async deleteSelectedExpenses() {
-    let offlineExpenses: Expense[];
+    let offlineExpenses: Partial<Expense>[];
 
     const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
 
