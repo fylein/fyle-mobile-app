@@ -3417,6 +3417,44 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  criticalPolicyViolationErrorHandler(err, customFields$) {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() =>
+              this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+              )
+            )
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  policyViolationErrorHandler(err, customFields$) {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() =>
+              this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+              )
+            )
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
   addExpense(redirectedFrom) {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
@@ -3480,39 +3518,9 @@ export class AddEditExpensePage implements OnInit {
         }
 
         if (err.type === 'criticalPolicyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-                    )
-                  )
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
+          return this.criticalPolicyViolationErrorHandler(err, customFields$);
         } else if (err.type === 'policyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                    )
-                  )
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
+          return;
         } else {
           return throwError(err);
         }
