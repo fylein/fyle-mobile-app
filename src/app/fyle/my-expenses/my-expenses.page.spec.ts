@@ -9,19 +9,19 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Subscription, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, TemplateRef } from '@angular/core';
 import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
 import { cardAggregateStatParam, cardAggregateStatParam3 } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MyExpensesService } from './my-expenses.service';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -62,7 +62,7 @@ import {
 } from 'src/app/core/mock-data/filter-pills.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFilters } from './expense-filters.model';
-import { txnData2 } from 'src/app/core/mock-data/transaction.data';
+import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
 import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
 import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
@@ -87,12 +87,20 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { Expense } from 'src/app/core/models/expense.model';
 import { fyModalProperties } from 'src/app/core/mock-data/model-properties.data';
-import { snackbarPropertiesRes, snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
+import {
+  snackbarPropertiesRes,
+  snackbarPropertiesRes2,
+  snackbarPropertiesRes3,
+  snackbarPropertiesRes4,
+} from 'src/app/core/mock-data/snackbar-properties.data';
 import {
   expectedCriticalPolicyViolationPopoverParams,
   expectedCriticalPolicyViolationPopoverParams2,
   expectedCriticalPolicyViolationPopoverParams3,
 } from 'src/app/core/mock-data/critical-policy-violation-popover.data';
+import { ExtendedReport } from 'src/app/core/models/report.model';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { getElementRef } from 'src/app/core/dom-helpers';
 
 describe('MyExpensesPage', () => {
@@ -135,6 +143,7 @@ describe('MyExpensesPage', () => {
       'getMyReports',
       'clearTransactionCache',
       'getAllExtendedReports',
+      'addTransactions',
     ]);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
@@ -159,6 +168,10 @@ describe('MyExpensesPage', () => {
       'getIsDraft',
       'getETxnUnflattened',
       'getAllExpenses',
+      'getDeleteDialogBody',
+      'getExpenseDeletionMessage',
+      'getCCCExpenseMessage',
+      'deleteBulk',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
@@ -174,8 +187,9 @@ describe('MyExpensesPage', () => {
       'getPendingTransactions',
       'sync',
       'deleteOfflineExpense',
+      'deleteBulkOfflineExpenses',
     ]);
-    const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
+    const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss', 'open']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const myExpensesServiceSpy = jasmine.createSpyObj('MyExpensesService', [
       'generateStateFilterPills',
@@ -210,6 +224,7 @@ describe('MyExpensesPage', () => {
       'showToastMessage',
       'addToReport',
       'clickCreateReport',
+      'myExpensesBulkDeleteExpenses',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -2232,7 +2247,7 @@ describe('MyExpensesPage', () => {
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
   }));
 
-  it('showAddToReportSuccessToast(): should navigate to my_view_report and open matSnackbar', () => {
+  it('should navigate to my_view_report and open matSnackbar', () => {
     const expensesAddedToReportSnackBarSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
     expensesAddedToReportSnackBarSpy.onAction.and.returnValue(of(undefined));
     matSnackBar.openFromComponent.and.returnValue(expensesAddedToReportSnackBarSpy);
@@ -2266,6 +2281,331 @@ describe('MyExpensesPage', () => {
       'my_view_report',
       { id: 'rprAfNrce73O', navigateBack: true },
     ]);
+  });
+
+  it('addTransactionsToReport(): should show loader call reportService and hide the loader', (done) => {
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo(true);
+
+    reportService.addTransactions.and.returnValue(of(apiExtendedReportRes));
+    component
+      .addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv'])
+      .pipe(
+        tap((updatedReport) => {
+          expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Adding transaction to report');
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
+          expect(updatedReport).toEqual(apiExtendedReportRes[0]);
+        }),
+        finalize(() => {
+          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        })
+      )
+      .subscribe(noop);
+    done();
+  });
+
+  describe('showOldReportsMatBottomSheet(): ', () => {
+    beforeEach(() => {
+      component.selectedElements = apiExpenseRes;
+      component.isNewReportsFlowEnabled = true;
+      component.openReports$ = of(apiExtendedReportRes);
+      transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
+      spyOn(component, 'showAddToReportSuccessToast');
+    });
+
+    it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined', () => {
+      spyOn(component, 'addTransactionsToReport').and.returnValue(of(apiExtendedReportRes[0]));
+      matBottomsheet.open.and.returnValue({
+        afterDismissed: () =>
+          of({
+            report: apiExtendedReportRes[0],
+          }),
+      } as MatBottomSheetRef<ExtendedReport>);
+
+      component.showOldReportsMatBottomSheet();
+
+      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+      expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
+        data: { openReports: apiExtendedReportRes, isNewReportsFlowEnabled: true },
+        panelClass: ['mat-bottom-sheet-1'],
+      });
+      expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(apiExtendedReportRes[0], ['tx3nHShG60zq']);
+      expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+        message: 'Expenses added to report successfully',
+        report: apiExtendedReportRes[0],
+      });
+    });
+
+    it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and rp_state is draft', () => {
+      const mockReportData = cloneDeep(apiExtendedReportRes);
+      mockReportData[0].rp_state = 'DRAFT';
+      component.openReports$ = of(mockReportData);
+      spyOn(component, 'addTransactionsToReport').and.returnValue(of(mockReportData[0]));
+      matBottomsheet.open.and.returnValue({
+        afterDismissed: () =>
+          of({
+            report: mockReportData[0],
+          }),
+      } as MatBottomSheetRef<ExtendedReport>);
+
+      component.showOldReportsMatBottomSheet();
+      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+      expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
+        data: { openReports: mockReportData, isNewReportsFlowEnabled: true },
+        panelClass: ['mat-bottom-sheet-1'],
+      });
+
+      expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockReportData[0], ['tx3nHShG60zq']);
+      expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+        message: 'Expenses added to an existing draft report',
+        report: mockReportData[0],
+      });
+    });
+
+    it('should call matBottomSheet.open and should not call showAddToReportSuccessToast if data.report is null', () => {
+      spyOn(component, 'addTransactionsToReport');
+      matBottomsheet.open.and.returnValue({
+        afterDismissed: () =>
+          of({
+            report: null,
+          }),
+      } as MatBottomSheetRef<ExtendedReport>);
+
+      component.showOldReportsMatBottomSheet();
+      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+      expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
+        data: { openReports: apiExtendedReportRes, isNewReportsFlowEnabled: true },
+        panelClass: ['mat-bottom-sheet-1'],
+      });
+
+      expect(component.addTransactionsToReport).not.toHaveBeenCalled();
+      expect(component.showAddToReportSuccessToast).not.toHaveBeenCalled();
+    });
+  });
+
+  it('openActionSheet(): should open actionSheetController', fakeAsync(() => {
+    const actionSheetSpy = jasmine.createSpyObj('actionSheet', ['present']);
+    component.actionSheetButtons = [];
+    actionSheetController.create.and.returnValue(actionSheetSpy);
+
+    component.openActionSheet();
+    tick(100);
+
+    expect(actionSheetController.create).toHaveBeenCalledOnceWith({
+      header: 'ADD EXPENSE',
+      mode: 'md',
+      cssClass: 'fy-action-sheet',
+      buttons: [],
+    });
+  }));
+
+  describe('deleteSelectedExpenses(): ', () => {
+    beforeEach(() => {
+      component.pendingTransactions = [];
+      component.expensesToBeDeleted = expenseList4;
+    });
+    it('should update selectedElements and call deleteBulk method if expenseToBeDeleted is defined', () => {
+      component.deleteSelectedExpenses([]);
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith([], []);
+      expect(component.selectedElements).toEqual(expenseList4);
+      expect(transactionService.deleteBulk).toHaveBeenCalledOnceWith(['txKFqMRPNLsa', 'txc5zbIpTGMU', 'txo3tuIb7em4']);
+    });
+    it('should not call deleteBulk method if tx_id is not present in expensesToBeDeleted', () => {
+      const mockExpensesWithoutId = cloneDeep(apiExpenseRes);
+      mockExpensesWithoutId[0].tx_id = undefined;
+      component.expensesToBeDeleted = mockExpensesWithoutId;
+      component.deleteSelectedExpenses([]);
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith([], []);
+      expect(component.selectedElements).toEqual([]);
+      expect(transactionService.deleteBulk).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('openDeleteExpensesPopover(): ', () => {
+    beforeEach(() => {
+      transactionService.getExpenseDeletionMessage.and.returnValue('You are about to delete this expense');
+      transactionService.getCCCExpenseMessage.and.returnValue(
+        'There are 2 corporate credit cards which can be deleted'
+      );
+      transactionService.getDeleteDialogBody.and.returnValue('Once deleted, the action cannot be undone');
+      component.expensesToBeDeleted = apiExpenseRes;
+      component.cccExpenses = 1;
+      transactionService.deleteBulk.and.returnValue(of(txnList));
+      snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes3);
+      spyOn(component, 'doRefresh');
+      component.expensesToBeDeleted = cloneDeep(expenseList4);
+      component.selectedElements = cloneDeep(expenseList4);
+    });
+
+    it('should open a popover and get data of expenses on dismiss', fakeAsync(() => {
+      const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.resolveTo(deletePopOverSpy);
+
+      component.openDeleteExpensesPopover();
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Expense',
+          body: 'Once deleted, the action cannot be undone',
+          ctaText: 'Exclude and Delete',
+          disableDelete: false,
+          deleteMethod: jasmine.any(Function),
+        },
+      });
+    }));
+
+    it('should open a popover and get data of expenses on dismiss if expensesToBeDeleted and cccExpenses are zero', fakeAsync(() => {
+      const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.resolveTo(deletePopOverSpy);
+      component.cccExpenses = 0;
+      component.expensesToBeDeleted = [];
+      spyOn(component, 'deleteSelectedExpenses').and.callThrough();
+
+      component.openDeleteExpensesPopover();
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Expense',
+          body: 'Once deleted, the action cannot be undone',
+          ctaText: 'Delete',
+          disableDelete: true,
+          deleteMethod: jasmine.any(Function),
+        },
+      });
+    }));
+
+    it('should show message using matSnackbar if data is successfully deleted and selectedElements are greater than 1', fakeAsync(() => {
+      const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.resolveTo(deletePopOverSpy);
+
+      component.openDeleteExpensesPopover();
+      tick(100);
+
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesRes3,
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: '3 expenses have been deleted',
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: '3 expenses have been deleted',
+      });
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toEqual(HeaderState.base);
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show message using matSnackbar if data is successfully deleted and selectedElements is 1', fakeAsync(() => {
+      const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.resolveTo(deletePopOverSpy);
+      const mockExpenseList = cloneDeep(expenseList4);
+      component.expensesToBeDeleted = cloneDeep(mockExpenseList);
+      component.selectedElements = cloneDeep([mockExpenseList[0]]);
+
+      component.openDeleteExpensesPopover();
+      tick(100);
+
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesRes3,
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: '1 expense has been deleted',
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: '1 expense has been deleted' });
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toEqual(HeaderState.base);
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show message using matSnackbar if data cannot be deleted', fakeAsync(() => {
+      snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes4);
+      const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'failure' } });
+      popoverController.create.and.resolveTo(deletePopOverSpy);
+      const mockExpenseList = cloneDeep(expenseList4);
+      component.expensesToBeDeleted = cloneDeep(mockExpenseList);
+      component.selectedElements = cloneDeep([mockExpenseList[0]]);
+
+      component.openDeleteExpensesPopover();
+      tick(100);
+
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesRes4,
+        panelClass: ['msb-failure-with-camera-icon'],
+      });
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', {
+        message: 'We could not delete the expenses. Please try again',
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'We could not delete the expenses. Please try again',
+      });
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toEqual(HeaderState.base);
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('onSelectAll(): ', () => {
+    beforeEach(() => {
+      transactionService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenseRes)));
+      transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
+      transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
+      transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+        tx_report_id: 'is.null',
+        tx_state: 'in.(COMPLETE,DRAFT)',
+      });
+      spyOn(component, 'setExpenseStatsOnSelect');
+      component.loadData$ = new BehaviorSubject({ pageNumber: 1 });
+    });
+
+    it('should set selectedElement to empty array if checked is false', () => {
+      component.selectedElements = cloneDeep(apiExpenseRes);
+      component.isReportableExpensesSelected = false;
+      component.onSelectAll(false);
+      expect(component.selectedElements).toEqual([]);
+      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith([]);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+    });
+
+    it('should update selectedElements, allExpensesCount and call apiV2Service if checked is true', () => {
+      transactionService.getAllExpenses.and.returnValue(of(cloneDeep(expenseList4)));
+      component.pendingTransactions = cloneDeep(apiExpenseRes);
+      component.onSelectAll(true);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledOnceWith(
+        { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
+        undefined
+      );
+      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
+      });
+      expect(transactionService.excludeCCCExpenses).toHaveBeenCalledOnceWith([...apiExpenseRes, ...expenseList4]);
+      expect(transactionService.getDeletableTxns).toHaveBeenCalledOnceWith([...apiExpenseRes, ...expenseList4]);
+      expect(component.cccExpenses).toBe(3);
+      expect(component.selectedElements).toEqual([...apiExpenseRes, ...expenseList4]);
+      expect(component.allExpensesCount).toBe(4);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(2);
+    });
   });
 
   it('onSimpleSearchCancel(): should set headerState to base and call clearText', () => {

@@ -39,7 +39,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { cloneDeep, isEqual } from 'lodash';
+import { assign, cloneDeep, isEqual } from 'lodash';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -72,6 +72,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { UnformattedTransaction } from 'src/app/core/models/unformatted-transaction.model';
 import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expenses-query-params-with-filters.model';
 import { GetExpensesQueryParams } from 'src/app/core/models/get-expenses-query-params.model';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -1215,8 +1216,19 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
-  async deleteSelectedExpenses() {
-    let offlineExpenses: Partial<Expense>[];
+  deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<Transaction[]> {
+    this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
+
+    this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
+    if (this.selectedElements.length > 0) {
+      return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.tx_id));
+    } else {
+      return of(null);
+    }
+  }
+
+  async openDeleteExpensesPopover() {
+    const offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
 
     const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
 
@@ -1234,22 +1246,9 @@ export class MyExpensesPage implements OnInit {
           expenseDeletionMessage,
           cccExpensesMessage
         ),
-        ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
-        disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
-        deleteMethod: () => {
-          offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
-
-          this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
-
-          this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
-          if (this.selectedElements?.length > 0) {
-            return this.transactionService.deleteBulk(
-              this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
-            );
-          } else {
-            return of(null);
-          }
-        },
+        ctaText: this.expensesToBeDeleted.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
+        disableDelete: this.expensesToBeDeleted.length > 0 ? false : true,
+        deleteMethod: () => this.deleteSelectedExpenses(offlineExpenses),
       },
     });
 
@@ -1259,10 +1258,10 @@ export class MyExpensesPage implements OnInit {
 
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
-        count: this.selectedElements?.length,
+        count: this.selectedElements.length,
       });
       if (data.status === 'success') {
-        const totalNoOfSelectedExpenses = offlineExpenses?.length + this.selectedElements?.length;
+        const totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
         const message =
           totalNoOfSelectedExpenses === 1
             ? '1 expense has been deleted'
@@ -1315,12 +1314,12 @@ export class MyExpensesPage implements OnInit {
         )
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
-          if (this.selectedElements?.length > 0) {
+          if (this.selectedElements.length > 0) {
             this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
 
             this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
 
-            this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+            this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
           }
           this.allExpensesCount = this.selectedElements.length;
           this.isReportableExpensesSelected =
