@@ -46,7 +46,7 @@ import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data
 import { parsedReceiptData1, instaFyleData1, instaFyleData2 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import { accountsData, orgSettingsData, paymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { recentlyUsedRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/recently-used.data';
+import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
   unflattenedTxnWithExtractedData,
   expectedUnflattendedTxnData1,
@@ -66,6 +66,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
 const properties = {
   cssClass: 'fy-modal',
