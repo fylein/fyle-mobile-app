@@ -5,30 +5,38 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Subscription, catchError, of } from 'rxjs';
+import { Subscription, of } from 'rxjs';
 import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
+import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
 import { fileObject4, fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
   filteredCategoriesData,
   orgCategoryData,
+  orgCategoryData1,
+  orgCategoryPaginated1,
 } from 'src/app/core/mock-data/org-category.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { extractedData } from 'src/app/core/mock-data/parsed-receipt.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
+import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
 import { expensePolicyData, publicPolicyExpenseData1 } from 'src/app/core/mock-data/public-policy-expense.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
   draftUnflattendedTxn,
-  unflattenedTxn,
   unflattenedExpData,
+  unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
-  expWithCriticalViolation,
   expectedUnflattendedTxnData2,
   expectedUnflattendedTxnData3,
+  unflattenedDraftExp,
+  unflattenedDraftExp2,
+  unflattenedPaidExp,
+  unflattenedPaidExp2,
   unflattenedTxnData,
   unflattenedTxnData2,
   unflattenedTxnDataWithoutCategoryData,
@@ -66,12 +74,10 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { AddEditExpensePage } from './add-edit-expense.page';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
-import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
-import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { AddEditExpensePage } from './add-edit-expense.page';
+import { fileData1 } from 'src/app/core/mock-data/file.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -571,6 +577,132 @@ export function TestCases3(getTestBed) {
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
         expect(component.attachedReceiptsCount).toEqual(1);
       }));
+    });
+
+    describe('getCategoryOnEdit():', () => {
+      it('should get category ', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedPaidExp);
+        component.initialFetch = true;
+        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
+
+        fixture.detectChanges();
+        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
+          expect(res).toEqual(orgCategoryPaginated1[0]);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedDraftExp.tx.org_category_id);
+          done();
+        });
+      });
+
+      it('should get autofill category for draft expense', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedDraftExp);
+        component.initialFetch = true;
+        spyOn(component, 'getAutofillCategory').and.returnValue(orgCategoryData);
+        fixture.detectChanges();
+
+        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
+          expect(res).toEqual(expectedAutoFillCategory);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+            isAutofillsEnabled: true,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedDraftExp,
+            category: orgCategoryData1[0],
+          });
+          done();
+        });
+      });
+
+      it('should get autofill category for draft expense without extracted category and org category', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedDraftExp2);
+        component.initialFetch = true;
+        spyOn(component, 'getAutofillCategory').and.returnValue(orgCategoryData);
+        fixture.detectChanges();
+
+        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
+          expect(res).toEqual(orgCategoryData);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+            isAutofillsEnabled: true,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedDraftExp2,
+            category: orgCategoryData1[0],
+          });
+          done();
+        });
+      });
+    });
+
+    describe('attachReceipts():', () => {
+      it('should attach receipts in add mode', () => {
+        component.mode = 'add';
+        component.newExpenseDataUrls = [];
+        component.source = 'MOBILE';
+        component.isConnected$ = of(true);
+        spyOn(component, 'parseFile');
+        fixture.detectChanges();
+
+        component.attachReceipts({
+          type: 'pdf',
+          dataUrl: 'url',
+        });
+
+        expect(component.parseFile).toHaveBeenCalledOnceWith({ type: 'pdf', url: 'url', thumbnail: 'url' });
+        expect(component.source).toEqual('MOBILE_FILE');
+        expect(component.newExpenseDataUrls).toEqual([{ type: 'pdf', url: 'url', thumbnail: 'url' }]);
+      });
+
+      it('should attach receipts in add mode if file is of image type', () => {
+        component.mode = 'add';
+        component.newExpenseDataUrls = [];
+        component.source = 'MOBILE';
+        component.isConnected$ = of(true);
+        spyOn(component, 'parseFile');
+        fixture.detectChanges();
+
+        component.attachReceipts({
+          type: 'image',
+          dataUrl: 'url',
+        });
+
+        expect(component.parseFile).toHaveBeenCalledOnceWith({ type: 'image', url: 'url', thumbnail: 'url' });
+        expect(component.source).toEqual('MOBILE_CAMERA');
+        expect(component.newExpenseDataUrls).toEqual([{ type: 'image', url: 'url', thumbnail: 'url' }]);
+      });
+
+      it('should attach receipt in edit mode', () => {
+        component.mode = 'edit';
+        component.etxn$ = of(unflattenedExpData);
+        component.isConnected$ = of(true);
+        fileService.findByTransactionId.and.returnValue(of(fileObjectData[0]));
+        transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
+        fileService.post.and.returnValue(of(fileData1[0]));
+        spyOn(component, 'parseFile');
+        spyOn(component.loadAttachments$, 'next');
+        fixture.detectChanges();
+
+        component.attachReceipts({
+          type: 'pdf',
+          dataUrl: 'url',
+        });
+      });
     });
   });
 }

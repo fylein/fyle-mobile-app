@@ -927,3 +927,43 @@ export const expWithCriticalViolation = {
   },
   comment: null,
 };
+
+export const unflattenedPaidExp: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    state: 'PAID',
+    fyle_category: 'TRAVEL',
+    org_category_id: 12345,
+  },
+};
+
+export const unflattenedDraftExp: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    state: 'DRAFT',
+    fyle_category: 'unspecified',
+    org_category_id: 12345,
+  },
+};
+
+export const unflattenedDraftExp2: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    state: 'DRAFT',
+    extracted_data: null,
+    fyle_category: 'unspecified',
+    org_category_id: null,
+  },
+};
+
+export const unflattenedPaidExp2: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    state: 'PAID',
+    fyle_category: 'TRAVEL',
+  },
+};
