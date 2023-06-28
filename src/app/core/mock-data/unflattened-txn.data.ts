@@ -967,3 +967,161 @@ export const unflattenedPaidExp2: UnflattenedTransaction = {
     fyle_category: 'TRAVEL',
   },
 };
+
+export const expectedExpenseObservable = {
+  tx: {
+    skip_reimbursement: false,
+    source: 'MOBILE',
+    txn_dt: new Date('2023-01-17T01:04:32.504Z'),
+    currency: 'USD',
+    amount: 100,
+    orig_currency: null,
+    orig_amount: null,
+    policy_amount: null,
+    org_category_id: undefined,
+    fyle_category: undefined,
+    locations: [],
+    custom_properties: [],
+    num_files: 1,
+    org_user_id: 'ouX8dwsbLCLv',
+    project_id: 3943,
+    extracted_data: {
+      amount: 100,
+      currency: 'USD',
+      category: 'SYSTEM',
+      date: new Date('2023-02-15T06:30:00.000Z'),
+      vendor: 'vendor',
+      invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+    },
+    vendor: 'vendor',
+  },
+  dataUrls: [
+    {
+      url: 'data-url',
+      type: 'image',
+      thumbnail: 'data-url',
+    },
+  ],
+};
+
+export const expectedExpenseObservable2 = {
+  tx: {
+    skip_reimbursement: false,
+    source: 'MOBILE',
+    txn_dt: new Date('2019-06-19T01:00:00.000Z'),
+    currency: 'USD',
+    amount: null,
+    orig_currency: null,
+    orig_amount: null,
+    policy_amount: null,
+    locations: [],
+    custom_properties: [],
+    num_files: 0,
+    org_user_id: 'ouX8dwsbLCLv',
+    project_id: 3943,
+  },
+  dataUrls: [],
+};
+
+export const expectedExpenseObservable3 = {
+  tx: {
+    skip_reimbursement: false,
+    source: 'MOBILE',
+    currency: 'USD',
+    amount: 100,
+    orig_currency: null,
+    orig_amount: null,
+    policy_amount: null,
+    locations: [],
+    custom_properties: [],
+    num_files: 1,
+    txn_dt: new Date('2023-01-24T11:30:00.000Z'),
+    org_category_id: undefined,
+    fyle_category: undefined,
+    org_user_id: 'ouX8dwsbLCLv',
+    project_id: 3943,
+    extracted_data: {
+      amount: 100,
+      currency: 'USD',
+      category: 'SYSTEM',
+      date: new Date('2023-02-15T06:30:00.000Z'),
+      vendor: 'vendor',
+      invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+    },
+    vendor: 'vendor',
+  },
+  dataUrls: [
+    {
+      url: 'data-url',
+      type: 'image',
+      thumbnail: 'data-url',
+    },
+  ],
+};
+
+export const expectedExpenseObservable4 = {
+  tx: {
+    source: 'MOBILE',
+    currency: 'INR',
+    amount: 8200,
+    vendor: 'vendor',
+    skip_reimbursement: false,
+    txn_dt: new Date('2023-01-24T11:30:00.000Z'),
+    purpose: undefined,
+    org_category_id: undefined,
+    fyle_category: undefined,
+    locations: [],
+    num_files: 1,
+    org_user_id: 'ouX8dwsbLCLv',
+    extracted_data: {
+      amount: 100,
+      currency: 'USD',
+      category: 'SYSTEM',
+      date: new Date('2023-02-15T06:30:00.000Z'),
+      vendor: 'vendor',
+      invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+    },
+    orig_amount: 100,
+    orig_currency: 'USD',
+  },
+  dataUrls: [
+    {
+      url: 'data-url',
+      type: 'image',
+      thumbnail: 'data-url',
+    },
+  ],
+};
+
+export const expectedExpenseObservable5 = {
+  tx: {
+    source: 'MOBILE',
+    currency: 'USD',
+    amount: 100,
+    vendor: 'vendor',
+    purpose: 'AMAZON.COM, SEATTLE, WA',
+    skip_reimbursement: false,
+    locations: [],
+    hotel_is_breakfast_provided: false,
+    num_files: 1,
+    org_user_id: 'ouX8dwsbLCLv',
+    txn_dt: new Date('2023-01-24T17:00:00.000Z'),
+    org_category_id: undefined,
+    fyle_category: undefined,
+    extracted_data: {
+      amount: 100,
+      currency: 'USD',
+      category: 'SYSTEM',
+      date: new Date('2023-02-15T06:30:00.000Z'),
+      vendor: 'vendor',
+      invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+    },
+  },
+  dataUrls: [
+    {
+      url: 'data-url',
+      type: 'image',
+      thumbnail: 'data-url',
+    },
+  ],
+};

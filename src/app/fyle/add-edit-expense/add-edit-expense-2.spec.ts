@@ -10,13 +10,12 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
-import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import { fileObjectData, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
 import { instaFyleData1, instaFyleData2, parsedReceiptData1 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
-import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
@@ -64,7 +63,6 @@ import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { recentUsedCategoriesRes } from '../../core/mock-data/org-category-list-item.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
@@ -1038,9 +1036,26 @@ export function TestCases2(getTestBed) {
       expect(fileService.post).toHaveBeenCalledOnceWith({ ...fileObjectData, transaction_id: 'tx5fBcPBAxLv' });
     });
 
+    it('uploadFileAndPostToFileService(): should upload to file service', (done) => {
+      component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
+        expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
+        expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
+        done();
+      });
+    });
+
+    it('uploadMultipleFiles(): should upload multiple files', (done) => {
+      spyOn(component, 'uploadFileAndPostToFileService').and.returnValue(of(fileObjectData1));
+
+      component.uploadMultipleFiles(fileObjectData1, 'tx5fBcPBAxLv').subscribe((res) => {
+        expect(res).toEqual([fileObjectData1]);
+        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledOnceWith(fileObjectData1[0], 'tx5fBcPBAxLv');
+        done();
+      });
+    });
+
     describe('getDuplicateExpenses():', () => {
       it('should get duplicate expenses', () => {
-        activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
         handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData1]));
         transactionService.getETxnc.and.returnValue(of([expenseData1]));
         spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
