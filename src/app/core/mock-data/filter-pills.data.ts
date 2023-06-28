@@ -33,3 +33,124 @@ export const allFilterPills: FilterPill[] = [
     value: 'Debit',
   },
 ];
+
+export const taskFiltersPills: FilterPill[] = [
+  {
+    label: 'Expenses',
+    type: 'Expenses',
+    value: 'Complete',
+  },
+  {
+    label: 'Reports',
+    type: 'Reports',
+    value: 'Sent Back',
+  },
+  {
+    label: 'Advances',
+    type: 'Advances',
+    value: 'Sent Back',
+  },
+];
+export const expectedFilterPill1: FilterPill[] = [
+  {
+    label: 'Type',
+    type: 'state',
+    value: 'Incomplete, Complete',
+  },
+  {
+    label: 'Receipts Attached',
+    type: 'receiptsAttached',
+    value: 'yes',
+  },
+  {
+    label: 'Expense Type',
+    type: 'type',
+    value: 'Per Diem, Mileage',
+  },
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'category - a to z',
+  },
+  {
+    label: 'Cards',
+    type: 'cardNumbers',
+    value: '****1234, ****5678',
+  },
+  {
+    label: 'Split Expense',
+    type: 'splitExpense',
+    value: 'yes',
+  },
+];
+
+export const expectedFilterPill2: FilterPill[] = [
+  {
+    label: 'Receipts Attached',
+    type: 'receiptsAttached',
+    value: 'yes',
+  },
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'category - a to z',
+  },
+  {
+    label: 'Split Expense',
+    type: 'splitExpense',
+    value: 'yes',
+  },
+];
+
+export const stateFilterPill: FilterPill = {
+  label: 'Type',
+  type: 'state',
+  value: 'Incomplete, Complete',
+};
+
+export const receiptsAttachedFilterPill: FilterPill = {
+  label: 'Receipts Attached',
+  type: 'receiptsAttached',
+  value: 'yes',
+};
+
+export const dateFilterPill: FilterPill[] = [
+  {
+    label: 'Date',
+    type: 'date',
+    value: 'this Week',
+  },
+];
+
+export const typeFilterPill: FilterPill = {
+  label: 'Expense Type',
+  type: 'type',
+  value: 'Per Diem, Mileage',
+};
+
+export const sortFilterPill: FilterPill = {
+  label: 'Sort By',
+  type: 'sort',
+  value: 'category - a to z',
+};
+
+export const cardFilterPill: FilterPill = {
+  label: 'Cards',
+  type: 'cardNumbers',
+  value: '****1234, ****5678',
+};
+
+export const splitExpenseFilterPill: FilterPill = {
+  label: 'Split Expense',
+  type: 'splitExpense',
+  value: 'yes',
+};
+
+export const filterTypeMappings: FilterPill[] = [
+  stateFilterPill,
+  receiptsAttachedFilterPill,
+  typeFilterPill,
+  dateFilterPill[0],
+  sortFilterPill,
+  splitExpenseFilterPill,
+];
