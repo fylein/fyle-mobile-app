@@ -412,7 +412,7 @@ export const fileTxns2: FileTransaction = {
 };
 
 export const fileTxns3: FileTransaction = {
-  txns: [{ ...splitExpenseTxn1 }, { ...splitExpenseTxn1_1, id: 'tx12SqYytrm' }],
+  txns: [splitExpenseTxn1, { ...splitExpenseTxn1_1, id: 'tx12SqYytrm' }],
   files: [
     {
       id: 'fiI9e9ZytdXM',

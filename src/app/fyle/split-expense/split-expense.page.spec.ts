@@ -45,11 +45,8 @@ import {
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { expenseFieldWithBillable } from 'src/app/core/mock-data/expense-field.data';
 import {
   amtTxn3,
-  createSourceTxn,
-  sourceSplitTxn,
   sourceTxn2,
   splitExpenseTxn1,
   splitExpenseTxn1_1,
@@ -67,9 +64,7 @@ import {
 } from 'src/app/core/mock-data/transaction.data';
 import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
-import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
-import { OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import {
   fileObjectData5,
   fileObject6,
@@ -116,13 +111,8 @@ import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { formattedTxnViolations } from 'src/app/core/mock-data/formatted-policy-violation.data';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
-import {
-  policyViolationData3,
-  policyVoilationData2,
-  splitPolicyExp4,
-} from 'src/app/core/mock-data/policy-violation.data';
+import { policyViolationData3, policyVoilationData2 } from 'src/app/core/mock-data/policy-violation.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
-import * as dayjs from 'dayjs';
 import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
@@ -313,16 +303,13 @@ describe('SplitExpensePage', () => {
 
       component.onChangeAmount(splitExpenseForm1, 0);
       tick(500);
-
-      expect(splitExpenseForm1.controls.amount.value).toEqual(120);
-      expect(splitExpenseForm1.controls.percentage.value).toEqual(6);
+      expect(otherSplitExpenseForm.controls.amount.value).toEqual(1880);
+      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(94);
 
       component.onChangeAmount(otherSplitExpenseForm, 1);
       tick(500);
-      expect(component.splitExpensesFormArray.controls[1].value.amount).toEqual(1880);
-      expect(component.splitExpensesFormArray.controls[1].value.percentage).toEqual(94);
-      expect(otherSplitExpenseForm.controls.amount.value).toEqual(1880);
-      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(94);
+      expect(splitExpenseForm1.controls.amount.value).toEqual(120);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(6);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     }));
 
@@ -350,15 +337,12 @@ describe('SplitExpensePage', () => {
       component.onChangeAmount(otherSplitExpenseForm, 1);
       tick(500);
 
-      expect(otherSplitExpenseForm.controls.amount.value).toEqual(80);
-      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(4);
+      expect(splitExpenseForm1.controls.amount.value).toEqual(1920);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(96);
 
       component.onChangeAmount(splitExpenseForm1, 0);
       tick(500);
-      expect(component.splitExpensesFormArray.controls[0].value.amount).toEqual(1920);
-      expect(component.splitExpensesFormArray.controls[0].value.percentage).toEqual(96);
-      expect(splitExpenseForm1.controls.amount.value).toEqual(1920);
-      expect(splitExpenseForm1.controls.percentage.value).toEqual(96);
+      expect(otherSplitExpenseForm.controls.amount.value).toEqual(80);
       expect(otherSplitExpenseForm.controls.percentage.value).toEqual(4);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     }));
@@ -997,7 +981,12 @@ describe('SplitExpensePage', () => {
 
   describe('setValuesForCCC():', () => {
     it('should set the values for CCC split expenses when coporate credit cards is enabled', () => {
-      dateService.addDaysToDate.and.returnValue(new Date());
+      const today = new Date();
+      const minDate = new Date('Jan 1, 2001');
+      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
+      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
+      dateService.addDaysToDate.and.returnValue(new Date(expectedMaxDate));
       component.amount = 2000;
       spyOn(component, 'setAmountAndCurrency').and.callThrough();
       spyOn(component, 'add').and.callThrough();
@@ -1016,12 +1005,6 @@ describe('SplitExpensePage', () => {
       const percentage1 = 60;
       const percentage2 = 40;
 
-      const today = new Date();
-      const minDate = new Date('Jan 1, 2001');
-      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
-      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
-
       component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
       expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
@@ -1029,10 +1012,16 @@ describe('SplitExpensePage', () => {
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
       expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
       expect(component.minDate).toEqual(expectedMinDate);
+      expect(component.maxDate).toEqual(expectedMaxDate);
     });
 
     it('should set the values to null if coporate credit cards is disabled and the amount is less than 0.0001', () => {
-      dateService.addDaysToDate.and.returnValue(new Date());
+      const today = new Date();
+      const minDate = new Date('Jan 1, 2001');
+      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
+      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
+      dateService.addDaysToDate.and.returnValue(new Date(expectedMaxDate));
       component.amount = 0.00001;
       spyOn(component, 'setAmountAndCurrency').and.callThrough();
       spyOn(component, 'add').and.callThrough();
@@ -1052,12 +1041,6 @@ describe('SplitExpensePage', () => {
       const percentage1 = 60;
       const percentage2 = 40;
 
-      const today = new Date();
-      const minDate = new Date('Jan 1, 2001');
-      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
-      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
-
       component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
       expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
@@ -1065,6 +1048,7 @@ describe('SplitExpensePage', () => {
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
       expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
       expect(component.minDate).toEqual(expectedMinDate);
+      expect(component.maxDate).toEqual(expectedMaxDate);
     });
   });
 
