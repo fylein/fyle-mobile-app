@@ -833,14 +833,16 @@ export function TestCases1(getTestBed) {
 
         spyOn(component, 'openSplitExpenseModal');
 
-        component.splitExpCategoryHandler();
+        const fn = component.splitExpCategoryHandler();
+        fn();
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('categories');
       });
 
       it('should validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
 
-        component.splitExpCategoryHandler();
+        const fn = component.splitExpCategoryHandler();
+        fn();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
@@ -853,14 +855,16 @@ export function TestCases1(getTestBed) {
 
         spyOn(component, 'openSplitExpenseModal');
 
-        component.splitExpProjectHandler();
+        const fn = component.splitExpProjectHandler();
+        fn();
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('projects');
       });
 
       it('should validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
 
-        component.splitExpProjectHandler();
+        const fn = component.splitExpProjectHandler();
+        fn();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
@@ -873,14 +877,16 @@ export function TestCases1(getTestBed) {
 
         spyOn(component, 'openSplitExpenseModal');
 
-        component.splitExpCostCenterHandler();
+        const fn = component.splitExpCostCenterHandler();
+        fn();
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('cost centers');
       });
 
       it('should validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
 
-        component.splitExpCostCenterHandler();
+        const fn = component.splitExpCostCenterHandler();
+        fn();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
@@ -901,11 +907,23 @@ export function TestCases1(getTestBed) {
       component.isCorporateCreditCardEnabled = true;
       component.canRemoveCardExpense = true;
       component.isExpenseMatchedForDebitCCCE = true;
+      spyOn(component, 'splitExpCategoryHandler');
+      spyOn(component, 'splitExpProjectHandler');
+      spyOn(component, 'splitExpCostCenterHandler');
+      spyOn(component, 'markPersonalHandler');
+      spyOn(component, 'markDismissHandler');
+      spyOn(component, 'removeCCCHandler');
       launchDarklyService.getVariation.and.returnValue(of(true));
       fixture.detectChanges();
 
       component.getActionSheetOptions().subscribe((res) => {
         expect(res.length).toEqual(6);
+        expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
+        expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
+        expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
+        expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+        expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
+        expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
         expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
