@@ -1,6 +1,6 @@
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { filterOptions1 } from './filter.data';
-import { selectedFilters1 } from './selected-filters.data';
+import { selectedFilters1, taskSelectedFiltersData } from './selected-filters.data';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { apiExpenseRes } from './expense.data';
@@ -8,6 +8,7 @@ import { Mode } from '@ionic/core';
 import { fyModalProperties } from './model-properties.data';
 import { AddTxnToReportDialogComponent } from 'src/app/fyle/my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -84,4 +85,118 @@ export const openFromComponentConfig = {
   },
   duration: 3000,
   panelClass: ['msb-failure-with-report-btn'],
+};
+
+export const taskModalControllerParams = {
+  component: FyFiltersComponent,
+  componentProps: {
+    filterOptions: [
+      {
+        name: 'Expenses',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Complete',
+            value: 'UNREPORTED',
+          },
+          {
+            label: 'Draft',
+            value: 'DRAFT',
+          },
+          {
+            label: 'Duplicate',
+            value: 'DUPLICATE',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Reports',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Sent Back',
+            value: 'SENT_BACK',
+          },
+          {
+            label: 'Unsubmitted',
+            value: 'DRAFT',
+          },
+          {
+            label: 'Unapproved',
+            value: 'TEAM',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Advances',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Sent Back',
+            value: 'SENT_BACK',
+          },
+        ],
+      } as FilterOptions<string>,
+    ],
+    selectedFilterValues: taskSelectedFiltersData,
+    activeFilterInitialName: 'Expenses',
+  },
+  cssClass: 'dialog-popover',
+};
+
+export const taskModalControllerParams2 = {
+  component: FyFiltersComponent,
+  componentProps: {
+    filterOptions: [
+      {
+        name: 'Expenses',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Complete',
+            value: 'UNREPORTED',
+          },
+          {
+            label: 'Draft',
+            value: 'DRAFT',
+          },
+          {
+            label: 'Duplicate',
+            value: 'DUPLICATE',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Reports',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Sent Back',
+            value: 'SENT_BACK',
+          },
+          {
+            label: 'Unsubmitted',
+            value: 'DRAFT',
+          },
+          {
+            label: 'Unapproved',
+            value: 'TEAM',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Advances',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Sent Back',
+            value: 'SENT_BACK',
+          },
+        ],
+      } as FilterOptions<string>,
+    ],
+    selectedFilterValues: taskSelectedFiltersData,
+    activeFilterInitialName: undefined,
+  },
+  cssClass: 'dialog-popover',
 };
