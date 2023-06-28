@@ -423,12 +423,12 @@ export const fileTxns3: FileTransaction = {
 };
 
 export const fileTxns4: FileTransaction = {
-  txns: [{ ...splitExpenseTxn1 }, { ...splitExpenseTxn1_1, id: 'tx12SqYytrm' }],
+  txns: [splitExpenseTxn1, { ...splitExpenseTxn1_1, id: 'tx12SqYytrm' }],
 };
 
 export const fileTxns5: FileTransaction = {
   txns: [
-    { ...splitExpenseTxn2 },
+    splitExpenseTxn2,
     { ...splitExpenseTxn2_2, id: 'tx78mWdbfw1N' },
     { ...splitExpenseTxn2_3, id: 'txwyRuUnVCbo' },
   ],
@@ -443,7 +443,7 @@ export const fileTxns5: FileTransaction = {
 
 export const fileTxns6: FileTransaction = {
   txns: [
-    { ...splitExpenseTxn2 },
+    splitExpenseTxn2,
     { ...splitExpenseTxn2_2, id: 'tx78mWdbfw1N' },
     { ...splitExpenseTxn2_3, id: 'txwyRuUnVCbo' },
   ],
