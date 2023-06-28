@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ModalController, RefresherEventDetail } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ExtendedReport } from 'src/app/core/models/report.model';
@@ -193,7 +193,7 @@ export class TasksComponent implements OnInit {
     );
   }
 
-  doRefresh(event?: { target?: { complete?: () => void } }) {
+  doRefresh(event?: { target?: RefresherEventDetail }) {
     forkJoin([this.transactionService.clearCache(), this.reportService.clearCache()]).subscribe(() => {
       this.loadData$.next(this.loadData$.getValue());
       if (event) {

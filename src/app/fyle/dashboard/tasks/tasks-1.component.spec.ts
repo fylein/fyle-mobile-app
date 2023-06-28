@@ -328,7 +328,7 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'onSentBackAdvanceTaskClick');
       });
 
-      it('should call onExpensesToReportTaskClick if expensesAddToReport event occurs', () => {
+      it('should call onExpensesToReportTaskClick if clicked on expensesAddToReport', () => {
         component.onTaskClicked(taskCtaData, dashboardTasksData[0]);
         expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
@@ -343,7 +343,7 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
       });
 
-      it('should call onOpenDraftReportsTaskClick if openDraftReports event occurs', () => {
+      it('should call onOpenDraftReportsTaskClick if clicked on openDraftReports', () => {
         component.onTaskClicked(taskCtaData2, dashboardTasksData[0]);
         expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
@@ -358,7 +358,7 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
       });
 
-      it('should call onSentBackReportTaskClick if openSentBackReport event occurs', () => {
+      it('should call onSentBackReportTaskClick if clicked on openSentBackReport', () => {
         component.onTaskClicked(taskCtaData3, dashboardTasksData[0]);
         expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
@@ -373,7 +373,7 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
       });
 
-      it('should call onReviewExpensesTaskClick if reviewExpenses event occurs', () => {
+      it('should call onReviewExpensesTaskClick if clicked on reviewExpenses', () => {
         component.onTaskClicked(taskCtaData4, dashboardTasksData[0]);
         expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
@@ -388,7 +388,7 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
       });
 
-      it('should call onTeamReportsTaskClick if openTeamReport event occurs', () => {
+      it('should call onTeamReportsTaskClick if clicked on openTeamReport', () => {
         component.onTaskClicked(taskCtaData5, dashboardTasksData[0]);
         expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
@@ -403,7 +403,7 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
       });
 
-      it('should call onPotentialDuplicatesTaskClick if openPotentialDuplicates event occurs', () => {
+      it('should call onPotentialDuplicatesTaskClick if clicked on openPotentialDuplicates', () => {
         component.onTaskClicked(taskCtaData6, dashboardTasksData[0]);
         expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
@@ -418,7 +418,7 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
       });
 
-      it('should call onSentBackAdvanceTaskClick if openSentBackAdvance event occurs', () => {
+      it('should call onSentBackAdvanceTaskClick if clicked on openSentBackAdvance', () => {
         component.onTaskClicked(taskCtaData7, dashboardTasksData[0]);
         expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
@@ -433,7 +433,7 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackAdvanceTaskClick).toHaveBeenCalledOnceWith(taskCtaData7, dashboardTasksData[0]);
       });
 
-      it('should only call trackingService.tasksClicked if none of the event matches', () => {
+      it('should only call trackingService.tasksClicked if none of them matches', () => {
         component.onTaskClicked(taskCtaData8, dashboardTasksData[0]);
         expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
           Asset: 'Mobile',
