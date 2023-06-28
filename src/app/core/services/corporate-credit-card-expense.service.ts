@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { CardAggregateStat } from '../models/card-aggregate-stat.model';
+import { CardAggregateStats } from '../models/card-aggregate-stats.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
 import { CCCExpFlattened } from '../models/corporate-card-expense-flattened.model';
 import { UniqueCardStats } from '../models/unique-cards-stats.model';
@@ -12,6 +12,7 @@ import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
+import { CardDetails } from '../models/card-details.model';
 
 type Config = Partial<{
   offset: number;
@@ -19,8 +20,6 @@ type Config = Partial<{
   limit: number;
   order?: string;
 }>;
-
-type CardDetails = { cardNumber: string; cardName: string };
 
 @Injectable({
   providedIn: 'root',
@@ -88,7 +87,7 @@ export class CorporateCreditCardExpenseService {
     return queryString;
   }
 
-  getExpenseDetailsInCards(uniqueCards: CardDetails[], statsResponse: CardAggregateStat[]): UniqueCardStats[] {
+  getExpenseDetailsInCards(uniqueCards: CardDetails[], statsResponse: CardAggregateStats[]): UniqueCardStats[] {
     const cardsCopy = JSON.parse(JSON.stringify(uniqueCards)) as CardDetails[];
     const uniqueCardsCopy = [];
     cardsCopy?.forEach((card: CardDetails) => {

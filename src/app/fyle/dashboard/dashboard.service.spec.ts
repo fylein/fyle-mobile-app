@@ -27,7 +27,7 @@ import {
 } from '../../core/mock-data/stats-response.data';
 import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
 import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
-import { cardAggregateStatParam } from 'src/app/core/mock-data/card-aggregate-stat.data';
+import { cardAggregateStatParam } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
 import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
