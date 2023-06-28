@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -7,7 +7,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -28,16 +28,39 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterTestingModule } from '@angular/router/testing';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { of } from 'rxjs';
-import { expectedOrgCategoriesPaginated } from 'src/app/core/mock-data/org-category.data';
+import {
+  expectedFilterOrgCategory,
+  expectedOrgCategoriesPaginated,
+  filterOrgCategoryParam,
+} from 'src/app/core/mock-data/org-category.data';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { expenseFieldWithBillable } from 'src/app/core/mock-data/expense-field.data';
-import { splitTxns, txnList } from 'src/app/core/mock-data/transaction.data';
+import {
+  createSourceTxn,
+  splitExpenseTxn1,
+  splitExpenseTxn2,
+  splitTxn2,
+  splitTxns,
+  txnAmount1,
+  txnAmount2,
+  txnList,
+} from 'src/app/core/mock-data/transaction.data';
 import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
+import { OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import {
+  fileObject6,
+  fileObject7,
+  fileObject8,
+  splitExpFile2,
+  splitExpFile3,
+  splitExpFileObj,
+} from 'src/app/core/mock-data/file-object.data';
+import { fileTxns, fileTxns2, fileTxns3, fileTxns4, fileTxns5, fileTxns6 } from 'src/app/core/mock-data/file-txn.data';
 import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -50,6 +73,9 @@ import {
   testActiveCategoryListOptions,
   testProjectV2,
 } from 'src/app/core/test-data/projects.spec.data';
+import { fileData2 } from 'src/app/core/mock-data/file.data';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -88,6 +114,7 @@ describe('SplitExpensePage', () => {
       'linkTxnWithFiles',
       'formatPolicyViolations',
       'checkForPolicyViolations',
+      'getBase64Content',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
@@ -385,6 +412,290 @@ describe('SplitExpensePage', () => {
       component.categories$.subscribe((categories) => {
         expect(categories).toEqual(testActiveCategoryListOptions);
       });
+    });
+  });
+
+  it('getCategoryList(): get the category list', () => {
+    component.categories$ = of(categorieListRes);
+    component.getCategoryList();
+    expect(component.categoryList).toEqual(expectedOrgCategoriesPaginated);
+  });
+
+  describe('createAndLinkTxnsWithFiles():', () => {
+    it('should link transaction with files when the receipt is attached and, the txn state is COMPLETE but the report id is not present', (done) => {
+      const splitExpData = splitExpenseTxn1;
+      component.transaction = txnAmount1;
+      component.reportId = null;
+      component.totalSplitAmount = 436342.464;
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+
+      component.fileObjs = fileObject6;
+      splitExpenseService.getBase64Content.and.returnValue(
+        of([
+          {
+            id: 'fiI9e9ZytdXM',
+            name: '000.jpeg',
+            content: 'someData',
+          },
+        ])
+      );
+      component.splitExpenseTxn = [fileTxns2];
+      const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject7));
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
+          txnAmount1,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
+        expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
+        expect(result).toEqual(mockCompleteTxnIds);
+        done();
+      });
+    });
+
+    it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present', (done) => {
+      const splitExpData = splitExpenseTxn1;
+      component.transaction = txnAmount1;
+      component.reportId = 'rpba4MnwQ0FO';
+      component.totalSplitAmount = 436342.464;
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+
+      component.fileObjs = fileObject6;
+      reportService.addTransactions.and.returnValue(of(fileData2));
+      splitExpenseService.getBase64Content.and.returnValue(
+        of([
+          {
+            id: 'fiI9e9ZytdXM',
+            name: '000.jpeg',
+            content: 'someData',
+          },
+        ])
+      );
+      component.splitExpenseTxn = [fileTxns2];
+      const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject7));
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
+          txnAmount1,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
+        expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
+        expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
+        expect(result).toEqual(mockCompleteTxnIds);
+        done();
+      });
+    });
+
+    it('should link transaction to files when the receipt is not attached and report id is not present', (done) => {
+      const splitExpData = splitExpenseTxn1;
+      component.fileObjs = [];
+      component.reportId = null;
+      component.transaction = txnAmount1;
+      component.createAndLinkTxnsWithFiles(splitExpData);
+      component.transaction = txnAmount1;
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+      component.splitExpenseTxn = fileTxns2.txns;
+      component.totalSplitAmount = 436342.464;
+
+      const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of([null]));
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledWith(
+          txnAmount1,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(2);
+        expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
+        expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
+        expect(result).toEqual(mockCompleteTxnIds);
+        done();
+      });
+    });
+
+    it('should link transaction to files when the receipt is not attached and report is not present', (done) => {
+      const splitExpData = splitExpenseTxn1;
+      component.fileObjs = [];
+      component.transaction = txnAmount1;
+      component.reportId = 'rpba4MnwQ0FO';
+      component.createAndLinkTxnsWithFiles(splitExpData);
+      component.transaction = txnAmount1;
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+      component.splitExpenseTxn = fileTxns2.txns;
+      component.totalSplitAmount = 436342.464;
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of([null]));
+      reportService.addTransactions.and.returnValue(of(fileData2));
+
+      const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledWith(
+          txnAmount1,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(2);
+        expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
+        expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
+        expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
+        expect(result).toEqual(mockCompleteTxnIds);
+        done();
+      });
+    });
+
+    it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present and the expense is split in three', (done) => {
+      const splitExpData = splitExpenseTxn2;
+      component.fileObjs = fileObject8;
+      component.transaction = txnAmount2;
+      component.reportId = 'rpPNBrdR9NaE';
+      component.totalSplitAmount = 6000;
+      reportService.addTransactions.and.returnValue(of(fileData2));
+      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn2));
+      splitExpenseService.getBase64Content.and.returnValue(
+        of([
+          {
+            id: 'fiI9e9ZytdXM',
+            name: '000.jpeg',
+            content: 'someData',
+          },
+        ])
+      );
+      component.splitExpenseTxn = [fileTxns5];
+      const mockCompleteTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo'];
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject8));
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
+          txnAmount2,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject8);
+        expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
+        expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns6);
+        expect(result).toEqual(mockCompleteTxnIds);
+        done();
+      });
+    });
+  });
+
+  it('toastWithCTA(): should display the toast with CTA', () => {
+    const toastMessage = 'Your expense was split successfully. All the split expenses were added to the report';
+    const toastMessageData = {
+      message: toastMessage,
+      redirectionText: 'View Report',
+    };
+
+    matSnackBar.openFromComponent.and.returnValue({
+      onAction: () => ({
+        subscribe: (callback: () => void) => {
+          callback();
+        },
+      }),
+    } as MatSnackBarRef<ToastMessageComponent>);
+
+    component.toastWithCTA(toastMessage);
+
+    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+      ...snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: toastMessage });
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'my_view_report',
+      { id: component.reportId, navigateBack: true },
+    ]);
+  });
+
+  it('toastWithoutCTA(): should display the toast without CTA', () => {
+    const message = 'Your expense was split successfully. All the split expenses were added to the report';
+    const toastType = 'success';
+    const panelClassData = 'msb-success-with-camera-icon';
+    component.toastWithoutCTA(message, toastType, panelClassData);
+    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+      ...snackbarProperties.setSnackbarProperties(toastType, { message }),
+      panelClass: [panelClassData],
+    });
+    expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
+  });
+
+  describe('showSuccessToast()', () => {
+    it('should show success toast when all the expenses are added to report', () => {
+      component.reportId = 'rpPNBrdR9NaE';
+      component.completeTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo'];
+      component.splitExpenseTxn = fileTxns5.txns;
+      const toastMessage = 'Your expense was split successfully. All the split expenses were added to report';
+      spyOn(component, 'toastWithCTA');
+      component.showSuccessToast();
+      expect(component.completeTxnIds.length).toEqual(component.splitExpenseTxn.length);
+      expect(component.toastWithCTA).toHaveBeenCalledOnceWith(toastMessage);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+    });
+
+    it('should show success toast along with the number of splits when all the expenses are not added to report', () => {
+      component.reportId = 'rpPNBrdR9NaE';
+      component.completeTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N'];
+      component.splitExpenseTxn = fileTxns5.txns;
+      const toastMessage = 'Your expense was split successfully. 2 out of 3 expenses were added to report.';
+      spyOn(component, 'toastWithCTA');
+      component.showSuccessToast();
+      expect(component.toastWithCTA).toHaveBeenCalledOnceWith(toastMessage);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+    });
+
+    it('should show success toast when all the expenses are not added to report', () => {
+      component.reportId = 'rpPNBrdR9NaE';
+      component.completeTxnIds = [];
+      component.splitExpenseTxn = fileTxns2.txns;
+      const toastMessage = 'Your expense was split successfully. Review split expenses to add it to the report.';
+      spyOn(component, 'toastWithoutCTA');
+      component.showSuccessToast();
+      expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(toastMessage, 'information', 'msb-info');
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+    });
+
+    it('should show success toast when all the expenses were split successflully but report id was not present and redirect it to my_expenses page', () => {
+      component.completeTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo'];
+      component.splitExpenseTxn = fileTxns5.txns;
+      const toastMessage = 'Your expense was split successfully.';
+      spyOn(component, 'toastWithoutCTA');
+      component.showSuccessToast();
+      expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
+        toastMessage,
+        'success',
+        'msb-success-with-camera-icon'
+      );
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+    });
+  });
+
+  it('getAttachedFiles(): should get all the attached files', (done) => {
+    const transactionId = 'fizBwnXhyZTp';
+    fileService.findByTransactionId.and.returnValue(of(fileObject8));
+    component.getAttachedFiles(transactionId).subscribe((result) => {
+      expect(result).toEqual(fileObject8);
+      expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
+      done();
+    });
+  });
+
+  it('getActiveCategories(): should get the active categories', (done) => {
+    categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
+    categoriesService.filterRequired.and.returnValue(expectedFilterOrgCategory);
+    component.getActiveCategories().subscribe((res) => {
+      expect(res).toEqual(expectedFilterOrgCategory);
+      expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+      expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
+      done();
     });
   });
 });

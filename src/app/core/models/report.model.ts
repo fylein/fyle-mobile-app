@@ -64,5 +64,4 @@ export interface ExtendedReport {
   sequential_approval_turn?: boolean;
   us_email: string;
   us_full_name: string;
-  id?: string;
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { CardAggregateStats } from '../models/card-aggregate-stat.model';
+import { CardAggregateStats } from '../models/card-aggregate-stats.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
 import { CCCExpFlattened } from '../models/corporate-card-expense-flattened.model';
 import { UniqueCardStats } from '../models/unique-cards-stats.model';

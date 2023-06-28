@@ -1,4 +1,4 @@
-import { CardAggregateStats } from './card-aggregate-stat.model';
+import { CardAggregateStats } from './card-aggregate-stats.model';
 
 export interface CCCDetails {
   cardDetails: CardAggregateStats[];

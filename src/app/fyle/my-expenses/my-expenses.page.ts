@@ -67,7 +67,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
-import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stat.model';
+import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { UnformattedTransaction } from 'src/app/core/models/unformatted-transaction.model';
 import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expenses-query-params-with-filters.model';
@@ -1160,12 +1160,7 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'my_view_report',
-        { id: config.report.rp_id || config.report.id, navigateBack: true },
-      ]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.rp_id, navigateBack: true }]);
     });
   }
 
