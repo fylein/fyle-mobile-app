@@ -15,6 +15,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TestCases1 } from './team-reports-1.page.spec';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TestCases2 } from './team-reports-2.page.spec';
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
@@ -72,4 +73,5 @@ describe('TeamReportsPage', () => {
   };
 
   TestCases1(getTestBed);
+  TestCases2(getTestBed);
 });

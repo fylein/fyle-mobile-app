@@ -24,6 +24,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
+import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
 
 type Filters = Partial<{
   state: string[];
@@ -259,10 +260,10 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateCustomDateParams(newQueryParams: any) {
+  generateCustomDateParams(newQueryParams: Partial<GetTasksQueryParams>) {
     if (this.filters.date === DateFilters.custom) {
-      const startDate = this.filters?.customDateStart?.toISOString();
-      const endDate = this.filters?.customDateEnd?.toISOString();
+      const startDate = this.filters.customDateStart?.toISOString();
+      const endDate = this.filters.customDateEnd?.toISOString();
       if (this.filters.customDateStart && this.filters.customDateEnd) {
         newQueryParams.and = `(rp_submitted_at.gte.${startDate},rp_submitted_at.lt.${endDate})`;
       } else if (this.filters.customDateStart) {
@@ -273,7 +274,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateDateParams(newQueryParams) {
+  generateDateParams(newQueryParams: Partial<GetTasksQueryParams>) {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
@@ -296,7 +297,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateStateFilters(newQueryParams) {
+  generateStateFilters(newQueryParams: Partial<GetTasksQueryParams>) {
     const stateOrFilter = [];
 
     if (this.filters.state) {
@@ -353,7 +354,7 @@ export class TeamReportsPage implements OnInit {
   addNewFiltersToParams() {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: any = {
+    const newQueryParams: Partial<GetTasksQueryParams> = {
       or: [],
     };
 
