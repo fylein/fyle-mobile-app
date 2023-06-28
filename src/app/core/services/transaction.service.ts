@@ -20,6 +20,7 @@ import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
@@ -509,17 +510,17 @@ export class TransactionService {
     return vendorDisplayName;
   }
 
-  getReportableExpenses(expenses: Expense[]): Expense[] {
+  getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter(
       (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
     );
   }
 
-  getIsCriticalPolicyViolated(expense: Expense): boolean {
+  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
     return typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001;
   }
 
-  getIsDraft(expense: Expense): boolean {
+  getIsDraft(expense: Partial<Expense>): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
@@ -581,21 +582,21 @@ export class TransactionService {
       .sort((a, b) => (a.amount < b.amount ? 1 : -1));
   }
 
-  excludeCCCExpenses(expenses: Expense[]): Expense[] {
+  excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
   }
 
-  getDeletableTxns(expenses: Expense[]): Expense[] {
+  getDeletableTxns(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
-  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
+  getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
     return `You are about to permanently delete ${
       expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
     }`;
   }
 
-  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number): string {
+  getCCCExpenseMessage(expensesToBeDeleted: Partial<Expense>[], cccExpenses: number): string {
     return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
@@ -604,7 +605,7 @@ export class TransactionService {
   }
 
   getDeleteDialogBody(
-    expensesToBeDeleted: Expense[],
+    expensesToBeDeleted: Partial<Expense>[],
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
@@ -654,7 +655,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/unlink_card_expense', data);
   }
 
-  isMergeAllowed(expenses: Expense[]): boolean {
+  isMergeAllowed(expenses: Partial<Expense>[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
@@ -669,7 +670,7 @@ export class TransactionService {
     }
   }
 
-  generateStateFilters(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateStateFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
 
@@ -682,7 +683,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
@@ -696,7 +697,10 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateReceiptAttachedParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateReceiptAttachedParams(
+    newQueryParams: FilterQueryParams,
+    filters: Partial<ExpenseFilters>
+  ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.receiptsAttached) {
       if (filters.receiptsAttached === 'YES') {
@@ -710,7 +714,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
@@ -725,7 +729,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateDateParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     let newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date) {
       filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
@@ -751,7 +755,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const typeOrFilter = this.generateTypeOrFilter(filters);
 
@@ -764,7 +768,10 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  setSortParams(currentParams: Partial<SortFiltersParams>, filters: Filters): Partial<SortFiltersParams> {
+  setSortParams(
+    currentParams: Partial<SortFiltersParams>,
+    filters: Partial<ExpenseFilters>
+  ): Partial<SortFiltersParams> {
     const currentParamsCopy = cloneDeep(currentParams);
     if (filters.sortParam && filters.sortDir) {
       currentParamsCopy.sortParam = filters.sortParam;
@@ -862,7 +869,7 @@ export class TransactionService {
     }
   }
 
-  private generateStateOrFilter(filters: Filters, newQueryParamsCopy: FilterQueryParams): string[] {
+  private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {
     const stateOrFilter: string[] = [];
     if (filters.state) {
       newQueryParamsCopy.tx_report_id = 'is.null';
@@ -886,7 +893,10 @@ export class TransactionService {
     return stateOrFilter;
   }
 
-  private generateCustomDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  private generateCustomDateParams(
+    newQueryParams: FilterQueryParams,
+    filters: Partial<ExpenseFilters>
+  ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {
       const startDate = filters.customDateStart?.toISOString();
@@ -903,7 +913,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  private generateTypeOrFilter(filters: Filters): string[] {
+  private generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
     const typeOrFilter: string[] = [];
     if (filters.type) {
       if (filters.type.includes('Mileage')) {

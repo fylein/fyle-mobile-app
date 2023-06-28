@@ -8,7 +8,7 @@ import { DataTransformService } from './data-transform.service';
 import { apiCardV2Transactions } from '../mock-data/ccc-api-response';
 import { expectedECccResponse } from '../mock-data/corporate-card-expense-unflattened.data';
 import { uniqueCardsParam } from '../mock-data/unique-cards.data';
-import { cardAggregateStatParam } from '../mock-data/card-aggregate-stat.data';
+import { cardAggregateStatParam } from '../mock-data/card-aggregate-stats.data';
 import { DateService } from './date.service';
 import { expectedUniqueCardStats } from '../mock-data/unique-cards-stats.data';
 import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
