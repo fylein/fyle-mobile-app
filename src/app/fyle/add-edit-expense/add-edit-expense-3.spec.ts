@@ -734,7 +734,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
-        dateService.getUTCDate.and.returnValue(new Date('2023-01-17T06:34:32.50466'));
+        dateService.getUTCDate.and.returnValue(new Date('2023-01-17T06:34:32.50466Z'));
         fixture.detectChanges();
 
         component.getNewExpenseObservable().subscribe((res) => {
@@ -762,7 +762,7 @@ export function TestCases3(getTestBed) {
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         const UnmockedDate = Date;
-        spyOn(<any>window, 'Date').and.returnValue(new UnmockedDate('2019-06-19T06:30:00'));
+        spyOn(<any>window, 'Date').and.returnValue(new UnmockedDate('2019-06-19T01:00:00.000Z'));
         fixture.detectChanges();
 
         component.getNewExpenseObservable().subscribe((res) => {
