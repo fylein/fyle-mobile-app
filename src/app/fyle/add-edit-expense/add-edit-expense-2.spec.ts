@@ -58,7 +58,7 @@ import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
-import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import { fileObjectData, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
@@ -315,18 +315,6 @@ export function TestCases2(getTestBed) {
         component.getInstaFyleImageData().subscribe((res) => {
           expect(res).toBeNull();
           done();
-        });
-      });
-    });
-
-    xdescribe('getAutofillCategory(): ', () => {
-      it('should populate the auto fill category list', () => {
-        const result = component.getAutofillCategory({
-          isAutofillsEnabled: true,
-          recentValue: recentlyUsedRes,
-          recentCategories: recentUsedCategoriesRes,
-          etxn: unflattenExp1,
-          category: orgCategoryData[0],
         });
       });
     });
@@ -1051,13 +1039,24 @@ export function TestCases2(getTestBed) {
       expect(fileService.post).toHaveBeenCalledOnceWith({ ...fileObjectData, transaction_id: 'tx5fBcPBAxLv' });
     });
 
-    xit('uploadFileAndPostToFileService(): should upload to file service', () => {
-      transactionOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObjectData));
+    it('uploadFileAndPostToFileService(): should upload to file service', (done) => {
+      transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
       spyOn(component, 'postToFileService').and.returnValue(of(fileObjectData));
 
       component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
         expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
+        done();
+      });
+    });
+
+    it('uploadMultipleFiles(): should upload multiple files', (done) => {
+      spyOn(component, 'uploadFileAndPostToFileService').and.returnValue(of(fileObjectData1));
+
+      component.uploadMultipleFiles(fileObjectData1, 'tx5fBcPBAxLv').subscribe((res) => {
+        expect(res).toEqual([fileObjectData1]);
+        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledOnceWith(fileObjectData1[0], 'tx5fBcPBAxLv');
+        done();
       });
     });
 
