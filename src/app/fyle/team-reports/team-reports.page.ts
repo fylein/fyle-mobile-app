@@ -239,7 +239,7 @@ export class TeamReportsPage implements OnInit {
     });
   }
 
-  loadData(event: { target: RefresherEventDetail }) {
+  loadData(event: { target: HTMLIonInfiniteScrollElement }) {
     this.currentPageNumber = this.currentPageNumber + 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
@@ -249,7 +249,7 @@ export class TeamReportsPage implements OnInit {
     }, 1000);
   }
 
-  doRefresh(event?: { target: RefresherEventDetail }) {
+  doRefresh(event?: { target: HTMLIonRefresherElement }) {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;

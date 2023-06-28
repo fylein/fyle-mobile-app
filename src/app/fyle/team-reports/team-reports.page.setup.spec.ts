@@ -14,6 +14,7 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TestCases1 } from './team-reports-1.page.spec';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
@@ -64,6 +65,7 @@ describe('TeamReportsPage', () => {
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         ReportState,
       ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     return TestBed;

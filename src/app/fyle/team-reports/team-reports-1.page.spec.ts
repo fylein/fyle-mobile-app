@@ -27,6 +27,7 @@ import {
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { tasksQueryParamsParams } from 'src/app/core/mock-data/get-tasks-query-params.data';
 import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
+import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -294,13 +295,11 @@ export function TestCases1(getTestBed) {
         component.loadData$ = new BehaviorSubject(cloneDeep(tasksQueryParamsWithFiltersData));
       });
 
-      it('should increment the current page number on ionRefresher event', fakeAsync(() => {
-        const mockRefreshEvent = {
-          target: {
-            complete: jasmine.createSpy('complete'),
-          },
+      it('should increment the current page number on infinite scroll', fakeAsync(() => {
+        const mockReInfiniteScrollEvent = {
+          target: jasmine.createSpyObj('target', ['complete']),
         };
-        component.loadData(mockRefreshEvent);
+        component.loadData(mockReInfiniteScrollEvent);
         expect(component.currentPageNumber).toBe(3);
         component.loadData$.subscribe((data) => {
           expect(data).toEqual({
@@ -309,17 +308,68 @@ export function TestCases1(getTestBed) {
           });
         });
         tick(1000);
-        expect(mockRefreshEvent.target.complete).toHaveBeenCalledTimes(1);
+        expect(mockReInfiniteScrollEvent.target.complete).toHaveBeenCalledTimes(1);
       }));
 
-      it('should increment the current page number if ionRefresher event is undefined', () => {
-        const mockRefreshEvent = undefined;
-        component.loadData(mockRefreshEvent);
+      it('should increment the current page number if infinite scroll event is undefined', () => {
+        const mockReInfiniteScrollEvent = undefined;
+        component.loadData(mockReInfiniteScrollEvent);
         expect(component.currentPageNumber).toBe(3);
         component.loadData$.subscribe((data) => {
           expect(data).toEqual({
             ...tasksQueryParamsWithFiltersData,
             pageNumber: 3,
+          });
+        });
+      });
+    });
+
+    describe('doRefresh(): ', () => {
+      let mockData: Partial<GetTasksQueryParamsWithFilters>;
+      beforeEach(() => {
+        component.currentPageNumber = 2;
+        mockData = cloneDeep(tasksQueryParamsWithFiltersData);
+        mockData.pageNumber = 3;
+        component.loadData$ = new BehaviorSubject(mockData);
+      });
+
+      it('should set currentPageNumber and loadData$.pageNumber to 1 on refresh', () => {
+        const mockRefreshEvent = {
+          target: jasmine.createSpyObj('target', ['complete']),
+        };
+        component.doRefresh(mockRefreshEvent);
+        expect(component.currentPageNumber).toBe(1);
+        component.loadData$.subscribe((data) => {
+          expect(data).toEqual({
+            ...mockData,
+            pageNumber: 1,
+          });
+        });
+        expect(mockRefreshEvent.target.complete).toHaveBeenCalledTimes(1);
+      });
+
+      it('should set currentPageNumber and loadData$.pageNumber to 1 if target is not defined', () => {
+        const mockRefreshEvent = {
+          target: undefined,
+        };
+        component.doRefresh(mockRefreshEvent);
+        expect(component.currentPageNumber).toBe(1);
+        component.loadData$.subscribe((data) => {
+          expect(data).toEqual({
+            ...mockData,
+            pageNumber: 1,
+          });
+        });
+      });
+
+      it('should set currentPageNumber and loadData$.pageNumber to 1 if refresh event is not defined', () => {
+        const mockRefreshEvent = undefined;
+        component.doRefresh(mockRefreshEvent);
+        expect(component.currentPageNumber).toBe(1);
+        component.loadData$.subscribe((data) => {
+          expect(data).toEqual({
+            ...mockData,
+            pageNumber: 1,
           });
         });
       });
