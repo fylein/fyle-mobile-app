@@ -1,5 +1,5 @@
 import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular';
+import { ModalController, RefresherCustomEvent } from '@ionic/angular';
 
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -14,13 +14,19 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
 import { orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
+import {
+  tasksQueryParamsWithFiltersData,
+  tasksQueryParamsWithFiltersData2,
+} from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
+import { tasksQueryParamsParams } from 'src/app/core/mock-data/get-tasks-query-params.data';
+import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -97,14 +103,7 @@ export function TestCases1(getTestBed) {
         reportService.getTeamReports.and.returnValue(of(paginatedPipeValue));
         reportService.getTeamReportsCount.and.returnValue(of(20));
         mockAddNewFiltersToParams = spyOn(component, 'addNewFiltersToParams');
-        mockAddNewFiltersToParams.and.returnValue({
-          pageNumber: 1,
-          sortDir: 'asc',
-          searchString: 'example',
-          queryParams: {
-            rp_state: 'in.(APPROVER_PENDING)',
-          },
-        });
+        mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData);
         spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
         spyOn(component, 'clearFilters');
       });
@@ -199,14 +198,7 @@ export function TestCases1(getTestBed) {
       it('should call apiV2Service.extendQueryParamsForTextSearch', () => {
         component.ionViewWillEnter();
         expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-        expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-          {
-            rp_approval_state: 'in.(APPROVAL_PENDING)',
-            rp_state: 'in.(APPROVER_PENDING)',
-            sequential_approval_turn: 'in.(true)',
-          },
-          undefined
-        );
+        expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(tasksQueryParamsParams, undefined);
         expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
           {
             rp_state: 'in.(APPROVER_PENDING)',
@@ -219,29 +211,11 @@ export function TestCases1(getTestBed) {
         apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
           rp_state: 'in.(APPROVER_PENDING)',
         });
-        mockAddNewFiltersToParams.and.returnValue({
-          pageNumber: 1,
-          sortDir: 'asc',
-          sortParam: 'approvalDate',
-        });
+        mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);
         component.ionViewWillEnter();
         expect(reportService.getTeamReports).toHaveBeenCalledTimes(2);
-        expect(reportService.getTeamReports).toHaveBeenCalledWith({
-          offset: 0,
-          limit: 10,
-          queryParams: {
-            rp_state: 'in.(APPROVER_PENDING)',
-          },
-          order: null,
-        });
-        expect(reportService.getTeamReports).toHaveBeenCalledWith({
-          offset: 0,
-          limit: 10,
-          queryParams: {
-            rp_state: 'in.(APPROVER_PENDING)',
-          },
-          order: 'approvalDate.asc',
-        });
+        expect(reportService.getTeamReports).toHaveBeenCalledWith(getTeamReportsParams1);
+        expect(reportService.getTeamReports).toHaveBeenCalledWith(getTeamReportsParams2);
         expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
         expect(component.acc).toEqual(apiExtendedReportRes);
         component.teamReports$.subscribe((teamReports) => {
@@ -277,14 +251,7 @@ export function TestCases1(getTestBed) {
         });
         expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
         component.loadData$.subscribe((loadData) => {
-          expect(loadData).toEqual({
-            pageNumber: 1,
-            sortDir: 'asc',
-            searchString: 'example',
-            queryParams: {
-              rp_state: 'in.(APPROVER_PENDING)',
-            },
-          });
+          expect(loadData).toEqual(tasksQueryParamsWithFiltersData);
         });
         expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
           state: ['APPROVER_PENDING'],
@@ -317,6 +284,43 @@ export function TestCases1(getTestBed) {
         expect(router.navigate).not.toHaveBeenCalled();
         component.isConnected$.subscribe((online) => {
           expect(online).toBeTrue();
+        });
+      });
+    });
+
+    describe('loadData(): ', () => {
+      beforeEach(() => {
+        component.currentPageNumber = 2;
+        component.loadData$ = new BehaviorSubject(cloneDeep(tasksQueryParamsWithFiltersData));
+      });
+
+      it('should increment the current page number on ionRefresher event', fakeAsync(() => {
+        const mockRefreshEvent = {
+          target: {
+            complete: jasmine.createSpy('complete'),
+          },
+        };
+        component.loadData(mockRefreshEvent);
+        expect(component.currentPageNumber).toBe(3);
+        component.loadData$.subscribe((data) => {
+          expect(data).toEqual({
+            ...tasksQueryParamsWithFiltersData,
+            pageNumber: 3,
+          });
+        });
+        tick(1000);
+        expect(mockRefreshEvent.target.complete).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should increment the current page number if ionRefresher event is undefined', () => {
+        const mockRefreshEvent = undefined;
+        component.loadData(mockRefreshEvent);
+        expect(component.currentPageNumber).toBe(3);
+        component.loadData$.subscribe((data) => {
+          expect(data).toEqual({
+            ...tasksQueryParamsWithFiltersData,
+            pageNumber: 3,
+          });
         });
       });
     });

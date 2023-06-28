@@ -4,7 +4,7 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, RefresherCustomEvent, RefresherEventDetail } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -23,6 +23,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
+import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 
 type Filters = Partial<{
   state: string[];
@@ -54,15 +55,7 @@ export class TeamReportsPage implements OnInit {
 
   isLoadingDataInInfiniteScroll: boolean;
 
-  loadData$: BehaviorSubject<
-    Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  >;
+  loadData$: BehaviorSubject<Partial<GetTasksQueryParamsWithFilters>>;
 
   currentPageNumber = 1;
 
@@ -246,7 +239,7 @@ export class TeamReportsPage implements OnInit {
     });
   }
 
-  loadData(event) {
+  loadData(event: { target: RefresherEventDetail }) {
     this.currentPageNumber = this.currentPageNumber + 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
@@ -256,13 +249,13 @@ export class TeamReportsPage implements OnInit {
     }, 1000);
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: { target: RefresherEventDetail }) {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     if (event) {
-      event?.target?.complete();
+      event.target?.complete();
     }
   }
 

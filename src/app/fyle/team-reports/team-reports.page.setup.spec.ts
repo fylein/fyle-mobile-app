@@ -15,7 +15,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TestCases1 } from './team-reports-1.page.spec';
 
-fdescribe('TeamReportsPage', () => {
+describe('TeamReportsPage', () => {
   const getTestBed = () => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
