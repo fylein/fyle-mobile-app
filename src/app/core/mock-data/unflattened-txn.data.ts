@@ -972,7 +972,7 @@ export const expectedExpenseObservable = {
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
-    txn_dt: new Date('2023-01-17T01:04:32.504Z'),
+    txn_dt: new Date('2023-01-17T06:34:32.50466Z'),
     currency: 'USD',
     amount: 100,
     orig_currency: null,
