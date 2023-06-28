@@ -1,4 +1,4 @@
-import { DashboardTask } from './task.model';
+import { DashboardTask } from './dashboard-task.model';
 
 export interface TaskDictionary {
   sentBackReports: DashboardTask[];

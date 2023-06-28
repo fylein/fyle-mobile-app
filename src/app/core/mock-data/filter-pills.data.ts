@@ -34,6 +34,23 @@ export const allFilterPills: FilterPill[] = [
   },
 ];
 
+export const taskFiltersPills: FilterPill[] = [
+  {
+    label: 'Expenses',
+    type: 'Expenses',
+    value: 'Complete',
+  },
+  {
+    label: 'Reports',
+    type: 'Reports',
+    value: 'Sent Back',
+  },
+  {
+    label: 'Advances',
+    type: 'Advances',
+    value: 'Sent Back',
+  },
+];
 export const expectedFilterPill1: FilterPill[] = [
   {
     label: 'Type',
