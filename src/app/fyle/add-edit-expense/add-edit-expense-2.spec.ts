@@ -1,11 +1,28 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormBuilder, Validators, FormArray } from '@angular/forms';
+import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController, NavController, ActionSheetController, Platform } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Subscription, of } from 'rxjs';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
+import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
+import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
+import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
+import { instaFyleData1, instaFyleData2, parsedReceiptData1 } from 'src/app/core/mock-data/parsed-receipt.data';
+import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
+import { txnData2 } from 'src/app/core/mock-data/transaction.data';
+import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
+import {
+  expectedUnflattendedTxnData1,
+  unflattenedTxnData,
+  unflattenedTxnWithExtractedData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -39,34 +56,16 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { AddEditExpensePage } from './add-edit-expense.page';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
-import { parsedReceiptData1, instaFyleData1, instaFyleData2 } from 'src/app/core/mock-data/parsed-receipt.data';
-import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import { accountsData, orgSettingsData, paymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
-import {
-  unflattenedTxnWithExtractedData,
-  expectedUnflattendedTxnData1,
-  unflattenedTxnData,
-} from 'src/app/core/mock-data/unflattened-txn.data';
-import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
-import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
-import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
-import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
-import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { AddEditExpensePage } from './add-edit-expense.page';
+import { setFormValid } from './add-edit-expense.setup.spec';
+import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -319,18 +318,6 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    xdescribe('getAutofillCategory(): ', () => {
-      it('should populate the auto fill category list', () => {
-        const result = component.getAutofillCategory({
-          isAutofillsEnabled: true,
-          recentValue: recentlyUsedRes,
-          recentCategories: recentUsedCategoriesRes,
-          etxn: unflattenExp1,
-          category: orgCategoryData[0],
-        });
-      });
-    });
-
     it('setCategoryFromVendor(): should set category in the form', () => {
       categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
 
@@ -457,9 +444,7 @@ export function TestCases2(getTestBed) {
     describe('saveExpense():', () => {
       it('should save an expense and match as personal if created from a personal card', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setFormValid(component);
         component.isCreatedFromPersonalCard = true;
         component.mode = 'add';
         spyOn(component, 'saveAndMatchWithPersonalCardTxn');
@@ -972,16 +957,6 @@ export function TestCases2(getTestBed) {
       component.postToFileService(fileObjectData, 'tx5fBcPBAxLv');
 
       expect(fileService.post).toHaveBeenCalledOnceWith({ ...fileObjectData, transaction_id: 'tx5fBcPBAxLv' });
-    });
-
-    xit('uploadFileAndPostToFileService(): should upload to file service', () => {
-      transactionOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObjectData));
-      spyOn(component, 'postToFileService').and.returnValue(of(fileObjectData));
-
-      component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
-        expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
-        expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
-      });
     });
 
     describe('getDuplicateExpenses():', () => {
