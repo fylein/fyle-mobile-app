@@ -64,10 +64,10 @@ import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { AddEditExpensePage } from './add-edit-expense.page';
-import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { recentUsedCategoriesRes } from '../../core/mock-data/org-category-list-item.data';
+import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
+import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -316,18 +316,6 @@ export function TestCases2(getTestBed) {
         component.getInstaFyleImageData().subscribe((res) => {
           expect(res).toBeNull();
           done();
-        });
-      });
-    });
-
-    xdescribe('getAutofillCategory(): ', () => {
-      it('should populate the auto fill category list', () => {
-        const result = component.getAutofillCategory({
-          isAutofillsEnabled: true,
-          recentValue: recentlyUsedRes,
-          recentCategories: recentUsedCategoriesRes,
-          etxn: unflattenExp1,
-          category: orgCategoryData[0],
         });
       });
     });
@@ -1062,7 +1050,7 @@ export function TestCases2(getTestBed) {
         expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 100,
-          params: { tx_id: `in.(${['tx5fBcPBAxLv'].join(',')})` },
+          params: { tx_id: `in.(tx5fBcPBAxLv)` },
         });
         expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData1, [expenseData1]);
       });
