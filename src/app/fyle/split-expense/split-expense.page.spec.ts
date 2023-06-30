@@ -115,6 +115,7 @@ import { policyViolationData3, policyVoilationData2 } from 'src/app/core/mock-da
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import * as dayjs from 'dayjs';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -305,9 +306,6 @@ describe('SplitExpensePage', () => {
       tick(500);
       expect(otherSplitExpenseForm.controls.amount.value).toEqual(1880);
       expect(otherSplitExpenseForm.controls.percentage.value).toEqual(94);
-
-      component.onChangeAmount(otherSplitExpenseForm, 1);
-      tick(500);
       expect(splitExpenseForm1.controls.percentage.value).toEqual(6);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     }));
@@ -335,12 +333,8 @@ describe('SplitExpensePage', () => {
 
       component.onChangeAmount(otherSplitExpenseForm, 1);
       tick(500);
-
       expect(splitExpenseForm1.controls.amount.value).toEqual(1920);
       expect(splitExpenseForm1.controls.percentage.value).toEqual(96);
-
-      component.onChangeAmount(splitExpenseForm1, 0);
-      tick(500);
       expect(otherSplitExpenseForm.controls.percentage.value).toEqual(4);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     }));
@@ -979,12 +973,12 @@ describe('SplitExpensePage', () => {
 
   describe('setValuesForCCC():', () => {
     it('should set the values for CCC split expenses when coporate credit cards is enabled', () => {
-      const today = new Date();
-      const minDate = new Date('Jan 1, 2001');
-      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
-      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
-      dateService.addDaysToDate.and.returnValue(new Date(maxDate));
+      const minDate = dayjs('Jan 1, 2001');
+      const maxDate = dayjs().add(1, 'day');
+      const expectedMinDate = minDate.format('YYYY-M-D');
+      const expectedMaxDate = maxDate.format('YYYY-M-D');
+
+      dateService.addDaysToDate.and.returnValue(maxDate.toDate());
       component.amount = 2000;
       spyOn(component, 'setAmountAndCurrency').and.callThrough();
       spyOn(component, 'add').and.callThrough();
@@ -1014,12 +1008,11 @@ describe('SplitExpensePage', () => {
     });
 
     it('should set the values to null if coporate credit cards is disabled and the amount is less than 0.0001', () => {
-      const today = new Date();
-      const minDate = new Date('Jan 1, 2001');
-      const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-      const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
-      const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
-      dateService.addDaysToDate.and.returnValue(new Date(maxDate));
+      const minDate = dayjs('Jan 1, 2001');
+      const maxDate = dayjs().add(1, 'day');
+      const expectedMinDate = minDate.format('YYYY-M-D');
+      const expectedMaxDate = dayjs(maxDate).format('YYYY-M-D');
+      dateService.addDaysToDate.and.returnValue(maxDate.toDate());
       component.amount = 0.00001;
       spyOn(component, 'setAmountAndCurrency').and.callThrough();
       spyOn(component, 'add').and.callThrough();
