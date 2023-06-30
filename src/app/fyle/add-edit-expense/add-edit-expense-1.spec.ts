@@ -72,6 +72,7 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import { EventEmitter } from '@angular/core';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -214,12 +215,18 @@ export function TestCases1(getTestBed) {
       fixture.detectChanges();
     });
 
+    function setFormValid() {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+    }
+
     it('should create', () => {
       expect(component).toBeTruthy();
     });
 
     describe('goBack():', () => {
-      it('should back to the report if redirected from the report page', () => {
+      it('should go back to the report if redirected from the report page', () => {
         component.isRedirectedFromReport = true;
         fixture.detectChanges();
 
@@ -500,6 +507,7 @@ export function TestCases1(getTestBed) {
       networkService.isOnline.and.returnValue(of(true));
 
       component.setupNetworkWatcher();
+      expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -723,30 +731,6 @@ export function TestCases1(getTestBed) {
       }));
     });
 
-    xdescribe('getMarkDismissModalParams():', () => {
-      it('should get delete method to unmatch personal expense', (done) => {
-        transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'markCCCAsPersonal');
-        const result = component.getMarkDismissModalParams(
-          {
-            header: 'Header',
-            body: 'This is body',
-            ctaText: 'Done',
-            ctaLoadingText: 'Loading',
-          },
-          true
-        );
-
-        result.componentProps.deleteMethod().subscribe(() => {
-          expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith(
-            activatedRoute.snapshot.params.id,
-            component.corporateCreditCardExpenseGroupId
-          );
-          done();
-        });
-      });
-    });
-
     describe('markPeronsalOrDismiss(): ', () => {
       it('should dismiss txn as specified', fakeAsync(() => {
         spyOn(component, 'getMarkDismissModalParams');
@@ -827,60 +811,59 @@ export function TestCases1(getTestBed) {
 
     describe('splitExpCategoryHandler():', () => {
       it('should call method to display split expense modal and split by category', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setFormValid();
 
         spyOn(component, 'openSplitExpenseModal');
 
-        component.splitExpCategoryHandler();
+        const fn = component.splitExpCategoryHandler();
+        fn();
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('categories');
       });
 
       it('should validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
 
-        component.splitExpCategoryHandler();
+        const fn = component.splitExpCategoryHandler();
+        fn();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('splitExpProjectHandler():', () => {
       it('should call method to display split expense modal and split by project', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setFormValid();
 
         spyOn(component, 'openSplitExpenseModal');
 
-        component.splitExpProjectHandler();
+        const fn = component.splitExpProjectHandler();
+        fn();
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('projects');
       });
 
-      it('should validation errors if any inside the form', () => {
+      it('should show validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
 
-        component.splitExpProjectHandler();
+        const fn = component.splitExpProjectHandler();
+        fn();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('splitExpCostCenterHandler():', () => {
       it('should call method to display split expense modal and split by cost centers', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
-
+        setFormValid();
         spyOn(component, 'openSplitExpenseModal');
 
-        component.splitExpCostCenterHandler();
+        const fn = component.splitExpCostCenterHandler();
+        fn();
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('cost centers');
       });
 
-      it('should validation errors if any inside the form', () => {
+      it('The form should display the validation errors if they are found.', () => {
         spyOn(component, 'showFormValidationErrors');
 
-        component.splitExpCostCenterHandler();
+        const fn = component.splitExpCostCenterHandler();
+        fn();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
@@ -901,11 +884,23 @@ export function TestCases1(getTestBed) {
       component.isCorporateCreditCardEnabled = true;
       component.canRemoveCardExpense = true;
       component.isExpenseMatchedForDebitCCCE = true;
+      spyOn(component, 'splitExpCategoryHandler');
+      spyOn(component, 'splitExpProjectHandler');
+      spyOn(component, 'splitExpCostCenterHandler');
+      spyOn(component, 'markPersonalHandler');
+      spyOn(component, 'markDismissHandler');
+      spyOn(component, 'removeCCCHandler');
       launchDarklyService.getVariation.and.returnValue(of(true));
       fixture.detectChanges();
 
       component.getActionSheetOptions().subscribe((res) => {
         expect(res.length).toEqual(6);
+        expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
+        expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
+        expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
+        expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+        expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
+        expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
         expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
@@ -934,7 +929,7 @@ export function TestCases1(getTestBed) {
     }));
 
     describe('setupCostCenters():', () => {
-      it('should return list of cost centers if enabled', () => {
+      it('should return list of cost centers if enabled', (done) => {
         component.orgUserSettings$ = of(orgUserSettingsData);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCenterApiRes1));
@@ -952,9 +947,10 @@ export function TestCases1(getTestBed) {
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+        done();
       });
 
-      it('should return empty array if cost centers are not enabled', () => {
+      it('should return empty array if cost centers are not enabled', (done) => {
         component.orgUserSettings$ = of(orgUserSettingsData);
         orgSettingsService.get.and.returnValue(
           of({ ...orgSettingsRes, cost_centers: { ...orgSettingsRes.cost_centers, enabled: false } })
@@ -973,6 +969,7 @@ export function TestCases1(getTestBed) {
         });
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        done();
       });
     });
 

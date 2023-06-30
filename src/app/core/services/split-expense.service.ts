@@ -275,7 +275,7 @@ export class SplitExpenseService {
       transaction.split_group_user_amount = sourceTxn.split_group_user_amount || splitGroupAmount;
 
       transaction.id = null;
-      transaction.source = transaction.source || 'WEBAPP';
+      transaction.source = transaction.source || 'MOBILE_SPLIT';
 
       transaction.txn_dt = splitExpense.txn_dt || sourceTxn.txn_dt;
       transaction.txn_dt = new Date(transaction.txn_dt);
@@ -294,7 +294,7 @@ export class SplitExpenseService {
     return forkJoin(txnsObservables);
   }
 
-  private setupSplitExpensePurpose(
+  setupSplitExpensePurpose(
     transaction: Transaction,
     splitGroupId: string,
     index: number,
@@ -312,11 +312,11 @@ export class SplitExpenseService {
     }
   }
 
-  private setUpSplitExpenseBillable(sourceTxn: Transaction, splitExpense: Transaction): boolean {
+  setUpSplitExpenseBillable(sourceTxn: Transaction, splitExpense: Transaction): boolean {
     return splitExpense.project_id ? splitExpense.billable : sourceTxn.billable;
   }
 
-  private setUpSplitExpenseTax(sourceTxn: Transaction, splitExpense: Transaction): number {
+  setUpSplitExpenseTax(sourceTxn: Transaction, splitExpense: Transaction): number {
     return splitExpense.tax_amount ? splitExpense.tax_amount : sourceTxn.tax_amount;
   }
 }
