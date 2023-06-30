@@ -30,6 +30,7 @@ import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { Filters, ReportFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
+import { TeamReportsFilters } from '../models/team-reports-filters.model';
 
 @Injectable({
   providedIn: 'root',
@@ -384,7 +385,7 @@ export class TrackingService {
     this.eventTrack('my reports filters applied', properties);
   }
 
-  TeamReportsFilterApplied(properties: Filters) {
+  TeamReportsFilterApplied(properties: Partial<TeamReportsFilters>) {
     this.eventTrack('team reports filters applied', properties);
   }
 
