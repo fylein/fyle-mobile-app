@@ -971,7 +971,7 @@ export function TestCases2(getTestBed) {
         expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 100,
-          params: { tx_id: `in.(${['tx5fBcPBAxLv'].join(',')})` },
+          params: { tx_id: `in.(tx5fBcPBAxLv)` },
         });
         expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData1, [expenseData1]);
       });
