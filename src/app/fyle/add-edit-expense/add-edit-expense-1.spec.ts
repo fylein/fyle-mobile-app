@@ -211,7 +211,7 @@ export function TestCases1(getTestBed) {
     });
 
     describe('goBack():', () => {
-      it('should back to the report if redirected from the report page', () => {
+      it('should go back to the report if redirected from the report page', () => {
         component.isRedirectedFromReport = true;
         fixture.detectChanges();
 
@@ -306,7 +306,7 @@ export function TestCases1(getTestBed) {
     });
 
     describe('merchantValidator():', () => {
-      it('should check field value and return null if name less 250 characters', () => {
+      it('should check field value and return null if the merchant name less 250 characters', () => {
         component.fg.controls.vendor_id.setValue({
           display_name: 'name',
         });
@@ -593,30 +593,6 @@ export function TestCases1(getTestBed) {
       }));
     });
 
-    xdescribe('getMarkDismissModalParams():', () => {
-      it('should get delete method to unmatch personal expense', (done) => {
-        transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'markCCCAsPersonal');
-        const result = component.getMarkDismissModalParams(
-          {
-            header: 'Header',
-            body: 'This is body',
-            ctaText: 'Done',
-            ctaLoadingText: 'Loading',
-          },
-          true
-        );
-
-        result.componentProps.deleteMethod().subscribe(() => {
-          expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith(
-            activatedRoute.snapshot.params.id,
-            component.corporateCreditCardExpenseGroupId
-          );
-          done();
-        });
-      });
-    });
-
     describe('markPeronsalOrDismiss(): ', () => {
       it('should dismiss txn as specified', fakeAsync(() => {
         spyOn(component, 'getMarkDismissModalParams');
@@ -815,7 +791,7 @@ export function TestCases1(getTestBed) {
     }));
 
     describe('setupCostCenters():', () => {
-      it('should return list of cost centers if enabled', () => {
+      it('should return list of cost centers if enabled', (done) => {
         component.orgUserSettings$ = of(orgUserSettingsData);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCenterApiRes1));
@@ -833,9 +809,10 @@ export function TestCases1(getTestBed) {
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+        done();
       });
 
-      it('should return empty array if cost centers are not enabled', () => {
+      it('should return empty array if cost centers are not enabled', (done) => {
         component.orgUserSettings$ = of(orgUserSettingsData);
         orgSettingsService.get.and.returnValue(
           of({ ...orgSettingsRes, cost_centers: { ...orgSettingsRes.cost_centers, enabled: false } })
@@ -854,6 +831,7 @@ export function TestCases1(getTestBed) {
         });
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        done();
       });
     });
   });
