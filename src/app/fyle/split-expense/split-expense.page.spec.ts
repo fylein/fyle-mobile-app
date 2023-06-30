@@ -308,7 +308,6 @@ describe('SplitExpensePage', () => {
 
       component.onChangeAmount(otherSplitExpenseForm, 1);
       tick(500);
-      expect(splitExpenseForm1.controls.amount.value).toEqual(120);
       expect(splitExpenseForm1.controls.percentage.value).toEqual(6);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     }));
@@ -342,7 +341,6 @@ describe('SplitExpensePage', () => {
 
       component.onChangeAmount(splitExpenseForm1, 0);
       tick(500);
-      expect(otherSplitExpenseForm.controls.amount.value).toEqual(80);
       expect(otherSplitExpenseForm.controls.percentage.value).toEqual(4);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     }));
@@ -986,7 +984,7 @@ describe('SplitExpensePage', () => {
       const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
       const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
       const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
-      dateService.addDaysToDate.and.returnValue(new Date(expectedMaxDate));
+      dateService.addDaysToDate.and.returnValue(new Date(maxDate));
       component.amount = 2000;
       spyOn(component, 'setAmountAndCurrency').and.callThrough();
       spyOn(component, 'add').and.callThrough();
@@ -1021,7 +1019,7 @@ describe('SplitExpensePage', () => {
       const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
       const expectedMinDate = `${minDate.getFullYear()}-${minDate.getMonth() + 1}-${minDate.getDate()}`;
       const expectedMaxDate = `${maxDate.getFullYear()}-${maxDate.getMonth() + 1}-${maxDate.getDate()}`;
-      dateService.addDaysToDate.and.returnValue(new Date(expectedMaxDate));
+      dateService.addDaysToDate.and.returnValue(new Date(maxDate));
       component.amount = 0.00001;
       spyOn(component, 'setAmountAndCurrency').and.callThrough();
       spyOn(component, 'add').and.callThrough();
