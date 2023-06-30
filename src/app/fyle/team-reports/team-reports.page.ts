@@ -333,15 +333,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  setSortParams(
-    currentParams: Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  ) {
+  setSortParams(currentParams: Partial<GetTasksQueryParamsWithFilters>) {
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
@@ -442,7 +434,7 @@ export class TeamReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
-  clearText(isFromCancel) {
+  clearText(isFromCancel: string) {
     this.simpleSearchText = '';
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
