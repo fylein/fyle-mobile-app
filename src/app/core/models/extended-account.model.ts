@@ -11,7 +11,7 @@ export interface ExtendedAccount {
     id: string;
     purpose: string;
     // eslint-disable-next-line id-blacklist
-    number: string;
+    number: string | number;
   };
   orig: {
     currency: string;
