@@ -24,6 +24,7 @@ import { orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/or
 import {
   tasksQueryParamsWithFiltersData,
   tasksQueryParamsWithFiltersData2,
+  tasksQueryParamsWithFiltersData3,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import {
   tasksQueryParamsParams,
@@ -263,38 +264,41 @@ export function TestCases2(getTestBed) {
     });
 
     it('addNewFiltersToParams(): should update currentParams with new filters and return the updated currentParams', () => {
-      component.loadData$ = new BehaviorSubject(cloneDeep(tasksQueryParamsWithFiltersData));
+      const mockTaskQueryParamsData = cloneDeep(tasksQueryParamsWithFiltersData);
+      component.loadData$ = new BehaviorSubject(mockTaskQueryParamsData);
       component.filters = {
         date: 'thisMonth',
         state: ['APPROVER_INQUIRY'],
       };
-
-      spyOn(component, 'generateDateParams').and.callFake((newQueryParams) => {
-        newQueryParams.and =
-          '(rp_submitted_at.gte.2023-01-01T00:00:00.000Z,rp_submitted_at.lt.2023-01-04T00:00:00.000Z)';
+      const mockQueryParams: Partial<GetTasksQueryParams> = {
+        or: [],
+      };
+      const mockQueryParams2: Partial<GetTasksQueryParams> = {
+        or: [],
+        and: '(rp_submitted_at.gte.2023-01-01T00:00:00.000Z,rp_submitted_at.lt.2023-01-04T00:00:00.000Z)',
+      };
+      const generateDateParams = component.generateDateParams;
+      const generateStateFilters = component.generateStateFilters;
+      dateService.getThisMonthRange.and.returnValue({
+        from: new Date('2023-01-01'),
+        to: new Date('2023-01-04'),
       });
-      spyOn(component, 'generateStateFilters').and.callFake((newQueryParams) => {
-        newQueryParams.or.push('(rp_state.in.(APPROVER_INQUIRY))');
+      spyOn(component, 'generateDateParams').and.callFake((args) => {
+        expect(args).toEqual(mockQueryParams);
+        return generateDateParams.call(component, args);
       });
-      spyOn(component, 'setSortParams').and.callFake((currentParams) => {
-        currentParams.sortParam = 'rp_submitted_at';
-        currentParams.sortDir = 'desc';
+      spyOn(component, 'generateStateFilters').and.callFake((args) => {
+        expect(args).toEqual(mockQueryParams2);
+        return generateStateFilters.call(component, args);
       });
+      spyOn(component, 'setSortParams').and.callThrough();
 
       const result = component.addNewFiltersToParams();
 
       expect(component.generateDateParams).toHaveBeenCalledTimes(1);
       expect(component.generateStateFilters).toHaveBeenCalledTimes(1);
-      expect(component.setSortParams).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({
-        ...tasksQueryParamsWithFiltersData,
-        sortParam: 'rp_submitted_at',
-        sortDir: 'desc',
-        queryParams: {
-          or: ['(rp_state.in.(APPROVER_INQUIRY))'],
-          and: '(rp_submitted_at.gte.2023-01-01T00:00:00.000Z,rp_submitted_at.lt.2023-01-04T00:00:00.000Z)',
-        },
-      });
+      expect(component.setSortParams).toHaveBeenCalledOnceWith(mockTaskQueryParamsData);
+      expect(result).toEqual(tasksQueryParamsWithFiltersData3);
     });
 
     it('clearFilters(): should remove all the filters and set current page number to 1', () => {
@@ -324,37 +328,6 @@ export function TestCases2(getTestBed) {
         'view_team_report',
         { id: erpt.rp_id, navigate_back: true },
       ]);
-    });
-
-    describe('onDeleteReportClick(): ', () => {
-      beforeEach(() => {
-        popupService.showPopup.and.resolveTo('primary');
-        loaderService.showLoader.and.resolveTo();
-        loaderService.hideLoader.and.resolveTo();
-        reportService.delete.and.returnValue(of(null));
-        spyOn(component, 'doRefresh');
-      });
-
-      it('should show delete popover and delete the report if state is DRAFT, APPROVER_PENDING or APPROVER_INQUIRY', fakeAsync(() => {
-        const mockReport = cloneDeep({ ...reportParam, rp_state: 'DRAFT' });
-        component.onDeleteReportClick(mockReport);
-        tick(100);
-        expect(popupService.showPopup).toHaveBeenCalledOnceWith(popupConfigData);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(reportService.delete).toHaveBeenCalledOnceWith('rptkwzhsieIY');
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        expect(component.doRefresh).toHaveBeenCalledTimes(1);
-      }));
-
-      it('should show cannot delete popover if state is other than DRAFT, APPROVER_PENDING or APPROVER_INQUIRY', fakeAsync(() => {
-        component.onDeleteReportClick(reportParam);
-        tick(100);
-        expect(popupService.showPopup).toHaveBeenCalledOnceWith(popupConfigData2);
-        expect(loaderService.showLoader).not.toHaveBeenCalled();
-        expect(reportService.delete).not.toHaveBeenCalled();
-        expect(loaderService.hideLoader).not.toHaveBeenCalled();
-        expect(component.doRefresh).not.toHaveBeenCalled();
-      }));
     });
 
     it('onHomeClicked(): should navigate to home dashboard and track event', () => {
