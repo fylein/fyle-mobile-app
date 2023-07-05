@@ -72,6 +72,7 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import { EventEmitter } from '@angular/core';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -214,12 +215,18 @@ export function TestCases1(getTestBed) {
       fixture.detectChanges();
     });
 
+    function setFormValid() {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => true,
+      });
+    }
+
     it('should create', () => {
       expect(component).toBeTruthy();
     });
 
     describe('goBack():', () => {
-      it('should back to the report if redirected from the report page', () => {
+      it('should go back to the report if redirected from the report page', () => {
         component.isRedirectedFromReport = true;
         fixture.detectChanges();
 
@@ -500,6 +507,7 @@ export function TestCases1(getTestBed) {
       networkService.isOnline.and.returnValue(of(true));
 
       component.setupNetworkWatcher();
+      expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -827,9 +835,7 @@ export function TestCases1(getTestBed) {
 
     describe('splitExpCategoryHandler():', () => {
       it('should call method to display split expense modal and split by category', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setFormValid();
 
         spyOn(component, 'openSplitExpenseModal');
 
@@ -849,9 +855,7 @@ export function TestCases1(getTestBed) {
 
     describe('splitExpProjectHandler():', () => {
       it('should call method to display split expense modal and split by project', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setFormValid();
 
         spyOn(component, 'openSplitExpenseModal');
 
@@ -860,7 +864,7 @@ export function TestCases1(getTestBed) {
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('projects');
       });
 
-      it('should validation errors if any inside the form', () => {
+      it('should show validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
 
         const fn = component.splitExpProjectHandler();
@@ -871,10 +875,7 @@ export function TestCases1(getTestBed) {
 
     describe('splitExpCostCenterHandler():', () => {
       it('should call method to display split expense modal and split by cost centers', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
-
+        setFormValid();
         spyOn(component, 'openSplitExpenseModal');
 
         const fn = component.splitExpCostCenterHandler();
@@ -882,7 +883,7 @@ export function TestCases1(getTestBed) {
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('cost centers');
       });
 
-      it('should validation errors if any inside the form', () => {
+      it('The form should display the validation errors if they are found.', () => {
         spyOn(component, 'showFormValidationErrors');
 
         const fn = component.splitExpCostCenterHandler();
@@ -952,7 +953,7 @@ export function TestCases1(getTestBed) {
     }));
 
     describe('setupCostCenters():', () => {
-      it('should return list of cost centers if enabled', () => {
+      it('should return list of cost centers if enabled', (done) => {
         component.orgUserSettings$ = of(orgUserSettingsData);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCenterApiRes1));
@@ -970,9 +971,10 @@ export function TestCases1(getTestBed) {
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+        done();
       });
 
-      it('should return empty array if cost centers are not enabled', () => {
+      it('should return empty array if cost centers are not enabled', (done) => {
         component.orgUserSettings$ = of(orgUserSettingsData);
         orgSettingsService.get.and.returnValue(
           of({ ...orgSettingsRes, cost_centers: { ...orgSettingsRes.cost_centers, enabled: false } })
@@ -991,6 +993,7 @@ export function TestCases1(getTestBed) {
         });
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        done();
       });
     });
 

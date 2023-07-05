@@ -45,6 +45,12 @@ import { TestCases1 } from './add-edit-expense-1.spec';
 import { TestCases2 } from './add-edit-expense-2.spec';
 import { TestCases3 } from './add-edit-expense-3.spec';
 
+export function setFormValid(component) {
+  Object.defineProperty(component.fg, 'valid', {
+    get: () => true,
+  });
+}
+
 describe('AddEditExpensePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [

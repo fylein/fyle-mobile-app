@@ -65,6 +65,19 @@ export const fileObjectData3: FileObject = {
   email_meta_data: null,
   fyle_sub_url: '/api/files/finwabtsAZRy/download',
 };
+
+export const fileObjectData5: FileObject = {
+  name: '000.png',
+  receipt_coordinates: {
+    x: 100,
+    y: 200,
+    width: 300,
+    height: 400,
+  },
+  id: 'fiHPZUiichAS',
+  purpose: '',
+};
+
 export const thumbnailUrlMockData: FileObject[] = [
   {
     id: 'fiwJ0nQTBpYH',
