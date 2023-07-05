@@ -364,7 +364,34 @@ export function TestCases1(getTestBed) {
         component.fg.controls.vendor_id.setValue({
           display_name: 'name',
         });
-        const result = component.merchantValidator(component.fg.controls.vendor_id.value);
+        const result = component.merchantValidator(component.fg.controls.vendor_id);
+        expect(result).toBeNull();
+      });
+
+      it('should return error message if value greater than 250 characters', () => {
+        component.fg.controls.vendor_id.setValue({
+          display_name: `ipb91YrRQA9R5XwvntwdBaDwTtd3WooG
+          6aCbmHGgPjBwwGeJxtnZyLYoM1DqKxKY
+          Q2uJzbFIxPlBEzmsisyF1H2KHtmU6K0W
+          EJoXAkQVyAJJCTsgA57BbB0NOoQ4DzG3
+          h6BloyPTkkrevuTmGh75eTZ5egsAGtdS
+          HuZVfVxjsH4ZRloC72S5KGIbJcwDh8fF
+          7JgOeoqVd4HT2ykWcUp2Tavk0GXtteK6
+          z2oijtR8EOSKi3CwGKvktaQhajBKef8u
+          40aK3qQj1hH70ZnGLX4HhXS1e3LeNmxw
+          MNnf6RVZDgZnLcAFyGwhhUk52VgMt4YP`,
+        });
+
+        const result = component.merchantValidator(component.fg.controls.vendor_id);
+        expect(result).toEqual({ merchantNameSize: 'Length is greater than 250' });
+      });
+
+      it('should return null if invalid value is set as id', () => {
+        component.fg.controls.vendor_id.setValue({
+          display_name: null,
+        });
+
+        const result = component.merchantValidator(component.fg.controls.vendor_id);
         expect(result).toBeNull();
       });
     });
@@ -435,11 +462,11 @@ export function TestCases1(getTestBed) {
         });
 
         component.fg.controls.tax_group.setValue({
-          percentage: 5,
+          percentage: 0.05,
         });
 
         expect(component.fg.controls.tax_amount.value).toEqual(82.5);
-        expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledOnceWith(83.33333333333333, 'USD');
+        expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledOnceWith(4.761904761904759, 'USD');
       }));
 
       it('should set tax amount to null if tax group not specified', fakeAsync(() => {
@@ -472,6 +499,7 @@ export function TestCases1(getTestBed) {
         expect(component.showSelectedTransaction).toBeFalse();
         expect(component.isDraftExpense).toBeTrue();
         expect(component.selectedCCCTransaction).toBeNull();
+        expect(component.canChangeMatchingCCCTransaction).toBeTrue();
       }));
 
       it('should show popup and other settings if it is a CCC txn and draft is enabled', fakeAsync(() => {
