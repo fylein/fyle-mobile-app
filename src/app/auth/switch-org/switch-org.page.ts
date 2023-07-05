@@ -9,7 +9,6 @@ import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { StorageService } from 'src/app/core/services/storage.service';
-import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
@@ -68,7 +67,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private secureStorageService: SecureStorageService,
     private storageService: StorageService,
     private router: Router,
-    private networkService: NetworkService,
     private orgService: OrgService,
     private userEventService: UserEventService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
@@ -442,7 +440,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.searchRef.nativeElement.classList.remove('switch-org__content-container__search-block--show');
   }
 
-  private trackSwitchOrgLaunchTime() {
+  trackSwitchOrgLaunchTime() {
     try {
       if (performance.getEntriesByName('switch org launch time').length === 0) {
         // Time taken to land on switch org page after sign-in

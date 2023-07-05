@@ -15,6 +15,7 @@ import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
 import { CurrencyService } from './currency.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
+import { File } from '../models/file.model';
 
 @Injectable({
   providedIn: 'root',
@@ -207,7 +208,7 @@ export class TransactionsOutboxService {
           receipt_coordinates: receiptCoordinates,
         })
         .toPromise()
-        .then((fileObj) =>
+        .then((fileObj: File) =>
           this.fileService
             .uploadUrl(fileObj.id)
             .toPromise()
@@ -270,7 +271,7 @@ export class TransactionsOutboxService {
     return null;
   }
 
-  deleteBulkOfflineExpenses(pendingTransactions: Expense[], deleteExpenses: Expense[]) {
+  deleteBulkOfflineExpenses(pendingTransactions: Partial<Expense>[], deleteExpenses: Partial<Expense>[]) {
     const indexes = deleteExpenses.map((offlineExpense) => indexOf(pendingTransactions, offlineExpense));
     // We need to delete last element of this list first
     indexes.sort((a, b) => b - a);

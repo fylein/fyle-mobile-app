@@ -245,6 +245,8 @@ export class AddEditMileagePage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
+  loadDynamicMap$: Observable<boolean>;
+
   private _isExpandedView = false;
 
   constructor(
@@ -324,6 +326,8 @@ export class AddEditMileagePage implements OnInit {
   ngOnInit() {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+
+    this.loadDynamicMap$ = this.launchDarklyService.getVariation('show_dynamic_maps', false);
   }
 
   goToPrev() {
@@ -956,7 +960,7 @@ export class AddEditMileagePage implements OnInit {
     }
 
     // If User has already clicked on See More he need not to click again and again
-    from(this.storageService.get('isExpandedViewMileage')).subscribe((expandedView) => {
+    from(this.storageService.get<boolean>('isExpandedViewMileage')).subscribe((expandedView) => {
       this.isExpandedView = this.mode !== 'add' || expandedView;
     });
 

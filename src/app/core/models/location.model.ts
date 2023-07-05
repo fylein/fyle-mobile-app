@@ -1,3 +1,5 @@
+import { PredictedLocation } from './predicted-location.model';
+
 export interface Location {
   city: string;
   country: string;
@@ -6,4 +8,8 @@ export interface Location {
   latitude: number;
   longitude: number;
   state: string;
+}
+
+export interface PredictedLocations {
+  predictions: PredictedLocation[];
 }

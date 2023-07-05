@@ -14,7 +14,7 @@ export interface AdvanceRequests {
   policy_amount: number;
   policy_flag: boolean;
   policy_state: string;
-  project_id: string;
+  project_id: string | number;
   custom_field_values: CustomField[];
   updated_at: Date;
   source: string;

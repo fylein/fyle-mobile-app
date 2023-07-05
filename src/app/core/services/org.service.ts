@@ -6,6 +6,8 @@ import { AuthService } from './auth.service';
 import { forkJoin, Observable, Subject } from 'rxjs';
 import { Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { CurrencyIp } from '../models/currency-ip.model';
+import { AuthResponse } from '../models/auth-response.model';
 
 const orgsCacheBuster$ = new Subject<void>();
 
@@ -47,10 +49,10 @@ export class OrgService {
   }
 
   suggestOrgCurrency(): Observable<string> {
-    return this.apiService.get('/currency/ip').pipe(
+    return this.apiService.get<CurrencyIp>('/currency/ip').pipe(
       map((data) => {
         data.currency = data.currency || 'USD';
-        return data.currency as string;
+        return data.currency;
       }),
       catchError(() => 'USD')
     );
@@ -79,7 +81,7 @@ export class OrgService {
     globalCacheBusterNotifier.next();
 
     return this.apiService
-      .post(`/orgs/${orgId}/refresh_token`)
+      .post<AuthResponse>(`/orgs/${orgId}/refresh_token`)
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 }

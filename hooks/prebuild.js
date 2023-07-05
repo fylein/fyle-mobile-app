@@ -22,6 +22,14 @@ module.exports = function (ctx) {
     'utf8'
   );
 
+  const appPluginPath = path.resolve(process.cwd(), 'node_modules/@capacitor/app/android/src/main/java/com/capacitorjs/plugins/app/AppPlugin.java');
+  const appPluginContent = fs.readFileSync(appPluginPath).toString();
+  fs.writeFileSync(
+    appPluginPath,
+    appPluginContent.replace('startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)', 'startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)'),
+    'utf8'
+  );
+
   if (!process.env.NATIVE_CONFIG) {
     return;
   }

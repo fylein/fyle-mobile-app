@@ -49,79 +49,13 @@ describe('MyProfilePage', () => {
   let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
 
   beforeEach(waitForAsync(() => {
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou', 'logout']);
-    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get', 'post']);
-    const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
-    const secureStorageServiceSpy = jasmine.createSpyObj('SecureStorageService', ['clearAll']);
-    const storageServiceSpy = jasmine.createSpyObj('StorageService', ['clearAll']);
-    const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
-    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['onSettingsToggle', 'showToastMessage']);
-    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postOrgUser']);
-    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
-    const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    const activatedRouteSpy = {
-      snapshot: {
-        params: {},
-      },
-    };
-
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
       imports: [IonicModule.forRoot()],
-      providers: [
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
-        { provide: UserEventService, useValue: userEventServiceSpy },
-        { provide: SecureStorageService, useValue: secureStorageServiceSpy },
-        { provide: StorageService, useValue: storageServiceSpy },
-        { provide: DeviceService, useValue: deviceServiceSpy },
-        { provide: LoaderService, useValue: loaderServiceSpy },
-        { provide: TokenService, useValue: tokenServiceSpy },
-        { provide: TrackingService, useValue: trackingServiceSpy },
-        { provide: OrgService, useValue: orgServiceSpy },
-        { provide: NetworkService, useValue: networkServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
-        { provide: PopoverController, useValue: popoverControllerSpy },
-        { provide: OrgUserService, useValue: orgUserServiceSpy },
-        { provide: MatSnackBar, useValue: matSnackBarSpy },
-        { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
-        { provide: CurrencyService, useValue: currencyServiceSpy },
-        { provide: ActivatedRoute, useValue: activatedRouteSpy },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
-
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
-    userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
-    secureStorageService = TestBed.inject(SecureStorageService) as jasmine.SpyObj<SecureStorageService>;
-    storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
-    deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
-    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
-    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
-    networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
-    matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
-    snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
 
     fixture = TestBed.createComponent(MyProfilePage);
     component = fixture.componentInstance;
-    spyOn(component, 'setupNetworkWatcher');
-    spyOn(component, 'reset');
-    tokenService.getClusterDomain.and.resolveTo('https://app.fyle.com');
-    authService.getEou.and.resolveTo(apiEouRes);
-    component.ionViewWillEnter();
     fixture.detectChanges();
   }));
 

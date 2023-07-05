@@ -20,6 +20,7 @@ import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
@@ -36,6 +37,7 @@ import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
+import { StatsResponse } from '../models/v2/stats-response.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -97,8 +99,8 @@ export class TransactionService {
   })
   getEtxn(txnId: string): Observable<Expense> {
     // TODO api v2
-    return this.apiService.get('/etxns/' + txnId).pipe(
-      map((transaction) => {
+    return this.apiService.get<Expense>('/etxns/' + txnId).pipe(
+      map((transaction: Expense) => {
         let categoryDisplayName = transaction.tx_org_category;
         if (
           transaction.tx_sub_category &&
@@ -175,7 +177,7 @@ export class TransactionService {
       ),
       map((res) => ({
         ...res,
-        data: res.data.map((datum) => this.dateService.fixDatesV2(datum)),
+        data: res.data.map((datum: Expense) => this.dateService.fixDatesV2(datum)),
       }))
     );
   }
@@ -209,7 +211,7 @@ export class TransactionService {
   getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<any> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiV2Service.get('/expenses/stats', {
+        this.apiV2Service.getStats<StatsResponse>('/expenses/stats', {
           params: {
             aggregates,
             tx_org_user_id: 'eq.' + eou.ou.id,
@@ -225,7 +227,7 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$,
   })
   delete(txnId: string): Observable<Expense> {
-    return this.apiService.delete('/transactions/' + txnId);
+    return this.apiService.delete<Expense>('/transactions/' + txnId);
   }
 
   @CacheBuster({
@@ -237,7 +239,7 @@ export class TransactionService {
     return range(0, count).pipe(
       concatMap((page) => {
         const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
-        return this.apiService.post('/transactions/delete/bulk', {
+        return this.apiService.post<Transaction>('/transactions/delete/bulk', {
           txn_ids: filteredtxnIds,
         });
       }),
@@ -307,7 +309,7 @@ export class TransactionService {
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        return this.apiService.post('/transactions', transactionCopy);
+        return this.apiService.post<Transaction>('/transactions', transactionCopy);
       })
     );
   }
@@ -340,13 +342,13 @@ export class TransactionService {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
-          return this.apiService.get('/etxns/count').pipe(
+          return this.apiService.get<{ count: number }>('/etxns/count').pipe(
             tap((res) => {
               this.storageService.set('etxncCount', res);
             })
           );
         } else {
-          return from(this.storageService.get('etxncCount'));
+          return from(this.storageService.get<{ count: number }>('etxncCount'));
         }
       })
     );
@@ -354,7 +356,7 @@ export class TransactionService {
 
   getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
     return this.apiV2Service
-      .get('/expenses', {
+      .get<Expense, {}>('/expenses', {
         ...params,
       })
       .pipe(map((etxns) => etxns.data));
@@ -370,7 +372,7 @@ export class TransactionService {
 
   getExpenseV2(id: string): Observable<Expense> {
     return this.apiV2Service
-      .get('/expenses', {
+      .get<Expense, {}>('/expenses', {
         params: {
           tx_id: `eq.${id}`,
         },
@@ -425,7 +427,7 @@ export class TransactionService {
   getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
-        const etxn = this.dataTransformService.unflatten(data);
+        const etxn: UnflattenedTransaction = this.dataTransformService.unflatten(data);
         this.dateService.fixDates(etxn.tx);
 
         // Adding a field categoryDisplayName in transaction object to save funciton calls
@@ -453,7 +455,7 @@ export class TransactionService {
   }
 
   getDefaultVehicleType(): Observable<string> {
-    return from(this.storageService.get('vehicle_preference'));
+    return from(this.storageService.get<string>('vehicle_preference'));
   }
 
   uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
@@ -508,17 +510,17 @@ export class TransactionService {
     return vendorDisplayName;
   }
 
-  getReportableExpenses(expenses: Expense[]): Expense[] {
+  getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter(
       (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
     );
   }
 
-  getIsCriticalPolicyViolated(expense: Expense): boolean {
+  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
     return typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001;
   }
 
-  getIsDraft(expense: Expense): boolean {
+  getIsDraft(expense: Partial<Expense>): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
@@ -580,21 +582,21 @@ export class TransactionService {
       .sort((a, b) => (a.amount < b.amount ? 1 : -1));
   }
 
-  excludeCCCExpenses(expenses: Expense[]): Expense[] {
+  excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
   }
 
-  getDeletableTxns(expenses: Expense[]): Expense[] {
+  getDeletableTxns(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
-  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
+  getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
     return `You are about to permanently delete ${
       expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
     }`;
   }
 
-  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number): string {
+  getCCCExpenseMessage(expensesToBeDeleted: Partial<Expense>[], cccExpenses: number): string {
     return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
@@ -603,7 +605,7 @@ export class TransactionService {
   }
 
   getDeleteDialogBody(
-    expensesToBeDeleted: Expense[],
+    expensesToBeDeleted: Partial<Expense>[],
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
@@ -653,7 +655,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/unlink_card_expense', data);
   }
 
-  isMergeAllowed(expenses: Expense[]): boolean {
+  isMergeAllowed(expenses: Partial<Expense>[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
@@ -668,7 +670,7 @@ export class TransactionService {
     }
   }
 
-  generateStateFilters(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateStateFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
 
@@ -681,7 +683,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
@@ -695,7 +697,10 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateReceiptAttachedParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateReceiptAttachedParams(
+    newQueryParams: FilterQueryParams,
+    filters: Partial<ExpenseFilters>
+  ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.receiptsAttached) {
       if (filters.receiptsAttached === 'YES') {
@@ -709,7 +714,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
@@ -724,7 +729,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateDateParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     let newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date) {
       filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
@@ -750,7 +755,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const typeOrFilter = this.generateTypeOrFilter(filters);
 
@@ -763,7 +768,10 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  setSortParams(currentParams: Partial<SortFiltersParams>, filters: Filters): Partial<SortFiltersParams> {
+  setSortParams(
+    currentParams: Partial<SortFiltersParams>,
+    filters: Partial<ExpenseFilters>
+  ): Partial<SortFiltersParams> {
     const currentParamsCopy = cloneDeep(currentParams);
     if (filters.sortParam && filters.sortDir) {
       currentParamsCopy.sortParam = filters.sortParam;
@@ -861,7 +869,7 @@ export class TransactionService {
     }
   }
 
-  private generateStateOrFilter(filters: Filters, newQueryParamsCopy: FilterQueryParams): string[] {
+  private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {
     const stateOrFilter: string[] = [];
     if (filters.state) {
       newQueryParamsCopy.tx_report_id = 'is.null';
@@ -885,7 +893,10 @@ export class TransactionService {
     return stateOrFilter;
   }
 
-  private generateCustomDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  private generateCustomDateParams(
+    newQueryParams: FilterQueryParams,
+    filters: Partial<ExpenseFilters>
+  ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {
       const startDate = filters.customDateStart?.toISOString();
@@ -902,7 +913,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  private generateTypeOrFilter(filters: Filters): string[] {
+  private generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
     const typeOrFilter: string[] = [];
     if (filters.type) {
       if (filters.type.includes('Mileage')) {

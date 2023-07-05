@@ -56,9 +56,9 @@ export class SplitExpenseService {
     return forkJoin(observables);
   }
 
-  getBase64Content(fileObjs: FileObject[]) {
-    const fileObservables = [];
-    const newFileObjs: any[] = fileObjs.map((fileObj) => ({
+  getBase64Content(fileObjs: FileObject[]): Observable<FileObject[]> {
+    const fileObservables: Observable<{ content: string }>[] = [];
+    const newFileObjs: FileObject[] = fileObjs.map((fileObj) => ({
       id: fileObj.id,
       name: fileObj.name,
       content: '',
@@ -69,8 +69,8 @@ export class SplitExpenseService {
     });
 
     return forkJoin(fileObservables).pipe(
-      map((data: any[]) => {
-        newFileObjs.forEach((fileObj, index) => {
+      map((data) => {
+        newFileObjs.forEach((fileObj: FileObject, index) => {
           fileObj.content = data[index].content;
         });
 
@@ -121,7 +121,7 @@ export class SplitExpenseService {
     });
 
     return from(payloadData).pipe(
-      concatMap((payload) => this.postComment(payload)),
+      concatMap((payload: PolicyViolationComment) => this.postComment(payload)),
       toArray()
     );
   }
@@ -211,10 +211,10 @@ export class SplitExpenseService {
 
   runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<PolicyViolationTxn> {
     if (etxns?.length > 0) {
-      const platformExpensesList = [];
+      const platformExpensesList: PublicPolicyExpense[] = [];
       etxns.forEach((etxn) => {
         // transformTo method requires unflattend transaction object
-        const platformExpense = this.dataTransformService.unflatten(etxn).tx;
+        const platformExpense = this.dataTransformService.unflatten<{ tx: PublicPolicyExpense }, Expense>(etxn).tx;
         platformExpense.num_files = fileObjs ? fileObjs.length : 0;
 
         // Since expense has already been created in split expense flow, taking user_amount here.
@@ -228,7 +228,11 @@ export class SplitExpenseService {
     }
   }
 
-  createSplitTxns(sourceTxn, totalSplitAmount, splitExpenses) {
+  createSplitTxns(
+    sourceTxn: Transaction,
+    totalSplitAmount: number,
+    splitExpenses: Transaction[]
+  ): Observable<Transaction[]> {
     let splitGroupAmount = sourceTxn.split_group_user_amount || sourceTxn.amount;
     let splitGroupId = sourceTxn.split_group_id || sourceTxn.id;
 
@@ -255,8 +259,8 @@ export class SplitExpenseService {
   ): Observable<Transaction[]> {
     const txnsObservables = [];
 
-    splitExpenses.forEach((splitExpense, index) => {
-      const transaction = { ...sourceTxn };
+    splitExpenses.forEach((splitExpense: Transaction, index) => {
+      const transaction: Transaction = { ...sourceTxn };
 
       if (sourceTxn.orig_currency) {
         const exchangeRate = sourceTxn.amount / sourceTxn.orig_amount;
@@ -271,7 +275,7 @@ export class SplitExpenseService {
       transaction.split_group_user_amount = sourceTxn.split_group_user_amount || splitGroupAmount;
 
       transaction.id = null;
-      transaction.source = transaction.source || 'WEBAPP';
+      transaction.source = transaction.source || 'MOBILE_SPLIT';
 
       transaction.txn_dt = splitExpense.txn_dt || sourceTxn.txn_dt;
       transaction.txn_dt = new Date(transaction.txn_dt);
@@ -290,12 +294,12 @@ export class SplitExpenseService {
     return forkJoin(txnsObservables);
   }
 
-  private setupSplitExpensePurpose(
+  setupSplitExpensePurpose(
     transaction: Transaction,
     splitGroupId: string,
     index: number,
     totalSplitExpensesCount: number
-  ) {
+  ): void {
     if (transaction.purpose) {
       let splitIndex = 1;
 
@@ -308,11 +312,11 @@ export class SplitExpenseService {
     }
   }
 
-  private setUpSplitExpenseBillable(sourceTxn, splitExpense) {
+  setUpSplitExpenseBillable(sourceTxn: Transaction, splitExpense: Transaction): boolean {
     return splitExpense.project_id ? splitExpense.billable : sourceTxn.billable;
   }
 
-  private setUpSplitExpenseTax(sourceTxn, splitExpense) {
+  setUpSplitExpenseTax(sourceTxn: Transaction, splitExpense: Transaction): number {
     return splitExpense.tax_amount ? splitExpense.tax_amount : sourceTxn.tax_amount;
   }
 }

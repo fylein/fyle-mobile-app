@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { SnackbarProperties } from '../models/snackbar-properties.model';
 
 @Injectable({
   providedIn: 'root',

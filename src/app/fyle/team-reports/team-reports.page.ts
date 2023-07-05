@@ -4,7 +4,7 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, RefresherCustomEvent, RefresherEventDetail } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -23,6 +23,8 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
+import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
+import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
 
 type Filters = Partial<{
   state: string[];
@@ -54,15 +56,7 @@ export class TeamReportsPage implements OnInit {
 
   isLoadingDataInInfiniteScroll: boolean;
 
-  loadData$: BehaviorSubject<
-    Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  >;
+  loadData$: BehaviorSubject<Partial<GetTasksQueryParamsWithFilters>>;
 
   currentPageNumber = 1;
 
@@ -211,12 +205,11 @@ export class TeamReportsPage implements OnInit {
       switchMap((params) => iif(() => params.searchString && params.searchString !== '', of(false), paginatedScroll$))
     );
 
-    this.loadData$.subscribe(noop);
     this.teamReports$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
 
-    this.loadData$.subscribe((params) => {
+    this.loadData$.subscribe(() => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -225,26 +218,11 @@ export class TeamReportsPage implements OnInit {
       });
     });
 
-    if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
-    } else if (this.activatedRoute.snapshot.params.state) {
-      const filters = {
-        rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
-        state: this.activatedRoute.snapshot.params.state.toUpperCase(),
-      };
-
-      this.filters = Object.assign({}, this.filters, filters);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
-    } else {
-      this.clearFilters();
-    }
+    this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
+    this.filterPills = this.generateFilterPills(this.filters);
 
     setTimeout(() => {
       this.isLoading = false;
@@ -262,7 +240,7 @@ export class TeamReportsPage implements OnInit {
     });
   }
 
-  loadData(event) {
+  loadData(event: { target: HTMLIonInfiniteScrollElement }) {
     this.currentPageNumber = this.currentPageNumber + 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
@@ -272,20 +250,20 @@ export class TeamReportsPage implements OnInit {
     }, 1000);
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: { target: HTMLIonRefresherElement }) {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     if (event) {
-      event?.target?.complete();
+      event.target?.complete();
     }
   }
 
-  generateCustomDateParams(newQueryParams: any) {
+  generateCustomDateParams(newQueryParams: Partial<GetTasksQueryParams>) {
     if (this.filters.date === DateFilters.custom) {
-      const startDate = this.filters?.customDateStart?.toISOString();
-      const endDate = this.filters?.customDateEnd?.toISOString();
+      const startDate = this.filters.customDateStart?.toISOString();
+      const endDate = this.filters.customDateEnd?.toISOString();
       if (this.filters.customDateStart && this.filters.customDateEnd) {
         newQueryParams.and = `(rp_submitted_at.gte.${startDate},rp_submitted_at.lt.${endDate})`;
       } else if (this.filters.customDateStart) {
@@ -296,7 +274,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateDateParams(newQueryParams) {
+  generateDateParams(newQueryParams: Partial<GetTasksQueryParams>) {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
@@ -319,7 +297,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateStateFilters(newQueryParams) {
+  generateStateFilters(newQueryParams: Partial<GetTasksQueryParams>) {
     const stateOrFilter = [];
 
     if (this.filters.state) {
@@ -376,7 +354,7 @@ export class TeamReportsPage implements OnInit {
   addNewFiltersToParams() {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: any = {
+    const newQueryParams: Partial<GetTasksQueryParams> = {
       or: [],
     };
 

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
-import { isNumber } from 'lodash';
+import { isNumber, take } from 'lodash';
 import * as dayjs from 'dayjs';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
@@ -20,7 +20,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -28,6 +28,9 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -51,7 +54,7 @@ export class SplitExpensePage implements OnInit {
 
   remainingAmount: number;
 
-  categories$: Observable<any>;
+  categories$: Observable<OrgCategoryListItem[]>;
 
   costCenters$: Observable<any>;
 
@@ -59,7 +62,7 @@ export class SplitExpensePage implements OnInit {
 
   transaction: any;
 
-  fileObjs: any[];
+  fileObjs: FileObject[];
 
   fileUrls: any[];
 
@@ -106,7 +109,9 @@ export class SplitExpensePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
+    private launchDarklyService: LaunchDarklyService,
+    private projectsService: ProjectsService
   ) {}
 
   ngOnInit() {}
@@ -498,13 +503,26 @@ export class SplitExpensePage implements OnInit {
     this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
     this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
+    this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
 
     this.categories$ = this.getActiveCategories().pipe(
-      map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-    );
-    this.getCategoryList();
+      switchMap((activeCategories) =>
+        this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
+          switchMap((showProjectMappedCategories) => {
+            if (showProjectMappedCategories && this.transaction.project_id) {
+              return this.projectsService
+                .getbyId(this.transaction.project_id)
+                .pipe(map((project) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories)));
+            }
 
-    this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
+            return of(activeCategories);
+          }),
+          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+        )
+      )
+    );
+
+    this.getCategoryList();
 
     let parentFieldId: number;
     if (this.splitType === 'projects') {

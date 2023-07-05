@@ -40,7 +40,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     private secureStorageService: SecureStorageService
   ) {}
 
-  secureUrl(url) {
+  secureUrl(url: string) {
     if (url.indexOf('localhost') >= 0 || url.indexOf('.fylehq.com') >= 0 || url.indexOf('.fyle.tech') >= 0) {
       if (url.indexOf('/api/auth/') >= 0 || url.indexOf('routerapi/auth/') >= 0) {
         if (url.indexOf('api/auth/logout') >= 0) {

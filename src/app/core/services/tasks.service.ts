@@ -8,7 +8,7 @@ import { ExtendedReport } from '../models/report.model';
 import { TASKEVENT } from '../models/task-event.enum';
 import { TaskFilters } from '../models/task-filters.model';
 import { TaskIcon } from '../models/task-icon.enum';
-import { DashboardTask } from '../models/task.model';
+import { DashboardTask } from '../models/dashboard-task.model';
 import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
 import { ReportService } from './report.service';
@@ -93,8 +93,8 @@ export class TasksService {
     return this.advancesTaskCount$.asObservable();
   }
 
-  generateSelectedFilters(filters: TaskFilters): SelectedFilters<any>[] {
-    let selectedFilters = [];
+  generateSelectedFilters(filters: TaskFilters): SelectedFilters<string[]>[] {
+    let selectedFilters: SelectedFilters<string[]>[] = [];
 
     if (filters.draftExpenses) {
       selectedFilters.push({
@@ -104,7 +104,7 @@ export class TasksService {
     }
 
     if (filters.unreportedExpenses) {
-      const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
+      const existingFilter: SelectedFilters<string[]> = selectedFilters.find((filter) => filter.name === 'Expenses');
       if (existingFilter) {
         existingFilter.value.push('UNREPORTED');
       } else {
@@ -152,7 +152,7 @@ export class TasksService {
     return selectedFilters;
   }
 
-  convertFilters(selectedFilters: SelectedFilters<any>[]): TaskFilters {
+  convertFilters(selectedFilters: SelectedFilters<string[]>[]): TaskFilters {
     const generatedFilters: TaskFilters = {
       draftExpenses: false,
       draftReports: false,
@@ -251,7 +251,7 @@ export class TasksService {
     };
   }
 
-  generatePotentialDuplicatesFilter(selectedFilters: SelectedFilters<any>[]) {
+  generatePotentialDuplicatesFilter(selectedFilters: SelectedFilters<string[]>[]): SelectedFilters<string[]>[] {
     const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
     if (existingFilter) {
       existingFilter.value.push('DUPLICATE');
@@ -264,7 +264,7 @@ export class TasksService {
     return selectedFilters;
   }
 
-  generateSentBackFilter(selectedFilters: SelectedFilters<any>[]) {
+  generateSentBackFilter(selectedFilters: SelectedFilters<string[]>[]): SelectedFilters<string[]>[] {
     const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
     if (existingFilter) {
       existingFilter.value.push('SENT_BACK');
@@ -440,7 +440,7 @@ export class TasksService {
       reportsStats: this.getSentBackReports(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: StatsResponse; homeCurrency: string }) =>
         this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
@@ -468,7 +468,7 @@ export class TasksService {
       advancesStats: this.getSentBackAdvancesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ advancesStats, homeCurrency }) =>
+      map(({ advancesStats, homeCurrency }: { advancesStats: StatsResponse; homeCurrency: string }) =>
         this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
       )
     );
@@ -497,7 +497,7 @@ export class TasksService {
       reportsStats: this.getTeamReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: StatsResponse; homeCurrency: string }) =>
         this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
@@ -554,7 +554,7 @@ export class TasksService {
     return [task];
   }
 
-  getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[]> {
+  getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
     //Unsubmitted reports task should not be shown if report auto-submission is scheduled
     if (isReportAutoSubmissionScheduled) {
       return of([]);
@@ -564,7 +564,7 @@ export class TasksService {
       reportsStats: this.getUnsubmittedReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: StatsResponse; homeCurrency: string }) =>
         this.mapAggregateToUnsubmittedReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
@@ -579,7 +579,7 @@ export class TasksService {
     });
   }
 
-  getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[]> {
+  getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
     //Unreported expenses task should not be shown if report auto submission is scheduled
     if (isReportAutoSubmissionScheduled) {
       return of([]);
@@ -604,12 +604,21 @@ export class TasksService {
       homeCurrency: this.currencyService.getHomeCurrency(),
       openReports: openReports$,
     }).pipe(
-      map(({ transactionStats, homeCurrency, openReports }) =>
-        this.mapAggregateToUnreportedExpensesTask(
-          this.mapScalarStatsResponse(transactionStats),
+      map(
+        ({
+          transactionStats,
           homeCurrency,
-          openReports
-        )
+          openReports,
+        }: {
+          transactionStats: StatsResponse;
+          homeCurrency: string;
+          openReports: ExtendedReport[];
+        }) =>
+          this.mapAggregateToUnreportedExpensesTask(
+            this.mapScalarStatsResponse(transactionStats),
+            homeCurrency,
+            openReports
+          )
       )
     );
   }
@@ -627,7 +636,7 @@ export class TasksService {
       transactionStats: this.getDraftExpensesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ transactionStats, homeCurrency }) =>
+      map(({ transactionStats, homeCurrency }: { transactionStats: StatsResponse; homeCurrency: string }) =>
         this.mapAggregateToDraftExpensesTask(this.mapScalarStatsResponse(transactionStats), homeCurrency)
       )
     );

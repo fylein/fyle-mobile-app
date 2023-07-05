@@ -31,6 +31,7 @@ import { ReportParams } from '../models/report-params.model';
 import { UnflattenedReport } from '../models/report-unflattened.model';
 import { ReportV1 } from '../models/report-v1.model';
 import { ReportQueryParams } from '../models/report-api-params.model';
+import { PdfExport } from '../models/pdf-exports.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -104,7 +105,7 @@ export class ReportService {
     });
 
     return this.apiService
-      .get('/erpts', data)
+      .get<UnflattenedReport[]>('/erpts', data)
       .pipe(map((erptcs) => erptcs.map((erptc) => this.dataTransformService.unflatten(erptc))));
   }
 
@@ -114,7 +115,7 @@ export class ReportService {
   getERpt(rptId: string) {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map((data) => {
-        const erpt = this.dataTransformService.unflatten(data);
+        const erpt: UnflattenedReport = this.dataTransformService.unflatten(data);
         this.dateService.fixDates(erpt.rp);
         if (erpt && erpt.rp && erpt.rp.created_at) {
           erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
@@ -153,9 +154,9 @@ export class ReportService {
   })
   create(report: ReportPurpose, txnIds: string[]) {
     return this.createDraft(report).pipe(
-      switchMap((newReport) =>
+      switchMap((newReport: ReportV1) =>
         this.apiService
-          .post('/reports/' + newReport.id + '/txns', { ids: txnIds })
+          .post<ReportV1>('/reports/' + newReport.id + '/txns', { ids: txnIds })
           .pipe(switchMap((res) => this.submit(newReport.id).pipe(map(() => newReport))))
       )
     );
@@ -228,9 +229,9 @@ export class ReportService {
     cacheBusterNotifier: reportsCacheBuster$,
   })
   updateReportDetails(erpt: ExtendedReport): Observable<ReportV1> {
-    const reportData = this.dataTransformService.unflatten(erpt);
+    const reportData = this.dataTransformService.unflatten<UnflattenedReport, ExtendedReport>(erpt);
     return this.apiService
-      .post('/reports', reportData.rp)
+      .post<ReportV1>('/reports', reportData.rp)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
   }
 
@@ -316,15 +317,15 @@ export class ReportService {
 
   getPaginatedERptcCount(params: ReportParams): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
+      switchMap((isOnline: boolean) => {
         if (isOnline) {
-          return this.apiService.get('/erpts/count', { params }).pipe(
+          return this.apiService.get<{ count: number }>('/erpts/count', { params }).pipe(
             tap((res) => {
               this.storageService.set('erpts-count' + JSON.stringify(params), res);
             })
           );
         } else {
-          return from(this.storageService.get('erpts-count' + JSON.stringify(params)));
+          return from(this.storageService.get<{ count: number }>('erpts-count' + JSON.stringify(params)));
         }
       })
     );
@@ -439,8 +440,8 @@ export class ReportService {
     return this.apiService.get('/reports/' + rptId + '/actions');
   }
 
-  getExports(rptId: string) {
-    return this.apiService.get('/reports/' + rptId + '/exports');
+  getExports(rptId: string): Observable<{ results: PdfExport[] }> {
+    return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
   }
 
   getApproversByReportId(rptId: string): Observable<Approver[]> {
@@ -518,7 +519,7 @@ export class ReportService {
   }
 
   getReportPurpose(reportPurpose: { ids: string[] }): Observable<string> {
-    return this.apiService.post('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
+    return this.apiService.post<ReportV1>('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
 
   getApproversInBulk(rptIds: string[]) {
@@ -611,7 +612,7 @@ export class ReportService {
           },
         })
       ),
-      map((rawStatsResponse) => new StatsResponse(rawStatsResponse))
+      map((rawStatsResponse: StatsResponse) => new StatsResponse(rawStatsResponse))
     );
   }
 }
