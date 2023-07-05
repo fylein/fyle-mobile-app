@@ -925,3 +925,38 @@ export const expectedOrgCategoryByName: OrgCategory = {
   sub_category: 'Business',
   updated_at: new Date('2022-07-01T05:51:31.800Z'),
 };
+
+export const filteredCategoriesData = [
+  {
+    value: orgCategoryData,
+  },
+  {
+    value: transformedOrgCategories[0],
+  },
+];
+
+export const expectedAutoFillCategory = {
+  code: null,
+  created_at: new Date('2018-01-31T23:50:27.235Z'),
+  displayName: 'Food',
+  enabled: true,
+  fyle_category: 'Food',
+  id: 16566,
+  name: 'Food',
+  org_id: 'orNVthTo2Zyo',
+  sub_category: 'Food',
+  updated_at: new Date('2022-05-05T17:45:42.092Z'),
+};
+
+export const expectedAutoFillCategory2 = {
+  code: null,
+  created_at: new Date('2020-03-04T09:51:01.619Z'),
+  displayName: 'Office supplies',
+  enabled: true,
+  fyle_category: 'Mail',
+  id: 89469,
+  name: 'Office Supplies',
+  org_id: 'orNVthTo2Zyo',
+  sub_category: 'Office supplies',
+  updated_at: new Date('2022-11-23T13:11:51.771Z'),
+};

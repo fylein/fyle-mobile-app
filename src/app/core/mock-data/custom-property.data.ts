@@ -53,3 +53,11 @@ export const dependentCustomProperties: CustomProperty<string>[] = [
     value: null,
   },
 ];
+
+export const dependentCustomProperties2: CustomProperty<string | Date>[] = [
+  ...dependentCustomProperties,
+  {
+    name: 'date property',
+    value: new Date(),
+  },
+];

@@ -16,6 +16,7 @@ import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
 import { instaFyleData1, instaFyleData2, parsedReceiptData1 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
+import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
@@ -63,6 +64,7 @@ import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { recentUsedCategoriesRes } from '../../core/mock-data/org-category-list-item.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
@@ -788,6 +790,38 @@ export function TestCases2(getTestBed) {
       });
     });
 
+    describe('getDeleteReportParams():', () => {
+      it('should return modal params and method to remove expense from report', (done) => {
+        reportService.removeTransaction.and.returnValue(of(null));
+
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            true,
+            'rpId'
+          )
+          .componentProps.deleteMethod()
+          .subscribe(() => {
+            expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpId', activatedRoute.snapshot.params.id);
+            done();
+          });
+      });
+
+      it('should  return modal params and method to delete expense', (done) => {
+        transactionService.delete.and.returnValue(of(expenseData1));
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            false
+          )
+          .componentProps.deleteMethod()
+          .subscribe(() => {
+            expect(transactionService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+            done();
+          });
+      });
+    });
+
     describe('deleteExpense():', () => {
       it('should delete expense and navigate back to report if deleting directly from report', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
@@ -852,6 +886,51 @@ export function TestCases2(getTestBed) {
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+        );
+      }));
+
+      it('should go to next expense if delete successful', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        spyOn(component, 'goToTransaction');
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+        component.activeIndex = 0;
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = true;
+        fixture.detectChanges();
+
+        const header = 'Delete Expense';
+        const body = 'Are you sure you want to delete this expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(500);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          undefined,
+          undefined
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+        );
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
+          component.reviewList[+component.activeIndex]
+        );
+        expect(component.goToTransaction).toHaveBeenCalledOnceWith(
+          unflattenedTxnData,
+          component.reviewList,
+          +component.activeIndex
         );
       }));
     });

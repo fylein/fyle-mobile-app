@@ -2,13 +2,15 @@ import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DomSanitizer } from '@angular/platform-browser';
+import { By, DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
+import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
+import { defaultTxnFieldValuesData } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -17,9 +19,15 @@ import {
   getMarkDismissModalParamsData1,
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
+import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { txnList } from 'src/app/core/mock-data/transaction.data';
 import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
-import { unflattenExp1, unflattenExp2, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
+import {
+  unflattenExp1,
+  unflattenExp2,
+  unflattenedTxn,
+  unflattenedExpData,
+} from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -53,10 +61,17 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  multiplePaymentModesData,
+  orgSettingsData,
+  unflattenedAccount1Data,
+} from 'src/app/core/test-data/accounts.service.spec.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
+import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
+import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { EventEmitter } from '@angular/core';
 
 export function TestCases1(getTestBed) {
@@ -303,14 +318,80 @@ export function TestCases1(getTestBed) {
         });
         expect(component.goBack).toHaveBeenCalledTimes(1);
       }));
+
+      it('should navigate back to previous page if form is not valid', fakeAsync(() => {
+        component.presetCategoryId = null;
+        component.presetProjectId = null;
+        component.presetCostCenterId = null;
+        component.presetCurrency = null;
+        activatedRoute.snapshot.params.dataUrl = null;
+        Object.defineProperty(component.fg, 'touched', {
+          get: () => false,
+        });
+
+        fixture.detectChanges();
+
+        component.showClosePopup();
+        tick(500);
+
+        expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Receipt' });
+        expect(navController.back).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should navigate back to my expenses if the form in not valid', fakeAsync(() => {
+        component.presetCategoryId = null;
+        component.presetProjectId = null;
+        component.presetCostCenterId = null;
+        component.presetCurrency = null;
+        component.navigateBack = false;
+        activatedRoute.snapshot.params.dataUrl = null;
+        spyOn(component, 'goBack');
+        Object.defineProperty(component.fg, 'touched', {
+          get: () => false,
+        });
+
+        fixture.detectChanges();
+
+        component.showClosePopup();
+        tick(500);
+
+        expect(component.goBack).toHaveBeenCalledTimes(1);
+      }));
     });
 
     describe('merchantValidator():', () => {
-      it('should check field value and return null if the merchant name less 250 characters', () => {
+      it('should check field value and return null if name less 250 characters', () => {
         component.fg.controls.vendor_id.setValue({
           display_name: 'name',
         });
-        const result = component.merchantValidator(component.fg.controls.vendor_id.value);
+        const result = component.merchantValidator(component.fg.controls.vendor_id);
+        expect(result).toBeNull();
+      });
+
+      it('should return error message if value greater than 250 characters', () => {
+        component.fg.controls.vendor_id.setValue({
+          display_name: `ipb91YrRQA9R5XwvntwdBaDwTtd3WooG
+          6aCbmHGgPjBwwGeJxtnZyLYoM1DqKxKY
+          Q2uJzbFIxPlBEzmsisyF1H2KHtmU6K0W
+          EJoXAkQVyAJJCTsgA57BbB0NOoQ4DzG3
+          h6BloyPTkkrevuTmGh75eTZ5egsAGtdS
+          HuZVfVxjsH4ZRloC72S5KGIbJcwDh8fF
+          7JgOeoqVd4HT2ykWcUp2Tavk0GXtteK6
+          z2oijtR8EOSKi3CwGKvktaQhajBKef8u
+          40aK3qQj1hH70ZnGLX4HhXS1e3LeNmxw
+          MNnf6RVZDgZnLcAFyGwhhUk52VgMt4YP`,
+        });
+
+        const result = component.merchantValidator(component.fg.controls.vendor_id);
+        expect(result).toEqual({ merchantNameSize: 'Length is greater than 250' });
+      });
+
+      it('should return null if invalid value is set as id', () => {
+        component.fg.controls.vendor_id.setValue({
+          display_name: null,
+        });
+
+        const result = component.merchantValidator(component.fg.controls.vendor_id);
         expect(result).toBeNull();
       });
     });
@@ -370,6 +451,37 @@ export function TestCases1(getTestBed) {
       });
     });
 
+    describe('setUpTaxCalculations(): ', () => {
+      it('should setup tax amount in the form if currency changes', fakeAsync(() => {
+        currencyService.getAmountWithCurrencyFraction.and.returnValue(82.5);
+        component.setUpTaxCalculations();
+        tick(500);
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+          currency: 'USD',
+        });
+
+        component.fg.controls.tax_group.setValue({
+          percentage: 0.05,
+        });
+
+        expect(component.fg.controls.tax_amount.value).toEqual(82.5);
+        expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledOnceWith(4.761904761904759, 'USD');
+      }));
+
+      it('should set tax amount to null if tax group not specified', fakeAsync(() => {
+        component.setUpTaxCalculations();
+        tick(500);
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+          currency: 'USD',
+        });
+
+        component.fg.controls.tax_group.setValue(null);
+        expect(component.fg.controls.tax_amount.value).toBeNull();
+      }));
+    });
+
     describe('unmatchExpense():', () => {
       it('should show popup and selected txns if primary action is selected', fakeAsync(() => {
         popupService.showPopup.and.resolveTo('primary');
@@ -387,6 +499,7 @@ export function TestCases1(getTestBed) {
         expect(component.showSelectedTransaction).toBeFalse();
         expect(component.isDraftExpense).toBeTrue();
         expect(component.selectedCCCTransaction).toBeNull();
+        expect(component.canChangeMatchingCCCTransaction).toBeTrue();
       }));
 
       it('should show popup and other settings if it is a CCC txn and draft is enabled', fakeAsync(() => {
@@ -427,6 +540,59 @@ export function TestCases1(getTestBed) {
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();
         done();
+      });
+    });
+
+    describe('openSplitExpenseModal():', () => {
+      it('should open split expense modal by navigating to split expense', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        component.txnFields$ = of(defaultTxnFieldValuesData);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'split_expense',
+          {
+            splitType: 'projects',
+            txnFields: JSON.stringify(defaultTxnFieldValuesData),
+            txn: JSON.stringify(unflattenedExpData.tx),
+            currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
+            fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
+            selectedCCCTransaction: null,
+            selectedReportId: null,
+          },
+        ]);
+      });
+
+      it('should navigate to split expense with selected CCC txns and report ID', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        component.txnFields$ = of(defaultTxnFieldValuesData);
+        component.selectedCCCTransaction = 'txID';
+        component.fg.controls.report.setValue(expectedErpt[0]);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
+        fixture.detectChanges();
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'split_expense',
+          {
+            splitType: 'projects',
+            txnFields: JSON.stringify(defaultTxnFieldValuesData),
+            txn: JSON.stringify(unflattenedExpData.tx),
+            currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
+            fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
+            selectedCCCTransaction: JSON.stringify(component.selectedCCCTransaction),
+            selectedReportId: JSON.stringify(component.fg.value.report.rp.id),
+          },
+        ]);
       });
     });
 
@@ -730,46 +896,148 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    it('getActionSheetOptions(): should get action sheet options', (done) => {
-      orgSettingsService.get.and.returnValue(
-        of({
-          ...orgSettingsData,
-          expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
-        })
-      );
-      component.costCenters$ = of(costCenterApiRes1);
-      projectsService.getAllActive.and.returnValue(of(projectsV1Data));
-      component.filteredCategories$ = of(transformedOrgCategories);
-      component.txnFields$ = of({ project_id: 257528 });
-      component.isCccExpense = true;
-      component.canDismissCCCE = true;
-      component.isCorporateCreditCardEnabled = true;
-      component.canRemoveCardExpense = true;
-      component.isExpenseMatchedForDebitCCCE = true;
-      spyOn(component, 'splitExpCategoryHandler');
-      spyOn(component, 'splitExpProjectHandler');
-      spyOn(component, 'splitExpCostCenterHandler');
-      spyOn(component, 'markPersonalHandler');
-      spyOn(component, 'markDismissHandler');
-      spyOn(component, 'removeCCCHandler');
-      launchDarklyService.getVariation.and.returnValue(of(true));
-      fixture.detectChanges();
-
-      component.getActionSheetOptions().subscribe((res) => {
-        expect(res.length).toEqual(6);
-        expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
-        expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
-        expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
-        expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
-        expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
-        expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
-        expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
-          'show_project_mapped_categories_in_split_expense',
-          false
+    describe('getActionSheetOptions():', () => {
+      it('should get all action sheet options', (done) => {
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsData,
+            expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
+          })
         );
-        done();
+        component.costCenters$ = of(costCenterApiRes1);
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of({ project_id: 257528 });
+        component.isCccExpense = true;
+        component.canDismissCCCE = true;
+        component.isCorporateCreditCardEnabled = true;
+        component.canRemoveCardExpense = true;
+        component.isExpenseMatchedForDebitCCCE = true;
+        spyOn(component, 'splitExpCategoryHandler');
+        spyOn(component, 'splitExpProjectHandler');
+        spyOn(component, 'splitExpCostCenterHandler');
+        spyOn(component, 'markPersonalHandler');
+        spyOn(component, 'markDismissHandler');
+        spyOn(component, 'removeCCCHandler');
+        launchDarklyService.getVariation.and.returnValue(of(true));
+        fixture.detectChanges();
+
+        component.getActionSheetOptions().subscribe((res) => {
+          expect(res.length).toEqual(6);
+          expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
+          expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
+          expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
+          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+          expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
+          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+            'show_project_mapped_categories_in_split_expense',
+            false
+          );
+          done();
+        });
+      });
+
+      it('should get action sheet options when split expense is not allowed', (done) => {
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsData,
+            expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
+          })
+        );
+        component.costCenters$ = of(costCenterApiRes1);
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of({ project_id: 257528 });
+        component.isCccExpense = true;
+        component.canDismissCCCE = true;
+        component.isCorporateCreditCardEnabled = true;
+        component.canRemoveCardExpense = true;
+        component.isExpenseMatchedForDebitCCCE = true;
+        launchDarklyService.getVariation.and.returnValue(of(true));
+        spyOn(component, 'markPersonalHandler');
+        spyOn(component, 'markDismissHandler');
+        spyOn(component, 'removeCCCHandler');
+
+        component.getActionSheetOptions().subscribe((res) => {
+          expect(res.length).toEqual(3);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+            'show_project_mapped_categories_in_split_expense',
+            false
+          );
+          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+          expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
+          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get actions sheet options if ccc expense is not allowed', (done) => {
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsData,
+            expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
+          })
+        );
+        component.costCenters$ = of(costCenterApiRes1);
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of({ project_id: 257528 });
+        component.isCccExpense = false;
+        component.canDismissCCCE = true;
+        component.isCorporateCreditCardEnabled = true;
+        component.canRemoveCardExpense = true;
+        component.isExpenseMatchedForDebitCCCE = true;
+        launchDarklyService.getVariation.and.returnValue(of(true));
+        spyOn(component, 'removeCCCHandler');
+
+        component.getActionSheetOptions().subscribe((res) => {
+          expect(res.length).toEqual(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+            'show_project_mapped_categories_in_split_expense',
+            false
+          );
+          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get action sheet options when ccc expenses are allowed but they cannot be dismissed or removed', (done) => {
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsData,
+            expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
+          })
+        );
+        component.costCenters$ = of(costCenterApiRes1);
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of({ project_id: 257528 });
+        component.isCccExpense = true;
+        component.canDismissCCCE = false;
+        component.isCorporateCreditCardEnabled = true;
+        component.canRemoveCardExpense = false;
+        component.isExpenseMatchedForDebitCCCE = true;
+        launchDarklyService.getVariation.and.returnValue(of(true));
+        spyOn(component, 'markPersonalHandler');
+
+        component.getActionSheetOptions().subscribe((res) => {
+          expect(res.length).toEqual(1);
+          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+            'show_project_mapped_categories_in_split_expense',
+            false
+          );
+          done();
+        });
       });
     });
 
@@ -833,6 +1101,15 @@ export function TestCases1(getTestBed) {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         done();
       });
+    });
+
+    it('showFormValidationErrors(): should show form validation errors', () => {
+      spyOn(component.fg, 'markAllAsTouched');
+      component.formContainer = fixture.debugElement.query(By.css('.add-edit-expense--form'));
+      fixture.detectChanges();
+
+      component.showFormValidationErrors();
+      expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
     });
   });
 }

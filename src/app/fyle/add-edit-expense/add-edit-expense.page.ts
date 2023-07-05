@@ -487,14 +487,14 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  merchantValidator(c: FormControl): ValidationErrors {
+  merchantValidator(c: AbstractControl): ValidationErrors {
     if (c.value && c.value.display_name) {
       return c.value.display_name.length > 250 ? { merchantNameSize: 'Length is greater than 250' } : null;
     }
     return null;
   }
 
-  currencyObjValidator(c: FormControl): ValidationErrors {
+  currencyObjValidator(c: AbstractControl): ValidationErrors {
     if (c.value && ((c.value.amount && c.value.currency) || (c.value.orig_amount && c.value.orig_currency))) {
       return null;
     }
@@ -3972,7 +3972,7 @@ export class AddEditExpensePage implements OnInit {
 
   getDeleteReportParams(
     config: { header: string; body: string; ctaText: string; ctaLoadingText: string },
-    removeExpenseFromReport: boolean,
+    removeExpenseFromReport: boolean = false,
     reportId?: string
   ) {
     return {
