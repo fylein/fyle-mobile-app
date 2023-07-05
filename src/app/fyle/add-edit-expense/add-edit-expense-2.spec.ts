@@ -1037,6 +1037,9 @@ export function TestCases2(getTestBed) {
     });
 
     it('uploadFileAndPostToFileService(): should upload to file service', (done) => {
+      transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
+      spyOn(component, 'postToFileService').and.returnValue(of(fileObjectData));
+
       component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
         expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
