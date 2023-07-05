@@ -896,46 +896,148 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    it('getActionSheetOptions(): should get action sheet options', (done) => {
-      orgSettingsService.get.and.returnValue(
-        of({
-          ...orgSettingsData,
-          expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
-        })
-      );
-      component.costCenters$ = of(costCenterApiRes1);
-      projectsService.getAllActive.and.returnValue(of(projectsV1Data));
-      component.filteredCategories$ = of(transformedOrgCategories);
-      component.txnFields$ = of({ project_id: 257528 });
-      component.isCccExpense = true;
-      component.canDismissCCCE = true;
-      component.isCorporateCreditCardEnabled = true;
-      component.canRemoveCardExpense = true;
-      component.isExpenseMatchedForDebitCCCE = true;
-      spyOn(component, 'splitExpCategoryHandler');
-      spyOn(component, 'splitExpProjectHandler');
-      spyOn(component, 'splitExpCostCenterHandler');
-      spyOn(component, 'markPersonalHandler');
-      spyOn(component, 'markDismissHandler');
-      spyOn(component, 'removeCCCHandler');
-      launchDarklyService.getVariation.and.returnValue(of(true));
-      fixture.detectChanges();
-
-      component.getActionSheetOptions().subscribe((res) => {
-        expect(res.length).toEqual(6);
-        expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
-        expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
-        expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
-        expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
-        expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
-        expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
-        expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
-          'show_project_mapped_categories_in_split_expense',
-          false
+    describe('getActionSheetOptions():', () => {
+      it('should get all action sheet options', (done) => {
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsData,
+            expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
+          })
         );
-        done();
+        component.costCenters$ = of(costCenterApiRes1);
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of({ project_id: 257528 });
+        component.isCccExpense = true;
+        component.canDismissCCCE = true;
+        component.isCorporateCreditCardEnabled = true;
+        component.canRemoveCardExpense = true;
+        component.isExpenseMatchedForDebitCCCE = true;
+        spyOn(component, 'splitExpCategoryHandler');
+        spyOn(component, 'splitExpProjectHandler');
+        spyOn(component, 'splitExpCostCenterHandler');
+        spyOn(component, 'markPersonalHandler');
+        spyOn(component, 'markDismissHandler');
+        spyOn(component, 'removeCCCHandler');
+        launchDarklyService.getVariation.and.returnValue(of(true));
+        fixture.detectChanges();
+
+        component.getActionSheetOptions().subscribe((res) => {
+          expect(res.length).toEqual(6);
+          expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
+          expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
+          expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
+          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+          expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
+          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+            'show_project_mapped_categories_in_split_expense',
+            false
+          );
+          done();
+        });
+      });
+
+      it('should get action sheet options when split expense is not allowed', (done) => {
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsData,
+            expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
+          })
+        );
+        component.costCenters$ = of(costCenterApiRes1);
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of({ project_id: 257528 });
+        component.isCccExpense = true;
+        component.canDismissCCCE = true;
+        component.isCorporateCreditCardEnabled = true;
+        component.canRemoveCardExpense = true;
+        component.isExpenseMatchedForDebitCCCE = true;
+        launchDarklyService.getVariation.and.returnValue(of(true));
+        spyOn(component, 'markPersonalHandler');
+        spyOn(component, 'markDismissHandler');
+        spyOn(component, 'removeCCCHandler');
+
+        component.getActionSheetOptions().subscribe((res) => {
+          expect(res.length).toEqual(3);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+            'show_project_mapped_categories_in_split_expense',
+            false
+          );
+          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+          expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
+          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get actions sheet options if ccc expense is not allowed', (done) => {
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsData,
+            expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
+          })
+        );
+        component.costCenters$ = of(costCenterApiRes1);
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of({ project_id: 257528 });
+        component.isCccExpense = false;
+        component.canDismissCCCE = true;
+        component.isCorporateCreditCardEnabled = true;
+        component.canRemoveCardExpense = true;
+        component.isExpenseMatchedForDebitCCCE = true;
+        launchDarklyService.getVariation.and.returnValue(of(true));
+        spyOn(component, 'removeCCCHandler');
+
+        component.getActionSheetOptions().subscribe((res) => {
+          expect(res.length).toEqual(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+            'show_project_mapped_categories_in_split_expense',
+            false
+          );
+          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get action sheet options when ccc expenses are allowed but they cannot be dismissed or removed', (done) => {
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsData,
+            expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
+          })
+        );
+        component.costCenters$ = of(costCenterApiRes1);
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of({ project_id: 257528 });
+        component.isCccExpense = true;
+        component.canDismissCCCE = false;
+        component.isCorporateCreditCardEnabled = true;
+        component.canRemoveCardExpense = false;
+        component.isExpenseMatchedForDebitCCCE = true;
+        launchDarklyService.getVariation.and.returnValue(of(true));
+        spyOn(component, 'markPersonalHandler');
+
+        component.getActionSheetOptions().subscribe((res) => {
+          expect(res.length).toEqual(1);
+          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+            'show_project_mapped_categories_in_split_expense',
+            false
+          );
+          done();
+        });
       });
     });
 
