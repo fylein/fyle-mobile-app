@@ -28,9 +28,11 @@ import {
 import {
   expectedUnflattendedTxnData2,
   expectedUnflattendedTxnData3,
+  expectedUnflattendedTxnData4,
   unflattenedTxnData,
   unflattenedTxnData2,
   unflattenedTxnDataWithoutCategoryData,
+  unflattenedTxnDataWithoutCategoryData2,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -66,8 +68,9 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgSettingsData, orgSettingsWoAutoFill } from 'src/app/core/test-data/accounts.service.spec.data';
 import { recentUsedCategoriesRes } from '../../core/mock-data/org-category-list-item.data';
+import { L } from '@angular/cdk/keycodes';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -255,6 +258,7 @@ export function TestCases3(getTestBed) {
         component.inpageExtractedData = null;
         dateService.isSameDate.and.returnValue(true);
         component.fg.controls.dateOfSpend.setValue(new Date('2023-02-24T12:03:57.680Z'));
+        component.fg.controls.vendor_id.setValue('vendor_name');
         component.fg.controls.currencyObj.setValue({
           amount: null,
           currency: 'USD',
@@ -275,6 +279,8 @@ export function TestCases3(getTestBed) {
           currency: 'USD',
         });
         expect(component.fg.controls.category.value).toEqual(null);
+        expect(component.fg.controls.dateOfSpend.value).toEqual(new Date('2023-02-24T12:03:57.680Z'));
+        expect(component.fg.controls.vendor_id.value).toEqual('vendor_name');
       });
 
       it('should parse an image for expense information given there is pre-existing data', () => {
@@ -285,12 +291,12 @@ export function TestCases3(getTestBed) {
         component.inpageExtractedData = {
           amount: 100,
         };
-        dateService.isSameDate.and.returnValue(true);
         component.fg.controls.dateOfSpend.setValue(new Date('2023-02-24T12:03:57.680Z'));
         component.fg.controls.currencyObj.setValue({
           amount: null,
           currency: 'USD',
         });
+        component.fg.controls.vendor_id.setValue('vendor_name');
 
         fixture.detectChanges();
 
@@ -305,7 +311,9 @@ export function TestCases3(getTestBed) {
           amount: null,
           currency: 'USD',
         });
+        expect(component.fg.controls.dateOfSpend.value).toEqual(new Date('2023-02-24T12:03:57.680Z'));
         expect(component.fg.controls.category.value).toEqual(null);
+        expect(component.fg.controls.vendor_id.value).toEqual('vendor_name');
       });
     });
 
@@ -321,6 +329,8 @@ export function TestCases3(getTestBed) {
           });
 
           expect(result).toEqual(expectedAutoFillCategory);
+          expect(component.recentCategories).toEqual(recentUsedCategoriesRes);
+          expect(component.presetCategoryId).toBeUndefined();
         }
       });
 
@@ -334,6 +344,8 @@ export function TestCases3(getTestBed) {
         });
 
         expect(result).toEqual(expectedAutoFillCategory2);
+        expect(component.recentCategories).toEqual(recentUsedCategoriesRes);
+        expect(component.presetCategoryId).toEqual(expectedAutoFillCategory2.id);
       });
     });
 
@@ -384,6 +396,7 @@ export function TestCases3(getTestBed) {
           amount: 100,
           currency: 'USD',
         });
+        fixture.detectChanges();
 
         component.generateEtxnFromFg(of(unflattenedTxnData2), of(customFieldData2), true).subscribe((res) => {
           expect(res).toEqual(expectedUnflattendedTxnData3);
@@ -439,6 +452,54 @@ export function TestCases3(getTestBed) {
             recentValue: recentlyUsedRes,
             recentCategories: recentUsedCategoriesRes,
             etxn: unflattenedTxnDataWithoutCategoryData,
+            category: null,
+          });
+          done();
+        });
+      });
+
+      it('should return autofill category if fyle category is unspecified', (done) => {
+        component.etxn$ = of(unflattenedTxnDataWithoutCategoryData2);
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        spyOn(component, 'getAutofillCategory').and.returnValue(expectedAutoFillCategory);
+        fixture.detectChanges();
+
+        component.getCategoryOnAdd(undefined).subscribe((res) => {
+          expect(res).toEqual(expectedAutoFillCategory);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+            isAutofillsEnabled: true,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedTxnDataWithoutCategoryData2,
+            category: null,
+          });
+          done();
+        });
+      });
+
+      it('should return autofill category if autofill disabled', (done) => {
+        component.etxn$ = of(unflattenedTxnDataWithoutCategoryData2);
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsWoAutoFill));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        spyOn(component, 'getAutofillCategory').and.returnValue(expectedAutoFillCategory);
+        fixture.detectChanges();
+
+        component.getCategoryOnAdd(undefined).subscribe((res) => {
+          expect(res).toEqual(expectedAutoFillCategory);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+            isAutofillsEnabled: false,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedTxnDataWithoutCategoryData2,
             category: null,
           });
           done();

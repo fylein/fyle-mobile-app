@@ -2934,3 +2934,11 @@ export const orgSettingsDataWithoutAdvPro = {
     enable_individual_projects: true,
   },
 };
+
+export const orgSettingsWoAutoFill: OrgSettings = {
+  ...orgSettingsData,
+  org_expense_form_autofills: {
+    enabled: false,
+    allowed: false,
+  },
+};
