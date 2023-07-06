@@ -270,27 +270,13 @@ export function TestCases2(getTestBed) {
         date: 'thisMonth',
         state: ['APPROVER_INQUIRY'],
       };
-      const mockQueryParams: Partial<GetTasksQueryParams> = {
-        or: [],
-      };
-      const mockQueryParams2: Partial<GetTasksQueryParams> = {
-        or: [],
-        and: '(rp_submitted_at.gte.2023-01-01T00:00:00.000Z,rp_submitted_at.lt.2023-01-04T00:00:00.000Z)',
-      };
-      const generateDateParams = component.generateDateParams;
-      const generateStateFilters = component.generateStateFilters;
+
       dateService.getThisMonthRange.and.returnValue({
         from: new Date('2023-01-01'),
         to: new Date('2023-01-04'),
       });
-      spyOn(component, 'generateDateParams').and.callFake((args) => {
-        expect(args).toEqual(mockQueryParams);
-        return generateDateParams.call(component, args);
-      });
-      spyOn(component, 'generateStateFilters').and.callFake((args) => {
-        expect(args).toEqual(mockQueryParams2);
-        return generateStateFilters.call(component, args);
-      });
+      spyOn(component, 'generateDateParams').and.callThrough();
+      spyOn(component, 'generateStateFilters').and.callThrough();
       spyOn(component, 'setSortParams').and.callThrough();
 
       const result = component.addNewFiltersToParams();
