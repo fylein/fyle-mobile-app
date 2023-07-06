@@ -5,7 +5,14 @@ import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule, ModalController, PopoverController, NavController, ActionSheetController } from '@ionic/angular';
+import {
+  IonicModule,
+  ModalController,
+  PopoverController,
+  NavController,
+  ActionSheetController,
+  Platform,
+} from '@ionic/angular';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -44,6 +51,8 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { TestCases1 } from './add-edit-expense-1.spec';
 import { TestCases2 } from './add-edit-expense-2.spec';
 import { TestCases3 } from './add-edit-expense-3.spec';
+import { TestCases4 } from './add-edit-expense-4.spec';
+import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -51,7 +60,7 @@ export function setFormValid(component) {
   });
 }
 
-describe('AddEditExpensePage', () => {
+fdescribe('AddEditExpensePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getEMyAccounts',
@@ -190,9 +199,10 @@ describe('AddEditExpensePage', () => {
     ]);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    const platformSpy = jasmine.createSpyObj('Platform', ['is']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditExpensePage, MaskNumber],
+      declarations: [AddEditExpensePage, MaskNumber, FySelectComponent],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
       providers: [
         FormBuilder,
@@ -372,6 +382,10 @@ describe('AddEditExpensePage', () => {
           provide: LaunchDarklyService,
           useValue: launchDarklyServiceSpy,
         },
+        {
+          provide: Platform,
+          useValue: platformSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     });
@@ -382,4 +396,5 @@ describe('AddEditExpensePage', () => {
   TestCases1(getTestBed);
   TestCases2(getTestBed);
   TestCases3(getTestBed);
+  TestCases4(getTestBed);
 });
