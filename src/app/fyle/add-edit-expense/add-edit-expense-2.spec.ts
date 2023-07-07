@@ -10,7 +10,13 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
-import { fileObjectData, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
+import {
+  fileObject5,
+  fileObject7,
+  fileObjectData,
+  fileObjectData1,
+  fileObjectData4,
+} from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
@@ -1048,11 +1054,15 @@ export function TestCases2(getTestBed) {
     });
 
     it('uploadMultipleFiles(): should upload multiple files', (done) => {
-      spyOn(component, 'uploadFileAndPostToFileService').and.returnValue(of(fileObjectData1));
+      const uploadSpy = spyOn(component, 'uploadFileAndPostToFileService');
+      uploadSpy.withArgs(fileObject7[0], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[0]));
+      uploadSpy.withArgs(fileObject7[1], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[1]));
 
-      component.uploadMultipleFiles(fileObjectData1, 'tx5fBcPBAxLv').subscribe((res) => {
-        expect(res).toEqual([fileObjectData1]);
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledOnceWith(fileObjectData1[0], 'tx5fBcPBAxLv');
+      component.uploadMultipleFiles(fileObject7, 'tx5fBcPBAxLv').subscribe((res) => {
+        expect(res).toEqual(fileObject7);
+        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledTimes(2);
+        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
         done();
       });
     });

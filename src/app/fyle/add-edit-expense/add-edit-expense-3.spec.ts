@@ -739,6 +739,9 @@ export function TestCases3(getTestBed) {
 
         component.getNewExpenseObservable().subscribe((res) => {
           expect(res).toEqual(expectedExpenseObservable);
+          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
+          expect(component.isExpenseBankTxn).toBeFalse();
+          expect(component.instaFyleCancelled).toBeFalse();
           expect(component.presetCurrency).toEqual('ARS');
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
@@ -767,6 +770,9 @@ export function TestCases3(getTestBed) {
 
         component.getNewExpenseObservable().subscribe((res) => {
           expect(res).toEqual(expectedExpenseObservable2);
+          expect(component.source).toEqual('MOBILE');
+          expect(component.isExpenseBankTxn).toBeFalse();
+          expect(component.instaFyleCancelled).toBeTrue();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -791,6 +797,9 @@ export function TestCases3(getTestBed) {
 
         component.getNewExpenseObservable().subscribe((res) => {
           expect(res).toEqual(expectedExpenseObservable3);
+          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
+          expect(component.isExpenseBankTxn).toBeFalse();
+          expect(component.instaFyleCancelled).toBeFalse();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -818,6 +827,9 @@ export function TestCases3(getTestBed) {
 
         component.getNewExpenseObservable().subscribe((res) => {
           expect(res).toEqual(expectedExpenseObservable4);
+          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
+          expect(component.isExpenseBankTxn).toBeFalse();
+          expect(component.instaFyleCancelled).toBeFalse();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -844,6 +856,9 @@ export function TestCases3(getTestBed) {
 
         component.getNewExpenseObservable().subscribe((res) => {
           expect(res).toEqual(expectedExpenseObservable5);
+          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
+          expect(component.isExpenseBankTxn).toBeTrue();
+          expect(component.instaFyleCancelled).toBeFalse();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
