@@ -7,8 +7,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Subscription, of } from 'rxjs';
 import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
-import { customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
-import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import { customFieldData1, customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
+import { fileObject4, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
@@ -28,6 +28,7 @@ import {
 import {
   expectedUnflattendedTxnData2,
   expectedUnflattendedTxnData3,
+  expectedUnflattendedTxnData4,
   unflattenedTxnData,
   unflattenedTxnData2,
   unflattenedTxnDataWithoutCategoryData,
@@ -68,6 +69,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { recentUsedCategoriesRes } from '../../core/mock-data/org-category-list-item.data';
+import { cloneDeep } from 'lodash';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -393,6 +395,30 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
           done();
         });
+      });
+
+      it('should generate expense from form without location data', (done) => {
+        fileService.findByTransactionId.and.returnValue(of(fileObject4));
+        fileService.downloadUrl.and.returnValue(of('url1'));
+        spyOn(component, 'getReceiptDetails').and.returnValue({
+          type: 'pdf',
+          thumbnail: 'thumbnail',
+        });
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+          currency: 'USD',
+        });
+        component.mode = 'add';
+        component.newExpenseDataUrls = [fileObjectData];
+        fixture.detectChanges();
+
+        component
+          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
+          .subscribe((res) => {
+            expect(res).toEqual(expectedUnflattendedTxnData4);
+            // expect(fileService.findByTransactionId).toHaveBeenCalledTimes(1);
+            done();
+          });
       });
     });
 
