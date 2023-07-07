@@ -341,19 +341,14 @@ export class TasksService {
             !filters?.teamReports &&
             !filters?.sentBackAdvances
           ) {
-            const tasks: DashboardTask[] = [];
-            tasks.concat(
-              mobileNumberVerification,
-              potentialDuplicates,
-              sentBackReports,
-              draftExpenses,
-              unsubmittedReports,
-              unreportedExpenses,
-              teamReports,
-              sentBackAdvances
-            );
-            console.log('TASKS -> ', tasks);
-            return tasks;
+            return mobileNumberVerification
+              .concat(potentialDuplicates)
+              .concat(sentBackReports)
+              .concat(draftExpenses)
+              .concat(unsubmittedReports)
+              .concat(unreportedExpenses)
+              .concat(teamReports)
+              .concat(sentBackAdvances);
           } else {
             return this.getFilteredTaskList(filters, {
               potentialDuplicates,
@@ -413,7 +408,7 @@ export class TasksService {
     return tasks;
   }
 
-  getMobileNumberVerificationTasks(): Observable<DashboardTask[] | []> {
+  getMobileNumberVerificationTasks(): Observable<DashboardTask[]> {
     const rtfEnrolledCards$ = this.corporateCreditCardExpenseService
       .getCorporateCards()
       .pipe(map((cards) => cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled)));
@@ -427,7 +422,7 @@ export class TasksService {
         if (!eou.ou.mobile_verified && eou.ou.mobile_verification_attempts_left && rtfEnrolledCards.length) {
           return of(this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'));
         }
-        return of([]);
+        return of<DashboardTask[]>([]);
       })
     );
   }
