@@ -2647,6 +2647,11 @@ export class AddEditExpensePage implements OnInit {
           .subscribe((matchedExpense: CCCExpUnflattened[]) => {
             this.matchedCCCTransaction = matchedExpense[0].ccce;
             this.selectedCCCTransaction = this.matchedCCCTransaction;
+            this.orgUserSettings$.subscribe((orgUserSettings) => {
+              const localDate = new Date(this.selectedCCCTransaction.txn_dt);
+              const localDateString = localDate.toLocaleString('en-US', { timeZone: orgUserSettings.locale.timezone });
+              this.selectedCCCTransaction.txn_dt = dayjs(localDateString).format('MMM DD, YYYY');
+            });
             this.cardEndingDigits = (
               this.selectedCCCTransaction.cxorporate_credit_card_account_number
                 ? this.selectedCCCTransaction.corporate_credit_card_account_number
