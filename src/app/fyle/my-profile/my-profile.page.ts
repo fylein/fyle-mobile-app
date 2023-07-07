@@ -328,6 +328,14 @@ export class MyProfilePage {
     this.trackingService.verifyMobileNumber();
   }
 
+  onVerifyCtaClicked(eou: ExtendedOrgUser) {
+    if (eou.ou.mobile_verification_attempts_left) {
+      this.verifyMobileNumber(eou);
+    } else {
+      this.showToastMessage('You have reached the limit to request OTP. Retry after 24 hours.', 'failure');
+    }
+  }
+
   async updateMobileNumber(eou: ExtendedOrgUser) {
     const updateMobileNumberPopover = await this.popoverController.create({
       component: UpdateMobileNumberComponent,

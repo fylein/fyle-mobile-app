@@ -88,6 +88,10 @@
       padding-left: 8px;
       border-left: 1px solid $grey;
       margin-left: 8px;
+
+      &--disabled {
+        color: $grey-light;
+      }
     }
 
     &__icon {

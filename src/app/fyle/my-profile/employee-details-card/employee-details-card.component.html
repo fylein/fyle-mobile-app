@@ -45,9 +45,12 @@
             ></div>
             <div class="text-ellipsis">{{ eou.ou.mobile_verified ? 'Verified' : 'Not Verified' }}</div>
             <div
-              class="employee-details-card__bottom-section__verify"
-              (click)="onVerifyMobileNumber(eou)"
               *ngIf="!eou.ou.mobile_verified"
+              class="employee-details-card__bottom-section__verify"
+              [ngClass]="{
+                'employee-details-card__bottom-section__verify--disabled': !eou.ou.mobile_verification_attempts_left
+              }"
+              (click)="onVerifyMobileNumber(eou)"
             >
               Verify
             </div>
