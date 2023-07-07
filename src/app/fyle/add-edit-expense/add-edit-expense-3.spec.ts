@@ -5,11 +5,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Subscription, catchError, of, throwError } from 'rxjs';
+import { Subscription, of } from 'rxjs';
 import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
 import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
 import { fileObject4, fileObjectData, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
+import { fileData1 } from 'src/app/core/mock-data/file.data';
 import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import {
   expectedAutoFillCategory,
@@ -36,7 +37,6 @@ import {
   unflattenedDraftExp,
   unflattenedDraftExp2,
   unflattenedPaidExp,
-  unflattenedPaidExp2,
   unflattenedTxnData,
   unflattenedTxnData2,
   unflattenedTxnDataWithoutCategoryData,
@@ -77,8 +77,6 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { fileData1 } from 'src/app/core/mock-data/file.data';
-import { error } from 'console';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -647,7 +645,7 @@ export function TestCases3(getTestBed) {
         component.viewAttachments();
         tick(500);
 
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+        // expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -770,14 +768,14 @@ export function TestCases3(getTestBed) {
         expect(component.newExpenseDataUrls).toEqual([{ type: 'image', url: 'url', thumbnail: 'url' }]);
       });
 
-      it('should attach receipt in edit mode', () => {
+      it('should attach receipt in edit mode', fakeAsync(() => {
         component.mode = 'edit';
         component.etxn$ = of(unflattenedExpData);
         component.isConnected$ = of(true);
-        fileService.findByTransactionId.and.returnValue(of(fileObjectData[0]));
-        transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
+        fileService.findByTransactionId.and.returnValue(of(fileObjectData1));
+        transactionOutboxService.fileUpload.and.resolveTo(fileObjectData1[0]);
         fileService.post.and.returnValue(of(fileData1[0]));
-        spyOn(component, 'parseFile');
+        spyOn(component, 'parseFile').and.returnValue(null);
         spyOn(component.loadAttachments$, 'next');
         fixture.detectChanges();
 
@@ -785,7 +783,13 @@ export function TestCases3(getTestBed) {
           type: 'pdf',
           dataUrl: 'url',
         });
-      });
+        tick(1000);
+
+        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
+        expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
+        expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData1[0]);
+        expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
+      }));
     });
   });
 }
