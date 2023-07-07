@@ -66,6 +66,8 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { cloneDeep } from 'lodash';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -1056,5 +1058,38 @@ export function TestCases2(getTestBed) {
         cssClass: 'pop-up-in-center',
       });
     }));
+
+    describe('updateCardTransactionDate(): ', () => {
+      beforeEach(() => {
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.selectedCCCTransaction = {
+          txn_dt: '2023-07-07T20:19:47.514Z',
+        };
+      });
+
+      it('should set card transaction date to Canberra timezone if user has selected Australia/Canberra timezone', () => {
+        const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
+        mockOrgUserSettingsData.locale = {
+          timezone: 'Australia/Canberra',
+          abbreviation: 'AEST',
+          offset: '10:00:00',
+        };
+        component.orgUserSettings$ = of(mockOrgUserSettingsData);
+        component.updateCardTransactionDate();
+        expect(component.selectedCCCTransaction.txn_dt).toEqual('Jul 08, 2023');
+      });
+
+      it('should set card transaction date to New York timezone if user has selected America/New_York timezone', () => {
+        const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
+        mockOrgUserSettingsData.locale = {
+          timezone: 'America/New_York',
+          abbreviation: 'EDT',
+          offset: '-04:00:00',
+        };
+        component.orgUserSettings$ = of(mockOrgUserSettingsData);
+        component.updateCardTransactionDate();
+        expect(component.selectedCCCTransaction.txn_dt).toEqual('Jul 07, 2023');
+      });
+    });
   });
 }
