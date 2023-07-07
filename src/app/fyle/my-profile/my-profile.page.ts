@@ -316,8 +316,6 @@ export class MyProfilePage {
       if (data.action === 'BACK') {
         this.updateMobileNumber(eou);
       } else if (data.action === 'SUCCESS') {
-        this.authService.refreshEou().subscribe(() => this.loadEou$.next(null));
-
         if (data.homeCurrency === 'USD') {
           this.showSuccessPopover();
         } else {
@@ -325,6 +323,8 @@ export class MyProfilePage {
         }
       }
     }
+    //This is needed to refresh the attempts_at and disable verify cta everytime user opens the dialog
+    this.authService.refreshEou().subscribe(() => this.loadEou$.next(null));
     this.trackingService.verifyMobileNumber();
   }
 
