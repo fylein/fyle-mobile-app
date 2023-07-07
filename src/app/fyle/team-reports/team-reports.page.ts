@@ -333,15 +333,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  setSortParams(
-    currentParams: Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  ) {
+  setSortParams(currentParams: Partial<GetTasksQueryParamsWithFilters>) {
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
@@ -381,45 +373,6 @@ export class TeamReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'view_team_report', { id: erpt.rp_id, navigate_back: true }]);
   }
 
-  async onDeleteReportClick(erpt: ExtendedReport) {
-    if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
-      await this.popupService.showPopup({
-        header: 'Cannot Delete Report',
-        message: 'Report cannot be deleted',
-        primaryCta: {
-          text: 'Close',
-        },
-      });
-    } else {
-      const popupResult = await this.popupService.showPopup({
-        header: 'Delete Report?',
-        message: `
-          <p class="highlight-info">
-            On deleting this report, all the associated expenses will be moved to <strong>"My Expenses"</strong> list.
-          </p>
-          <p class="mb-0">
-            Are you sure, you want to delete this report?
-          </p>
-        `,
-        primaryCta: {
-          text: 'Delete',
-        },
-      });
-
-      if (popupResult === 'primary') {
-        from(this.loaderService.showLoader())
-          .pipe(
-            switchMap(() => this.reportService.delete(erpt.rp_id)),
-            finalize(async () => {
-              await this.loaderService.hideLoader();
-              this.doRefresh();
-            })
-          )
-          .subscribe(noop);
-      }
-    }
-  }
-
   onHomeClicked() {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
@@ -442,7 +395,7 @@ export class TeamReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
-  clearText(isFromCancel) {
+  clearText(isFromCancel: string) {
     this.simpleSearchText = '';
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
