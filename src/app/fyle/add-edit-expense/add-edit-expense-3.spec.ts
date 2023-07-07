@@ -29,6 +29,7 @@ import {
   expectedUnflattendedTxnData2,
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
+  expectedUnflattendedTxnData5,
   unflattenedTxnData,
   unflattenedTxnData2,
   unflattenedTxnDataWithoutCategoryData,
@@ -415,6 +416,7 @@ export function TestCases3(getTestBed) {
           type: 'pdf',
           thumbnail: 'thumbnail',
         });
+        component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.currencyObj.setValue({
           amount: 100,
           currency: 'USD',
@@ -427,7 +429,30 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
           .subscribe((res) => {
             expect(res).toEqual(expectedUnflattendedTxnData4);
-            // expect(fileService.findByTransactionId).toHaveBeenCalledTimes(1);
+            done();
+          });
+      });
+
+      it('should generate expense from form without cost center and location data and not a policy expense in edit mode', (done) => {
+        component.mode = 'edit';
+        fileService.findByTransactionId.and.returnValue(of(fileObject4));
+        fileService.downloadUrl.and.returnValue(of('url1'));
+        spyOn(component, 'getReceiptDetails').and.returnValue({
+          type: 'pdf',
+          thumbnail: 'thumbnail',
+        });
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+          currency: 'USD',
+        });
+
+        component
+          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
+          .subscribe((res) => {
+            expect(res).toEqual(expectedUnflattendedTxnData5);
+            expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(draftUnflattendedTxn.tx.id);
+            expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject4[0].id);
+            expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
             done();
           });
       });
