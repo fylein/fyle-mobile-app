@@ -893,7 +893,6 @@ export const expectedUnflattendedTxnData4 = {
       receipt_coordinates: null,
       email_meta_data: null,
       fyle_sub_url: '/api/files/fiHPZUiichAS/download',
-      type: 'image',
     },
   ],
 };
