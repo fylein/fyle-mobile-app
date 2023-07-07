@@ -5,11 +5,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Subscription, of } from 'rxjs';
+import { Subscription, catchError, of, throwError } from 'rxjs';
 import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
 import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
-import { fileObject4, fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import { fileObject4, fileObjectData, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
 import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import {
   expectedAutoFillCategory,
@@ -78,6 +78,7 @@ import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.da
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
+import { error } from 'console';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -501,6 +502,28 @@ export function TestCases3(getTestBed) {
             done();
           });
       });
+
+      it('should throw error if policy violation check errors fails', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithCriticalPolicyViolation').and.resolveTo(false);
+
+        component
+          .criticalPolicyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+            },
+            of(customFieldData2)
+          )
+          .subscribe({
+            next: () => {},
+            error: (error) => {
+              expect(error).toBeTruthy();
+              done();
+            },
+          });
+      });
     });
 
     describe('policyViolationErrorHandler():', () => {
@@ -530,10 +553,33 @@ export function TestCases3(getTestBed) {
             done();
           });
       });
+
+      it('should throw an error if policy check fails', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo(false);
+
+        component
+          .policyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+              policyAction: policyViolation1.data.final_desired_state,
+            },
+            of(customFieldData2)
+          )
+          .subscribe({
+            next: () => {},
+            error: (error) => {
+              expect(error).toBeTruthy();
+              done();
+            },
+          });
+      });
     });
 
     describe('viewAttachments():', () => {
-      it('should upload receipts and increment count if not in add mode', fakeAsync(() => {
+      it('should upload receipts and increment count in edit mode', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
         component.mode = 'edit';
         component.attachedReceiptsCount = 0;
@@ -576,6 +622,43 @@ export function TestCases3(getTestBed) {
         });
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
         expect(component.attachedReceiptsCount).toEqual(1);
+      }));
+
+      it('should add attachments and upload receipt in add mode', fakeAsync(() => {
+        component.mode = 'add';
+        component.etxn$ = of(unflattenedTxnData);
+        fileService.findByTransactionId.and.returnValue(of(fileObjectData1));
+        fileService.downloadUrl.and.returnValue(of('url'));
+        spyOn(component, 'getReceiptDetails');
+        component.newExpenseDataUrls = fileObject4;
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+
+        const attachmentsModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
+        attachmentsModalSpy.onWillDismiss.and.resolveTo({
+          data: {
+            attachments: ['attachment1', 'attachment2'],
+          },
+        });
+
+        modalController.create.and.resolveTo(attachmentsModalSpy);
+        fixture.detectChanges();
+
+        component.viewAttachments();
+        tick(500);
+
+        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: FyViewAttachmentComponent,
+          componentProps: {
+            attachments: fileObject4,
+            canEdit: true,
+          },
+          mode: 'ios',
+        });
+        expect(component.attachedReceiptsCount).toEqual(2);
       }));
     });
 
