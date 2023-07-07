@@ -240,7 +240,7 @@ describe('VerifyNumberPopoverComponent', () => {
     });
 
     it('should verify otp if input is valid', () => {
-      mobileNumberVerificationService.verifyOtp.and.returnValue(of({}));
+      mobileNumberVerificationService.verifyOtp.and.returnValue(of({ message: '' }));
       component.value = '123456';
 
       click(verifyCta);
