@@ -341,7 +341,7 @@ export class MyProfilePage {
       component: UpdateMobileNumberComponent,
       componentProps: {
         title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        ctaText: 'Next',
+        ctaText: eou.ou.mobile_verification_attempts_left ? 'Next' : 'Save',
         inputLabel: 'Mobile Number',
         extendedOrgUser: eou,
         placeholder: 'Enter mobile number e.g. +129586736556',
@@ -355,7 +355,13 @@ export class MyProfilePage {
     if (data) {
       if (data.action === 'SUCCESS') {
         this.loadEou$.next(null);
-        this.eou$.pipe(take(1)).subscribe((eou) => from(this.verifyMobileNumber(eou)));
+        this.eou$.pipe(take(1)).subscribe((eou) => {
+          if (eou.ou.mobile_verification_attempts_left) {
+            this.verifyMobileNumber(eou);
+          } else {
+            this.showToastMessage('Mobile Number Updated Successfully', 'success');
+          }
+        });
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
       }
