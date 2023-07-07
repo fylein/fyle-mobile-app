@@ -1638,7 +1638,7 @@ export class AddEditExpensePage implements OnInit {
             {
               project,
               category,
-              dateOfSpend: etxn.tx.txn_dt && dayjs(this.dateService.getLocalDate(etxn.tx.txn_dt)).format('YYYY-MM-DD'),
+              dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
               vendor_id: etxn.tx.vendor
                 ? {
                     display_name: etxn.tx.vendor,
