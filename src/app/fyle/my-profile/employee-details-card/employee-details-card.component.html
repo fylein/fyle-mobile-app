@@ -49,7 +49,7 @@
               class="employee-details-card__bottom-section__verify"
               [ngClass]="{
                 'employee-details-card__bottom-section__verify--disabled':
-                  eou.ou.mobile_verification_attempts_left !== 0
+                  eou.ou.mobile_verification_attempts_left === 0
               }"
               (click)="onVerifyMobileNumber(eou)"
             >
