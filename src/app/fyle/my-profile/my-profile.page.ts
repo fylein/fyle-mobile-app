@@ -329,7 +329,7 @@ export class MyProfilePage {
   }
 
   onVerifyCtaClicked(eou: ExtendedOrgUser) {
-    if (eou.ou.mobile_verification_attempts_left) {
+    if (eou.ou.mobile_verification_attempts_left !== 0) {
       this.verifyMobileNumber(eou);
     } else {
       this.showToastMessage('You have reached the limit to request OTP. Retry after 24 hours.', 'failure');
@@ -341,7 +341,7 @@ export class MyProfilePage {
       component: UpdateMobileNumberComponent,
       componentProps: {
         title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        ctaText: eou.ou.mobile_verification_attempts_left ? 'Next' : 'Save',
+        ctaText: eou.ou.mobile_verification_attempts_left !== 0 ? 'Next' : 'Save',
         inputLabel: 'Mobile Number',
         extendedOrgUser: eou,
         placeholder: 'Enter mobile number e.g. +129586736556',
@@ -356,7 +356,7 @@ export class MyProfilePage {
       if (data.action === 'SUCCESS') {
         this.loadEou$.next(null);
         this.eou$.pipe(take(1)).subscribe((eou) => {
-          if (eou.ou.mobile_verification_attempts_left) {
+          if (eou.ou.mobile_verification_attempts_left !== 0) {
             this.verifyMobileNumber(eou);
           } else {
             this.showToastMessage('Mobile Number Updated Successfully', 'success');
