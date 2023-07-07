@@ -5,10 +5,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Subscription, of } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
 import { customFieldData1, customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
-import { fileObject4, fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import { expectedFileData1, fileObject4, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
@@ -350,14 +350,37 @@ export function TestCases3(getTestBed) {
       });
     });
 
-    describe('generateEtxnFromFg():', () => {
-      it('should generate expense object from input in the form', (done) => {
+    describe('returnAddOrEditObservable():', () => {
+      it('should return file observables in edit mode', (done) => {
         fileService.findByTransactionId.and.returnValue(of(fileObject4));
-        fileService.downloadUrl.and.returnValue(of('url1'));
+        fileService.downloadUrl.and.returnValue(of('url'));
         spyOn(component, 'getReceiptDetails').and.returnValue({
-          type: 'pdf',
+          type: 'jpeg',
           thumbnail: 'thumbnail',
         });
+
+        component.returnAddOrEditObservable('edit', 'tx1vdITUXIzf').subscribe((res) => {
+          expect(res).toEqual(expectedFileData1);
+          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx1vdITUXIzf');
+          expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
+          expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+          done();
+        });
+      });
+
+      it('should return new expense file objects in add mode', (done) => {
+        component.newExpenseDataUrls = fileObject4;
+
+        component.returnAddOrEditObservable('add').subscribe((res) => {
+          expect(res).toEqual(fileObject4);
+          done();
+        });
+      });
+    });
+
+    describe('generateEtxnFromFg():', () => {
+      it('should generate expense object from input in the form', (done) => {
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue('loc1');
         component.fg.controls.location_2.setValue('loc2');
@@ -372,21 +395,17 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(unflattenedExpData), of([expectedCustomField[0], expectedCustomField[2]]))
           .subscribe((res) => {
             expect(res).toEqual(expectedUnflattendedTxnData2);
-            expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
-            expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject4[0].id);
-            expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+            expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+              component.mode,
+              unflattenedExpData.tx.id
+            );
             done();
           });
       });
 
       it('should generate expense object from form if the expense is a policy txn and has location data', (done) => {
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
-        fileService.downloadUrl.and.returnValue(of('url1'));
         dateService.getUTCDate.and.returnValue(new Date('2017-07-25T00:00:00.000Z'));
-        spyOn(component, 'getReceiptDetails').and.returnValue({
-          type: 'pdf',
-          thumbnail: 'thumbnail',
-        });
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue('loc1');
         component.fg.controls.category.setValue({
@@ -401,21 +420,17 @@ export function TestCases3(getTestBed) {
 
         component.generateEtxnFromFg(of(unflattenedTxnData2), of(customFieldData2), true).subscribe((res) => {
           expect(res).toEqual(expectedUnflattendedTxnData3);
-          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData2.tx.id);
-          expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject4[0].id);
-          expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+          expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+            component.mode,
+            unflattenedTxnData2.tx.id
+          );
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
           done();
         });
       });
 
       it('should generate expense from form without location data', (done) => {
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
-        fileService.downloadUrl.and.returnValue(of('url1'));
-        spyOn(component, 'getReceiptDetails').and.returnValue({
-          type: 'pdf',
-          thumbnail: 'thumbnail',
-        });
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.currencyObj.setValue({
           amount: 100,
@@ -429,18 +444,17 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
           .subscribe((res) => {
             expect(res).toEqual(expectedUnflattendedTxnData4);
+            expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+              component.mode,
+              draftUnflattendedTxn.tx.id
+            );
             done();
           });
       });
 
       it('should generate expense from form without cost center and location data and not a policy expense in edit mode', (done) => {
         component.mode = 'edit';
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
-        fileService.downloadUrl.and.returnValue(of('url1'));
-        spyOn(component, 'getReceiptDetails').and.returnValue({
-          type: 'pdf',
-          thumbnail: 'thumbnail',
-        });
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
         component.fg.controls.currencyObj.setValue({
           amount: 100,
           currency: 'USD',
@@ -450,9 +464,10 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
           .subscribe((res) => {
             expect(res).toEqual(expectedUnflattendedTxnData5);
-            expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(draftUnflattendedTxn.tx.id);
-            expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject4[0].id);
-            expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+            expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+              component.mode,
+              draftUnflattendedTxn.tx.id
+            );
             done();
           });
       });
