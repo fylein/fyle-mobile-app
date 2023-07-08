@@ -451,7 +451,7 @@ export function TestCases3(getTestBed) {
           currency: 'USD',
         });
         component.mode = 'add';
-        component.newExpenseDataUrls = [fileObjectData];
+        component.newExpenseDataUrls = [];
         fixture.detectChanges();
 
         component

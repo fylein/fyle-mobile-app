@@ -878,26 +878,7 @@ export const expectedUnflattendedTxnData4 = {
     sub_department: 'arun',
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
-  dataUrls: [
-    {
-      id: 'fiHPZUiichAS',
-      org_user_id: 'ouX8dwsbLCLv',
-      created_at: new Date('2023-02-01T12:27:28.522Z'),
-      name: '000.jpeg',
-      s3url: '2023-02-01/orNVthTo2Zyo/receipts/fiHPZUiichAS.000.jpeg',
-      transaction_id: 'txdzGV1TZEg3',
-      invoice_id: null,
-      advance_request_id: null,
-      purpose: 'ORIGINAL',
-      password: null,
-      receipt_coordinates: null,
-      email_meta_data: null,
-      fyle_sub_url: '/api/files/fiHPZUiichAS/download',
-      url: 'url1',
-      type: 'pdf',
-      thumbnail: 'thumbnail1',
-    },
-  ],
+  dataUrls: [],
 };
 export const expectedUnflattendedTxnData5 = {
   tx: {
