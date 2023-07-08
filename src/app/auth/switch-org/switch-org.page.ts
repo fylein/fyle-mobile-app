@@ -133,7 +133,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             const route = this.deepLinkService.getExpenseRoute(etxn);
             this.router.navigate(['/', 'enterprise', route[2], { id: txnId }]);
           },
-          error: (err) => this.router.navigate(['/', 'auth', 'switch_org']),
+          error: () => this.router.navigate(['/', 'auth', 'switch_org']),
         });
     } else if (!choose) {
       from(that.loaderService.showLoader())
@@ -371,54 +371,50 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       });
   }
 
-  trackSwitchOrg() {
-    forkJoin({
-      eou: from(this.authService.getEou()),
-      org: this.orgService.getCurrentOrg(),
-    })
-      .pipe(filter(({ eou, org }) => !!eou && !!org))
-      .subscribe(({ eou, org }) => {
-        const isDestinationOrgActive = eou.ou && eou.ou.org_id === org.id;
-        const isCurrentOrgPrimary = eou.ou && eou.ou.is_primary;
-        from(this.authService.getEou()).subscribe((currentEou) => {
-          const properties = {
-            Asset: 'Mobile',
-            'Switch To': org.name,
-            'Is Destination Org Active': isDestinationOrgActive,
-            'Is Destination Org Primary': currentEou && currentEou.ou && currentEou.ou.is_primary,
-            'Is Current Org Primary': isCurrentOrgPrimary,
-            Source: 'User Clicked',
-            'User Email': eou.us && eou.us.email,
-            'User Org Name': eou.ou && eou.ou.org_name,
-            'User Org ID': eou.ou && eou.ou.org_id,
-            'User Full Name': eou.us && eou.us.full_name,
-          };
-          this.trackingService.onSwitchOrg(properties);
-        });
-      });
+  trackSwitchOrg(org: Org, originalEou) {
+    const isDestinationOrgActive = originalEou.ou && originalEou.ou.org_id === org.id;
+    const isCurrentOrgPrimary = originalEou.ou && originalEou.ou.is_primary;
+    from(this.authService.getEou()).subscribe((currentEou) => {
+      const properties = {
+        Asset: 'Mobile',
+        'Switch To': org.name,
+        'Is Destination Org Active': isDestinationOrgActive,
+        'Is Destination Org Primary': currentEou && currentEou.ou && currentEou.ou.is_primary,
+        'Is Current Org Primary': isCurrentOrgPrimary,
+        Source: 'User Clicked',
+        'User Email': originalEou.us && originalEou.us.email,
+        'User Org Name': originalEou.ou && originalEou.ou.org_name,
+        'User Org ID': originalEou.ou && originalEou.ou.org_id,
+        'User Full Name': originalEou.us && originalEou.us.full_name,
+      };
+      this.trackingService.onSwitchOrg(properties);
+    });
   }
 
-  async switchOrg(orgId: string) {
+  async switchOrg(org: Org) {
     // Tracking the time on click of switch org
     performance.mark(PerfTrackers.onClickSwitchOrg);
+    const originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader('Please wait...', 2000))
-      .pipe(switchMap(() => this.orgService.switchOrg(orgId)))
-      .subscribe({
-        next: () => {
+      .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
+      .subscribe(
+        () => {
           globalCacheBusterNotifier.next();
-          this.trackSwitchOrg();
+          if (originalEou) {
+            this.trackSwitchOrg(org, originalEou);
+          }
           this.userEventService.clearTaskCache();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
           from(this.proceed()).subscribe(noop);
         },
-        error: async (err) => {
+        async (err) => {
           await this.secureStorageService.clearAll();
           await this.storageService.clearAll();
           this.userEventService.logout();
           globalCacheBusterNotifier.next();
           await this.loaderService.hideLoader();
-        },
-      });
+        }
+      );
   }
 
   signOut() {
