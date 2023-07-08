@@ -893,10 +893,12 @@ export const expectedUnflattendedTxnData4 = {
       receipt_coordinates: null,
       email_meta_data: null,
       fyle_sub_url: '/api/files/fiHPZUiichAS/download',
+      url: 'url1',
+      type: 'pdf',
+      thumbnail: 'thumbnail1',
     },
   ],
 };
-
 export const expectedUnflattendedTxnData5 = {
   tx: {
     risk_state: null,
