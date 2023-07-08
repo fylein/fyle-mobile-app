@@ -52,6 +52,7 @@ import { checkPolicyData } from '../mock-data/policy-violation-check.data';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { AdvancesStates } from '../models/advances-states.model';
+import { cloneDeep } from 'lodash';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -498,7 +499,9 @@ describe('AdvanceRequestService', () => {
   });
 
   it('modifyAdvanceRequestCustomFields(): should modify advance request custom fields', () => {
-    expect(advanceRequestService.modifyAdvanceRequestCustomFields(customFieldData1)).toEqual(expectedCustomField);
+    expect(advanceRequestService.modifyAdvanceRequestCustomFields(cloneDeep(customFieldData1))).toEqual(
+      expectedCustomField
+    );
   });
 
   describe('getSortOrder(): should get the sorting order', () => {
