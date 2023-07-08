@@ -386,7 +386,7 @@ export function TestCases1(getTestBed) {
         expect(result).toEqual({ merchantNameSize: 'Length is greater than 250' });
       });
 
-      it('should return null if invalid value is set as id', () => {
+      it('should return null if valid value is set as id', () => {
         component.fg.controls.vendor_id.setValue({
           display_name: null,
         });
@@ -1105,11 +1105,15 @@ export function TestCases1(getTestBed) {
 
     it('showFormValidationErrors(): should show form validation errors', () => {
       spyOn(component.fg, 'markAllAsTouched');
-      component.formContainer = fixture.debugElement.query(By.css('.add-edit-expense--form'));
+      spyOn(component.formContainer.nativeElement, 'querySelector').and.returnValue({
+        scrollIntoView: () => {},
+      });
+
       fixture.detectChanges();
 
       component.showFormValidationErrors();
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
+      expect(component.formContainer.nativeElement.querySelector).toHaveBeenCalledWith('.ng-invalid');
     });
   });
 }
