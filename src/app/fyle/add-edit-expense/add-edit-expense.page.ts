@@ -112,6 +112,7 @@ import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fi
 import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -2761,31 +2762,39 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
-    const editExpenseAttachments = etxn$.pipe(
-      switchMap((etxn: any) => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap((fileObjs: any) => from(fileObjs)),
-      concatMap((fileObj: any) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        )
-      ),
-      reduce((acc, curr) => acc.concat(curr), [])
-    );
+  returnAddOrEditObservable(mode: string, txId?: string) {
+    if (mode === 'add') {
+      return of(
+        this.newExpenseDataUrls.map((fileObj) => {
+          fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+          return fileObj;
+        })
+      );
+    } else {
+      return this.fileService.findByTransactionId(txId).pipe(
+        switchMap((fileObjs: any) => from(fileObjs)),
+        concatMap((fileObj: any) =>
+          this.fileService.downloadUrl(fileObj.id).pipe(
+            map((downloadUrl) => {
+              fileObj.url = downloadUrl;
+              const details = this.getReceiptDetails(fileObj);
+              fileObj.type = details.type;
+              fileObj.thumbnail = details.thumbnail;
+              return fileObj;
+            })
+          )
+        ),
+        reduce((acc, curr) => acc.concat(curr), [])
+      );
+    }
+  }
 
-    const addExpenseAttachments = of(
-      this.newExpenseDataUrls.map((fileObj) => {
-        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-        return fileObj;
-      })
-    );
-    const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
+  generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
+    let txId;
+    etxn$.subscribe((etxn) => {
+      txId = etxn.tx.id;
+    });
+    const attachements$ = this.returnAddOrEditObservable(this.mode, txId);
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,

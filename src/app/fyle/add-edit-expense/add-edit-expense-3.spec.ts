@@ -5,11 +5,16 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Subscription, of } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
 import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import { customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
-import { fileObject4, fileObjectData, fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
+import { customFieldData1, customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
+import {
+  expectedFileData1,
+  fileObject4,
+  fileObjectData,
+  fileObjectData1,
+} from 'src/app/core/mock-data/file-object.data';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
 import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import {
@@ -34,12 +39,15 @@ import {
 import {
   expectedUnflattendedTxnData2,
   expectedUnflattendedTxnData3,
+  expectedUnflattendedTxnData4,
+  expectedUnflattendedTxnData5,
   unflattenedDraftExp,
   unflattenedDraftExp2,
   unflattenedPaidExp,
   unflattenedTxnData,
   unflattenedTxnData2,
   unflattenedTxnDataWithoutCategoryData,
+  unflattenedTxnDataWithoutCategoryData2,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -74,9 +82,10 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgSettingsData, orgSettingsWoAutoFill } from 'src/app/core/test-data/accounts.service.spec.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { cloneDeep } from 'lodash';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -264,6 +273,7 @@ export function TestCases3(getTestBed) {
         component.inpageExtractedData = null;
         dateService.isSameDate.and.returnValue(true);
         component.fg.controls.dateOfSpend.setValue(new Date('2023-02-24T12:03:57.680Z'));
+        component.fg.controls.vendor_id.setValue('vendor_name');
         component.fg.controls.currencyObj.setValue({
           amount: null,
           currency: 'USD',
@@ -284,6 +294,8 @@ export function TestCases3(getTestBed) {
           currency: 'USD',
         });
         expect(component.fg.controls.category.value).toEqual(null);
+        expect(component.fg.controls.dateOfSpend.value).toEqual(new Date('2023-02-24T12:03:57.680Z'));
+        expect(component.fg.controls.vendor_id.value).toEqual('vendor_name');
       });
 
       it('should parse an image for expense information given there is pre-existing data', () => {
@@ -294,12 +306,12 @@ export function TestCases3(getTestBed) {
         component.inpageExtractedData = {
           amount: 100,
         };
-        dateService.isSameDate.and.returnValue(true);
         component.fg.controls.dateOfSpend.setValue(new Date('2023-02-24T12:03:57.680Z'));
         component.fg.controls.currencyObj.setValue({
           amount: null,
           currency: 'USD',
         });
+        component.fg.controls.vendor_id.setValue('vendor_name');
 
         fixture.detectChanges();
 
@@ -314,7 +326,9 @@ export function TestCases3(getTestBed) {
           amount: null,
           currency: 'USD',
         });
+        expect(component.fg.controls.dateOfSpend.value).toEqual(new Date('2023-02-24T12:03:57.680Z'));
         expect(component.fg.controls.category.value).toEqual(null);
+        expect(component.fg.controls.vendor_id.value).toEqual('vendor_name');
       });
     });
 
@@ -330,6 +344,8 @@ export function TestCases3(getTestBed) {
           });
 
           expect(result).toEqual(expectedAutoFillCategory);
+          expect(component.recentCategories).toEqual(recentUsedCategoriesRes);
+          expect(component.presetCategoryId).toBeUndefined();
         }
       });
 
@@ -343,17 +359,42 @@ export function TestCases3(getTestBed) {
         });
 
         expect(result).toEqual(expectedAutoFillCategory2);
+        expect(component.recentCategories).toEqual(recentUsedCategoriesRes);
+        expect(component.presetCategoryId).toEqual(expectedAutoFillCategory2.id);
+      });
+    });
+
+    describe('returnAddOrEditObservable():', () => {
+      it('should return file observables in edit mode', (done) => {
+        fileService.findByTransactionId.and.returnValue(of(fileObject4));
+        fileService.downloadUrl.and.returnValue(of('url'));
+        spyOn(component, 'getReceiptDetails').and.returnValue({
+          type: 'jpeg',
+          thumbnail: 'thumbnail',
+        });
+
+        component.returnAddOrEditObservable('edit', 'tx1vdITUXIzf').subscribe((res) => {
+          expect(res).toEqual(expectedFileData1);
+          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx1vdITUXIzf');
+          expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
+          expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+          done();
+        });
+      });
+
+      it('should return new expense file objects in add mode', (done) => {
+        component.newExpenseDataUrls = fileObject4;
+
+        component.returnAddOrEditObservable('add').subscribe((res) => {
+          expect(res).toEqual(fileObject4);
+          done();
+        });
       });
     });
 
     describe('generateEtxnFromFg():', () => {
       it('should generate expense object from input in the form', (done) => {
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
-        fileService.downloadUrl.and.returnValue(of('url1'));
-        spyOn(component, 'getReceiptDetails').and.returnValue({
-          type: 'pdf',
-          thumbnail: 'thumbnail',
-        });
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue('loc1');
         component.fg.controls.location_2.setValue('loc2');
@@ -368,21 +409,17 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(unflattenedExpData), of([expectedCustomField[0], expectedCustomField[2]]))
           .subscribe((res) => {
             expect(res).toEqual(expectedUnflattendedTxnData2);
-            expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
-            expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject4[0].id);
-            expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+            expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+              component.mode,
+              unflattenedExpData.tx.id
+            );
             done();
           });
       });
 
       it('should generate expense object from form if the expense is a policy txn and has location data', (done) => {
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
-        fileService.downloadUrl.and.returnValue(of('url1'));
         dateService.getUTCDate.and.returnValue(new Date('2017-07-25T00:00:00.000Z'));
-        spyOn(component, 'getReceiptDetails').and.returnValue({
-          type: 'pdf',
-          thumbnail: 'thumbnail',
-        });
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue('loc1');
         component.fg.controls.category.setValue({
@@ -393,15 +430,60 @@ export function TestCases3(getTestBed) {
           amount: 100,
           currency: 'USD',
         });
+        fixture.detectChanges();
 
         component.generateEtxnFromFg(of(unflattenedTxnData2), of(customFieldData2), true).subscribe((res) => {
           expect(res).toEqual(expectedUnflattendedTxnData3);
-          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData2.tx.id);
-          expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject4[0].id);
-          expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+          expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+            component.mode,
+            unflattenedTxnData2.tx.id
+          );
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
           done();
         });
+      });
+
+      it('should generate expense from form without location data', (done) => {
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
+        component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+          currency: 'USD',
+        });
+        component.mode = 'add';
+        component.newExpenseDataUrls = [fileObjectData];
+        fixture.detectChanges();
+
+        component
+          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
+          .subscribe((res) => {
+            expect(res).toEqual(expectedUnflattendedTxnData4);
+            expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+              component.mode,
+              draftUnflattendedTxn.tx.id
+            );
+            done();
+          });
+      });
+
+      it('should generate expense from form without cost center and location data and not a policy expense in edit mode', (done) => {
+        component.mode = 'edit';
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+          currency: 'USD',
+        });
+
+        component
+          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
+          .subscribe((res) => {
+            expect(res).toEqual(expectedUnflattendedTxnData5);
+            expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+              component.mode,
+              draftUnflattendedTxn.tx.id
+            );
+            done();
+          });
       });
     });
 
@@ -448,6 +530,54 @@ export function TestCases3(getTestBed) {
             recentValue: recentlyUsedRes,
             recentCategories: recentUsedCategoriesRes,
             etxn: unflattenedTxnDataWithoutCategoryData,
+            category: null,
+          });
+          done();
+        });
+      });
+
+      it('should return autofill category if fyle category is unspecified', (done) => {
+        component.etxn$ = of(unflattenedTxnDataWithoutCategoryData2);
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        spyOn(component, 'getAutofillCategory').and.returnValue(expectedAutoFillCategory);
+        fixture.detectChanges();
+
+        component.getCategoryOnAdd(undefined).subscribe((res) => {
+          expect(res).toEqual(expectedAutoFillCategory);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+            isAutofillsEnabled: true,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedTxnDataWithoutCategoryData2,
+            category: null,
+          });
+          done();
+        });
+      });
+
+      it('should return autofill category if autofill disabled', (done) => {
+        component.etxn$ = of(unflattenedTxnDataWithoutCategoryData2);
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsWoAutoFill));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        spyOn(component, 'getAutofillCategory').and.returnValue(expectedAutoFillCategory);
+        fixture.detectChanges();
+
+        component.getCategoryOnAdd(undefined).subscribe((res) => {
+          expect(res).toEqual(expectedAutoFillCategory);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+            isAutofillsEnabled: false,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedTxnDataWithoutCategoryData2,
             category: null,
           });
           done();
