@@ -711,13 +711,9 @@ export function TestCases3(getTestBed) {
         component.etxn$ = of(unflattenedTxnData);
         component.mode = 'edit';
         component.attachedReceiptsCount = 0;
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
         fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
-        fileService.downloadUrl.and.returnValue(of('url1'));
         spyOn(component.loadAttachments$, 'next');
-        spyOn(component, 'getReceiptDetails').and.returnValue({
-          type: 'pdf',
-          thumbnail: 'thumbnail1',
-        });
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
 
@@ -734,16 +730,14 @@ export function TestCases3(getTestBed) {
         component.viewAttachments();
         tick(500);
 
-        expect(fileService.findByTransactionId).toHaveBeenCalledWith(unflattenedTxnData.tx.id);
-        expect(fileService.findByTransactionId).toHaveBeenCalledTimes(2);
-        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjectData.id);
-        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObjectData);
+        expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
+        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: FyViewAttachmentComponent,
           componentProps: {
-            attachments: [fileObjectData],
+            attachments: fileObject4,
             canEdit: true,
           },
           mode: 'ios',
@@ -755,9 +749,7 @@ export function TestCases3(getTestBed) {
       it('should add attachments and upload receipt in add mode', fakeAsync(() => {
         component.mode = 'add';
         component.etxn$ = of(unflattenedTxnData);
-        fileService.findByTransactionId.and.returnValue(of(fileObjectData1));
-        fileService.downloadUrl.and.returnValue(of('url'));
-        spyOn(component, 'getReceiptDetails');
+        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
         component.newExpenseDataUrls = fileObject4;
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
@@ -775,7 +767,7 @@ export function TestCases3(getTestBed) {
         component.viewAttachments();
         tick(500);
 
-        // expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+        expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({

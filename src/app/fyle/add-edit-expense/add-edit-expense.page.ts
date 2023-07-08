@@ -3969,31 +3969,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   viewAttachments() {
-    const editExpenseAttachments = this.etxn$.pipe(
-      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: any) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        )
-      ),
-      reduce((acc, curr) => acc.concat(curr), [])
-    );
+    let txId;
+    this.etxn$.subscribe((etxn) => {
+      txId = etxn.tx.id;
+    });
 
-    const addExpenseAttachments = of(
-      this.newExpenseDataUrls.map((fileObj) => {
-        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-        return fileObj;
-      })
-    );
-
-    const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
+    const attachements$ = this.returnAddOrEditObservable(this.mode, txId);
 
     from(this.loaderService.showLoader())
       .pipe(
