@@ -25,14 +25,12 @@ export class DeepLinkService {
     return result;
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, complexity
-  redirect(redirectionParam: Redirect) {
+  // eslint-disable-next-line complexity
+  redirect(redirectionParam: Redirect): void {
     const redirectUri: string = redirectionParam.redirect_uri;
     const verificationCode: string = redirectionParam.verification_code;
     const orgId: string = redirectionParam.org_id;
     const refreshToken: string = redirectionParam.refresh_token;
-
-    console.log('redirectUri', redirectUri);
 
     if (redirectUri) {
       if (redirectUri.match('verify')) {
@@ -90,20 +88,23 @@ export class DeepLinkService {
             id: advReqId,
           },
         ]);
-      } else if (redirectUri.match('/tx')) {
+      } else if (redirectUri.match('/tx') && redirectUri.split('/').length > 2) {
         const urlArray = redirectUri.split('/');
         const txnId = urlArray[urlArray.length - 1];
         const orgId = urlArray[urlArray.length - 2];
-        const subModule = 'expense';
-        this.router.navigate([
-          '/',
-          'deep_link_redirection',
-          {
-            sub_module: subModule,
-            id: txnId,
-            orgId,
-          },
-        ]);
+        if (txnId && orgId) {
+          this.router.navigate([
+            '/',
+            'deep_link_redirection',
+            {
+              sub_module: 'expense',
+              id: txnId,
+              orgId,
+            },
+          ]);
+        } else {
+          this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+        }
       } else {
         this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
       }

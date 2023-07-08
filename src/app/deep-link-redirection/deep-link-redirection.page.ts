@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from '../core/services/loader.service';
 import { AdvanceRequestService } from '../core/services/advance-request.service';
@@ -6,7 +6,6 @@ import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
 import { ReportService } from '../core/services/report.service';
 import { filter, finalize, from, shareReplay, switchMap } from 'rxjs';
-import { UnflattenedTransaction } from '../core/models/unflattened-transaction.model';
 import { DeepLinkService } from '../core/services/deep-link.service';
 
 @Component({
@@ -54,7 +53,7 @@ export class DeepLinkRedirectionPage {
         this.router.navigate([...route, { id }]);
       },
       () => {
-        this.goToSwitchOrgPage();
+        this.switchOrg();
       },
       async () => {
         await this.loaderService.hideLoader();
@@ -77,6 +76,7 @@ export class DeepLinkRedirectionPage {
         shareReplay(1)
       );
 
+      //If expenseOrgId is same as user orgId, then redirect to expense page
       eou$
         .pipe(
           filter((eou) => expenseOrgId === eou.ou.org_id),
@@ -88,6 +88,7 @@ export class DeepLinkRedirectionPage {
           this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
         });
 
+      //If expenseOrgId is different from user orgId, then redirect to switch org page with orgId and txnId
       eou$
         .pipe(
           filter((eou) => expenseOrgId !== eou.ou.org_id),
@@ -120,7 +121,7 @@ export class DeepLinkRedirectionPage {
         }
       },
       () => {
-        this.goToSwitchOrgPage();
+        this.switchOrg();
       },
       async () => {
         await this.loaderService.hideLoader();
@@ -128,7 +129,7 @@ export class DeepLinkRedirectionPage {
     );
   }
 
-  goToSwitchOrgPage() {
+  switchOrg() {
     this.router.navigate(['/', 'auth', 'switch_org']);
   }
 }
