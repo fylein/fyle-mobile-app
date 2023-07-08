@@ -11,16 +11,15 @@ export class DeepLinkService {
 
   getJsonFromUrl(url?: string): Redirect {
     const query = url?.split('?')[1];
-    const result = {};
+    const result: Redirect = {};
     query?.split('&').forEach((part) => {
       const item = part.split('=');
       result[item[0]] = decodeURIComponent(item[1]);
     });
 
+    //If no query string is present, url is from the SMS link, so send the entire url in redirect_uri
     if (Object.keys(result).length === 0) {
-      return {
-        redirect_uri: url,
-      };
+      result.redirect_uri = url;
     }
     return result;
   }
@@ -92,7 +91,7 @@ export class DeepLinkService {
         const urlArray = redirectUri.split('/');
         const txnId = urlArray[urlArray.length - 1];
         const orgId = urlArray[urlArray.length - 2];
-        if (txnId && orgId) {
+        if (txnId && orgId && txnId.startsWith('tx') && orgId.startsWith('or')) {
           this.router.navigate([
             '/',
             'deep_link_redirection',

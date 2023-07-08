@@ -109,32 +109,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const isFromInviteLink: boolean =
       that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
     const orgId = that.activatedRoute.snapshot.params.orgId;
+    const txnId = this.activatedRoute.snapshot.params.txnId;
 
-    if (orgId) {
-      const txnId = this.activatedRoute.snapshot.params.txnId;
-      return from(this.loaderService.showLoader())
-        .pipe(
-          switchMap(() => this.orgService.switchOrg(orgId)),
-          switchMap(() => {
-            globalCacheBusterNotifier.next();
-            this.userEventService.clearTaskCache();
-            this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-            return from(this.authService.getEou());
-          }),
-          switchMap((eou) => {
-            this.setSentryUser(eou);
-            return this.transactionService.getETxnUnflattened(txnId);
-          }),
-          finalize(() => this.loaderService.hideLoader())
-        )
-        .subscribe({
-          next: (etxn) => {
-            this.checkUserAppVersion();
-            const route = this.deepLinkService.getExpenseRoute(etxn);
-            this.router.navigate(['/', 'enterprise', route[2], { id: txnId }]);
-          },
-          error: () => this.router.navigate(['/', 'auth', 'switch_org']),
-        });
+    if (orgId && txnId) {
+      return this.redirectToExpensePage(orgId, txnId);
     } else if (!choose) {
       from(that.loaderService.showLoader())
         .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
@@ -199,6 +177,32 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       panelClass: ['msb-info'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+  }
+
+  redirectToExpensePage(orgId: string, txnId: string) {
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.orgService.switchOrg(orgId)),
+        switchMap(() => {
+          globalCacheBusterNotifier.next();
+          this.userEventService.clearTaskCache();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          return from(this.authService.getEou());
+        }),
+        switchMap((eou) => {
+          this.setSentryUser(eou);
+          return this.transactionService.getETxnUnflattened(txnId);
+        }),
+        finalize(() => this.loaderService.hideLoader())
+      )
+      .subscribe({
+        next: (etxn) => {
+          this.checkUserAppVersion();
+          const route = this.deepLinkService.getExpenseRoute(etxn);
+          this.router.navigate(['/', 'enterprise', route[2], { id: txnId }]);
+        },
+        error: () => this.router.navigate(['/', 'auth', 'switch_org']),
+      });
   }
 
   logoutIfSingleOrg(orgs: Org[]) {
