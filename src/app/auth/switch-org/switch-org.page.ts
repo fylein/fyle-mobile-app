@@ -27,6 +27,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ResendEmailVerification } from 'src/app/core/models/resend-email-verification.model';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -78,7 +80,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private appVersionService: AppVersionService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private routerAuthService: RouterAuthService
+    private routerAuthService: RouterAuthService,
+    private transactionService: TransactionService,
+    private deepLinkService: DeepLinkService
   ) {}
 
   ngOnInit() {
@@ -107,8 +111,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const orgId = that.activatedRoute.snapshot.params.orgId;
 
     if (orgId) {
-      const txnId = this.activatedRoute.snapshot.params.id;
-      const route = this.activatedRoute.snapshot.params.route;
+      const txnId = this.activatedRoute.snapshot.params.txnId;
       return from(this.loaderService.showLoader())
         .pipe(
           switchMap(() => this.orgService.switchOrg(orgId)),
@@ -118,17 +121,19 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
             return from(this.authService.getEou());
           }),
+          switchMap((eou) => {
+            this.setSentryUser(eou);
+            return this.transactionService.getETxnUnflattened(txnId);
+          }),
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe({
-          next: (eou) => {
-            this.setSentryUser(eou);
+          next: (etxn) => {
             this.checkUserAppVersion();
-            this.router.navigate(['/', 'enterprise', route, { id: txnId }]);
+            const route = this.deepLinkService.getExpenseRoute(etxn);
+            this.router.navigate(['/', 'enterprise', route[2], { id: txnId }]);
           },
-          error: (err) => {
-            this.router.navigate(['/', 'auth', 'switch_org']);
-          },
+          error: (err) => this.router.navigate(['/', 'auth', 'switch_org']),
         });
     } else if (!choose) {
       from(that.loaderService.showLoader())

@@ -5,15 +5,16 @@ import { AdvanceRequestService } from '../core/services/advance-request.service'
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
 import { ReportService } from '../core/services/report.service';
-import { finalize, forkJoin, from, switchMap } from 'rxjs';
+import { filter, finalize, from, shareReplay, switchMap } from 'rxjs';
 import { UnflattenedTransaction } from '../core/models/unflattened-transaction.model';
+import { DeepLinkService } from '../core/services/deep-link.service';
 
 @Component({
   selector: 'app-deep-link-redirection',
   templateUrl: './deep-link-redirection.page.html',
   styleUrls: ['./deep-link-redirection.page.scss'],
 })
-export class DeepLinkRedirectionPage implements OnInit {
+export class DeepLinkRedirectionPage {
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -21,10 +22,11 @@ export class DeepLinkRedirectionPage implements OnInit {
     private advanceRequestService: AdvanceRequestService,
     private transactionService: TransactionService,
     private authService: AuthService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private deepLinkService: DeepLinkService
   ) {}
 
-  ngOnInit() {
+  ionViewWillEnter() {
     const subModule = this.activatedRoute.snapshot.params.sub_module;
 
     if (subModule === 'report') {
@@ -61,61 +63,48 @@ export class DeepLinkRedirectionPage implements OnInit {
   }
 
   async redirectToExpenseModule() {
-    from(this.loaderService.showLoader('Loading....'))
-      .pipe(
-        switchMap(() =>
-          forkJoin({
-            eou: from(this.authService.getEou()),
-            etxn: this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id),
-          })
-        ),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
-      .subscribe({
-        next: ({ eou, etxn }) => {
-          const route = this.getExpenseRoute(etxn);
-          if (eou.ou.org_id === etxn.ou.org_id) {
-            this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
-          } else {
-            //Switch to different org and get transaction)
-            this.router.navigate([
-              '/',
-              'auth',
-              'switch_org',
-              {
-                txnId: this.activatedRoute.snapshot.params.id,
-                orgId: etxn.ou.org_id,
-                route: route[2],
-              },
-            ]);
-          }
-        },
-        error: () => this.goToSwitchOrgPage(),
+    const expenseOrgId = this.activatedRoute.snapshot.params.orgId;
+    const txnId = this.activatedRoute.snapshot.params.id;
+
+    if (!expenseOrgId) {
+      this.transactionService.getETxnUnflattened(txnId).subscribe((etxn) => {
+        const route = this.deepLinkService.getExpenseRoute(etxn);
+        this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
       });
-  }
-
-  getExpenseRoute(etxn: UnflattenedTransaction) {
-    const category = etxn.tx.org_category?.toLowerCase();
-    const canEditTxn = ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].includes(etxn.tx.state);
-
-    let route = [];
-    if (canEditTxn) {
-      route = ['/', 'enterprise', 'add_edit_expense'];
-      if (category === 'mileage') {
-        route = ['/', 'enterprise', 'add_edit_mileage'];
-      } else if (category === 'per diem') {
-        route = ['/', 'enterprise', 'add_edit_per_diem'];
-      }
     } else {
-      route = ['/', 'enterprise', 'view_expense'];
-      if (category === 'mileage') {
-        route = ['/', 'enterprise', 'view_mileage'];
-      } else if (category === 'per diem') {
-        route = ['/', 'enterprise', 'view_per_diem'];
-      }
-    }
+      const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
+        switchMap(() => from(this.authService.getEou())),
+        shareReplay(1)
+      );
 
-    return route;
+      eou$
+        .pipe(
+          filter((eou) => expenseOrgId === eou.ou.org_id),
+          switchMap(() => this.transactionService.getETxnUnflattened(txnId)),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe((etxn) => {
+          const route = this.deepLinkService.getExpenseRoute(etxn);
+          this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
+        });
+
+      eou$
+        .pipe(
+          filter((eou) => expenseOrgId !== eou.ou.org_id),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() =>
+          this.router.navigate([
+            '/',
+            'auth',
+            'switch_org',
+            {
+              txnId,
+              orgId: expenseOrgId,
+            },
+          ])
+        );
+    }
   }
 
   async redirectToReportModule() {
