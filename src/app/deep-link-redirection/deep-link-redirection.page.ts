@@ -5,6 +5,8 @@ import { AdvanceRequestService } from '../core/services/advance-request.service'
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
 import { ReportService } from '../core/services/report.service';
+import { finalize, forkJoin, from, switchMap } from 'rxjs';
+import { UnflattenedTransaction } from '../core/models/unflattened-transaction.model';
 
 @Component({
   selector: 'app-deep-link-redirection',
@@ -50,7 +52,7 @@ export class DeepLinkRedirectionPage implements OnInit {
         this.router.navigate([...route, { id }]);
       },
       () => {
-        this.switchOrg();
+        this.goToSwitchOrgPage();
       },
       async () => {
         await this.loaderService.hideLoader();
@@ -59,38 +61,61 @@ export class DeepLinkRedirectionPage implements OnInit {
   }
 
   async redirectToExpenseModule() {
-    await this.loaderService.showLoader('Loading....');
-    this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id).subscribe(
-      (etxn) => {
-        const category = etxn.tx.org_category && etxn.tx.org_category.toLowerCase();
-        const canEditTxn = ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].includes(etxn.tx.state);
-
-        let route = [];
-        if (canEditTxn) {
-          route = ['/', 'enterprise', 'add_edit_expense'];
-          if (category === 'mileage') {
-            route = ['/', 'enterprise', 'add_edit_mileage'];
-          } else if (category === 'per diem') {
-            route = ['/', 'enterprise', 'add_edit_per_diem'];
+    from(this.loaderService.showLoader('Loading....'))
+      .pipe(
+        switchMap(() =>
+          forkJoin({
+            eou: from(this.authService.getEou()),
+            etxn: this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id),
+          })
+        ),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe({
+        next: ({ eou, etxn }) => {
+          const route = this.getExpenseRoute(etxn);
+          if (eou.ou.org_id === etxn.ou.org_id) {
+            this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
+          } else {
+            //Switch to different org and get transaction)
+            this.router.navigate([
+              '/',
+              'auth',
+              'switch_org',
+              {
+                txnId: this.activatedRoute.snapshot.params.id,
+                orgId: etxn.ou.org_id,
+                route: route[2],
+              },
+            ]);
           }
-        } else {
-          route = ['/', 'enterprise', 'view_expense'];
-          if (category === 'mileage') {
-            route = ['/', 'enterprise', 'view_mileage'];
-          } else if (category === 'per diem') {
-            route = ['/', 'enterprise', 'view_per_diem'];
-          }
-        }
+        },
+        error: () => this.goToSwitchOrgPage(),
+      });
+  }
 
-        this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
-      },
-      () => {
-        this.switchOrg();
-      },
-      async () => {
-        await this.loaderService.hideLoader();
+  getExpenseRoute(etxn: UnflattenedTransaction) {
+    const category = etxn.tx.org_category?.toLowerCase();
+    const canEditTxn = ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].includes(etxn.tx.state);
+
+    let route = [];
+    if (canEditTxn) {
+      route = ['/', 'enterprise', 'add_edit_expense'];
+      if (category === 'mileage') {
+        route = ['/', 'enterprise', 'add_edit_mileage'];
+      } else if (category === 'per diem') {
+        route = ['/', 'enterprise', 'add_edit_per_diem'];
       }
-    );
+    } else {
+      route = ['/', 'enterprise', 'view_expense'];
+      if (category === 'mileage') {
+        route = ['/', 'enterprise', 'view_mileage'];
+      } else if (category === 'per diem') {
+        route = ['/', 'enterprise', 'view_per_diem'];
+      }
+    }
+
+    return route;
   }
 
   async redirectToReportModule() {
@@ -106,7 +131,7 @@ export class DeepLinkRedirectionPage implements OnInit {
         }
       },
       () => {
-        this.switchOrg();
+        this.goToSwitchOrgPage();
       },
       async () => {
         await this.loaderService.hideLoader();
@@ -114,7 +139,7 @@ export class DeepLinkRedirectionPage implements OnInit {
     );
   }
 
-  switchOrg() {
+  goToSwitchOrgPage() {
     this.router.navigate(['/', 'auth', 'switch_org']);
   }
 }

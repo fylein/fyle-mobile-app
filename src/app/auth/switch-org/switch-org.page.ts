@@ -104,8 +104,33 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
     const isFromInviteLink: boolean =
       that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
+    const orgId = that.activatedRoute.snapshot.params.orgId;
 
-    if (!choose) {
+    if (orgId) {
+      const txnId = this.activatedRoute.snapshot.params.id;
+      const route = this.activatedRoute.snapshot.params.route;
+      return from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.orgService.switchOrg(orgId)),
+          switchMap(() => {
+            globalCacheBusterNotifier.next();
+            this.userEventService.clearTaskCache();
+            this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+            return from(this.authService.getEou());
+          }),
+          finalize(() => this.loaderService.hideLoader())
+        )
+        .subscribe({
+          next: (eou) => {
+            this.setSentryUser(eou);
+            this.checkUserAppVersion();
+            this.router.navigate(['/', 'enterprise', route, { id: txnId }]);
+          },
+          error: (err) => {
+            this.router.navigate(['/', 'auth', 'switch_org']);
+          },
+        });
+    } else if (!choose) {
       from(that.loaderService.showLoader())
         .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
         .subscribe(noop);
@@ -316,6 +341,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       )
       .subscribe();
 
+    this.checkUserAppVersion();
+  }
+
+  checkUserAppVersion() {
     this.deviceService
       .getDeviceInfo()
       .pipe(

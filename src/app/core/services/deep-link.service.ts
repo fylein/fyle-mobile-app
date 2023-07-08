@@ -88,7 +88,9 @@ export class DeepLinkService {
           },
         ]);
       } else if (redirectUri.match('/tx')) {
-        const txnId = redirectUri.split('/').pop();
+        const urlArray = redirectUri.split('/');
+        const txnId = urlArray[urlArray.length - 1];
+        const orgId = urlArray[urlArray.length - 2];
         const subModule = 'expense';
         this.router.navigate([
           '/',
@@ -96,6 +98,7 @@ export class DeepLinkService {
           {
             sub_module: subModule,
             id: txnId,
+            orgId,
           },
         ]);
       } else {
