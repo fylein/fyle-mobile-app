@@ -40,4 +40,5 @@ export interface OrgUser {
   default_cost_center_code?: string;
   rank?: number;
   cost_center_ids?: number[];
+  mobile_verification_attempts_left?: number;
 }

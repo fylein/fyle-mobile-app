@@ -316,8 +316,6 @@ export class MyProfilePage {
       if (data.action === 'BACK') {
         this.updateMobileNumber(eou);
       } else if (data.action === 'SUCCESS') {
-        this.authService.refreshEou().subscribe(() => this.loadEou$.next(null));
-
         if (data.homeCurrency === 'USD') {
           this.showSuccessPopover();
         } else {
@@ -325,7 +323,17 @@ export class MyProfilePage {
         }
       }
     }
+    //This is needed to refresh the attempts_at and disable verify cta everytime user opens the dialog
+    this.authService.refreshEou().subscribe(() => this.loadEou$.next(null));
     this.trackingService.verifyMobileNumber();
+  }
+
+  onVerifyCtaClicked(eou: ExtendedOrgUser) {
+    if (eou.ou.mobile_verification_attempts_left !== 0) {
+      this.verifyMobileNumber(eou);
+    } else {
+      this.showToastMessage('You have reached the limit to request OTP. Retry after 24 hours.', 'failure');
+    }
   }
 
   async updateMobileNumber(eou: ExtendedOrgUser) {
@@ -333,7 +341,7 @@ export class MyProfilePage {
       component: UpdateMobileNumberComponent,
       componentProps: {
         title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        ctaText: 'Next',
+        ctaText: eou.ou.mobile_verification_attempts_left !== 0 ? 'Next' : 'Save',
         inputLabel: 'Mobile Number',
         extendedOrgUser: eou,
         placeholder: 'Enter mobile number e.g. +129586736556',
@@ -347,7 +355,13 @@ export class MyProfilePage {
     if (data) {
       if (data.action === 'SUCCESS') {
         this.loadEou$.next(null);
-        this.eou$.pipe(take(1)).subscribe((eou) => from(this.verifyMobileNumber(eou)));
+        this.eou$.pipe(take(1)).subscribe((eou) => {
+          if (eou.ou.mobile_verification_attempts_left !== 0) {
+            this.verifyMobileNumber(eou);
+          } else {
+            this.showToastMessage('Mobile Number Updated Successfully', 'success');
+          }
+        });
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
       }

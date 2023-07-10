@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 export class MobileNumberVerificationService {
   constructor(private apiService: ApiService) {}
 
-  sendOtp(): Observable<OtpDetails> {
+  sendOtp(): Observable<Partial<OtpDetails>> {
     return this.apiService.post('/orgusers/verify_mobile');
   }
 

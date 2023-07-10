@@ -419,10 +419,10 @@ export class TasksService {
     }).pipe(
       switchMap(({ rtfEnrolledCards, eou }) => {
         //Show this task only if mobile number is not verified and user is enrolled for RTF
-        if (!eou.ou.mobile_verified && rtfEnrolledCards.length) {
+        if (!eou.ou.mobile_verified && eou.ou.mobile_verification_attempts_left !== 0 && rtfEnrolledCards.length) {
           return of(this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'));
         }
-        return of([]);
+        return of<DashboardTask[]>([]);
       })
     );
   }

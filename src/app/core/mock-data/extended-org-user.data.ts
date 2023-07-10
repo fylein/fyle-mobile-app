@@ -32,6 +32,7 @@ export const apiEouRes: ExtendedOrgUser = {
     mobile: '123456',
     mobile_verified: false,
     mobile_verified_at: null,
+    mobile_verification_attempts_left: 3,
     is_primary: true,
     owner: false,
     joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
