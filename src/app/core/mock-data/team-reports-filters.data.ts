@@ -38,3 +38,26 @@ export const teamReportsFiltersData4: Partial<TeamReportsFilters> = {
   customDateStart: undefined,
   customDateEnd: undefined,
 };
+
+export const teamReportsFiltersParams3: Partial<TeamReportsFilters> = {
+  state: ['DRAFT', 'PAID', 'CANCELLED'],
+};
+
+export const teamReportsFiltersParams4: Partial<TeamReportsFilters> = {
+  sortParam: 'rp_submitted_at',
+  sortDir: 'asc',
+};
+
+export const teamReportsFiltersParams5: Partial<TeamReportsFilters> = {
+  sortParam: 'rp_amount',
+  sortDir: 'desc',
+};
+
+export const teamReportsFiltersParams6: Partial<TeamReportsFilters> = {
+  sortParam: 'rp_purpose',
+  sortDir: 'asc',
+};
+
+export const teamReportsFiltersParams7: Partial<TeamReportsFilters> = {
+  date: 'thisWeek',
+};

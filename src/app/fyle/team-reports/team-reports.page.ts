@@ -563,19 +563,19 @@ export class TeamReportsPage implements OnInit {
     return generatedFilters;
   }
 
-  generateStateFilterPills(filterPills: FilterPill[], filter) {
+  generateStateFilterPills(filterPills: FilterPill[], filter: Partial<TeamReportsFilters>) {
     this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
       filterPills.push({
         label: 'State',
         type: 'state',
-        value: filter.state
+        value: (filter.state as string[])
           .map((state) => this.reportStatePipe.transform(state, simplifyReportsSettings.enabled))
           .reduce((state1, state2) => `${state1}, ${state2}`),
       });
     });
   }
 
-  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
+  generateCustomDatePill(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
     const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
     const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
 
@@ -600,7 +600,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+  generateDateFilterPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Submitted Date',
@@ -638,7 +638,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateSortRptDatePills(filter: any, filterPills: FilterPill[]) {
+  generateSortRptDatePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_submitted_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -654,7 +654,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
+  generateSortAmountPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
@@ -670,7 +670,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateSortNamePills(filter: any, filterPills: FilterPill[]) {
+  generateSortNamePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -686,7 +686,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateSortFilterPills(filter, filterPills: FilterPill[]) {
+  generateSortFilterPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
     this.generateSortRptDatePills(filter, filterPills);
 
     this.generateSortAmountPills(filter, filterPills);
