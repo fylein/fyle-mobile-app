@@ -266,7 +266,7 @@ export function TestCases3(getTestBed) {
 
       const generatedFilters = component.generateSelectedFilters(teamReportsFiltersData2);
 
-      expect(component.addSortToGeneratedFilters).toHaveBeenCalledTimes(1);
+      expect(component.addSortToGeneratedFilters).toHaveBeenCalledOnceWith(teamReportsFiltersData2, selectedFilters6);
       expect(generatedFilters).toEqual(selectedFilters6);
     });
 
@@ -367,7 +367,10 @@ export function TestCases3(getTestBed) {
 
       it('should return selectedFilters from selected filters', () => {
         const generatedFilters = component.convertFilters(selectedFiltersParams2);
-        expect(component.convertSelectedSortFiltersToFilters).toHaveBeenCalledTimes(1);
+        expect(component.convertSelectedSortFiltersToFilters).toHaveBeenCalledOnceWith(
+          undefined,
+          teamReportsFiltersData3
+        );
         expect(generatedFilters).toEqual(teamReportsFiltersData3);
       });
 
@@ -377,7 +380,10 @@ export function TestCases3(getTestBed) {
         submittedDateFilter.associatedData = undefined;
         const generatedFilters = component.convertFilters(mockSelectedFiltersParams);
 
-        expect(component.convertSelectedSortFiltersToFilters).toHaveBeenCalledTimes(1);
+        expect(component.convertSelectedSortFiltersToFilters).toHaveBeenCalledOnceWith(
+          undefined,
+          teamReportsFiltersData4
+        );
         expect(generatedFilters).toEqual(teamReportsFiltersData4);
       });
     });
