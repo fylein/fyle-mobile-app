@@ -1,11 +1,20 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormBuilder, Validators, FormArray } from '@angular/forms';
+import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController, NavController, ActionSheetController, Platform } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Observable, Subscription, of } from 'rxjs';
+import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { fileObjectAdv1 } from 'src/app/core/mock-data/file-object.data';
+import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import {
+  expectedUnflattendedTxnData3,
+  expectedUnflattendedTxnData4,
+  unflattenedTxnData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -39,39 +48,10 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { AddEditExpensePage } from './add-edit-expense.page';
-import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
-import { unflattenExp1, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
-import {
-  expectedUnflattendedTxnData1,
-  expectedUnflattendedTxnData3,
-  unflattenedTxnData,
-} from 'src/app/core/mock-data/unflattened-txn.data';
-import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { apiV2ResponseMultiple } from 'src/app/core/test-data/projects.spec.data';
-import { expectedAutoFillCategory, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
-import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
-import { recentItemsRes } from 'src/app/core/mock-data/recent-local-storage-items.data';
-import {
-  recentCurrencyRes,
-  recentlyUsedCostCentersRes,
-  recentlyUsedProjectRes,
-  recentlyUsedRes,
-  recentlyUsedResWithoutCurr,
-} from 'src/app/core/mock-data/recently-used.data';
-import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
-import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { fileObject4, fileObjectAdv1 } from 'src/app/core/mock-data/file-object.data';
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { defaultTxnFieldValuesData } from 'src/app/core/mock-data/default-txn-field-values.data';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
-import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
-import { publicPolicyExpenseDataFromTxn } from 'src/app/core/mock-data/public-policy-expense.data';
+import { AddEditExpensePage } from './add-edit-expense.page';
+import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -218,42 +198,6 @@ export function TestCases4(getTestBed) {
       expect(component).toBeTruthy();
     });
 
-    xdescribe('setupFormInit():', () => {
-      it('should setup the expense form', fakeAsync(() => {
-        component.etxn$ = of(unflattenedTxnData);
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.orgUserSettings$ = of(orgUserSettingsData);
-        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple.data[0]));
-        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData));
-        component.autoSubmissionReportName$ = of('# JULY 23');
-        component.reports$ = of(expectedErpt[0]);
-        accountsService.getEtxnSelectedPaymentMode.and.returnValue(unflattenedAccount1Data);
-        component.costCenters$ = of(expectedCCdata);
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(recentlyUsedCostCentersRes));
-        component.paymentModes$ = of(accountOptionData1);
-        component.orgUserSettings$ = of(orgUserSettingsData);
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
-        recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
-        authService.getEou.and.resolveTo(apiEouRes);
-        currencyService.getAll.and.returnValue(of(apiAllCurrencies));
-        recentlyUsedItemsService.getRecentCurrencies.and.returnValue(of(recentCurrencyRes));
-        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
-        loaderService.showLoader.and.resolveTo();
-        loaderService.hideLoader.and.resolveTo();
-        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
-        customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
-        spyOn(component, 'getAutofillCategory').and.returnValue(expectedAutoFillCategory);
-        spyOn(component, 'setCategoryFromVendor');
-        component.txnFields$ = of(defaultTxnFieldValuesData);
-        fixture.detectChanges();
-
-        component.setupFormInit();
-        tick(500);
-      }));
-    });
-
     describe('addAttachments():', () => {
       it('should show add popup if the platform is android and open camera', fakeAsync(() => {
         platform.is.and.returnValue(false);
@@ -313,6 +257,34 @@ export function TestCases4(getTestBed) {
       }));
     });
 
+    it('trackAddExpense(): should track adding expense', fakeAsync(() => {
+      spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+      spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
+      spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
+      component.presetCategoryId = expectedUnflattendedTxnData4.tx.org_category_id;
+      component.presetProjectId = expectedUnflattendedTxnData4.tx.project_id;
+      component.presetCostCenterId = expectedUnflattendedTxnData4.tx.cost_center_id;
+      component.presetCurrency = expectedUnflattendedTxnData4.tx.currency;
+      fixture.detectChanges();
+
+      component.trackAddExpense();
+      tick(500);
+      expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+      expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
+      expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
+        Type: 'Receipt',
+        Amount: expectedUnflattendedTxnData4.tx.amount,
+        Currency: expectedUnflattendedTxnData4.tx.currency,
+        Category: expectedUnflattendedTxnData4.tx.org_category,
+        Time_Spent: '300 secs',
+        Used_Autofilled_Category: undefined,
+        Used_Autofilled_Project: undefined,
+        Used_Autofilled_CostCenter: true,
+        Used_Autofilled_Currency: true,
+        Instafyle: false,
+      });
+    }));
+
     describe('addExpense():', () => {
       it('should add an expense', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
@@ -354,8 +326,9 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         component.isConnected$ = of(false);
         spyOn(component, 'trackAddExpense');
+        component.fg.controls.report.setValue(expectedErpt[0]);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(
-          of({ ...expectedUnflattendedTxnData3, dataUrls: [fileObjectAdv1] })
+          of({ ...unflattenedTxnData, dataUrls: [fileObjectAdv1] })
         );
         authService.getEou.and.resolveTo(apiEouRes);
         transactionOutboxService.addEntry.and.resolveTo();
@@ -364,6 +337,17 @@ export function TestCases4(getTestBed) {
 
         component.addExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toBeNull();
+          expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+          expect(component.trackAddExpense).toHaveBeenCalledTimes(1);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
+            unflattenedTxnData.tx,
+            [fileObjectAdv1],
+            [],
+            'rprAfNrce73O'
+          );
           done();
         });
       });
