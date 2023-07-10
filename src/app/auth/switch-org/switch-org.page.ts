@@ -197,7 +197,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       )
       .subscribe({
         next: (etxn) => {
-          this.checkUserAppVersion();
           const route = this.deepLinkService.getExpenseRoute(etxn);
           this.router.navigate(['/', 'enterprise', route[2], { id: txnId }]);
         },
