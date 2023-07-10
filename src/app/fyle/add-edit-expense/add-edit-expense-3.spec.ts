@@ -359,7 +359,7 @@ export function TestCases3(getTestBed) {
           thumbnail: 'thumbnail',
         });
 
-        component.returnAddOrEditObservable('edit', 'tx1vdITUXIzf').subscribe((res) => {
+        component.getExpenseAttachments('edit', 'tx1vdITUXIzf').subscribe((res) => {
           expect(res).toEqual(expectedFileData1);
           expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx1vdITUXIzf');
           expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
@@ -371,7 +371,7 @@ export function TestCases3(getTestBed) {
       it('should return new expense file objects in add mode', (done) => {
         component.newExpenseDataUrls = fileObject4;
 
-        component.returnAddOrEditObservable('add').subscribe((res) => {
+        component.getExpenseAttachments('add').subscribe((res) => {
           expect(res).toEqual(fileObject4);
           done();
         });
@@ -380,7 +380,7 @@ export function TestCases3(getTestBed) {
 
     describe('generateEtxnFromFg():', () => {
       it('should generate expense object from input in the form', (done) => {
-        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue('loc1');
         component.fg.controls.location_2.setValue('loc2');
@@ -395,17 +395,14 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(unflattenedExpData), of([expectedCustomField[0], expectedCustomField[2]]))
           .subscribe((res) => {
             expect(res).toEqual(expectedUnflattendedTxnData2);
-            expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
-              component.mode,
-              unflattenedExpData.tx.id
-            );
+            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedExpData.tx.id);
             done();
           });
       });
 
       it('should generate expense object from form if the expense is a policy txn and has location data', (done) => {
         dateService.getUTCDate.and.returnValue(new Date('2017-07-25T00:00:00.000Z'));
-        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue('loc1');
         component.fg.controls.category.setValue({
@@ -420,17 +417,14 @@ export function TestCases3(getTestBed) {
 
         component.generateEtxnFromFg(of(unflattenedTxnData2), of(customFieldData2), true).subscribe((res) => {
           expect(res).toEqual(expectedUnflattendedTxnData3);
-          expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
-            component.mode,
-            unflattenedTxnData2.tx.id
-          );
+          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData2.tx.id);
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
           done();
         });
       });
 
       it('should generate expense from form without location data', (done) => {
-        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.currencyObj.setValue({
           amount: 100,
@@ -444,7 +438,7 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
           .subscribe((res) => {
             expect(res).toEqual(expectedUnflattendedTxnData4);
-            expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(
               component.mode,
               draftUnflattendedTxn.tx.id
             );
@@ -454,7 +448,7 @@ export function TestCases3(getTestBed) {
 
       it('should generate expense from form without cost center and location data and not a policy expense in edit mode', (done) => {
         component.mode = 'edit';
-        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         component.fg.controls.currencyObj.setValue({
           amount: 100,
           currency: 'USD',
@@ -464,7 +458,7 @@ export function TestCases3(getTestBed) {
           .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
           .subscribe((res) => {
             expect(res).toEqual(expectedUnflattendedTxnData5);
-            expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(
+            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(
               component.mode,
               draftUnflattendedTxn.tx.id
             );
