@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController, NavController, ActionSheetController, Platform } from '@ionic/angular';
-import { Subscription, of } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -42,7 +42,11 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { unflattenExp1, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  expectedUnflattendedTxnData1,
+  expectedUnflattendedTxnData3,
+  unflattenedTxnData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { apiV2ResponseMultiple } from 'src/app/core/test-data/projects.spec.data';
@@ -61,11 +65,13 @@ import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import { fileObject4, fileObjectAdv1 } from 'src/app/core/mock-data/file-object.data';
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { defaultTxnFieldValuesData } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
+import { publicPolicyExpenseDataFromTxn } from 'src/app/core/mock-data/public-policy-expense.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -305,6 +311,62 @@ export function TestCases4(getTestBed) {
           ToastContent: 'Receipt added to Expense successfully',
         });
       }));
+    });
+
+    describe('addExpense():', () => {
+      it('should add an expense', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData3));
+        spyOn(component, 'trackAddExpense');
+        component.isConnected$ = of(true);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        authService.getEou.and.resolveTo(apiEouRes);
+        activatedRoute.snapshot.params.rp_id = 'rp_id';
+        transactionOutboxService.addEntryAndSync.and.resolveTo(expectedUnflattendedTxnData3);
+        component.fg.controls.report.setValue(expectedErpt[0]);
+        fixture.detectChanges();
+
+        component.addExpense('SAVE_EXPENSE').subscribe((etxn) => {
+          Promise.resolve(etxn).then((res) => {
+            expect(res).toEqual(expectedUnflattendedTxnData3);
+          });
+          expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+          expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
+            expectedUnflattendedTxnData3.tx,
+            expectedUnflattendedTxnData3.dataUrls,
+            [],
+            'rprAfNrce73O'
+          );
+          done();
+        });
+      });
+
+      it('should add expense to queue in offline mode', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        component.isConnected$ = of(false);
+        spyOn(component, 'trackAddExpense');
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(
+          of({ ...expectedUnflattendedTxnData3, dataUrls: [fileObjectAdv1] })
+        );
+        authService.getEou.and.resolveTo(apiEouRes);
+        transactionOutboxService.addEntry.and.resolveTo();
+        component.selectedCCCTransaction = 'tx12341';
+        fixture.detectChanges();
+
+        component.addExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
+          expect(res).toBeNull();
+          done();
+        });
+      });
     });
   });
 }

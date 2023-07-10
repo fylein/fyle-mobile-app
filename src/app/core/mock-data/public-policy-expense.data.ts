@@ -2,6 +2,7 @@ import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { PolicyViolation } from '../models/policy-violation.model';
 import { Transaction } from '../models/v1/transaction.model';
+import { expectedUnflattendedTxnData3 } from '../mock-data/unflattened-txn.data';
 
 export const publicPolicyExpenseData1: PublicPolicyExpense = {
   skip_reimbursement: false,
@@ -356,4 +357,19 @@ export const splitTransactionData1: PublicPolicyExpense = {
   proposed_exchange_rate: 0,
   status_id: '',
   updated_at: undefined,
+};
+
+export const publicPolicyExpenseDataFromTxn: PublicPolicyExpense = {
+  ...expectedUnflattendedTxnData3.tx,
+  tax: '',
+  locations: null,
+  exchange_rate: 0,
+  exchange_rate_diff_percentage: 0,
+  is_matching_ccc_expense: false,
+  mileage_rate_id: 0,
+  payment_id: '',
+  proposed_exchange_rate: 0,
+  status_id: '',
+  updated_at: undefined,
+  user_review_needed: null,
 };
