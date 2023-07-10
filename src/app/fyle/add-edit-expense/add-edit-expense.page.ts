@@ -2762,7 +2762,7 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  returnAddOrEditObservable(mode: string, txId?: string) {
+  getExpenseAttachments(mode: string, txnId?: string) {
     if (mode === 'add') {
       return of(
         this.newExpenseDataUrls.map((fileObj) => {
@@ -2771,7 +2771,7 @@ export class AddEditExpensePage implements OnInit {
         })
       );
     } else {
-      return this.fileService.findByTransactionId(txId).pipe(
+      return this.fileService.findByTransactionId(txnId).pipe(
         switchMap((fileObjs: any) => from(fileObjs)),
         concatMap((fileObj: any) =>
           this.fileService.downloadUrl(fileObj.id).pipe(
@@ -2794,7 +2794,7 @@ export class AddEditExpensePage implements OnInit {
     etxn$.subscribe((etxn) => {
       txId = etxn.tx.id;
     });
-    const attachements$ = this.returnAddOrEditObservable(this.mode, txId);
+    const attachements$ = this.getExpenseAttachments(this.mode, txId);
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,
@@ -3974,7 +3974,7 @@ export class AddEditExpensePage implements OnInit {
       txId = etxn.tx.id;
     });
 
-    const attachements$ = this.returnAddOrEditObservable(this.mode, txId);
+    const attachements$ = this.getExpenseAttachments(this.mode, txId);
 
     from(this.loaderService.showLoader())
       .pipe(
