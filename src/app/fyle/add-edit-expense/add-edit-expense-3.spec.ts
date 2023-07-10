@@ -705,7 +705,7 @@ export function TestCases3(getTestBed) {
         component.etxn$ = of(unflattenedTxnData);
         component.mode = 'edit';
         component.attachedReceiptsCount = 0;
-        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
         spyOn(component.loadAttachments$, 'next');
         loaderService.showLoader.and.resolveTo();
@@ -724,7 +724,7 @@ export function TestCases3(getTestBed) {
         component.viewAttachments();
         tick(500);
 
-        expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
+        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
         expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -743,7 +743,7 @@ export function TestCases3(getTestBed) {
       it('should add attachments and upload receipt in add mode', fakeAsync(() => {
         component.mode = 'add';
         component.etxn$ = of(unflattenedTxnData);
-        spyOn(component, 'returnAddOrEditObservable').and.returnValue(of(fileObject4));
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         component.newExpenseDataUrls = fileObject4;
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
@@ -761,7 +761,7 @@ export function TestCases3(getTestBed) {
         component.viewAttachments();
         tick(500);
 
-        expect(component.returnAddOrEditObservable).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
+        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({

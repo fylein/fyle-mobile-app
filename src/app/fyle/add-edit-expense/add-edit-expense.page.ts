@@ -3974,7 +3974,7 @@ export class AddEditExpensePage implements OnInit {
       txId = etxn.tx.id;
     });
 
-    const attachements$ = this.returnAddOrEditObservable(this.mode, txId);
+    const attachements$ = this.getExpenseAttachments(this.mode, txId);
 
     from(this.loaderService.showLoader())
       .pipe(
