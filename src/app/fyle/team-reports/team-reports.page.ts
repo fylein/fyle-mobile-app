@@ -517,7 +517,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  convertSelectedSortFitlersToFilters(sortBy: SelectedFilters<string>, generatedFilters: Partial<TeamReportsFilters>) {
+  convertSelectedSortFiltersToFilters(sortBy: SelectedFilters<string>, generatedFilters: Partial<TeamReportsFilters>) {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
         generatedFilters.sortParam = 'rp_submitted_at';
@@ -558,7 +558,7 @@ export class TeamReportsPage implements OnInit {
 
     const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
 
-    this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+    this.convertSelectedSortFiltersToFilters(sortBy, generatedFilters);
 
     return generatedFilters;
   }
@@ -712,7 +712,10 @@ export class TeamReportsPage implements OnInit {
     return filterPills;
   }
 
-  convertAmountSortToSelectedFilters(filter: Partial<TeamReportsFilters>, generatedFilters: SelectedFilters<any>[]) {
+  convertAmountSortToSelectedFilters(
+    filter: Partial<TeamReportsFilters>,
+    generatedFilters: SelectedFilters<string | string[]>[]
+  ) {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
