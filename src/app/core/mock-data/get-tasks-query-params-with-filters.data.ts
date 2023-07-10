@@ -14,3 +14,14 @@ export const tasksQueryParamsWithFiltersData2: Partial<GetTasksQueryParamsWithFi
   sortDir: 'asc',
   sortParam: 'approvalDate',
 };
+
+export const tasksQueryParamsWithFiltersData3: Partial<GetTasksQueryParamsWithFilters> = {
+  pageNumber: 1,
+  sortDir: 'desc',
+  searchString: 'example',
+  sortParam: 'rp_submitted_at',
+  queryParams: {
+    or: ['(rp_state.in.(APPROVER_INQUIRY))'],
+    and: '(rp_submitted_at.gte.2023-01-01T00:00:00.000Z,rp_submitted_at.lt.2023-01-04T00:00:00.000Z)',
+  },
+};

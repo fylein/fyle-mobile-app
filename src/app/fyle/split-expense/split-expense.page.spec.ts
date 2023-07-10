@@ -17,7 +17,16 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { SplitExpensePage } from './split-expense.page';
-import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControlOptions,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -36,32 +45,57 @@ import {
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { expenseFieldWithBillable } from 'src/app/core/mock-data/expense-field.data';
 import {
-  createSourceTxn,
+  amtTxn3,
+  sourceTxn2,
   splitExpenseTxn1,
+  splitExpenseTxn1_1,
   splitExpenseTxn2,
+  splitExpenseTxn2_2,
+  splitExpenseTxn2_3,
+  splitExpenseTxn3,
+  splitPurposeTxn,
   splitTxn2,
   splitTxns,
   txnAmount1,
   txnAmount2,
+  txnData,
   txnList,
 } from 'src/app/core/mock-data/transaction.data';
 import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
-import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
-import { OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import {
+  fileObjectData5,
   fileObject6,
   fileObject7,
   fileObject8,
+  fileObjectAdv,
+  fileObjectAdv1,
+  fileObjectData4,
   splitExpFile2,
   splitExpFile3,
   splitExpFileObj,
+  thumbnailUrlMockData,
 } from 'src/app/core/mock-data/file-object.data';
-import { fileTxns, fileTxns2, fileTxns3, fileTxns4, fileTxns5, fileTxns6 } from 'src/app/core/mock-data/file-txn.data';
-import { splitExpense1, splitExpense2 } from 'src/app/core/mock-data/split-expense-data';
+import {
+  fileTxns,
+  fileTxns2,
+  fileTxns3,
+  fileTxns4,
+  fileTxns5,
+  fileTxns6,
+  fileTxns7,
+} from 'src/app/core/mock-data/file-txn.data';
+import {
+  splitExpense1,
+  splitExpense2,
+  splitExpense3,
+  splitExpense4,
+  splitExpense5,
+  splitExpense6,
+  splitExpense7,
+} from 'src/app/core/mock-data/split-expense-data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -75,7 +109,13 @@ import {
 } from 'src/app/core/test-data/projects.spec.data';
 import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { formattedTxnViolations } from 'src/app/core/mock-data/formatted-policy-violation.data';
+import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
+import { policyViolationData3, policyVoilationData2 } from 'src/app/core/mock-data/policy-violation.data';
+import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import * as dayjs from 'dayjs';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -240,7 +280,67 @@ describe('SplitExpensePage', () => {
     expect(navController.back).toHaveBeenCalledTimes(1);
   });
 
-  describe('getTotalSplitAmount', () => {
+  describe('onChangeAmount():', () => {
+    it('should get the new amount and percentage value after amount is changed for first split', fakeAsync(() => {
+      spyOn(component, 'getTotalSplitAmount');
+      component.amount = 2000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(120),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const otherSplitExpenseForm = new FormGroup({
+        amount: new FormControl(800),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      Object.defineProperty(splitExpenseForm1.controls.amount, '_pendingChange', { value: true });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+
+      component.onChangeAmount(splitExpenseForm1, 0);
+      tick(500);
+      expect(otherSplitExpenseForm.controls.amount.value).toEqual(1880);
+      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(94);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(6);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should get the new amount and percentage value after amount is changed for second split', fakeAsync(() => {
+      spyOn(component, 'getTotalSplitAmount');
+      component.amount = 2000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(1200),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const otherSplitExpenseForm = new FormGroup({
+        amount: new FormControl(80),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      Object.defineProperty(otherSplitExpenseForm.controls.amount, '_pendingChange', { value: true });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+
+      component.onChangeAmount(otherSplitExpenseForm, 1);
+      tick(500);
+      expect(splitExpenseForm1.controls.amount.value).toEqual(1920);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(96);
+      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(4);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('getTotalSplitAmount():', () => {
     it('should calculate total split amount and remaining amount correctly when there are two form groups', () => {
       const splitExpenseForm1 = new FormGroup({
         amount: new FormControl(473.4),
@@ -299,7 +399,7 @@ describe('SplitExpensePage', () => {
     });
   });
 
-  describe('setUpSplitExpenseBillable', () => {
+  describe('setUpSplitExpenseBillable():', () => {
     it('should setup split expense to billable when the expense is split by project and the transaction fileds have the billable property present', () => {
       component.txnFields = txnFieldData;
       const result = component.setUpSplitExpenseBillable(splitExpense1);
@@ -337,80 +437,90 @@ describe('SplitExpensePage', () => {
     });
   });
 
-  describe('ionViewWillEnter', () => {
-    beforeEach(() => {
-      categoriesService.getAll.and.returnValue(of(testActiveCategoryList));
-      categoriesService.filterRequired.and.returnValue(testActiveCategoryList);
+  describe('uploadNewFiles(): ', () => {
+    it('should upload new files when the type is an image', (done) => {
+      const mockFileObject = {
+        ...fileObjectData5,
+        name: '000.jpeg',
+      };
+      const files = fileObjectAdv;
+      const dataUrl = fileObjectAdv[0].url;
+      const attachmentType = 'image';
+      transactionsOutboxService.fileUpload.and.resolveTo(mockFileObject);
 
-      projectsService.getbyId.and.returnValue(of(testProjectV2));
-      projectsService.getAllowedOrgCategoryIds.and.returnValue(allowedActiveCategories);
-
-      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
-      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-
-      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
-
-      currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      dateService.addDaysToDate.and.returnValue(new Date());
-
-      spyOn(component, 'getActiveCategories').and.callThrough();
-    });
-
-    it('should should show all categories if show_project_mapped_categories_in_split_expense flag is false', () => {
-      launchDarklyService.getVariation.and.returnValue(of(false));
-
-      component.ionViewWillEnter();
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
-        'show_project_mapped_categories_in_split_expense',
-        false
-      );
-      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
-
-      expect(projectsService.getbyId).not.toHaveBeenCalled();
-      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
-
-      component.categories$.subscribe((categories) => {
-        expect(categories).toEqual(testActiveCategoryListOptions);
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toEqual([mockFileObject]);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+        done();
       });
     });
 
-    it('should show only project mapped categories if show_project_mapped_categories_in_split_expense flag is true and expense has a project', () => {
-      launchDarklyService.getVariation.and.returnValue(of(true));
+    it('should upload new files when the type is a png', (done) => {
+      const mockFile = {
+        ...fileObjectAdv[0],
+        type: 'png',
+      };
+      const files = [mockFile];
+      const dataUrl = fileObjectAdv[0].url;
+      const attachmentType = 'image';
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObjectData5);
 
-      component.ionViewWillEnter();
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
-        'show_project_mapped_categories_in_split_expense',
-        false
-      );
-      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
-
-      expect(projectsService.getbyId).toHaveBeenCalledOnceWith(component.transaction.project_id);
-      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(testProjectV2, testActiveCategoryList);
-
-      component.categories$.subscribe((categories) => {
-        expect(categories).toEqual(allowedActiveCategoriesListOptions);
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toEqual([fileObjectData5]);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+        done();
       });
     });
 
-    it('should show all categories if show_project_mapped_categories_in_split_expense flag is true but expense does not have a project', () => {
-      launchDarklyService.getVariation.and.returnValue(of(true));
-      activateRouteMock.snapshot.params.txn = '{"project_id": null}';
+    it('should upload new files when the type is a pdf', (done) => {
+      const files = [fileObjectAdv1];
+      const mockFileObject = {
+        ...fileObjectData5,
+        name: '000.pdf',
+      };
+      const dataUrl = fileObjectAdv1.url;
+      const attachmentType = 'pdf';
+      transactionsOutboxService.fileUpload.and.resolveTo(mockFileObject);
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toEqual([mockFileObject]);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
+        done();
+      });
+    });
 
-      component.ionViewWillEnter();
+    it('should return null when there are no valid files', (done) => {
+      const files = [];
+      component.uploadNewFiles(files).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(transactionsOutboxService.fileUpload).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
 
-      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
-        'show_project_mapped_categories_in_split_expense',
-        false
-      );
-      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+  describe('uploadFiles', () => {
+    it('should upload files when the transacton id is not specified', (done) => {
+      spyOn(component, 'uploadNewFiles').and.returnValue(of([fileObjectData4]));
+      component.transaction = splitTxns;
+      component.uploadFiles(fileObjectData4).subscribe((result) => {
+        expect(component.fileObjs).toEqual([fileObjectData4]);
+        expect(result).toEqual([fileObjectData4]);
+        expect(component.uploadNewFiles).toHaveBeenCalledOnceWith(fileObjectData4);
+        done();
+      });
+    });
 
-      expect(projectsService.getbyId).not.toHaveBeenCalled();
-      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
-
-      component.categories$.subscribe((categories) => {
-        expect(categories).toEqual(testActiveCategoryListOptions);
+    it('should return the attached files when the transaction id is specified', (done) => {
+      spyOn(component, 'getAttachedFiles').and.returnValue(of(fileObject8));
+      const FileObject9: FileObject[] = thumbnailUrlMockData.map((fileObject) => ({
+        ...fileObject,
+        id: 'fizBwnXhyZTp',
+      }));
+      component.transaction = sourceTxn2;
+      component.uploadFiles(FileObject9).subscribe((result) => {
+        expect(result).toEqual(fileObject8);
+        expect(component.getAttachedFiles).toHaveBeenCalledOnceWith('txxkBruL0EO9');
+        done();
       });
     });
   });
@@ -423,11 +533,11 @@ describe('SplitExpensePage', () => {
 
   describe('createAndLinkTxnsWithFiles():', () => {
     it('should link transaction with files when the receipt is attached and, the txn state is COMPLETE but the report id is not present', (done) => {
-      const splitExpData = splitExpenseTxn1;
+      const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.transaction = txnAmount1;
       component.reportId = null;
       component.totalSplitAmount = 436342.464;
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns3.txns));
 
       component.fileObjs = fileObject6;
       splitExpenseService.getBase64Content.and.returnValue(
@@ -439,7 +549,7 @@ describe('SplitExpensePage', () => {
           },
         ])
       );
-      component.splitExpenseTxn = [fileTxns2];
+
       const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
       splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject7));
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
@@ -449,6 +559,7 @@ describe('SplitExpensePage', () => {
           splitExpData
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
+        expect(component.splitExpenseTxn).toEqual(fileTxns3.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
         expect(result).toEqual(mockCompleteTxnIds);
@@ -457,11 +568,11 @@ describe('SplitExpensePage', () => {
     });
 
     it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present', (done) => {
-      const splitExpData = splitExpenseTxn1;
+      const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.transaction = txnAmount1;
       component.reportId = 'rpba4MnwQ0FO';
       component.totalSplitAmount = 436342.464;
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns3.txns));
 
       component.fileObjs = fileObject6;
       reportService.addTransactions.and.returnValue(of(fileData2));
@@ -474,7 +585,7 @@ describe('SplitExpensePage', () => {
           },
         ])
       );
-      component.splitExpenseTxn = [fileTxns2];
+
       const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
       splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject7));
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
@@ -484,6 +595,7 @@ describe('SplitExpensePage', () => {
           splitExpData
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
+        expect(component.splitExpenseTxn).toEqual(fileTxns3.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns3);
@@ -493,14 +605,11 @@ describe('SplitExpensePage', () => {
     });
 
     it('should link transaction to files when the receipt is not attached and report id is not present', (done) => {
-      const splitExpData = splitExpenseTxn1;
+      const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.fileObjs = [];
       component.reportId = null;
       component.transaction = txnAmount1;
-      component.createAndLinkTxnsWithFiles(splitExpData);
-      component.transaction = txnAmount1;
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
-      component.splitExpenseTxn = fileTxns2.txns;
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns4.txns));
       component.totalSplitAmount = 436342.464;
 
       const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
@@ -511,8 +620,9 @@ describe('SplitExpensePage', () => {
           component.totalSplitAmount,
           splitExpData
         );
-        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(2);
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(1);
         expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
+        expect(component.splitExpenseTxn).toEqual(fileTxns4.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
         expect(result).toEqual(mockCompleteTxnIds);
@@ -520,28 +630,26 @@ describe('SplitExpensePage', () => {
       });
     });
 
-    it('should link transaction to files when the receipt is not attached and report is not present', (done) => {
-      const splitExpData = splitExpenseTxn1;
+    it('should link transaction to files when the receipt is not attached and report is present', (done) => {
+      const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.fileObjs = [];
       component.transaction = txnAmount1;
       component.reportId = 'rpba4MnwQ0FO';
-      component.createAndLinkTxnsWithFiles(splitExpData);
-      component.transaction = txnAmount1;
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn1));
-      component.splitExpenseTxn = fileTxns2.txns;
+
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns4.txns));
       component.totalSplitAmount = 436342.464;
       splitExpenseService.linkTxnWithFiles.and.returnValue(of([null]));
       reportService.addTransactions.and.returnValue(of(fileData2));
 
       const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
-        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledWith(
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
           txnAmount1,
           component.totalSplitAmount,
           splitExpData
         );
-        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(2);
         expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
+        expect(component.splitExpenseTxn).toEqual(fileTxns4.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns4);
@@ -551,13 +659,13 @@ describe('SplitExpensePage', () => {
     });
 
     it('should link transaction with files when the receipt is attached,the txn state is COMPLETE and the report id is present and the expense is split in three', (done) => {
-      const splitExpData = splitExpenseTxn2;
+      const splitExpData = [splitExpenseTxn2, splitExpenseTxn2_2, splitExpenseTxn2_3];
       component.fileObjs = fileObject8;
       component.transaction = txnAmount2;
       component.reportId = 'rpPNBrdR9NaE';
       component.totalSplitAmount = 6000;
       reportService.addTransactions.and.returnValue(of(fileData2));
-      splitExpenseService.createSplitTxns.and.returnValue(of(splitExpenseTxn2));
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns6.txns));
       splitExpenseService.getBase64Content.and.returnValue(
         of([
           {
@@ -567,7 +675,6 @@ describe('SplitExpensePage', () => {
           },
         ])
       );
-      component.splitExpenseTxn = [fileTxns5];
       const mockCompleteTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo'];
       splitExpenseService.linkTxnWithFiles.and.returnValue(of(fileObject8));
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
@@ -577,10 +684,38 @@ describe('SplitExpensePage', () => {
           splitExpData
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject8);
+        expect(component.splitExpenseTxn).toEqual(fileTxns6.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
         expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
         expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns6);
         expect(result).toEqual(mockCompleteTxnIds);
+        done();
+      });
+    });
+
+    it('should link transaction with files when only one of the txn state is COMPLETE and should only add this transaction to report', (done) => {
+      const splitExpData = splitExpenseTxn3;
+      component.transaction = amtTxn3;
+
+      component.reportId = 'rpPNBrdR9NaE';
+      component.totalSplitAmount = 635;
+      reportService.addTransactions.and.returnValue(of(fileTxns7.txns));
+      splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns7.txns));
+
+      const mockCompleteTxnIds = ['txegSZ66da1T'];
+      splitExpenseService.linkTxnWithFiles.and.returnValue(of([null]));
+
+      component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
+          amtTxn3,
+          component.totalSplitAmount,
+          splitExpData
+        );
+        expect(component.splitExpenseTxn).toEqual(fileTxns7.txns);
+        expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
+        expect(reportService.addTransactions).toHaveBeenCalledOnceWith(component.reportId, mockCompleteTxnIds);
+        expect(splitExpenseService.linkTxnWithFiles).toHaveBeenCalledOnceWith(fileTxns7);
+        expect(result).toEqual(['tx5qtWJTXRcj', 'txegSZ66da1T']);
         done();
       });
     });
@@ -683,8 +818,67 @@ describe('SplitExpensePage', () => {
     fileService.findByTransactionId.and.returnValue(of(fileObject8));
     component.getAttachedFiles(transactionId).subscribe((result) => {
       expect(result).toEqual(fileObject8);
+      expect(component.fileObjs).toEqual(fileObject8);
       expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
       done();
+    });
+  });
+
+  it('showSplitExpenseViolations(): should show the expense violations when the expense is split', async () => {
+    const violations = formattedTxnViolations;
+    spyOn(component, 'showSuccessToast');
+    const properties = {
+      cssClass: 'fy-modal',
+      showBackdrop: true,
+      canDismiss: true,
+      backdropDismiss: true,
+      animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
+    };
+    modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+      'present',
+      'onWillDismiss',
+    ]);
+    fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+      data: {
+        action: 'primary',
+      },
+    });
+
+    modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+    const result = await component.showSplitExpenseViolations(violations);
+    expect(result).toBeUndefined();
+    expect(modalController.create).toHaveBeenCalledOnceWith({
+      component: SplitExpensePolicyViolationComponent,
+      componentProps: {
+        policyViolations: violations,
+      },
+      mode: 'ios',
+      presentingElement: await modalController.getTop(),
+      ...properties,
+    });
+    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
+  });
+
+  describe('handleSplitExpensePolicyViolations():', () => {
+    it('should handle polciy violations when the expense is split', () => {
+      const violations = policyVoilationData2;
+      spyOn(component, 'showSplitExpenseViolations');
+      policyService.checkIfViolationsExist.and.returnValue(true);
+      splitExpenseService.formatPolicyViolations.and.returnValue(formattedTxnViolations);
+      component.handleSplitExpensePolicyViolations(violations);
+      expect(component.showSplitExpenseViolations).toHaveBeenCalledOnceWith(formattedTxnViolations);
+    });
+
+    it('should show success toast when the expense is split and there are no violations', () => {
+      policyService.checkIfViolationsExist.and.returnValue(false);
+      spyOn(component, 'showSuccessToast');
+      component.handleSplitExpensePolicyViolations(policyViolationData3);
+      expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -696,6 +890,548 @@ describe('SplitExpensePage', () => {
       expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
       expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(filterOrgCategoryParam);
       done();
+    });
+  });
+
+  describe('ionViewWillEnter', () => {
+    beforeEach(() => {
+      categoriesService.getAll.and.returnValue(of(testActiveCategoryList));
+      categoriesService.filterRequired.and.returnValue(testActiveCategoryList);
+
+      projectsService.getbyId.and.returnValue(of(testProjectV2));
+      projectsService.getAllowedOrgCategoryIds.and.returnValue(allowedActiveCategories);
+
+      orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
+
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
+      dateService.addDaysToDate.and.returnValue(new Date());
+
+      spyOn(component, 'getActiveCategories').and.callThrough();
+    });
+
+    it('should should show all categories if show_project_mapped_categories_in_split_expense flag is false', () => {
+      launchDarklyService.getVariation.and.returnValue(of(false));
+
+      component.ionViewWillEnter();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+
+      expect(projectsService.getbyId).not.toHaveBeenCalled();
+      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
+
+      component.categories$.subscribe((categories) => {
+        expect(categories).toEqual(testActiveCategoryListOptions);
+      });
+    });
+
+    it('should show only project mapped categories if show_project_mapped_categories_in_split_expense flag is true and expense has a project', () => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      component.ionViewWillEnter();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+
+      expect(projectsService.getbyId).toHaveBeenCalledOnceWith(component.transaction.project_id);
+      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(testProjectV2, testActiveCategoryList);
+
+      component.categories$.subscribe((categories) => {
+        expect(categories).toEqual(allowedActiveCategoriesListOptions);
+      });
+    });
+
+    it('should show all categories if show_project_mapped_categories_in_split_expense flag is true but expense does not have a project', () => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      activateRouteMock.snapshot.params.txn = '{"project_id": null}';
+
+      component.ionViewWillEnter();
+
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+        'show_project_mapped_categories_in_split_expense',
+        false
+      );
+      expect(component.getActiveCategories).toHaveBeenCalledTimes(1);
+
+      expect(projectsService.getbyId).not.toHaveBeenCalled();
+      expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
+
+      component.categories$.subscribe((categories) => {
+        expect(categories).toEqual(testActiveCategoryListOptions);
+      });
+    });
+  });
+
+  describe('setValuesForCCC():', () => {
+    it('should set the values for CCC split expenses when coporate credit cards is enabled', () => {
+      const minDate = dayjs('Jan 1, 2001');
+      const maxDate = dayjs().add(1, 'day');
+      const expectedMinDate = minDate.format('YYYY-M-D');
+      const expectedMaxDate = maxDate.format('YYYY-M-D');
+
+      dateService.addDaysToDate.and.returnValue(maxDate.toDate());
+      component.amount = 2000;
+      spyOn(component, 'setAmountAndCurrency').and.callThrough();
+      spyOn(component, 'add').and.callThrough();
+      spyOn(component, 'getTotalSplitAmount').and.callThrough();
+      const mockUnFlattenedDate = {
+        ...unflattenedAccount2Data,
+        amount: 2000,
+        currency: 'INR',
+      };
+      const currencyObj = mockUnFlattenedDate;
+      const homeCurrency = 'INR';
+      const isCorporateCardsEnabled = true;
+
+      const amount1 = 1200;
+      const amount2 = 800;
+      const percentage1 = 60;
+      const percentage2 = 40;
+
+      component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
+      expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
+      expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
+      expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
+      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
+      expect(component.minDate).toEqual(expectedMinDate);
+      expect(component.maxDate).toEqual(expectedMaxDate);
+    });
+
+    it('should set the values to null if coporate credit cards is disabled and the amount is less than 0.0001', () => {
+      const minDate = dayjs('Jan 1, 2001');
+      const maxDate = dayjs().add(1, 'day');
+      const expectedMinDate = minDate.format('YYYY-M-D');
+      const expectedMaxDate = dayjs(maxDate).format('YYYY-M-D');
+      dateService.addDaysToDate.and.returnValue(maxDate.toDate());
+      component.amount = 0.00001;
+      spyOn(component, 'setAmountAndCurrency').and.callThrough();
+      spyOn(component, 'add').and.callThrough();
+      spyOn(component, 'getTotalSplitAmount').and.callThrough();
+      const mockUnFlattenedDate = {
+        ...unflattenedAccount2Data,
+        amount: 0.00001,
+        currency: 'INR',
+      };
+      const currencyObj = mockUnFlattenedDate;
+      const homeCurrency = 'INR';
+      const isCorporateCardsEnabled = false;
+
+      const amount1 = null;
+      const amount2 = null;
+      //as these will be null only if amount is not present
+      const percentage1 = 60;
+      const percentage2 = 40;
+
+      component.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
+      expect(component.setAmountAndCurrency).toHaveBeenCalledWith(currencyObj, homeCurrency);
+      expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
+      expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
+      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
+      expect(component.minDate).toEqual(expectedMinDate);
+      expect(component.maxDate).toEqual(expectedMaxDate);
+    });
+  });
+
+  describe('setAmountAndCurrency():', () => {
+    it('should set the amount and currency when orig currency and amount are present', () => {
+      const currencyObj = unflattenedAccount3Data;
+      const homeCurrency = orgData1[0].currency;
+      component.setAmountAndCurrency(currencyObj, homeCurrency);
+      expect(component.amount).toBe(800000);
+      expect(component.currency).toEqual('USD');
+    });
+
+    it('should set the amount and currency when orig currency and amount are not present', () => {
+      const mockCurrencyObj = {
+        ...unflattenedAccount3Data,
+        orig_amount: null,
+        orig_currency: null,
+      };
+      const homeCurrency = orgData1[0].currency;
+      component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
+      expect(component.amount).toBe(800000);
+      expect(component.currency).toEqual('USD');
+    });
+
+    it('should set the currency to homeCurrency when curency and orig currency is not present', () => {
+      const mockCurrencyObj = {
+        ...unflattenedAccount3Data,
+        currency: null,
+        orig_currency: null,
+      };
+      const homeCurrency = orgData1[0].currency;
+      component.setAmountAndCurrency(mockCurrencyObj, homeCurrency);
+      expect(component.amount).toBe(800000);
+      expect(component.currency).toEqual(homeCurrency);
+    });
+  });
+
+  describe('customDateValidator():', () => {
+    it('should return null when the date is within the valid range', () => {
+      const control = new FormControl('2023-06-15');
+      const result = component.customDateValidator(control);
+      expect(result).toBeNull();
+    });
+
+    it('should return an error object when the date is after the upper bound of the valid range', () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 2);
+      const control = new FormControl(tomorrow.toISOString().substring(0, 10));
+      const result = component.customDateValidator(control);
+      expect(result).toEqual({ invalidDateSelection: true });
+    });
+  });
+
+  describe('add():', () => {
+    it('should set the date of when the expense was created if not provided while splitting an expense and all', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      component.splitType = 'categories';
+      component.transaction = txnData;
+
+      component.add(amount, currency, percentage);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpense3);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set the date of when the expense was created to today if not provided while splitting an expense', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      const txnDate = null;
+
+      component.splitType = 'categories';
+      component.transaction = null;
+
+      component.add(amount, currency, percentage, txnDate);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpense4);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should add the form control to the form array when the split type is projects', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      component.splitType = 'projects';
+      component.transaction = txnData;
+
+      component.add(amount, currency, percentage);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpense5);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should add the form control to the form array when the split type is cost centers', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
+      const amount = 2000;
+      const currency = 'INR';
+      const percentage = 50;
+      component.splitType = 'cost centers';
+      component.transaction = txnData;
+
+      component.add(amount, currency, percentage);
+      expect(component.splitExpensesFormArray.length).toEqual(1);
+      expect(component.splitExpensesFormArray.controls[0].value).toEqual(splitExpense6);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should add the form control to the form array when no arg is provided in case the expense is split in three', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      spyOn(component, 'customDateValidator').and.returnValue(null);
+
+      component.splitType = 'categories';
+      component.transaction = txnData;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(10000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-02-08'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(5000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-02-08'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+
+      component.add();
+      expect(component.splitExpensesFormArray.length).toEqual(3);
+      expect(component.splitExpensesFormArray.controls[2].value).toEqual(splitExpense7);
+      expect(component.customDateValidator).toHaveBeenCalledTimes(1);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('remove()', () => {
+    it('should remove the expense at the 1st index', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(10000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(5000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.remove(1);
+
+      expect(component.splitExpensesFormArray.length).toBe(1);
+      expect(component.splitExpensesFormArray.controls[0].value.amount).toBe(10000);
+      expect(component.splitExpensesFormArray.controls[0].value.percentage).toBe(60);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+
+    it('should recalculate the amount and percentage for the last split expense form when there are more than 2 splits', () => {
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(9000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(4000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(26.667),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm3 = new FormGroup({
+        amount: new FormControl(2000),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(13.333),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
+      component.amount = 15000;
+      component.remove(2);
+      expect(component.splitExpensesFormArray.length).toBe(2);
+      expect(component.splitExpensesFormArray.controls[0].value.amount).toBe(9000);
+      expect(component.splitExpensesFormArray.controls[0].value.percentage).toBe(60);
+      expect(component.splitExpensesFormArray.controls[1].value.amount).toBe(6000);
+      expect(component.splitExpensesFormArray.controls[1].value.percentage).toBe(40);
+    });
+  });
+
+  describe('splitEvenly():', () => {
+    it('should split the amount evenly between the number of splits', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      //@ts-ignore
+      spyOn(component, 'setEvenSplit');
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(327.5),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(327.5),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.amount = 655;
+      const evenAmount = 327.5;
+      const evenPercentage = 50;
+      const lastSplitIndex = 1;
+      const lastSplitAmount = 327.5;
+      const lastSplitPercentage = 50;
+
+      component.splitEvenly();
+      expect(component.splitExpensesFormArray.length - 1).toBe(lastSplitIndex);
+      //@ts-ignore
+      expect(component.setEvenSplit).toHaveBeenCalledWith(
+        evenAmount,
+        evenPercentage,
+        lastSplitAmount,
+        lastSplitPercentage
+      );
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('setEvenSplit()', () => {
+    it('should set the amount and percentage for the last split when last split is true', () => {
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(327.5),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(327.5),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      component.amount = 655;
+      const evenAmount = 327.5;
+      const evenPercentage = 50;
+      const lastSplitIndex = 1;
+      const lastSplitAmount = 327.5;
+      const lastSplitPercentage = 50;
+
+      //@ts-ignore
+      component.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
+      expect(component.splitExpensesFormArray.controls[lastSplitIndex].value.amount).toBe(evenAmount);
+      expect(component.splitExpensesFormArray.controls[lastSplitIndex].value.percentage).toBe(evenPercentage);
+    });
+
+    it('should set amount and parcentage accordingly when isLastSplit is false', () => {
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(218.333),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(33.333),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(218.333),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(33.333),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm3 = new FormGroup({
+        amount: new FormControl(218.333),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(33.334),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const evenAmount = 218.333;
+      const evenPercentage = 33.333;
+      const lastSplitAmount = 218.334;
+      const lastSplitIndex = 2;
+      const lastSplitPercentage = 33.334;
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2, splitExpenseForm3]);
+      component.amount = 655;
+      //@ts-ignore
+      component.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
+      expect(component.splitExpensesFormArray.controls[lastSplitIndex].value.amount).toBe(lastSplitAmount);
+      expect(component.splitExpensesFormArray.controls[lastSplitIndex].value.percentage).toBe(lastSplitPercentage);
+    });
+  });
+
+  describe('isEvenlySplit():', () => {
+    it('should return true if the split expenses are evenly split', () => {
+      component.amount = 1000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(500),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(500),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(50),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      //@ts-ignore
+      const result = component.isEvenlySplit();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if the split expenses are not evenly split', () => {
+      component.amount = 1000;
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(800),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(80),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const splitExpenseForm2 = new FormGroup({
+        amount: new FormControl(200),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(20),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, splitExpenseForm2]);
+      //@ts-ignore
+      const result = component.isEvenlySplit();
+      expect(result).toBeFalse();
+    });
+
+    it('should consider splits with a difference of 0.01 as evenly split', () => {
+      component.splitExpensesFormArray = new FormArray([
+        new FormGroup({
+          amount: new FormControl(10.0),
+          currency: new FormControl('INR'),
+          percentage: new FormControl(20),
+          txn_dt: new FormControl('2023-01-11'),
+          category: new FormControl(''),
+        }),
+        new FormGroup({
+          amount: new FormControl(10.01),
+          currency: new FormControl('INR'),
+          percentage: new FormControl(20),
+          txn_dt: new FormControl('2023-01-11'),
+          category: new FormControl(''),
+        }),
+      ]);
+      //@ts-ignore
+      const isEvenSplit = component.isEvenlySplit();
+      expect(isEvenSplit).toBe(true);
     });
   });
 });
