@@ -123,6 +123,26 @@ export class TeamReportsPage implements OnInit {
     this.onPageExit.next(null);
   }
 
+  modifyCurrentParams(currentParams) {
+    const currentParamsCopy = cloneDeep(currentParams);
+
+    currentParamsCopy.pageNumber = 1;
+    currentParamsCopy.searchString = searchString;
+    return currentParamsCopy;
+  }
+
+  getQueryParms(params) {
+    let queryParams = params.queryParams;
+    const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+    queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+    return {
+      offset: (params.pageNumber - 1) * 10,
+      limit: 10,
+      queryParams,
+      orderByParams
+    };
+  }
+
   ionViewWillEnter() {
     this.isLoading = true;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
@@ -162,25 +182,17 @@ export class TeamReportsPage implements OnInit {
         distinctUntilChanged()
       )
       .subscribe((searchString) => {
-        const currentParams = this.loadData$.getValue();
-        currentParams.searchString = searchString;
+        let currentParams = this.loadData$.getValue();
         this.currentPageNumber = 1;
-        currentParams.pageNumber = this.currentPageNumber;
+        currentParams = this.modifyCurrentParams(currentParams);
         this.loadData$.next(currentParams);
       });
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams;
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        const queryParams = getQueryParms(params);
         this.isLoadingDataInInfiniteScroll = true;
-        return this.reportService.getTeamReports({
-          offset: (params.pageNumber - 1) * 10,
-          limit: 10,
-          queryParams,
-          order: orderByParams,
-        });
+        return this.reportService.getTeamReports(queryParams);
       }),
       map((res) => {
         this.isLoadingDataInInfiniteScroll = false;
@@ -228,7 +240,7 @@ export class TeamReportsPage implements OnInit {
     if (this.activatedRoute.snapshot.queryParams.filters) {
       this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
       this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
+      const params = this.addNewFiltersToParams(this.loadData$.getValue(), this.filters);;
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
     } else if (this.activatedRoute.snapshot.params.state) {
@@ -239,7 +251,7 @@ export class TeamReportsPage implements OnInit {
 
       this.filters = Object.assign({}, this.filters, filters);
       this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
+      const params = this.addNewFiltersToParams(this.loadData$.getValue(), this.filters);;
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
     } else {
@@ -282,60 +294,66 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateCustomDateParams(newQueryParams: any) {
-    if (this.filters.date === DateFilters.custom) {
-      const startDate = this.filters?.customDateStart?.toISOString();
-      const endDate = this.filters?.customDateEnd?.toISOString();
-      if (this.filters.customDateStart && this.filters.customDateEnd) {
-        newQueryParams.and = `(rp_submitted_at.gte.${startDate},rp_submitted_at.lt.${endDate})`;
-      } else if (this.filters.customDateStart) {
-        newQueryParams.and = `(rp_submitted_at.gte.${startDate})`;
-      } else if (this.filters.customDateEnd) {
-        newQueryParams.and = `(rp_submitted_at.lt.${endDate})`;
+  generateCustomDateParams(newQueryParams: any, filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date === DateFilters.custom) {
+      const startDate = filters?.customDateStart?.toISOString();
+      const endDate = filters?.customDateEnd?.toISOString();
+      if (filters.customDateStart && filters.customDateEnd) {
+        newQueryParamsCopy.and = `(rp_submitted_at.gte.${startDate},rp_submitted_at.lt.${endDate})`;
+      } else if (filters.customDateStart) {
+        newQueryParamsCopy.and = `(rp_submitted_at.gte.${startDate})`;
+      } else if (filters.customDateEnd) {
+        newQueryParamsCopy.and = `(rp_submitted_at.lt.${endDate})`;
       }
     }
+    return newQueryParamsCopy;
   }
 
-  generateDateParams(newQueryParams) {
-    if (this.filters.date) {
-      this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
-      this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
-      if (this.filters.date === DateFilters.thisMonth) {
-        const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(rp_submitted_at.gte.${thisMonth.from.toISOString()},rp_submitted_at.lt.${thisMonth.to.toISOString()})`;
+  generateDateParams(newQueryParams, filters, ranges) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date) {
+      filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
+      filters.customDateEnd = filters.customDateEnd && new Date(filters.customDateEnd);
+      if (filters.date === DateFilters.thisMonth) {
+        const thisMonth = ranges.thisMonth;
+        newQueryParamsCopy.and = `(rp_submitted_at.gte.${thisMonth.from.toISOString()},rp_submitted_at.lt.${thisMonth.to.toISOString()})`;
       }
 
-      if (this.filters.date === DateFilters.thisWeek) {
-        const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParams.and = `(rp_submitted_at.gte.${thisWeek.from.toISOString()},rp_submitted_at.lt.${thisWeek.to.toISOString()})`;
+      if (filters.date === DateFilters.thisWeek) {
+        const thisWeek = ranges.thisWeek;
+        newQueryParamsCopy.and = `(rp_submitted_at.gte.${thisWeek.from.toISOString()},rp_submitted_at.lt.${thisWeek.to.toISOString()})`;
       }
 
-      if (this.filters.date === DateFilters.lastMonth) {
-        const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(rp_submitted_at.gte.${lastMonth.from.toISOString()},rp_submitted_at.lt.${lastMonth.to.toISOString()})`;
+      if (filters.date === DateFilters.lastMonth) {
+        const lastMonth = ranges.lastMonth;
+        newQueryParamsCopy.and = `(rp_submitted_at.gte.${lastMonth.from.toISOString()},rp_submitted_at.lt.${lastMonth.to.toISOString()})`;
       }
 
-      this.generateCustomDateParams(newQueryParams);
+      newQueryParamsCopy = this.generateCustomDateParams(newQueryParamsCopy, filters);
     }
+
+    return newQueryParamsCopy;
   }
 
-  generateStateFilters(newQueryParams) {
+  generateStateFilters(newQueryParams, filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
     const stateOrFilter = [];
 
-    if (this.filters.state) {
-      if (this.filters.state.includes('APPROVER_PENDING')) {
+    if (filters.state) {
+      if (filters.state.includes('APPROVER_PENDING')) {
         stateOrFilter.push('rp_state.in.(APPROVER_PENDING)');
       }
 
-      if (this.filters.state.includes('APPROVER_INQUIRY')) {
+      if (filters.state.includes('APPROVER_INQUIRY')) {
         stateOrFilter.push('rp_state.in.(APPROVER_INQUIRY)');
       }
 
-      if (this.filters.state.includes('APPROVED')) {
+      if (filters.state.includes('APPROVED')) {
         stateOrFilter.push('rp_state.in.(APPROVED)');
       }
 
-      if (this.filters.state.includes('PAID')) {
+      if (filters.state.includes('PAID')) {
         stateOrFilter.push('rp_state.in.(PAID)');
       }
     }
@@ -346,13 +364,15 @@ export class TeamReportsPage implements OnInit {
        * sequential_approval_turn - true
        * If any other state filter is applied, it will be considered as reports under `ALL` queue
        */
-      if (this.filters.state.includes('APPROVER_PENDING') && this.filters.state.length === 1) {
-        newQueryParams.sequential_approval_turn = 'in.(true)';
+      if (filters.state.includes('APPROVER_PENDING') && filters.state.length === 1) {
+        newQueryParamsCopy.sequential_approval_turn = 'in.(true)';
       }
       let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParams.or.push(combinedStateOrFilter);
+      newQueryParamsCopy.or.push(combinedStateOrFilter);
     }
+
+    return newQueryParamsCopy;
   }
 
   setSortParams(
@@ -362,29 +382,38 @@ export class TeamReportsPage implements OnInit {
       sortParam: string;
       sortDir: string;
       searchString: string;
-    }>
+    }>,
+    filters
   ) {
-    if (this.filters.sortParam && this.filters.sortDir) {
-      currentParams.sortParam = this.filters.sortParam;
-      currentParams.sortDir = this.filters.sortDir;
+    const currentParamsCopy = cloneDeep(currentParams);
+    if (filters.sortParam && filters.sortDir) {
+      currentParamsCopy.sortParam = filters.sortParam;
+      currentParamsCopy.sortDir = filters.sortDir;
     } else {
-      currentParams.sortParam = 'rp_submitted_at';
-      currentParams.sortDir = 'desc';
+      currentParamsCopy.sortParam = 'rp_submitted_at';
+      currentParamsCopy.sortDir = 'desc';
     }
+
+    return currentParamsCopy;
   }
 
-  addNewFiltersToParams() {
-    const currentParams = this.loadData$.getValue();
+  addNewFiltersToParams(currentParams, filters) {
     currentParams.pageNumber = 1;
     const newQueryParams: any = {
       or: [],
     };
 
-    this.generateDateParams(newQueryParams);
+    const ranges = {
+      thisMonth: this.dateService.getThisMonthRange(),
+      thisWeek: this.dateService.getThisWeekRange(),
+      lastMonth: this.dateService.getLastMonthRange(),
+    };
 
-    this.generateStateFilters(newQueryParams);
+    newQueryParams = this.generateDateParams(newQueryParams, ranges, filters);
 
-    this.setSortParams(currentParams);
+    newQueryParams = this.generateStateFilters(newQueryParams, filters);
+
+    currentParams = this.setSortParams(currentParams, filters);
 
     currentParams.queryParams = newQueryParams;
 
@@ -394,7 +423,7 @@ export class TeamReportsPage implements OnInit {
   clearFilters() {
     this.filters = {};
     this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
+    const params = this.addNewFiltersToParams(this.loadData$.getValue(), this.filters);;
     this.loadData$.next(params);
     this.filterPills = this.generateFilterPills(this.filters);
   }
@@ -507,7 +536,7 @@ export class TeamReportsPage implements OnInit {
       delete this.filters[filterType];
     }
     this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
+    const params = this.addNewFiltersToParams(this.loadData$.getValue(), this.filters);;
     this.loadData$.next(params);
     this.filterPills = this.generateFilterPills(this.filters);
   }
@@ -958,7 +987,7 @@ export class TeamReportsPage implements OnInit {
     if (data) {
       this.filters = this.convertFilters(data);
       this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
+      const params = this.addNewFiltersToParams(this.loadData$.getValue(), this.filters);;
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.TeamReportsFilterApplied({
