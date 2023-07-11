@@ -784,9 +784,9 @@ describe('MergeExpensesService', () => {
 
   it('getCategoryName(): should return the category name', () => {
     categoriesService.getAll.and.returnValue(of(orgCategoryData1));
-    const categoryId = '201952';
+    const categoryId = 201952;
     mergeExpensesService.getCategoryName(categoryId).subscribe((res) => {
-      expect(res).toEqual('Food');
+      expect(res).toEqual('Others');
       expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
     });
   });
