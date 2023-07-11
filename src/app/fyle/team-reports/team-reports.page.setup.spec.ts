@@ -16,6 +16,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TestCases1 } from './team-reports-1.page.spec';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases2 } from './team-reports-2.page.spec';
+import { TestCases3 } from './team-reports-3.page.spec';
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
@@ -34,6 +35,7 @@ describe('TeamReportsPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'footerHomeTabClicked',
       'TeamReportsFilterApplied',
+      'tasksPageOpened',
     ]);
     const activatedRouteSpy = {
       snapshot: {
@@ -74,4 +76,5 @@ describe('TeamReportsPage', () => {
 
   TestCases1(getTestBed);
   TestCases2(getTestBed);
+  TestCases3(getTestBed);
 });
