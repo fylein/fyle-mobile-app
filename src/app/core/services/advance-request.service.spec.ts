@@ -1,37 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { AdvanceRequestService } from './advance-request.service';
-import { ApiService } from './api.service';
-import { ApiV2Service } from './api-v2.service';
-import { AuthService } from './auth.service';
-import { OrgUserSettingsService } from './org-user-settings.service';
-import { TimezoneService } from './timezone.service';
-import { AdvanceRequestPolicyService } from './advance-request-policy.service';
-import { DataTransformService } from './data-transform.service';
-import { DateService } from './date.service';
-import { FileService } from './file.service';
-import { Observable, of } from 'rxjs';
-import {
-  singleExtendedAdvReqRes,
-  extendedAdvReqDraft,
-  extendedAdvReqInquiry,
-  extendedAdvReqApproved,
-  extendedAdvReqPaid,
-  extendedAdvReqRejected,
-  extendedAdvReqSubmitted,
-  extendedAdvReqPulledBack,
-  extendedAdvReqSentBack,
-  extendedAdvReqWithoutDates,
-  extendedAdvReqWithDates,
-  withoutDatesAdv,
-  singleErqRes,
-  singleErqUnflattened,
-  teamAdvanceCountRes,
-  allAdvanceRequestsRes,
-  allTeamAdvanceRequestsRes,
-} from '../mock-data/extended-advance-request.data';
+import { of } from 'rxjs';
 import { apiAdvanceRequestAction } from '../mock-data/advance-request-actions.data';
-import { apiEouRes } from '../mock-data/extended-org-user.data';
-import { apiAdvanceReqRes } from '../mock-data/stats-dimension-response.data';
+import { advRequestFile, advRequestFile2 } from '../mock-data/advance-request-file.data';
 import {
   advanceRequests,
   advancedRequests2,
@@ -43,15 +13,49 @@ import {
   rejectedAdvReqRes,
 } from '../mock-data/advance-requests.data';
 import { advanceReqApprovals } from '../mock-data/approval.data';
+import {
+  customField2,
+  customFields,
+  expectedCustomFieldsWithDate,
+  expectedCustomFieldsWoDate,
+} from '../mock-data/custom-field.data';
+import {
+  allAdvanceRequestsRes,
+  allTeamAdvanceRequestsRes,
+  extendedAdvReqApproved,
+  extendedAdvReqDraft,
+  extendedAdvReqInquiry,
+  extendedAdvReqPaid,
+  extendedAdvReqPulledBack,
+  extendedAdvReqRejected,
+  extendedAdvReqSentBack,
+  extendedAdvReqSubmitted,
+  extendedAdvReqWithDates,
+  extendedAdvReqWithoutDates,
+  singleErqRes,
+  singleErqUnflattened,
+  singleExtendedAdvReqRes,
+  teamAdvanceCountRes,
+} from '../mock-data/extended-advance-request.data';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { fileObjectData3, fileObjectData4 } from '../mock-data/file-object.data';
 import { fileData1, fileData2 } from '../mock-data/file.data';
-import { advRequestFile, advRequestFile2 } from '../mock-data/advance-request-file.data';
-import { customFieldData1, expectedCustomField } from '../mock-data/custom-field.data';
 import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
 import { checkPolicyData } from '../mock-data/policy-violation-check.data';
-import { SortingParam } from '../models/sorting-param.model';
-import { SortingDirection } from '../models/sorting-direction.model';
+import { apiAdvanceReqRes } from '../mock-data/stats-dimension-response.data';
 import { AdvancesStates } from '../models/advances-states.model';
+import { SortingDirection } from '../models/sorting-direction.model';
+import { SortingParam } from '../models/sorting-param.model';
+import { AdvanceRequestPolicyService } from './advance-request-policy.service';
+import { AdvanceRequestService } from './advance-request.service';
+import { ApiV2Service } from './api-v2.service';
+import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
+import { DataTransformService } from './data-transform.service';
+import { DateService } from './date.service';
+import { FileService } from './file.service';
+import { OrgUserSettingsService } from './org-user-settings.service';
+import { TimezoneService } from './timezone.service';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -497,8 +501,16 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('modifyAdvanceRequestCustomFields(): should modify advance request custom fields', () => {
-    expect(advanceRequestService.modifyAdvanceRequestCustomFields(customFieldData1)).toEqual(expectedCustomField);
+  describe('modifyAdvanceRequestCustomFields():', () => {
+    it('should modify advance request custom fields', () => {
+      expect(advanceRequestService.modifyAdvanceRequestCustomFields(customFields)).toEqual(expectedCustomFieldsWoDate);
+    });
+
+    it('should modify custom fields with date value', () => {
+      expect(advanceRequestService.modifyAdvanceRequestCustomFields(customField2)).toEqual(
+        expectedCustomFieldsWithDate
+      );
+    });
   });
 
   describe('getSortOrder(): should get the sorting order', () => {

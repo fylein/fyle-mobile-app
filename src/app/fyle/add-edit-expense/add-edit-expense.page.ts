@@ -112,6 +112,7 @@ import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fi
 import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -487,14 +488,14 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  merchantValidator(c: FormControl): ValidationErrors {
+  merchantValidator(c: AbstractControl): ValidationErrors {
     if (c.value && c.value.display_name) {
       return c.value.display_name.length > 250 ? { merchantNameSize: 'Length is greater than 250' } : null;
     }
     return null;
   }
 
-  currencyObjValidator(c: FormControl): ValidationErrors {
+  currencyObjValidator(c: AbstractControl): ValidationErrors {
     if (c.value && ((c.value.amount && c.value.currency) || (c.value.orig_amount && c.value.orig_currency))) {
       return null;
     }
@@ -2761,31 +2762,39 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
-    const editExpenseAttachments = etxn$.pipe(
-      switchMap((etxn: any) => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap((fileObjs: any) => from(fileObjs)),
-      concatMap((fileObj: any) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        )
-      ),
-      reduce((acc, curr) => acc.concat(curr), [])
-    );
+  getExpenseAttachments(mode: string, txnId?: string) {
+    if (mode === 'add') {
+      return of(
+        this.newExpenseDataUrls.map((fileObj) => {
+          fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+          return fileObj;
+        })
+      );
+    } else {
+      return this.fileService.findByTransactionId(txnId).pipe(
+        switchMap((fileObjs: any) => from(fileObjs)),
+        concatMap((fileObj: any) =>
+          this.fileService.downloadUrl(fileObj.id).pipe(
+            map((downloadUrl) => {
+              fileObj.url = downloadUrl;
+              const details = this.getReceiptDetails(fileObj);
+              fileObj.type = details.type;
+              fileObj.thumbnail = details.thumbnail;
+              return fileObj;
+            })
+          )
+        ),
+        reduce((acc, curr) => acc.concat(curr), [])
+      );
+    }
+  }
 
-    const addExpenseAttachments = of(
-      this.newExpenseDataUrls.map((fileObj) => {
-        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-        return fileObj;
-      })
-    );
-    const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
+  generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
+    let txId;
+    etxn$.subscribe((etxn) => {
+      txId = etxn.tx.id;
+    });
+    const attachements$ = this.getExpenseAttachments(this.mode, txId);
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,
@@ -3423,6 +3432,65 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  criticalPolicyViolationErrorHandler(err, customFields$) {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() =>
+              this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+              )
+            )
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  policyViolationErrorHandler(err, customFields$) {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() =>
+              this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+              )
+            )
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  trackCreateExpense(etxn, isInstaFyleExpense) {
+    this.trackingService.createExpense({
+      Type: 'Receipt',
+      Amount: etxn.tx.amount,
+      Currency: etxn.tx.currency,
+      Category: etxn.tx.org_category,
+      Time_Spent: this.getTimeSpentOnPage() + ' secs',
+      Used_Autofilled_Category:
+        etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
+      Used_Autofilled_Project:
+        etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
+      Used_Autofilled_CostCenter:
+        etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
+      Used_Autofilled_Currency:
+        (etxn.tx.currency || etxn.tx.orig_currency) &&
+        this.presetCurrency &&
+        (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
+      Instafyle: isInstaFyleExpense,
+    });
+  }
+
   addExpense(redirectedFrom) {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
@@ -3901,31 +3969,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   viewAttachments() {
-    const editExpenseAttachments = this.etxn$.pipe(
-      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: any) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        )
-      ),
-      reduce((acc, curr) => acc.concat(curr), [])
-    );
+    let txId;
+    this.etxn$.subscribe((etxn) => {
+      txId = etxn.tx.id;
+    });
 
-    const addExpenseAttachments = of(
-      this.newExpenseDataUrls.map((fileObj) => {
-        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-        return fileObj;
-      })
-    );
-
-    const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
+    const attachements$ = this.getExpenseAttachments(this.mode, txId);
 
     from(this.loaderService.showLoader())
       .pipe(
@@ -3972,7 +4021,7 @@ export class AddEditExpensePage implements OnInit {
 
   getDeleteReportParams(
     config: { header: string; body: string; ctaText: string; ctaLoadingText: string },
-    removeExpenseFromReport: boolean,
+    removeExpenseFromReport: boolean = false,
     reportId?: string
   ) {
     return {
