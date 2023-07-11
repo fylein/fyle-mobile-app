@@ -5,14 +5,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, of } from 'rxjs';
+import { Observable, Subscription, of, throwError } from 'rxjs';
 import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { fileObjectAdv1 } from 'src/app/core/mock-data/file-object.data';
+import { fileObject4, fileObjectAdv1 } from 'src/app/core/mock-data/file-object.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import {
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
+  unflattenedTransactionDataPersonalCard,
   unflattenedTxnData,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -52,6 +53,11 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
+import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
+import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
+import { customProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -285,6 +291,23 @@ export function TestCases4(getTestBed) {
       });
     }));
 
+    it('showAddToReportSuccessToast(): should show success message on adding expense to report', () => {
+      const modalSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
+      modalSpy.onAction.and.returnValue(of(true));
+      spyOn(component, 'showSnackBarToast').and.returnValue(modalSpy);
+
+      component.showAddToReportSuccessToast('rpFE5X1Pqi9P');
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Expense added to report successfully',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: 'rpFE5X1Pqi9P', navigateBack: true },
+      ]);
+    });
+
     describe('addExpense():', () => {
       it('should add an expense', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
@@ -351,6 +374,307 @@ export function TestCases4(getTestBed) {
           done();
         });
       });
+
+      it('should add expense with critical policy violation', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'trackAddExpense');
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData3));
+        component.isConnected$ = of(true);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        policyService.getCriticalPolicyRules.and.returnValue([
+          'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+        ]);
+        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(
+          of({ etxn: expectedUnflattendedTxnData3, comment: null })
+        );
+        authService.getEou.and.resolveTo(apiEouRes);
+        spyOn(component, 'trackCreateExpense');
+        transactionOutboxService.addEntry.and.resolveTo();
+        fixture.detectChanges();
+
+        component.addExpense('SAVE_EXPENSE').subscribe((res) => {
+          expect(res).toBeNull();
+          expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+          expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(component.criticalPolicyViolationErrorHandler).toHaveBeenCalledOnceWith(
+            {
+              type: 'criticalPolicyViolations',
+              policyViolations: [
+                'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+              ],
+              etxn: expectedUnflattendedTxnData3,
+            },
+            jasmine.any(Observable)
+          );
+          expect(authService.getEou).toHaveBeenCalledOnceWith();
+          expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData3, false);
+          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
+            expectedUnflattendedTxnData3.tx,
+            [],
+            [],
+            undefined
+          );
+          done();
+        });
+      });
+
+      it('should add expense with policy violations', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'trackAddExpense');
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
+        component.isConnected$ = of(true);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([
+          'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+        ]);
+        spyOn(component, 'policyViolationErrorHandler').and.returnValue(
+          of({
+            etxn: expectedUnflattendedTxnData4,
+            comment: 'continue',
+          })
+        );
+        authService.getEou.and.resolveTo(apiEouRes);
+        spyOn(component, 'trackCreateExpense');
+        transactionOutboxService.addEntry.and.resolveTo();
+
+        component.addExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
+          expect(res).toBeNull();
+          expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+          expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(component.policyViolationErrorHandler).toHaveBeenCalledOnceWith(
+            {
+              type: 'policyViolations',
+              policyViolations: [
+                'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+              ],
+              policyAction: expensePolicyData.data.final_desired_state,
+              etxn: expectedUnflattendedTxnData4,
+            },
+            jasmine.any(Observable)
+          );
+          expect(authService.getEou).toHaveBeenCalledOnceWith();
+          expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData4, false);
+          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
+            expectedUnflattendedTxnData4.tx,
+            [],
+            ['continue'],
+            undefined
+          );
+          done();
+        });
+      });
+
+      it('should thow error if expense cannot be generated', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(throwError(() => new Error('error')));
+        spyOn(component, 'trackAddExpense');
+
+        component.addExpense('SAVE_EXPENSE').subscribe({
+          next: () => {
+            expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
+              component.etxn$,
+              jasmine.any(Observable),
+              true
+            );
+            expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
+          },
+          error: (err) => expect(err).toBeTruthy(),
+        });
+        done();
+      });
+    });
+
+    describe('saveAndMatchWithPersonalCardTxn():', () => {
+      it('should save an expense and match with personal card', () => {
+        const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
+        generateEtxnSpy
+          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+        generateEtxnSpy
+          .withArgs(component.etxn$, jasmine.any(Observable))
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        component.isConnected$ = of(true);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard));
+        personalCardsService.matchExpense.and.returnValue(
+          of({
+            id: expectedUnflattendedTxnData3.tx.id,
+            transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
+          })
+        );
+        spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
+        spyOn(component, 'showSnackBarToast');
+        fixture.detectChanges();
+
+        component.saveAndMatchWithPersonalCardTxn();
+        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
+        expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+        expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+        expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard);
+        expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id,
+          apiPersonalCardTxnsRes.data[0].btxn_id
+        );
+        expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id
+        );
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Expense created successfully.' },
+          'success',
+          ['msb-success']
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
+      });
+
+      it('should save and match an expense with critical violation', () => {
+        const expense = { ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard };
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expense));
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        policyService.getCriticalPolicyRules.and.returnValue([
+          'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+        ]);
+
+        component.isConnected$ = of(true);
+        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: expense, comment: null }));
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard));
+        personalCardsService.matchExpense.and.returnValue(
+          of({
+            id: expectedUnflattendedTxnData3.tx.id,
+            transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
+          })
+        );
+        spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
+        spyOn(component, 'showSnackBarToast');
+        fixture.detectChanges();
+
+        component.saveAndMatchWithPersonalCardTxn();
+        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable), true);
+        expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+        expect(component.criticalPolicyViolationErrorHandler).toHaveBeenCalledOnceWith(
+          {
+            type: 'criticalPolicyViolations',
+            policyViolations: [
+              'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+            ],
+            etxn: expense,
+          },
+          jasmine.any(Observable)
+        );
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard);
+        expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id,
+          apiPersonalCardTxnsRes.data[0].btxn_id
+        );
+        expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id
+        );
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Expense created successfully.' },
+          'success',
+          ['msb-success']
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
+      });
+
+      it('it should save and match an expense with policy violation', () => {
+        const expense = { ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard };
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expense));
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([
+          'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+        ]);
+        component.isConnected$ = of(true);
+        spyOn(component, 'policyViolationErrorHandler').and.returnValue(of({ etxn: expense, comment: 'comment' }));
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard));
+        personalCardsService.matchExpense.and.returnValue(
+          of({
+            id: expectedUnflattendedTxnData3.tx.id,
+            transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
+          })
+        );
+        spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
+        spyOn(component, 'showSnackBarToast');
+        fixture.detectChanges();
+
+        component.saveAndMatchWithPersonalCardTxn();
+        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable), true);
+        expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+        expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+        expect(component.policyViolationErrorHandler).toHaveBeenCalledOnceWith(
+          {
+            type: 'policyViolations',
+            policyViolations: [
+              'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+            ],
+            policyAction: expensePolicyData.data.final_desired_state,
+            etxn: expense,
+          },
+          jasmine.any(Observable)
+        );
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard);
+        expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id,
+          apiPersonalCardTxnsRes.data[0].btxn_id
+        );
+        expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id
+        );
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Expense created successfully.' },
+          'success',
+          ['msb-success']
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
+      });
+    });
+
+    it('trackEditExpense(): should track edit expense event', () => {
+      spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
+      component.presetCategoryId = expectedUnflattendedTxnData3.tx.org_category_id;
+      component.presetProjectId = expectedUnflattendedTxnData3.tx.project_id;
+      component.presetCostCenterId = expectedUnflattendedTxnData3.tx.cost_center_id;
+      component.presetCurrency = expectedUnflattendedTxnData3.tx.currency;
+      fixture.detectChanges();
+
+      component.trackEditExpense(expectedUnflattendedTxnData3);
+      expect(trackingService.editExpense).toHaveBeenCalledOnceWith({
+        Type: 'Receipt',
+        Amount: expectedUnflattendedTxnData3.tx.amount,
+        Currency: expectedUnflattendedTxnData3.tx.currency,
+        Category: expectedUnflattendedTxnData3.tx.org_category,
+        Time_Spent: '300 secs',
+        Used_Autofilled_Category: undefined,
+        Used_Autofilled_Project: undefined,
+        Used_Autofilled_CostCenter: true,
+        Used_Autofilled_Currency: true,
+      });
+      expect(component.getTimeSpentOnPage).toHaveBeenCalledTimes(1);
     });
   });
 }

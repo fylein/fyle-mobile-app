@@ -3176,6 +3176,26 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
+  trackEditExpense(etxn) {
+    this.trackingService.editExpense({
+      Type: 'Receipt',
+      Amount: etxn.tx.amount,
+      Currency: etxn.tx.currency,
+      Category: etxn.tx.org_category,
+      Time_Spent: this.getTimeSpentOnPage() + ' secs',
+      Used_Autofilled_Category:
+        etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
+      Used_Autofilled_Project:
+        etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
+      Used_Autofilled_CostCenter:
+        etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
+      Used_Autofilled_Currency:
+        (etxn.tx.currency || etxn.tx.orig_currency) &&
+        this.presetCurrency &&
+        (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
+    });
+  }
+
   editExpense(redirectedFrom) {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
@@ -3229,39 +3249,9 @@ export class AddEditExpensePage implements OnInit {
           );
         }
         if (err.type === 'criticalPolicyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-                    )
-                  )
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
+          return this.criticalPolicyViolationErrorHandler(err, customFields$);
         } else if (err.type === 'policyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                    )
-                  )
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
+          return this.policyViolationErrorHandler(err, customFields$);
         } else {
           return throwError(err);
         }
@@ -3274,25 +3264,7 @@ export class AddEditExpensePage implements OnInit {
           switchMap(({ eou, txnCopy }) => {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
-              this.trackingService.editExpense({
-                Type: 'Receipt',
-                Amount: etxn.tx.amount,
-                Currency: etxn.tx.currency,
-                Category: etxn.tx.org_category,
-                Time_Spent: this.getTimeSpentOnPage() + ' secs',
-                Used_Autofilled_Category:
-                  etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
-                Used_Autofilled_Project:
-                  etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
-                Used_Autofilled_CostCenter:
-                  etxn.tx.cost_center_id &&
-                  this.presetCostCenterId &&
-                  etxn.tx.cost_center_id === this.presetCostCenterId,
-                Used_Autofilled_Currency:
-                  (etxn.tx.currency || etxn.tx.orig_currency) &&
-                  this.presetCurrency &&
-                  (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
-              });
+              this.trackEditExpense(etxn);
             } else {
               // tracking expense closed without editing
               this.trackingService.viewExpense({ Type: 'Receipt' });
@@ -4140,41 +4112,10 @@ export class AddEditExpensePage implements OnInit {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
           }
-
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
-              switchMap((continueWithTransaction) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() =>
-                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-                      )
-                    )
-                  );
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.criticalPolicyViolationErrorHandler(err, customFields$);
           } else if (err.type === 'policyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
-              switchMap((continueWithTransaction) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() =>
-                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                      )
-                    )
-                  );
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.policyViolationErrorHandler(err, customFields$);
           } else {
             return throwError(err);
           }
