@@ -42,17 +42,20 @@
     </ng-container>
     <ng-template #resendOtpCta>
       <button
+        *ngIf="!disableResendOtp"
         class="verify-number-popover__input-container__label__resend"
-        [ngClass]="{ 'verify-number-popover__input-container__label__resend--disabled': disableResendOtp }"
         (click)="resendOtp('CLICK')"
         appFormButtonValidation
         buttonType="secondary"
         [loading]="sendingOtp"
         loadingText="Sending OTP"
-        [disabled]="disableResendOtp"
       >
         Resend OTP
       </button>
+      <!-- TODO: Handle this case in directive and fix it property -->
+      <div *ngIf="disableResendOtp" class="verify-number-popover__input-container__label__resend--disabled">
+        Resend OTP
+      </div>
     </ng-template>
   </div>
   <input

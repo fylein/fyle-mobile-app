@@ -39,6 +39,7 @@
         font-weight: 500;
 
         &--disabled {
+          @extend .verify-number-popover__input-container__label__resend;
           color: $grey-light;
         }
       }
