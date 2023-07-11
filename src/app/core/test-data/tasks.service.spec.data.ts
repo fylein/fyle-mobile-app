@@ -50,6 +50,7 @@ export const extendedOrgUserResponse = {
     mobile: '+917686958963',
     mobile_verified: true,
     mobile_verified_at: new Date('2021-02-08T06:25:26.549Z'),
+    mobile_verification_attempts_left: 4,
     is_primary: true,
     owner: null,
     joining_dt: null,

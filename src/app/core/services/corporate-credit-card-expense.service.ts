@@ -12,6 +12,10 @@ import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
+import { Cacheable } from 'ts-cacheable';
 import { CardDetails } from '../models/card-details.model';
 
 type Config = Partial<{
@@ -29,8 +33,16 @@ export class CorporateCreditCardExpenseService {
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
-    private authService: AuthService
+    private authService: AuthService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
+
+  @Cacheable()
+  getCorporateCards(): Observable<PlatformCorporateCard[]> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformCorporateCard>>('/corporate_cards')
+      .pipe(map((res) => res.data));
+  }
 
   getv2CardTransactions(config: Config): Observable<ApiV2Response<CorporateCardExpense>> {
     return this.apiV2Service

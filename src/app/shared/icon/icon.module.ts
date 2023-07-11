@@ -163,6 +163,7 @@ export class IconModule {
     'tag.svg',
     'tax.svg',
     'taxi.svg',
+    'tick-circle-outline.svg',
     'toll-charge.svg',
     'train.svg',
     'tick-square-filled.svg',
