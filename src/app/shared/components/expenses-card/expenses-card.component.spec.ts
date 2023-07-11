@@ -290,7 +290,7 @@ describe('ExpensesCardComponent', () => {
     it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
       component.expense = {
         ...expenseData1,
-        tx_fyle_category: 'mileage',
+        tx_org_category: 'mileage',
       };
       component.getReceipt();
       fixture.detectChanges();
@@ -300,7 +300,7 @@ describe('ExpensesCardComponent', () => {
     it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
       component.expense = {
         ...expenseData1,
-        tx_fyle_category: 'per diem',
+        tx_org_category: 'per diem',
       };
       component.getReceipt();
       fixture.detectChanges();
