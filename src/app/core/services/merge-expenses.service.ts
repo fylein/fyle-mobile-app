@@ -561,10 +561,10 @@ export class MergeExpensesService {
     );
   }
 
-  getCategoryName(categoryId: string): Observable<string> {
+  getCategoryName(categoryId: number): Observable<string> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const category = categories.find((category) => category?.id?.toString() === categoryId);
+        const category = categories.find((category) => category?.id === categoryId);
         return category?.name;
       })
     );
