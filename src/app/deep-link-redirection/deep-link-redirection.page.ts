@@ -83,9 +83,12 @@ export class DeepLinkRedirectionPage {
           switchMap(() => this.transactionService.getETxnUnflattened(txnId)),
           finalize(() => from(this.loaderService.hideLoader()))
         )
-        .subscribe((etxn) => {
-          const route = this.deepLinkService.getExpenseRoute(etxn);
-          this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
+        .subscribe({
+          next: (etxn) => {
+            const route = this.deepLinkService.getExpenseRoute(etxn);
+            this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
+          },
+          error: () => this.switchOrg(),
         });
 
       //If expenseOrgId is different from user orgId, then redirect to switch org page with orgId and txnId
@@ -94,17 +97,19 @@ export class DeepLinkRedirectionPage {
           filter((eou) => expenseOrgId !== eou.ou.org_id),
           finalize(() => from(this.loaderService.hideLoader()))
         )
-        .subscribe(() =>
-          this.router.navigate([
-            '/',
-            'auth',
-            'switch_org',
-            {
-              txnId,
-              orgId: expenseOrgId,
-            },
-          ])
-        );
+        .subscribe({
+          next: () =>
+            this.router.navigate([
+              '/',
+              'auth',
+              'switch_org',
+              {
+                txnId,
+                orgId: expenseOrgId,
+              },
+            ]),
+          error: () => this.switchOrg(),
+        });
     }
   }
 
