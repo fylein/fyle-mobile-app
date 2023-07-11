@@ -1,35 +1,60 @@
 import { TitleCasePipe } from '@angular/common';
-import { ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, of } from 'rxjs';
+import { cloneDeep } from 'lodash';
+import { Subscription, of } from 'rxjs';
+import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCenterApiRes1 } from 'src/app/core/mock-data/cost-centers.data';
+import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
+import { selectedCurrencies } from 'src/app/core/mock-data/currency.data';
 import { customFieldData1, customFieldData2, expectedCustomField } from 'src/app/core/mock-data/custom-field.data';
-import { expectedFileData1, fileObject4, fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import {
+  expectedFileData1,
+  fileObject4,
+  fileObject7,
+  fileObjectData,
+  fileObjectData1,
+} from 'src/app/core/mock-data/file-object.data';
+import { fileData1 } from 'src/app/core/mock-data/file.data';
+import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
   filteredCategoriesData,
   orgCategoryData,
+  orgCategoryData1,
+  orgCategoryPaginated1,
 } from 'src/app/core/mock-data/org-category.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { extractedData } from 'src/app/core/mock-data/parsed-receipt.data';
+import { orgUserSettingsData, orgUserSettingsWithCurrency } from 'src/app/core/mock-data/org-user-settings.data';
+import { extractedData, instaFyleData1 } from 'src/app/core/mock-data/parsed-receipt.data';
+import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
+import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
 import { expensePolicyData, publicPolicyExpenseData1 } from 'src/app/core/mock-data/public-policy-expense.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
   draftUnflattendedTxn,
-  unflattenedTxn,
   unflattenedExpData,
+  unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
+  expectedExpenseObservable,
+  expectedExpenseObservable2,
+  expectedExpenseObservable3,
+  expectedExpenseObservable4,
+  expectedExpenseObservable5,
   expectedUnflattendedTxnData2,
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
   expectedUnflattendedTxnData5,
+  unflattenedDraftExp,
+  unflattenedDraftExp2,
+  unflattenedPaidExp,
   unflattenedTxnData,
   unflattenedTxnData2,
   unflattenedTxnDataWithoutCategoryData,
@@ -68,10 +93,13 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import {
+  multiplePaymentModesData,
+  orgSettingsData,
+  orgSettingsWithoutAutofill,
+} from 'src/app/core/test-data/accounts.service.spec.data';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { orgSettingsData, orgSettingsWoAutoFill } from 'src/app/core/test-data/accounts.service.spec.data';
-import { recentUsedCategoriesRes } from '../../core/mock-data/org-category-list-item.data';
-import { cloneDeep } from 'lodash';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -431,7 +459,7 @@ export function TestCases3(getTestBed) {
           currency: 'USD',
         });
         component.mode = 'add';
-        component.newExpenseDataUrls = [fileObjectData];
+        component.newExpenseDataUrls = [];
         fixture.detectChanges();
 
         component
@@ -543,7 +571,7 @@ export function TestCases3(getTestBed) {
       it('should return autofill category if autofill disabled', (done) => {
         component.etxn$ = of(unflattenedTxnDataWithoutCategoryData2);
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-        orgSettingsService.get.and.returnValue(of(orgSettingsWoAutoFill));
+        orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         spyOn(component, 'getAutofillCategory').and.returnValue(expectedAutoFillCategory);
@@ -560,6 +588,509 @@ export function TestCases3(getTestBed) {
             etxn: unflattenedTxnDataWithoutCategoryData2,
             category: null,
           });
+          done();
+        });
+      });
+    });
+
+    it('trackCreateExpense(): should track create expense event', () => {
+      component.presetCategoryId = unflattenedExpData.tx.project_id;
+      component.presetCostCenterId = unflattenedExpData.tx.cost_center_id;
+      component.presetCurrency = unflattenedExpData.tx.orig_currency;
+      spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
+      fixture.detectChanges();
+
+      component.trackCreateExpense(unflattenedExpData, true);
+      expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
+        Type: 'Receipt',
+        Amount: unflattenedExpData.tx.amount,
+        Currency: unflattenedExpData.tx.currency,
+        Category: unflattenedExpData.tx.org_category,
+        Time_Spent: '30 secs',
+        Used_Autofilled_Category: null,
+        Used_Autofilled_Project: null,
+        Used_Autofilled_CostCenter: null,
+        Used_Autofilled_Currency: null,
+        Instafyle: true,
+      });
+    });
+
+    describe('criticalPolicyViolationErrorHandler():', () => {
+      it('should return txn with permission to continue with critical violations from user', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithCriticalPolicyViolation').and.resolveTo(true);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
+
+        component
+          .criticalPolicyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+            },
+            of(customFieldData2)
+          )
+          .subscribe(() => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+            expect(component.continueWithCriticalPolicyViolation).toHaveBeenCalledOnceWith(criticalPolicyViolation1);
+            expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+            done();
+          });
+      });
+
+      it('should throw error if policy violation check errors fails', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithCriticalPolicyViolation').and.resolveTo(false);
+
+        component
+          .criticalPolicyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+            },
+            of(customFieldData2)
+          )
+          .subscribe({
+            next: () => {},
+            error: (error) => {
+              expect(error).toBeTruthy();
+              done();
+            },
+          });
+      });
+    });
+
+    describe('policyViolationErrorHandler():', () => {
+      it('should return txn if user wants to continue with violations', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo(true);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
+
+        component
+          .policyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+              policyAction: policyViolation1.data.final_desired_state,
+            },
+            of(customFieldData2)
+          )
+          .subscribe(() => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+            expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
+              criticalPolicyViolation1,
+              policyViolation1.data.final_desired_state
+            );
+            expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+            done();
+          });
+      });
+
+      it('should throw an error if policy check fails', (done) => {
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData2);
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo(false);
+
+        component
+          .policyViolationErrorHandler(
+            {
+              policyViolations: criticalPolicyViolation1,
+              policyAction: policyViolation1.data.final_desired_state,
+            },
+            of(customFieldData2)
+          )
+          .subscribe({
+            next: () => {},
+            error: (error) => {
+              expect(error).toBeTruthy();
+              done();
+            },
+          });
+      });
+    });
+
+    describe('viewAttachments():', () => {
+      it('should upload receipts and increment count in edit mode', fakeAsync(() => {
+        component.etxn$ = of(unflattenedTxnData);
+        component.mode = 'edit';
+        component.attachedReceiptsCount = 0;
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
+        fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
+        spyOn(component.loadAttachments$, 'next');
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+
+        const attachmentsModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
+        attachmentsModalSpy.onWillDismiss.and.resolveTo({
+          data: {
+            attachments: ['attachment1', 'attachment2'],
+          },
+        });
+
+        modalController.create.and.resolveTo(attachmentsModalSpy);
+        fixture.detectChanges();
+
+        component.viewAttachments();
+        tick(500);
+
+        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
+        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: FyViewAttachmentComponent,
+          componentProps: {
+            attachments: fileObject4,
+            canEdit: true,
+          },
+          mode: 'ios',
+        });
+        expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
+        expect(component.attachedReceiptsCount).toEqual(1);
+      }));
+
+      it('should add attachments and upload receipt in add mode', fakeAsync(() => {
+        component.mode = 'add';
+        component.etxn$ = of(unflattenedTxnData);
+        spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
+        component.newExpenseDataUrls = fileObject4;
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+
+        const attachmentsModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
+        attachmentsModalSpy.onWillDismiss.and.resolveTo({
+          data: {
+            attachments: ['attachment1', 'attachment2'],
+          },
+        });
+
+        modalController.create.and.resolveTo(attachmentsModalSpy);
+        fixture.detectChanges();
+
+        component.viewAttachments();
+        tick(500);
+
+        expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: FyViewAttachmentComponent,
+          componentProps: {
+            attachments: fileObject4,
+            canEdit: true,
+          },
+          mode: 'ios',
+        });
+        expect(component.attachedReceiptsCount).toEqual(2);
+      }));
+    });
+
+    describe('getCategoryOnEdit():', () => {
+      it('should get category ', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedPaidExp);
+        component.initialFetch = true;
+        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
+
+        fixture.detectChanges();
+        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
+          expect(res).toEqual(orgCategoryPaginated1[0]);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedDraftExp.tx.org_category_id);
+          done();
+        });
+      });
+
+      it('should get autofill category for draft expense', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedDraftExp);
+        component.initialFetch = true;
+        spyOn(component, 'getAutofillCategory').and.returnValue(orgCategoryData);
+        fixture.detectChanges();
+
+        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
+          expect(res).toEqual(expectedAutoFillCategory);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+            isAutofillsEnabled: true,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedDraftExp,
+            category: orgCategoryData1[0],
+          });
+          done();
+        });
+      });
+
+      it('should get autofill category for draft expense without extracted category and org category', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedDraftExp2);
+        component.initialFetch = true;
+        spyOn(component, 'getAutofillCategory').and.returnValue(orgCategoryData);
+        fixture.detectChanges();
+
+        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
+          expect(res).toEqual(orgCategoryData);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+            isAutofillsEnabled: true,
+            recentValue: recentlyUsedRes,
+            recentCategories: recentUsedCategoriesRes,
+            etxn: unflattenedDraftExp2,
+            category: orgCategoryData1[0],
+          });
+          done();
+        });
+      });
+    });
+
+    describe('getNewExpenseObservable():', () => {
+      it('should get new expense observable', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        authService.getEou.and.resolveTo(apiEouRes);
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+        component.homeCurrency$ = of('USD');
+        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
+        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        dateService.getUTCDate.and.returnValue(new Date('2023-01-17T06:34:32.50466Z'));
+        fixture.detectChanges();
+
+        component.getNewExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(expectedExpenseObservable);
+          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
+          expect(component.isExpenseBankTxn).toBeFalse();
+          expect(component.instaFyleCancelled).toBeFalse();
+          expect(component.presetCurrency).toEqual('ARS');
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
+          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
+          done();
+        });
+      });
+
+      it('should get expense observables if preferred currency is enabled and image data is not found', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        authService.getEou.and.resolveTo(apiEouRes);
+        component.orgUserSettings$ = of(orgUserSettingsWithCurrency);
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+        component.homeCurrency$ = of('USD');
+        spyOn(component, 'getInstaFyleImageData').and.returnValue(of({ error: 'not found' }));
+        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        const UnmockedDate = Date;
+        spyOn(<any>window, 'Date').and.returnValue(new UnmockedDate('2019-06-19T01:00:00.000Z'));
+        fixture.detectChanges();
+
+        component.getNewExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(expectedExpenseObservable2);
+          expect(component.source).toEqual('MOBILE');
+          expect(component.isExpenseBankTxn).toBeFalse();
+          expect(component.instaFyleCancelled).toBeTrue();
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get new expense observable without autofill and currency settings enabled', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        authService.getEou.and.resolveTo(apiEouRes);
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+        component.homeCurrency$ = of('USD');
+        dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
+        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
+        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        fixture.detectChanges();
+
+        component.getNewExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(expectedExpenseObservable3);
+          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
+          expect(component.isExpenseBankTxn).toBeFalse();
+          expect(component.instaFyleCancelled).toBeFalse();
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
+          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+          done();
+        });
+      });
+
+      it('should get new expense observable from personal card txn and home currency does not match extracted data', (done) => {
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data);
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        authService.getEou.and.resolveTo(apiEouRes);
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+        component.homeCurrency$ = of('INR');
+        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
+        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
+        fixture.detectChanges();
+
+        component.getNewExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(expectedExpenseObservable4);
+          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
+          expect(component.isExpenseBankTxn).toBeFalse();
+          expect(component.instaFyleCancelled).toBeFalse();
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
+          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get new expense from bank txn', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        authService.getEou.and.resolveTo(apiEouRes);
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+        component.homeCurrency$ = of('USD');
+        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
+        recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        dateService.getUTCDate.and.returnValue(new Date('2023-01-24T17:00:00.000Z'));
+        activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse[0]);
+        fixture.detectChanges();
+
+        component.getNewExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(expectedExpenseObservable5);
+          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
+          expect(component.isExpenseBankTxn).toBeTrue();
+          expect(component.instaFyleCancelled).toBeFalse();
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
+          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+          done();
+        });
+      });
+    });
+
+    describe('attachReceipts():', () => {
+      it('should attach receipts in add mode', () => {
+        component.mode = 'add';
+        component.newExpenseDataUrls = [];
+        component.source = 'MOBILE';
+        component.isConnected$ = of(true);
+        spyOn(component, 'parseFile');
+        fixture.detectChanges();
+
+        component.attachReceipts({
+          type: 'pdf',
+          dataUrl: 'url',
+        });
+
+        expect(component.parseFile).toHaveBeenCalledOnceWith({ type: 'pdf', url: 'url', thumbnail: 'url' });
+        expect(component.source).toEqual('MOBILE_FILE');
+        expect(component.newExpenseDataUrls).toEqual([{ type: 'pdf', url: 'url', thumbnail: 'url' }]);
+      });
+
+      it('should attach receipts in add mode if file is of image type', () => {
+        component.mode = 'add';
+        component.newExpenseDataUrls = [];
+        component.source = 'MOBILE';
+        component.isConnected$ = of(true);
+        spyOn(component, 'parseFile');
+        fixture.detectChanges();
+
+        component.attachReceipts({
+          type: 'image',
+          dataUrl: 'url',
+        });
+
+        expect(component.parseFile).toHaveBeenCalledOnceWith({ type: 'image', url: 'url', thumbnail: 'url' });
+        expect(component.source).toEqual('MOBILE_CAMERA');
+        expect(component.newExpenseDataUrls).toEqual([{ type: 'image', url: 'url', thumbnail: 'url' }]);
+      });
+
+      it('should attach receipt in edit mode', fakeAsync(() => {
+        component.mode = 'edit';
+        component.etxn$ = of(unflattenedExpData);
+        component.isConnected$ = of(true);
+        fileService.findByTransactionId.and.returnValue(of(fileObjectData1));
+        transactionOutboxService.fileUpload.and.resolveTo(fileObjectData1[0]);
+        fileService.post.and.returnValue(of(fileData1[0]));
+        spyOn(component, 'parseFile').and.returnValue(null);
+        spyOn(component.loadAttachments$, 'next');
+        fixture.detectChanges();
+
+        component.attachReceipts({
+          type: 'pdf',
+          dataUrl: 'url',
+        });
+        tick(1000);
+
+        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
+        expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
+        expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData1[0]);
+        expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
+      }));
+    });
+
+    describe('uploadAttachments():', () => {
+      it('should upload attachments and return the receipts', (done) => {
+        component.newExpenseDataUrls = fileObject7;
+        spyOn(component, 'addFileType').and.returnValue(fileObject7);
+        spyOn(component, 'uploadMultipleFiles').and.returnValue(of(fileObject7));
+        fixture.detectChanges();
+
+        component.uploadAttachments('txCYDX0peUw5').subscribe((res) => {
+          expect(res).toEqual(fileObject7);
+          expect(component.addFileType).toHaveBeenCalledOnceWith(component.newExpenseDataUrls);
+          expect(component.uploadMultipleFiles).toHaveBeenCalledOnceWith(fileObject7, 'txCYDX0peUw5');
+          done();
+        });
+      });
+
+      it('should return empty list if no new expense receipt are there', (done) => {
+        component.newExpenseDataUrls = [];
+        fixture.detectChanges();
+
+        component.uploadAttachments('txCYDX0peUw5').subscribe((res) => {
+          expect(res).toEqual([]);
           done();
         });
       });

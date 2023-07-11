@@ -3432,6 +3432,65 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  criticalPolicyViolationErrorHandler(err, customFields$) {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() =>
+              this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+              )
+            )
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  policyViolationErrorHandler(err, customFields$) {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() =>
+              this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+              )
+            )
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  trackCreateExpense(etxn, isInstaFyleExpense) {
+    this.trackingService.createExpense({
+      Type: 'Receipt',
+      Amount: etxn.tx.amount,
+      Currency: etxn.tx.currency,
+      Category: etxn.tx.org_category,
+      Time_Spent: this.getTimeSpentOnPage() + ' secs',
+      Used_Autofilled_Category:
+        etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
+      Used_Autofilled_Project:
+        etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
+      Used_Autofilled_CostCenter:
+        etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
+      Used_Autofilled_Currency:
+        (etxn.tx.currency || etxn.tx.orig_currency) &&
+        this.presetCurrency &&
+        (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
+      Instafyle: isInstaFyleExpense,
+    });
+  }
+
   addExpense(redirectedFrom) {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
@@ -3910,31 +3969,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   viewAttachments() {
-    const editExpenseAttachments = this.etxn$.pipe(
-      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: any) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        )
-      ),
-      reduce((acc, curr) => acc.concat(curr), [])
-    );
+    let txId;
+    this.etxn$.subscribe((etxn) => {
+      txId = etxn.tx.id;
+    });
 
-    const addExpenseAttachments = of(
-      this.newExpenseDataUrls.map((fileObj) => {
-        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-        return fileObj;
-      })
-    );
-
-    const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
+    const attachements$ = this.getExpenseAttachments(this.mode, txId);
 
     from(this.loaderService.showLoader())
       .pipe(
