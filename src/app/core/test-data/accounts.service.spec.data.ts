@@ -2935,10 +2935,10 @@ export const orgSettingsDataWithoutAdvPro = {
   },
 };
 
-export const orgSettingsWoAutoFill: OrgSettings = {
+export const orgSettingsWithoutAutofill: OrgSettings = {
   ...orgSettingsData,
   org_expense_form_autofills: {
-    enabled: false,
     allowed: false,
+    enabled: false,
   },
 };
