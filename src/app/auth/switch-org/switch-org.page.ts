@@ -27,6 +27,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ResendEmailVerification } from 'src/app/core/models/resend-email-verification.model';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -78,7 +80,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private appVersionService: AppVersionService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private routerAuthService: RouterAuthService
+    private routerAuthService: RouterAuthService,
+    private transactionService: TransactionService,
+    private deepLinkService: DeepLinkService
   ) {}
 
   ngOnInit() {
@@ -104,8 +108,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
     const isFromInviteLink: boolean =
       that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
+    const orgId = that.activatedRoute.snapshot.params.orgId;
+    const txnId = this.activatedRoute.snapshot.params.txnId;
 
-    if (!choose) {
+    if (orgId && txnId) {
+      return this.redirectToExpensePage(orgId, txnId);
+    } else if (!choose) {
       from(that.loaderService.showLoader())
         .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
         .subscribe(noop);
@@ -169,6 +177,31 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       panelClass: ['msb-info'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+  }
+
+  redirectToExpensePage(orgId: string, txnId: string) {
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.orgService.switchOrg(orgId)),
+        switchMap(() => {
+          globalCacheBusterNotifier.next();
+          this.userEventService.clearTaskCache();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          return from(this.authService.getEou());
+        }),
+        switchMap((eou) => {
+          this.setSentryUser(eou);
+          return this.transactionService.getETxnUnflattened(txnId);
+        }),
+        finalize(() => this.loaderService.hideLoader())
+      )
+      .subscribe({
+        next: (etxn) => {
+          const route = this.deepLinkService.getExpenseRoute(etxn);
+          this.router.navigate([...route, { id: txnId }]);
+        },
+        error: () => this.router.navigate(['/', 'auth', 'switch_org']),
+      });
   }
 
   logoutIfSingleOrg(orgs: Org[]) {
@@ -316,6 +349,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       )
       .subscribe();
 
+    this.checkUserAppVersion();
+  }
+
+  checkUserAppVersion() {
     this.deviceService
       .getDeviceInfo()
       .pipe(
