@@ -600,7 +600,7 @@ describe('ExpensesCardComponent', () => {
         ...expenseData1,
         tx_id: 'tx12341',
         tx_txn_dt: null,
-        tx_fyle_category: 'mileage',
+        tx_org_category: 'mileage',
       };
       component.ngOnInit();
       expect(component.isMileageExpense).toBeTrue();
@@ -611,7 +611,7 @@ describe('ExpensesCardComponent', () => {
         ...expenseData1,
         tx_id: 'tx12341',
         tx_txn_dt: null,
-        tx_fyle_category: 'per diem',
+        tx_org_category: 'per diem',
       };
       component.ngOnInit();
       expect(component.isPerDiem).toBeTrue();
