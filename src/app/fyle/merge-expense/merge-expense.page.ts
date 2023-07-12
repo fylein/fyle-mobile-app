@@ -235,11 +235,11 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       .pipe(shareReplay(1));
 
     this.flightReturnTravelClassOptionsData$ = this.mergeExpensesService
-      .generateFlightJourneyTravelClassOptions(this.expenses)
+      .generateFlightReturnTravelClassOptions(this.expenses)
       .pipe(shareReplay(1));
 
     this.trainTravelClassOptionsData$ = this.mergeExpensesService
-      .generateFlightReturnTravelClassOptions(this.expenses)
+      .generateTrainTravelClassOptions(this.expenses)
       .pipe(shareReplay(1));
 
     this.busTravelClassOptionsData$ = this.mergeExpensesService
