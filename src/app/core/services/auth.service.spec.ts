@@ -197,6 +197,7 @@ describe('AuthService', () => {
       expect(tokenService.setAccessToken).toHaveBeenCalledOnceWith(apiAuthResponseRes.access_token);
       expect(apiService.post).toHaveBeenCalledOnceWith('/auth/access_token', {
         refresh_token: access_token_2,
+        access_token,
       });
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       done();
