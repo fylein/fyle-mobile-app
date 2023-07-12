@@ -183,6 +183,7 @@ export function TestCases3(getTestBed) {
 
       component.searchClick();
 
+      expect(component.headerState).toEqual(HeaderState.simpleSearch);
       tick(300);
 
       expect(mockFocus).toHaveBeenCalledTimes(1);
