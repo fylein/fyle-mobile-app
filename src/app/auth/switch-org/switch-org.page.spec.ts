@@ -38,15 +38,16 @@ import { OrgCardComponent } from './org-card/org-card.component';
 import { FyZeroStateComponent } from 'src/app/shared/components/fy-zero-state/fy-zero-state.component';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
 
-xdescribe('SwitchOrgPage', () => {
+fdescribe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
-  let platform: jasmine.SpyObj<Platform>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let userService: jasmine.SpyObj<UserService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -57,7 +58,6 @@ xdescribe('SwitchOrgPage', () => {
   let orgService: jasmine.SpyObj<OrgService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
-  let cdRef: ChangeDetectorRef;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let deviceService: jasmine.SpyObj<DeviceService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -66,6 +66,8 @@ xdescribe('SwitchOrgPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
+  let transactionService: jasmine.SpyObj<TransactionService>;
+  let deepLinkService: jasmine.SpyObj<DeepLinkService>;
 
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
@@ -99,6 +101,8 @@ xdescribe('SwitchOrgPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['resendVerificationLink']);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnUnflattened']);
+    const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
 
     TestBed.configureTestingModule({
       declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
@@ -199,13 +203,20 @@ xdescribe('SwitchOrgPage', () => {
           provide: RouterAuthService,
           useValue: routerAuthServiceSpy,
         },
+        {
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
+        },
+        {
+          provide: DeepLinkService,
+          useValue: deepLinkServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(SwitchOrgPage);
     component = fixture.componentInstance;
 
-    platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -219,7 +230,6 @@ xdescribe('SwitchOrgPage', () => {
     recentLocalStorageItemsService = TestBed.inject(
       RecentLocalStorageItemsService
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
-    cdRef = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
