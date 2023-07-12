@@ -1,0 +1,88 @@
+@import '../../../../theme/colors.scss';
+
+.verify-number-popover {
+  &__toolbar {
+    color: $black;
+
+    &__btn {
+      font-size: 16px;
+      line-height: 1.3;
+      color: $brand-primary;
+      text-transform: none;
+      background: transparent;
+      margin-right: 4px;
+      font-weight: 500;
+      min-width: 45px;
+
+      &:disabled {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  &__input-container {
+    padding: 16px 16px 36px;
+
+    &__label {
+      margin: 0 8px 0 0;
+      color: $black-light;
+      line-height: 1.3;
+      font-weight: 400;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      &__resend {
+        color: $brand-primary;
+        background-color: $pure-white;
+        font-size: 12px;
+        font-weight: 500;
+
+        &--disabled {
+          @extend .verify-number-popover__input-container__label__resend;
+          color: $grey-light;
+        }
+      }
+
+      &__otp-timer {
+        font-size: 12px;
+
+        &--timer {
+          color: $brand-primary;
+        }
+      }
+    }
+
+    &__mandatory {
+      color: $red;
+    }
+
+    &__input {
+      border: 0;
+      border-radius: 0;
+      font-weight: 400;
+      line-height: 1.3;
+      color: $blue-black;
+      width: 100%;
+      padding: 8px 0;
+      border-bottom: 1px solid $grey-lighter;
+
+      &--error {
+        border-bottom: 1px solid $red;
+      }
+    }
+
+    &__input:focus {
+      border-bottom: 1px solid $blue-black;
+    }
+
+    &__error {
+      color: $red;
+      font-size: 12px;
+    }
+
+    &__info-box {
+      margin-bottom: 24px;
+    }
+  }
+}

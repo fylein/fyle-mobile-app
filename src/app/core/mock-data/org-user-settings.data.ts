@@ -658,3 +658,11 @@ export const orgUserSettingsDataWoCCIDs: OrgUserSettings = {
     allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
   },
 };
+
+export const orgUserSettingsWithCurrency: OrgUserSettings = {
+  ...orgUserSettingsData,
+  currency_settings: {
+    enabled: true,
+    preferred_currency: 'USD',
+  },
+};

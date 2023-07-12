@@ -10,7 +10,13 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
-import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import {
+  fileObject5,
+  fileObject7,
+  fileObjectData,
+  fileObjectData1,
+  fileObjectData4,
+} from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
@@ -788,6 +794,38 @@ export function TestCases2(getTestBed) {
       });
     });
 
+    describe('getDeleteReportParams():', () => {
+      it('should return modal params and method to remove expense from report', (done) => {
+        reportService.removeTransaction.and.returnValue(of(null));
+
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            true,
+            'rpId'
+          )
+          .componentProps.deleteMethod()
+          .subscribe(() => {
+            expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpId', activatedRoute.snapshot.params.id);
+            done();
+          });
+      });
+
+      it('should  return modal params and method to delete expense', (done) => {
+        transactionService.delete.and.returnValue(of(expenseData1));
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            false
+          )
+          .componentProps.deleteMethod()
+          .subscribe(() => {
+            expect(transactionService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+            done();
+          });
+      });
+    });
+
     describe('deleteExpense():', () => {
       it('should delete expense and navigate back to report if deleting directly from report', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
@@ -852,6 +890,51 @@ export function TestCases2(getTestBed) {
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+        );
+      }));
+
+      it('should go to next expense if delete successful', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        spyOn(component, 'goToTransaction');
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+        component.activeIndex = 0;
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = true;
+        fixture.detectChanges();
+
+        const header = 'Delete Expense';
+        const body = 'Are you sure you want to delete this expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(500);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          undefined,
+          undefined
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+        );
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
+          component.reviewList[+component.activeIndex]
+        );
+        expect(component.goToTransaction).toHaveBeenCalledOnceWith(
+          unflattenedTxnData,
+          component.reviewList,
+          +component.activeIndex
         );
       }));
     });
@@ -959,9 +1042,33 @@ export function TestCases2(getTestBed) {
       expect(fileService.post).toHaveBeenCalledOnceWith({ ...fileObjectData, transaction_id: 'tx5fBcPBAxLv' });
     });
 
+    it('uploadFileAndPostToFileService(): should upload to file service', (done) => {
+      transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
+      spyOn(component, 'postToFileService').and.returnValue(of(fileObjectData));
+
+      component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
+        expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
+        expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
+        done();
+      });
+    });
+
+    it('uploadMultipleFiles(): should upload multiple files', (done) => {
+      const uploadSpy = spyOn(component, 'uploadFileAndPostToFileService');
+      uploadSpy.withArgs(fileObject7[0], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[0]));
+      uploadSpy.withArgs(fileObject7[1], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[1]));
+
+      component.uploadMultipleFiles(fileObject7, 'tx5fBcPBAxLv').subscribe((res) => {
+        expect(res).toEqual(fileObject7);
+        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledTimes(2);
+        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
+        done();
+      });
+    });
+
     describe('getDuplicateExpenses():', () => {
       it('should get duplicate expenses', () => {
-        activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
         handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData1]));
         transactionService.getETxnc.and.returnValue(of([expenseData1]));
         spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
