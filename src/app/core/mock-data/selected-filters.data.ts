@@ -92,3 +92,43 @@ export const taskSelectedFiltersData: SelectedFilters<string[]>[] = [
     value: ['SENT_BACK'],
   },
 ];
+
+export const selectedFilters6: SelectedFilters<string | string[]>[] = [
+  {
+    name: 'State',
+    value: 'DRAFT',
+  },
+  {
+    name: 'Submitted Date',
+    value: 'custom',
+    associatedData: {
+      startDate: new Date('2023-01-01'),
+      endDate: new Date('2023-02-02'),
+    },
+  },
+];
+
+export const selectedFiltersParams: SelectedFilters<string> = {
+  name: 'Sort By',
+  value: 'dateNewToOld',
+};
+
+export const selectedFiltersParams2: SelectedFilters<string>[] = [
+  {
+    name: 'State',
+    value: 'DRAFT',
+  },
+  {
+    name: 'Date',
+    value: 'Last Month',
+    associatedData: { startDate: new Date('2023-01-04'), endDate: new Date('2023-01-10') },
+  },
+  {
+    name: 'Submitted Date',
+    value: 'custom',
+    associatedData: {
+      startDate: new Date('2023-01-01'),
+      endDate: new Date('2023-02-02'),
+    },
+  },
+];

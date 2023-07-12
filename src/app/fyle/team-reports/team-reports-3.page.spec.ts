@@ -1,4 +1,4 @@
-import { ComponentFixture, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ModalController } from '@ionic/angular';
 
 import { TeamReportsPage } from './team-reports.page';
@@ -16,8 +16,21 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
-import { filter14 } from 'src/app/core/mock-data/my-reports-filters.data';
 import { BehaviorSubject } from 'rxjs';
+import {
+  teamReportsFiltersData,
+  teamReportsFiltersData2,
+  teamReportsFiltersData3,
+  teamReportsFiltersData4,
+  teamReportsFiltersParams,
+  teamReportsFiltersParams2,
+} from 'src/app/core/mock-data/team-reports-filters.data';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import {
+  selectedFilters6,
+  selectedFiltersParams,
+  selectedFiltersParams2,
+} from 'src/app/core/mock-data/selected-filters.data';
 
 export function TestCases3(getTestBed) {
   return describe('test cases set 3', () => {
@@ -104,6 +117,275 @@ export function TestCases3(getTestBed) {
         component.onFilterClick('sort');
 
         expect(component.openFilters).toHaveBeenCalledOnceWith('Sort By');
+      });
+    });
+
+    describe('onFilterClose', () => {
+      beforeEach(() => {
+        component.filters = cloneDeep(teamReportsFiltersData);
+        component.currentPageNumber = 2;
+        component.loadData$ = new BehaviorSubject({
+          pageNumber: 1,
+        });
+        spyOn(component, 'addNewFiltersToParams').and.returnValue({
+          pageNumber: 1,
+          sortDir: 'desc',
+        });
+        spyOn(component, 'generateFilterPills').and.returnValue([{ label: 'Date', type: 'date', value: 'this Week' }]);
+      });
+
+      it('should remove sort filters and update data when filterType is "sort"', () => {
+        component.onFilterClose('sort');
+
+        expect(component.filters.sortDir).toBeUndefined();
+        expect(component.filters.sortParam).toBeUndefined();
+        expect(component.filters.date).toBeDefined();
+        expect(component.currentPageNumber).toEqual(1);
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        component.loadData$.subscribe((data) => {
+          expect(data).toEqual({
+            pageNumber: 1,
+            sortDir: 'desc',
+          });
+        });
+        expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
+          date: 'custom',
+        });
+        expect(component.filterPills).toEqual([{ label: 'Date', type: 'date', value: 'this Week' }]);
+      });
+
+      it('should remove other filters and update data when filterType is not "sort"', () => {
+        component.onFilterClose('date');
+
+        expect(component.filters.sortDir).toBeDefined();
+        expect(component.filters.sortParam).toBeDefined();
+        expect(component.filters.date).toBeUndefined();
+        expect(component.currentPageNumber).toEqual(1);
+        component.loadData$.subscribe((data) => {
+          expect(data).toEqual({
+            pageNumber: 1,
+            sortDir: 'desc',
+          });
+        });
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
+          sortDir: 'desc',
+          sortParam: 'rp_created_at',
+        });
+        expect(component.filterPills).toEqual([{ label: 'Date', type: 'date', value: 'this Week' }]);
+      });
+    });
+
+    it('searchClick(): should set headerState and call focus method on input', fakeAsync(() => {
+      component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
+      inputElement = component.simpleSearchInput.nativeElement;
+      const mockFocus = spyOn(inputElement, 'focus');
+
+      component.searchClick();
+
+      expect(component.headerState).toEqual(HeaderState.simpleSearch);
+      tick(300);
+
+      expect(mockFocus).toHaveBeenCalledTimes(1);
+    }));
+
+    describe('convertRptDtSortToSelectedFilters(): ', () => {
+      it('should add "dateOldToNew" to generatedFilters when sortParam is rp_submitted_at and sortDir is asc', () => {
+        const filter = {
+          sortParam: 'rp_submitted_at',
+          sortDir: 'asc',
+        };
+        const generatedFilters: SelectedFilters<string | string[]>[] = [];
+
+        component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
+
+        expect(generatedFilters.length).toEqual(1);
+        expect(generatedFilters[0].name).toEqual('Sort By');
+        expect(generatedFilters[0].value).toEqual('dateOldToNew');
+      });
+
+      it('should add "dateNewToOld" to generatedFilters when sortParam is rp_submitted_at and sortDir is desc', () => {
+        const filter = {
+          sortParam: 'rp_submitted_at',
+          sortDir: 'desc',
+        };
+        const generatedFilters: SelectedFilters<string | string[]>[] = [];
+
+        component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
+
+        expect(generatedFilters.length).toEqual(1);
+        expect(generatedFilters[0].name).toEqual('Sort By');
+        expect(generatedFilters[0].value).toEqual('dateNewToOld');
+      });
+
+      it('should not modify generatedFilters when sortParam is other than rp_submitted_at', () => {
+        const filter = {
+          sortParam: 'rp_created_at',
+          sortDir: 'asc',
+        };
+        const generatedFilters: SelectedFilters<string | string[]>[] = [
+          {
+            name: 'Sort By',
+            value: 'dateOldToNew',
+          },
+        ];
+
+        component.convertRptDtSortToSelectedFilters(filter, generatedFilters);
+
+        expect(generatedFilters.length).toEqual(1);
+        expect(generatedFilters[0].name).toEqual('Sort By');
+        expect(generatedFilters[0].value).toEqual('dateOldToNew');
+      });
+    });
+
+    it('addSortToGeneratedFilters(): should call convertRptDtSortToSelectedFilters, convertAmountSortToSelectedFilters, and convertNameSortToSelectedFilters', () => {
+      const filter = {
+        sortParam: 'rp_submitted_at',
+        sortDir: 'asc',
+      };
+      const generatedFilters: SelectedFilters<string | string[]>[] = [];
+
+      spyOn(component, 'convertRptDtSortToSelectedFilters').and.callThrough();
+      spyOn(component, 'convertAmountSortToSelectedFilters').and.callThrough();
+      spyOn(component, 'convertNameSortToSelectedFilters').and.callThrough();
+
+      component.addSortToGeneratedFilters(filter, generatedFilters);
+
+      expect(component.convertRptDtSortToSelectedFilters).toHaveBeenCalledTimes(1);
+      expect(component.convertAmountSortToSelectedFilters).toHaveBeenCalledTimes(1);
+      expect(component.convertNameSortToSelectedFilters).toHaveBeenCalledTimes(1);
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'dateOldToNew',
+        },
+      ]);
+    });
+
+    it('generateSelectedFilters(): should return generated Filters based on the filters selected', () => {
+      spyOn(component, 'addSortToGeneratedFilters');
+
+      const generatedFilters = component.generateSelectedFilters(teamReportsFiltersData2);
+
+      expect(component.addSortToGeneratedFilters).toHaveBeenCalledOnceWith(teamReportsFiltersData2, selectedFilters6);
+      expect(generatedFilters).toEqual(selectedFilters6);
+    });
+
+    describe('convertNameSortToSelectedFilters(): ', () => {
+      it('should push filter sort by with value equal to nameAToZ if sortParam is rp_purpose and sort direction is asc', () => {
+        const generatedFilters = [];
+        component.convertNameSortToSelectedFilters(teamReportsFiltersParams, generatedFilters);
+        expect(generatedFilters).toEqual([
+          {
+            name: 'Sort By',
+            value: 'nameAToZ',
+          },
+        ]);
+      });
+
+      it('should push filter sort by with value equal to nameZToA if sortParam is rp_purpose and sort direction is desc', () => {
+        const generatedFilters = [];
+        component.convertNameSortToSelectedFilters(teamReportsFiltersParams2, generatedFilters);
+        expect(generatedFilters).toEqual([
+          {
+            name: 'Sort By',
+            value: 'nameZToA',
+          },
+        ]);
+      });
+    });
+
+    describe('convertSelectedSortFiltersToFilters(): ', () => {
+      it('should set param as rp_submitted_at and direction as desc if sortBy value is dateNewToOld', () => {
+        const generatedFilters = {};
+        component.convertSelectedSortFiltersToFilters(selectedFiltersParams, generatedFilters);
+        expect(generatedFilters).toEqual({
+          sortParam: 'rp_submitted_at',
+          sortDir: 'desc',
+        });
+      });
+
+      it('should set param as rp_submitted_at and direction as asc if sortBy value is dateOldToNew', () => {
+        const generatedFilters = {};
+        const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
+        mockSelectedFiltersParams.value = 'dateOldToNew';
+        component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
+        expect(generatedFilters).toEqual({
+          sortParam: 'rp_submitted_at',
+          sortDir: 'asc',
+        });
+      });
+
+      it('should set param as rp_amount and direction as desc if sortBy value is amountHighToLow', () => {
+        const generatedFilters = {};
+        const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
+        mockSelectedFiltersParams.value = 'amountHighToLow';
+        component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
+        expect(generatedFilters).toEqual({
+          sortParam: 'rp_amount',
+          sortDir: 'desc',
+        });
+      });
+
+      it('should set param as rp_amount and direction as asc if sortBy value is amountLowToHigh', () => {
+        const generatedFilters = {};
+        const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
+        mockSelectedFiltersParams.value = 'amountLowToHigh';
+        component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
+        expect(generatedFilters).toEqual({
+          sortParam: 'rp_amount',
+          sortDir: 'asc',
+        });
+      });
+
+      it('should set param as rp_purpose and direction as asc if sortBy value is nameAToZ', () => {
+        const generatedFilters = {};
+        const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
+        mockSelectedFiltersParams.value = 'nameAToZ';
+        component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
+        expect(generatedFilters).toEqual({
+          sortParam: 'rp_purpose',
+          sortDir: 'asc',
+        });
+      });
+
+      it('should set param as rp_purpose and direction as desc if sortBy value is nameZToA', () => {
+        const generatedFilters = {};
+        const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
+        mockSelectedFiltersParams.value = 'nameZToA';
+        component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
+        expect(generatedFilters).toEqual({
+          sortParam: 'rp_purpose',
+          sortDir: 'desc',
+        });
+      });
+    });
+
+    describe('convertFilters(): ', () => {
+      beforeEach(() => {
+        spyOn(component, 'convertSelectedSortFiltersToFilters');
+      });
+
+      it('should return selectedFilters from selected filters', () => {
+        const generatedFilters = component.convertFilters(selectedFiltersParams2);
+        expect(component.convertSelectedSortFiltersToFilters).toHaveBeenCalledOnceWith(
+          undefined,
+          teamReportsFiltersData3
+        );
+        expect(generatedFilters).toEqual(teamReportsFiltersData3);
+      });
+
+      it('should return selectedFilters from selected filters and set customDateStart and customDateEnd to undefined if associatedData is undefined', () => {
+        const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams2);
+        const submittedDateFilter = mockSelectedFiltersParams.find((filter) => filter.name === 'Submitted Date');
+        submittedDateFilter.associatedData = undefined;
+        const generatedFilters = component.convertFilters(mockSelectedFiltersParams);
+
+        expect(component.convertSelectedSortFiltersToFilters).toHaveBeenCalledOnceWith(
+          undefined,
+          teamReportsFiltersData4
+        );
+        expect(generatedFilters).toEqual(teamReportsFiltersData4);
       });
     });
   });

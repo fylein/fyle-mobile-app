@@ -1,6 +1,6 @@
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { filterOptions1 } from './filter.data';
-import { selectedFilters1, taskSelectedFiltersData } from './selected-filters.data';
+import { selectedFilters1, selectedFilters4, taskSelectedFiltersData } from './selected-filters.data';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { apiExpenseRes } from './expense.data';
@@ -9,6 +9,7 @@ import { fyModalProperties } from './model-properties.data';
 import { AddTxnToReportDialogComponent } from 'src/app/fyle/my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -197,6 +198,114 @@ export const taskModalControllerParams2 = {
     ],
     selectedFilterValues: taskSelectedFiltersData,
     activeFilterInitialName: undefined,
+  },
+  cssClass: 'dialog-popover',
+};
+
+export const teamReportsModalControllerParams = {
+  component: FyFiltersComponent,
+  componentProps: {
+    filterOptions: [
+      {
+        name: 'State',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Reported',
+            value: 'APPROVER_PENDING',
+          },
+          {
+            label: 'Sent Back',
+            value: 'APPROVER_INQUIRY',
+          },
+          {
+            label: 'Approved',
+            value: 'APPROVED',
+          },
+          {
+            label: 'Paid',
+            value: 'PAID',
+          },
+        ],
+        optionsNewFlow: [
+          {
+            label: 'Submitted',
+            value: 'APPROVER_PENDING',
+          },
+          {
+            label: 'Sent Back',
+            value: 'APPROVER_INQUIRY',
+          },
+          {
+            label: 'Approved',
+            value: 'APPROVED',
+          },
+          {
+            label: 'Closed',
+            value: 'PAID',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Submitted Date',
+        optionType: FilterOptionType.date,
+        options: [
+          {
+            label: 'All',
+            value: DateFilters.all,
+          },
+          {
+            label: 'This Week',
+            value: DateFilters.thisWeek,
+          },
+          {
+            label: 'This Month',
+            value: DateFilters.thisMonth,
+          },
+          {
+            label: 'Last Month',
+            value: DateFilters.lastMonth,
+          },
+          {
+            label: 'Custom',
+            value: DateFilters.custom,
+          },
+        ],
+      } as FilterOptions<DateFilters>,
+      {
+        name: 'Sort By',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Submitted Date - New to Old',
+            value: 'dateNewToOld',
+          },
+          {
+            label: 'Submitted Date - Old to New',
+            value: 'dateOldToNew',
+          },
+          {
+            label: 'Amount - High to Low',
+            value: 'amountHighToLow',
+          },
+          {
+            label: 'Amount - Low to High',
+            value: 'amountLowToHigh',
+          },
+          {
+            label: 'Name - A to Z',
+            value: 'nameAToZ',
+          },
+          {
+            label: 'Name - Z to A',
+            value: 'nameZToA',
+          },
+        ],
+      } as FilterOptions<string>,
+    ],
+    simplifyReportsSettings$: undefined,
+    selectedFilterValues: selectedFilters4,
+    activeFilterInitialName: 'State',
   },
   cssClass: 'dialog-popover',
 };
