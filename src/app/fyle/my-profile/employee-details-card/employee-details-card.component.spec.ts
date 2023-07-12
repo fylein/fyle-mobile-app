@@ -38,7 +38,7 @@ describe('EmployeeDetailsCardComponent', () => {
     );
   });
 
-  it('should emit updateMobileNumber event when add button is clicked', () => {
+  it('onUpdateMobileNumber(): should emit updateMobileNumber event when add button is clicked', () => {
     spyOn(component, 'onUpdateMobileNumber').and.callThrough();
     spyOn(component.updateMobileNumber, 'emit');
 
@@ -51,5 +51,20 @@ describe('EmployeeDetailsCardComponent', () => {
     fixture.detectChanges();
     expect(component.onUpdateMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
     expect(component.updateMobileNumber.emit).toHaveBeenCalledOnceWith(apiEouRes);
+  });
+
+  it('onVerifyMobileNumber(): should emit verifyMobileNumber event when verify button is clicked', () => {
+    spyOn(component, 'onVerifyMobileNumber').and.callThrough();
+    spyOn(component.verifyMobileNumber, 'emit');
+
+    const verifyMobileNumberCta = getElementBySelector(
+      fixture,
+      '.employee-details-card__bottom-section__verify'
+    ) as HTMLElement;
+
+    click(verifyMobileNumberCta);
+    fixture.detectChanges();
+    expect(component.onVerifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
+    expect(component.verifyMobileNumber.emit).toHaveBeenCalledOnceWith(apiEouRes);
   });
 });
