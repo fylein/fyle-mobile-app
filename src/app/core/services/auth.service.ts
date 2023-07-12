@@ -40,6 +40,8 @@ export class AuthService {
 
   newRefreshToken(token: string): Observable<ExtendedOrgUser> {
     const that = this;
+    const accessToken = this.tokenService.getAccessToken();
+
     return forkJoin([
       that.storageService.delete('user'),
       that.storageService.delete('role'),
@@ -50,6 +52,7 @@ export class AuthService {
         that.apiService
           .post<AuthResponse>('/auth/access_token', {
             refresh_token: token,
+            access_token: accessToken,
           })
           .pipe(
             switchMap((res) => from(that.tokenService.setAccessToken(res.access_token))),

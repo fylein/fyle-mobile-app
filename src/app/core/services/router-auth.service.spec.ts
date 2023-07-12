@@ -218,6 +218,7 @@ describe('RouterAuthService', () => {
       expect(res).toEqual(apiAuthRes);
       expect(routerApiService.post).toHaveBeenCalledOnceWith('/auth/access_token', {
         refresh_token,
+        access_token,
       });
     });
   }));
