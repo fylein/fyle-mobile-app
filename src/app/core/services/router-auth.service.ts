@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
 import { tap, switchMap, map } from 'rxjs/operators';
@@ -75,7 +74,6 @@ export class RouterAuthService {
 
   async fetchAccessToken(refreshToken): Promise<AuthResponse> {
     // this function is called from multiple places, token should be returned and not saved from here
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const accessToken = await this.tokenService.getAccessToken();
     return await this.routerApiService
       .post('/auth/access_token', {
