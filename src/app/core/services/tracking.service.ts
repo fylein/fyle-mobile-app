@@ -597,4 +597,8 @@ export class TrackingService {
   mobileNumberVerified() {
     this.eventTrack('Mobile Number Verified');
   }
+
+  smsDeepLinkOpened(properties = {}) {
+    this.eventTrack('SMS Deep Link Opened', properties);
+  }
 }
