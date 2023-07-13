@@ -40,12 +40,13 @@ import { click, getAllElementsBySelector, getElementBySelector, getTextContent }
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
 
-fdescribe('SwitchOrgPage', () => {
+describe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -238,6 +239,8 @@ fdescribe('SwitchOrgPage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
+    deepLinkService = TestBed.inject(DeepLinkService) as jasmine.SpyObj<DeepLinkService>;
+    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
 
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
@@ -250,14 +253,18 @@ fdescribe('SwitchOrgPage', () => {
   });
 
   describe('ionViewWillEnter():', () => {
-    it('should show orgs and setup search bar', fakeAsync(() => {
+    beforeEach(() => {
       orgService.getOrgs.and.returnValue(of(orgData1));
       spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
       spyOn(component, 'proceed').and.returnValue(Promise.resolve());
+      spyOn(component, 'redirectToExpensePage').and.returnValue();
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
       orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
       loaderService.showLoader.and.returnValue(Promise.resolve());
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
+    });
+
+    it('should show orgs and setup search bar', fakeAsync(() => {
       component.searchOrgsInput.nativeElement.value = 'Staging Loaded';
       component.searchOrgsInput.nativeElement.dispatchEvent(new Event('keyup'));
       const changeDetectorRef = fixture.debugElement.injector.get(ChangeDetectorRef);
@@ -285,13 +292,6 @@ fdescribe('SwitchOrgPage', () => {
 
     it('should directly proceed to invite line flow if choosing is disabled', fakeAsync(() => {
       activatedRoute.snapshot.params.choose = false;
-      orgService.getOrgs.and.returnValue(of(orgData1));
-      spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
-      spyOn(component, 'proceed').and.returnValue(Promise.resolve());
-      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
-      orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
       const changeDetectorRef = fixture.debugElement.injector.get(ChangeDetectorRef);
       const detectChangesSpy = spyOn(changeDetectorRef.constructor.prototype, 'detectChanges');
       fixture.detectChanges();
@@ -315,6 +315,18 @@ fdescribe('SwitchOrgPage', () => {
       expect(component.getOrgsWhichContainSearchText).toHaveBeenCalledOnceWith([orgData2[1]], '');
       expect(detectChangesSpy).toHaveBeenCalledTimes(2);
     }));
+
+    it('should redirect to expense page if orgId and txnId are present in route params', () => {
+      const orgId = 'orOTDe765hQp';
+      const txnId = 'txMLI4Cc5zY5';
+      activatedRoute.snapshot.params = {
+        orgId,
+        txnId,
+      };
+      component.ionViewWillEnter();
+
+      expect(component.redirectToExpensePage).toHaveBeenCalledOnceWith(orgId, txnId);
+    });
   });
 
   it('resendInvite(): should resend invite to an org', (done) => {
@@ -328,6 +340,54 @@ fdescribe('SwitchOrgPage', () => {
       expect(routerAuthService.resendVerificationLink).toHaveBeenCalledOnceWith(email, org_id);
       done();
     });
+  });
+
+  describe('redirectToExpensePage(): ', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      orgService.switchOrg.and.returnValue(of(apiEouRes));
+      userEventService.clearTaskCache.and.returnValue();
+      recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue();
+      authService.getEou.and.resolveTo(apiEouRes);
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      deepLinkService.getExpenseRoute.and.returnValue(['/', 'enterprise', 'add_edit_expense']);
+
+      spyOn(component, 'setSentryUser').and.returnValue();
+      spyOn(globalCacheBusterNotifier, 'next').and.returnValue();
+    });
+
+    it('should redirect to expense page if txn found in org', fakeAsync(() => {
+      const txnId = 'tx3qHxFNgRcZ';
+      const orgId = 'orNVthTo2Zyo';
+      component.redirectToExpensePage(orgId, txnId);
+
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith();
+      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
+
+      expect(globalCacheBusterNotifier.next).toHaveBeenCalledOnceWith();
+      expect(userEventService.clearTaskCache).toHaveBeenCalledOnceWith();
+      expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledOnceWith();
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+
+      expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(txnId);
+      expect(loaderService.hideLoader).toHaveBeenCalledOnceWith();
+
+      expect(deepLinkService.getExpenseRoute).toHaveBeenCalledOnceWith(unflattenedTxnData);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'add_edit_expense', { id: txnId }]);
+    }));
+
+    it('should stay on switch org if there is some error', fakeAsync(() => {
+      const txnId = 'tx3qHxFNgRcZ';
+      const orgId = 'orNVthTo2Zyo';
+      orgService.switchOrg.and.returnValue(throwError(() => {}));
+      component.redirectToExpensePage(orgId, txnId);
+      tick(200);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org']);
+    }));
   });
 
   describe('logoutIfSingleOrg():', () => {
