@@ -22,6 +22,9 @@ import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-opt
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { CombinedOptions } from 'src/app/core/models/combined-options.model';
+import { ProjectDependentFieldsMapping } from 'src/app/core/models/project-dependent-fields-mapping.model';
+import { CostCenterDependentFieldsMapping } from 'src/app/core/models/cost-center-dependent-fields-mapping.model';
+import { GeneratedFormProperties } from 'src/app/core/models/generated-form-properties.model';
 
 type CustomInputs = Partial<{
   control: FormControl;
@@ -129,9 +132,9 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   systemCategories: string[];
 
-  projectDependentFieldsMapping$: Observable<{ [projectId: number]: CustomProperty<string>[] }>;
+  projectDependentFieldsMapping$: Observable<ProjectDependentFieldsMapping>;
 
-  costCenterDependentFieldsMapping$: Observable<{ [costCenterId: number]: CustomProperty<string>[] }>;
+  costCenterDependentFieldsMapping$: Observable<CostCenterDependentFieldsMapping>;
 
   constructor(
     private router: Router,
@@ -335,7 +338,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
             receipt_ids:
               this.expenses[selectedIndex]?.tx_file_ids?.length > 0 &&
               !this.touchedGenericFields?.includes('receipt_ids')
-                ? this.expenses[selectedIndex]?.tx_split_group_id
+                ? this.expenses[selectedIndex].tx_split_group_id
                 : null,
             amount: this.mergeExpensesService.getFieldValueOnChange(
               amountOptionsData,
@@ -454,7 +457,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     );
   }
 
-  onReceiptChanged(receipt_ids) {
+  onReceiptChanged(receipt_ids: string) {
     this.mergeExpensesService.getAttachements(receipt_ids).subscribe((receipts) => {
       this.selectedReceiptsId = receipts.map((receipt) => receipt.id);
       this.attachments = receipts;
@@ -516,13 +519,13 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       .subscribe(noop);
   }
 
-  generateFromFg(dependentFieldsMapping: { [id: number]: CustomProperty<string>[] }) {
+  generateFromFg(dependentFieldsMapping: { [id: number]: CustomProperty<string>[] }): GeneratedFormProperties {
     const sourceExpense = this.expenses.find(
       (expense) => expense.source_account_type === this.genericFieldsForm?.value?.paymentMode
     );
     const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
     const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
-    let locations;
+    let locations: string[];
     if (this.fg.value.location_1 && this.fg.value.location_2) {
       locations = [this.genericFieldsForm.value.location_1, this.genericFieldsForm.value.location_2];
     } else if (this.fg.value.location_1) {
