@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 
 import { ApiService } from './api.service';
@@ -28,6 +28,7 @@ import { StatsDimensionResponse } from '../models/stats-dimension-response.model
 import { AdvanceRequestActions } from '../models/advance-request-actions.model';
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
 import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
+import { PolicyViolationCheck } from '../models/policy-violation-check.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -107,7 +108,7 @@ export class AdvanceRequestService {
           areq_id: `eq.${id}`,
         },
       })
-      .pipe(map((res) => this.fixDates(res.data[0]) as ExtendedAdvanceRequest));
+      .pipe(map((res) => this.fixDates(res.data[0])));
   }
 
   @CacheBuster({
@@ -175,7 +176,7 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  destroyAdvanceRequestsCacheBuster() {
+  destroyAdvanceRequestsCacheBuster(): Observable<null> {
     return of(null);
   }
 
@@ -228,7 +229,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getEReq(advanceRequestId: string) {
+  getEReq(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
     return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
       map((res) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -239,7 +240,7 @@ export class AdvanceRequestService {
     );
   }
 
-  testPolicy(advanceRequest: AdvanceRequests): Observable<any> {
+  testPolicy(advanceRequest: AdvanceRequests): Observable<PolicyViolationCheck> {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         if (advanceRequest.created_at) {
@@ -382,7 +383,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<any> {
+  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<Partial<StatsDimensionResponse[]>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
       map((res) => res.data)

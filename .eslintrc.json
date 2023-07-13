@@ -1,6 +1,11 @@
 {
   "root": true,
-  "ignorePatterns": ["projects/**/*"],
+  "ignorePatterns": [
+    "projects/**/*",
+    "zone-flags.ts",
+    "test.ts",
+    "main.ts"
+  ],
   "plugins": ["max-params-no-constructor"],
   "overrides": [
     {
