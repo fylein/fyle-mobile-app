@@ -180,8 +180,8 @@ describe('AuthService', () => {
     storageService.delete.withArgs('user').and.returnValue(Promise.resolve(null));
     storageService.delete.withArgs('role').and.returnValue(Promise.resolve(null));
     tokenService.resetAccessToken.and.returnValue(Promise.resolve({ value: true }));
-    tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
     tokenService.setRefreshToken.withArgs(access_token_2).and.returnValue(Promise.resolve({ value: true }));
+    tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
     apiService.post.and.returnValue(of(apiAuthResponseRes));
     tokenService.setAccessToken
       .withArgs(apiAuthResponseRes.access_token)
@@ -196,7 +196,7 @@ describe('AuthService', () => {
       expect(tokenService.resetAccessToken).toHaveBeenCalledOnceWith();
       expect(tokenService.setRefreshToken).toHaveBeenCalledOnceWith(access_token_2);
       expect(tokenService.setAccessToken).toHaveBeenCalledOnceWith(apiAuthResponseRes.access_token);
-      expect(tokenService.getAccessToken).toHaveBeenCalledTimes(1);
+      expect(tokenService.getAccessToken).toHaveBeenCalledOnceWith();
       expect(apiService.post).toHaveBeenCalledWith('/auth/access_token', {
         refresh_token: access_token_2,
         access_token,

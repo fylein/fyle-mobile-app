@@ -212,13 +212,16 @@ describe('RouterAuthService', () => {
 
   it('fetchAccessToken(): should fetch access token', fakeAsync(() => {
     routerApiService.post.and.returnValue(of(apiAuthRes));
+    tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
 
     tick();
-    routerAuthService.fetchAccessToken(refresh_token).then((res) => {
-      expect(res).toEqual(apiAuthRes);
-      expect(routerApiService.post).toHaveBeenCalledOnceWith('/auth/access_token', {
-        refresh_token,
-        access_token,
+    tokenService.getAccessToken().then((access_token) => {
+      routerAuthService.fetchAccessToken(refresh_token).then((res) => {
+        expect(res).toEqual(apiAuthRes);
+        expect(routerApiService.post).toHaveBeenCalledOnceWith('/auth/access_token', {
+          refresh_token,
+          access_token,
+        });
       });
     });
   }));
