@@ -21,6 +21,7 @@ import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.m
 import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { CombinedOptions } from 'src/app/core/models/combined-options.model';
 
 type CustomInputs = Partial<{
   control: FormControl;
@@ -33,14 +34,6 @@ type CustomInputs = Partial<{
   type: string;
   value: string;
 }>;
-
-interface CombinedOptions {
-  [key: string]: MergeExpensesOptionsData;
-}
-
-interface OptionsSet {
-  [key: string]: MergeExpensesOptionsData;
-}
 
 @Component({
   selector: 'app-merge-expense',
@@ -98,9 +91,9 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   receiptOptions: MergeExpensesOption[];
 
-  genericFieldsOptions$: Observable<OptionsSet>;
+  genericFieldsOptions$: Observable<CombinedOptions>;
 
-  categoryDependentFieldsOptions$: Observable<OptionsSet>;
+  categoryDependentFieldsOptions$: Observable<CombinedOptions>;
 
   loadCustomFields$: BehaviorSubject<string>;
 
@@ -166,7 +159,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
   }
 
   ngOnInit() {
-    this.expenses = JSON.parse(this.activatedRoute.snapshot.params?.selectedElements);
+    this.expenses = JSON.parse(this.activatedRoute.snapshot.params.selectedElements);
     this.redirectedFrom = this.activatedRoute.snapshot.params.from;
   }
 
@@ -266,7 +259,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       purposeOptionsData: this.purposeOptionsData$,
     });
 
-    this.loadCustomFields$ = new BehaviorSubject(this.genericFieldsForm.value?.category);
+    this.loadCustomFields$ = new BehaviorSubject(undefined);
 
     this.setupCustomInputs();
 
