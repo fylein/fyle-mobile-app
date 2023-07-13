@@ -33,7 +33,7 @@ export interface Transaction {
   hotel_is_breakfast_provided?: boolean;
   id?: string;
   invoice_number?: number;
-  locations?: [];
+  locations?: any;
   mandatory_fields_present?: boolean;
   manual_flag?: boolean;
   mileage_calculated_amount?: number;
