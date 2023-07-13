@@ -1414,3 +1414,8 @@ export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
     fyle_category: 'unspecified',
   },
 };
+
+export const unflattenedTransactionDataPersonalCard = {
+  ...expectedUnflattendedTxnData3.tx,
+  locations: null,
+};
