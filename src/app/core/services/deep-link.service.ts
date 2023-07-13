@@ -18,7 +18,7 @@ export class DeepLinkService {
     });
 
     //If no query string is present, url is from the SMS link, so send the entire url in redirect_uri
-    if (Object.keys(result).length === 0) {
+    if (url && Object.keys(result).length === 0) {
       result.redirect_uri = url;
     }
     return result;

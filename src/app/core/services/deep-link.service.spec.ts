@@ -5,8 +5,10 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Location } from '@angular/common';
 import { appRoutes } from '../../app-routing.module';
 import { fyleRoutes } from '../../fyle/fyle-routing.module';
+import { unflattenedTxnData } from '../mock-data/unflattened-txn.data';
+import { expenseRouteData } from '../test-data/deep-link.service.spec.data';
 
-describe('DeepLinkService', () => {
+fdescribe('DeepLinkService', () => {
   let deepLinkService: DeepLinkService;
   let router: jasmine.SpyObj<Router>;
   let location: jasmine.SpyObj<Location>;
@@ -48,20 +50,31 @@ describe('DeepLinkService', () => {
     expect(deepLinkService).toBeTruthy();
   });
 
-  it('should get json from URL', () => {
-    const expectedJson = {
-      fyle_redirect_url:
-        'aHR0cHM6Ly9hcHAuZnlsZWhxLmNvbS9hcHAvbWFpbi8jL215X2V4cGVuc2VzLz9zdGF0ZT1kcmFmdCZvcmdfaWQ9b3JLYWVPNXhvak9E',
-      org_id: 'orKaeO5xojOD',
-    };
+  describe('getJsonFromUrl(): ', () => {
+    it('should get json from URL', () => {
+      const expectedJson = {
+        fyle_redirect_url:
+          'aHR0cHM6Ly9hcHAuZnlsZWhxLmNvbS9hcHAvbWFpbi8jL215X2V4cGVuc2VzLz9zdGF0ZT1kcmFmdCZvcmdfaWQ9b3JLYWVPNXhvak9E',
+        org_id: 'orKaeO5xojOD',
+      };
 
-    const result = deepLinkService.getJsonFromUrl(mockURL);
-    expect(result).toEqual(expectedJson);
-  });
+      const result = deepLinkService.getJsonFromUrl(mockURL);
+      expect(result).toEqual(expectedJson);
+    });
 
-  xit('should fail in case URL is not present', () => {
-    const result = deepLinkService.getJsonFromUrl();
-    expect(result).toEqual({});
+    it('should set url to redirect_uri if no other params present', () => {
+      const url = 'https://fyle.app.link/orOTDe765hQp/txMLI4Cc5zY5';
+      const result = deepLinkService.getJsonFromUrl(url);
+
+      expect(result).toEqual({
+        redirect_uri: url,
+      });
+    });
+
+    it('should fail in case URL is not present', () => {
+      const result = deepLinkService.getJsonFromUrl();
+      expect(result).toEqual({});
+    });
   });
 
   describe('redirect():', () => {
@@ -153,6 +166,20 @@ describe('DeepLinkService', () => {
         redirect_uri: `${baseURL}/enterprise/advanceRequest/`,
       });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
+    });
+  });
+
+  it('getExpenseRoute(): should return the expense route based on category and state', () => {
+    expenseRouteData.forEach((item) => {
+      const result = deepLinkService.getExpenseRoute({
+        ...unflattenedTxnData,
+        tx: {
+          ...unflattenedTxnData.tx,
+          state: item.state,
+          org_category: item.category,
+        },
+      });
+      expect(result).toEqual(item.route);
     });
   });
 });
