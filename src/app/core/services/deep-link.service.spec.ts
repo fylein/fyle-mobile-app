@@ -8,7 +8,7 @@ import { fyleRoutes } from '../../fyle/fyle-routing.module';
 import { unflattenedTxnData } from '../mock-data/unflattened-txn.data';
 import { expenseRouteData } from '../test-data/deep-link.service.spec.data';
 
-fdescribe('DeepLinkService', () => {
+describe('DeepLinkService', () => {
   let deepLinkService: DeepLinkService;
   let router: jasmine.SpyObj<Router>;
   let location: jasmine.SpyObj<Location>;
@@ -159,6 +159,30 @@ fdescribe('DeepLinkService', () => {
           id: advReqID,
         },
       ]);
+    });
+
+    it('should redirect to deep link redirection page with correct orgId and txnId', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/orOTDe765hQp/txMLI4Cc5zY5`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'expense',
+          id: 'txMLI4Cc5zY5',
+          orgId: 'orOTDe765hQp',
+        },
+      ]);
+    });
+
+    it('should redirect to switch org page if orgId is missing in query params', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/txMLI4Cc5zY5`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
     });
 
     it('should navigate to switch organisation page when there are incorrect details in redirection URL', () => {
