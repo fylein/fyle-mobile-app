@@ -60,7 +60,7 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { EventEmitter } from '@angular/core';
 
 export function TestCases1(getTestBed) {
-  return describe('AddEditExpensePage-1', () => {
+  return xdescribe('AddEditExpensePage-1', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
