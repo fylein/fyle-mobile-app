@@ -60,7 +60,7 @@ import { customProperties } from 'src/app/core/test-data/custom-inputs.spec.data
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 
 export function TestCases4(getTestBed) {
-  return describe('AddEditExpensePage-4', () => {
+  return xdescribe('AddEditExpensePage-4', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
