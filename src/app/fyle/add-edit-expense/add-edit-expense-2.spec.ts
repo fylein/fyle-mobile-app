@@ -10,13 +10,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
-import {
-  fileObject5,
-  fileObject7,
-  fileObjectData,
-  fileObjectData1,
-  fileObjectData4,
-} from 'src/app/core/mock-data/file-object.data';
+import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
@@ -85,7 +79,7 @@ const properties = {
 };
 
 export function TestCases2(getTestBed) {
-  return xdescribe('AddEditExpensePage-2', () => {
+  return describe('AddEditExpensePage-2', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
