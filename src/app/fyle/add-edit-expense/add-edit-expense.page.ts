@@ -790,33 +790,27 @@ export class AddEditExpensePage implements OnInit {
   }
 
   splitExpCategoryHandler() {
-    return () => {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('categories');
-      } else {
-        this.showFormValidationErrors();
-      }
-    };
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('categories');
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   splitExpProjectHandler() {
-    return () => {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('projects');
-      } else {
-        this.showFormValidationErrors();
-      }
-    };
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('projects');
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   splitExpCostCenterHandler() {
-    return () => {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('cost centers');
-      } else {
-        this.showFormValidationErrors();
-      }
-    };
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('cost centers');
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   getActionSheetOptions() {
