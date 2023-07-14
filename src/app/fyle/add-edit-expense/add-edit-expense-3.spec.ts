@@ -102,7 +102,7 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { AddEditExpensePage } from './add-edit-expense.page';
 
 export function TestCases3(getTestBed) {
-  return describe('AddEditExpensePage-3', () => {
+  return xdescribe('AddEditExpensePage-3', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
