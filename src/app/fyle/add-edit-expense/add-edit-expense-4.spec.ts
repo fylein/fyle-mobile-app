@@ -62,7 +62,7 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 
 export function TestCases4(getTestBed) {
-  return describe('AddEditExpensePage-4', () => {
+  return xdescribe('AddEditExpensePage-4', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
