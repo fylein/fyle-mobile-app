@@ -9,6 +9,7 @@ import { Observable, Subscription, of, throwError } from 'rxjs';
 import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fileObject4, fileObjectAdv1 } from 'src/app/core/mock-data/file-object.data';
+import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import {
   expectedUnflattendedTxnData3,
@@ -53,14 +54,9 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
-import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
-import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { customProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
-import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 
 export function TestCases4(getTestBed) {
-  return xdescribe('AddEditExpensePage-4', () => {
+  return describe('AddEditExpensePage-4', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
