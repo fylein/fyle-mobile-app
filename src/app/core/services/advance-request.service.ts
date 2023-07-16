@@ -383,7 +383,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<Partial<StatsDimensionResponse[]>> {
+  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<any> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
       map((res) => res.data)
