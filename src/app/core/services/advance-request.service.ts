@@ -240,7 +240,7 @@ export class AdvanceRequestService {
     );
   }
 
-  testPolicy(advanceRequest: AdvanceRequests): Observable<PolicyViolationCheck> {
+  testPolicy(advanceRequest: AdvanceRequests): Observable<any> {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         if (advanceRequest.created_at) {
