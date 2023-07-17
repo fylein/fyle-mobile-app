@@ -25,18 +25,7 @@ import { CombinedOptions } from 'src/app/core/models/combined-options.model';
 import { ProjectDependentFieldsMapping } from 'src/app/core/models/project-dependent-fields-mapping.model';
 import { CostCenterDependentFieldsMapping } from 'src/app/core/models/cost-center-dependent-fields-mapping.model';
 import { GeneratedFormProperties } from 'src/app/core/models/generated-form-properties.model';
-
-type CustomInputs = Partial<{
-  control: FormControl;
-  id: string;
-  mandatory: boolean;
-  name: string;
-  options: MergeExpensesOption[];
-  placeholder: string;
-  prefix: string;
-  type: string;
-  value: string;
-}>;
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 
 @Component({
   selector: 'app-merge-expense',
@@ -104,7 +93,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   selectedReceiptsId: string[] = [];
 
-  customInputs$: Observable<CustomInputs[]>;
+  customInputs$: Observable<TxnCustomProperties[]>;
 
   attachments: FileObject[];
 
@@ -521,14 +510,14 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   generateFromFg(dependentFieldsMapping: { [id: number]: CustomProperty<string>[] }): GeneratedFormProperties {
     const sourceExpense = this.expenses.find(
-      (expense) => expense.source_account_type === this.genericFieldsForm?.value?.paymentMode
+      (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
     );
     const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
     const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
     let locations: string[];
-    if (this.fg.value.location_1 && this.fg.value.location_2) {
+    if (this.genericFieldsForm.value.location_1 && this.genericFieldsForm.value.location_2) {
       locations = [this.genericFieldsForm.value.location_1, this.genericFieldsForm.value.location_2];
-    } else if (this.fg.value.location_1) {
+    } else if (this.genericFieldsForm.value.location_1) {
       locations = [this.genericFieldsForm.value.location_1];
     }
     const projectDependantFieldValues = dependentFieldsMapping[this.genericFieldsForm.value.project] || [];
@@ -567,7 +556,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     };
   }
 
-  onCategoryChanged(categoryId) {
+  onCategoryChanged(categoryId: string) {
     this.mergeExpensesService.getCategoryName(categoryId).subscribe((categoryName) => {
       this.selectedCategoryName = categoryName;
     });
@@ -584,7 +573,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
           map((fields) => fields.filter((field) => field.type !== 'DEPENDENT_SELECT')),
           switchMap((fields) => {
             const customFields = this.customFieldsService.standardizeCustomFields(
-              this.fg.controls.custom_inputs?.value?.fields || [],
+              this.fg.controls.custom_inputs.value?.fields || [],
               this.customInputsService.filterByCategory(fields, categoryId)
             );
             return customFields;

@@ -5,7 +5,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { NavController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -14,7 +14,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 import { FormBuilder, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import { expenseList2 } from 'src/app/core/mock-data/expense.data';
-import { of } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, of } from 'rxjs';
 import {
   optionsData10,
   optionsData11,
@@ -39,7 +39,22 @@ import { combinedOptionsData1 } from 'src/app/core/mock-data/combined-options.da
 import { fileObject7 } from 'src/app/core/mock-data/file-object.data';
 import { projectDependentFieldsMappingData1 } from 'src/app/core/mock-data/project-dependent-fields-mapping.data';
 import { CostCenterDependentFieldsMappingData1 } from 'src/app/core/mock-data/cost-center-dependent-fields-mapping.data';
-import { generatedFormPropertiesData1 } from 'src/app/core/mock-data/generated-form-properties.data';
+import {
+  generatedFormPropertiesData1,
+  generatedFormPropertiesData2,
+  generatedFormPropertiesData3,
+  generatedFormPropertiesData4,
+} from 'src/app/core/mock-data/generated-form-properties.data';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { snackbarPropertiesRes5 } from 'src/app/core/mock-data/snackbar-properties.data';
+import {
+  mergeExpenseFormData1,
+  mergeExpenseFormData2,
+  mergeExpenseFormData3,
+  mergeExpenseFormData4,
+  mergeExpenseFormData5,
+} from 'src/app/core/mock-data/merge-expense-form-data.data';
+import { dependentCustomFields } from 'src/app/core/mock-data/expense-field.data';
 
 export function TestCases2(getTestBed) {
   return describe('test cases set 2', () => {
@@ -393,6 +408,103 @@ export function TestCases2(getTestBed) {
         expect(trackingService.expensesMerged).toHaveBeenCalledTimes(1);
         expect(component.showMergedSuccessToast).toHaveBeenCalledTimes(1);
         expect(component.goBack).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('goBack(): ', () => {
+      beforeEach(() => {
+        component.redirectedFrom = 'EDIT_EXPENSE';
+      });
+
+      it('should navigate to my_expenses page if user is redirected from EDIT_EXPENSE', () => {
+        component.goBack();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(navController.back).not.toHaveBeenCalled();
+      });
+
+      it('should navigate to previous page if user is not redirected from EDIT_EXPENSE', () => {
+        component.redirectedFrom = 'TASK';
+        component.goBack();
+        expect(navController.back).toHaveBeenCalledTimes(1);
+        expect(router.navigate).not.toHaveBeenCalled();
+      });
+    });
+
+    it('showMergedSuccessToast(): should show Expenses merged Successfully toast', () => {
+      matSnackBar.openFromComponent.and.returnValue({
+        onAction: () => ({
+          subscribe: () => {},
+        }),
+      } as MatSnackBarRef<ToastMessageComponent>);
+      snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes5);
+
+      component.showMergedSuccessToast();
+
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: 'Expenses merged Successfully',
+      });
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesRes5,
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+    });
+
+    describe('generateFromFg(): ', () => {
+      beforeEach(() => {
+        const mockExpense = cloneDeep(expenseList2);
+        mockExpense[1].source_account_type = 'CORPORATE_CARD';
+        component.expenses = cloneDeep(mockExpense);
+        component.fg = formBuilder.group(mergeExpenseFormData1);
+      });
+
+      it('should return generated form properties with locations consist of source and destination address', () => {
+        const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
+        expect(generatedFormProperties).toEqual(generatedFormPropertiesData2);
+      });
+
+      it('should return generated form properties with locations as a single element if location_2 is undefined', () => {
+        component.fg.patchValue(mergeExpenseFormData2);
+        const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
+        expect(generatedFormProperties).toEqual({ ...generatedFormPropertiesData2, locations: ['Pune'] });
+      });
+
+      it('should return generated form properties with locations as empty array if location_1 and locations_2 are undefined', () => {
+        component.fg.patchValue(mergeExpenseFormData3);
+        const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
+        expect(generatedFormProperties).toEqual({ ...generatedFormPropertiesData2, locations: [] });
+      });
+
+      it('should return generated form properties with projectDependantFieldValues and costCenterDependentFieldValues as empty array if project and costCenter are undefined in genericFields', () => {
+        component.fg.patchValue(mergeExpenseFormData4);
+        const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
+        expect(generatedFormProperties).toEqual(generatedFormPropertiesData3);
+      });
+
+      it('should return generated form properties with source_account_id, currency and amount as undefined if sourceExpense and amountExpense are undefined', () => {
+        component.expenses = cloneDeep(expenseList2);
+        component.fg.patchValue(mergeExpenseFormData5);
+        const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
+        expect(generatedFormProperties).toEqual(generatedFormPropertiesData4);
+      });
+
+      it('should return generated form properties with ccce_group_id if tx_corporate_credit_card_expense_group_id is present in expense', () => {
+        const mockExpense = cloneDeep(expenseList2);
+        mockExpense[1].tx_corporate_credit_card_expense_group_id = 'ae593zqtepw';
+        mockExpense[1].source_account_type = 'CORPORATE_CARD';
+        component.expenses = cloneDeep(mockExpense);
+        const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
+        expect(generatedFormProperties).toEqual({ ...generatedFormPropertiesData2, ccce_group_id: 'ae593zqtepw' });
+      });
+    });
+
+    it('onCategoryChanged(): should update selectedCategoryName and loadCustomFields$', () => {
+      component.loadCustomFields$ = new BehaviorSubject(null);
+      mergeExpensesService.getCategoryName.and.returnValue(of('Food'));
+      component.onCategoryChanged('201952');
+      expect(mergeExpensesService.getCategoryName).toHaveBeenCalledOnceWith('201952');
+      expect(component.selectedCategoryName).toEqual('Food');
+      component.loadCustomFields$.subscribe((customFields) => {
+        expect(customFields).toEqual('201952');
       });
     });
   });
