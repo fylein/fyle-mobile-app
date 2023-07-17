@@ -315,8 +315,10 @@
         </ion-row>
       </ion-grid>
 
-      <ng-container *ngIf="costCenterDependentCustomProperties$ | async as costCenterDependentCustomProperties">
-        <ng-container *ngIf="!costCenterDependentCustomProperties">
+      <ng-container
+        *ngIf="{ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async} as data"
+      >
+        <ng-container *ngIf="!data.costCenterDependentCustomProperties?.length">
           <ion-grid *ngIf="orgSettings?.cost_centers?.enabled && etxn.tx_cost_center_id" class="view-expense--grid">
             <ion-row>
               <ion-col size="6">
