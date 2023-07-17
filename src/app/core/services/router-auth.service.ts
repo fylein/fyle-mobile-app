@@ -74,9 +74,11 @@ export class RouterAuthService {
 
   async fetchAccessToken(refreshToken): Promise<AuthResponse> {
     // this function is called from multiple places, token should be returned and not saved from here
+    const accessToken = await this.tokenService.getAccessToken();
     return await this.routerApiService
       .post('/auth/access_token', {
         refresh_token: refreshToken,
+        access_token: accessToken,
       })
       .toPromise();
   }

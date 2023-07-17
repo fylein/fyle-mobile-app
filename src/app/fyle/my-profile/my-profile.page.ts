@@ -184,7 +184,7 @@ export class MyProfilePage {
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
-    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => this.setInfoCardsData(homeCurrency));
+    this.eou$.subscribe((eou) => this.setInfoCardsData(eou));
 
     from(this.loaderService.showLoader())
       .pipe(
@@ -234,7 +234,7 @@ export class MyProfilePage {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
-  setInfoCardsData(homeCurrency: string) {
+  setInfoCardsData(eou: ExtendedOrgUser): void {
     const fyleMobileNumber = '(302) 440-2921';
     const fyleEmail = 'receipts@fylehq.com';
 
@@ -244,17 +244,18 @@ export class MyProfilePage {
         content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
         contentToCopy: fyleMobileNumber,
         toastMessageContent: 'Phone Number Copied Successfully',
-        isHidden: homeCurrency !== 'USD',
+        isShown: eou.org.currency === 'USD' && eou.ou.mobile_verified,
       },
       {
         title: 'Email Receipts',
         content: `Forward your receipts to Fyle at ${fyleEmail}.`,
         contentToCopy: fyleEmail,
         toastMessageContent: 'Email Copied Successfully',
+        isShown: true,
       },
     ];
 
-    this.infoCardsData = allInfoCardsData.filter((infoCardData) => !infoCardData.isHidden);
+    this.infoCardsData = allInfoCardsData.filter((infoCardData) => infoCardData.isShown);
   }
 
   showToastMessage(message: string, type: 'success' | 'failure') {

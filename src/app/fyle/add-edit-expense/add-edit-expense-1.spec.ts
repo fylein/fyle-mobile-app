@@ -843,16 +843,16 @@ export function TestCases1(getTestBed) {
 
         spyOn(component, 'openSplitExpenseModal');
 
-        const fn = component.splitExpCategoryHandler();
-        fn();
+        component.splitExpCategoryHandler();
+
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('categories');
       });
 
       it('should validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
 
-        const fn = component.splitExpCategoryHandler();
-        fn();
+        component.splitExpCategoryHandler();
+
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
@@ -863,16 +863,16 @@ export function TestCases1(getTestBed) {
 
         spyOn(component, 'openSplitExpenseModal');
 
-        const fn = component.splitExpProjectHandler();
-        fn();
+        component.splitExpProjectHandler();
+
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('projects');
       });
 
       it('should show validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
 
-        const fn = component.splitExpProjectHandler();
-        fn();
+        component.splitExpProjectHandler();
+
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
@@ -882,16 +882,16 @@ export function TestCases1(getTestBed) {
         setFormValid();
         spyOn(component, 'openSplitExpenseModal');
 
-        const fn = component.splitExpCostCenterHandler();
-        fn();
+        component.splitExpCostCenterHandler();
+
         expect(component.openSplitExpenseModal).toHaveBeenCalledOnceWith('cost centers');
       });
 
       it('The form should display the validation errors if they are found.', () => {
         spyOn(component, 'showFormValidationErrors');
 
-        const fn = component.splitExpCostCenterHandler();
-        fn();
+        component.splitExpCostCenterHandler();
+
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
@@ -924,12 +924,6 @@ export function TestCases1(getTestBed) {
 
         component.getActionSheetOptions().subscribe((res) => {
           expect(res.length).toEqual(6);
-          expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
-          expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
-          expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
-          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
-          expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
-          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
           expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
@@ -969,9 +963,6 @@ export function TestCases1(getTestBed) {
             'show_project_mapped_categories_in_split_expense',
             false
           );
-          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
-          expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
-          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -1003,7 +994,6 @@ export function TestCases1(getTestBed) {
             'show_project_mapped_categories_in_split_expense',
             false
           );
-          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -1029,7 +1019,6 @@ export function TestCases1(getTestBed) {
 
         component.getActionSheetOptions().subscribe((res) => {
           expect(res.length).toEqual(1);
-          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
           expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(

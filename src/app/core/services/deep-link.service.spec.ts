@@ -2,16 +2,16 @@ import { TestBed } from '@angular/core/testing';
 import { DeepLinkService } from './deep-link.service';
 import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Location } from '@angular/common';
 import { appRoutes } from '../../app-routing.module';
 import { fyleRoutes } from '../../fyle/fyle-routing.module';
+import { TrackingService } from './tracking.service';
 import { unflattenedTxnData } from '../mock-data/unflattened-txn.data';
 import { expenseRouteData } from '../test-data/deep-link.service.spec.data';
 
 describe('DeepLinkService', () => {
   let deepLinkService: DeepLinkService;
   let router: jasmine.SpyObj<Router>;
-  let location: jasmine.SpyObj<Location>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   const baseURL = 'https://app.fylehq.com/app';
 
@@ -24,8 +24,10 @@ describe('DeepLinkService', () => {
   };
 
   beforeEach(() => {
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const locationSpy = jasmine.createSpyObj('Location', ['path']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']) as jasmine.SpyObj<Router>;
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
+      'smsDeepLinkOpened',
+    ]) as jasmine.SpyObj<TrackingService>;
 
     TestBed.configureTestingModule({
       imports: [RouterTestingModule.withRoutes(routes)],
@@ -36,14 +38,14 @@ describe('DeepLinkService', () => {
           useValue: routerSpy,
         },
         {
-          provide: Location,
-          useValue: locationSpy,
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
         },
       ],
     });
     deepLinkService = TestBed.inject(DeepLinkService);
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    location = TestBed.inject(Location) as jasmine.SpyObj<Location>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
   });
 
   it('should be created', () => {

@@ -60,7 +60,20 @@
         "max-params-no-constructor/max-params-no-constructor": ["error", 4],
         "max-len": "off",
         "space-before-function-paren": "off",
-        "@typescript-eslint/quotes": "off"
+        "@typescript-eslint/quotes": "off",
+        "@typescript-eslint/no-unsafe-call": 1,
+        "@typescript-eslint/no-unsafe-member-access": 1,
+        "@typescript-eslint/no-unsafe-assignment": 1,
+        "@typescript-eslint/no-unsafe-return": 1,
+        "@typescript-eslint/no-unsafe-argument": 1,
+        "@typescript-eslint/explicit-function-return-type": 1,
+        "@typescript-eslint/no-unnecessary-type-assertion": 1,
+        "@typescript-eslint/no-unused-vars": 1,
+        "@typescript-eslint/no-explicit-any": 1,
+        "@typescript-eslint/no-empty-function": 1,
+        "@typescript-eslint/no-empty-interface": 1,
+        "@typescript-eslint/no-inferrable-types": 1,
+        "no-unused-expressions": 1
       }
     },
     {
@@ -68,19 +81,6 @@
       "extends": ["plugin:@angular-eslint/template/recommended"],
       "rules": {
         "@angular-eslint/template/no-negated-async": "off"
-      }
-    },
-    {
-      "files": ["./src/app/shared/**/*.ts", "./src/app/core/**/*.ts"],
-      "excludedFiles": ["*.spec.ts", "*.data.ts"],
-      "rules": {
-        "@typescript-eslint/no-unsafe-call": 1,
-        "@typescript-eslint/no-unsafe-member-access": 1,
-        "@typescript-eslint/no-unsafe-assignment": 1,
-        "@typescript-eslint/no-unsafe-return": 1,
-        "@typescript-eslint/no-unsafe-argument": 1,
-        "@typescript-eslint/explicit-function-return-type": 1,
-        "@typescript-eslint/no-unnecessary-type-assertion": 1
       }
     }
   ]
