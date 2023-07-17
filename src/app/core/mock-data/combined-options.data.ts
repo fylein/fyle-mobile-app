@@ -8,6 +8,7 @@ import {
   optionsData18,
   optionsData2,
   optionsData3,
+  optionsData31,
   optionsData6,
   optionsData7,
   optionsData8,
@@ -26,4 +27,10 @@ export const combinedOptionsData1: CombinedOptions = {
   taxAmountOptionsData: optionsData12,
   constCenterOptionsData: optionsData13,
   purposeOptionsData: optionsData14,
+};
+
+export const combinedOptionsData2: CombinedOptions = {
+  userlist: optionsData3,
+  test: optionsData6,
+  category2: optionsData31,
 };

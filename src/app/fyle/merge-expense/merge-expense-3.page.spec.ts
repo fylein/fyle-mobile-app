@@ -30,12 +30,13 @@ import {
   optionsData20,
   optionsData21,
   optionsData3,
+  optionsData32,
   optionsData6,
   optionsData7,
   optionsData8,
   optionsData9,
 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
-import { combinedOptionsData1 } from 'src/app/core/mock-data/combined-options.data';
+import { combinedOptionsData1, combinedOptionsData2 } from 'src/app/core/mock-data/combined-options.data';
 import { fileObject7 } from 'src/app/core/mock-data/file-object.data';
 import { projectDependentFieldsMappingData1 } from 'src/app/core/mock-data/project-dependent-fields-mapping.data';
 import { CostCenterDependentFieldsMappingData1 } from 'src/app/core/mock-data/cost-center-dependent-fields-mapping.data';
@@ -55,9 +56,18 @@ import {
   mergeExpenseFormData5,
 } from 'src/app/core/mock-data/merge-expense-form-data.data';
 import { dependentCustomFields } from 'src/app/core/mock-data/expense-field.data';
-import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
+import {
+  expectedTxnCustomProperties,
+  expectedTxnCustomProperties2,
+  txnCustomPropertiesData,
+  txnCustomPropertiesData2,
+} from 'src/app/core/mock-data/txn-custom-properties.data';
 import { filterTestData } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { responseAfterAppliedFilter } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
+import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/dependent-field-mapping.data';
+import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
+import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response';
 
 export function TestCases3(getTestBed) {
   return describe('test cases set 3', () => {
@@ -189,6 +199,99 @@ export function TestCases3(getTestBed) {
         expect(component.getDependentFieldsMapping).toHaveBeenCalledTimes(2);
         expect(component.getDependentFieldsMapping).toHaveBeenCalledWith('PROJECT');
         expect(component.getDependentFieldsMapping).toHaveBeenCalledWith('COST_CENTER');
+      });
+    });
+
+    describe('getDependentFieldsMapping(): ', () => {
+      beforeEach(() => {
+        expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
+        dependantFieldsService.getDependentFieldsForBaseField.and.returnValue(of(dependentCustomFields));
+        customFieldsService.standardizeCustomFields.and.returnValue(expectedTxnCustomProperties);
+        mergeExpensesService.getDependentFieldsMapping.and.returnValue(dependentFieldsMappingForProject);
+      });
+
+      it('should call expenseFieldsService.getAllMap() once', () => {
+        component.getDependentFieldsMapping('PROJECT');
+        expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
+      });
+
+      it('should call dependantFieldsService.getDependentFieldsForBaseField() once with project_id.id if parentField is PROJECT', () => {
+        component.getDependentFieldsMapping('PROJECT').subscribe((res) => {
+          expect(dependantFieldsService.getDependentFieldsForBaseField).toHaveBeenCalledOnceWith(1);
+        });
+      });
+
+      it('should call dependantFieldsService.getDependentFieldsForBaseField() once with cost_center_id.id if parentField is COST_CENTER', () => {
+        component.getDependentFieldsMapping('COST_CENTER').subscribe((res) => {
+          expect(dependantFieldsService.getDependentFieldsForBaseField).toHaveBeenCalledOnceWith(3);
+        });
+      });
+
+      it('should call customFieldsService.standardizeCustomFields() once with customFields', () => {
+        component.getDependentFieldsMapping('PROJECT').subscribe((res) => {
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields);
+        });
+      });
+
+      it('should call mergeExpensesService.getDependentFieldsMapping() once with expense, dependentField and parentField if parentField is PROJECT', () => {
+        component.expenses = expenseList2;
+        component.getDependentFieldsMapping('PROJECT').subscribe((res) => {
+          expect(mergeExpensesService.getDependentFieldsMapping).toHaveBeenCalledOnceWith(
+            expenseList2,
+            expectedTxnCustomProperties,
+            'PROJECT'
+          );
+        });
+      });
+
+      it('should call mergeExpensesService.getDependentFieldsMapping() once with expense, dependentField and parentField if parentField is COST_CENTER', () => {
+        component.expenses = expenseList2;
+        component.getDependentFieldsMapping('COST_CENTER').subscribe((res) => {
+          expect(mergeExpensesService.getDependentFieldsMapping).toHaveBeenCalledOnceWith(
+            expenseList2,
+            expectedTxnCustomProperties,
+            'COST_CENTER'
+          );
+        });
+      });
+
+      it('should return the dependentFieldsMapping correctly', () => {
+        const dependentFieldsMapping$ = component.getDependentFieldsMapping('COST_CENTER');
+        dependentFieldsMapping$.subscribe((dependentFieldsMapping) => {
+          expect(dependentFieldsMapping).toEqual(dependentFieldsMappingForProject);
+        });
+      });
+    });
+
+    it('patchCustomInputsValues(): should patch customInputsValues correctly', () => {
+      component.combinedCustomProperties = combinedOptionsData2;
+      component.patchCustomInputsValues(txnCustomPropertiesData);
+      expect(component.fg.controls.custom_inputs.value).toEqual(expectedCustomInputFields);
+    });
+
+    it('onPaymentModeChanged(): should call mergeExpensesService.getCorporateCardTransactions() once and assign CCCTxns correctly', () => {
+      component.expenses = expenseList2;
+      mergeExpensesService.getCorporateCardTransactions.and.returnValue(of(apiCardV2Transactions.data));
+      component.onPaymentModeChanged();
+      expect(mergeExpensesService.getCorporateCardTransactions).toHaveBeenCalledOnceWith(expenseList2);
+      expect(component.CCCTxns).toEqual(apiCardV2Transactions.data);
+    });
+
+    describe('generateCustomInputOptions(): ', () => {
+      beforeEach(() => {
+        component.expenses = expenseList2;
+        mergeExpensesService.getCustomInputValues.and.returnValue(cloneDeep(expectedTxnCustomProperties2));
+        mergeExpensesService.formatCustomInputOptions.and.returnValue({
+          'select all 2': optionsData32[7],
+        });
+      });
+
+      it('should return customInput options correctly', () => {
+        const customInputOptions = component.generateCustomInputOptions();
+        expect(mergeExpensesService.formatCustomInputOptions).toHaveBeenCalledOnceWith(optionsData32);
+        expect(customInputOptions).toEqual({
+          'select all 2': optionsData32[7],
+        });
       });
     });
   });

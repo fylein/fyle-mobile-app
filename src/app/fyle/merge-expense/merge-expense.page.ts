@@ -619,7 +619,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     );
   }
 
-  patchCustomInputsValues(customInputs) {
+  patchCustomInputsValues(customInputs: TxnCustomProperties[]) {
     const customInputValues = customInputs.map((customInput) => {
       if (
         this.combinedCustomProperties[customInput.name]?.areSameValues &&
@@ -654,21 +654,21 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       if (field.value && field.value instanceof Array) {
         field.options = [
           {
-            label: field.value?.toString(),
+            label: field.value.toString(),
             value: field.value,
           },
         ];
-        if (field.value?.length === 0) {
+        if (field.value.length === 0) {
           field.options = [];
         }
       } else {
-        if (!field.value || field.value !== '') {
+        if (!field.value) {
           field.options = [];
         } else {
           field.options = [
             {
-              label: field?.value,
-              value: field?.value,
+              label: field.value,
+              value: field.value,
             },
           ];
         }
