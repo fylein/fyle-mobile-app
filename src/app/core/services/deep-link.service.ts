@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Redirect } from '../models/redirect.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
+import { TrackingService } from './tracking.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DeepLinkService {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private trackingService: TrackingService) {}
 
   getJsonFromUrl(url?: string): Redirect {
     const query = url?.split('?')[1];
@@ -104,6 +105,10 @@ export class DeepLinkService {
         } else {
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         }
+        this.trackingService.smsDeepLinkOpened({
+          orgId,
+          txnId,
+        });
       } else {
         this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
       }

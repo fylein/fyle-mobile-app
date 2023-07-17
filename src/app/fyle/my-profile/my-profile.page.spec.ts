@@ -19,7 +19,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { MyProfilePage } from './my-profile.page';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { apiEouRes, eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
 import { postOrgUser } from 'src/app/core/test-data/org-user.service.spec.data';
 import { BehaviorSubject, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -27,6 +27,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
 import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
+import { cloneDeep } from 'lodash';
 
 xdescribe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -145,12 +146,14 @@ xdescribe('MyProfilePage', () => {
 
   describe('setInfoCardsData(): ', () => {
     it('should show only email card for non USD orgs', () => {
-      component.setInfoCardsData('INR');
+      component.setInfoCardsData(eouRes3);
       expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
     });
 
     it('should show both email and mobile number cards for USD orgs', () => {
-      component.setInfoCardsData('USD');
+      const eou = cloneDeep(apiEouRes);
+      eou.ou.mobile_verified = true;
+      component.setInfoCardsData(eou);
       expect(component.infoCardsData).toEqual(allInfoCardsData);
     });
   });
