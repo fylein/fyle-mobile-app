@@ -3,5 +3,5 @@ export interface InfoCardData {
   content: string;
   contentToCopy: string;
   toastMessageContent: string;
-  isHidden?: boolean;
+  isShown: boolean;
 }
