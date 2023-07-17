@@ -790,33 +790,27 @@ export class AddEditExpensePage implements OnInit {
   }
 
   splitExpCategoryHandler() {
-    return () => {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('categories');
-      } else {
-        this.showFormValidationErrors();
-      }
-    };
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('categories');
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   splitExpProjectHandler() {
-    return () => {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('projects');
-      } else {
-        this.showFormValidationErrors();
-      }
-    };
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('projects');
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   splitExpCostCenterHandler() {
-    return () => {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('cost centers');
-      } else {
-        this.showFormValidationErrors();
-      }
-    };
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('cost centers');
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   getActionSheetOptions() {
@@ -853,21 +847,21 @@ export class AddEditExpensePage implements OnInit {
             if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By Category',
-                handler: this.splitExpCategoryHandler(),
+                handler: () => this.splitExpCategoryHandler(),
               });
             }
 
             if (areProjectsAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
-                handler: this.splitExpProjectHandler(),
+                handler: () => this.splitExpProjectHandler(),
               });
             }
 
             if (areCostCentersAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By Cost Center',
-                handler: this.splitExpCostCenterHandler(),
+                handler: () => this.splitExpCostCenterHandler(),
               });
             }
           }
@@ -876,14 +870,14 @@ export class AddEditExpensePage implements OnInit {
             if (this.isExpenseMatchedForDebitCCCE) {
               actionSheetOptions.push({
                 text: 'Mark as Personal',
-                handler: this.markPersonalHandler(),
+                handler: () => this.markPersonalHandler(),
               });
             }
 
             if (this.canDismissCCCE) {
               actionSheetOptions.push({
                 text: 'Dimiss as Card Payment',
-                handler: this.markDismissHandler(),
+                handler: () => this.markDismissHandler(),
               });
             }
           }
@@ -891,7 +885,7 @@ export class AddEditExpensePage implements OnInit {
           if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
             actionSheetOptions.push({
               text: 'Remove Card Expense',
-              handler: this.removeCCCHandler(),
+              handler: () => this.removeCCCHandler(),
             });
           }
           return actionSheetOptions;
