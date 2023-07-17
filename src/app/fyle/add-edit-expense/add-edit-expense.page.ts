@@ -942,7 +942,6 @@ export class AddEditExpensePage implements OnInit {
 
   setupBalanceFlag() {
     const accounts$ = this.accountsService.getEMyAccounts();
-
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
@@ -3785,28 +3784,32 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  async uploadFileCallback(file: File) {
+    let fileData;
+    if (file) {
+      if (file.size < MAX_FILE_SIZE) {
+        const dataUrl = await this.fileService.readFile(file);
+        this.trackingService.addAttachment({ type: file.type });
+        fileData = {
+          type: file.type,
+          dataUrl,
+          actionSource: 'gallery_upload',
+        };
+        this.attachReceipts(fileData);
+      } else {
+        this.showSizeLimitExceededPopover();
+      }
+    }
+  }
+
   async addAttachments(event) {
     event.stopPropagation();
-    let fileData;
 
     if (this.platform.is('ios')) {
       const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
       nativeElement.onchange = async () => {
         const file = nativeElement.files[0];
-        if (file) {
-          if (file.size < MAX_FILE_SIZE) {
-            const dataUrl = await this.fileService.readFile(file);
-            this.trackingService.addAttachment({ type: file.type });
-            fileData = {
-              type: file.type,
-              dataUrl,
-              actionSource: 'gallery_upload',
-            };
-            this.attachReceipts(fileData);
-          } else {
-            this.showSizeLimitExceededPopover();
-          }
-        }
+        this.uploadFileCallback(file);
       };
       nativeElement.click();
     } else {
