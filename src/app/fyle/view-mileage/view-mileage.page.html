@@ -373,8 +373,8 @@
       </ion-row>
     </ion-grid>
 
-    <ng-container *ngIf="costCenterDependentCustomProperties$ | async as costCenterDependentCustomProperties">
-      <ng-container *ngIf="!costCenterDependentCustomProperties">
+    <ng-container *ngIf="{ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async} as data">
+      <ng-container *ngIf="!data.costCenterDependentCustomProperties?.length">
         <ion-grid
           *ngIf="orgSettings?.cost_centers?.enabled && extendedMileage.tx_cost_center_id"
           class="view-mileage--grid"
