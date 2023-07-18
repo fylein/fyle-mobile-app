@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { TitleCasePipe } from '@angular/common';
 import { Sanitizer, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -55,6 +56,7 @@ import { TestCases4 } from './add-edit-expense-4.spec';
 import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
 import { TestCases5 } from './add-edit-expense-5.spec';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
+import { DependentFieldComponent } from 'src/app/shared/components/dependent-fields/dependent-field/dependent-field.component';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -204,7 +206,7 @@ describe('AddEditExpensePage', () => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe],
+      declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
       providers: [
         FormBuilder,

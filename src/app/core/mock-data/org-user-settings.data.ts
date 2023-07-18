@@ -666,3 +666,11 @@ export const orgUserSettingsWithCurrency: OrgUserSettings = {
     preferred_currency: 'USD',
   },
 };
+
+export const orgUserSettingsWoDefaultProject: OrgUserSettings = {
+  ...orgUserSettingsData,
+  preferences: {
+    ...orgUserSettingsData.preferences,
+    default_project_id: null,
+  },
+};

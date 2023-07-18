@@ -1241,8 +1241,8 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  setupFormInit() {
-    const selectedProject$ = this.etxn$.pipe(
+  getSelectedProjects() {
+    return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
           return of(etxn.tx.project_id);
@@ -1267,8 +1267,10 @@ export class AddEditExpensePage implements OnInit {
         }
       })
     );
+  }
 
-    const selectedCategory$ = this.etxn$.pipe(
+  getSelectedCategory() {
+    return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.org_category_id) {
           return this.categoriesService.getCategoryById(etxn.tx.org_category_id);
@@ -1277,8 +1279,10 @@ export class AddEditExpensePage implements OnInit {
         }
       })
     );
+  }
 
-    const selectedReport$ = forkJoin({
+  getSelectedReport() {
+    return forkJoin({
       autoSubmissionReportName: this.autoSubmissionReportName$,
       etxn: this.etxn$,
       reportOptions: this.reports$,
@@ -1301,22 +1305,17 @@ export class AddEditExpensePage implements OnInit {
         }
       })
     );
+  }
 
-    const selectedPaymentMode$ = forkJoin({
+  getSelectedPaymentModes() {
+    return forkJoin({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
     }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
+  }
 
-    this.recentlyUsedCostCenters$ = forkJoin({
-      costCenters: this.costCenters$,
-      recentValue: this.recentlyUsedValues$,
-    }).pipe(
-      concatMap(({ costCenters, recentValue }) =>
-        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
-      )
-    );
-
-    const defaultPaymentMode$ = forkJoin({
+  getDefaultPaymentModes() {
+    return forkJoin({
       paymentModes: this.paymentModes$,
       orgUserSettings: this.orgUserSettings$,
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
@@ -1331,7 +1330,9 @@ export class AddEditExpensePage implements OnInit {
         return paymentModes[0].value;
       })
     );
+  }
 
+  getRecentProjects() {
     this.recentlyUsedProjects$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
@@ -1345,7 +1346,20 @@ export class AddEditExpensePage implements OnInit {
         });
       })
     );
+  }
 
+  getRecentCostCenters() {
+    this.recentlyUsedCostCenters$ = forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$,
+    }).pipe(
+      concatMap(({ costCenters, recentValue }) =>
+        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
+      )
+    );
+  }
+
+  getRecentCurrencies() {
     this.recentlyUsedCurrencies$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
       currencies: this.currencyService.getAll(),
@@ -1354,8 +1368,10 @@ export class AddEditExpensePage implements OnInit {
         this.recentlyUsedItemsService.getRecentCurrencies(currencies, recentValues)
       )
     );
+  }
 
-    const selectedCostCenter$ = this.etxn$.pipe(
+  getSelectedCostCenters() {
+    return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.cost_center_id) {
           return of(etxn.tx.cost_center_id);
@@ -1386,13 +1402,45 @@ export class AddEditExpensePage implements OnInit {
         }
       })
     );
+  }
 
-    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
-
-    const txnReceiptsCount$ = this.etxn$.pipe(
+  getReceiptCount() {
+    return this.etxn$.pipe(
       switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
       map((fileObjs) => (fileObjs && fileObjs.length) || 0)
     );
+  }
+
+  setCategoryOnValueChange() {
+    this.fg.controls.vendor_id.valueChanges.subscribe((vendor) => {
+      if (this.fg.controls.category.pristine && !this.fg.controls.category.value && vendor && vendor.default_category) {
+        this.setCategoryFromVendor(vendor.default_category);
+      }
+    });
+  }
+
+  setupFormInit() {
+    const selectedProject$ = this.getSelectedProjects();
+
+    const selectedCategory$ = this.getSelectedCategory();
+
+    const selectedReport$ = this.getSelectedReport();
+
+    const selectedPaymentMode$ = this.getSelectedPaymentModes();
+
+    this.getRecentCostCenters();
+
+    const defaultPaymentMode$ = this.getDefaultPaymentModes();
+
+    this.getRecentProjects();
+
+    this.getRecentCurrencies();
+
+    const selectedCostCenter$ = this.getSelectedCostCenters();
+
+    const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
+
+    const txnReceiptsCount$ = this.getReceiptCount();
 
     from(this.loaderService.showLoader('Loading expense...', 15000))
       .pipe(
@@ -1416,7 +1464,6 @@ export class AddEditExpensePage implements OnInit {
             recentCostCenters: this.recentlyUsedCostCenters$,
             recentCategories: this.recentlyUsedCategories$,
             taxGroups: this.taxGroups$,
-            txnFields: this.txnFields$.pipe(take(1)),
           })
         ),
         finalize(() => from(this.loaderService.hideLoader()))
@@ -1441,7 +1488,6 @@ export class AddEditExpensePage implements OnInit {
           recentCurrencies,
           recentCostCenters,
           taxGroups,
-          txnFields,
         }) => {
           if (project) {
             this.selectedProject$.next(project);
@@ -1680,16 +1726,7 @@ export class AddEditExpensePage implements OnInit {
             this.attachedReceiptsCount = this.newExpenseDataUrls.length;
           }
 
-          this.fg.controls.vendor_id.valueChanges.subscribe((vendor) => {
-            if (
-              this.fg.controls.category.pristine &&
-              !this.fg.controls.category.value &&
-              vendor &&
-              vendor.default_category
-            ) {
-              this.setCategoryFromVendor(vendor.default_category);
-            }
-          });
+          this.setCategoryOnValueChange();
 
           if (this.activatedRoute.snapshot.params.extractData && this.activatedRoute.snapshot.params.image) {
             this.parseFile(JSON.parse(this.activatedRoute.snapshot.params.image));
@@ -2358,12 +2395,12 @@ export class AddEditExpensePage implements OnInit {
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject(null);
     this.selectedCostCenter$ = new BehaviorSubject(null);
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-      BackButtonActionPriority.MEDIUM,
-      () => {
-        this.showClosePopup();
-      }
-    );
+    // this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+    //   BackButtonActionPriority.MEDIUM,
+    //   () => {
+    //     this.showClosePopup();
+    //   }
+    // );
 
     this.newExpenseDataUrls = [];
 

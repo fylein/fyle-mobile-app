@@ -1694,3 +1694,48 @@ export const unflattenedExpWoProject = {
     project_id: null,
   },
 };
+
+export const unflattenedExpWithReport = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    report_id: 'rprAfNrce73O',
+  },
+};
+
+export const unflattenedExpWithCostCenter = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    cost_center_id: 2411,
+  },
+};
+
+export const unflattenedExpWoCostCenter = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    cost_center_id: null,
+  },
+};
+
+export const unflattenedExp2 = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    user_amount: 100,
+    policy_amount: 0,
+    currency: 'USD',
+    state: 'DRAFT',
+    id: null,
+    project_id: null,
+    cost_center_id: null,
+  },
+  dataUrls: [
+    {
+      url: 'data-url',
+      type: 'image',
+      thumbnail: 'data-url',
+    },
+  ],
+};
