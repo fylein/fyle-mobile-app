@@ -515,10 +515,10 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
     const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
     let locations: string[];
-    if (this.genericFieldsForm.value.location_1 && this.genericFieldsForm.value.location_2) {
-      locations = [this.genericFieldsForm.value.location_1, this.genericFieldsForm.value.location_2];
-    } else if (this.genericFieldsForm.value.location_1) {
-      locations = [this.genericFieldsForm.value.location_1];
+    if (this.categoryDependentForm.value.location_1 && this.categoryDependentForm.value.location_2) {
+      locations = [this.categoryDependentForm.value.location_1, this.categoryDependentForm.value.location_2];
+    } else if (this.categoryDependentForm.value.location_1) {
+      locations = [this.categoryDependentForm.value.location_1];
     }
     const projectDependantFieldValues = dependentFieldsMapping[this.genericFieldsForm.value.project] || [];
     const costCenterDependentFieldValues = dependentFieldsMapping[this.genericFieldsForm.value.costCenter] || [];

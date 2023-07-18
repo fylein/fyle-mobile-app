@@ -44,6 +44,7 @@ import {
   generatedFormPropertiesData2,
   generatedFormPropertiesData3,
   generatedFormPropertiesData4,
+  generatedFormPropertiesData5,
 } from 'src/app/core/mock-data/generated-form-properties.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { snackbarPropertiesRes5 } from 'src/app/core/mock-data/snackbar-properties.data';
@@ -494,6 +495,14 @@ export function TestCases2(getTestBed) {
         component.expenses = cloneDeep(mockExpense);
         const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
         expect(generatedFormProperties).toEqual({ ...generatedFormPropertiesData2, ccce_group_id: 'ae593zqtepw' });
+      });
+
+      it('should return generated form properties with custom_properties as empty array if dependentFieldsMapping is empty', () => {
+        const mockFormData = cloneDeep(mergeExpenseFormData1);
+        mockFormData.custom_inputs.fields = [];
+        component.fg = formBuilder.group(mockFormData);
+        const generatedFormProperties = component.generateFromFg({});
+        expect(generatedFormProperties).toEqual(generatedFormPropertiesData5);
       });
     });
 
