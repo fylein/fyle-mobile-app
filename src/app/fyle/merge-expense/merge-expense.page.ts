@@ -717,11 +717,11 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     }
   }
 
-  onGenericFieldsTouched(touchedGenericFields) {
+  onGenericFieldsTouched(touchedGenericFields: string[]) {
     this.touchedGenericFields = touchedGenericFields;
   }
 
-  onCategoryDependentFieldsTouched(touchedGenericFields) {
+  onCategoryDependentFieldsTouched(touchedGenericFields: string[]) {
     this.touchedCategoryDepedentFields = touchedGenericFields;
   }
 
@@ -798,8 +798,8 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
             distance_unit: this.mergeExpensesService.getFieldValueOnChange(
               distanceUnitOptionsData,
               this.touchedGenericFields?.includes('distance_unit'),
-              this.expenses[selectedIndex]?.tx_flight_journey_travel_class,
-              this.genericFieldsForm.value?.tx_distance_unit
+              this.expenses[selectedIndex]?.tx_distance_unit,
+              this.genericFieldsForm.value?.distance_unit
             ),
           },
         });

@@ -13,7 +13,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { FormBuilder, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
-import { expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { BehaviorSubject, Observable, Subscription, of } from 'rxjs';
 import {
   optionsData10,
@@ -36,7 +36,11 @@ import {
   optionsData8,
   optionsData9,
 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
-import { combinedOptionsData1, combinedOptionsData2 } from 'src/app/core/mock-data/combined-options.data';
+import {
+  combinedOptionsData1,
+  combinedOptionsData2,
+  combinedOptionsData3,
+} from 'src/app/core/mock-data/combined-options.data';
 import { fileObject7 } from 'src/app/core/mock-data/file-object.data';
 import { projectDependentFieldsMappingData1 } from 'src/app/core/mock-data/project-dependent-fields-mapping.data';
 import { CostCenterDependentFieldsMappingData1 } from 'src/app/core/mock-data/cost-center-dependent-fields-mapping.data';
@@ -68,6 +72,7 @@ import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/cor
 import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/dependent-field-mapping.data';
 import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
 import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response';
+import { expenseInfoWithoutDefaultExpense, expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
 
 export function TestCases3(getTestBed) {
   return describe('test cases set 3', () => {
@@ -292,6 +297,329 @@ export function TestCases3(getTestBed) {
         expect(customInputOptions).toEqual({
           'select all 2': optionsData32[7],
         });
+      });
+    });
+
+    describe('setAdvanceOrApprovedAndAbove(): ', () => {
+      beforeEach(() => {
+        component.expenses = apiExpenseRes;
+        mergeExpensesService.isApprovedAndAbove.and.returnValue(apiExpenseRes);
+      });
+
+      it('should call mergeExpensesService.isApprovedAndAbove() once with expenses', () => {
+        component.setAdvanceOrApprovedAndAbove(expensesInfo);
+        expect(mergeExpensesService.isApprovedAndAbove).toHaveBeenCalledOnceWith(apiExpenseRes);
+      });
+
+      it('should set disableFormElements to true if isApprovedAndAbove length is greater than zero', () => {
+        component.setAdvanceOrApprovedAndAbove(expensesInfo);
+        expect(component.disableFormElements).toEqual(true);
+      });
+
+      it('should set disableFormElements to false if isApprovedAndAbove length is zero and isAdvancePresent is false', () => {
+        mergeExpensesService.isApprovedAndAbove.and.returnValue([]);
+        const mockExpenseInfo = cloneDeep(expensesInfo);
+        mockExpenseInfo.isAdvancePresent = false;
+        component.setAdvanceOrApprovedAndAbove(mockExpenseInfo);
+        expect(component.disableFormElements).toEqual(false);
+      });
+
+      it('should set disableFormElements to true if expensesInfo.isAdvancePresent is true', () => {
+        mergeExpensesService.isApprovedAndAbove.and.returnValue([]);
+        component.setAdvanceOrApprovedAndAbove(expensesInfo);
+        expect(component.disableFormElements).toEqual(true);
+      });
+    });
+
+    describe('setIsReported(): ', () => {
+      beforeEach(() => {
+        component.expenses = expenseList2;
+        mergeExpensesService.isReportedPresent.and.returnValue([expenseList2[0]]);
+      });
+
+      it('should call mergeExpensesService.isReportedPresent() once with expenses', () => {
+        component.setIsReported(expensesInfo);
+        expect(mergeExpensesService.isReportedPresent).toHaveBeenCalledOnceWith(expenseList2);
+      });
+
+      it('should set isReportedExpensePresent to true if isReported length is greater than zero', () => {
+        component.setIsReported(expensesInfo);
+        expect(component.isReportedExpensePresent).toEqual(true);
+      });
+
+      it('should set isReportedExpensePresent to false if isReported length is zero', () => {
+        mergeExpensesService.isReportedPresent.and.returnValue([]);
+        component.setIsReported(expensesInfo);
+        expect(component.isReportedExpensePresent).toEqual(false);
+      });
+
+      it('should set disableFormElements and showReceiptSelection to true if isReportedExpensePresent and expensesInfo.isAdvancePresent is true', () => {
+        component.disableFormElements = false;
+        component.showReceiptSelection = false;
+        component.setIsReported(expensesInfo);
+        expect(component.disableFormElements).toEqual(true);
+        expect(component.showReceiptSelection).toEqual(true);
+      });
+
+      it('should not modify disableFormElements and showReceiptSelection if isReportedExpensePresent is false', () => {
+        component.disableFormElements = false;
+        component.showReceiptSelection = false;
+        mergeExpensesService.isReportedPresent.and.returnValue([]);
+        component.setIsReported(expensesInfo);
+        expect(component.disableFormElements).toEqual(false);
+        expect(component.showReceiptSelection).toEqual(false);
+      });
+
+      it('should not modify disableFormElements and showReceiptSelection if expensesInfo.isAdvancePresent is false', () => {
+        component.disableFormElements = false;
+        component.showReceiptSelection = false;
+        const mockExpenseInfo = cloneDeep(expensesInfo);
+        mockExpenseInfo.isAdvancePresent = false;
+        component.setIsReported(mockExpenseInfo);
+        expect(component.disableFormElements).toEqual(false);
+        expect(component.showReceiptSelection).toEqual(false);
+      });
+    });
+
+    describe('setInitialExpenseToKeepDetails(): ', () => {
+      beforeEach(() => {
+        mergeExpensesService.isReportedOrAbove.and.returnValue(false);
+        mergeExpensesService.isMoreThanOneAdvancePresent.and.returnValue(false);
+        mergeExpensesService.isAdvancePresent.and.returnValue(false);
+        spyOn(component, 'setAdvanceOrApprovedAndAbove');
+      });
+
+      it('should not call isReportedOrAbove, isMoreThanOneAdvancePresent and isAdvancePresent methods of mergeExpensesService and should not call setAdvanceOrApprovedAndAbove method', () => {
+        component.setInitialExpenseToKeepDetails(expenseInfoWithoutDefaultExpense, true);
+        expect(mergeExpensesService.isReportedOrAbove).not.toHaveBeenCalled();
+        expect(mergeExpensesService.isMoreThanOneAdvancePresent).not.toHaveBeenCalled();
+        expect(mergeExpensesService.isAdvancePresent).not.toHaveBeenCalled();
+        expect(component.setAdvanceOrApprovedAndAbove).not.toHaveBeenCalled();
+      });
+
+      it('should call mergeExpensesService.isReportedOrAbove once and set disableExpenseToKeep, expenseToKeepInfoText and modify target_txn_id in form', () => {
+        mergeExpensesService.isReportedOrAbove.and.returnValue(true);
+        spyOn(component, 'setIsReported');
+        component.disableExpenseToKeep = false;
+        component.expenseToKeepInfoText = '';
+
+        component.setInitialExpenseToKeepDetails(expensesInfo, true);
+        expect(mergeExpensesService.isReportedOrAbove).toHaveBeenCalledOnceWith(expensesInfo);
+        expect(component.setIsReported).toHaveBeenCalledOnceWith(expensesInfo);
+        expect(component.disableExpenseToKeep).toEqual(true);
+        expect(component.expenseToKeepInfoText).toEqual(
+          'You are required to keep the expense that has already been submitted.'
+        );
+        expect(component.fg.controls.target_txn_id.value).toEqual('txB1rVZJ4Pxl');
+      });
+
+      it('should call mergeExpensesService.isMoreThanOneAdvancePresent once and modify showReceiptSelection and expenseToKeepInfoText', () => {
+        mergeExpensesService.isMoreThanOneAdvancePresent.and.returnValue(true);
+        spyOn(component, 'setIsReported');
+        component.disableExpenseToKeep = false;
+        component.showReceiptSelection = false;
+        component.expenseToKeepInfoText = '';
+
+        component.setInitialExpenseToKeepDetails(expensesInfo, true);
+
+        expect(mergeExpensesService.isMoreThanOneAdvancePresent).toHaveBeenCalledOnceWith(expensesInfo, true);
+        expect(component.setIsReported).not.toHaveBeenCalled();
+        expect(component.disableExpenseToKeep).toEqual(false);
+        expect(component.showReceiptSelection).toEqual(true);
+        expect(component.expenseToKeepInfoText).toEqual(
+          'You cannot make changes to an expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
+        );
+        expect(component.fg.controls.target_txn_id.value).not.toEqual('txB1rVZJ4Pxl');
+      });
+
+      it('should call mergeExpensesService.isAdvancePresent once and modify disableExpenseToKeep, expenseToKeepInfoText and target_txn_id property in form', () => {
+        mergeExpensesService.isAdvancePresent.and.returnValue(true);
+        spyOn(component, 'setIsReported');
+        component.disableExpenseToKeep = false;
+        component.showReceiptSelection = false;
+        component.expenseToKeepInfoText = '';
+
+        component.setInitialExpenseToKeepDetails(expensesInfo, true);
+
+        expect(mergeExpensesService.isAdvancePresent).toHaveBeenCalledOnceWith(expensesInfo);
+        expect(component.setIsReported).not.toHaveBeenCalled();
+        expect(component.disableExpenseToKeep).toEqual(true);
+        expect(component.showReceiptSelection).toEqual(false);
+        expect(component.expenseToKeepInfoText).toEqual(
+          'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
+        );
+        expect(component.fg.controls.target_txn_id.value).toEqual('txB1rVZJ4Pxl');
+      });
+
+      it('should call setAdvanceOrApprovedAndAbove once', () => {
+        component.setInitialExpenseToKeepDetails(expensesInfo, true);
+        expect(component.setAdvanceOrApprovedAndAbove).toHaveBeenCalledOnceWith(expensesInfo);
+      });
+    });
+
+    it('onGenericFieldsTouched(): should update touchedGenericFields with the touched generic fields', () => {
+      component.touchedGenericFields = [];
+      component.onGenericFieldsTouched(['currency', 'amount']);
+      expect(component.touchedGenericFields).toEqual(['currency', 'amount']);
+    });
+
+    it('onCategoryDependentFieldsTouched(): should update touchedCategoryDependentFields with the touched category dependent fields', () => {
+      component.touchedCategoryDepedentFields = [];
+      component.onCategoryDependentFieldsTouched(['category', 'sub_category']);
+      expect(component.touchedCategoryDepedentFields).toEqual(['category', 'sub_category']);
+    });
+
+    describe('patchCategoryDependentFields(): ', () => {
+      beforeEach(() => {
+        const mockExpense = cloneDeep(expenseList2);
+        mockExpense[1].tx_locations = ['Mumbai', 'Pune'];
+        mockExpense[1].tx_flight_journey_travel_class = 'ECONOMY';
+        mockExpense[1].tx_flight_return_travel_class = 'BUSINESS';
+        mockExpense[1].tx_distance = 23;
+        mockExpense[1].tx_distance_unit = 'KM';
+        component.expenses = mockExpense;
+        component.categoryDependentFieldsOptions$ = of(combinedOptionsData3);
+        mergeExpensesService.getFieldValueOnChange.and.returnValues(
+          'Mumbai',
+          'Pune',
+          new Date('2023-03-13T11:30:00.000Z'),
+          new Date('2023-03-13T11:30:00.000Z'),
+          'ECONOMY',
+          'BUSINESS',
+          'SLEEPER',
+          'AC',
+          23,
+          'KM'
+        );
+      });
+
+      it('should call getFieldValueOnChange 10 times', () => {
+        component.patchCategoryDependentFields(1);
+        expect(mergeExpensesService.getFieldValueOnChange).toHaveBeenCalledTimes(10);
+      });
+
+      it('should call getFieldValueOnChange with correct args', () => {
+        component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
+        component.genericFieldsForm.patchValue({
+          location_1: 'Mumbai',
+          location_2: 'Pune',
+          flight_journey_travel_class: 'ECONOMY',
+          train_travel_class: 'SLEEPER',
+          distance: 23,
+          distance_unit: 'KM',
+        });
+        component.patchCategoryDependentFields(1);
+        const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
+        expect(location1Call).toEqual([optionsData15, true, 'Mumbai', 'Mumbai']);
+        const location2Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
+        expect(location2Call).toEqual([optionsData15, false, 'Pune', 'Pune']);
+        const fromDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
+        expect(fromDtCall).toEqual([optionsData16, true, null, undefined]);
+        const toDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(3);
+        expect(toDtCall).toEqual([optionsData16, false, null, undefined]);
+        const flightJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(4);
+        expect(flightJourneytravelClassCall).toEqual([optionsData17, true, 'ECONOMY', 'ECONOMY']);
+        const flightOnwardtravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(5);
+        expect(flightOnwardtravelClassCall).toEqual([optionsData17, false, 'BUSINESS', undefined]);
+        const trainJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(6);
+        expect(trainJourneytravelClassCall).toEqual([optionsData18, false, null, 'SLEEPER']);
+        const busTravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(7);
+        expect(busTravelClassCall).toEqual([optionsData19, false, null, undefined]);
+        const distanceCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(8);
+        expect(distanceCall).toEqual([optionsData20, false, 23, 23]);
+        const distanceUnitCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
+        expect(distanceUnitCall).toEqual([optionsData21, false, 'KM', 'KM']);
+      });
+
+      it('should call getFieldValueOnChange with correct args if expense is undefined', () => {
+        component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
+        component.genericFieldsForm.patchValue({
+          location_1: 'Mumbai',
+          location_2: 'Pune',
+          flight_journey_travel_class: 'ECONOMY',
+          train_travel_class: 'SLEEPER',
+          distance: 23,
+          distance_unit: 'KM',
+        });
+        component.patchCategoryDependentFields(2);
+        const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
+        expect(location1Call).toEqual([optionsData15, true, undefined, 'Mumbai']);
+        const location2Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
+        expect(location2Call).toEqual([optionsData15, false, undefined, 'Pune']);
+        const fromDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
+        expect(fromDtCall).toEqual([optionsData16, true, undefined, undefined]);
+        const toDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(3);
+        expect(toDtCall).toEqual([optionsData16, false, undefined, undefined]);
+        const flightJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(4);
+        expect(flightJourneytravelClassCall).toEqual([optionsData17, true, undefined, 'ECONOMY']);
+        const flightOnwardtravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(5);
+        expect(flightOnwardtravelClassCall).toEqual([optionsData17, false, undefined, undefined]);
+        const trainJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(6);
+        expect(trainJourneytravelClassCall).toEqual([optionsData18, false, undefined, 'SLEEPER']);
+        const busTravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(7);
+        expect(busTravelClassCall).toEqual([optionsData19, false, undefined, undefined]);
+        const distanceCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(8);
+        expect(distanceCall).toEqual([optionsData20, false, undefined, 23]);
+        const distanceUnitCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
+        expect(distanceUnitCall).toEqual([optionsData21, false, undefined, 'KM']);
+      });
+
+      it('should call getFieldValueOnChange with correct args if touchedGenericFields is undefined', () => {
+        component.touchedGenericFields = undefined;
+        component.genericFieldsForm.patchValue({
+          location_1: 'Mumbai',
+          location_2: 'Pune',
+          flight_journey_travel_class: 'ECONOMY',
+          train_travel_class: 'SLEEPER',
+          distance: 23,
+          distance_unit: 'KM',
+        });
+        component.patchCategoryDependentFields(1);
+        const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
+        expect(location1Call).toEqual([optionsData15, undefined, 'Mumbai', 'Mumbai']);
+        const location2Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
+        expect(location2Call).toEqual([optionsData15, undefined, 'Pune', 'Pune']);
+        const fromDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
+        expect(fromDtCall).toEqual([optionsData16, undefined, null, undefined]);
+        const toDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(3);
+        expect(toDtCall).toEqual([optionsData16, undefined, null, undefined]);
+        const flightJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(4);
+        expect(flightJourneytravelClassCall).toEqual([optionsData17, undefined, 'ECONOMY', 'ECONOMY']);
+        const flightOnwardtravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(5);
+        expect(flightOnwardtravelClassCall).toEqual([optionsData17, undefined, 'BUSINESS', undefined]);
+        const trainJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(6);
+        expect(trainJourneytravelClassCall).toEqual([optionsData18, undefined, null, 'SLEEPER']);
+        const busTravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(7);
+        expect(busTravelClassCall).toEqual([optionsData19, undefined, null, undefined]);
+        const distanceCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(8);
+        expect(distanceCall).toEqual([optionsData20, undefined, 23, 23]);
+        const distanceUnitCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
+        expect(distanceUnitCall).toEqual([optionsData21, undefined, 'KM', 'KM']);
+      });
+
+      it('should call getFieldValueOnChange with correct args if genericFields form is undefined', () => {
+        component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
+        component.patchCategoryDependentFields(1);
+        const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
+        expect(location1Call).toEqual([optionsData15, true, 'Mumbai', undefined]);
+        const location2Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
+        expect(location2Call).toEqual([optionsData15, false, 'Pune', undefined]);
+        const fromDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
+        expect(fromDtCall).toEqual([optionsData16, true, null, undefined]);
+        const toDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(3);
+        expect(toDtCall).toEqual([optionsData16, false, null, undefined]);
+        const flightJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(4);
+        expect(flightJourneytravelClassCall).toEqual([optionsData17, true, 'ECONOMY', undefined]);
+        const flightOnwardtravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(5);
+        expect(flightOnwardtravelClassCall).toEqual([optionsData17, false, 'BUSINESS', undefined]);
+        const trainJourneytravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(6);
+        expect(trainJourneytravelClassCall).toEqual([optionsData18, false, null, undefined]);
+        const busTravelClassCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(7);
+        expect(busTravelClassCall).toEqual([optionsData19, false, null, undefined]);
+        const distanceCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(8);
+        expect(distanceCall).toEqual([optionsData20, false, 23, undefined]);
+        const distanceUnitCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
+        expect(distanceUnitCall).toEqual([optionsData21, false, 'KM', undefined]);
       });
     });
   });
