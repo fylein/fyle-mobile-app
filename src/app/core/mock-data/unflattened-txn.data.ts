@@ -880,6 +880,7 @@ export const expectedUnflattendedTxnData4 = {
   },
   dataUrls: [],
 };
+
 export const expectedUnflattendedTxnData5 = {
   tx: {
     risk_state: null,
@@ -1398,6 +1399,7 @@ export const expectedExpenseObservable5 = {
     },
   ],
 };
+
 export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: {
@@ -1667,5 +1669,28 @@ export const unflattenedTxnDataWithViolationUserReview = {
   },
   is: {
     test_call: false,
+  },
+};
+
+export const unflattenedExpenseWithCCCGroupId = {
+  ...unflattenedTxnDataWithViolationUserReview,
+  tx: {
+    ...expectedUnflattendedTxnData2.tx,
+    corporate_credit_card_expense_group_id: 'ccceWauzF1A3oS',
+    report_id: null,
+  },
+};
+
+export const txnWithCCCGroupID = {
+  ...unflattenedTxnData.tx,
+  corporate_credit_card_expense_group_id: 'ccceWauzF1A3oS',
+  report_id: null,
+};
+
+export const unflattenedExpWoProject = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    project_id: null,
   },
 };

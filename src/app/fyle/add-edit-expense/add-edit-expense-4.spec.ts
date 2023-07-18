@@ -2,10 +2,10 @@ import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DomSanitizer } from '@angular/platform-browser';
+import { By, DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, of, throwError } from 'rxjs';
+import { Observable, Subscription, combineLatest, of, throwError } from 'rxjs';
 import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fileObject4, fileObjectAdv1 } from 'src/app/core/mock-data/file-object.data';
@@ -17,6 +17,7 @@ import {
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
   newUnflattenedTxn,
+  unflattenedExpenseWithCCCGroupId,
   unflattenedTransactionDataPersonalCard,
   unflattenedTxnData,
   unflattenedTxnDataWithReportID,
@@ -60,6 +61,9 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { getElementBySelector, getElementRef } from 'src/app/core/dom-helpers';
+import { unflattenedData } from 'src/app/core/mock-data/data-transform.data';
+import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -979,6 +983,120 @@ export function TestCases4(getTestBed) {
             unflattenedTxnDataWithViolationUserReview.tx.org_user_id
           );
           expect(statusService.post).not.toHaveBeenCalled();
+          done();
+        });
+      });
+
+      it('should throw an error if expense object cannot be obtained', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData3));
+        spyOn(component, 'checkPolicyViolation').and.returnValue(throwError(() => new Error()));
+        spyOn(component, 'trackPolicyCorrections');
+
+        component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe({
+          error: (err) => expect(err).toBeTruthy(),
+        });
+        done();
+      });
+
+      it('should match a normal expense', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpenseWithCCCGroupId));
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
+        spyOn(component, 'trackPolicyCorrections');
+        spyOn(component, 'trackEditExpense');
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        component.etxn$ = of(unflattenedExpenseWithCCCGroupId);
+        authService.getEou.and.resolveTo(apiEouRes);
+        transactionService.upsert.and.returnValue(of(unflattenedExpenseWithCCCGroupId.tx));
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        component.selectedCCCTransaction = unflattenedExpenseWithCCCGroupId.tx;
+        component.matchedCCCTransaction = unflattenedExpenseWithCCCGroupId;
+        transactionService.matchCCCExpense.and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
+          expect(res).toBeNull();
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedExpenseWithCCCGroupId.tx);
+          expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
+          expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ', 'txbO4Xaj4N53');
+          done();
+        });
+      });
+
+      it('should unmatch a matched expense', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpenseWithCCCGroupId));
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
+        spyOn(component, 'trackPolicyCorrections');
+        spyOn(component, 'trackEditExpense');
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        component.etxn$ = of(unflattenedExpenseWithCCCGroupId);
+        authService.getEou.and.resolveTo(apiEouRes);
+        transactionService.upsert.and.returnValue(of(unflattenedExpenseWithCCCGroupId.tx));
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedExpenseWithCCCGroupId));
+        component.selectedCCCTransaction = null;
+        component.matchedCCCTransaction = unflattenedExpenseWithCCCGroupId;
+        transactionService.unmatchCCCExpense.and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
+          expect(res).toBeNull();
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedExpenseWithCCCGroupId.tx);
+          expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
+          expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txbO4Xaj4N53', undefined);
+          done();
+        });
+      });
+
+      it('should match a ccc expense', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpenseWithCCCGroupId));
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
+        spyOn(component, 'trackPolicyCorrections');
+        spyOn(component, 'trackEditExpense');
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        component.etxn$ = of(unflattenedExpenseWithCCCGroupId);
+        authService.getEou.and.resolveTo(apiEouRes);
+        transactionService.upsert.and.returnValue(of(unflattenedExpenseWithCCCGroupId.tx));
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedExpenseWithCCCGroupId));
+        component.selectedCCCTransaction = unflattenedExpenseWithCCCGroupId.tx;
+        component.matchedCCCTransaction = unflattenedExpenseWithCCCGroupId;
+        transactionService.unmatchCCCExpense.and.returnValue(of(null));
+        transactionService.matchCCCExpense.and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
+          expect(res).toBeNull();
+          expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedExpenseWithCCCGroupId.tx);
+          expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
+          expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txbO4Xaj4N53', undefined);
+          expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('txbO4Xaj4N53', 'txbO4Xaj4N53');
           done();
         });
       });
