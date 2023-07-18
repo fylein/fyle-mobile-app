@@ -2395,12 +2395,12 @@ export class AddEditExpensePage implements OnInit {
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject(null);
     this.selectedCostCenter$ = new BehaviorSubject(null);
-    // this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-    //   BackButtonActionPriority.MEDIUM,
-    //   () => {
-    //     this.showClosePopup();
-    //   }
-    // );
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.showClosePopup();
+      }
+    );
 
     this.newExpenseDataUrls = [];
 
