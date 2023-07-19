@@ -251,7 +251,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       purposeOptionsData: this.purposeOptionsData$,
     });
 
-    this.loadCustomFields$ = new BehaviorSubject(undefined);
+    this.loadCustomFields$ = new BehaviorSubject(null);
 
     this.setupCustomInputs();
 

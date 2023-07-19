@@ -325,7 +325,7 @@ export function TestCases1(getTestBed) {
         component.ionViewWillEnter();
 
         component.loadCustomFields$.subscribe((res) => {
-          expect(res).toEqual(undefined);
+          expect(res).toEqual(null);
         });
         expect(component.combinedCustomProperties).toEqual(combinedOptionsData1);
         expect(component.generateCustomInputOptions).toHaveBeenCalledTimes(1);
