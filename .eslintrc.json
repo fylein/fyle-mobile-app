@@ -1,6 +1,11 @@
 {
   "root": true,
-  "ignorePatterns": ["projects/**/*"],
+  "ignorePatterns": [
+    "projects/**/*",
+    "test.ts",
+    "main.ts",
+    "*.spec.ts"
+  ],
   "plugins": ["max-params-no-constructor"],
   "overrides": [
     {
