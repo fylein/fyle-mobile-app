@@ -337,7 +337,7 @@ export function TestCases3(getTestBed) {
         mergeExpensesService.isReportedPresent.and.returnValue([expenseList2[0]]);
       });
 
-      it('should set isReportedExpensePresent to true if isReported length is greater than zero', () => {
+      it('should call mergeExpensesService.isReportedPresent() once and set isReportedExpensePresent to true if isReported length is greater than zero', () => {
         component.setIsReported(expensesInfo);
         expect(mergeExpensesService.isReportedPresent).toHaveBeenCalledOnceWith(expenseList2);
         expect(component.isReportedExpensePresent).toEqual(true);
