@@ -18,6 +18,7 @@ import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TestCases1 } from './merge-expense-1.page.spec';
 import { TestCases2 } from './merge-expense-2.page.spec';
+import { TestCases3 } from './merge-expense-3.page.spec';
 
 describe('MergeExpensePage', () => {
   const getTestBed = () => {
@@ -114,4 +115,5 @@ describe('MergeExpensePage', () => {
 
   TestCases1(getTestBed);
   TestCases2(getTestBed);
+  TestCases3(getTestBed);
 });

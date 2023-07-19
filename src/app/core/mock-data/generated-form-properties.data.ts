@@ -1,4 +1,5 @@
 import { GeneratedFormProperties } from '../models/generated-form-properties.model';
+import { dependentCustomProperties } from './custom-property.data';
 
 export const generatedFormPropertiesData1: GeneratedFormProperties = {
   source_account_id: '1234',
@@ -35,4 +36,115 @@ export const generatedFormPropertiesData1: GeneratedFormProperties = {
   distance: 100,
   distance_unit: 'KM',
   locations: ['Mumbai', 'Pune'],
+};
+
+export const generatedFormPropertiesData2: GeneratedFormProperties = {
+  source_account_id: 'accDDeaVIs6p6',
+  billable: undefined,
+  currency: 'USD',
+  amount: 3,
+  project_id: 13795,
+  cost_center_id: 13796,
+  tax_amount: undefined,
+  tax_group_id: undefined,
+  org_category_id: undefined,
+  fyle_category: undefined,
+  vendor: undefined,
+  purpose: undefined,
+  txn_dt: undefined,
+  receipt_ids: [],
+  custom_properties: [
+    {
+      name: 'CUSTOM FIELD',
+      value: '',
+    },
+    {
+      name: 'Cost Code',
+      value: 'Cost Code 1',
+    },
+    ...dependentCustomProperties,
+    ...dependentCustomProperties,
+  ],
+  ccce_group_id: undefined,
+  from_dt: undefined,
+  to_dt: undefined,
+  flight_journey_travel_class: undefined,
+  flight_return_travel_class: undefined,
+  train_travel_class: undefined,
+  bus_travel_class: undefined,
+  distance: undefined,
+  distance_unit: undefined,
+  locations: ['Pune', 'Mumbai'],
+};
+
+export const generatedFormPropertiesData3: GeneratedFormProperties = {
+  source_account_id: 'accDDeaVIs6p6',
+  billable: undefined,
+  currency: 'USD',
+  amount: 3,
+  project_id: undefined,
+  cost_center_id: undefined,
+  tax_amount: undefined,
+  tax_group_id: undefined,
+  org_category_id: undefined,
+  fyle_category: undefined,
+  vendor: undefined,
+  purpose: undefined,
+  txn_dt: undefined,
+  receipt_ids: [],
+  custom_properties: [
+    {
+      name: 'CUSTOM FIELD',
+      value: '',
+    },
+    {
+      name: 'Cost Code',
+      value: 'Cost Code 1',
+    },
+  ],
+  ccce_group_id: undefined,
+  from_dt: undefined,
+  to_dt: undefined,
+  flight_journey_travel_class: undefined,
+  flight_return_travel_class: undefined,
+  train_travel_class: undefined,
+  bus_travel_class: undefined,
+  distance: undefined,
+  distance_unit: undefined,
+  locations: ['Pune', 'Mumbai'],
+};
+
+export const generatedFormPropertiesData4: GeneratedFormProperties = {
+  ...generatedFormPropertiesData3,
+  source_account_id: undefined,
+  currency: undefined,
+  amount: undefined,
+};
+
+export const generatedFormPropertiesData5: GeneratedFormProperties = {
+  source_account_id: 'accDDeaVIs6p6',
+  billable: undefined,
+  currency: 'USD',
+  amount: 3,
+  project_id: 13795,
+  cost_center_id: 13796,
+  tax_amount: undefined,
+  tax_group_id: undefined,
+  org_category_id: undefined,
+  fyle_category: undefined,
+  vendor: undefined,
+  purpose: undefined,
+  txn_dt: undefined,
+  receipt_ids: [],
+  custom_properties: [],
+  ccce_group_id: undefined,
+  from_dt: undefined,
+  to_dt: undefined,
+  flight_journey_travel_class: undefined,
+  flight_return_travel_class: undefined,
+  train_travel_class: undefined,
+  bus_travel_class: undefined,
+  distance: undefined,
+  distance_unit: undefined,
+  locations: ['Pune', 'Mumbai'],
 };

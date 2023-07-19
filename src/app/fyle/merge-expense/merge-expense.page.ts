@@ -25,18 +25,7 @@ import { CombinedOptions } from 'src/app/core/models/combined-options.model';
 import { ProjectDependentFieldsMapping } from 'src/app/core/models/project-dependent-fields-mapping.model';
 import { CostCenterDependentFieldsMapping } from 'src/app/core/models/cost-center-dependent-fields-mapping.model';
 import { GeneratedFormProperties } from 'src/app/core/models/generated-form-properties.model';
-
-type CustomInputs = Partial<{
-  control: FormControl;
-  id: string;
-  mandatory: boolean;
-  name: string;
-  options: MergeExpensesOption[];
-  placeholder: string;
-  prefix: string;
-  type: string;
-  value: string;
-}>;
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 
 @Component({
   selector: 'app-merge-expense',
@@ -104,7 +93,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   selectedReceiptsId: string[] = [];
 
-  customInputs$: Observable<CustomInputs[]>;
+  customInputs$: Observable<TxnCustomProperties[]>;
 
   attachments: FileObject[];
 
@@ -521,15 +510,15 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   generateFromFg(dependentFieldsMapping: { [id: number]: CustomProperty<string>[] }): GeneratedFormProperties {
     const sourceExpense = this.expenses.find(
-      (expense) => expense.source_account_type === this.genericFieldsForm?.value?.paymentMode
+      (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
     );
     const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
     const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
     let locations: string[];
-    if (this.fg.value.location_1 && this.fg.value.location_2) {
-      locations = [this.genericFieldsForm.value.location_1, this.genericFieldsForm.value.location_2];
-    } else if (this.fg.value.location_1) {
-      locations = [this.genericFieldsForm.value.location_1];
+    if (this.categoryDependentForm.value.location_1 && this.categoryDependentForm.value.location_2) {
+      locations = [this.categoryDependentForm.value.location_1, this.categoryDependentForm.value.location_2];
+    } else if (this.categoryDependentForm.value.location_1) {
+      locations = [this.categoryDependentForm.value.location_1];
     }
     const projectDependantFieldValues = dependentFieldsMapping[this.genericFieldsForm.value.project] || [];
     const costCenterDependentFieldValues = dependentFieldsMapping[this.genericFieldsForm.value.costCenter] || [];
@@ -567,7 +556,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     };
   }
 
-  onCategoryChanged(categoryId) {
+  onCategoryChanged(categoryId: string) {
     this.mergeExpensesService.getCategoryName(categoryId).subscribe((categoryName) => {
       this.selectedCategoryName = categoryName;
     });
@@ -584,7 +573,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
           map((fields) => fields.filter((field) => field.type !== 'DEPENDENT_SELECT')),
           switchMap((fields) => {
             const customFields = this.customFieldsService.standardizeCustomFields(
-              this.fg.controls.custom_inputs?.value?.fields || [],
+              this.fg.controls.custom_inputs.value?.fields || [],
               this.customInputsService.filterByCategory(fields, categoryId)
             );
             return customFields;
@@ -630,7 +619,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     );
   }
 
-  patchCustomInputsValues(customInputs) {
+  patchCustomInputsValues(customInputs: TxnCustomProperties[]) {
     const customInputValues = customInputs.map((customInput) => {
       if (
         this.combinedCustomProperties[customInput.name]?.areSameValues &&
@@ -665,21 +654,21 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       if (field.value && field.value instanceof Array) {
         field.options = [
           {
-            label: field.value?.toString(),
+            label: field.value.toString(),
             value: field.value,
           },
         ];
-        if (field.value?.length === 0) {
+        if (field.value.length === 0) {
           field.options = [];
         }
       } else {
-        if (!field.value || field.value !== '') {
+        if (!field.value) {
           field.options = [];
         } else {
           field.options = [
             {
-              label: field?.value,
-              value: field?.value,
+              label: field.value,
+              value: field.value,
             },
           ];
         }
@@ -728,11 +717,11 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     }
   }
 
-  onGenericFieldsTouched(touchedGenericFields) {
+  onGenericFieldsTouched(touchedGenericFields: string[]) {
     this.touchedGenericFields = touchedGenericFields;
   }
 
-  onCategoryDependentFieldsTouched(touchedGenericFields) {
+  onCategoryDependentFieldsTouched(touchedGenericFields: string[]) {
     this.touchedCategoryDepedentFields = touchedGenericFields;
   }
 
@@ -809,8 +798,8 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
             distance_unit: this.mergeExpensesService.getFieldValueOnChange(
               distanceUnitOptionsData,
               this.touchedGenericFields?.includes('distance_unit'),
-              this.expenses[selectedIndex]?.tx_flight_journey_travel_class,
-              this.genericFieldsForm.value?.tx_distance_unit
+              this.expenses[selectedIndex]?.tx_distance_unit,
+              this.genericFieldsForm.value?.distance_unit
             ),
           },
         });
