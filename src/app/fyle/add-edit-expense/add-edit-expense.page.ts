@@ -790,33 +790,27 @@ export class AddEditExpensePage implements OnInit {
   }
 
   splitExpCategoryHandler() {
-    return () => {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('categories');
-      } else {
-        this.showFormValidationErrors();
-      }
-    };
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('categories');
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   splitExpProjectHandler() {
-    return () => {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('projects');
-      } else {
-        this.showFormValidationErrors();
-      }
-    };
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('projects');
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   splitExpCostCenterHandler() {
-    return () => {
-      if (this.fg.valid) {
-        this.openSplitExpenseModal('cost centers');
-      } else {
-        this.showFormValidationErrors();
-      }
-    };
+    if (this.fg.valid) {
+      this.openSplitExpenseModal('cost centers');
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   getActionSheetOptions() {
@@ -853,21 +847,21 @@ export class AddEditExpensePage implements OnInit {
             if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By Category',
-                handler: this.splitExpCategoryHandler(),
+                handler: () => this.splitExpCategoryHandler(),
               });
             }
 
             if (areProjectsAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
-                handler: this.splitExpProjectHandler(),
+                handler: () => this.splitExpProjectHandler(),
               });
             }
 
             if (areCostCentersAvailable) {
               actionSheetOptions.push({
                 text: 'Split Expense By Cost Center',
-                handler: this.splitExpCostCenterHandler(),
+                handler: () => this.splitExpCostCenterHandler(),
               });
             }
           }
@@ -876,14 +870,14 @@ export class AddEditExpensePage implements OnInit {
             if (this.isExpenseMatchedForDebitCCCE) {
               actionSheetOptions.push({
                 text: 'Mark as Personal',
-                handler: this.markPersonalHandler(),
+                handler: () => this.markPersonalHandler(),
               });
             }
 
             if (this.canDismissCCCE) {
               actionSheetOptions.push({
                 text: 'Dimiss as Card Payment',
-                handler: this.markDismissHandler(),
+                handler: () => this.markDismissHandler(),
               });
             }
           }
@@ -891,7 +885,7 @@ export class AddEditExpensePage implements OnInit {
           if (this.isCorporateCreditCardEnabled && this.canRemoveCardExpense) {
             actionSheetOptions.push({
               text: 'Remove Card Expense',
-              handler: this.removeCCCHandler(),
+              handler: () => this.removeCCCHandler(),
             });
           }
           return actionSheetOptions;
@@ -948,7 +942,6 @@ export class AddEditExpensePage implements OnInit {
 
   setupBalanceFlag() {
     const accounts$ = this.accountsService.getEMyAccounts();
-
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
@@ -3176,6 +3169,26 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
+  trackEditExpense(etxn) {
+    this.trackingService.editExpense({
+      Type: 'Receipt',
+      Amount: etxn.tx.amount,
+      Currency: etxn.tx.currency,
+      Category: etxn.tx.org_category,
+      Time_Spent: this.getTimeSpentOnPage() + ' secs',
+      Used_Autofilled_Category:
+        etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
+      Used_Autofilled_Project:
+        etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
+      Used_Autofilled_CostCenter:
+        etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
+      Used_Autofilled_Currency:
+        (etxn.tx.currency || etxn.tx.orig_currency) &&
+        this.presetCurrency &&
+        (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
+    });
+  }
+
   editExpense(redirectedFrom) {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
@@ -3229,39 +3242,9 @@ export class AddEditExpensePage implements OnInit {
           );
         }
         if (err.type === 'criticalPolicyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-                    )
-                  )
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
+          return this.criticalPolicyViolationErrorHandler(err, customFields$);
         } else if (err.type === 'policyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                    )
-                  )
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
+          return this.policyViolationErrorHandler(err, customFields$);
         } else {
           return throwError(err);
         }
@@ -3274,25 +3257,7 @@ export class AddEditExpensePage implements OnInit {
           switchMap(({ eou, txnCopy }) => {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
-              this.trackingService.editExpense({
-                Type: 'Receipt',
-                Amount: etxn.tx.amount,
-                Currency: etxn.tx.currency,
-                Category: etxn.tx.org_category,
-                Time_Spent: this.getTimeSpentOnPage() + ' secs',
-                Used_Autofilled_Category:
-                  etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
-                Used_Autofilled_Project:
-                  etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
-                Used_Autofilled_CostCenter:
-                  etxn.tx.cost_center_id &&
-                  this.presetCostCenterId &&
-                  etxn.tx.cost_center_id === this.presetCostCenterId,
-                Used_Autofilled_Currency:
-                  (etxn.tx.currency || etxn.tx.orig_currency) &&
-                  this.presetCurrency &&
-                  (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
-              });
+              this.trackEditExpense(etxn);
             } else {
               // tracking expense closed without editing
               this.trackingService.viewExpense({ Type: 'Receipt' });
@@ -3554,39 +3519,9 @@ export class AddEditExpensePage implements OnInit {
         }
 
         if (err.type === 'criticalPolicyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-                    )
-                  )
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
+          return this.criticalPolicyViolationErrorHandler(err, customFields$);
         } else if (err.type === 'policyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                    )
-                  )
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
+          return this.policyViolationErrorHandler(err, customFields$);
         } else {
           return throwError(err);
         }
@@ -3596,24 +3531,7 @@ export class AddEditExpensePage implements OnInit {
           switchMap((eou) => {
             const comments = [];
             const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
-            this.trackingService.createExpense({
-              Type: 'Receipt',
-              Amount: etxn.tx.amount,
-              Currency: etxn.tx.currency,
-              Category: etxn.tx.org_category,
-              Time_Spent: this.getTimeSpentOnPage() + ' secs',
-              Used_Autofilled_Category:
-                etxn.tx.org_category_id && this.presetCategoryId && etxn.tx.org_category_id === this.presetCategoryId,
-              Used_Autofilled_Project:
-                etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
-              Used_Autofilled_CostCenter:
-                etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
-              Used_Autofilled_Currency:
-                (etxn.tx.currency || etxn.tx.orig_currency) &&
-                this.presetCurrency &&
-                (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
-              Instafyle: isInstaFyleExpense,
-            });
+            this.trackCreateExpense(etxn, isInstaFyleExpense);
 
             if (comment) {
               comments.push(comment);
@@ -3866,28 +3784,32 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  async uploadFileCallback(file: File) {
+    let fileData;
+    if (file) {
+      if (file.size < MAX_FILE_SIZE) {
+        const dataUrl = await this.fileService.readFile(file);
+        this.trackingService.addAttachment({ type: file.type });
+        fileData = {
+          type: file.type,
+          dataUrl,
+          actionSource: 'gallery_upload',
+        };
+        this.attachReceipts(fileData);
+      } else {
+        this.showSizeLimitExceededPopover();
+      }
+    }
+  }
+
   async addAttachments(event) {
     event.stopPropagation();
-    let fileData;
 
     if (this.platform.is('ios')) {
       const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
       nativeElement.onchange = async () => {
         const file = nativeElement.files[0];
-        if (file) {
-          if (file.size < MAX_FILE_SIZE) {
-            const dataUrl = await this.fileService.readFile(file);
-            this.trackingService.addAttachment({ type: file.type });
-            fileData = {
-              type: file.type,
-              dataUrl,
-              actionSource: 'gallery_upload',
-            };
-            this.attachReceipts(fileData);
-          } else {
-            this.showSizeLimitExceededPopover();
-          }
-        }
+        this.uploadFileCallback(file);
       };
       nativeElement.click();
     } else {
@@ -4187,41 +4109,10 @@ export class AddEditExpensePage implements OnInit {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
           }
-
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
-              switchMap((continueWithTransaction) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() =>
-                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-                      )
-                    )
-                  );
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.criticalPolicyViolationErrorHandler(err, customFields$);
           } else if (err.type === 'policyViolations') {
-            return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
-              switchMap((continueWithTransaction) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() =>
-                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                      )
-                    )
-                  );
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.policyViolationErrorHandler(err, customFields$);
           } else {
             return throwError(err);
           }

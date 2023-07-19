@@ -12,8 +12,9 @@ import { of, throwError } from 'rxjs';
 import { apiEouRes } from '../core/mock-data/extended-org-user.data';
 import { unflattenedTxnData } from '../core/mock-data/unflattened-txn.data';
 import { singleErqUnflattened } from '../core/mock-data/extended-advance-request.data';
+import { DeepLinkService } from '../core/services/deep-link.service';
 
-xdescribe('DeepLinkRedirectionPage', () => {
+describe('DeepLinkRedirectionPage', () => {
   let component: DeepLinkRedirectionPage;
   let fixture: ComponentFixture<DeepLinkRedirectionPage>;
   let router: jasmine.SpyObj<Router>;
@@ -22,6 +23,7 @@ xdescribe('DeepLinkRedirectionPage', () => {
   let transactionService: jasmine.SpyObj<TransactionService>;
   let reportService: jasmine.SpyObj<ReportService>;
   let authService: jasmine.SpyObj<AuthService>;
+  let deepLinkService: jasmine.SpyObj<DeepLinkService>;
   let activeroutemock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
@@ -31,6 +33,7 @@ xdescribe('DeepLinkRedirectionPage', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnUnflattened']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getERpt']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
 
     TestBed.configureTestingModule({
       declarations: [DeepLinkRedirectionPage],
@@ -42,6 +45,7 @@ xdescribe('DeepLinkRedirectionPage', () => {
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
+        { provide: DeepLinkService, useValue: deepLinkServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -62,6 +66,7 @@ xdescribe('DeepLinkRedirectionPage', () => {
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    deepLinkService = TestBed.inject(DeepLinkService) as jasmine.SpyObj<DeepLinkService>;
     activeroutemock = TestBed.inject(ActivatedRoute);
 
     reportService.getERpt.and.returnValue(of(expectedSingleErpt));
@@ -157,104 +162,94 @@ xdescribe('DeepLinkRedirectionPage', () => {
   });
 
   describe('redirectToExpenseModule():', () => {
-    it('should redirect from view_expese to view_mileage if the org catergory is mileage', fakeAsync(() => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      deepLinkService.getExpenseRoute.and.returnValue(['/', 'enterprise', 'view_expense']);
+
+      authService.getEou.and.resolveTo(apiEouRes);
+      spyOn(component, 'switchOrg').and.returnValue();
+    });
+
+    it('should redirect to the expense page in logged-in org if orgId is not present in route param', fakeAsync(() => {
+      const txnId = 'txAfNrce75O';
       activeroutemock.snapshot.params = {
         sub_module: 'expense',
-        id: 'txAfNrce75O',
+        id: txnId,
       };
 
-      const updatedExtnFlatteTxnData = {
-        ...unflattenedTxnData,
-        tx: {
-          ...unflattenedTxnData.tx,
-          org_category: 'mileage',
-        },
-      };
-      transactionService.getETxnUnflattened.and.returnValue(of(updatedExtnFlatteTxnData));
       component.redirectToExpenseModule();
-      fixture.detectChanges();
-      tick(500);
-      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
-      tick(500);
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
-      expect(router.navigate).toHaveBeenCalledOnceWith([
-        '/',
-        'enterprise',
-        'view_mileage',
-        { id: activeroutemock.snapshot.params.id },
-      ]);
-      tick(500);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      tick(200);
+
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(txnId);
+      expect(deepLinkService.getExpenseRoute).toHaveBeenCalledOnceWith(unflattenedTxnData);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'view_expense', { id: txnId }]);
     }));
 
-    it('should redirect from view_expese to view_mileage if the org catergory is mileage', fakeAsync(() => {
+    it('should redirect to the expense page if expense orgId is same as logged-in org id', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      const txnId = 'tx3qHxFNgRcZ';
       activeroutemock.snapshot.params = {
         sub_module: 'expense',
-        id: 'txAfNrce76O',
+        id: txnId,
+        orgId,
       };
 
-      const updatedExtnFlatteTxnData = {
-        ...unflattenedTxnData,
-        tx: {
-          ...unflattenedTxnData.tx,
-          org_category: 'per diem',
-        },
-      };
-      transactionService.getETxnUnflattened.and.returnValue(of(updatedExtnFlatteTxnData));
       component.redirectToExpenseModule();
-      fixture.detectChanges();
-      tick(500);
+      tick(200);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
-      tick(500);
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
-      expect(router.navigate).toHaveBeenCalledOnceWith([
-        '/',
-        'enterprise',
-        'view_per_diem',
-        { id: activeroutemock.snapshot.params.id },
-      ]);
-      tick(500);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(txnId);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
+      expect(deepLinkService.getExpenseRoute).toHaveBeenCalledOnceWith(unflattenedTxnData);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'view_expense', { id: txnId }]);
     }));
 
-    it('should redirect to view_expense if the category is othter than mileage or per diem', fakeAsync(() => {
+    it('should redirect to the switch org page if expense orgId is different than logged-in org id', fakeAsync(() => {
+      const orgId = 'orOTDe765hQp';
+      const txnId = 'tx3qHxFNgRcZ';
       activeroutemock.snapshot.params = {
         sub_module: 'expense',
-        id: 'txAfNasd34',
+        id: txnId,
+        orgId,
       };
 
-      const updatedExtnFlatteTxnData = {
-        ...unflattenedTxnData,
-        tx: {
-          ...unflattenedTxnData.tx,
-          org_category: 'food',
-        },
-      };
-      transactionService.getETxnUnflattened.and.returnValue(of(updatedExtnFlatteTxnData));
       component.redirectToExpenseModule();
-      fixture.detectChanges();
-      tick(500);
+      tick(200);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
-      tick(500);
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
-      expect(router.navigate).toHaveBeenCalledOnceWith([
-        '/',
-        'enterprise',
-        'view_expense',
-        { id: activeroutemock.snapshot.params.id },
-      ]);
-      tick(500);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { txnId, orgId }]);
     }));
 
-    it('should call switch_org if transactionService.getUnflattened fails', fakeAsync(() => {
-      spyOn(component, 'switchOrg');
-      const error = 'Something went wrong';
-      transactionService.getETxnUnflattened.and.returnValue(throwError(() => error));
+    it('should call switchOrg() if GET Eou fails', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      const txnId = 'tx3qHxFNgRcZ';
+      activeroutemock.snapshot.params = {
+        sub_module: 'expense',
+        id: txnId,
+        orgId,
+      };
+      authService.getEou.and.rejectWith();
       component.redirectToExpenseModule();
-      fixture.detectChanges();
       tick(500);
-      expect(component.switchOrg).toHaveBeenCalledTimes(1);
+      expect(component.switchOrg).toHaveBeenCalledOnceWith();
+    }));
+
+    it('should call switchOrg() if GET expense call fails', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      const txnId = 'tx3qHxFNgRcZ';
+      activeroutemock.snapshot.params = {
+        sub_module: 'expense',
+        id: txnId,
+        orgId,
+      };
+      transactionService.getETxnUnflattened.and.returnValue(throwError(() => {}));
+      component.redirectToExpenseModule();
+      tick(500);
+      expect(component.switchOrg).toHaveBeenCalledOnceWith();
     }));
   });
 

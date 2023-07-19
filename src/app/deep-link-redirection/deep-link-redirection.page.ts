@@ -5,7 +5,7 @@ import { AdvanceRequestService } from '../core/services/advance-request.service'
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
 import { ReportService } from '../core/services/report.service';
-import { filter, finalize, from, shareReplay, switchMap } from 'rxjs';
+import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap } from 'rxjs';
 import { DeepLinkService } from '../core/services/deep-link.service';
 
 @Component({
@@ -73,6 +73,10 @@ export class DeepLinkRedirectionPage {
     } else {
       const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
         switchMap(() => from(this.authService.getEou())),
+        catchError(() => {
+          this.switchOrg();
+          return EMPTY;
+        }),
         shareReplay(1)
       );
 
@@ -97,19 +101,17 @@ export class DeepLinkRedirectionPage {
           filter((eou) => expenseOrgId !== eou.ou.org_id),
           finalize(() => from(this.loaderService.hideLoader()))
         )
-        .subscribe({
-          next: () =>
-            this.router.navigate([
-              '/',
-              'auth',
-              'switch_org',
-              {
-                txnId,
-                orgId: expenseOrgId,
-              },
-            ]),
-          error: () => this.switchOrg(),
-        });
+        .subscribe(() =>
+          this.router.navigate([
+            '/',
+            'auth',
+            'switch_org',
+            {
+              txnId,
+              orgId: expenseOrgId,
+            },
+          ])
+        );
     }
   }
 
