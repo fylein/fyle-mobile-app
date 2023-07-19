@@ -37,6 +37,7 @@ import {
   optionsData9,
 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
 import { combinedOptionsData1 } from 'src/app/core/mock-data/combined-options.data';
+import { expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -73,6 +74,12 @@ export function TestCases1(getTestBed) {
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       dependantFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
       formBuilder = TestBed.inject(FormBuilder);
+      component.fg = formBuilder.group({
+        target_txn_id: [, Validators.required],
+        genericFields: [],
+        categoryDependent: [],
+        custom_inputs: [],
+      });
     }));
 
     it('should create', () => {
@@ -332,6 +339,65 @@ export function TestCases1(getTestBed) {
         expect(component.loadCategoryDependentFields).toHaveBeenCalledTimes(1);
         expect(component.subscribeExpenseChange).toHaveBeenCalledTimes(1);
       });
+    });
+
+    describe('loadGenericFieldsOptions(): ', () => {
+      beforeEach(() => {
+        component.expenses = expenseList2;
+        component.genericFieldsOptions$ = of(cloneDeep(combinedOptionsData1));
+        mergeExpensesService.getFieldValue.and.returnValues(
+          40.67,
+          null,
+          null,
+          '3943',
+          null,
+          null,
+          'Nilesh As Vendor',
+          'tgXEJA6YUoZ1',
+          0.01,
+          null,
+          null
+        );
+        mergeExpensesService.setDefaultExpenseToKeep.and.returnValue(expensesInfo);
+        mergeExpensesService.isAllAdvanceExpenses.and.returnValue(true);
+        spyOn(component, 'setInitialExpenseToKeepDetails');
+      });
+
+      it('should update genericFields in the form correctly', () => {
+        component.loadGenericFieldsOptions();
+
+        expect(component.fg.controls.genericFields.value).toEqual({
+          amount: 40.67,
+          dateOfSpend: null,
+          paymentMode: null,
+          project: '3943',
+          billable: null,
+          category: null,
+          vendor: 'Nilesh As Vendor',
+          tax_group: 'tgXEJA6YUoZ1',
+          tax_amount: 0.01,
+          costCenter: null,
+          purpose: null,
+        });
+        expect(mergeExpensesService.getFieldValue).toHaveBeenCalledTimes(11);
+      });
+
+      it('should call setInitialExpenseToKeepDetails once with expensesInfo and isAllAdvanceExpenses flag', () => {
+        component.loadGenericFieldsOptions();
+        expect(mergeExpensesService.setDefaultExpenseToKeep).toHaveBeenCalledOnceWith(expenseList2);
+        expect(mergeExpensesService.isAllAdvanceExpenses).toHaveBeenCalledOnceWith(expenseList2);
+        expect(component.setInitialExpenseToKeepDetails).toHaveBeenCalledOnceWith(expensesInfo, true);
+      });
+    });
+
+    it('subscribeExpenseChange(): should call onExpenseChanged and patchCategoryDependentFields once if target_txn_id value changes', () => {
+      component.expenses = expenseList2;
+      spyOn(component, 'onExpenseChanged');
+      spyOn(component, 'patchCategoryDependentFields');
+      component.subscribeExpenseChange();
+      component.fg.patchValue({ target_txn_id: 'tx3nHShG60zq' });
+      expect(component.onExpenseChanged).toHaveBeenCalledOnceWith(1);
+      expect(component.patchCategoryDependentFields).toHaveBeenCalledOnceWith(1);
     });
   });
 }

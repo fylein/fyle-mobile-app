@@ -570,7 +570,7 @@ export class MergeExpensesService {
     );
   }
 
-  getCustomInputValues(expenses: Expense[]): CustomInputs[] {
+  getCustomInputValues(expenses: Expense[]): TxnCustomProperties[] {
     //Create a copy so that we don't modify the expense object
     const expensesCopy = cloneDeep(expenses);
     return expensesCopy
