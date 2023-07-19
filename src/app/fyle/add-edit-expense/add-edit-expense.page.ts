@@ -192,7 +192,7 @@ export class AddEditExpensePage implements OnInit {
 
   isIndividualProjectsEnabled$: Observable<boolean>;
 
-  individualProjectIds$: Observable<[]>;
+  individualProjectIds$: Observable<number[]>;
 
   isNotReimbursable$: Observable<boolean>;
 
@@ -2388,7 +2388,7 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
+  initSubjectObservables() {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
@@ -2401,6 +2401,49 @@ export class AddEditExpensePage implements OnInit {
         this.showClosePopup();
       }
     );
+  }
+
+  setupSelectedProjectObservable() {
+    this.fg.controls.project.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((project) => this.selectedProject$.next(project));
+  }
+
+  setupSelectedCostCenterObservable() {
+    this.fg.controls.costCenter.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((costCenter) => this.selectedCostCenter$.next(costCenter));
+  }
+
+  getCCCpaymentMode() {
+    this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
+      map((paymentMode: any) => paymentMode?.acc?.type === AccountType.CCC)
+    );
+  }
+
+  clearCategoryOnValueChange() {
+    this.fg.controls.category.valueChanges.subscribe((_) => {
+      if (this.fg.controls.category.dirty) {
+        [
+          'from_dt',
+          'to_dt',
+          'location_1',
+          'location_2',
+          'distance',
+          'distance_unit',
+          'flight_journey_travel_class',
+          'flight_return_travel_class',
+          'train_travel_class',
+          'bus_travel_class',
+        ].forEach((categoryDependentField) => {
+          this.fg.controls[categoryDependentField]?.patchValue(null);
+        });
+      }
+    });
+  }
+
+  ionViewWillEnter() {
+    this.initSubjectObservables();
 
     this.newExpenseDataUrls = [];
 
@@ -2444,13 +2487,9 @@ export class AddEditExpensePage implements OnInit {
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
     this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
-    this.fg.controls.project.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project) => this.selectedProject$.next(project));
+    this.setupSelectedProjectObservable();
 
-    this.fg.controls.costCenter.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter) => this.selectedCostCenter$.next(costCenter));
+    this.setupSelectedCostCenterObservable();
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -2466,9 +2505,7 @@ export class AddEditExpensePage implements OnInit {
       this.isCreatedFromCCC = true;
     }
 
-    this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      map((paymentMode: any) => paymentMode?.acc?.type === AccountType.CCC)
-    );
+    this.getCCCpaymentMode();
 
     this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
 
@@ -2766,24 +2803,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     //Clear all category dependent fields when user changes the category
-    this.fg.controls.category.valueChanges.subscribe((_) => {
-      if (this.fg.controls.category.dirty) {
-        [
-          'from_dt',
-          'to_dt',
-          'location_1',
-          'location_2',
-          'distance',
-          'distance_unit',
-          'flight_journey_travel_class',
-          'flight_return_travel_class',
-          'train_travel_class',
-          'bus_travel_class',
-        ].forEach((categoryDependentField) => {
-          this.fg.controls[categoryDependentField]?.patchValue(null);
-        });
-      }
-    });
+    this.clearCategoryOnValueChange();
 
     this.actionSheetOptions$ = this.getActionSheetOptions();
 
@@ -2966,13 +2986,18 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  getProjectDependentFields() {
+    return this.fg.value.project_dependent_fields;
+  }
+
+  getCostCenterDependentFields() {
+    return this.fg.value.cost_center_dependent_fields;
+  }
+
   getCustomFields() {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
-        const allDependentFields = [
-          ...this.fg.value.project_dependent_fields,
-          ...this.fg.value.cost_center_dependent_fields,
-        ];
+        const allDependentFields = [...this.getProjectDependentFields(), ...this.getCostCenterDependentFields()];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
