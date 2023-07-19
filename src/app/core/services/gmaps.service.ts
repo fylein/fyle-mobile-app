@@ -32,12 +32,9 @@ export class GmapsService {
     });
 
     // importLibrary will add the specified library to the global namespace window.google.maps
-    return forkJoin([
-      from(loader.importLibrary('core')),
-      from(loader.importLibrary('maps')),
-      from(loader.importLibrary('routes')),
-      from(loader.importLibrary('geocoding')),
-    ]).pipe(ignoreElements());
+    return forkJoin([from(loader.importLibrary('core')), from(loader.importLibrary('geocoding'))]).pipe(
+      ignoreElements()
+    );
   }
 
   // Used to generate static map image urls, for single location

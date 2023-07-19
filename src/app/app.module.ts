@@ -18,7 +18,6 @@ import { TokenService } from './core/services/token.service';
 import { SecureStorageService } from './core/services/secure-storage.service';
 import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
-import { GoogleMapsModule } from '@angular/google-maps';
 import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { Capacitor } from '@capacitor/core';
@@ -42,7 +41,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    GoogleMapsModule,
     SharedModule,
     HammerModule,
     HttpClientJsonpModule,

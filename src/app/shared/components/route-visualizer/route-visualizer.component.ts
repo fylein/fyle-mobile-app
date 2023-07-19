@@ -17,10 +17,6 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
   @Output() mapClick = new EventEmitter<void>();
 
-  dynamicMapOptions: google.maps.MapOptions = {
-    disableDefaultUI: true,
-  };
-
   showCurrentLocation = false;
 
   mapWidth: number;
