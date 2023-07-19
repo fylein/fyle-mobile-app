@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
@@ -908,8 +908,6 @@ export function TestCases5(getTestBed) {
           thumbnail: 'thumbnail',
         });
         spyOn(component, 'getPaymentModes');
-        transactionService.getSplitExpenses.and.returnValue(of(null));
-        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
         spyOn(component, 'setupFilteredCategories');
         spyOn(component, 'setupExpenseFields');
 
@@ -926,6 +924,23 @@ export function TestCases5(getTestBed) {
 
         component.ionViewWillEnter();
 
+        expect(component.initSubjectObservables).toHaveBeenCalledTimes(1);
+        expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+
+        expect(categoriesService.getSystemCategories).toHaveBeenCalledTimes(1);
+        expect(categoriesService.getBreakfastSystemCategories).toHaveBeenCalledTimes(1);
+        expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
+
+        expect(component.setupSelectedProjectObservable).toHaveBeenCalledTimes(1);
+        expect(component.setupSelectedCostCenterObservable).toHaveBeenCalledTimes(1);
+        expect(component.getCCCpaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
+
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+
         component.isAdvancesEnabled$.subscribe((res) => {
           expect(res).toBeTrue();
         });
@@ -938,9 +953,16 @@ export function TestCases5(getTestBed) {
           expect(res).toEqual(expectedTaxGroupData);
         });
 
+        expect(component.isCorporateCreditCardEnabled).toBeTrue();
+        expect(component.isNewReportsFlowEnabled).toBeFalse();
+        expect(component.isDraftExpenseEnabled).toBeTrue();
+
+        expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+
         component.recentlyUsedValues$.subscribe((res) => {
           expect(res).toEqual(recentlyUsedRes);
         });
+        expect(recentlyUsedItemsService.getRecentlyUsed).toHaveBeenCalledTimes(1);
 
         component.individualProjectIds$.subscribe((res) => {
           expect(res).toEqual([290054, 316444, 316446, 149230, 316442, 316443]);
@@ -954,6 +976,12 @@ export function TestCases5(getTestBed) {
           expect(res).toBeTrue();
         });
 
+        expect(projectsService.getProjectCount).toHaveBeenCalledTimes(1);
+        expect(component.setupCostCenters).toHaveBeenCalledTimes(1);
+
+        expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedView');
+        expect(statusService.find).toHaveBeenCalledTimes(1);
+
         component.isProjectsEnabled$.subscribe((res) => {
           expect(res).toBeTrue();
         });
@@ -962,9 +990,16 @@ export function TestCases5(getTestBed) {
           expect(res).toBeFalse();
         });
 
+        expect(component.setupBalanceFlag).toHaveBeenCalledTimes(1);
+
         component.paymentAccount$.subscribe((res) => {
           expect(res).toBeNull();
         });
+
+        expect(component.getPaymentModes).toHaveBeenCalledTimes(1);
+
+        expect(component.getNewExpenseObservable).toHaveBeenCalledTimes(1);
+        expect(component.getEditExpenseObservable).toHaveBeenCalledTimes(1);
 
         component.isCCCAccountSelected$.subscribe((res) => {
           expect(res).toBeFalse();
@@ -974,6 +1009,10 @@ export function TestCases5(getTestBed) {
           expect(res).toEqual(expectedFileData1);
         });
 
+        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
+        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
+
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toEqual([
             {
@@ -982,6 +1021,9 @@ export function TestCases5(getTestBed) {
             },
           ]);
         });
+
+        expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.setupExpenseFields).toHaveBeenCalledTimes(1);
 
         component.taxSettings$.subscribe((res) => {
           expect(res).toEqual(taxSettingsData);
@@ -1015,6 +1057,16 @@ export function TestCases5(getTestBed) {
           expect(res).toBeFalse();
         });
 
+        expect(taxGroupService.get).toHaveBeenCalledTimes(2);
+
+        expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+        expect(recentlyUsedItemsService.getRecentCategories).toHaveBeenCalledTimes(1);
+        expect(component.setupFormInit).toHaveBeenCalledTimes(1);
+        expect(component.setupCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.clearCategoryOnValueChange).toHaveBeenCalledTimes(1);
+        expect(component.getActionSheetOptions).toHaveBeenCalledTimes(1);
+        expect(component.getDuplicateExpenses).toHaveBeenCalledTimes(1);
+        expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
         done();
       });
     });
