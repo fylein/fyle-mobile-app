@@ -4,8 +4,6 @@ export const mergeExpenseFormData1 = {
     amount: 'tx3nHShG60zq',
     project: 13795,
     costCenter: 13796,
-    location_1: 'Pune',
-    location_2: 'Mumbai',
   },
   custom_inputs: {
     fields: [
@@ -18,6 +16,10 @@ export const mergeExpenseFormData1 = {
         value: 'Cost Code 1',
       },
     ],
+  },
+  categoryDependent: {
+    location_1: 'Pune',
+    location_2: 'Mumbai',
   },
 };
 
@@ -27,7 +29,6 @@ export const mergeExpenseFormData2 = {
     amount: 'tx3nHShG60zq',
     project: 13795,
     costCenter: 13796,
-    location_1: 'Pune',
   },
   custom_inputs: {
     fields: [
@@ -40,6 +41,9 @@ export const mergeExpenseFormData2 = {
         value: 'Cost Code 1',
       },
     ],
+  },
+  categoryDependent: {
+    location_1: 'Pune',
   },
 };
 
@@ -62,14 +66,13 @@ export const mergeExpenseFormData3 = {
       },
     ],
   },
+  categoryDependent: {},
 };
 
 export const mergeExpenseFormData4 = {
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
     amount: 'tx3nHShG60zq',
-    location_1: 'Pune',
-    location_2: 'Mumbai',
   },
   custom_inputs: {
     fields: [
@@ -82,6 +85,10 @@ export const mergeExpenseFormData4 = {
         value: 'Cost Code 1',
       },
     ],
+  },
+  categoryDependent: {
+    location_1: 'Pune',
+    location_2: 'Mumbai',
   },
 };
 
@@ -89,8 +96,6 @@ export const mergeExpenseFormData5 = {
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
     amount: 'tx3nHShG6035',
-    location_1: 'Pune',
-    location_2: 'Mumbai',
   },
   custom_inputs: {
     fields: [
@@ -103,5 +108,9 @@ export const mergeExpenseFormData5 = {
         value: 'Cost Code 1',
       },
     ],
+  },
+  categoryDependent: {
+    location_1: 'Pune',
+    location_2: 'Mumbai',
   },
 };
