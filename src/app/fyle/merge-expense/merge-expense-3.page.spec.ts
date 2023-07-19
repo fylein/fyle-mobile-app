@@ -14,7 +14,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 import { FormBuilder, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import { expenseList2 } from 'src/app/core/mock-data/expense.data';
-import { BehaviorSubject, Observable, Subscription, of } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, of, skip, take } from 'rxjs';
 import {
   optionsData10,
   optionsData11,
@@ -120,62 +120,69 @@ export function TestCases3(getTestBed) {
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
       });
 
-      it('should call customFieldsService.standardizeCustomFields with empty array if fields are not defined in custom_inputs', () => {
+      it('should call customFieldsService.standardizeCustomFields with empty array if fields are not defined in custom_inputs', (done) => {
         component.loadCustomFields$ = new BehaviorSubject('201952');
         component.setupCustomInputs();
 
-        component.customInputs$.subscribe();
-
-        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(2);
-        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledWith([], responseAfterAppliedFilter);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledTimes(2);
-        const firstFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(0);
-        expect(firstFilterByCategoryCall).toEqual([filterTestData, null]);
-        const secondFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(1);
-        expect(secondFilterByCategoryCall).toEqual([filterTestData, '201952']);
+        component.customInputs$.pipe(take(2), skip(1)).subscribe(() => {
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(2);
+          expect(customInputsService.filterByCategory).toHaveBeenCalledTimes(2);
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledWith([], responseAfterAppliedFilter);
+          const firstFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(0);
+          expect(firstFilterByCategoryCall).toEqual([filterTestData, null]);
+          const secondFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(1);
+          expect(secondFilterByCategoryCall).toEqual([filterTestData, '201952']);
+          done();
+        });
       });
 
-      it('should call customFieldsService.standrardizeCustomFields with custom_inputs if fields are defined in custom_inputs', () => {
+      it('should call customFieldsService.standardizeCustomFields with custom_inputs if fields are defined in custom_inputs', (done) => {
         component.fg = formBuilder.group(mergeExpenseFormData1);
         component.loadCustomFields$ = new BehaviorSubject('201952');
         component.setupCustomInputs();
 
-        component.customInputs$.subscribe();
-
-        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(2);
-        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledWith(
-          mergeExpenseFormData1.custom_inputs.fields,
-          responseAfterAppliedFilter
-        );
-        expect(customInputsService.filterByCategory).toHaveBeenCalledTimes(2);
-        const firstFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(0);
-        expect(firstFilterByCategoryCall).toEqual([filterTestData, null]);
-        const secondFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(1);
-        expect(secondFilterByCategoryCall).toEqual([filterTestData, '201952']);
-      });
-
-      it('should return customFields corrctly', () => {
-        component.setupCustomInputs();
-        component.customInputs$.subscribe((customInputs) => {
-          expect(customInputs).toEqual(txnCustomPropertiesData);
+        component.customInputs$.pipe(take(2), skip(1)).subscribe(() => {
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(2);
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledWith(
+            mergeExpenseFormData1.custom_inputs.fields,
+            responseAfterAppliedFilter
+          );
+          expect(customInputsService.filterByCategory).toHaveBeenCalledTimes(2);
+          const firstFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(0);
+          expect(firstFilterByCategoryCall).toEqual([filterTestData, null]);
+          const secondFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(1);
+          expect(secondFilterByCategoryCall).toEqual([filterTestData, '201952']);
+          done();
         });
       });
 
-      it('should call patchCustomInputsValues if isMerging is false', () => {
+      it('should return customFields correctly', (done) => {
+        component.setupCustomInputs();
+        component.customInputs$.pipe(take(2), skip(1)).subscribe((customInputs) => {
+          expect(customInputs).toEqual(txnCustomPropertiesData);
+          done();
+        });
+      });
+
+      it('should call patchCustomInputsValues if isMerging is false', (done) => {
         component.isMerging = false;
         component.setupCustomInputs();
 
-        component.customInputs$.subscribe();
-        expect(component.patchCustomInputsValues).toHaveBeenCalledTimes(2);
-        expect(component.patchCustomInputsValues).toHaveBeenCalledWith(txnCustomPropertiesData);
+        component.customInputs$.pipe(take(2), skip(1)).subscribe(() => {
+          expect(component.patchCustomInputsValues).toHaveBeenCalledTimes(2);
+          expect(component.patchCustomInputsValues).toHaveBeenCalledWith(txnCustomPropertiesData);
+          done();
+        });
       });
 
-      it('should not call patchCustomInputsValues if isMerging is true', () => {
+      it('should not call patchCustomInputsValues if isMerging is true', (done) => {
         component.isMerging = true;
         component.setupCustomInputs();
 
-        component.customInputs$.subscribe();
-        expect(component.patchCustomInputsValues).not.toHaveBeenCalled();
+        component.customInputs$.pipe(take(2), skip(1)).subscribe(() => {
+          expect(component.patchCustomInputsValues).not.toHaveBeenCalled();
+          done();
+        });
       });
 
       it('should assign projectDependentFieldsMapping$ and costCenterDependentFieldsMapping$ correctly', () => {
