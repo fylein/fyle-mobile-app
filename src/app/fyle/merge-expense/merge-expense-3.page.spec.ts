@@ -124,7 +124,7 @@ export function TestCases3(getTestBed) {
         component.loadCustomFields$ = new BehaviorSubject('201952');
         component.setupCustomInputs();
 
-        component.customInputs$.pipe(take(2), skip(1)).subscribe(() => {
+        component.customInputs$.pipe(skip(1)).subscribe(() => {
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(2);
           expect(customInputsService.filterByCategory).toHaveBeenCalledTimes(2);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledWith([], responseAfterAppliedFilter);
@@ -141,7 +141,7 @@ export function TestCases3(getTestBed) {
         component.loadCustomFields$ = new BehaviorSubject('201952');
         component.setupCustomInputs();
 
-        component.customInputs$.pipe(take(2), skip(1)).subscribe(() => {
+        component.customInputs$.pipe(skip(1)).subscribe(() => {
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(2);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledWith(
             mergeExpenseFormData1.custom_inputs.fields,
@@ -158,7 +158,7 @@ export function TestCases3(getTestBed) {
 
       it('should return customFields correctly', (done) => {
         component.setupCustomInputs();
-        component.customInputs$.pipe(take(2), skip(1)).subscribe((customInputs) => {
+        component.customInputs$.pipe(skip(1)).subscribe((customInputs) => {
           expect(customInputs).toEqual(txnCustomPropertiesData);
           done();
         });
@@ -168,7 +168,7 @@ export function TestCases3(getTestBed) {
         component.isMerging = false;
         component.setupCustomInputs();
 
-        component.customInputs$.pipe(take(2), skip(1)).subscribe(() => {
+        component.customInputs$.pipe(skip(1)).subscribe(() => {
           expect(component.patchCustomInputsValues).toHaveBeenCalledTimes(2);
           expect(component.patchCustomInputsValues).toHaveBeenCalledWith(txnCustomPropertiesData);
           done();
@@ -179,7 +179,7 @@ export function TestCases3(getTestBed) {
         component.isMerging = true;
         component.setupCustomInputs();
 
-        component.customInputs$.pipe(take(2), skip(1)).subscribe(() => {
+        component.customInputs$.pipe(skip(1)).subscribe(() => {
           expect(component.patchCustomInputsValues).not.toHaveBeenCalled();
           done();
         });
