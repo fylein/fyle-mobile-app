@@ -15,8 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          fetch-depth: 2
-        with:
+          fetch-depth: 2          
           # Make sure the actual branch is checked out when running on pull requests
           ref: ${{ github.head_ref }}
 

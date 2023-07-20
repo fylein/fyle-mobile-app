@@ -60,12 +60,14 @@ export class TrackingService {
 
   async getUserProperties(): Promise<IdentifyProperties> {
     const properties: IdentifyProperties = {};
-    const eou = await this.authService.getEou();
-    if (eou && eou.us && eou && eou.ou) {
-      properties['User Name'] = eou.us.full_name;
-      properties['User Org Name'] = eou.ou.org_name;
-      properties['User Org ID'] = eou.ou.org_id;
-    }
+    try {
+      const eou = await this.authService.getEou();
+      if (eou && eou.us && eou && eou.ou) {
+        properties['User Name'] = eou.us.full_name;
+        properties['User Org Name'] = eou.ou.org_name;
+        properties['User Org ID'] = eou.ou.org_id;
+      }
+    } catch (error) {}
     return properties;
   }
 
