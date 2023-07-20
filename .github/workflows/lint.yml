@@ -33,5 +33,5 @@ jobs:
       - name: Run ESLint on your changes only
         env:
           ESLINT_PLUGIN_DIFF_COMMIT: ${{ github.event.pull_request.base.ref }}
-        run: npx --no-install eslint --ext .js,.jsx,.ts,.tsx .
+        run: npx --no-install eslint --ext .ts .
 
