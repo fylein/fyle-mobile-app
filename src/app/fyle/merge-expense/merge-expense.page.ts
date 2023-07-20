@@ -178,7 +178,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       custom_inputs: [],
     });
 
-    this.systemCategories = this.categoriesService.getSystemCategories();
+    this.systemCategories = this.categoriesService.getSystemCategoriesWithTaxi();
 
     this.expenseOptions$ = this.mergeExpensesService.generateExpenseToKeepOptions(this.expenses);
 
