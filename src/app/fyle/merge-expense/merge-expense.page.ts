@@ -187,6 +187,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     });
 
     this.amountOptionsData$ = this.mergeExpensesService.generateAmountOptions(this.expenses).pipe(shareReplay(1));
+    // test comment
 
     this.dateOfSpendOptionsData$ = this.mergeExpensesService
       .generateDateOfSpendOptions(this.expenses)
