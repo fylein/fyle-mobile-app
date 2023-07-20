@@ -28,9 +28,6 @@ jobs:
         run: npm install --save-dev --legacy-peer-deps
 
       - name: Run linters
-        run: npm run lint:diff
-
-      - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
           eslint: true
