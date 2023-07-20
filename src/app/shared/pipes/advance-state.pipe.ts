@@ -4,12 +4,12 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'advanceState',
 })
 export class AdvanceState implements PipeTransform {
-  transform(value) {
+  transform(value: string): string {
     if (!value) {
       return value;
     }
 
-    const states = {
+    const states: Record<string, string> = {
       DRAFT: 'draft',
       SUBMITTED: 'pending',
       APPROVED: 'approved',
