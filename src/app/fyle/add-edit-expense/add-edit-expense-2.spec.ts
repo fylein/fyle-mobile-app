@@ -5,24 +5,18 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Subscription, of } from 'rxjs';
+import { Subscription, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
-import {
-  fileObject5,
-  fileObject7,
-  fileObjectData,
-  fileObjectData1,
-  fileObjectData4,
-} from 'src/app/core/mock-data/file-object.data';
+import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
 import { instaFyleData1, instaFyleData2, parsedReceiptData1 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
-import { txnData2 } from 'src/app/core/mock-data/transaction.data';
+import { editExpTxn, txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
   expectedUnflattendedTxnData1,
@@ -322,6 +316,18 @@ export function TestCases2(getTestBed) {
           done();
         });
       });
+
+      it('should throw error if receipt could not be parsed', (done) => {
+        activatedRoute.snapshot.params.dataUrl = 'url';
+        activatedRoute.snapshot.params.canExtractData = 'true';
+        transactionOutboxService.parseReceipt.and.rejectWith(throwError(() => new Error('error')));
+        fixture.detectChanges();
+
+        component.getInstaFyleImageData().subscribe({
+          error: (err) => expect(err).toBeTruthy(),
+        });
+        done();
+      });
     });
 
     it('setCategoryFromVendor(): should set category in the form', () => {
@@ -459,6 +465,36 @@ export function TestCases2(getTestBed) {
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.saveAndMatchWithPersonalCardTxn).toHaveBeenCalledTimes(1);
       });
+
+      it('should save an expense after editing', () => {
+        component.mode = 'edit';
+        setFormValid(component);
+        activatedRoute.snapshot.params.dataUrl = 'url';
+        spyOn(component, 'editExpense').and.returnValue(of(editExpTxn));
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        spyOn(component, 'goBack');
+        fixture.detectChanges();
+
+        component.saveExpense();
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledOnceWith();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.goBack).toHaveBeenCalledOnceWith();
+      });
+
+      it('should show form validation errors', fakeAsync(() => {
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => false,
+        });
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        spyOn(component, 'showFormValidationErrors');
+        fixture.detectChanges();
+
+        component.saveExpense();
+        tick(3500);
+
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledOnceWith();
+        expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+      }));
     });
 
     describe('saveAndNewExpense():', () => {

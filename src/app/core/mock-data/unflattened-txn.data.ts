@@ -880,6 +880,7 @@ export const expectedUnflattendedTxnData4 = {
   },
   dataUrls: [],
 };
+
 export const expectedUnflattendedTxnData5 = {
   tx: {
     risk_state: null,
@@ -1398,6 +1399,7 @@ export const expectedExpenseObservable5 = {
     },
   ],
 };
+
 export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: {
@@ -1418,4 +1420,277 @@ export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
 export const unflattenedTransactionDataPersonalCard = {
   ...expectedUnflattendedTxnData3.tx,
   locations: null,
+};
+
+export const newUnflattenedTxn = {
+  tx: {
+    risk_state: null,
+    is_duplicate_expense: null,
+    duplicates: null,
+    id: 'tx053DOHz9pU',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-05-30T01:55:01.776Z'),
+    receipt_required: true,
+    user_can_delete: true,
+    txn_dt: new Date('2023-05-30T01:00:00.000Z'),
+    category: null,
+    amount: 1234,
+    user_amount: 1234,
+    policy_amount: null,
+    admin_amount: null,
+    tax: 101.89,
+    tax_amount: 101.89,
+    matchCCCId: undefined,
+    tax_group_id: 'tgzhpXlC40LK',
+    currency: 'INR',
+    report_id: null,
+    reported_at: null,
+    state: 'COMPLETE',
+    num_files: 0,
+    invoice_number: null,
+    purpose: 'test_term',
+    source: 'WEBAPP',
+    billable: null,
+    orig_amount: null,
+    orig_currency: null,
+    project_id: null,
+    project_name: null,
+    project_code: null,
+    skip_reimbursement: true,
+    creator_id: 'ouX8dwsbLCLv',
+    user_reason_for_duplicate_expenses: null,
+    external_id: null,
+    cost_center_name: null,
+    cost_center_code: null,
+    cost_center_id: null,
+    source_account_id: 'acc5APeygFjRd',
+    transcription_state: null,
+    verification_state: null,
+    physical_bill: null,
+    physical_bill_at: null,
+    policy_state: null,
+    manual_flag: null,
+    policy_flag: true,
+    vendor: 'expensify@thatharmansingh.com - HoneComb Aus',
+    vendor_id: 28824,
+    platform_vendor: null,
+    platform_vendor_id: null,
+    org_category: 'Hotel',
+    sub_category: 'Hotel',
+    fyle_category: null,
+    org_category_code: null,
+    org_category_id: 16572,
+    expense_number: 'E/2023/05/T/324',
+    corporate_credit_card_expense_group_id: null,
+    split_group_id: 'tx053DOHz9pU',
+    split_group_user_amount: 1234,
+    extracted_data: null,
+    transcribed_data: null,
+    user_review_needed: null,
+    mandatory_fields_present: true,
+    distance: null,
+    distance_unit: null,
+    from_dt: null,
+    to_dt: null,
+    num_days: null,
+    mileage_calculated_distance: null,
+    mileage_calculated_amount: null,
+    mileage_vehicle_type: null,
+    mileage_rate: null,
+    mileage_is_round_trip: null,
+    hotel_is_breakfast_provided: false,
+    flight_journey_travel_class: null,
+    flight_return_travel_class: null,
+    train_travel_class: null,
+    bus_travel_class: null,
+    taxi_travel_class: null,
+    per_diem_rate_id: null,
+    activity_policy_pending: null,
+    activity_details: null,
+    locations: [],
+    custom_properties: [
+      {
+        name: 'userlist',
+        value: [],
+      },
+      {
+        name: 'User List',
+        value: [],
+      },
+      {
+        name: 'test',
+        value: '',
+      },
+      {
+        name: 'category2',
+        value: '',
+      },
+      {
+        name: 'test 112',
+        value: null,
+      },
+      {
+        name: 'select all 2',
+        value: null,
+      },
+      {
+        name: 'boolean',
+        value: false,
+      },
+    ],
+    is_implicit_merge_blocked: false,
+    categoryDisplayName: 'Hotel',
+  },
+  ou: {
+    org_name: 'Staging Loaded',
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    employee_id: '',
+    location: 'Mumbai',
+    level: '123',
+    band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
+    rank: 1121212121,
+    business_unit:
+      'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+    department_id: 'dept7HJ9C4wvtX',
+    department: '0000000',
+    title: 'director',
+    mobile: null,
+    sub_department: 'arun',
+    joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
+  },
+  tg: {
+    name: 'Tax on Goods @8.75%',
+    percentage: 0.09,
+  },
+  rp: {
+    purpose: null,
+    approved_at: null,
+    reimbursed_at: null,
+    claim_number: null,
+  },
+  us: {
+    full_name: 'Abhishek Jain',
+    email: 'ajain@fyle.in',
+  },
+  source: {
+    account_type: 'PERSONAL_ACCOUNT',
+    account_id: 'acc5APeygFjRd',
+  },
+  external: {
+    expense_id: null,
+  },
+  is: {
+    test_call: null,
+  },
+  dataUrls: [],
+};
+
+export const unflattenedTxnDataWithReportID = {
+  ...expectedUnflattendedTxnData2,
+  tx: {
+    ...expectedUnflattendedTxnData2.tx,
+    report_id: 'rpGpzBpAxtSn',
+  },
+  ou: {
+    ...expectedUnflattendedTxnData2.ou,
+    level: null,
+  },
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
+};
+
+export const unflattenedTxnDataWithReportID2 = {
+  ...expectedUnflattendedTxnData2,
+  tx: {
+    ...expectedUnflattendedTxnData2.tx,
+    report_id: 'rpGpzBpAxtSn',
+  },
+  ou: {
+    ...expectedUnflattendedTxnData2.ou,
+    level: null,
+  },
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
+};
+
+export const unflattenedTxnDataWithViolationUserReview = {
+  ...expectedUnflattendedTxnData2,
+  tx: {
+    ...expectedUnflattendedTxnData2.tx,
+    tx_policy_amount: 0,
+    user_review_needed: true,
+  },
+  ou: {
+    ...expectedUnflattendedTxnData2.ou,
+    level: null,
+  },
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
+};
+
+export const unflattenedExpenseWithCCCGroupId = {
+  ...unflattenedTxnDataWithViolationUserReview,
+  tx: {
+    ...expectedUnflattendedTxnData2.tx,
+    corporate_credit_card_expense_group_id: 'ccceWauzF1A3oS',
+    report_id: null,
+  },
+};
+
+export const txnWithCCCGroupID = {
+  ...unflattenedTxnData.tx,
+  corporate_credit_card_expense_group_id: 'ccceWauzF1A3oS',
+  report_id: null,
+};
+
+export const unflattenedExpWoProject = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    project_id: null,
+  },
 };

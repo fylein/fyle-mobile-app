@@ -53,6 +53,8 @@ import { TestCases2 } from './add-edit-expense-2.spec';
 import { TestCases3 } from './add-edit-expense-3.spec';
 import { TestCases4 } from './add-edit-expense-4.spec';
 import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
+import { TestCases5 } from './add-edit-expense-5.spec';
+import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -202,7 +204,7 @@ describe('AddEditExpensePage', () => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditExpensePage, MaskNumber, FySelectComponent],
+      declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
       providers: [
         FormBuilder,
@@ -397,4 +399,5 @@ describe('AddEditExpensePage', () => {
   TestCases2(getTestBed);
   TestCases3(getTestBed);
   TestCases4(getTestBed);
+  TestCases5(getTestBed);
 });
