@@ -960,3 +960,16 @@ export const expectedAutoFillCategory2 = {
   sub_category: 'Office supplies',
   updated_at: new Date('2022-11-23T13:11:51.771Z'),
 };
+
+export const TaxiCategory = {
+  code: null,
+  created_at: new Date('2020-03-04T09:51:01.619Z'),
+  displayName: 'Office supplies',
+  enabled: true,
+  fyle_category: 'Taxi',
+  id: 89469,
+  name: 'UBER',
+  org_id: 'orNVthTo2Zyo',
+  sub_category: 'TRAVEL',
+  updated_at: new Date('2022-11-23T13:11:51.771Z'),
+};

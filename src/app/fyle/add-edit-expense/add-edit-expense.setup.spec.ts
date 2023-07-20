@@ -57,6 +57,8 @@ import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select
 import { TestCases5 } from './add-edit-expense-5.spec';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { DependentFieldComponent } from 'src/app/shared/components/dependent-fields/dependent-field/dependent-field.component';
+import { TestCases6 } from './add-edit-expense-6.spec';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -204,6 +206,7 @@ describe('AddEditExpensePage', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
+    const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
@@ -390,6 +393,10 @@ describe('AddEditExpensePage', () => {
           provide: Platform,
           useValue: platformSpy,
         },
+        {
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     });
@@ -402,4 +409,5 @@ describe('AddEditExpensePage', () => {
   TestCases3(getTestBed);
   TestCases4(getTestBed);
   TestCases5(getTestBed);
+  TestCases6(getTestBed);
 });

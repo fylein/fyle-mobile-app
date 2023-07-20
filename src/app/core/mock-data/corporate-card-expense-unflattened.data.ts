@@ -49,3 +49,8 @@ export const expectedECccResponse: CCCExpUnflattened[] = [
     },
   },
 ];
+
+export const eCCCData1 = {
+  ...expectedECccResponse[0],
+  flow: 'newCCCFlow',
+};

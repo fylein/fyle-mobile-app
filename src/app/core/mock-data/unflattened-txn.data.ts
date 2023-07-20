@@ -1739,3 +1739,26 @@ export const unflattenedExp2 = {
     },
   ],
 };
+
+export const unflattenedExpWithCCCExpn = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    corporate_credit_card_expense_group_id: 'cccet1B17R8gWZ',
+    txn_dt: new Date('2021-07-29T06:30:00.000Z'),
+    user_amount: 100,
+    policy_amount: 0,
+    currency: 'USD',
+    state: 'DRAFT',
+    id: null,
+    project_id: null,
+    cost_center_id: null,
+  },
+  dataUrls: [
+    {
+      url: 'data-url',
+      type: 'image',
+      thumbnail: 'data-url',
+    },
+  ],
+};

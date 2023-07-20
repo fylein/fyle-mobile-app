@@ -7,19 +7,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
-import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
+import { eCCCData1, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
 import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { dependentCustomFields, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1, splitExpData } from 'src/app/core/mock-data/expense.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgCategoryData, sortedCategory, transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
-import { taxSettingsData } from 'src/app/core/mock-data/org-settings.data';
+import { taxSettingsData, taxSettingsData2 } from 'src/app/core/mock-data/org-settings.data';
 import {
   orgUserSettingsData,
   orgUserSettingsData2,
@@ -47,6 +47,7 @@ import {
   unflattenedExpWithReport,
   unflattenedExpWoCostCenter,
   unflattenedExpWoProject,
+  unflattenedExpenseWithCCCGroupId,
   unflattenedTxnData,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
@@ -869,6 +870,15 @@ export function TestCases5(getTestBed) {
       });
     });
 
+    it('initCCCTxn(): should initialize ccc details', () => {
+      activatedRoute.snapshot.params.bankTxn = JSON.stringify(eCCCData1);
+      fixture.detectChanges();
+
+      component.initCCCTxn();
+      expect(component.showSelectedTransaction).toBeTrue();
+      expect(component.isCreatedFromCCC).toBeTrue();
+    });
+
     describe('ionViewWillEnter():', () => {
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
@@ -884,6 +894,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupSelectedCostCenterObservable');
         spyOn(component, 'getCCCpaymentMode');
         spyOn(component, 'setUpTaxCalculations');
+        spyOn(component, 'initCCCTxn').and.returnValue(null);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
@@ -892,7 +903,7 @@ export function TestCases5(getTestBed) {
         taxGroupService.get.and.returnValue(of(taxGroupData));
         recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
         component.individualProjectIds$ = of([]);
-        component.isIndividualProjectsEnabled$ = of(true);
+        component.isIndividualProjectsEnabled$ = of(false);
         projectsService.getProjectCount.and.returnValue(of(2));
         spyOn(component, 'setupCostCenters');
         storageService.get.and.resolveTo(true);
@@ -920,6 +931,8 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getActionSheetOptions').and.returnValue(of([]));
         spyOn(component, 'getPolicyDetails');
         spyOn(component, 'getDuplicateExpenses');
+
+        activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse);
         fixture.detectChanges();
 
         component.ionViewWillEnter();
@@ -933,6 +946,7 @@ export function TestCases5(getTestBed) {
 
         expect(component.setupSelectedProjectObservable).toHaveBeenCalledTimes(1);
         expect(component.setupSelectedCostCenterObservable).toHaveBeenCalledTimes(1);
+        expect(component.initCCCTxn).toHaveBeenCalledTimes(1);
         expect(component.getCCCpaymentMode).toHaveBeenCalledTimes(1);
         expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
 
@@ -1067,6 +1081,215 @@ export function TestCases5(getTestBed) {
         expect(component.getActionSheetOptions).toHaveBeenCalledTimes(1);
         expect(component.getDuplicateExpenses).toHaveBeenCalledTimes(1);
         expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
+        done();
+      });
+
+      it('should setup class variables for offline mode', (done) => {
+        component.isConnected$ = of(false);
+        component.txnFields$ = of(defaultTxnFieldValuesData2);
+        component.filteredCategories$ = of(transformedOrgCategories);
+        component.etxn$ = of(unflattenedExpenseWithCCCGroupId);
+        activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse[0]);
+        activatedRoute.snapshot.params.id = null;
+        spyOn(component, 'initCCCTxn').and.returnValue(null);
+
+        spyOn(component, 'initSubjectObservables');
+        tokenService.getClusterDomain.and.resolveTo('domain');
+        categoriesService.getSystemCategories.and.returnValue(['Bus', 'Airlines', 'Lodging', 'Train']);
+        categoriesService.getBreakfastSystemCategories.and.returnValue(['Lodging']);
+        reportService.getAutoSubmissionReportName.and.returnValue(of('Jun #23'));
+        spyOn(component, 'setupSelectedProjectObservable');
+        spyOn(component, 'setupSelectedCostCenterObservable');
+        spyOn(component, 'getCCCpaymentMode');
+        spyOn(component, 'setUpTaxCalculations');
+        orgSettingsService.get.and.returnValue(
+          of({ ...orgSettingsData, tax_settings: { ...orgSettingsData.tax_settings, enabled: false } })
+        );
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        spyOn(component, 'setupNetworkWatcher');
+        taxGroupService.get.and.returnValue(of(taxGroupData));
+        recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
+        component.individualProjectIds$ = of([]);
+        component.isIndividualProjectsEnabled$ = of(true);
+        projectsService.getProjectCount.and.returnValue(of(2));
+        spyOn(component, 'setupCostCenters');
+        storageService.get.and.resolveTo(true);
+        spyOn(component, 'setupBalanceFlag');
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
+        spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
+        spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
+        transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
+        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
+        fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
+        fileService.downloadUrl.and.returnValue(of('url'));
+        spyOn(component, 'getReceiptDetails').and.returnValue({
+          type: 'jpeg',
+          thumbnail: 'thumbnail',
+        });
+        spyOn(component, 'getPaymentModes');
+        spyOn(component, 'setupFilteredCategories');
+        spyOn(component, 'setupExpenseFields');
+
+        reportService.getFilteredPendingReports.and.returnValue(of(expectedErpt));
+        recentlyUsedItemsService.getRecentCategories.and.returnValue(of(recentUsedCategoriesRes));
+
+        spyOn(component, 'setupFormInit');
+        spyOn(component, 'setupCustomFields');
+        spyOn(component, 'clearCategoryOnValueChange');
+        spyOn(component, 'getActionSheetOptions').and.returnValue(of([]));
+        spyOn(component, 'getPolicyDetails');
+        spyOn(component, 'getDuplicateExpenses');
+        activatedRoute.snapshot.params.id = null;
+        activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse);
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+
+        expect(component.initSubjectObservables).toHaveBeenCalledTimes(1);
+        expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+
+        expect(categoriesService.getSystemCategories).toHaveBeenCalledTimes(1);
+        expect(categoriesService.getBreakfastSystemCategories).toHaveBeenCalledTimes(1);
+        expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
+
+        expect(component.setupSelectedProjectObservable).toHaveBeenCalledTimes(1);
+        expect(component.setupSelectedCostCenterObservable).toHaveBeenCalledTimes(1);
+        expect(component.initCCCTxn).toHaveBeenCalledTimes(1);
+        expect(component.getCCCpaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
+
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+
+        component.isAdvancesEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.taxGroups$.subscribe((res) => {
+          expect(res).toBeNull();
+        });
+
+        component.taxGroupsOptions$.subscribe((res) => {
+          expect(res).toBeUndefined();
+        });
+
+        expect(component.isCorporateCreditCardEnabled).toBeTrue();
+        expect(component.isNewReportsFlowEnabled).toBeFalse();
+        expect(component.isDraftExpenseEnabled).toBeTrue();
+
+        expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+
+        component.recentlyUsedValues$.subscribe((res) => {
+          expect(res).toBeNull();
+        });
+
+        component.individualProjectIds$.subscribe((res) => {
+          expect(res).toEqual([290054, 316444, 316446, 149230, 316442, 316443]);
+        });
+
+        component.isIndividualProjectsEnabled$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isProjectsVisible$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        expect(projectsService.getProjectCount).toHaveBeenCalledTimes(1);
+        expect(component.setupCostCenters).toHaveBeenCalledTimes(1);
+
+        expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedView');
+        expect(statusService.find).toHaveBeenCalledTimes(1);
+
+        component.isProjectsEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.isSplitExpenseAllowed$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        expect(component.setupBalanceFlag).toHaveBeenCalledTimes(1);
+
+        component.paymentAccount$.subscribe((res) => {
+          expect(res).toEqual(multiplePaymentModesData[1]);
+        });
+
+        expect(component.getPaymentModes).toHaveBeenCalledTimes(1);
+
+        expect(component.getNewExpenseObservable).toHaveBeenCalledTimes(1);
+        expect(component.getEditExpenseObservable).toHaveBeenCalledTimes(1);
+
+        component.isCCCAccountSelected$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.attachments$.subscribe((res) => {
+          expect(res).toEqual(expectedFileData1);
+        });
+
+        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(undefined);
+        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
+        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
+
+        component.flightJourneyTravelClassOptions$.subscribe((res) => {
+          expect(res).toEqual([
+            {
+              value: 'BUSINESS',
+              label: 'BUSINESS',
+            },
+          ]);
+        });
+
+        expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.setupExpenseFields).toHaveBeenCalledTimes(1);
+
+        component.taxSettings$.subscribe((res) => {
+          expect(res).toEqual(taxSettingsData2);
+        });
+
+        component.reports$.subscribe((res) => {
+          expect(res).toEqual(reportOptionsData3);
+        });
+
+        component.recentlyUsedCategories$.subscribe((res) => {
+          expect(res).toEqual(recentUsedCategoriesRes);
+        });
+
+        component.transactionInReport$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isNotReimbursable$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isAmountCapped$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isAmountDisabled$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isCriticalPolicyViolated$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+        expect(recentlyUsedItemsService.getRecentCategories).toHaveBeenCalledTimes(1);
+        expect(component.setupFormInit).toHaveBeenCalledTimes(1);
+        expect(component.setupCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.clearCategoryOnValueChange).toHaveBeenCalledTimes(1);
+        expect(component.getActionSheetOptions).toHaveBeenCalledTimes(1);
+        expect(component.getDuplicateExpenses).toHaveBeenCalledTimes(1);
+        expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
+
         done();
       });
     });

@@ -1233,3 +1233,8 @@ export const taxSettingsData = {
     },
   ],
 };
+
+export const taxSettingsData2 = {
+  ...taxSettingsData,
+  enabled: false,
+};

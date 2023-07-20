@@ -1,22 +1,28 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
+import { TitleCasePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import * as dayjs from 'dayjs';
+import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
 import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  Subscription,
   combineLatest,
   concat,
   forkJoin,
   from,
   iif,
-  Observable,
-  of,
-  BehaviorSubject,
-  throwError,
-  Subscription,
   noop,
-  Subject,
+  of,
+  throwError,
 } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TitleCasePipe } from '@angular/common';
 import {
   catchError,
   concatMap,
@@ -34,85 +40,72 @@ import {
   timeout,
   withLatestFrom,
 } from 'rxjs/operators';
-import { AccountsService } from 'src/app/core/services/accounts.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CategoriesService } from 'src/app/core/services/categories.service';
-import { ProjectsService } from 'src/app/core/services/projects.service';
-import { DateService } from 'src/app/core/services/date.service';
-import * as dayjs from 'dayjs';
-import { ReportService } from 'src/app/core/services/report.service';
-import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { PolicyService } from 'src/app/core/services/policy.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
-import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { StatusService } from 'src/app/core/services/status.service';
-import { FileService } from 'src/app/core/services/file.service';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
-import { TrackingService } from '../../core/services/tracking.service';
-import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
-import { TokenService } from 'src/app/core/services/token.service';
-import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
-import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
-import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
-import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { Currency } from 'src/app/core/models/currency.model';
-import { DomSanitizer } from '@angular/platform-browser';
-import { FileObject } from 'src/app/core/models/file-obj.model';
-import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { TaxGroup } from 'src/app/core/models/tax-group.model';
-import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
-import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
-import { Expense } from 'src/app/core/models/expense.model';
-import { AccountOption } from 'src/app/core/models/account-option.model';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
-import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { TaxGroupService } from 'src/app/core/services/tax-group.service';
+import { AccountOption } from 'src/app/core/models/account-option.model';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
+import { Currency } from 'src/app/core/models/currency.model';
+import { Expense } from 'src/app/core/models/expense.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { TaxGroup } from 'src/app/core/models/tax-group.model';
+import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { StorageService } from 'src/app/core/services/storage.service';
-import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
-import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
+import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
+import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
+import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { AccountsService } from 'src/app/core/services/accounts.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
+import { DateService } from 'src/app/core/services/date.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { MAX_FILE_SIZE } from 'src/app/core/constants';
-import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { StatusService } from 'src/app/core/services/status.service';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { TaxGroupService } from 'src/app/core/services/tax-group.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -409,7 +402,8 @@ export class AddEditExpensePage implements OnInit {
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService,
     private storageService: StorageService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private platformHandlerService: PlatformHandlerService
   ) {}
 
   get isExpandedView() {
@@ -1962,8 +1956,8 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  setupExpenseFields() {
-    const txnFieldsMap$ = this.fg.valueChanges.pipe(
+  generateTxnFieldsMap() {
+    return this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue) =>
         this.expenseFieldsService.getAllMap().pipe(
@@ -1993,6 +1987,76 @@ export class AddEditExpensePage implements OnInit {
         )
       )
     );
+  }
+
+  updateFormForExpenseFields(txnFieldsMap$) {
+    this.etxn$
+      .pipe(
+        switchMap(() => txnFieldsMap$),
+        map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields))
+      )
+      .subscribe((defaultValues) => {
+        this.billableDefaultValue = defaultValues.billable;
+        const keyToControlMap: {
+          [id: string]: AbstractControl;
+        } = {
+          purpose: this.fg.controls.purpose,
+          txn_dt: this.fg.controls.dateOfSpend,
+          vendor_id: this.fg.controls.vendor_id,
+          cost_center_id: this.fg.controls.costCenter,
+          from_dt: this.fg.controls.from_dt,
+          to_dt: this.fg.controls.to_dt,
+          location1: this.fg.controls.location_1,
+          location2: this.fg.controls.location_2,
+          distance: this.fg.controls.distance,
+          distance_unit: this.fg.controls.distance_unit,
+          flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
+          flight_return_travel_class: this.fg.controls.flight_return_travel_class,
+          train_travel_class: this.fg.controls.train_travel_class,
+          bus_travel_class: this.fg.controls.bus_travel_class,
+          billable: this.fg.controls.billable,
+          tax_group_id: this.fg.controls.tax_group,
+        };
+
+        for (const defaultValueColumn in defaultValues) {
+          if (defaultValues.hasOwnProperty(defaultValueColumn)) {
+            const control = keyToControlMap[defaultValueColumn];
+
+            if (
+              !['vendor_id', 'billable', 'tax_group_id'].includes(defaultValueColumn) &&
+              !control.value &&
+              !control.touched
+            ) {
+              control.patchValue(defaultValues[defaultValueColumn]);
+            } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
+              control.patchValue({
+                display_name: defaultValues[defaultValueColumn],
+              });
+            } else if (
+              defaultValueColumn === 'billable' &&
+              this.fg.controls.project.value &&
+              (control.value === null || control.value === undefined) &&
+              !control.touched
+            ) {
+              control.patchValue(defaultValues[defaultValueColumn]);
+            } else if (
+              defaultValueColumn === 'tax_group_id' &&
+              !control.value &&
+              !control.touched &&
+              control.value !== ''
+            ) {
+              this.taxGroups$.subscribe((taxGroups) => {
+                const tg = taxGroups.find((tg) => (tg.name = defaultValues[defaultValueColumn]));
+                control.patchValue(tg);
+              });
+            }
+          }
+        }
+      });
+  }
+
+  setupExpenseFields() {
+    const txnFieldsMap$ = this.generateTxnFieldsMap();
 
     this.txnFields$ = txnFieldsMap$.pipe(
       map((expenseFieldsMap: any) => {
@@ -2159,68 +2223,7 @@ export class AddEditExpensePage implements OnInit {
         this.fg.updateValueAndValidity();
       });
 
-    this.etxn$
-      .pipe(
-        switchMap(() => txnFieldsMap$),
-        map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields))
-      )
-      .subscribe((defaultValues) => {
-        this.billableDefaultValue = defaultValues.billable;
-        const keyToControlMap: {
-          [id: string]: AbstractControl;
-        } = {
-          purpose: this.fg.controls.purpose,
-          txn_dt: this.fg.controls.dateOfSpend,
-          vendor_id: this.fg.controls.vendor_id,
-          cost_center_id: this.fg.controls.costCenter,
-          from_dt: this.fg.controls.from_dt,
-          to_dt: this.fg.controls.to_dt,
-          location1: this.fg.controls.location_1,
-          location2: this.fg.controls.location_2,
-          distance: this.fg.controls.distance,
-          distance_unit: this.fg.controls.distance_unit,
-          flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
-          flight_return_travel_class: this.fg.controls.flight_return_travel_class,
-          train_travel_class: this.fg.controls.train_travel_class,
-          bus_travel_class: this.fg.controls.bus_travel_class,
-          billable: this.fg.controls.billable,
-          tax_group_id: this.fg.controls.tax_group,
-        };
-
-        for (const defaultValueColumn in defaultValues) {
-          if (defaultValues.hasOwnProperty(defaultValueColumn)) {
-            const control = keyToControlMap[defaultValueColumn];
-            if (
-              !['vendor_id', 'billable', 'tax_group_id'].includes(defaultValueColumn) &&
-              !control.value &&
-              !control.touched
-            ) {
-              control.patchValue(defaultValues[defaultValueColumn]);
-            } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
-              control.patchValue({
-                display_name: defaultValues[defaultValueColumn],
-              });
-            } else if (
-              defaultValueColumn === 'billable' &&
-              this.fg.controls.project.value &&
-              (control.value === null || control.value === undefined) &&
-              !control.touched
-            ) {
-              control.patchValue(defaultValues[defaultValueColumn]);
-            } else if (
-              defaultValueColumn === 'tax_group_id' &&
-              !control.value &&
-              !control.touched &&
-              control.value !== ''
-            ) {
-              this.taxGroups$.subscribe((taxGroups) => {
-                const tg = taxGroups.find((tg) => (tg.name = defaultValues[defaultValueColumn]));
-                control.patchValue(tg);
-              });
-            }
-          }
-        }
-      });
+    this.updateFormForExpenseFields(txnFieldsMap$);
   }
 
   setupFilteredCategories(activeCategories$: Observable<any>) {
@@ -2395,12 +2398,11 @@ export class AddEditExpensePage implements OnInit {
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject(null);
     this.selectedCostCenter$ = new BehaviorSubject(null);
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-      BackButtonActionPriority.MEDIUM,
-      () => {
-        this.showClosePopup();
-      }
-    );
+    const fn = () => {
+      this.showClosePopup();
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, fn);
   }
 
   setupSelectedProjectObservable() {
@@ -2440,6 +2442,82 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     });
+  }
+
+  initCCCTxn() {
+    const bankTxn =
+      this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
+    this.showSelectedTransaction = true;
+    this.selectedCCCTransaction = bankTxn.ccce;
+    let cccAccountNumber;
+    if (bankTxn.flow && bankTxn.flow === 'newCCCFlow') {
+      cccAccountNumber = this.selectedCCCTransaction.corporate_credit_card_account_number;
+    }
+    this.cardEndingDigits = cccAccountNumber && cccAccountNumber.slice(-4);
+    this.selectedCCCTransaction.corporate_credit_card_account_number = cccAccountNumber;
+    this.isCreatedFromCCC = true;
+  }
+
+  initSplitTxn(orgSettings$: Observable<OrgSettings>) {
+    orgSettings$
+      .pipe(
+        switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
+        filter(
+          ({ orgSettings, etxn }) =>
+            (orgSettings.corporate_credit_card_settings?.allowed &&
+              orgSettings.corporate_credit_card_settings?.enabled) ||
+            etxn.tx.corporate_credit_card_expense_group_id
+        ),
+        filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
+        switchMap(({ etxn }) =>
+          this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(
+            map((splitExpenses) => ({
+              etxn,
+              splitExpenses,
+            }))
+          )
+        )
+      )
+      .subscribe(({ etxn, splitExpenses }) => {
+        if (splitExpenses && splitExpenses.length > 0) {
+          this.isSplitExpensesPresent = splitExpenses.length > 1;
+          if (this.isSplitExpensesPresent) {
+            this.alreadyApprovedExpenses = splitExpenses.filter(
+              (txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1
+            );
+
+            this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
+          }
+        }
+
+        this.corporateCreditCardExpenseService
+          .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
+          .subscribe((matchedExpense: CCCExpUnflattened[]) => {
+            this.matchedCCCTransaction = matchedExpense[0].ccce;
+            this.selectedCCCTransaction = this.matchedCCCTransaction;
+            this.cardEndingDigits = (
+              this.selectedCCCTransaction.cxorporate_credit_card_account_number
+                ? this.selectedCCCTransaction.corporate_credit_card_account_number
+                : this.selectedCCCTransaction.card_or_account_number
+            ).slice(-4);
+
+            etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+
+            const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
+
+            this.selectedCCCTransaction.displayObject =
+              txnDt +
+              ' - ' +
+              (this.selectedCCCTransaction.vendor
+                ? this.selectedCCCTransaction.vendor
+                : this.selectedCCCTransaction.description) +
+              this.selectedCCCTransaction.amount;
+
+            if (this.selectedCCCTransaction) {
+              this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
+            }
+          });
+      });
   }
 
   ionViewWillEnter() {
@@ -2492,17 +2570,7 @@ export class AddEditExpensePage implements OnInit {
     this.setupSelectedCostCenterObservable();
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
-      const bankTxn =
-        this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-      this.showSelectedTransaction = true;
-      this.selectedCCCTransaction = bankTxn.ccce;
-      let cccAccountNumber;
-      if (bankTxn.flow && bankTxn.flow === 'newCCCFlow') {
-        cccAccountNumber = this.selectedCCCTransaction.corporate_credit_card_account_number;
-      }
-      this.cardEndingDigits = cccAccountNumber && cccAccountNumber.slice(-4);
-      this.selectedCCCTransaction.corporate_credit_card_account_number = cccAccountNumber;
-      this.isCreatedFromCCC = true;
+      this.initCCCTxn();
     }
 
     this.getCCCpaymentMode();
@@ -2679,65 +2747,7 @@ export class AddEditExpensePage implements OnInit {
     // Show payment mode if it is not a CCC expense
     this.showPaymentMode = !this.isCccExpense;
 
-    orgSettings$
-      .pipe(
-        switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
-        filter(
-          ({ orgSettings, etxn }) =>
-            (orgSettings.corporate_credit_card_settings?.allowed &&
-              orgSettings.corporate_credit_card_settings?.enabled) ||
-            etxn.tx.corporate_credit_card_expense_group_id
-        ),
-        filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
-        switchMap(({ etxn }) =>
-          this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(
-            map((splitExpenses) => ({
-              etxn,
-              splitExpenses,
-            }))
-          )
-        )
-      )
-      .subscribe(({ etxn, splitExpenses }) => {
-        if (splitExpenses && splitExpenses.length > 0) {
-          this.isSplitExpensesPresent = splitExpenses.length > 1;
-          if (this.isSplitExpensesPresent) {
-            this.alreadyApprovedExpenses = splitExpenses.filter(
-              (txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1
-            );
-
-            this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
-          }
-        }
-
-        this.corporateCreditCardExpenseService
-          .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
-          .subscribe((matchedExpense: CCCExpUnflattened[]) => {
-            this.matchedCCCTransaction = matchedExpense[0].ccce;
-            this.selectedCCCTransaction = this.matchedCCCTransaction;
-            this.cardEndingDigits = (
-              this.selectedCCCTransaction.cxorporate_credit_card_account_number
-                ? this.selectedCCCTransaction.corporate_credit_card_account_number
-                : this.selectedCCCTransaction.card_or_account_number
-            ).slice(-4);
-
-            etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
-
-            const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
-
-            this.selectedCCCTransaction.displayObject =
-              txnDt +
-              ' - ' +
-              (this.selectedCCCTransaction.vendor
-                ? this.selectedCCCTransaction.vendor
-                : this.selectedCCCTransaction.description) +
-              this.selectedCCCTransaction.amount;
-
-            if (this.selectedCCCTransaction) {
-              this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
-            }
-          });
-      });
+    this.initSplitTxn(orgSettings$);
 
     this.setupFilteredCategories(activeCategories$);
 

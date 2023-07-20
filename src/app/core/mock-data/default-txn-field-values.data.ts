@@ -12,3 +12,10 @@ export const defaultTxnFieldValuesData2 = {
     options: ['BUSINESS'],
   },
 };
+
+export const defaultTxnFieldValuesData3: Partial<DefaultTxnFieldValues> = {
+  purpose: 'test_term',
+  tax_group_id: 'GST',
+  vendor_id: 'vendor',
+  billable: true,
+};
