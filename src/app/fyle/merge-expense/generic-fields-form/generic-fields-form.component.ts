@@ -125,6 +125,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
     this.genericFieldsFormGroup.controls.receipt_ids.valueChanges.subscribe((receiptIds) => {
       this.receiptChanged.emit(receiptIds);
     });
+    // comments
 
     this.genericFieldsFormGroup.valueChanges.subscribe((formControlNames) => {
       const touchedItems = [];
