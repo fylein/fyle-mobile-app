@@ -34,5 +34,5 @@ jobs:
       - name: Run ESLint on your changes only
         env:
           ESLINT_PLUGIN_DIFF_COMMIT: ${{ github.event.pull_request.base.ref }}
-        run: npx --no-install eslint ${{ steps.changed-files.outputs.all_changed_files }} .
+        run: npx --no-install eslint ${{ steps.changed-files.outputs.all_changed_files }}
       
