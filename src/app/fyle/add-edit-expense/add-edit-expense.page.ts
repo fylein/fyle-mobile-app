@@ -1555,7 +1555,7 @@ export class AddEditExpensePage implements OnInit {
             (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))
           ) {
             const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
-
+            // test comment
             if (autoFillProject) {
               project = autoFillProject;
               this.presetProjectId = project.project_id;
