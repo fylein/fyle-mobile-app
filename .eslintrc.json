@@ -4,7 +4,8 @@
     "projects/**/*",
     "zone-flags.ts",
     "test.ts",
-    "main.ts"
+    "main.ts",
+    "*.spec.ts"
   ],
   "plugins": ["max-params-no-constructor"],
   "overrides": [

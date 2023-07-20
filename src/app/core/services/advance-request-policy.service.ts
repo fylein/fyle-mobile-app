@@ -25,7 +25,7 @@ export class AdvanceRequestPolicyService {
       .map((desiredState) => desiredState.description);
   }
 
-  servicePost(url: string, data: AdvanceRequests) {
-    return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/advance_requests' + url, data);
+  servicePost<T>(url: string, data: AdvanceRequests): Observable<T> {
+    return this.httpClient.post<T>(this.ROOT_ENDPOINT + '/policy/advance_requests' + url, data);
   }
 }

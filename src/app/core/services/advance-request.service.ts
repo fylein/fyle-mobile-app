@@ -240,7 +240,7 @@ export class AdvanceRequestService {
     );
   }
 
-  testPolicy(advanceRequest: AdvanceRequests): Observable<any> {
+  testPolicy(advanceRequest: AdvanceRequests): Observable<PolicyViolationCheck> {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         if (advanceRequest.created_at) {
@@ -249,7 +249,7 @@ export class AdvanceRequestService {
             orgUserSettings.locale.offset
           );
         }
-        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest);
+        return this.advanceRequestPolicyService.servicePost<PolicyViolationCheck>('/policy_check/test', advanceRequest);
       })
     );
   }
@@ -383,7 +383,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<any> {
+  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<Partial<StatsDimensionResponse[]>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
       map((res) => res.data)
