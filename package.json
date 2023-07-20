@@ -76,6 +76,7 @@
     "cordova-plugin-telerik-imagepicker": "^2.3.6",
     "dayjs": "^1.11.7",
     "dotenv": "^16.0.1",
+    "eslint-plugin-diff": "^2.0.1",
     "hammerjs": "^2.0.8",
     "heic2any": "^0.0.3",
     "jetifier": "^2.0.0",

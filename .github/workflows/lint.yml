@@ -26,9 +26,12 @@ jobs:
       # ESLint and Prettier must be in `package.json`
       - name: Install dependencies
         run: npm install --save-dev --legacy-peer-deps
+      
+      - name: Fetch the base branch, so we can use `git diff`
+        run: git fetch origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
 
-      - name: Run linters
-        uses: wearerequired/lint-action@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          eslint: true
+      - name: Run ESLint on your changes only
+        env:
+          ESLINT_PLUGIN_DIFF_COMMIT: ${{ github.event.pull_request.base.ref }}
+        run: npx --no-install eslint --ext .js,.jsx,.ts,.tsx .
+
