@@ -7,26 +7,15 @@ on:
     types: [opened, synchronize, edited]
 
 jobs:
-  run-linters:
-    name: Run linters
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          # Make sure the actual branch is checked out when running on pull requests
-          ref: ${{ github.head_ref }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: 16
-
-      # ESLint and Prettier must be in `package.json`
-      - name: Install dependencies
-        run: npm install --save-dev --legacy-peer-deps
-
-      - name: Run linters
-        run: npm run lint:diff
-        
+      - uses: actions/checkout@v3
+      - name: Install modules
+        run: npm install
+      - name: Fetch the base branch, so we can use `git diff`
+        run: git fetch origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
+      - name: Run ESLint on your changes only
+        env:
+          ESLINT_PLUGIN_DIFF_COMMIT: ${{ github.event.pull_request.base.ref }}
+        run: npx --no-install eslint --ext .js,.jsx,.ts,.tsx .

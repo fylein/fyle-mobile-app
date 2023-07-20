@@ -15,7 +15,7 @@
     "postinstall": "npx jetify",
     "format:check": "prettier --write ./src",
     "prepare": "husky install",
-    "lint:diff": "eslint -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB HEAD | grep  -E \"(.js$|.ts$|.tsx$)\")"
+    "lint:diff": "eslint -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/master | grep  -E \"(.js$|.ts$|.tsx$)\")"
   },
   "resolutions": {
     "webpack": "^5.0.0"
