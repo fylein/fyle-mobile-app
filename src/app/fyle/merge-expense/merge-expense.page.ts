@@ -185,6 +185,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     this.mergeExpensesService.generateReceiptOptions(this.expenses).subscribe((receiptOptions) => {
       this.receiptOptions = receiptOptions;
     });
+    // test commit
 
     this.amountOptionsData$ = this.mergeExpensesService.generateAmountOptions(this.expenses).pipe(shareReplay(1));
 
