@@ -12,7 +12,6 @@ import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';
 import { FileObject } from '../models/file-obj.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
-import { FormControl } from '@angular/forms';
 import { DateService } from './date.service';
 import { AccountType } from '../enums/account-type.enum';
 import { TaxGroupService } from './tax-group.service';
@@ -22,22 +21,11 @@ import { CustomProperty } from '../models/custom-properties.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { MergeExpensesOption } from '../models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from '../models/merge-expenses-options-data.model';
-
-type CustomInputs = Partial<{
-  control: FormControl;
-  id: number;
-  mandatory: boolean;
-  name: string;
-  options: string[];
-  placeholder: string;
-  prefix: string;
-  type: string;
-  value: string;
-}>;
-
-type mergeFormValues = {
-  [key: string]: any;
-};
+import { GeneratedFormProperties } from '../models/generated-form-properties.model';
+import { CardTransactionsConfig } from '../models/card-transactions-config.model';
+import { Location } from '../models/location.model';
+import { CombinedOptions } from '../models/combined-options.model';
+import { DependentFieldsMapping } from '../models/dependent-field-mapping.model';
 
 @Injectable({
   providedIn: 'root',
@@ -55,7 +43,11 @@ export class MergeExpensesService {
     private taxGroupService: TaxGroupService
   ) {}
 
-  mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields: mergeFormValues): Observable<string> {
+  mergeExpenses(
+    sourceTxnIds: string[],
+    targetTxnId: string,
+    targetTxnFields: GeneratedFormProperties
+  ): Observable<string> {
     return this.apiService.post('/transactions/merge', {
       source_txn_ids: sourceTxnIds,
       target_txn_id: targetTxnId,
@@ -117,7 +109,7 @@ export class MergeExpensesService {
   getAttachements(txnID: string): Observable<FileObject[]> {
     return this.fileService.findByTransactionId(txnID).pipe(
       switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: any) =>
+      concatMap((fileObj: FileObject) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
@@ -128,11 +120,11 @@ export class MergeExpensesService {
           })
         )
       ),
-      reduce((acc, curr) => acc.concat(curr), [])
+      reduce((acc: FileObject[], curr) => acc.concat(curr), [])
     );
   }
 
-  getCorporateCardTransactions(expenses: Expense[]): Observable<CorporateCardExpense[]> {
+  getCorporateCardTransactions(expenses: Expense[]): Observable<CorporateCardExpense[] | []> {
     return this.customInputsService.getAll(true).pipe(
       switchMap(() => {
         const CCCGroupIds = expenses.map((expense) => expense?.tx_corporate_credit_card_expense_group_id);
@@ -141,7 +133,7 @@ export class MergeExpensesService {
           const queryParams = {
             group_id: ['in.(' + CCCGroupIds + ')'],
           };
-          const params: any = {};
+          const params: Partial<CardTransactionsConfig> = {};
           params.queryParams = queryParams;
           params.offset = 0;
           params.limit = 1;
@@ -155,7 +147,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateExpenseToKeepOptions(expenses: Expense[]): Observable<MergeExpensesOption[]> {
+  generateExpenseToKeepOptions(expenses: Expense[]): Observable<MergeExpensesOption<string>[]> {
     return from(expenses).pipe(
       map((expense) => {
         let vendorOrCategory = '';
@@ -183,7 +175,7 @@ export class MergeExpensesService {
           value: expense.tx_id,
         };
       }),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
@@ -191,24 +183,24 @@ export class MergeExpensesService {
     );
   }
 
-  generateReceiptOptions(expenses: Expense[]): Observable<MergeExpensesOption[]> {
+  generateReceiptOptions(expenses: Expense[]): Observable<MergeExpensesOption<string>[]> {
     return from(expenses).pipe(
       map((expense, index) => ({
         label: `Receipt From Expense ${index + 1} `,
         value: expense.tx_id,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, [])
     );
   }
 
-  generateAmountOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateAmountOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       map((expense) => {
         const isForeignAmountPresent = expense.tx_orig_currency && expense.tx_orig_amount;
-        let formatedlabel;
+        let formatedlabel: string;
         if (isForeignAmountPresent) {
           formatedlabel =
             expense.tx_orig_currency +
@@ -230,11 +222,11 @@ export class MergeExpensesService {
           value: expense.tx_id,
         };
       }),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => {
+      map((options: MergeExpensesOption<string>[]) => {
         const optionLabels = options.map((option) => option.label);
         return {
           options,
@@ -244,18 +236,18 @@ export class MergeExpensesService {
     );
   }
 
-  generateDateOfSpendOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateDateOfSpendOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<Date>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_txn_dt !== null),
       map((expense) => ({
         label: dayjs(expense.tx_txn_dt).format('MMM DD, YYYY'),
         value: expense.tx_txn_dt,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<Date>[], curr) => {
         acc.push(curr);
         return acc;
-      }, []),
-      map((options: MergeExpensesOption[]) => {
+      }, [] as MergeExpensesOption<Date>[]),
+      map((options: MergeExpensesOption<Date>[]) => {
         const optionValues = options.map((option) => dayjs(option.value).format('YYYY-MM-DD'));
         return {
           options,
@@ -265,64 +257,64 @@ export class MergeExpensesService {
     );
   }
 
-  generatePaymentModeOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generatePaymentModeOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       map((expense) => ({
         label: expense.source_account_type,
         value: expense.source_account_type,
       })),
       map((option) => this.formatPaymentModeOptions(option)),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
     );
   }
 
-  generateVendorOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateVendorOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
-      filter((expense) => expense.tx_vendor),
+      filter((expense) => !!expense.tx_vendor),
       map((expense) => ({
         label: expense.tx_vendor?.toString(),
         value: expense.tx_vendor,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
     );
   }
 
-  generateProjectOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateProjectOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
-      filter((expense) => expense.tx_project_id),
+      filter((expense) => !!expense.tx_project_id),
       map((expense) => ({
-        label: expense.tx_project_id,
+        label: expense.tx_project_id?.toString(),
         value: expense.tx_project_id,
       })),
       mergeMap((option) => this.formatProjectOptions(option)),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<number>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options))
     );
   }
 
-  generateCategoryOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateCategoryOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       map((expense) => ({
         label: '',
         value: expense.tx_org_category_id,
       })),
       mergeMap((option) => this.formatCategoryOption(option)),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<number>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => {
+      map((options: MergeExpensesOption<number>[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options: this.removeUnspecified(options),
@@ -332,7 +324,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateTaxGroupOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateTaxGroupOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_tax_group_id !== null),
       map((expense) => ({
@@ -340,71 +332,71 @@ export class MergeExpensesService {
         value: expense.tx_tax_group_id,
       })),
       mergeMap((option) => this.formatTaxGroupOption(option)),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
     );
   }
 
-  generateTaxAmountOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateTaxAmountOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_tax !== null),
       map((expense) => ({
         label: expense.tx_tax.toString(),
         value: expense.tx_tax,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<number>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options))
     );
   }
 
-  generateCostCenterOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateCostCenterOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_cost_center_name !== null),
       map((expense) => ({
         label: expense.tx_cost_center_name.toString(),
         value: expense.tx_cost_center_id,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<number>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options))
     );
   }
 
-  generatePurposeOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generatePurposeOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_purpose !== null),
       map((expense) => ({
         label: expense.tx_purpose.toString(),
         value: expense.tx_purpose,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
     );
   }
 
-  generateLocationOptions(expenses: Expense[], locationIndex: number): Observable<MergeExpensesOptionsData> {
+  generateLocationOptions(expenses: Expense[], locationIndex: number): Observable<MergeExpensesOptionsData<Location>> {
     return from(expenses).pipe(
-      filter((expense) => expense.tx_locations[locationIndex]),
+      filter((expense) => !!expense.tx_locations[locationIndex]),
       map((expense) => ({
         label: expense.tx_locations[locationIndex]?.formatted_address,
         value: expense.tx_locations[locationIndex],
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<Location>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => {
+      map((options: MergeExpensesOption<Location>[]) => {
         const optionLabels = options.map((option) => option.label);
         return {
           options,
@@ -414,18 +406,18 @@ export class MergeExpensesService {
     );
   }
 
-  generateOnwardDateOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateOnwardDateOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<Date>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_from_dt !== null),
       map((expense) => ({
         label: dayjs(expense.tx_from_dt).format('MMM DD, YYYY'),
         value: expense.tx_from_dt,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<Date>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => {
+      map((options: MergeExpensesOption<Date>[]) => {
         const optionValues = options.map((option) => dayjs(option.value).format('YYYY-MM-DD'));
         return {
           options,
@@ -435,18 +427,18 @@ export class MergeExpensesService {
     );
   }
 
-  generateReturnDateOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateReturnDateOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<Date>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_to_dt !== null),
       map((expense) => ({
         label: dayjs(expense.tx_to_dt).format('MMM DD, YYYY'),
         value: expense.tx_to_dt,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<Date>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => {
+      map((options: MergeExpensesOption<Date>[]) => {
         const optionValues = options.map((option) => dayjs(option.value).format('YYYY-MM-DD'));
         return {
           options,
@@ -456,108 +448,108 @@ export class MergeExpensesService {
     );
   }
 
-  generateFlightJourneyTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateFlightJourneyTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_flight_journey_travel_class !== null),
       map((expense) => ({
         label: expense.tx_flight_journey_travel_class.toString(),
         value: expense.tx_flight_journey_travel_class,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
     );
   }
 
-  generateFlightReturnTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateFlightReturnTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_flight_return_travel_class !== null),
       map((expense) => ({
         label: expense.tx_flight_return_travel_class.toString(),
         value: expense.tx_flight_return_travel_class,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
     );
   }
 
-  generateTrainTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateTrainTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_train_travel_class !== null),
       map((expense) => ({
         label: expense.tx_train_travel_class.toString(),
         value: expense.tx_train_travel_class,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
     );
   }
 
-  generateBusTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateBusTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_bus_travel_class !== null),
       map((expense) => ({
         label: expense.tx_bus_travel_class.toString(),
         value: expense.tx_bus_travel_class,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
     );
   }
 
-  generateDistanceOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateDistanceOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_distance !== null),
       map((expense) => ({
         label: expense.tx_distance.toString(),
         value: expense.tx_distance,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<number>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<number>[]) => this.formatOptions(options))
     );
   }
 
-  generateDistanceUnitOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateDistanceUnitOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_distance_unit !== null),
       map((expense) => ({
         label: expense.tx_distance_unit.toString(),
         value: expense.tx_distance_unit,
       })),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<string>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<string>[]) => this.formatOptions(options))
     );
   }
 
-  generateBillableOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData> {
+  generateBillableOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<boolean>> {
     return from(expenses).pipe(
       map((expense) => ({
         label: expense.tx_billable.toString(),
         value: expense.tx_billable,
       })),
       map((option) => this.formatBillableOptions(option)),
-      reduce((acc, curr) => {
+      reduce((acc: MergeExpensesOption<boolean>[], curr) => {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: MergeExpensesOption[]) => this.formatOptions(options))
+      map((options: MergeExpensesOption<boolean>[]) => this.formatOptions(options))
     );
   }
 
@@ -570,7 +562,7 @@ export class MergeExpensesService {
     );
   }
 
-  getCustomInputValues(expenses: Expense[]): TxnCustomProperties[] {
+  getCustomInputValues(expenses: Expense[]): TxnCustomProperties[][] {
     //Create a copy so that we don't modify the expense object
     const expensesCopy = cloneDeep(expenses);
     return expensesCopy
@@ -589,7 +581,7 @@ export class MergeExpensesService {
   ): {
     [fieldId: number]: CustomProperty<string>[];
   } {
-    const dependentFieldsMapping = {};
+    const dependentFieldsMapping: DependentFieldsMapping = {};
     expenses.forEach((expense) => {
       const txDependentFields: CustomProperty<string>[] = dependentFields
         ?.map((dependentField: TxnCustomProperties) =>
@@ -617,11 +609,11 @@ export class MergeExpensesService {
     return dependentFieldsMapping;
   }
 
-  formatCustomInputOptions(combinedCustomProperties: MergeExpensesOptionsData[]) {
+  formatCustomInputOptions(combinedCustomProperties: MergeExpensesOptionsData<string>[]): CombinedOptions {
     const customProperty = this.formatCustomInputOptionsByType(combinedCustomProperties);
     return customProperty
       .map((field) => {
-        let options;
+        let options: MergeExpensesOption<string>[];
         if (field.options) {
           options = field.options.filter((option) => option !== null && option !== '');
           const values = options.map((item) => item.label);
@@ -635,7 +627,7 @@ export class MergeExpensesService {
         }
         return field;
       })
-      .reduce((obj, field) => {
+      .reduce((obj: CombinedOptions, field: MergeExpensesOptionsData<string>) => {
         obj[field.name] = field;
         return obj;
       }, {});
@@ -667,13 +659,15 @@ export class MergeExpensesService {
     return dayjs(value).format('MMM DD, YYYY');
   }
 
-  private formatCustomInputOptionsByType(combinedCustomProperties: MergeExpensesOptionsData[]) {
-    const customProperty = [];
+  private formatCustomInputOptionsByType(
+    combinedCustomProperties: MergeExpensesOptionsData<string>[]
+  ): MergeExpensesOptionsData<string>[] {
+    const customProperty: MergeExpensesOptionsData<string>[] = [];
 
     combinedCustomProperties.forEach((field) => {
       const existing = customProperty.find((option) => option.name === field.name);
       if (field.value) {
-        let formatedlabel;
+        let formatedlabel: string;
         const isValidDate = this.dateService.isValidDate(field.value);
         if (isValidDate) {
           formatedlabel = this.setFormattedDate(field.value);
@@ -710,7 +704,7 @@ export class MergeExpensesService {
     return options.some((field, index) => options.indexOf(field) !== index);
   }
 
-  private formatOptions(options: MergeExpensesOption[]): MergeExpensesOptionsData {
+  private formatOptions<T>(options: MergeExpensesOption<T>[]): MergeExpensesOptionsData<T> {
     const optionValues = options.map((option) => option.value);
     return {
       options,
@@ -718,7 +712,7 @@ export class MergeExpensesService {
     };
   }
 
-  private formatTaxGroupOption(option: MergeExpensesOption): Observable<MergeExpensesOptionsData> {
+  private formatTaxGroupOption(option: MergeExpensesOption<string>): Observable<MergeExpensesOption<string>> {
     const taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
 
     return taxGroups$.pipe(
@@ -729,7 +723,7 @@ export class MergeExpensesService {
     );
   }
 
-  private formatCategoryOption(option: MergeExpensesOption): Observable<MergeExpensesOption> {
+  private formatCategoryOption(option: MergeExpensesOption<number>): Observable<MergeExpensesOption<number>> {
     const allCategories$ = this.categoriesService.getAll();
 
     return allCategories$.pipe(
@@ -744,7 +738,7 @@ export class MergeExpensesService {
     );
   }
 
-  private formatProjectOptions(option: MergeExpensesOption): Observable<MergeExpensesOption> {
+  private formatProjectOptions(option: MergeExpensesOption<number>): Observable<MergeExpensesOption<number>> {
     const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
     return projects$.pipe(
       map((projects) => {
@@ -755,7 +749,7 @@ export class MergeExpensesService {
     );
   }
 
-  private formatBillableOptions(option: MergeExpensesOption): MergeExpensesOption {
+  private formatBillableOptions(option: MergeExpensesOption<boolean>): MergeExpensesOption<boolean> {
     if (option.value === true) {
       option.label = 'Yes';
     } else {
@@ -764,7 +758,7 @@ export class MergeExpensesService {
     return option;
   }
 
-  private formatPaymentModeOptions(option: MergeExpensesOption): MergeExpensesOption {
+  private formatPaymentModeOptions(option: MergeExpensesOption<string>): MergeExpensesOption<string> {
     if (option.value === AccountType.CCC) {
       option.label = 'Corporate Card';
     } else if (option.value === AccountType.PERSONAL) {

@@ -96,6 +96,7 @@ import { customInputData } from '../test-data/custom-inputs.spec.data';
 import * as dayjs from 'dayjs';
 import { orgCategoryData1 } from '../mock-data/org-category.data';
 import { taxGroupData } from '../mock-data/tax-group.data';
+import { generatedFormPropertiesData2 } from '../mock-data/generated-form-properties.data';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -227,7 +228,7 @@ describe('MergeExpensesService', () => {
       .mergeExpenses(
         mergeExpensesPayload.source_txn_ids,
         mergeExpensesPayload.target_txn_id,
-        mergeExpensesPayload.target_txn_fields
+        generatedFormPropertiesData2
       )
       .subscribe((res) => {
         expect(res).toEqual(Object(mergeExpensesRes));
@@ -235,7 +236,7 @@ describe('MergeExpensesService', () => {
         expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/merge', {
           source_txn_ids: mergeExpensesPayload.source_txn_ids,
           target_txn_id: mergeExpensesPayload.target_txn_id,
-          target_txn_fields: mergeExpensesPayload.target_txn_fields,
+          target_txn_fields: generatedFormPropertiesData2,
         });
         done();
       });

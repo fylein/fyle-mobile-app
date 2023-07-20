@@ -1,9 +1,9 @@
 import { MergeExpensesOption } from './merge-expenses-option.model';
 
-export interface MergeExpensesOptionsData {
-  options?: MergeExpensesOption[];
+export interface MergeExpensesOptionsData<T> {
+  options?: MergeExpensesOption<T>[];
   areSameValues?: boolean;
   name?: string;
-  value?: any; // Value can be anything number, string, list, etc.
+  value?: T; // Value can be anything number, string, list, etc.
   id?: number;
 }
