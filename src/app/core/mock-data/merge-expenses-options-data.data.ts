@@ -1,7 +1,7 @@
-import * as dayjs from 'dayjs';
+import { Location } from '../models/location.model';
 import { MergeExpensesOptionsData } from '../models/merge-expenses-options-data.model';
 
-export const optionsData2: MergeExpensesOptionsData = {
+export const optionsData2: MergeExpensesOptionsData<boolean> = {
   options: [
     {
       label: 'No',
@@ -11,7 +11,7 @@ export const optionsData2: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData3: MergeExpensesOptionsData = {
+export const optionsData3: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'INR 1',
@@ -25,7 +25,7 @@ export const optionsData3: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData4: MergeExpensesOptionsData = {
+export const optionsData4: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'USD 1  (INR 1)',
@@ -39,7 +39,7 @@ export const optionsData4: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData5: MergeExpensesOptionsData = {
+export const optionsData5: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: '0',
@@ -53,7 +53,7 @@ export const optionsData5: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData6: MergeExpensesOptionsData = {
+export const optionsData6: MergeExpensesOptionsData<Date> = {
   options: [
     {
       label: 'Mar 13, 2023',
@@ -67,7 +67,7 @@ export const optionsData6: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData7: MergeExpensesOptionsData = {
+export const optionsData7: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'Corporate Card',
@@ -81,7 +81,7 @@ export const optionsData7: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData8: MergeExpensesOptionsData = {
+export const optionsData8: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'Nilesh As Vendor',
@@ -95,7 +95,7 @@ export const optionsData8: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData9: MergeExpensesOptionsData = {
+export const optionsData9: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'Staging Project',
@@ -109,7 +109,7 @@ export const optionsData9: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData10: MergeExpensesOptionsData = {
+export const optionsData10: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'Food',
@@ -123,7 +123,7 @@ export const optionsData10: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData11: MergeExpensesOptionsData = {
+export const optionsData11: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'GST',
@@ -137,7 +137,7 @@ export const optionsData11: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData12: MergeExpensesOptionsData = {
+export const optionsData12: MergeExpensesOptionsData<number> = {
   options: [
     {
       label: '0.01',
@@ -151,7 +151,7 @@ export const optionsData12: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData13: MergeExpensesOptionsData = {
+export const optionsData13: MergeExpensesOptionsData<number> = {
   options: [
     {
       label: 'Cost Center 1',
@@ -165,7 +165,7 @@ export const optionsData13: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData14: MergeExpensesOptionsData = {
+export const optionsData14: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'Outing',
@@ -179,12 +179,11 @@ export const optionsData14: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData15: MergeExpensesOptionsData = {
+export const optionsData15: MergeExpensesOptionsData<Location> = {
   options: [
     {
       label: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
       value: {
-        actual: 'null',
         city: 'Kalyan',
         country: 'India',
         display: 'Kalyan Station Road, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra, India',
@@ -198,7 +197,7 @@ export const optionsData15: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData16: MergeExpensesOptionsData = {
+export const optionsData16: MergeExpensesOptionsData<Date> = {
   options: [
     {
       label: 'Mar 13, 2023',
@@ -212,7 +211,7 @@ export const optionsData16: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData17: MergeExpensesOptionsData = {
+export const optionsData17: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'ECONOMY',
@@ -226,7 +225,7 @@ export const optionsData17: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData18: MergeExpensesOptionsData = {
+export const optionsData18: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'SLEEPER',
@@ -240,7 +239,7 @@ export const optionsData18: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData19: MergeExpensesOptionsData = {
+export const optionsData19: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'AC',
@@ -254,7 +253,7 @@ export const optionsData19: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData20: MergeExpensesOptionsData = {
+export const optionsData20: MergeExpensesOptionsData<number> = {
   options: [
     {
       label: '25',
@@ -268,7 +267,7 @@ export const optionsData20: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData21: MergeExpensesOptionsData = {
+export const optionsData21: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'KM',
@@ -282,7 +281,7 @@ export const optionsData21: MergeExpensesOptionsData = {
   areSameValues: false,
 };
 
-export const optionsData22: MergeExpensesOptionsData[] = [
+export const optionsData22: MergeExpensesOptionsData<string[] | Date>[] = [
   {
     options: [
       {
@@ -304,7 +303,7 @@ export const optionsData22: MergeExpensesOptionsData[] = [
   },
 ];
 
-export const optionsData23: MergeExpensesOptionsData[] = [
+export const optionsData23: MergeExpensesOptionsData<string[] | Date>[] = [
   {
     options: [
       {
@@ -331,7 +330,7 @@ export const optionsData23: MergeExpensesOptionsData[] = [
   },
 ];
 
-export const optionsData24: MergeExpensesOptionsData[] = [
+export const optionsData24: MergeExpensesOptionsData<string[] | string>[] = [
   {
     options: [
       {
@@ -353,7 +352,7 @@ export const optionsData24: MergeExpensesOptionsData[] = [
   },
 ];
 
-export const optionsData25: MergeExpensesOptionsData[] = [
+export const optionsData25: MergeExpensesOptionsData<string>[] = [
   {
     options: [
       {
@@ -380,7 +379,7 @@ export const optionsData25: MergeExpensesOptionsData[] = [
   },
 ];
 
-export const optionsData26: MergeExpensesOptionsData[] = [
+export const optionsData26: MergeExpensesOptionsData<string>[] = [
   {
     options: null,
     areSameValues: false,
@@ -390,7 +389,7 @@ export const optionsData26: MergeExpensesOptionsData[] = [
   },
 ];
 
-export const optionsData27: MergeExpensesOptionsData[] = [
+export const optionsData27: MergeExpensesOptionsData<string>[] = [
   {
     options: [],
     areSameValues: false,
@@ -407,7 +406,7 @@ export const optionsData27: MergeExpensesOptionsData[] = [
   },
 ];
 
-export const optionsData28: MergeExpensesOptionsData[] = [
+export const optionsData28: MergeExpensesOptionsData<string>[] = [
   {
     options: [
       {
@@ -426,7 +425,7 @@ export const optionsData28: MergeExpensesOptionsData[] = [
   },
 ];
 
-export const optionsData29: MergeExpensesOptionsData[] = [
+export const optionsData29: MergeExpensesOptionsData<string>[] = [
   {
     options: [],
     areSameValues: false,
@@ -443,7 +442,7 @@ export const optionsData29: MergeExpensesOptionsData[] = [
   },
 ];
 
-export const optionsData30: MergeExpensesOptionsData[] = [
+export const optionsData30: MergeExpensesOptionsData<string>[] = [
   {
     options: [
       {
@@ -462,7 +461,7 @@ export const optionsData30: MergeExpensesOptionsData[] = [
   },
 ];
 
-export const optionsData31: MergeExpensesOptionsData = {
+export const optionsData31: MergeExpensesOptionsData<string> = {
   options: [
     {
       label: 'No',
@@ -476,7 +475,7 @@ export const optionsData31: MergeExpensesOptionsData = {
   areSameValues: true,
 };
 
-export const optionsData32: MergeExpensesOptionsData[] = [
+export const optionsData32: MergeExpensesOptionsData<string>[] = [
   {
     id: 200227,
     name: 'userlist',

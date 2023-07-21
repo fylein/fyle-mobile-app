@@ -579,11 +579,11 @@ export class MergeExpensesService {
     dependentFields: TxnCustomProperties[],
     parentField: 'PROJECT' | 'COST_CENTER'
   ): {
-    [fieldId: number]: CustomProperty<string>[];
+    [fieldId: number]: CustomProperty<string | string[]>[];
   } {
     const dependentFieldsMapping: DependentFieldsMapping = {};
     expenses.forEach((expense) => {
-      const txDependentFields: CustomProperty<string>[] = dependentFields
+      const txDependentFields: CustomProperty<string | string[]>[] = dependentFields
         ?.map((dependentField: TxnCustomProperties) =>
           expense.tx_custom_properties.find(
             (txCustomProperty: CustomProperty<string>) => dependentField.name === txCustomProperty.name
@@ -609,13 +609,13 @@ export class MergeExpensesService {
     return dependentFieldsMapping;
   }
 
-  formatCustomInputOptions(combinedCustomProperties: MergeExpensesOptionsData<string>[]): CombinedOptions {
+  formatCustomInputOptions(combinedCustomProperties: MergeExpensesOptionsData<string>[]): CombinedOptions<string> {
     const customProperty = this.formatCustomInputOptionsByType(combinedCustomProperties);
     return customProperty
       .map((field) => {
         let options: MergeExpensesOption<string>[];
         if (field.options) {
-          options = field.options.filter((option) => option !== null && option !== '');
+          options = field.options.filter((option) => option !== null && (option as unknown as string) !== '');
           const values = options.map((item) => item.label);
 
           const isDuplicate = values.some((item, index) => values.indexOf(item) !== index);
@@ -627,13 +627,13 @@ export class MergeExpensesService {
         }
         return field;
       })
-      .reduce((obj: CombinedOptions, field: MergeExpensesOptionsData<string>) => {
+      .reduce((obj: CombinedOptions<string>, field: MergeExpensesOptionsData<string>) => {
         obj[field.name] = field;
         return obj;
       }, {});
   }
 
-  getFieldValue(optionsData: MergeExpensesOptionsData) {
+  getFieldValue<T>(optionsData: MergeExpensesOptionsData<T>): T {
     if (optionsData?.areSameValues) {
       return optionsData?.options[0]?.value;
     } else {
@@ -641,12 +641,12 @@ export class MergeExpensesService {
     }
   }
 
-  getFieldValueOnChange(
-    optionsData: MergeExpensesOptionsData,
+  getFieldValueOnChange<T>(
+    optionsData: MergeExpensesOptionsData<T>,
     isTouched: boolean,
-    selectedExpenseValue: any,
-    formValue: any
-  ) {
+    selectedExpenseValue: T | string,
+    formValue: T
+  ): T | string {
     if (!optionsData?.areSameValues && !isTouched) {
       return selectedExpenseValue;
     } else {
@@ -655,7 +655,7 @@ export class MergeExpensesService {
   }
 
   // Value can be anything: string | number | date | list | userlist
-  setFormattedDate(value: any): string {
+  setFormattedDate(value: string): string {
     return dayjs(value).format('MMM DD, YYYY');
   }
 
@@ -694,13 +694,13 @@ export class MergeExpensesService {
     return customProperty;
   }
 
-  private removeUnspecified(options: MergeExpensesOption[]): MergeExpensesOption[] {
+  private removeUnspecified<T>(options: MergeExpensesOption<T>[]): MergeExpensesOption<T>[] {
     return options.filter(
       (option, index, options) => options.findIndex((currentOption) => currentOption.label === option.label) === index
     );
   }
 
-  private checkOptionsAreSame(options): boolean {
+  private checkOptionsAreSame<T>(options: T[]): boolean {
     return options.some((field, index) => options.indexOf(field) !== index);
   }
 

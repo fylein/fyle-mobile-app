@@ -1,3 +1,4 @@
+import { CustomProperty } from './custom-properties.model';
 import { Location } from './location.model';
 import { TxnCustomProperties } from './txn-custom-properties.model';
 
@@ -57,7 +58,7 @@ export interface Expense {
   tx_creator_id: string;
   tx_currency?: string;
   tx_custom_attributes?: any;
-  tx_custom_properties?: TxnCustomProperties[];
+  tx_custom_properties?: CustomProperty<string>[];
   tx_decimal_column1?: any;
   tx_decimal_column10?: any;
   tx_decimal_column2?: any;
@@ -73,7 +74,7 @@ export interface Expense {
   tx_expense_number: string;
   tx_external_id?: any;
   tx_extracted_data?: any;
-  tx_file_ids?: any;
+  tx_file_ids?: string[];
   tx_flight_journey_travel_class?: string;
   tx_flight_return_travel_class?: string;
   tx_from_dt?: Date;
@@ -101,7 +102,7 @@ export interface Expense {
   tx_mileage_is_round_trip?: any;
   tx_mileage_rate?: any;
   tx_mileage_vehicle_type?: any;
-  tx_num_days?: any;
+  tx_num_days?: number;
   tx_num_files: number;
   tx_org_category: string;
   tx_org_category_code?: any;

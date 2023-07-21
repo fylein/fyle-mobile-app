@@ -2,15 +2,15 @@ export interface TxnCustomProperties {
   id?: number;
   mandatory?: boolean;
   name: string;
-  options?: CustomInputsOption[] | string[];
+  options?: CustomInputsOption[];
   placeholder?: string;
   prefix?: string;
   type?: string;
-  value: any;
+  value: string | string[];
   parent_field_id?: number;
 }
 
 export interface CustomInputsOption {
   label: string;
-  value: string;
+  value: string | string[];
 }
