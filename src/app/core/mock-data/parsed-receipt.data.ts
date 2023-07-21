@@ -10,6 +10,16 @@ export const parsedReceiptData1: ParsedReceipt = {
     vendor_name: 'vendor',
   },
 };
+export const parsedReceiptData2: ParsedReceipt = {
+  data: {
+    category: 'SYSTEM',
+    currency: 'USD',
+    amount: 100,
+    date: null,
+    invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+    vendor_name: 'vendor',
+  },
+};
 
 export const instaFyleData1 = {
   thumbnail: 'data-url',

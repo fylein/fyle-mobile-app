@@ -404,5 +404,27 @@ export function TestCases6(getTestBed) {
       expect(component.fg.controls.train_travel_class.value).toBeNull();
       expect(component.fg.controls.bus_travel_class.value).toBeNull();
     }));
+
+    it('ngOnInit(): should populate report permissions', () => {
+      activatedRoute.snapshot.params.remove_from_report = JSON.stringify(true);
+      fixture.detectChanges();
+
+      component.ngOnInit();
+      expect(component.canRemoveFromReport).toBeTrue();
+      expect(component.isRedirectedFromReport).toBeTrue();
+    });
+
+    it('currencyObjValidator(): should validate currency object', () => {
+      component.fg.controls.currencyObj.setValue({
+        amount: null,
+        currency: null,
+        orig_amount: 10,
+        orig_currency: 'USD',
+      });
+      fixture.detectChanges();
+
+      const result = component.currencyObjValidator(component.fg.controls.currencyObj);
+      expect(result).toBeNull();
+    });
   });
 }

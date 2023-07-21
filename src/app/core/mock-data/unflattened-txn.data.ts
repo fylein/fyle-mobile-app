@@ -1762,3 +1762,41 @@ export const unflattenedExpWithCCCExpn = {
     },
   ],
 };
+
+export const trackCreateExpData = {
+  ...unflattenedExp2,
+  tx: {
+    ...unflattenedExp2.tx,
+    org_category_id: 1234,
+    project_id: 4567,
+    cost_center_id: 8901,
+    currency: 'USD',
+    orig_currency: 'USD',
+  },
+};
+
+export const trackCreateExpDataWoCurrency = {
+  ...unflattenedExp2,
+  tx: {
+    ...unflattenedExp2.tx,
+    org_category_id: 1234,
+    project_id: 4567,
+    cost_center_id: 8901,
+    currency: null,
+    orig_currency: 'USD',
+  },
+};
+
+export const trackAddExpenseWoCurrency = {
+  ...expectedUnflattendedTxnData4,
+  tx: {
+    ...expectedUnflattendedTxnData4,
+    currency: null,
+    org_category: 'TAXI',
+    amount: 120,
+    project_id: 1234,
+    org_category_id: 1234,
+    orig_currency: 'USD',
+    cost_center_id: 1234,
+  },
+};

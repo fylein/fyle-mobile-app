@@ -15,6 +15,11 @@ export const expensePolicyData: ExpensePolicy = {
   },
 };
 
+export const expensePolicyDataWoData = {
+  ...expensePolicyData,
+  data: null,
+};
+
 export const splitExpPolicyData: ExpensePolicy = {
   data: {
     final_desired_state: {

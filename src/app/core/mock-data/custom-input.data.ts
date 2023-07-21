@@ -106,6 +106,6 @@ export const customInputData2: Partial<CustomInput>[] = [
   },
   {
     name: 'Cost Area',
-    value: '-',
+    value: null,
   },
 ];

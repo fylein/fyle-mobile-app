@@ -13,8 +13,13 @@ import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data'
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
-import { instaFyleData1, instaFyleData2, parsedReceiptData1 } from 'src/app/core/mock-data/parsed-receipt.data';
+import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
+import {
+  instaFyleData1,
+  instaFyleData2,
+  parsedReceiptData1,
+  parsedReceiptData2,
+} from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { editExpTxn, txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
@@ -223,30 +228,84 @@ export function TestCases2(getTestBed) {
       expect(component).toBeTruthy();
     });
 
-    it('getPaymentModes(): should get payment modes', (done) => {
-      component.etxn$ = of({
-        ...unflattenExp1,
-        tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: false },
-      });
-      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
-      orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
-      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
-      );
-      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-        of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-      );
-      accountsService.getPaymentModes.and.returnValue(paymentModesData);
-      fixture.detectChanges();
+    describe('getPaymentModes():', () => {
+      it('should get payment modes', (done) => {
+        component.etxn$ = of({
+          ...unflattenExp1,
+          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: false },
+        });
+        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
+        orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+        );
+        accountsService.getPaymentModes.and.returnValue(paymentModesData);
+        fixture.detectChanges();
 
-      component.getPaymentModes().subscribe((res) => {
-        expect(res).toEqual(paymentModesData);
-        expect(component.showCardTransaction).toBeFalse();
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
-        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
-        done();
+        component.getPaymentModes().subscribe((res) => {
+          expect(res).toEqual(paymentModesData);
+          expect(component.showCardTransaction).toBeFalse();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get payment modes in case org settings are not present', (done) => {
+        component.etxn$ = of({
+          ...unflattenExp1,
+          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: false },
+        });
+        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        orgSettingsService.get.and.returnValue(of(null));
+        orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+        );
+        accountsService.getPaymentModes.and.returnValue(paymentModesData);
+
+        component.getPaymentModes().subscribe((res) => {
+          expect(res).toEqual(paymentModesData);
+          expect(component.showCardTransaction).toBeFalse();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get payment modes if CCC expense is enabled', (done) => {
+        component.etxn$ = of({
+          ...unflattenExp1,
+          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: false },
+        });
+        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
+        orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+        );
+        accountsService.getPaymentModes.and.returnValue(paymentModesData);
+
+        component.getPaymentModes().subscribe((res) => {
+          expect(res).toEqual(paymentModesData);
+          expect(component.showCardTransaction).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
     });
 
@@ -771,35 +830,63 @@ export function TestCases2(getTestBed) {
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
     });
 
-    it('getParsedReceipt(): should get parsed receipt', fakeAsync(() => {
-      transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData1);
-      currencyService.getHomeCurrency.and.returnValue(of('INR'));
-      currencyService.getExchangeRate.and.returnValue(of(82));
+    describe('getParsedReceipt():', () => {
+      it('should get parsed receipt', fakeAsync(() => {
+        transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData1);
+        currencyService.getHomeCurrency.and.returnValue(of('INR'));
+        currencyService.getExchangeRate.and.returnValue(of(82));
 
-      const result = component.getParsedReceipt('base64encoded', 'jpeg');
-      tick(500);
+        const result = component.getParsedReceipt('base64encoded', 'jpeg');
+        tick(500);
 
-      result.then((res) => {
-        expect(res).toEqual({
-          data: {
-            category: 'SYSTEM',
-            currency: 'USD',
-            amount: 100,
-            date: new Date('2023-02-15T06:30:00.000Z'),
-            invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
-            vendor_name: 'vendor',
-          },
-          exchangeRate: 82,
+        result.then((res) => {
+          expect(res).toEqual({
+            data: {
+              category: 'SYSTEM',
+              currency: 'USD',
+              amount: 100,
+              date: new Date('2023-02-15T06:30:00.000Z'),
+              invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+              vendor_name: 'vendor',
+            },
+            exchangeRate: 82,
+          });
+          expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('base64encoded', 'jpeg');
+          expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+          expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
+            'USD',
+            'INR',
+            new Date('2023-02-15T06:30:00.000Z')
+          );
         });
-        expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('base64encoded', 'jpeg');
-        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-        expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
-          'USD',
-          'INR',
-          new Date('2023-02-15T06:30:00.000Z')
-        );
-      });
-    }));
+      }));
+
+      it('should get parsed receipt without date', fakeAsync(() => {
+        transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData2);
+        currencyService.getHomeCurrency.and.returnValue(of('INR'));
+        currencyService.getExchangeRate.and.returnValue(of(82));
+
+        const result = component.getParsedReceipt('base64encoded', 'jpeg');
+        tick(500);
+
+        result.then((res) => {
+          expect(res).toEqual({
+            data: {
+              category: 'SYSTEM',
+              currency: 'USD',
+              amount: 100,
+              date: null,
+              invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+              vendor_name: 'vendor',
+            },
+            exchangeRate: 82,
+          });
+          expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('base64encoded', 'jpeg');
+          expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+          expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith('USD', 'INR', jasmine.any(Date));
+        });
+      }));
+    });
 
     it('getReceiptExtension(): should get file extension', () => {
       const result = component.getReceiptExtension('name.pdf');
@@ -850,10 +937,7 @@ export function TestCases2(getTestBed) {
       it('should  return modal params and method to delete expense', (done) => {
         transactionService.delete.and.returnValue(of(expenseData1));
         component
-          .getDeleteReportParams(
-            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
-            false
-          )
+          .getDeleteReportParams({ header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' })
           .componentProps.deleteMethod()
           .subscribe(() => {
             expect(transactionService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
@@ -1134,30 +1218,57 @@ export function TestCases2(getTestBed) {
       expect(result).toEqual([expenseData1]);
     });
 
-    it('showSuggestedDuplicates(): should show potential duplicates', fakeAsync(() => {
-      spyOn(component, 'getDuplicateExpenses');
+    describe('showSuggestedDuplicates():', () => {
+      it('should show potential duplicates', fakeAsync(() => {
+        spyOn(component, 'getDuplicateExpenses');
 
-      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
 
-      const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
-      currencyModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'dismissed' } });
+        const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+        currencyModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'dismissed' } });
 
-      modalController.create.and.resolveTo(currencyModalSpy);
+        modalController.create.and.resolveTo(currencyModalSpy);
 
-      component.showSuggestedDuplicates([expenseData1]);
-      tick(500);
+        component.showSuggestedDuplicates([expenseData1]);
+        tick(500);
 
-      expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: SuggestedDuplicatesComponent,
-        componentProps: {
-          duplicateExpenses: [expenseData1],
-        },
-        mode: 'ios',
-        ...properties,
-      });
-      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-      expect(component.getDuplicateExpenses).toHaveBeenCalledTimes(1);
-    }));
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: SuggestedDuplicatesComponent,
+          componentProps: {
+            duplicateExpenses: [expenseData1],
+          },
+          mode: 'ios',
+          ...properties,
+        });
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(component.getDuplicateExpenses).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should show potential duplicates', fakeAsync(() => {
+        spyOn(component, 'getDuplicateExpenses');
+
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+
+        const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+        currencyModalSpy.onWillDismiss.and.resolveTo({ data: null });
+
+        modalController.create.and.resolveTo(currencyModalSpy);
+
+        component.showSuggestedDuplicates([expenseData1]);
+        tick(500);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: SuggestedDuplicatesComponent,
+          componentProps: {
+            duplicateExpenses: [expenseData1],
+          },
+          mode: 'ios',
+          ...properties,
+        });
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(component.getDuplicateExpenses).not.toHaveBeenCalled();
+      }));
+    });
 
     it('showSnackBarToast(): should show snackbar with relevant properties', () => {
       const properties = {

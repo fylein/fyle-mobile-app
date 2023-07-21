@@ -1197,6 +1197,16 @@ export const orgSettingsCCCDisabled: OrgSettings = {
     enabled: false,
   },
 };
+
+export const orgSettingsCCCEnabled: OrgSettings = {
+  ...orgSettingsData,
+  corporate_credit_card_settings: {
+    ...orgSettingsData.corporate_credit_card_settings,
+    allowed: true,
+    enabled: true,
+  },
+};
+
 export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
   ...orgSettingsRes,
   simplified_report_closure_settings: {

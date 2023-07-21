@@ -10,7 +10,7 @@ import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { eCCCData1, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
-import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
+import { customInputData1, customInputData2 } from 'src/app/core/mock-data/custom-input.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { dependentCustomFields, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
@@ -295,6 +295,32 @@ export function TestCases5(getTestBed) {
             done();
           });
       });
+
+      it('should get modal params with method to dismiss expense if matched expense does not exist', (done) => {
+        transactionService.unmatchCCCExpense.and.returnValue(of(null));
+        spyOn(component, 'dismissCCC').and.returnValue(of(expenseData1));
+        activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
+        component.matchedCCCTransaction = null;
+        fixture.detectChanges();
+
+        component
+          .getMarkDismissModalParams(
+            {
+              header: 'Header',
+              body: 'body',
+              ctaText: 'Done',
+              ctaLoadingText: 'Loading',
+            },
+            false
+          )
+          .componentProps.deleteMethod()
+          .subscribe((res) => {
+            expect(res).toEqual(expenseData1);
+            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
+            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
+            done();
+          });
+      });
     });
 
     describe('setupBalanceFlag():', () => {
@@ -323,6 +349,21 @@ export function TestCases5(getTestBed) {
           expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
         });
         component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[1]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false account type changes to null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(null));
+        component.setupBalanceFlag();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(null);
         fixture.detectChanges();
 
         tick(500);
@@ -404,24 +445,43 @@ export function TestCases5(getTestBed) {
       }));
     });
 
-    it('ionViewWillLeave(): should unsubscribe and complete observable as component leaves', () => {
-      const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnDestroy']);
+    describe('ionViewWillLeave(): ', () => {
+      it('should unsubscribe and complete observable as component leaves', () => {
+        const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnDestroy']);
 
-      component.projectDependentFieldsRef = dependentFieldSpy;
-      component.costCenterDependentFieldsRef = dependentFieldSpy;
-      spyOn(component.hardwareBackButtonAction, 'unsubscribe');
-      spyOn(component.onPageExit$, 'next');
-      spyOn(component.onPageExit$, 'complete');
-      spyOn(component.selectedProject$, 'complete');
-      fixture.detectChanges();
+        component.projectDependentFieldsRef = dependentFieldSpy;
+        component.costCenterDependentFieldsRef = dependentFieldSpy;
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+        spyOn(component.selectedProject$, 'complete');
+        fixture.detectChanges();
 
-      component.ionViewWillLeave();
+        component.ionViewWillLeave();
 
-      expect(dependentFieldSpy.ngOnDestroy).toHaveBeenCalledTimes(2);
-      expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledOnceWith();
-      expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.onPageExit$.complete).toHaveBeenCalledOnceWith();
-      expect(component.selectedProject$.complete).toHaveBeenCalledOnceWith();
+        expect(dependentFieldSpy.ngOnDestroy).toHaveBeenCalledTimes(2);
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledOnceWith();
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledOnceWith();
+        expect(component.selectedProject$.complete).toHaveBeenCalledOnceWith();
+      });
+
+      it('should unsubscribe remaining observables as dependent fields are not present', () => {
+        component.projectDependentFieldsRef = null;
+        component.costCenterDependentFieldsRef = null;
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+        spyOn(component.selectedProject$, 'complete');
+        fixture.detectChanges();
+
+        component.ionViewWillLeave();
+
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledOnceWith();
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledOnceWith();
+        expect(component.selectedProject$.complete).toHaveBeenCalledOnceWith();
+      });
     });
 
     describe('getSelectedCategory():', () => {
@@ -680,15 +740,29 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    it('getReceiptCount(): should get receipt count', (done) => {
-      component.etxn$ = of(unflattenedTxnData);
-      fileService.findByTransactionId.and.returnValue(of(fileObject4));
-      fixture.detectChanges();
+    describe('getReceiptCount():', () => {
+      it('should get receipt count', (done) => {
+        component.etxn$ = of(unflattenedTxnData);
+        fileService.findByTransactionId.and.returnValue(of(fileObject4));
+        fixture.detectChanges();
 
-      component.getReceiptCount().subscribe((res) => {
-        expect(res).toEqual(1);
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
-        done();
+        component.getReceiptCount().subscribe((res) => {
+          expect(res).toEqual(1);
+          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+          done();
+        });
+      });
+
+      it('should return 0 if no receipts are returned', (done) => {
+        component.etxn$ = of(unflattenedTxnData);
+        fileService.findByTransactionId.and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.getReceiptCount().subscribe((res) => {
+          expect(res).toEqual(0);
+          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+          done();
+        });
       });
     });
 
@@ -863,7 +937,7 @@ export function TestCases5(getTestBed) {
       fixture.detectChanges();
 
       component.getCustomFields().subscribe((res) => {
-        expect(res).toEqual(customInputData1);
+        expect(res).toEqual(customInputData2);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields);
         expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
         expect(component.getCostCenterDependentFields).toHaveBeenCalledTimes(1);

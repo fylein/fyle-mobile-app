@@ -3874,14 +3874,18 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  async onChangeCallback(nativeElement: HTMLInputElement) {
+    const file = nativeElement.files[0];
+    this.uploadFileCallback(file);
+  }
+
   async addAttachments(event) {
     event.stopPropagation();
 
     if (this.platform.is('ios')) {
       const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
       nativeElement.onchange = async () => {
-        const file = nativeElement.files[0];
-        this.uploadFileCallback(file);
+        this.onChangeCallback(nativeElement);
       };
       nativeElement.click();
     } else {

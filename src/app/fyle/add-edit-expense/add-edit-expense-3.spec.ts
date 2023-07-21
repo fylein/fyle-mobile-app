@@ -52,6 +52,8 @@ import {
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
   expectedUnflattendedTxnData5,
+  trackCreateExpData,
+  trackCreateExpDataWoCurrency,
   unflattenedDraftExp,
   unflattenedDraftExp2,
   unflattenedPaidExp,
@@ -593,24 +595,73 @@ export function TestCases3(getTestBed) {
       });
     });
 
-    it('trackCreateExpense(): should track create expense event', () => {
-      component.presetCategoryId = unflattenedExpData.tx.project_id;
-      component.presetCostCenterId = unflattenedExpData.tx.cost_center_id;
-      component.presetCurrency = unflattenedExpData.tx.orig_currency;
+    describe('trackCreateExpense(): ', () => {
+      it('should track create expense event', () => {
+        component.presetCategoryId = trackCreateExpData.tx.project_id;
+        component.presetCostCenterId = trackCreateExpData.tx.cost_center_id;
+        component.presetCurrency = trackCreateExpData.tx.orig_currency;
+        component.presetProjectId = trackCreateExpData.tx.project_id;
+        spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
+        fixture.detectChanges();
+
+        component.trackCreateExpense(trackCreateExpData, true);
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
+          Type: 'Receipt',
+          Amount: trackCreateExpData.tx.amount,
+          Currency: trackCreateExpData.tx.currency,
+          Category: trackCreateExpData.tx.org_category,
+          Time_Spent: '30 secs',
+          Used_Autofilled_Category: false,
+          Used_Autofilled_Project: true,
+          Used_Autofilled_CostCenter: true,
+          Used_Autofilled_Currency: true,
+          Instafyle: true,
+        });
+      });
+
+      it('should track create expense event for an expense without currency', () => {
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.project_id;
+        component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
+        component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
+        component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
+        spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
+        fixture.detectChanges();
+
+        component.trackCreateExpense(trackCreateExpDataWoCurrency, true);
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
+          Type: 'Receipt',
+          Amount: trackCreateExpDataWoCurrency.tx.amount,
+          Currency: trackCreateExpDataWoCurrency.tx.currency,
+          Category: trackCreateExpDataWoCurrency.tx.org_category,
+          Time_Spent: '30 secs',
+          Used_Autofilled_Category: false,
+          Used_Autofilled_Project: true,
+          Used_Autofilled_CostCenter: true,
+          Used_Autofilled_Currency: true,
+          Instafyle: true,
+        });
+      });
+    });
+
+    it('should track create expense event', () => {
+      component.presetCategoryId = trackCreateExpData.tx.project_id;
+      component.presetCostCenterId = trackCreateExpData.tx.cost_center_id;
+      component.presetCurrency = trackCreateExpData.tx.orig_currency;
+      component.presetProjectId = trackCreateExpData.tx.project_id;
       spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
       fixture.detectChanges();
 
-      component.trackCreateExpense(unflattenedExpData, true);
+      component.trackCreateExpense(trackCreateExpData, true);
       expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
         Type: 'Receipt',
-        Amount: unflattenedExpData.tx.amount,
-        Currency: unflattenedExpData.tx.currency,
-        Category: unflattenedExpData.tx.org_category,
+        Amount: trackCreateExpData.tx.amount,
+        Currency: trackCreateExpData.tx.currency,
+        Category: trackCreateExpData.tx.org_category,
         Time_Spent: '30 secs',
-        Used_Autofilled_Category: null,
-        Used_Autofilled_Project: null,
-        Used_Autofilled_CostCenter: null,
-        Used_Autofilled_Currency: null,
+        Used_Autofilled_Category: false,
+        Used_Autofilled_Project: true,
+        Used_Autofilled_CostCenter: true,
+        Used_Autofilled_Currency: true,
         Instafyle: true,
       });
     });
