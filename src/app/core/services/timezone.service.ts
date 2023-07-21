@@ -2936,7 +2936,7 @@ export class TimezoneService {
   convertAllDatesToProperLocale(object: TxnCustomProperties[], offset: string): TxnCustomProperties[] {
     const that = this;
     const copiedObject: TxnCustomProperties[] = cloneDeep(object);
-    return that.utilityService.traverse(copiedObject, function (prop: Date) {
+    return that.utilityService.traverse(copiedObject, (prop: Date) => {
       if (prop instanceof Date) {
         prop.setHours(12);
         prop.setMinutes(0);
