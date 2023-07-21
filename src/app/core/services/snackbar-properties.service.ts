@@ -5,7 +5,6 @@ import { SnackbarProperties } from '../models/snackbar-properties.model';
   providedIn: 'root',
 })
 export class SnackbarPropertiesService {
-  constructor() {}
   /**
    * Factory function for properties of toast message component
    *
@@ -14,7 +13,6 @@ export class SnackbarPropertiesService {
    * @param snackbarIcon - Optional param to pass the icon name
    * @returns Object to be used for displaying toast message component
    */
-
   setSnackbarProperties(
     toastMessageType: 'success' | 'failure' | 'information',
     toastMessageData: { message: string; redirectionText?: string },

@@ -20,14 +20,14 @@ export class TokenService {
   @PCacheable({
     cacheBusterObserver: tokenCacheBuster$,
   })
-  getAccessToken() {
+  getAccessToken(): Promise<string> {
     return this.secureStorageService.get<string>('X-AUTH-TOKEN');
   }
 
   @PCacheBuster({
     cacheBusterNotifier: tokenCacheBuster$,
   })
-  setAccessToken(accessToken: string) {
+  setAccessToken(accessToken: string): Promise<{ value: boolean }> {
     this.userEventService.setToken();
     return this.secureStorageService.set('X-AUTH-TOKEN', accessToken);
   }
@@ -35,19 +35,19 @@ export class TokenService {
   @PCacheBuster({
     cacheBusterNotifier: tokenCacheBuster$,
   })
-  resetAccessToken() {
+  resetAccessToken(): Promise<{ value: boolean }> {
     return this.secureStorageService.delete('X-AUTH-TOKEN');
   }
 
-  getRefreshToken() {
+  getRefreshToken(): Promise<string> {
     return this.secureStorageService.get<string>('X-REFRESH-TOKEN');
   }
 
-  setRefreshToken(refreshToken: string) {
+  setRefreshToken(refreshToken: string): Promise<{ value: boolean }> {
     return this.secureStorageService.set('X-REFRESH-TOKEN', refreshToken);
   }
 
-  resetRefreshToken() {
+  resetRefreshToken(): Promise<{ value: boolean }> {
     return this.secureStorageService.delete('X-REFRESH-TOKEN');
   }
 
@@ -55,11 +55,11 @@ export class TokenService {
     return this.secureStorageService.get<string>('CLUSTER-DOMAIN');
   }
 
-  setClusterDomain(clusterDomain: string) {
+  setClusterDomain(clusterDomain: string): Promise<{ value: boolean }> {
     return this.secureStorageService.set('CLUSTER-DOMAIN', clusterDomain);
   }
 
-  resetClusterDomain() {
+  resetClusterDomain(): Promise<{ value: boolean }> {
     return this.secureStorageService.delete('CLUSTER-DOMAIN');
   }
 }

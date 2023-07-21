@@ -13,7 +13,7 @@ export class SpenderPlatformV1ApiService {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
-  setRoot(rootUrl: string) {
+  setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
   }
 

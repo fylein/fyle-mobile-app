@@ -1,13 +1,13 @@
 import { StatusCategory } from './status-category.model';
 
-export interface ExtendedStatus {
+export interface ExtendedStatusRaw {
   isSelfComment?: boolean;
   isBotComment?: boolean;
   isOthersComment?: boolean;
   has_details?: boolean;
   st_advance_request_id?: string;
   st_comment: string;
-  st_created_at: Date;
+  st_created_at: string;
   st_diff?: unknown;
   st_id: string;
   st_org_user_id: string;

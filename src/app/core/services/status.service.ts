@@ -5,6 +5,7 @@ import { ExtendedStatus } from '../models/extended_status.model';
 import { StatusCategory } from '../models/status-category.model';
 import { Observable } from 'rxjs';
 import { TransactionStatus } from '../models/transaction-status.model';
+import { ExtendedStatusRaw } from '../models/extended_status_raw.model';
 
 @Injectable({
   providedIn: 'root',
@@ -13,17 +14,22 @@ export class StatusService {
   constructor(private apiService: ApiService) {}
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
-    return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
-      map((estatuses: ExtendedStatus[]) =>
+    return this.apiService.get<ExtendedStatusRaw[]>('/' + objectType + '/' + objectId + '/estatuses').pipe(
+      map((estatuses: ExtendedStatusRaw[]) =>
         estatuses?.map((estatus) => {
-          estatus.st_created_at = new Date(estatus.st_created_at);
-          return estatus as ExtendedStatus;
+          const estatusCopy: ExtendedStatus = { ...estatus, st_created_at: new Date(estatus.st_created_at) };
+          return estatusCopy;
         })
       )
     );
   }
 
-  post(objectType: string, objectId: string, status: { comment: string | ExtendedStatus }, notify: boolean = false) {
+  post(
+    objectType: string,
+    objectId: string,
+    status: { comment: string | ExtendedStatus },
+    notify: boolean = false
+  ): Observable<TransactionStatus> {
     return this.apiService.post<TransactionStatus>('/' + objectType + '/' + objectId + '/statuses', {
       status,
       notify,

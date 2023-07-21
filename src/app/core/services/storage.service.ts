@@ -6,9 +6,7 @@ import { Preferences } from '@capacitor/preferences';
   providedIn: 'root',
 })
 export class StorageService {
-  constructor() {}
-
-  async set(key: string, value: any): Promise<void> {
+  async set<T>(key: string, value: T): Promise<void> {
     return await Preferences.set({
       key,
       value: JSON.stringify(value),
