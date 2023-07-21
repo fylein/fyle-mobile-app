@@ -7,8 +7,6 @@ import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
   providedIn: 'root',
 })
 export class SecureStorageService {
-  constructor() {}
-
   async set<T>(key: string, value: T): Promise<{ value: boolean }> {
     try {
       return await SecureStoragePlugin.set({

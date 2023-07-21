@@ -16,7 +16,7 @@ export class RecentlyUsedItemsService {
   constructor(private apiService: ApiService, private projectService: ProjectsService) {}
 
   getRecentlyUsed(): Observable<RecentlyUsed> {
-    return this.apiService.get('/recently_used') as Observable<RecentlyUsed>;
+    return this.apiService.get<RecentlyUsed>('/recently_used');
   }
 
   getRecentlyUsedProjects(config: {

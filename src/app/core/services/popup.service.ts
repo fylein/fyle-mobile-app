@@ -9,7 +9,7 @@ import { PopupConfig } from 'src/app/shared/components/fy-popup/popup.model';
 export class PopupService {
   constructor(private popoverController: PopoverController) {}
 
-  async showPopup(popupConfig: PopupConfig) {
+  async showPopup(popupConfig: PopupConfig): Promise<string> {
     const popup = await this.popoverController.create({
       componentProps: {
         config: popupConfig,

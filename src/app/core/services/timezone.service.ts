@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
-import { CurrencyService } from './currency.service';
 import { UtilityService } from './utility.service';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
