@@ -2,6 +2,7 @@
   "root": true,
   "ignorePatterns": [
     "projects/**/*",
+    "zone-flags.ts",
     "test.ts",
     "main.ts",
     "*.spec.ts"
