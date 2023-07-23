@@ -1,3 +1,6 @@
+import { CustomInput } from './custom-input.model';
+import { Destination } from './destination.model';
+
 export interface Expense {
   isCriticalPolicyViolated?: boolean;
   isPolicyViolated?: boolean;
@@ -44,17 +47,17 @@ export interface Expense {
   tx_boolean_column7?: any;
   tx_boolean_column8?: any;
   tx_boolean_column9?: any;
-  tx_bus_travel_class?: any;
+  tx_bus_travel_class?: string;
   tx_category?: any;
-  tx_corporate_credit_card_expense_group_id?: any;
+  tx_corporate_credit_card_expense_group_id?: string;
   tx_cost_center_code?: any;
-  tx_cost_center_id?: any;
-  tx_cost_center_name?: any;
+  tx_cost_center_id?: number;
+  tx_cost_center_name?: string;
   tx_created_at: Date;
   tx_creator_id: string;
   tx_currency?: string;
   tx_custom_attributes?: any;
-  tx_custom_properties?: any;
+  tx_custom_properties?: Partial<CustomInput>[];
   tx_decimal_column1?: any;
   tx_decimal_column10?: any;
   tx_decimal_column2?: any;
@@ -65,14 +68,14 @@ export interface Expense {
   tx_decimal_column7?: any;
   tx_decimal_column8?: any;
   tx_decimal_column9?: any;
-  tx_distance?: any;
-  tx_distance_unit?: any;
+  tx_distance?: number;
+  tx_distance_unit?: string;
   tx_expense_number: string;
   tx_external_id?: any;
   tx_extracted_data?: any;
-  tx_file_ids?: any;
-  tx_flight_journey_travel_class?: any;
-  tx_flight_return_travel_class?: any;
+  tx_file_ids?: string[];
+  tx_flight_journey_travel_class?: string;
+  tx_flight_return_travel_class?: string;
   tx_from_dt?: Date;
   tx_fyle_category: string;
   tx_hotel_is_breakfast_provided?: any;
@@ -90,7 +93,7 @@ export interface Expense {
   tx_location_column7?: any;
   tx_location_column8?: any;
   tx_location_column9?: any;
-  tx_locations: any[];
+  tx_locations: Destination[];
   tx_mandatory_fields_present: boolean;
   tx_manual_flag: boolean;
   tx_mileage_calculated_amount?: any;
@@ -98,7 +101,7 @@ export interface Expense {
   tx_mileage_is_round_trip?: any;
   tx_mileage_rate?: any;
   tx_mileage_vehicle_type?: any;
-  tx_num_days?: any;
+  tx_num_days?: number;
   tx_num_files: number;
   tx_org_category: string;
   tx_org_category_code?: any;
@@ -114,9 +117,9 @@ export interface Expense {
   tx_policy_flag: boolean;
   tx_policy_state?: any;
   tx_project_code?: any;
-  tx_project_id?: any;
+  tx_project_id?: number;
   tx_project_name?: any;
-  tx_purpose?: any;
+  tx_purpose?: string;
   tx_receipt_required?: any;
   tx_report_id?: any;
   tx_reported_at?: any;
@@ -128,7 +131,7 @@ export interface Expense {
   tx_split_group_user_amount?: any;
   tx_state: string;
   tx_sub_category: string;
-  tx_tax?: any;
+  tx_tax?: number;
   tx_tax_group_id?: string;
   tx_text_array_column1?: any;
   tx_text_array_column10?: any;
@@ -166,7 +169,7 @@ export interface Expense {
   tx_timestamp_column8?: any;
   tx_timestamp_column9?: any;
   tx_to_dt?: Date;
-  tx_train_travel_class?: any;
+  tx_train_travel_class?: string;
   tx_transcribed_data?: any;
   tx_transcription_state?: any;
   tx_txn_dt?: Date;
@@ -175,7 +178,7 @@ export interface Expense {
   tx_user_can_delete: boolean;
   tx_user_reason_for_duplicate_expenses?: any;
   tx_user_review_needed?: any;
-  tx_vendor?: any;
+  tx_vendor?: string;
   tx_vendor_id?: any;
   tx_verification_state?: any;
   us_email: string;

@@ -21,7 +21,7 @@ import {
   optionsData9,
 } from './merge-expenses-options-data.data';
 
-export const combinedOptionsData1: CombinedOptions = {
+export const combinedOptionsData1 = {
   amountOptionsData: optionsData3,
   dateOfSpendOptionsData: optionsData6,
   paymentModeOptionsData: optionsData7,
@@ -35,13 +35,13 @@ export const combinedOptionsData1: CombinedOptions = {
   purposeOptionsData: optionsData14,
 };
 
-export const combinedOptionsData2: CombinedOptions = {
+export const combinedOptionsData2: CombinedOptions<string | Date | boolean> = {
   userlist: optionsData3,
   test: optionsData6,
   category2: optionsData31,
 };
 
-export const combinedOptionsData3: CombinedOptions = {
+export const combinedOptionsData3 = {
   location1OptionsData: optionsData15,
   location2OptionsData: optionsData15,
   onwardDateOptionsData: optionsData16,

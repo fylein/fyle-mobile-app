@@ -1,4 +1,5 @@
-import { CustomProperty } from './custom-properties.model';
+import { CustomInput } from './custom-input.model';
+import { Location } from './location.model';
 
 export interface GeneratedFormProperties {
   source_account_id: string;
@@ -15,7 +16,7 @@ export interface GeneratedFormProperties {
   purpose: string;
   txn_dt: Date;
   receipt_ids: string[];
-  custom_properties: CustomProperty<string>[];
+  custom_properties: Partial<CustomInput>[];
   ccce_group_id: string;
   from_dt: Date;
   to_dt: Date;
@@ -25,5 +26,5 @@ export interface GeneratedFormProperties {
   bus_travel_class: string;
   distance: number;
   distance_unit: string;
-  locations: string[];
+  locations: Location[];
 }

@@ -8,14 +8,13 @@ import { CustomField } from '../models/custom_field.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { OperatorFunction } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UtilityService {
   readonly EPOCH = 19700101;
-
-  constructor() {}
 
   discardNullChar(str: string): string {
     return str.replace(/[\u0000][\u0008-\u0009][\u000A-\u000C][\u005C]/g, '');
@@ -28,7 +27,7 @@ export class UtilityService {
         customField.value !== null &&
         customField.value !== undefined
       ) {
-        customField.value = this.discardNullChar(customField.value);
+        customField.value = this.discardNullChar(<string>customField.value);
       }
 
       return customField;
@@ -44,7 +43,7 @@ export class UtilityService {
         dataCopy[property] !== null &&
         dataCopy[property] !== undefined
       ) {
-        dataCopy[property] = this.discardNullChar(dataCopy[property]);
+        dataCopy[property] = this.discardNullChar(<string>dataCopy[property]);
       } else if (property === 'custom_properties' && dataCopy.custom_properties) {
         dataCopy.custom_properties = this.refineNestedObject(dataCopy.custom_properties);
       }
@@ -61,7 +60,16 @@ export class UtilityService {
    * will also be the data type of the arguments and of the return value.
    * Detailed reference: https://www.tutorialsteacher.com/typescript/typescript-generic
    */
-  searchArrayStream<T>(searchText: string) {
+  searchArrayStream<T>(searchText: string): OperatorFunction<
+    {
+      label: string;
+      value: T;
+    }[],
+    {
+      label: string;
+      value: T;
+    }[]
+  > {
     return map((recentrecentlyUsedItems: { label: string; value: T }[]) => {
       if (searchText && searchText.length > 0) {
         const searchTextLowerCase = searchText.toLowerCase();
@@ -74,7 +82,10 @@ export class UtilityService {
     });
   }
 
-  traverse(x, callback): TxnCustomProperties[] {
+  traverse(
+    x: TxnCustomProperties[] | TxnCustomProperties,
+    callback: (x: TxnCustomProperties | Date) => TxnCustomProperties[] | Date
+  ): TxnCustomProperties | TxnCustomProperties[] | Date {
     const that = this;
     if (isArray(x)) {
       return that.traverseArray(x, callback);
@@ -85,26 +96,36 @@ export class UtilityService {
     }
   }
 
-  traverseArray(arr, callback) {
+  traverseArray(
+    arr: TxnCustomProperties[],
+    callback: (x: TxnCustomProperties | Date) => TxnCustomProperties[] | Date
+  ): TxnCustomProperties[] {
     const that = this;
-    const modifiedArray = [];
+    const modifiedArray: TxnCustomProperties[] = [];
     arr.forEach((x) => {
-      modifiedArray.push(that.traverse(x, callback));
+      modifiedArray.push(<TxnCustomProperties>that.traverse(x, callback));
     });
     return modifiedArray;
   }
 
-  traverseObject(obj, callback) {
+  traverseObject(
+    obj: TxnCustomProperties | TxnCustomProperties[],
+    callback: (x: TxnCustomProperties | Date) => TxnCustomProperties[] | Date
+  ): TxnCustomProperties | TxnCustomProperties[] {
     const that = this;
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
-        obj[key] = that.traverse(obj[key], callback);
+        obj[key] = that.traverse(<TxnCustomProperties>obj[key], callback);
       }
     }
     return obj;
   }
 
-  sortAllAdvances(sortDir: SortingDirection, sortParam: SortingParam, advancesArray: ExtendedAdvanceRequest[]) {
+  sortAllAdvances(
+    sortDir: SortingDirection,
+    sortParam: SortingParam,
+    advancesArray: ExtendedAdvanceRequest[]
+  ): ExtendedAdvanceRequest[] {
     //used for sorting an array that has both advances and advance requests mixed together
     const sortedAdvancesArray = cloneDeep(advancesArray);
 
@@ -132,7 +153,7 @@ export class UtilityService {
     return result;
   }
 
-  private getSortingValue(advance: any, sortParam: SortingParam) {
+  private getSortingValue(advance: ExtendedAdvanceRequest, sortParam: SortingParam): dayjs.Dayjs | string {
     if (sortParam === SortingParam.creationDate) {
       return advance.areq_created_at ? dayjs(advance.areq_created_at) : dayjs(advance.adv_created_at);
     } else if (sortParam === SortingParam.approvalDate) {
@@ -143,11 +164,11 @@ export class UtilityService {
   }
 
   private compareSortingValues(
-    sortingValue1: any,
-    sortingValue2: any,
+    sortingValue1: string | dayjs.Dayjs,
+    sortingValue2: string | dayjs.Dayjs,
     sortDir: SortingDirection,
     sortingParam: SortingParam
-  ) {
+  ): number {
     const returnValue = this.handleDefaultSort(sortingValue1, sortingValue2, sortingParam);
     if (returnValue !== null) {
       return returnValue;
@@ -155,9 +176,9 @@ export class UtilityService {
 
     if (typeof sortingValue1 === 'string') {
       if (sortDir === SortingDirection.ascending) {
-        return sortingValue1.localeCompare(sortingValue2) ? 1 : -1;
+        return sortingValue1.localeCompare(<string>sortingValue2) ? 1 : -1;
       } else {
-        return sortingValue1.localeCompare(sortingValue2) ? -1 : 1;
+        return sortingValue1.localeCompare(<string>sortingValue2) ? -1 : 1;
       }
     } else if (dayjs.isDayjs(sortingValue1)) {
       if (sortDir === SortingDirection.ascending) {
@@ -168,9 +189,13 @@ export class UtilityService {
     }
   }
 
-  private handleDefaultSort(sortingValue1: any, sortingValue2: any, sortingParam: SortingParam) {
+  private handleDefaultSort(
+    sortingValue1: string | dayjs.Dayjs,
+    sortingValue2: string | dayjs.Dayjs,
+    sortingParam: SortingParam
+  ): number {
     //handles cases where either sortingValue1 or sortingValue2 is null/undefined
-    let nullComparator: any;
+    let nullComparator: string;
     if (sortingParam === SortingParam.project) {
       nullComparator = null;
     } else {

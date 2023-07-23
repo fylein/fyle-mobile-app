@@ -31,6 +31,7 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -92,9 +93,9 @@ export class ViewMileagePage implements OnInit {
 
   txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
-  projectDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
   mapAttachment$: Observable<FileObject>;
 

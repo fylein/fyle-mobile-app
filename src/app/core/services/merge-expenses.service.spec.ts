@@ -909,7 +909,7 @@ describe('MergeExpensesService', () => {
   });
 
   it('setformattedDate(): should return formatted date', () => {
-    const mockDate = new Date('2021-03-10T05:31:00.000Z');
+    const mockDate = '2021-03-10T05:31:00.000Z';
     expect(mergeExpensesService.setFormattedDate(mockDate)).toEqual(dayjs(mockDate).format('MMM DD, YYYY'));
   });
 });

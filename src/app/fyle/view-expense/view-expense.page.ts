@@ -32,6 +32,7 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
 
 @Component({
   selector: 'app-view-expense',
@@ -121,9 +122,9 @@ export class ViewExpensePage implements OnInit {
 
   txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
-  projectDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
   constructor(
     private loaderService: LoaderService,

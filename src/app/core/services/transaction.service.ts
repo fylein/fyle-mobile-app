@@ -38,6 +38,7 @@ import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
 import { StatsResponse } from '../models/v2/stats-response.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -273,9 +274,8 @@ export class TransactionService {
       switchMap(({ orgUserSettings, txnAccount }) => {
         const offset = orgUserSettings.locale.offset;
 
-        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(
-          transaction.custom_properties,
-          offset
+        transaction.custom_properties = <TxnCustomProperties[]>(
+          this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset)
         );
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (transaction.txn_dt) {
@@ -496,10 +496,10 @@ export class TransactionService {
     let vendorDisplayName = expense.tx_vendor;
 
     if (fyleCategory === 'mileage') {
-      vendorDisplayName = expense.tx_distance || 0;
+      vendorDisplayName = (expense.tx_distance || 0)?.toString();
       vendorDisplayName += ' ' + expense.tx_distance_unit;
     } else if (fyleCategory === 'per diem') {
-      vendorDisplayName = expense.tx_num_days;
+      vendorDisplayName = expense.tx_num_days?.toString();
       if (expense.tx_num_days > 1) {
         vendorDisplayName += ' Days';
       } else {

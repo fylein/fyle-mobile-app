@@ -31,6 +31,7 @@ import {
   optionsData21,
   optionsData3,
   optionsData32,
+  optionsData33,
   optionsData6,
   optionsData7,
   optionsData8,
@@ -62,7 +63,6 @@ import {
 import { dependentCustomFields } from 'src/app/core/mock-data/expense-field.data';
 import {
   expectedTxnCustomProperties,
-  expectedTxnCustomProperties2,
   txnCustomPropertiesData,
   txnCustomPropertiesData2,
 } from 'src/app/core/mock-data/txn-custom-properties.data';
@@ -73,6 +73,7 @@ import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/depende
 import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
 import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response';
 import { expenseInfoWithoutDefaultExpense, expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
+import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 
 export function TestCases3(getTestBed) {
   return describe('test cases set 3', () => {
@@ -292,7 +293,7 @@ export function TestCases3(getTestBed) {
     describe('generateCustomInputOptions(): ', () => {
       beforeEach(() => {
         component.expenses = expenseList2;
-        mergeExpensesService.getCustomInputValues.and.returnValue(cloneDeep(expectedTxnCustomProperties2));
+        mergeExpensesService.getCustomInputValues.and.returnValue(cloneDeep([customInputData1]));
         mergeExpensesService.formatCustomInputOptions.and.returnValue({
           'select all 2': optionsData32[7],
         });
@@ -475,7 +476,7 @@ export function TestCases3(getTestBed) {
     describe('patchCategoryDependentFields(): ', () => {
       beforeEach(() => {
         const mockExpense = cloneDeep(expenseList2);
-        mockExpense[1].tx_locations = ['Mumbai', 'Pune'];
+        mockExpense[1].tx_locations = [optionsData15.value, optionsData33.value];
         mockExpense[1].tx_flight_journey_travel_class = 'ECONOMY';
         mockExpense[1].tx_flight_return_travel_class = 'BUSINESS';
         mockExpense[1].tx_distance = 23;
@@ -504,8 +505,8 @@ export function TestCases3(getTestBed) {
       it('should call getFieldValueOnChange with correct args', () => {
         component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
         component.genericFieldsForm.patchValue({
-          location_1: 'Mumbai',
-          location_2: 'Pune',
+          location_1: optionsData15.value,
+          location_2: optionsData33.value,
           flight_journey_travel_class: 'ECONOMY',
           train_travel_class: 'SLEEPER',
           distance: 23,

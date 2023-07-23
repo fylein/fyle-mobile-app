@@ -143,10 +143,10 @@ export class MyViewReportPage {
     let vendorName = etxn.tx_vendor || 'Expense';
 
     if (category === 'mileage') {
-      vendorName = etxn.tx_distance || 0;
+      vendorName = (etxn.tx_distance || 0)?.toString();
       vendorName += ' ' + etxn.tx_distance_unit;
     } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days || 0;
+      vendorName = (etxn.tx_num_days || 0)?.toString();
       vendorName += ' Days';
     }
 
