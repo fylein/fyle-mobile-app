@@ -798,63 +798,63 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
           categoryDependent: {
             location_1: this.mergeExpensesService.getFieldValueOnChange(
               location1OptionsData,
-              this.touchedGenericFields?.includes('location_1'),
+              this.touchedCategoryDepedentFields?.includes('location_1'),
               this.expenses[selectedIndex]?.tx_locations[0],
-              (this.genericFieldsForm.value as { location_1: Destination })?.location_1
+              (this.categoryDependentForm.value as { location_1: Destination })?.location_1
             ),
             location_2: this.mergeExpensesService.getFieldValueOnChange(
               location2OptionsData,
-              this.touchedGenericFields?.includes('location_2'),
+              this.touchedCategoryDepedentFields?.includes('location_2'),
               this.expenses[selectedIndex]?.tx_locations[1],
-              (this.genericFieldsForm.value as { location_2: Destination })?.location_2
+              (this.categoryDependentForm.value as { location_2: Destination })?.location_2
             ),
             from_dt: this.mergeExpensesService.getFieldValueOnChange(
               onwardDateOptionsData,
-              this.touchedGenericFields?.includes('from_dt'),
+              this.touchedCategoryDepedentFields?.includes('from_dt'),
               this.expenses[selectedIndex]?.tx_from_dt,
-              (this.genericFieldsForm.value as { from_dt: Date })?.from_dt
+              (this.categoryDependentForm.value as { from_dt: Date })?.from_dt
             ),
             to_dt: this.mergeExpensesService.getFieldValueOnChange(
               returnDateOptionsData,
-              this.touchedGenericFields?.includes('to_dt'),
+              this.touchedCategoryDepedentFields?.includes('to_dt'),
               this.expenses[selectedIndex]?.tx_to_dt,
-              (this.genericFieldsForm.value as { to_dt: Date })?.to_dt
+              (this.categoryDependentForm.value as { to_dt: Date })?.to_dt
             ),
             flight_journey_travel_class: this.mergeExpensesService.getFieldValueOnChange(
               flightJourneyTravelClassOptionsData,
-              this.touchedGenericFields?.includes('flight_journey_travel_class'),
+              this.touchedCategoryDepedentFields?.includes('flight_journey_travel_class'),
               this.expenses[selectedIndex]?.tx_flight_journey_travel_class,
-              (this.genericFieldsForm.value as { flight_journey_travel_class: string })?.flight_journey_travel_class
+              (this.categoryDependentForm.value as { flight_journey_travel_class: string })?.flight_journey_travel_class
             ),
             flight_return_travel_class: this.mergeExpensesService.getFieldValueOnChange(
               flightReturnTravelClassOptionsData,
-              this.touchedGenericFields?.includes('flight_return_travel_class'),
+              this.touchedCategoryDepedentFields?.includes('flight_return_travel_class'),
               this.expenses[selectedIndex]?.tx_flight_return_travel_class,
-              (this.genericFieldsForm.value as { flight_return_travel_class: string })?.flight_return_travel_class
+              (this.categoryDependentForm.value as { flight_return_travel_class: string })?.flight_return_travel_class
             ),
             train_travel_class: this.mergeExpensesService.getFieldValueOnChange(
               trainTravelClassOptionsData,
-              this.touchedGenericFields?.includes('train_travel_class'),
+              this.touchedCategoryDepedentFields?.includes('train_travel_class'),
               this.expenses[selectedIndex]?.tx_train_travel_class,
-              (this.genericFieldsForm.value as { train_travel_class: string })?.train_travel_class
+              (this.categoryDependentForm.value as { train_travel_class: string })?.train_travel_class
             ),
             bus_travel_class: this.mergeExpensesService.getFieldValueOnChange(
               busTravelClassOptionsData,
-              this.touchedGenericFields?.includes('bus_travel_class'),
+              this.touchedCategoryDepedentFields?.includes('bus_travel_class'),
               this.expenses[selectedIndex]?.tx_bus_travel_class,
-              (this.genericFieldsForm.value as { bus_travel_class: string })?.bus_travel_class
+              (this.categoryDependentForm.value as { bus_travel_class: string })?.bus_travel_class
             ),
             distance: this.mergeExpensesService.getFieldValueOnChange(
               distanceOptionsData,
-              this.touchedGenericFields?.includes('distance'),
+              this.touchedCategoryDepedentFields?.includes('distance'),
               this.expenses[selectedIndex]?.tx_distance,
-              (this.genericFieldsForm.value as { distance: number })?.distance
+              (this.categoryDependentForm.value as { distance: number })?.distance
             ),
             distance_unit: this.mergeExpensesService.getFieldValueOnChange(
               distanceUnitOptionsData,
-              this.touchedGenericFields?.includes('distance_unit'),
+              this.touchedCategoryDepedentFields?.includes('distance_unit'),
               this.expenses[selectedIndex]?.tx_distance_unit,
-              (this.genericFieldsForm.value as { distance_unit: string })?.distance_unit
+              (this.categoryDependentForm.value as { distance_unit: string })?.distance_unit
             ),
           },
         });

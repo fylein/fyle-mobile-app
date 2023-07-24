@@ -504,8 +504,8 @@ export function TestCases3(getTestBed) {
       });
 
       it('should call getFieldValueOnChange with correct args', () => {
-        component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
-        component.genericFieldsForm.patchValue({
+        component.touchedCategoryDepedentFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
+        component.categoryDependentForm.patchValue({
           location_1: optionsData15.options[0].value,
           location_2: optionsData33.options[0].value,
           flight_journey_travel_class: 'ECONOMY',
@@ -548,8 +548,8 @@ export function TestCases3(getTestBed) {
       });
 
       it('should call getFieldValueOnChange with correct args if expense is undefined', () => {
-        component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
-        component.genericFieldsForm.patchValue({
+        component.touchedCategoryDepedentFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
+        component.categoryDependentForm.patchValue({
           location_1: optionsData15.options[0].value,
           location_2: optionsData33.options[0].value,
           flight_journey_travel_class: 'ECONOMY',
@@ -581,8 +581,8 @@ export function TestCases3(getTestBed) {
       });
 
       it('should call getFieldValueOnChange with correct args if touchedGenericFields is undefined', () => {
-        component.touchedGenericFields = undefined;
-        component.genericFieldsForm.patchValue({
+        component.touchedCategoryDepedentFields = undefined;
+        component.categoryDependentForm.patchValue({
           location_1: optionsData15.options[0].value,
           location_2: optionsData33.options[0].value,
           flight_journey_travel_class: 'ECONOMY',
@@ -624,7 +624,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should call getFieldValueOnChange with correct args if genericFields form is undefined', () => {
-        component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
+        component.touchedCategoryDepedentFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
         component.patchCategoryDependentFields(1);
         const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
         expect(location1Call).toEqual([optionsData15, true, optionsData15.options[0].value, undefined]);
