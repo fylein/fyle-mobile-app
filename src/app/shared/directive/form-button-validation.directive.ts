@@ -1,10 +1,10 @@
-import { Directive, ElementRef, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
 import { LoaderPosition } from './loader-position.enum';
 
 @Directive({
   selector: '[appFormButtonValidation]',
 })
-export class FormButtonValidationDirective implements OnInit, OnChanges {
+export class FormButtonValidationDirective implements OnChanges {
   @Input() loadingText: string;
 
   @Input() buttonType: string;
@@ -13,11 +13,11 @@ export class FormButtonValidationDirective implements OnInit, OnChanges {
 
   @Input() loaderPosition: LoaderPosition = LoaderPosition.postfix;
 
-  defaultText;
+  defaultText: string;
 
   loaderAdded = false;
 
-  loadingTextMap = {
+  loadingTextMap: Record<string, string> = {
     Save: 'Saving',
     Confirm: 'Confirming',
     Update: 'Updating',
@@ -41,50 +41,54 @@ export class FormButtonValidationDirective implements OnInit, OnChanges {
 
   constructor(private elementRef: ElementRef) {}
 
-  ngOnChanges(changes: SimpleChanges) {
+  get selectedElement(): HTMLElement & { disabled?: boolean } {
+    return this.elementRef?.nativeElement as HTMLElement & { disabled?: boolean };
+  }
+
+  ngOnChanges(): void {
     this.onLoading(this.loading);
   }
 
-  disableButton() {
-    this.elementRef.nativeElement.disabled = true;
+  disableButton(): void {
+    this.selectedElement.disabled = true;
   }
 
-  getButtonText() {
-    this.defaultText = this.elementRef.nativeElement.innerHTML;
+  getButtonText(): void {
+    this.defaultText = this.selectedElement.innerHTML;
   }
 
-  changeLoadingText() {
+  changeLoadingText(): void {
     if (this.loadingText) {
-      this.elementRef.nativeElement.innerHTML = `${this.loadingText}`;
+      this.selectedElement.innerHTML = `${this.loadingText}`;
     } else if (this.defaultText && this.loadingTextMap[this.defaultText]) {
-      this.elementRef.nativeElement.innerHTML = `${this.loadingTextMap[this.defaultText]}`;
+      this.selectedElement.innerHTML = `${this.loadingTextMap[this.defaultText]}`;
     } else {
-      this.elementRef.nativeElement.innerHTML = this.defaultText;
+      this.selectedElement.innerHTML = this.defaultText;
     }
   }
 
-  addLoader() {
+  addLoader(): void {
     let cssClass = '';
     cssClass = this.buttonType && this.buttonType === 'secondary' ? 'secondary-loader' : 'primary-loader';
-    this.elementRef.nativeElement.classList.add('disabled');
+    this.selectedElement.classList.add('disabled');
     if (this.loaderPosition === LoaderPosition.postfix) {
-      this.elementRef.nativeElement.innerHTML = `${this.elementRef.nativeElement.innerHTML} <div class="${cssClass}"></div>`;
+      this.selectedElement.innerHTML = `${this.selectedElement.innerHTML} <div class="${cssClass}"></div>`;
     } else {
-      this.elementRef.nativeElement.innerHTML = `<div class="${cssClass}"></div>${this.elementRef.nativeElement.innerHTML}`;
+      this.selectedElement.innerHTML = `<div class="${cssClass}"></div>${this.selectedElement.innerHTML}`;
     }
 
     this.loaderAdded = true;
   }
 
-  resetButton() {
+  resetButton(): void {
     if (this.loaderAdded) {
-      this.elementRef.nativeElement.classList.remove('disabled');
-      this.elementRef.nativeElement.disabled = false;
-      this.elementRef.nativeElement.innerHTML = this.defaultText;
+      this.selectedElement.classList.remove('disabled');
+      this.selectedElement.disabled = false;
+      this.selectedElement.innerHTML = this.defaultText;
     }
   }
 
-  onLoading(loading) {
+  onLoading(loading: boolean): void {
     if (loading) {
       this.disableButton();
       this.getButtonText();
@@ -94,6 +98,4 @@ export class FormButtonValidationDirective implements OnInit, OnChanges {
       this.resetButton();
     }
   }
-
-  ngOnInit() {}
 }

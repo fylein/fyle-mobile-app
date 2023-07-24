@@ -20,6 +20,7 @@ export const apiTxnUnreportedStatsRes: StatsDimensionResponse[] = [
 
 export const apiTxnUnreportedStatsEmptyRes: StatsDimensionResponse[] = [
   {
+    aggregates: [],
     dimensions: [],
     name: 'scalar_stat',
   },
@@ -44,6 +45,7 @@ export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = [
 
 export const apiTxnIncompleteStatsEmptyRes: StatsDimensionResponse[] = [
   {
+    aggregates: [],
     dimensions: [],
     name: 'scalar_stat',
   },
