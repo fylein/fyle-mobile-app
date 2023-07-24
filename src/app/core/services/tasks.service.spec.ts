@@ -566,8 +566,7 @@ describe('TasksService', () => {
         totalCount: 1,
         totalAmount: totalCount,
       },
-      homeCurrency,
-      []
+      homeCurrency
     );
     expect(tasks[0].subheader).toEqual('1 expense  worth ₹142.26K  can be added to a report');
   });
@@ -628,8 +627,7 @@ describe('TasksService', () => {
         totalCount: 0,
         totalAmount: 0,
       },
-      homeCurrency,
-      []
+      homeCurrency
     );
 
     expect(tasks6).toEqual([]);
