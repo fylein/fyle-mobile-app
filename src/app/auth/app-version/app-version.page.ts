@@ -50,4 +50,5 @@ export class AppVersionPage implements OnInit {
       );
     });
   }
+  // this is just a comment for test
 }
