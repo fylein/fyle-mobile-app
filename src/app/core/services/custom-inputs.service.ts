@@ -199,7 +199,7 @@ export class CustomInputsService {
       if (customProperty.value.hasOwnProperty('display')) {
         displayValue = (<{ display: string }>customProperty.value).display || '-';
       } else {
-        displayValue = customProperty.value?.toString();
+        displayValue = customProperty.value.toString();
       }
     }
     return displayValue;

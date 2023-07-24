@@ -19,7 +19,6 @@ import { UndoMerge } from '../models/undo-merge.model';
 import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
@@ -37,7 +36,7 @@ import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
-import { StatsResponse } from '../models/v2/stats-response.model';
+import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 enum FilterState {
@@ -91,7 +90,7 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$,
     isInstant: true,
   })
-  clearCache() {
+  clearCache(): Observable<null> {
     return of(null);
   }
 
@@ -317,7 +316,7 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  createTxnWithFiles(txn: Transaction, fileUploads$: Observable<FileObject[]>) {
+  createTxnWithFiles(txn: Transaction, fileUploads$: Observable<FileObject[]>): Observable<Transaction> {
     return fileUploads$.pipe(
       switchMap((fileObjs: FileObject[]) =>
         this.upsert(txn).pipe(
@@ -329,7 +328,7 @@ export class TransactionService {
               })
             ).pipe(
               concatMap((fileObj) => this.fileService.post(fileObj)),
-              reduce((acc, curr) => acc.concat([curr]), []),
+              reduce((acc: FileObject[], curr: FileObject) => acc.concat([curr]), []),
               map(() => transaction)
             )
           )
@@ -377,7 +376,7 @@ export class TransactionService {
           tx_id: `eq.${id}`,
         },
       })
-      .pipe(map((res) => this.fixDates(res.data[0]) as Expense));
+      .pipe(map((res) => this.fixDates(res.data[0])));
   }
 
   checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
@@ -496,10 +495,10 @@ export class TransactionService {
     let vendorDisplayName = expense.tx_vendor;
 
     if (fyleCategory === 'mileage') {
-      vendorDisplayName = (expense.tx_distance || 0)?.toString();
+      vendorDisplayName = (expense.tx_distance || 0).toString();
       vendorDisplayName += ' ' + expense.tx_distance_unit;
     } else if (fyleCategory === 'per diem') {
-      vendorDisplayName = expense.tx_num_days?.toString();
+      vendorDisplayName = expense.tx_num_days.toString();
       if (expense.tx_num_days > 1) {
         vendorDisplayName += ' Days';
       } else {

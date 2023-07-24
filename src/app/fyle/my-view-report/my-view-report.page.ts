@@ -37,7 +37,7 @@ import { Approver } from 'src/app/core/models/v1/approver.model';
   styleUrls: ['./my-view-report.page.scss'],
 })
 export class MyViewReportPage {
-  @ViewChild('commentInput') commentInput: ElementRef;
+  @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
@@ -144,10 +144,10 @@ export class MyViewReportPage {
     let vendorName = etxn.tx_vendor || 'Expense';
 
     if (category === 'mileage') {
-      vendorName = (etxn.tx_distance || 0)?.toString();
+      vendorName = (etxn.tx_distance || 0).toString();
       vendorName += ' ' + etxn.tx_distance_unit;
     } else if (category === 'per diem') {
-      vendorName = (etxn.tx_num_days || 0)?.toString();
+      vendorName = (etxn.tx_num_days || 0).toString();
       vendorName += ' Days';
     }
 
@@ -352,7 +352,7 @@ export class MyViewReportPage {
       header: string;
       body: string;
       infoMessage: string;
-      deleteMethod: () => Observable<null>;
+      deleteMethod: () => Observable<void>;
     };
   } {
     return {
@@ -366,10 +366,8 @@ export class MyViewReportPage {
           erpt.rp_state === 'DRAFT' && erpt.rp_num_transactions === 0
             ? null
             : 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: (): Observable<null> =>
-          this.reportService
-            .delete(this.reportId)
-            .pipe(tap(() => this.trackingService.deleteReport())) as Observable<null>,
+        deleteMethod: (): Observable<void> =>
+          this.reportService.delete<void>(this.reportId).pipe(tap(() => this.trackingService.deleteReport())),
       },
     };
   }
@@ -527,7 +525,7 @@ export class MyViewReportPage {
       };
 
       this.newComment = null;
-      (this.commentInput.nativeElement as HTMLInputElement).focus();
+      this.commentInput.nativeElement.focus();
       this.isCommentAdded = true;
 
       this.statusService

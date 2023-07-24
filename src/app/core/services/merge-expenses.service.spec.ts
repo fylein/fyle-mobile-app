@@ -843,7 +843,7 @@ describe('MergeExpensesService', () => {
       // @ts-ignore
       const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData22);
       expect(res).toEqual(optionsData23);
-      expect(dateService.isValidDate).toHaveBeenCalledWith(optionsData22[1].value);
+      expect(dateService.isValidDate).toHaveBeenCalledWith(<Date>optionsData22[1].value);
     });
 
     it('should return the formatted custom input options by type without date', () => {

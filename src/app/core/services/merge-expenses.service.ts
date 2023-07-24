@@ -282,7 +282,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => !!expense.tx_vendor),
       map((expense) => ({
-        label: expense.tx_vendor?.toString(),
+        label: expense.tx_vendor.toString(),
         value: expense.tx_vendor,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {

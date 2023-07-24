@@ -202,7 +202,7 @@ export class ViewMileagePage {
       infoMessage: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<null>;
+      deleteMethod: () => Observable<void>;
     };
   } {
     return {
@@ -215,8 +215,7 @@ export class ViewMileagePage {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: (): Observable<null> =>
-          this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id) as Observable<null>,
+        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
     };
   }
