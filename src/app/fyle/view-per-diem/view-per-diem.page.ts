@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Observable, from, Subject, noop, of, forkJoin } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -24,31 +24,33 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
+import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 
 @Component({
   selector: 'app-view-per-diem',
   templateUrl: './view-per-diem.page.html',
   styleUrls: ['./view-per-diem.page.scss'],
 })
-export class ViewPerDiemPage implements OnInit {
+export class ViewPerDiemPage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedPerDiem$: Observable<Expense>;
 
-  orgSettings: any;
+  orgSettings: OrgSettings;
 
   perDiemCustomFields$: Observable<CustomField[]>;
 
-  perDiemRate$: Observable<any>;
+  perDiemRate$: Observable<PerDiemRates>;
 
   isCriticalPolicyViolated$: Observable<boolean>;
 
   isAmountCapped$: Observable<boolean>;
 
-  policyViloations$: Observable<any>;
+  policyViloations$: Observable<IndividualExpensePolicyState[]>;
 
   canFlagOrUnflag$: Observable<boolean>;
 
@@ -109,15 +111,15 @@ export class ViewPerDiemPage implements OnInit {
     private dependentFieldsService: DependentFieldsService
   ) {}
 
-  get ExpenseView() {
+  get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
   }
 
-  isNumber(val) {
+  isNumber(val): boolean {
     return typeof val === 'number';
   }
 
-  goBack() {
+  goBack(): void {
     if (this.view === ExpenseView.team) {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     } else {
@@ -125,7 +127,7 @@ export class ViewPerDiemPage implements OnInit {
     }
   }
 
-  getPolicyDetails(expenseId: string) {
+  getPolicyDetails(expenseId: string): void {
     if (expenseId) {
       if (this.view === ExpenseView.team) {
         from(this.policyService.getApproverExpensePolicyViolations(expenseId))
@@ -143,8 +145,8 @@ export class ViewPerDiemPage implements OnInit {
     }
   }
 
-  async openCommentsModal() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+  async openCommentsModal(): Promise<void> {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
@@ -155,7 +157,7 @@ export class ViewPerDiemPage implements OnInit {
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data } = (await modal.onDidDismiss()) as { data: { updated: boolean } };
 
     if (data && data.updated) {
       this.trackingService.addComment({ view: this.view });
@@ -164,8 +166,8 @@ export class ViewPerDiemPage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
-    const id = this.activatedRoute.snapshot.params.id;
+  ionViewWillEnter(): void {
+    const id = this.activatedRoute.snapshot.params.id as string;
 
     this.extendedPerDiem$ = this.updateFlag$.pipe(
       switchMap(() =>
@@ -231,7 +233,7 @@ export class ViewPerDiemPage implements OnInit {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
-            this.orgSettings?.projects?.enabled && (extendedPerDiem.tx_project_name || isProjectMandatory);
+            this.orgSettings?.projects?.enabled && (!!extendedPerDiem.tx_project_name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -263,7 +265,7 @@ export class ViewPerDiemPage implements OnInit {
       })
     );
 
-    this.view = this.activatedRoute.snapshot.params.view;
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
     this.canFlagOrUnflag$ = this.extendedPerDiem$.pipe(
       filter(() => this.view === ExpenseView.team),
@@ -314,13 +316,14 @@ export class ViewPerDiemPage implements OnInit {
     this.updateFlag$.next(null);
 
     const etxnIds =
-      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+      this.activatedRoute.snapshot.params.txnIds &&
+      (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
     this.numEtxnsInReport = etxnIds.length;
-    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
+    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
   }
 
-  async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+  async removeExpenseFromReport(): Promise<void> {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -337,7 +340,7 @@ export class ViewPerDiemPage implements OnInit {
     });
 
     await deletePopover.present();
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
@@ -345,8 +348,8 @@ export class ViewPerDiemPage implements OnInit {
     }
   }
 
-  async flagUnflagExpense() {
-    const id = this.activatedRoute.snapshot.params.id;
+  async flagUnflagExpense(): Promise<void> {
+    const id = this.activatedRoute.snapshot.params.id as string;
     const etxn = await this.transactionService.getEtxn(id).toPromise();
 
     const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
@@ -360,7 +363,7 @@ export class ViewPerDiemPage implements OnInit {
     });
 
     await flagUnflagModal.present();
-    const { data } = await flagUnflagModal.onWillDismiss();
+    const { data } = (await flagUnflagModal.onWillDismiss()) as { data: { comment: string } };
 
     if (data && data.comment) {
       from(this.loaderService.showLoader('Please wait'))
@@ -387,10 +390,8 @@ export class ViewPerDiemPage implements OnInit {
     this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
-  getDisplayValue(customProperties) {
+  getDisplayValue(customProperties: CustomField): string {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
-
-  ngOnInit() {}
 }

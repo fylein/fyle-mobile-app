@@ -467,7 +467,10 @@ export function TestCases2(getTestBed) {
       it('should return generated form properties with locations as a single element if location_2 is undefined', () => {
         component.fg.patchValue(mergeExpenseFormData2);
         const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
-        expect(generatedFormProperties).toEqual({ ...generatedFormPropertiesData2, locations: [optionsData33.value] });
+        expect(generatedFormProperties).toEqual({
+          ...generatedFormPropertiesData2,
+          locations: [optionsData15.options[0].value],
+        });
       });
 
       it('should return generated form properties with locations as empty array if location_1 and locations_2 are undefined', () => {

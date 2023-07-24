@@ -75,7 +75,7 @@ export const generatedFormPropertiesData2: GeneratedFormProperties = {
   bus_travel_class: undefined,
   distance: undefined,
   distance_unit: undefined,
-  locations: [optionsData15.value, optionsData33.value],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
 };
 
 export const generatedFormPropertiesData3: GeneratedFormProperties = {
@@ -112,7 +112,7 @@ export const generatedFormPropertiesData3: GeneratedFormProperties = {
   bus_travel_class: undefined,
   distance: undefined,
   distance_unit: undefined,
-  locations: [optionsData15.value, optionsData33.value],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
 };
 
 export const generatedFormPropertiesData4: GeneratedFormProperties = {
@@ -147,5 +147,5 @@ export const generatedFormPropertiesData5: GeneratedFormProperties = {
   bus_travel_class: undefined,
   distance: undefined,
   distance_unit: undefined,
-  locations: [optionsData15.value, optionsData33.value],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
 };

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Observable, from, Subject, concat, noop, of, forkJoin } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -24,7 +24,6 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -38,7 +37,7 @@ import { CustomInput } from 'src/app/core/models/custom-input.model';
   templateUrl: './view-mileage.page.html',
   styleUrls: ['./view-mileage.page.scss'],
 })
-export class ViewMileagePage implements OnInit {
+export class ViewMileagePage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedMileage$: Observable<Expense>;
@@ -51,7 +50,7 @@ export class ViewMileagePage implements OnInit {
 
   isAmountCapped$: Observable<boolean>;
 
-  policyViloations$: Observable<any>;
+  policyViloations$: Observable<IndividualExpensePolicyState[]>;
 
   canFlagOrUnflag$: Observable<boolean>;
 
@@ -119,15 +118,15 @@ export class ViewMileagePage implements OnInit {
     private fileService: FileService
   ) {}
 
-  get ExpenseView() {
+  get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.onPageExit$.next(null);
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -146,7 +145,7 @@ export class ViewMileagePage implements OnInit {
     return typeof val === 'number';
   }
 
-  getPolicyDetails(expenseId: string) {
+  getPolicyDetails(expenseId: string): void {
     if (expenseId) {
       if (this.view === ExpenseView.team) {
         from(this.policyService.getApproverExpensePolicyViolations(expenseId))
@@ -164,7 +163,7 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  goBack() {
+  goBack(): void {
     if (this.view === ExpenseView.team) {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     } else {
@@ -172,8 +171,8 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  async openCommentsModal() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+  async openCommentsModal(): Promise<void> {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
@@ -184,7 +183,7 @@ export class ViewMileagePage implements OnInit {
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data } = (await modal.onDidDismiss()) as { data: { updated: boolean } };
 
     if (data && data.updated) {
       this.trackingService.addComment({ view: this.view });
@@ -193,7 +192,19 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  getDeleteDialogProps(etxn: Expense) {
+  getDeleteDialogProps(etxn: Expense): {
+    component: typeof FyDeleteDialogComponent;
+    cssClass: string;
+    backdropDismiss: boolean;
+    componentProps: {
+      header: string;
+      body: string;
+      infoMessage: string;
+      ctaText: string;
+      ctaLoadingText: string;
+      deleteMethod: () => Observable<null>;
+    };
+  } {
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -204,18 +215,19 @@ export class ViewMileagePage implements OnInit {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
+        deleteMethod: (): Observable<null> =>
+          this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id) as Observable<null>,
       },
     };
   }
 
-  async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+  async removeExpenseFromReport(): Promise<void> {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
 
     const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
 
     await deletePopover.present();
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
@@ -223,8 +235,8 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  async flagUnflagExpense(isExpenseFlagged: boolean) {
-    const id = this.activatedRoute.snapshot.params.id;
+  async flagUnflagExpense(isExpenseFlagged: boolean): Promise<void> {
+    const id = this.activatedRoute.snapshot.params.id as string;
     const etxn = await this.transactionService.getEtxn(id).toPromise();
 
     const title = isExpenseFlagged ? 'Unflag' : 'Flag';
@@ -238,7 +250,7 @@ export class ViewMileagePage implements OnInit {
     });
 
     await flagUnflagModal.present();
-    const { data } = await flagUnflagModal.onWillDismiss();
+    const { data } = (await flagUnflagModal.onWillDismiss()) as { data: { comment: string } };
 
     if (data && data.comment) {
       from(this.loaderService.showLoader('Please wait'))
@@ -264,9 +276,9 @@ export class ViewMileagePage implements OnInit {
     this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    const id = this.activatedRoute.snapshot.params.id;
+    const id = this.activatedRoute.snapshot.params.id as string;
 
     this.extendedMileage$ = this.updateFlag$.pipe(
       switchMap(() =>
@@ -360,7 +372,7 @@ export class ViewMileagePage implements OnInit {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
-            this.orgSettings?.projects?.enabled && (extendedMileage.tx_project_name || isProjectMandatory);
+            this.orgSettings?.projects?.enabled && (!!extendedMileage.tx_project_name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -385,7 +397,7 @@ export class ViewMileagePage implements OnInit {
       )
     );
 
-    this.view = this.activatedRoute.snapshot.params.view;
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
     this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
       take(1),
@@ -434,17 +446,18 @@ export class ViewMileagePage implements OnInit {
     this.updateFlag$.next(null);
 
     const etxnIds =
-      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+      this.activatedRoute.snapshot.params.txnIds &&
+      (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
     this.numEtxnsInReport = etxnIds.length;
-    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
+    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
   }
 
-  getDisplayValue(customProperties): boolean | string {
+  getDisplayValue(customProperties: CustomField): boolean | string {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
 
-  viewAttachment() {
+  viewAttachment(): void {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => this.mapAttachment$),
@@ -463,6 +476,4 @@ export class ViewMileagePage implements OnInit {
         await attachmentsModal.present();
       });
   }
-
-  ngOnInit() {}
 }

@@ -476,7 +476,8 @@ export function TestCases3(getTestBed) {
     describe('patchCategoryDependentFields(): ', () => {
       beforeEach(() => {
         const mockExpense = cloneDeep(expenseList2);
-        mockExpense[1].tx_locations = [optionsData15.value, optionsData33.value];
+
+        mockExpense[1].tx_locations = [optionsData15.options[0].value, optionsData33.options[0].value];
         mockExpense[1].tx_flight_journey_travel_class = 'ECONOMY';
         mockExpense[1].tx_flight_return_travel_class = 'BUSINESS';
         mockExpense[1].tx_distance = 23;
@@ -484,8 +485,8 @@ export function TestCases3(getTestBed) {
         component.expenses = mockExpense;
         component.categoryDependentFieldsOptions$ = of(combinedOptionsData3);
         mergeExpensesService.getFieldValueOnChange.and.returnValues(
-          'Mumbai',
-          'Pune',
+          optionsData15.options[0].value,
+          optionsData33.options[0].value,
           new Date('2023-03-13T11:30:00.000Z'),
           new Date('2023-03-13T11:30:00.000Z'),
           'ECONOMY',
@@ -505,18 +506,29 @@ export function TestCases3(getTestBed) {
       it('should call getFieldValueOnChange with correct args', () => {
         component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
         component.genericFieldsForm.patchValue({
-          location_1: optionsData15.value,
-          location_2: optionsData33.value,
+          location_1: optionsData15.options[0].value,
+          location_2: optionsData33.options[0].value,
           flight_journey_travel_class: 'ECONOMY',
           train_travel_class: 'SLEEPER',
           distance: 23,
           distance_unit: 'KM',
         });
+
         component.patchCategoryDependentFields(1);
         const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
-        expect(location1Call).toEqual([optionsData15, true, 'Mumbai', 'Mumbai']);
+        expect(location1Call).toEqual([
+          optionsData15,
+          true,
+          optionsData15.options[0].value,
+          optionsData15.options[0].value,
+        ]);
         const location2Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
-        expect(location2Call).toEqual([optionsData15, false, 'Pune', 'Pune']);
+        expect(location2Call).toEqual([
+          optionsData33,
+          false,
+          optionsData33.options[0].value,
+          optionsData33.options[0].value,
+        ]);
         const fromDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
         expect(fromDtCall).toEqual([optionsData16, true, null, undefined]);
         const toDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(3);
@@ -538,8 +550,8 @@ export function TestCases3(getTestBed) {
       it('should call getFieldValueOnChange with correct args if expense is undefined', () => {
         component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
         component.genericFieldsForm.patchValue({
-          location_1: 'Mumbai',
-          location_2: 'Pune',
+          location_1: optionsData15.options[0].value,
+          location_2: optionsData33.options[0].value,
           flight_journey_travel_class: 'ECONOMY',
           train_travel_class: 'SLEEPER',
           distance: 23,
@@ -547,9 +559,9 @@ export function TestCases3(getTestBed) {
         });
         component.patchCategoryDependentFields(2);
         const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
-        expect(location1Call).toEqual([optionsData15, true, undefined, 'Mumbai']);
+        expect(location1Call).toEqual([optionsData15, true, undefined, optionsData15.options[0].value]);
         const location2Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
-        expect(location2Call).toEqual([optionsData15, false, undefined, 'Pune']);
+        expect(location2Call).toEqual([optionsData33, false, undefined, optionsData33.options[0].value]);
         const fromDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
         expect(fromDtCall).toEqual([optionsData16, true, undefined, undefined]);
         const toDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(3);
@@ -571,8 +583,8 @@ export function TestCases3(getTestBed) {
       it('should call getFieldValueOnChange with correct args if touchedGenericFields is undefined', () => {
         component.touchedGenericFields = undefined;
         component.genericFieldsForm.patchValue({
-          location_1: 'Mumbai',
-          location_2: 'Pune',
+          location_1: optionsData15.options[0].value,
+          location_2: optionsData33.options[0].value,
           flight_journey_travel_class: 'ECONOMY',
           train_travel_class: 'SLEEPER',
           distance: 23,
@@ -580,9 +592,19 @@ export function TestCases3(getTestBed) {
         });
         component.patchCategoryDependentFields(1);
         const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
-        expect(location1Call).toEqual([optionsData15, undefined, 'Mumbai', 'Mumbai']);
+        expect(location1Call).toEqual([
+          optionsData15,
+          undefined,
+          optionsData15.options[0].value,
+          optionsData15.options[0].value,
+        ]);
         const location2Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
-        expect(location2Call).toEqual([optionsData15, undefined, 'Pune', 'Pune']);
+        expect(location2Call).toEqual([
+          optionsData33,
+          undefined,
+          optionsData33.options[0].value,
+          optionsData33.options[0].value,
+        ]);
         const fromDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
         expect(fromDtCall).toEqual([optionsData16, undefined, null, undefined]);
         const toDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(3);
@@ -605,9 +627,9 @@ export function TestCases3(getTestBed) {
         component.touchedGenericFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
         component.patchCategoryDependentFields(1);
         const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
-        expect(location1Call).toEqual([optionsData15, true, 'Mumbai', undefined]);
+        expect(location1Call).toEqual([optionsData15, true, optionsData15.options[0].value, undefined]);
         const location2Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
-        expect(location2Call).toEqual([optionsData15, false, 'Pune', undefined]);
+        expect(location2Call).toEqual([optionsData33, false, optionsData33.options[0].value, undefined]);
         const fromDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
         expect(fromDtCall).toEqual([optionsData16, true, null, undefined]);
         const toDtCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(3);
