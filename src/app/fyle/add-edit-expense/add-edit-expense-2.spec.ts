@@ -17,8 +17,11 @@ import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock
 import {
   instaFyleData1,
   instaFyleData2,
+  instaFyleData3,
+  instaFyleData4,
   parsedReceiptData1,
   parsedReceiptData2,
+  parsedReceiptDataWoDate,
 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { editExpTxn, txnData2 } from 'src/app/core/mock-data/transaction.data';
@@ -27,6 +30,7 @@ import {
   expectedUnflattendedTxnData1,
   unflattenedTxnData,
   unflattenedTxnWithExtractedData,
+  unflattenedTxnWithExtractedData2,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -71,6 +75,8 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import { error } from 'console';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -270,6 +276,7 @@ export function TestCases2(getTestBed) {
           of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
         );
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
+        spyOn(component, 'getCCCSettings').and.returnValue(false);
 
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesData);
@@ -278,6 +285,7 @@ export function TestCases2(getTestBed) {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+          expect(component.getCCCSettings).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -295,6 +303,7 @@ export function TestCases2(getTestBed) {
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
           of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
         );
+        spyOn(component, 'getCCCSettings').and.returnValue(true);
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
 
         component.getPaymentModes().subscribe((res) => {
@@ -304,6 +313,7 @@ export function TestCases2(getTestBed) {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
           expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+          expect(component.getCCCSettings).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -387,6 +397,37 @@ export function TestCases2(getTestBed) {
         });
         done();
       });
+
+      it('should throw error if exchange rate errors out', (done) => {
+        activatedRoute.snapshot.params.dataUrl = 'data-url';
+        activatedRoute.snapshot.params.canExtractData = 'true';
+        currencyService.getHomeCurrency.and.returnValue(of('INR'));
+        currencyService.getExchangeRate.and.returnValue(throwError(() => new Error('error')));
+        transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptDataWoDate);
+
+        component.getInstaFyleImageData().subscribe({
+          next: (res) => {
+            expect(res).toEqual(instaFyleData3);
+            expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('data-url');
+            expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+            expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith('USD', 'INR', jasmine.any(Date));
+          },
+          error: (err) => expect(err).toBeNull(),
+        });
+        done();
+      });
+
+      it('should return insta fyle data if parsed response is not present', (done) => {
+        activatedRoute.snapshot.params.dataUrl = 'data-url';
+        activatedRoute.snapshot.params.canExtractData = 'true';
+        transactionOutboxService.parseReceipt.and.resolveTo({ data: null });
+
+        component.getInstaFyleImageData().subscribe((res) => {
+          expect(res).toEqual(instaFyleData4);
+          expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('data-url');
+          done();
+        });
+      });
     });
 
     it('setCategoryFromVendor(): should set category in the form', () => {
@@ -423,6 +464,18 @@ export function TestCases2(getTestBed) {
         component.getEditExpenseObservable().subscribe((res) => {
           expect(res).toEqual(unflattenedTxnData);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+          done();
+        });
+      });
+
+      it('shuld return txn without category', (done) => {
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnWithExtractedData2));
+        dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
+
+        component.getEditExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(unflattenedTxnWithExtractedData2);
+          expect(transactionService.getETxnUnflattened).toHaveBeenCalledTimes(1);
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
           done();
         });
       });
@@ -554,6 +607,34 @@ export function TestCases2(getTestBed) {
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledOnceWith();
         expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
       }));
+
+      it('should add expense in add mode', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        component.fg.controls.report.setValue(null);
+        activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url1']);
+        component.mode = 'add';
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(txnData2)));
+        fixture.detectChanges();
+
+        component.saveExpense();
+
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+      });
+
+      it('should return null if add expense fails', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        component.fg.controls.report.setValue(null);
+        activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);
+        component.mode = 'add';
+        spyOn(component, 'addExpense').and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.saveExpense();
+
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('saveAndNewExpense():', () => {

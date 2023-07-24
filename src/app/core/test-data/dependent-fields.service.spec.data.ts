@@ -253,3 +253,22 @@ export const dependentFieldValues: CustomProperty<string>[] = [
     value: '-',
   },
 ];
+
+export const txnCustomProperties2: CustomProperty<string | Date>[] = [
+  {
+    name: 'CUSTOM FIELD',
+    value: 'qwwq',
+  },
+  {
+    name: 'Cost Code',
+    value: 'Wow this Works',
+  },
+  {
+    name: 'Cost Area',
+    value: null,
+  },
+  {
+    name: 'Expense Date',
+    value: '2022-07-06T10:07:27.334887',
+  },
+];

@@ -763,6 +763,53 @@ export function TestCases4(getTestBed) {
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
+
+      it('should match an expense while offline', () => {
+        const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
+        generateEtxnSpy
+          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+        generateEtxnSpy
+          .withArgs(component.etxn$, jasmine.any(Observable))
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        component.isConnected$ = of(false);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard));
+        personalCardsService.matchExpense.and.returnValue(
+          of({
+            id: expectedUnflattendedTxnData3.tx.id,
+            transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
+          })
+        );
+        spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
+        spyOn(component, 'showSnackBarToast');
+        fixture.detectChanges();
+
+        component.saveAndMatchWithPersonalCardTxn();
+        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard);
+        expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id,
+          apiPersonalCardTxnsRes.data[0].btxn_id
+        );
+        expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id
+        );
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Expense created successfully.' },
+          'success',
+          ['msb-success']
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
+      });
     });
 
     describe('trackEditExpense():', () => {
@@ -890,6 +937,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         spyOn(component, 'trackPolicyCorrections');
         spyOn(component, 'trackEditExpense');
+
         component.etxn$ = of(unflattenedTxnDataWithReportID2);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
@@ -925,6 +973,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         spyOn(component, 'trackPolicyCorrections');
         spyOn(component, 'trackEditExpense');
+        spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
         policyService.getCriticalPolicyRules.and.returnValue([
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
         ]);
@@ -961,6 +1010,7 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview.tx);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
           expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview.tx.id);
+          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(2);
           done();
         });
       });
@@ -971,6 +1021,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         spyOn(component, 'trackPolicyCorrections');
         spyOn(component, 'trackEditExpense');
+        spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
@@ -980,7 +1031,7 @@ export function TestCases4(getTestBed) {
         );
         component.etxn$ = of(unflattenedTxnDataWithViolationUserReview);
         authService.getEou.and.resolveTo(apiEouRes);
-        transactionService.review.and.returnValue(of(null));
+
         transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithViolationUserReview.tx));
         statusService.findLatestComment.and.returnValue(of('a comment'));
         statusService.post.and.returnValue(of(txnStatusData));
@@ -1011,7 +1062,7 @@ export function TestCases4(getTestBed) {
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview.tx);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
-          expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview.tx.id);
+
           expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
             unflattenedTxnDataWithViolationUserReview.tx.id,
             'transactions',
@@ -1023,6 +1074,7 @@ export function TestCases4(getTestBed) {
             { comment: 'comment' },
             true
           );
+          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(2);
           done();
         });
       });

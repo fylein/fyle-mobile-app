@@ -1248,3 +1248,40 @@ export const taxSettingsData2 = {
   ...taxSettingsData,
   enabled: false,
 };
+
+export const orgSettingsWoTax = {
+  ...orgSettingsData,
+  tax_settings: { ...orgSettingsData.tax_settings, enabled: false },
+  advances: null,
+  simplified_report_closure_settings: {
+    enabled: true,
+  },
+  corporate_credit_card_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advance_requests: {
+    enabled: true,
+  },
+};
+
+export const orgSettingsCCCDisabled2 = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: null,
+};
+
+export const orgSettingsCCCDisabled3 = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: {
+    allowed: true,
+    enabled: null,
+  },
+};
+
+export const orgSettingsWithProjectAndAutofill = {
+  ...orgSettingsRes,
+  org_expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+};

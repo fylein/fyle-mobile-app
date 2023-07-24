@@ -1,8 +1,9 @@
 import { TitleCasePipe } from '@angular/common';
+import { EventEmitter } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Subscription, of } from 'rxjs';
@@ -25,8 +26,8 @@ import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
 import {
   unflattenExp1,
   unflattenExp2,
-  unflattenedTxn,
   unflattenedExpData,
+  unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -61,18 +62,10 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import {
-  multiplePaymentModesData,
-  orgSettingsData,
-  unflattenedAccount1Data,
-} from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
-import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { EventEmitter } from '@angular/core';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -883,6 +876,37 @@ export function TestCases1(getTestBed) {
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
           ToastContent: 'Marked expense as Personal',
         });
+      }));
+
+      it('should mark txn as personal if CCC group id is null', fakeAsync(() => {
+        spyOn(component, 'getMarkDismissModalParams');
+        spyOn(component, 'showSnackBarToast');
+        component.etxn$ = of(null);
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+        deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isExpenseMatchedForDebitCCCE = true;
+
+        fixture.detectChanges();
+
+        component.markPeronsalOrDismiss('personal');
+        tick(500);
+
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getMarkDismissModalParams(getMarkDismissModalParamsData2, true)
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Marked expense as Personal' },
+          'information',
+          ['msb-info']
+        );
+        expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+          ToastContent: 'Marked expense as Personal',
+        });
+        expect(component.corporateCreditCardExpenseGroupId).toBeUndefined();
       }));
     });
 

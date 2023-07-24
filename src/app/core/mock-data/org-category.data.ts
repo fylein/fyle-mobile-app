@@ -973,3 +973,16 @@ export const TaxiCategory = {
   sub_category: 'TRAVEL',
   updated_at: new Date('2022-11-23T13:11:51.771Z'),
 };
+
+export const expectedAutoFillCategory3 = {
+  code: null,
+  created_at: new Date('2018-01-31T23:50:27.235Z'),
+  displayName: 'Food',
+  enabled: true,
+  fyle_category: 'Food',
+  id: 16566,
+  name: 'Food',
+  org_id: 'orNVthTo2Zyo',
+  sub_category: 'Food',
+  updated_at: new Date('2022-05-05T17:45:42.092Z'),
+};

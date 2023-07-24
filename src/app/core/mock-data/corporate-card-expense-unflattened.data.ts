@@ -52,5 +52,18 @@ export const expectedECccResponse: CCCExpUnflattened[] = [
 
 export const eCCCData1 = {
   ...expectedECccResponse[0],
+  ccce: {
+    ...expectedECccResponse[0].ccce,
+    corporate_credit_card_account_number: '123456789',
+  },
   flow: 'newCCCFlow',
+};
+
+export const eCCCData2 = {
+  ...expectedECccResponse[0],
+  ccce: {
+    ...expectedECccResponse[0].ccce,
+    corporate_credit_card_account_number: '123456789',
+    vendor: null,
+  },
 };
