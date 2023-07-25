@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, forkJoin, from, ignoreElements, map } from 'rxjs';
-import { MapDirectionsResponse, MapDirectionsService, MapGeocoder, MapGeocoderResponse } from '@angular/google-maps';
+import { Observable, forkJoin, from, ignoreElements } from 'rxjs';
+import { MapGeocoder, MapGeocoderResponse } from '@angular/google-maps';
 import { Cacheable } from 'ts-cacheable';
 import { MileageRoute } from 'src/app/shared/components/route-visualizer/mileage-route.interface';
 import { MileageMarkerParams } from '../models/mileage-marker-params.interface';
@@ -14,11 +14,7 @@ import { Loader } from '@googlemaps/js-api-loader';
 export class GmapsService {
   private staticMapsApi = 'https://maps.googleapis.com/maps/api/staticmap';
 
-  constructor(
-    private geocoder: MapGeocoder,
-    private mapDirectionsService: MapDirectionsService,
-    private staticMapPropertiesService: StaticMapPropertiesService
-  ) {}
+  constructor(private geocoder: MapGeocoder, private staticMapPropertiesService: StaticMapPropertiesService) {}
 
   @Cacheable()
   getGeocode(latitude: number, longitude: number): Observable<MapGeocoderResponse> {
@@ -30,35 +26,15 @@ export class GmapsService {
     });
   }
 
-  @Cacheable()
-  getDirections(mileageRoute: MileageRoute): Observable<google.maps.DirectionsResult> {
-    const { origin, destination, waypoints } = mileageRoute;
-
-    // Convert waypoints to google maps waypoints
-    const directionsWaypoints: google.maps.DirectionsWaypoint[] = waypoints.map((waypoint) => ({ location: waypoint }));
-
-    const request: google.maps.DirectionsRequest = {
-      destination,
-      origin,
-      waypoints: directionsWaypoints,
-      travelMode: google.maps.TravelMode.DRIVING,
-    };
-
-    return this.mapDirectionsService.route(request).pipe(map((response: MapDirectionsResponse) => response.result));
-  }
-
   loadLibrary(): Observable<boolean> {
     const loader = new Loader({
       apiKey: environment.GOOGLE_MAPS_API_KEY,
     });
 
     // importLibrary will add the specified library to the global namespace window.google.maps
-    return forkJoin([
-      from(loader.importLibrary('core')),
-      from(loader.importLibrary('maps')),
-      from(loader.importLibrary('routes')),
-      from(loader.importLibrary('geocoding')),
-    ]).pipe(ignoreElements());
+    return forkJoin([from(loader.importLibrary('core')), from(loader.importLibrary('geocoding'))]).pipe(
+      ignoreElements()
+    );
   }
 
   // Used to generate static map image urls, for single location
@@ -85,7 +61,7 @@ export class GmapsService {
     staticMapImageUrl.searchParams.append('size', `${properties.width}x${properties.height}`);
     staticMapImageUrl.searchParams.append('scale', properties.resolutionScale.toString());
 
-    const encodedPolyline = mileageRoute.directions.overview_polyline;
+    const encodedPolyline = mileageRoute.directionsPolyline;
     staticMapImageUrl.searchParams.append('path', `color:${properties.routeColor}|enc:${encodedPolyline}`);
 
     const { originParams, destinationParams, waypointsParams } = this.generateMarkerParams(
