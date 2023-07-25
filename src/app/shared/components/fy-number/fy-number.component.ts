@@ -23,6 +23,8 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   @Input() min: number;
 
+  @Input() isAmount: boolean;
+
   isDisabled = false;
 
   fc: FormControl;
@@ -39,11 +41,28 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   innerValue;
 
+  isNegativeExpensePluginEnabled = false;
+
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: any) => void = noop;
 
   constructor(private platform: Platform, private launchDarklyService: LaunchDarklyService) {}
+
+  keyCodeForNegativeExpense = [
+    'Digit1',
+    'Digit2',
+    'Digit3',
+    'Digit4',
+    'Digit5',
+    'Digit6',
+    'Digit7',
+    'Digit8',
+    'Digit9',
+    'Digit0',
+    'Minus',
+    'Period',
+  ];
 
   get value(): any {
     return this.innerValue;
@@ -87,6 +106,12 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
       .checkIfKeyboardPluginIsEnabled()
       .subscribe((isKeyboardPluginEnabled) => (this.isKeyboardPluginEnabled = isKeyboardPluginEnabled));
 
+    this.launchDarklyService
+      .checkIfNegativeExpensePluginIsEnabled()
+      .subscribe(
+        (isNegativeExpensePluginEnabled) => (this.isNegativeExpensePluginEnabled = isNegativeExpensePluginEnabled)
+      );
+
     this.fc = new FormControl();
     this.fc.valueChanges.subscribe((value) => {
       if (typeof value === 'string') {
@@ -113,6 +138,21 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
         this.fc.patchValue(this.inputWithoutDecimal + '.' + event.key);
       }
       this.inputWithoutDecimal = inputValue;
+    }
+  }
+
+  handleNegativeExpenseChange(event: KeyboardEvent) {
+    const inputElement = event.target as HTMLInputElement;
+    const inputValue = inputElement.value;
+
+    if (this.isKeyboardPluginEnabled) {
+      if (this.keyCodeForNegativeExpense.includes(event.code) || event.code === 'Comma') {
+        this.handleChange(event);
+      }
+    } else {
+      if (this.keyCodeForNegativeExpense.includes(event.code)) {
+        this.fc.patchValue(inputValue);
+      }
     }
   }
 }
