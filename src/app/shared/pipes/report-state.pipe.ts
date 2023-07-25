@@ -4,12 +4,12 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'reportState',
 })
 export class ReportState implements PipeTransform {
-  transform(val, simplifyReportsEnabled = false) {
+  transform(val: string, simplifyReportsEnabled = false): string {
     if (!val) {
       return val;
     }
 
-    const states = {
+    const states: Record<string, string> = {
       DRAFT: 'draft',
       DRAFT_INQUIRY: 'incomplete',
       APPROVER_PENDING: simplifyReportsEnabled ? 'submitted' : 'reported',

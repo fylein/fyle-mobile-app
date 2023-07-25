@@ -2,8 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { of } from 'rxjs';
-import { checkPolicyWithRulesData } from '../mock-data/policy-violation-check.data';
+import { checkPolicyData, checkPolicyWithRulesData } from '../mock-data/policy-violation-check.data';
 import { advanceRequests } from '../mock-data/advance-requests.data';
+import { PolicyViolationCheck } from '../models/policy-violation-check.model';
 
 describe('AdvanceRequestPolicyService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -43,12 +44,10 @@ describe('AdvanceRequestPolicyService', () => {
   });
 
   it('servicePost(): should make POST request', (done) => {
-    const apiResponse = {
-      message: 'SUCCESS',
-    };
+    const apiResponse = checkPolicyData;
     httpClient.post.and.returnValue(of(apiResponse));
 
-    advanceRequestPolicyService.servicePost('/policy_check', advanceRequests).subscribe((res) => {
+    advanceRequestPolicyService.servicePost<PolicyViolationCheck>('/policy_check', advanceRequests).subscribe((res) => {
       expect(res).toEqual(apiResponse);
       expect(httpClient.post).toHaveBeenCalledOnceWith(
         'https://staging.fyle.tech/policy/advance_requests/policy_check',
