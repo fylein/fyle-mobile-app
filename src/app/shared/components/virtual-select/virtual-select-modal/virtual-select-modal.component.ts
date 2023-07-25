@@ -11,7 +11,7 @@ import {
 import { combineLatest, from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 
@@ -160,8 +160,9 @@ export class VirtualSelectModalComponent implements OnInit, AfterViewInit {
       filteredOptions: this.filteredOptions$,
       recentlyUsedItems: this.recentlyUsedItems$,
     }).subscribe(({ filteredOptions, recentlyUsedItems }) => {
-      const recentlyUsedItemsUpdated = recentlyUsedItems.map((v) => {
+      const recentlyUsedItemsUpdated = cloneDeep(recentlyUsedItems).map((v) => {
         v.isRecentlyUsed = true;
+        v.selected = false;
         return v;
       });
       this.selectableOptions = recentlyUsedItemsUpdated.concat(filteredOptions);
