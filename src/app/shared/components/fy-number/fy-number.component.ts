@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, forwardRef, Input, OnInit } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Platform } from '@ionic/angular';
 import { noop } from 'rxjs';
@@ -16,7 +16,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
     },
   ],
 })
-export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class FyNumberComponent implements ControlValueAccessor, OnInit {
   @Input() placeholder: string;
 
   @Input() disabled: boolean;
@@ -39,15 +39,13 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   // This variable tracks if comma was clicked by the user.
   commaClicked = false;
 
-  innerValue;
+  innerValue: string | number;
 
   isNegativeExpensePluginEnabled = false;
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (_: any) => void = noop;
-
-  constructor(private platform: Platform, private launchDarklyService: LaunchDarklyService) {}
+  onChangeCallback: (_: string | number) => void = noop;
 
   keyCodeForNegativeExpense = [
     'Digit1',
@@ -64,29 +62,31 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
     'Period',
   ];
 
-  get value(): any {
+  constructor(private platform: Platform, private launchDarklyService: LaunchDarklyService) {}
+
+  get value(): string | number {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: string | number) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       this.onChangeCallback(v);
     }
   }
 
-  writeValue(value: any): void {
+  writeValue(value: string): void {
     if (value !== this.innerValue) {
       this.innerValue = value && parseFloat(value);
       this.fc.setValue(value && parseFloat(value));
     }
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: (_: string | number) => void): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: () => void): void {
     this.onTouchedCallback = fn;
   }
 
@@ -94,13 +94,11 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
     this.isDisabled = isDisabled;
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
-  ngOnDestroy(): void {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.isIos = this.platform.is('ios');
     this.launchDarklyService
       .checkIfKeyboardPluginIsEnabled()
@@ -125,7 +123,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   // This is a hack to handle the comma key on ios devices in regions where the decimal separator is a comma
-  handleChange(event: KeyboardEvent) {
+  handleChange(event: KeyboardEvent): void {
     const inputElement = event.target as HTMLInputElement;
     const inputValue = inputElement.value;
 
@@ -141,7 +139,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
     }
   }
 
-  handleNegativeExpenseChange(event: KeyboardEvent) {
+  handleNegativeExpenseChange(event: KeyboardEvent): void {
     const inputElement = event.target as HTMLInputElement;
     const inputValue = inputElement.value;
 
