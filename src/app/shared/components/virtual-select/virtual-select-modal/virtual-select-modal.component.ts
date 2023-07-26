@@ -66,12 +66,9 @@ export class VirtualSelectModalComponent implements AfterViewInit {
       return of(this.recentlyUsed);
     } else {
       return (from(this.recentLocalStorageItemsService.get(this.cacheName)) as Observable<VirtualSelectOption[]>).pipe(
-        map((options: VirtualSelectOption[]) =>
+        map((options) =>
           options
-            .filter(
-              (option: VirtualSelectOption) =>
-                option.custom || this.options.map((op) => op.label).includes(option.label)
-            )
+            .filter((option) => option.custom || this.options.map((op) => op.label).includes(option.label))
             .map((option: { label: string; value: object; selected?: boolean }) => {
               option.selected = isEqual(option.value, this.currentSelection);
               return option;
@@ -96,7 +93,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
 
           let extraOption: VirtualSelectOption[] = [];
           if (this.currentSelection && this.defaultLabelProp) {
-            const selectedOption: VirtualSelectOption = this.options.find((option: VirtualSelectOption) =>
+            const selectedOption: VirtualSelectOption = this.options.find((option) =>
               isEqual(option.value, this.currentSelection)
             );
             if (!selectedOption) {
@@ -111,9 +108,9 @@ export class VirtualSelectModalComponent implements AfterViewInit {
           return initial.concat(
             this.options
               .concat(extraOption)
-              .filter((option: VirtualSelectOption) => option.label.toLowerCase().includes(searchText.toLowerCase()))
+              .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
               .sort((element1, element2) => element1.label.localeCompare(element2.label))
-              .map((option: VirtualSelectOption) => {
+              .map((option) => {
                 option.selected = isEqual(option.value, this.currentSelection);
                 return option;
               })
@@ -172,9 +169,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
 
   onElementSelect(option: VirtualSelectOption): void {
     if (this.cacheName && option.value) {
-      option.custom = !this.options.some(
-        (internalOption: VirtualSelectOption) => internalOption.value !== option.value
-      );
+      option.custom = !this.options.some((internalOption) => internalOption.value !== option.value);
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
     this.modalController.dismiss(option);
