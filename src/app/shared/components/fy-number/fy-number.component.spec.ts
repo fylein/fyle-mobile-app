@@ -19,7 +19,10 @@ describe('FyNumberComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['checkIfKeyboardPluginIsEnabled']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfKeyboardPluginIsEnabled',
+      'checkIfNegativeExpensePluginIsEnabled',
+    ]);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
 
     TestBed.configureTestingModule({
@@ -40,6 +43,7 @@ describe('FyNumberComponent', () => {
 
     platform.is.withArgs('ios').and.returnValue(true);
     launchDarklyService.checkIfKeyboardPluginIsEnabled.and.returnValue(of(true));
+    launchDarklyService.checkIfNegativeExpensePluginIsEnabled.and.returnValue(of(true));
     fixture = TestBed.createComponent(FyNumberComponent);
     component = fixture.componentInstance;
     inputEl = fixture.debugElement.query(By.css('input'));
@@ -87,6 +91,21 @@ describe('FyNumberComponent', () => {
       const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
       expect(component.isIos).toBe(false);
       expect(component.isKeyboardPluginEnabled).toBeFalse();
+      expect(inputElement.length).toBe(1);
+      expect(component.handleChange).not.toHaveBeenCalled();
+    });
+
+    it('should not enable the negative expense plugin when checkIfKeyboardPluginIsEnabled returns false', () => {
+      spyOn(component, 'handleChange');
+
+      platform.is.withArgs('ios').and.returnValue(false);
+      launchDarklyService.checkIfNegativeExpensePluginIsEnabled.and.returnValue(of(false));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
+      expect(component.isIos).toBe(false);
+      expect(component.isNegativeExpensePluginEnabled).toBeFalse();
       expect(inputElement.length).toBe(1);
       expect(component.handleChange).not.toHaveBeenCalled();
     });
@@ -214,5 +233,90 @@ describe('FyNumberComponent', () => {
     const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
     inputElement.dispatchEvent(new KeyboardEvent('keyup', { key: '1' }));
     expect(component.handleChange).toHaveBeenCalledTimes(1);
+  });
+
+  describe('handleNegativeExpenseChange():', () => {
+    it('should handle comma correctly if keyboard plugin and negative expense plugin are enabled and should not allow any non-numeric value', () => {
+      spyOn(component.fc, 'setValue').and.callThrough();
+      spyOn(component.fc, 'patchValue').and.callThrough();
+      spyOn(component, 'handleChange').and.callThrough();
+
+      component.handleNegativeExpenseChange({ target: { value: '12' }, code: 'Digit1' } as any);
+      expect(component.commaClicked).toBeFalse();
+      expect(component.fc.patchValue).not.toHaveBeenCalled();
+      expect(component.handleChange).toHaveBeenCalledWith({ target: { value: '12' }, code: 'Digit1' } as any);
+      expect(component.inputWithoutDecimal).toBe('12');
+
+      component.handleNegativeExpenseChange({ target: { value: '12a' }, code: 'KeyA' } as any);
+      expect(component.commaClicked).toBeFalse();
+      expect(component.fc.patchValue).not.toHaveBeenCalled();
+      expect(component.inputWithoutDecimal).toBe('12');
+
+      component.handleNegativeExpenseChange({ target: { value: '12,' }, code: 'Comma' } as any);
+      expect(component.commaClicked).toBeTrue();
+      expect(component.fc.patchValue).not.toHaveBeenCalled();
+      expect(component.handleChange).toHaveBeenCalledWith({ target: { value: '12,' }, code: 'Comma' } as any);
+      expect(component.inputWithoutDecimal).toBe('12');
+
+      component.handleNegativeExpenseChange({ target: { value: '12.5' }, code: 'Digit5', key: '5' } as any);
+      expect(component.commaClicked).toBeFalse();
+      expect(component.fc.patchValue).toHaveBeenCalledWith('12.5');
+      expect(component.value).toBe(12.5);
+      expect(component.handleChange).toHaveBeenCalledWith({
+        target: { value: '12.5' },
+        code: 'Digit5',
+        key: '5',
+      } as any);
+      expect(component.inputWithoutDecimal).toBe('12.5');
+
+      const inputWithPlugin = fixture.debugElement.query(By.css('#inputWithPlugin input'));
+      expect(inputWithPlugin).toBeNull();
+
+      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithPlugin input'));
+      expect(inputWithoutPlugin).toBeNull();
+
+      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
+      expect(inputElement.length).toBe(1);
+
+      expect(component.isIos).toBeTrue();
+      expect(component.isKeyboardPluginEnabled).toBeTrue();
+      expect(component.isNegativeExpensePluginEnabled).toBeTrue();
+    });
+
+    it('should not allow non-numeric value when negative expense is enabled', () => {
+      spyOn(component.fc, 'setValue').and.callThrough();
+      spyOn(component.fc, 'patchValue').and.callThrough();
+      spyOn(component, 'handleChange').and.callThrough();
+      component.isKeyboardPluginEnabled = false;
+
+      component.handleNegativeExpenseChange({ target: { value: '12' }, code: 'Digit1' } as any);
+      expect(component.fc.patchValue).toHaveBeenCalledWith('12');
+
+      component.handleNegativeExpenseChange({ target: { value: '12a' }, code: 'KeyA' } as any);
+      expect(component.fc.patchValue).not.toHaveBeenCalledWith('12a');
+
+      component.handleNegativeExpenseChange({ target: { value: '12.' }, code: 'Period' } as any);
+      expect(component.fc.patchValue).toHaveBeenCalledWith('12.');
+
+      component.handleNegativeExpenseChange({ target: { value: '12./' }, code: 'Slash' } as any);
+      expect(component.fc.patchValue).not.toHaveBeenCalledWith('12./');
+
+      component.handleNegativeExpenseChange({ target: { value: '12.8' }, code: 'Digit8' } as any);
+      expect(component.fc.patchValue).toHaveBeenCalledWith('12.8');
+      expect(component.value).toBe(12.8);
+
+      const inputWithPlugin = fixture.debugElement.query(By.css('#inputWithPlugin input'));
+      expect(inputWithPlugin).toBeNull();
+
+      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithPlugin input'));
+      expect(inputWithoutPlugin).toBeNull();
+
+      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
+      expect(inputElement.length).toBe(1);
+
+      expect(component.isIos).toBeTrue();
+      expect(component.isKeyboardPluginEnabled).toBeFalse();
+      expect(component.isNegativeExpensePluginEnabled).toBeTrue();
+    });
   });
 });
