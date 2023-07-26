@@ -1,7 +1,7 @@
 import { Component, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
-import { finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import { finalize, shareReplay, switchMap, take } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -16,7 +16,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { environment } from 'src/environments/environment';
 import { Currency } from 'src/app/core/models/currency.model';
 import { Org } from 'src/app/core/models/org.model';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { CommonOrgUserSettings, OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OrgService } from 'src/app/core/services/org.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -30,6 +30,8 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { cloneDeep } from 'lodash';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -114,7 +116,7 @@ export class MyProfilePage {
     private activatedRoute: ActivatedRoute
   ) {}
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -122,7 +124,7 @@ export class MyProfilePage {
     );
   }
 
-  signOut() {
+  signOut(): void {
     try {
       forkJoin({
         device: this.deviceService.getDeviceInfo(),
@@ -150,9 +152,12 @@ export class MyProfilePage {
     }
   }
 
-  toggleSetting(eventData: EventData) {
+  toggleSetting(eventData: EventData): void {
     const settingName = this.settingsMap[eventData.key];
-    this.orgUserSettings[settingName].enabled = eventData.isEnabled;
+    const setting = cloneDeep(this.orgUserSettings[settingName]) as CommonOrgUserSettings;
+    setting.enabled = eventData.isEnabled;
+
+    this.orgUserSettings[settingName] = setting;
 
     if (eventData.key === 'defaultCurrency' && eventData.isEnabled && eventData.selectedCurrency) {
       this.orgUserSettings.currency_settings.preferred_currency = eventData.selectedCurrency.shortCode || null;
@@ -163,12 +168,13 @@ export class MyProfilePage {
       action: eventData.isEnabled ? 'enabled' : 'disabled',
       setDefaultCurrency: eventData.selectedCurrency ? true : false,
     });
-    return this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
+
+    this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    this.loadEou$ = new BehaviorSubject(null);
+    this.loadEou$ = new BehaviorSubject<null>(null);
     this.eou$ = this.loadEou$.pipe(switchMap(() => from(this.authService.getEou())));
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
@@ -176,7 +182,7 @@ export class MyProfilePage {
     });
     this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
 
-    const popover = this.activatedRoute.snapshot.params.openPopover;
+    const popover = this.activatedRoute.snapshot.params.openPopover as string;
     if (popover) {
       this.eou$.pipe(take(1)).subscribe((eou) => {
         if (popover === 'add_mobile_number') {
@@ -188,7 +194,7 @@ export class MyProfilePage {
     }
   }
 
-  reset() {
+  reset(): void {
     const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
@@ -232,7 +238,7 @@ export class MyProfilePage {
       this.orgUserSettings.bank_data_aggregation_settings.enabled;
   }
 
-  setPreferenceSettings() {
+  setPreferenceSettings(): void {
     const allPreferenceSettings: PreferenceSetting[] = [
       {
         title: 'Extract receipt details',
@@ -287,7 +293,7 @@ export class MyProfilePage {
     this.infoCardsData = allInfoCardsData.filter((infoCardData) => infoCardData.isShown);
   }
 
-  showToastMessage(message: string, type: 'success' | 'failure') {
+  showToastMessage(message: string, type: 'success' | 'failure'): void {
     const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
     let snackbarIcon: string;
     if (message.toLowerCase().includes('copied')) {
@@ -300,7 +306,7 @@ export class MyProfilePage {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
-  async showSuccessPopover() {
+  async showSuccessPopover(): Promise<void> {
     const fyleMobileNumber = '(302) 440-2921';
     const listItems = [
       {
@@ -330,7 +336,7 @@ export class MyProfilePage {
     this.trackingService.mobileNumberVerified();
   }
 
-  async verifyMobileNumber(eou: ExtendedOrgUser) {
+  async verifyMobileNumber(eou: ExtendedOrgUser): Promise<void> {
     const verifyNumberPopoverComponent = await this.popoverController.create({
       component: VerifyNumberPopoverComponent,
       componentProps: {
@@ -340,7 +346,10 @@ export class MyProfilePage {
     });
 
     await verifyNumberPopoverComponent.present();
-    const { data } = await verifyNumberPopoverComponent.onWillDismiss();
+    const { data } = (await verifyNumberPopoverComponent.onWillDismiss()) as OverlayResponse<{
+      action: string;
+      homeCurrency: string;
+    }>;
 
     if (data) {
       if (data.action === 'BACK') {
@@ -358,7 +367,7 @@ export class MyProfilePage {
     this.trackingService.verifyMobileNumber();
   }
 
-  onVerifyCtaClicked(eou: ExtendedOrgUser) {
+  onVerifyCtaClicked(eou: ExtendedOrgUser): void {
     if (eou.ou.mobile_verification_attempts_left !== 0) {
       this.verifyMobileNumber(eou);
     } else {
@@ -366,7 +375,7 @@ export class MyProfilePage {
     }
   }
 
-  async updateMobileNumber(eou: ExtendedOrgUser) {
+  async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
     const updateMobileNumberPopover = await this.popoverController.create({
       component: UpdateMobileNumberComponent,
       componentProps: {
@@ -380,7 +389,7 @@ export class MyProfilePage {
     });
 
     await updateMobileNumberPopover.present();
-    const { data } = await updateMobileNumberPopover.onWillDismiss();
+    const { data } = (await updateMobileNumberPopover.onWillDismiss()) as OverlayResponse<{ action: string }>;
 
     if (data) {
       if (data.action === 'SUCCESS') {
