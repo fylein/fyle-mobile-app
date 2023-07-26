@@ -9,7 +9,7 @@ import { Subscription, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1, expenseData2, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
@@ -66,6 +66,8 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -499,7 +501,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveAndNewExpense():', () => {
       it('should save and create expense if the form is valid and is in add mode', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'reloadCurrentRoute');
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'add';
@@ -548,7 +550,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveExpenseAndGotoPrev():', () => {
       it('should add a new expense and close the form', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -563,7 +565,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should add a new expense and go to the previous expense if not the first one in list', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
         component.mode = 'add';
@@ -618,7 +620,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveExpenseAndGotoNext():', () => {
       it('should add a new expense and close the form', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.reviewList = ['id1'];
@@ -634,7 +636,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'goToNext');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -832,7 +834,7 @@ export function TestCases2(getTestBed) {
 
     describe('getDeleteReportParams():', () => {
       it('should return modal params and method to remove expense from report', (done) => {
-        reportService.removeTransaction.and.returnValue(of(null));
+        reportService.removeTransaction.and.returnValue(of(expenseList2[0]));
 
         component
           .getDeleteReportParams(

@@ -63,7 +63,9 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { getElementBySelector, getElementRef } from 'src/app/core/dom-helpers';
 import { unflattenedData } from 'src/app/core/mock-data/data-transform.data';
-import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
+import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -358,13 +360,13 @@ export function TestCases4(getTestBed) {
         policyService.getPolicyRules.and.returnValue([]);
         authService.getEou.and.resolveTo(apiEouRes);
         activatedRoute.snapshot.params.rp_id = 'rp_id';
-        transactionOutboxService.addEntryAndSync.and.resolveTo(expectedUnflattendedTxnData3);
+        transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         component.fg.controls.report.setValue(expectedErpt[0]);
         fixture.detectChanges();
 
         component.addExpense('SAVE_EXPENSE').subscribe((etxn) => {
           Promise.resolve(etxn).then((res) => {
-            expect(res).toEqual(expectedUnflattendedTxnData3);
+            expect(res).toEqual(outboxQueueData1[0]);
           });
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
           expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
@@ -375,7 +377,7 @@ export function TestCases4(getTestBed) {
           expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-            expectedUnflattendedTxnData3.tx,
+            outboxQueueData1[0].transaction,
             expectedUnflattendedTxnData3.dataUrls,
             [],
             'rprAfNrce73O'
@@ -390,7 +392,10 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'trackAddExpense');
         component.fg.controls.report.setValue(expectedErpt[0]);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(
-          of({ ...unflattenedTxnData, dataUrls: [fileObjectAdv1] })
+          of({
+            ...unflattenedTxnData,
+            dataUrls: [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'application/pdf' }],
+          })
         );
         authService.getEou.and.resolveTo(apiEouRes);
         transactionOutboxService.addEntry.and.resolveTo();
@@ -406,7 +411,7 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
             unflattenedTxnData.tx,
-            [fileObjectAdv1],
+            [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'pdf' }],
             [],
             'rprAfNrce73O'
           );
@@ -451,7 +456,7 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledOnceWith();
           expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData3, false);
           expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
-            expectedUnflattendedTxnData3.tx,
+            outboxQueueData1[0].transaction,
             [],
             [],
             undefined
@@ -730,7 +735,7 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(txnData2));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
         component.fg.controls.report.setValue(expectedErpt[0]);
-        reportService.addTransactions.and.returnValue(of(true));
+        reportService.addTransactions.and.returnValue(of(expenseList2[0]));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
@@ -761,8 +766,8 @@ export function TestCases4(getTestBed) {
         component.fg.controls.report.setValue(expectedErpt[0]);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        reportService.removeTransaction.and.returnValue(of(true));
-        reportService.addTransactions.and.returnValue(of(true));
+        reportService.removeTransaction.and.returnValue(of(expenseList2[0]));
+        reportService.addTransactions.and.returnValue(of(expenseList2[0]));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithReportID.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnDataWithReportID));
@@ -797,7 +802,7 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(unflattenedTxnDataWithReportID2);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        reportService.removeTransaction.and.returnValue(of(true));
+        reportService.removeTransaction.and.returnValue(of(expenseList2[0]));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithReportID2.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnDataWithReportID2));

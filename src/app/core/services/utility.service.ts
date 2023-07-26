@@ -34,7 +34,7 @@ export class UtilityService {
     });
   }
 
-  discardRedundantCharacters(data: Transaction, fieldsToCheck: string[]): Transaction {
+  discardRedundantCharacters(data: Partial<Transaction>, fieldsToCheck: string[]): Partial<Transaction> {
     const dataCopy = { ...data };
     for (const property in dataCopy) {
       if (

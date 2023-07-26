@@ -608,7 +608,7 @@ describe('ViewTeamReportPage', () => {
   it('deleteReport(): should delete report', async () => {
     popupService.showPopup.and.returnValue(Promise.resolve('primary'));
     loaderService.showLoader.and.returnValue(Promise.resolve());
-    reportService.delete.and.returnValue(of(true));
+    reportService.delete.and.returnValue(of(undefined));
     loaderService.hideLoader.and.returnValue(Promise.resolve());
 
     await component.deleteReport();

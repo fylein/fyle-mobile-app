@@ -196,7 +196,7 @@ describe('CreateNewReportComponent', () => {
       const Report_Value = 0;
       const report = reportUnflattenedData2;
       reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
-      reportService.addTransactions.and.returnValue(of(reportUnflattenedData2));
+      reportService.addTransactions.and.returnValue(of(expenseList2[0]));
       component.ctaClickedEvent('create_draft_report');
       fixture.detectChanges();
       tick(500);

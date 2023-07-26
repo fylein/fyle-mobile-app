@@ -472,7 +472,7 @@ export class ViewExpensePage {
       infoMessage: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<void>;
+      deleteMethod: () => Observable<Expense>;
     };
   } {
     return {
@@ -485,7 +485,7 @@ export class ViewExpensePage {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: (): Observable<void> => this.reportService.removeTransaction<void>(etxn.tx_report_id, etxn.tx_id),
+        deleteMethod: (): Observable<Expense> => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
     };
   }
