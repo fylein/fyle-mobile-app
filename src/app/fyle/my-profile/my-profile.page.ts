@@ -29,6 +29,7 @@ import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -61,7 +62,7 @@ type CopyCardDetails = {
 export class MyProfilePage {
   orgUserSettings: OrgUserSettings;
 
-  orgSettings: any;
+  orgSettings: OrgSettings;
 
   eou$: Observable<ExtendedOrgUser>;
 
@@ -84,6 +85,14 @@ export class MyProfilePage {
   preferenceSettings: PreferenceSetting[];
 
   infoCardsData: CopyCardDetails[];
+
+  isCCCEnabled: boolean;
+
+  isVisaRTFEnabled: boolean;
+
+  isMastercardRTFEnabled: boolean;
+
+  isYodleeEnabled: boolean;
 
   constructor(
     private authService: AuthService,
@@ -199,8 +208,28 @@ export class MyProfilePage {
       .subscribe(async (res) => {
         this.orgUserSettings = res.orgUserSettings;
         this.orgSettings = res.orgSettings;
+
+        this.setCCCFlags();
         this.setPreferenceSettings();
       });
+  }
+
+  setCCCFlags(): void {
+    this.isCCCEnabled =
+      this.orgSettings.corporate_credit_card_settings.allowed &&
+      this.orgSettings.corporate_credit_card_settings.enabled;
+
+    this.isVisaRTFEnabled =
+      this.orgSettings.visa_enrollment_settings.allowed && this.orgSettings.visa_enrollment_settings.enabled;
+
+    this.isMastercardRTFEnabled =
+      this.orgSettings.mastercard_enrollment_settings.allowed &&
+      this.orgSettings.mastercard_enrollment_settings.enabled;
+
+    this.isYodleeEnabled =
+      this.orgSettings.bank_data_aggregation_settings.allowed &&
+      this.orgSettings.bank_data_aggregation_settings.enabled &&
+      this.orgUserSettings.bank_data_aggregation_settings.enabled;
   }
 
   setPreferenceSettings() {
