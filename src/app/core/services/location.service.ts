@@ -52,6 +52,29 @@ export class LocationService {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
+  getDirections(
+    origin: google.maps.LatLngLiteral,
+    destination: google.maps.LatLngLiteral,
+    waypoints?: google.maps.LatLngLiteral[]
+  ): Observable<string> {
+    const config = {
+      params: {
+        origin_lat: origin.lat,
+        origin_long: origin.lng,
+        destination_lat: destination.lat,
+        destination_long: destination.lng,
+        waypoints: waypoints.reduce(
+          (acc, waypoint, i) =>
+            i === 0 ? `${waypoint.lat},${waypoint.lng}` : `${acc}|${waypoint.lat},${waypoint.lng}`,
+          ''
+        ),
+        mode: 'driving',
+      },
+    };
+
+    return this.get<string>('/directions', config);
+  }
+
   getAutocompletePredictions(
     text: string,
     userId: string,

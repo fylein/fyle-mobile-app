@@ -1,5 +1,5 @@
 export interface StatsDimensionResponse {
-  aggregates?: {
+  aggregates: {
     function_name: string;
     function_value: number;
   }[];

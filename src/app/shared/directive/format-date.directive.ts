@@ -9,27 +9,31 @@ import * as dayjs from 'dayjs';
 export class FormatDateDirective implements OnInit {
   constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
 
-  @HostListener('ngModelChange', ['$event']) onChange(value: string) {
+  get selectedElement(): HTMLElement & { name?: string } {
+    return this.elementRef?.nativeElement as HTMLElement & { name?: string };
+  }
+
+  @HostListener('ngModelChange', ['$event']) onChange(value: string): void {
     this.modifyDisplayValue(value);
   }
 
-  modifyDisplayValue(value: string) {
-    if (this.elementRef && this.elementRef.nativeElement) {
+  modifyDisplayValue(value: string): void {
+    if (this.elementRef && this.selectedElement) {
       if (value) {
-        this.renderer.removeClass(this.elementRef.nativeElement, 'date-input__placeholder');
-        this.elementRef.nativeElement.setAttribute('data-date', dayjs(value).format('MMM DD, YYYY'));
+        this.renderer.removeClass(this.selectedElement, 'date-input__placeholder');
+        this.selectedElement.setAttribute('data-date', dayjs(value).format('MMM DD, YYYY'));
       } else {
-        this.renderer.addClass(this.elementRef.nativeElement, 'date-input__placeholder');
-        if (this.elementRef.nativeElement.name) {
-          this.elementRef.nativeElement.setAttribute('data-date', 'Select ' + this.elementRef.nativeElement.name);
+        this.renderer.addClass(this.selectedElement, 'date-input__placeholder');
+        if (this.selectedElement.name) {
+          this.selectedElement.setAttribute('data-date', 'Select ' + this.selectedElement.name);
         } else {
-          this.elementRef.nativeElement.setAttribute('data-date', 'Select date');
+          this.selectedElement.setAttribute('data-date', 'Select date');
         }
       }
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const initalValue = this.elementRef.nativeElement as HTMLInputElement;
     this.modifyDisplayValue(initalValue.value);
   }
