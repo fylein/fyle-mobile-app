@@ -47,20 +47,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
 
   onChangeCallback: (_: string | number) => void = noop;
 
-  keyCodeForNegativeExpense = [
-    'Digit1',
-    'Digit2',
-    'Digit3',
-    'Digit4',
-    'Digit5',
-    'Digit6',
-    'Digit7',
-    'Digit8',
-    'Digit9',
-    'Digit0',
-    'Minus',
-    'Period',
-  ];
+  keysForNegativeExpense = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '.'];
 
   constructor(private platform: Platform, private launchDarklyService: LaunchDarklyService) {}
 
@@ -144,12 +131,16 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
     const inputValue = inputElement.value;
 
     if (this.isKeyboardPluginEnabled) {
-      if (this.keyCodeForNegativeExpense.includes(event.code) || event.code === 'Comma') {
+      if (this.keysForNegativeExpense.includes(event.key) || event.code === 'Comma' || event.code === 'Backspace') {
         this.handleChange(event);
+      } else {
+        event.preventDefault();
       }
     } else {
-      if (this.keyCodeForNegativeExpense.includes(event.code)) {
+      if (this.keysForNegativeExpense.includes(event.key) || event.code === 'Backspace') {
         this.fc.patchValue(inputValue);
+      } else {
+        event.preventDefault();
       }
     }
   }
