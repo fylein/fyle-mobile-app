@@ -138,6 +138,7 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
 import { ReportsCardComponent } from './components/reports-card/reports-card.component';
 import { ViewDependentFieldsComponent } from './components/view-dependent-fields/view-dependent-fields.component';
 import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup-with-bullets.component';
+import { AddCardComponent } from './components/add-card/add-card.component';
 
 @NgModule({
   declarations: [
@@ -255,6 +256,7 @@ import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup
     ReportsCardComponent,
     ViewDependentFieldsComponent,
     PopupWithBulletsComponent,
+    AddCardComponent,
   ],
   imports: [
     CommonModule,
@@ -377,6 +379,7 @@ import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup
     ReportsCardComponent,
     ViewDependentFieldsComponent,
     PopupWithBulletsComponent,
+    AddCardComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

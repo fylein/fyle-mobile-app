@@ -151,48 +151,76 @@
   </div>
 
   <ng-container *ngIf="isConnected$ | async; else offlineMessage">
-    <div *ngIf="cardTransactionsAndDetails?.length > 0" class="stats--ccc-cards-section">
-      <div>
-        <ion-grid
-          [ngClass]="{
-            'stats--ccc-cards-grid-multiple': true
-          }"
-          class=""
-        >
+    <div class="stats--ccc-cards-section">
+      <ng-container *ngIf="isCCCEnabled || isPersonalCardsEnabled">
+        <ion-grid class="stats--ccc-cards-grid-multiple">
           <ion-row>
             <ion-col>
               <div class="stats--header stats--ccc-cards-header">CARD SPEND</div>
             </ion-col>
           </ion-row>
         </ion-grid>
-        <ng-container>
-          <app-spent-cards
-            *ngIf="cardTransactionsAndDetails?.length > 1"
-            [spentCards]="cardTransactionsAndDetails"
+
+        <ng-container *ngIf="cardTransactionsAndDetails?.length === 0">
+          <ion-grid>
+            <ion-row class="stats--ccc-cards-row">
+              <ion-col>
+                <app-add-card></app-add-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="cardTransactionsAndDetails?.length > 0">
+        <app-spent-cards
+          *ngIf="cardTransactionsAndDetails?.length > 1"
+          [spentCards]="cardTransactionsAndDetails"
+          [homeCurrency]="homeCurrency$"
+          [currencySymbol]="currencySymbol$"
+        ></app-spent-cards>
+        <div *ngIf="cardTransactionsAndDetails?.length === 1" class="stats--single-ccc">
+          <app-card-detail
+            [cardDetail]="cardTransactionsAndDetails[0]"
             [homeCurrency]="homeCurrency$"
             [currencySymbol]="currencySymbol$"
-          ></app-spent-cards>
-          <div *ngIf="cardTransactionsAndDetails?.length === 1" class="stats--single-ccc">
-            <app-card-detail
-              [cardDetail]="cardTransactionsAndDetails[0]"
-              [homeCurrency]="homeCurrency$"
-              [currencySymbol]="currencySymbol$"
-            >
-            </app-card-detail>
-          </div>
-        </ng-container>
+          >
+          </app-card-detail>
+        </div>
+      </ng-container>
 
-        <ng-template #cccStatsLoading>
-          <div class="stats--ccc-card-details">
+      <ng-template #cccStatsLoading>
+        <div class="stats--ccc-card-details">
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-skeleton-text
+                  class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small"
+                  animated
+                ></ion-skeleton-text>
+                <ion-skeleton-text
+                  class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small"
+                  animated
+                ></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col>
+                <ion-skeleton-text
+                  class="stats--ccc-skeleton-text stats--ccc-skeleton-text__width-large"
+                  animated
+                ></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+        <div class="stats--ccc-stats">
+          <div>
             <ion-grid>
               <ion-row>
                 <ion-col>
                   <ion-skeleton-text
-                    class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small"
-                    animated
-                  ></ion-skeleton-text>
-                  <ion-skeleton-text
-                    class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small"
+                    class="stats--expenses-skeleton-text stats--ccc-skeleton-text__width-large"
                     animated
                   ></ion-skeleton-text>
                 </ion-col>
@@ -200,70 +228,48 @@
               <ion-row>
                 <ion-col>
                   <ion-skeleton-text
-                    class="stats--ccc-skeleton-text stats--ccc-skeleton-text__width-large"
+                    class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small"
+                    animated
+                  ></ion-skeleton-text>
+                  <ion-skeleton-text
+                    class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium"
+                    animated
+                  ></ion-skeleton-text>
+                </ion-col>
+                <ion-col>
+                  <ion-skeleton-text
+                    class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium"
                     animated
                   ></ion-skeleton-text>
                 </ion-col>
               </ion-row>
             </ion-grid>
           </div>
-          <div class="stats--ccc-stats">
-            <div>
-              <ion-grid>
-                <ion-row>
-                  <ion-col>
-                    <ion-skeleton-text
-                      class="stats--expenses-skeleton-text stats--ccc-skeleton-text__width-large"
-                      animated
-                    ></ion-skeleton-text>
-                  </ion-col>
-                </ion-row>
-                <ion-row>
-                  <ion-col>
-                    <ion-skeleton-text
-                      class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small"
-                      animated
-                    ></ion-skeleton-text>
-                    <ion-skeleton-text
-                      class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium"
-                      animated
-                    ></ion-skeleton-text>
-                  </ion-col>
-                  <ion-col>
-                    <ion-skeleton-text
-                      class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium"
-                      animated
-                    ></ion-skeleton-text>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </div>
-            <hr class="stats--ccc-stats-divider" />
-            <div>
-              <ion-grid>
-                <ion-row>
-                  <ion-col>
-                    <ion-skeleton-text
-                      class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small"
-                      animated
-                    ></ion-skeleton-text>
-                    <ion-skeleton-text
-                      class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium"
-                      animated
-                    ></ion-skeleton-text>
-                  </ion-col>
-                  <ion-col>
-                    <ion-skeleton-text
-                      class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium"
-                      animated
-                    ></ion-skeleton-text>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </div>
+          <hr class="stats--ccc-stats-divider" />
+          <div>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-skeleton-text
+                    class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small"
+                    animated
+                  ></ion-skeleton-text>
+                  <ion-skeleton-text
+                    class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium"
+                    animated
+                  ></ion-skeleton-text>
+                </ion-col>
+                <ion-col>
+                  <ion-skeleton-text
+                    class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium"
+                    animated
+                  ></ion-skeleton-text>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
           </div>
-        </ng-template>
-      </div>
+        </div>
+      </ng-template>
     </div>
   </ng-container>
 
