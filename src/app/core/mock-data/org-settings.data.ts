@@ -1215,7 +1215,7 @@ export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
   },
 };
 
-export const taxSettingsData = {
+export const taxSettingsData: TaxSettings = {
   allowed: true,
   enabled: true,
   name: null,

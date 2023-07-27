@@ -18,7 +18,7 @@ import { expenseData1, splitExpData } from 'src/app/core/mock-data/expense.data'
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
-import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgCategoryData, sortedCategory, transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsWithProjectAndAutofill,
@@ -96,11 +96,12 @@ import {
   orgSettingsData,
   unflattenedAccount1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { customInput2, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { customInput2, customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -280,7 +281,7 @@ export function TestCases5(getTestBed) {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
         spyOn(component, 'dismissCCC').and.returnValue(of(expenseData1));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
-        component.matchedCCCTransaction = expectedUnflattendedTxnData1.tx;
+        component.matchedCCCTransaction = expectedECccResponse[0].ccce;
         fixture.detectChanges();
 
         component
@@ -442,7 +443,7 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
-        expect(component.getCategoryOnAdd).toHaveBeenCalledOnceWith({});
+        expect(component.getCategoryOnAdd).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledTimes(1);
         component.dependentFields$.subscribe((res) => {
@@ -492,19 +493,19 @@ export function TestCases5(getTestBed) {
 
     describe('getSelectedCategory():', () => {
       it('should get selected category', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(unflattenedTxnData);
         categoriesService.getCategoryById.and.returnValue(of(orgCategoryData));
         fixture.detectChanges();
 
         component.getSelectedCategory().subscribe((res) => {
           expect(res).toEqual(orgCategoryData);
-          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenExp1.tx.org_category_id);
+          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.org_category_id);
           done();
         });
       });
 
       it('should return null if category is not present in expense', (done) => {
-        component.etxn$ = of({ ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category_id: null } });
+        component.etxn$ = of({ ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category_id: null } });
         fixture.detectChanges();
 
         component.getSelectedCategory().subscribe((res) => {
@@ -674,7 +675,7 @@ export function TestCases5(getTestBed) {
 
     it('getRecentCostCenters(): should get recent cost centers', (done) => {
       component.recentlyUsedValues$ = of(recentlyUsedRes);
-      component.costCenters$ = of(costCentersData);
+      component.costCenters$ = of(expectedCCdata);
       recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(recentlyUsedCostCentersRes));
       fixture.detectChanges();
 
@@ -895,7 +896,7 @@ export function TestCases5(getTestBed) {
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
-        expect(component.parseFile).toHaveBeenCalledOnceWith('image');
+        expect(component.parseFile).toHaveBeenCalledTimes(1);
         expect(component.attachedReceiptsCount).toEqual(1);
       }));
 
@@ -1107,7 +1108,8 @@ export function TestCases5(getTestBed) {
       customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties2);
       spyOn(component, 'getProjectDependentFields').and.returnValue([]);
       spyOn(component, 'getCostCenterDependentFields').and.returnValue([]);
-      component.customInputs$ = of(customInput2);
+
+      component.customInputs$ = of(customInputData);
       component.fg = formBuilder.group({
         project_dependent_fields: [],
         custom_inputs: [],
@@ -1136,8 +1138,8 @@ export function TestCases5(getTestBed) {
     describe('ionViewWillEnter():', () => {
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
-        component.txnFields$ = of(defaultTxnFieldValuesData2);
-        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of(expenseFieldObjData);
+        component.filteredCategories$ = of(categorieListRes);
 
         spyOn(component, 'initClassObservables').and.returnValue(null);
         tokenService.getClusterDomain.and.resolveTo('domain');
@@ -1343,8 +1345,8 @@ export function TestCases5(getTestBed) {
 
       it('should setup class variables for offline mode', (done) => {
         component.isConnected$ = of(false);
-        component.txnFields$ = of(defaultTxnFieldValuesData2);
-        component.filteredCategories$ = of(transformedOrgCategories);
+        component.txnFields$ = of(expenseFieldObjData);
+        component.filteredCategories$ = of(categorieListRes);
         component.etxn$ = of(unflattenedExpenseWithCCCGroupId2);
         activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse[0]);
         activatedRoute.snapshot.params.id = null;

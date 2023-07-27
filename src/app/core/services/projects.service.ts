@@ -8,6 +8,7 @@ import { ExtendedProject } from '../models/v2/extended-project.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
+import { OrgCategory } from '../models/v1/org-category.model';
 
 @Injectable({
   providedIn: 'root',
@@ -110,7 +111,7 @@ export class ProjectsService {
     }
   }
 
-  getAllowedOrgCategoryIds(project, activeCategoryList) {
+  getAllowedOrgCategoryIds(project, activeCategoryList): OrgCategory[] {
     let categoryList = [];
     if (project) {
       categoryList = activeCategoryList.filter(

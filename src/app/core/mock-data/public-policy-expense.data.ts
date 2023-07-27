@@ -1,8 +1,7 @@
-import { PublicPolicyExpense } from '../models/public-policy-expense.model';
+import { expectedUnflattendedTxnData3 } from '../mock-data/unflattened-txn.data';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { Transaction } from '../models/v1/transaction.model';
-import { expectedUnflattendedTxnData3 } from '../mock-data/unflattened-txn.data';
+import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 
 export const publicPolicyExpenseData1: PublicPolicyExpense = {
   skip_reimbursement: false,
