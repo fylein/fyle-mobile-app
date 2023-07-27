@@ -43,7 +43,7 @@ export const customInputData1: Partial<CustomInput>[] = [
   },
   {
     name: 'CUSTOM FIELD',
-    value: 'qwwq',
+    value: 'custom field',
   },
   {
     name: 'Cost Code',

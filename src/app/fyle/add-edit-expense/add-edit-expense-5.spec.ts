@@ -7,7 +7,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
-import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
 import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
@@ -19,7 +18,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgCategoryData, sortedCategory, transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
-import { taxSettingsData } from 'src/app/core/mock-data/org-settings.data';
+import { taxSettingsData } from 'src/app/core/mock-data/tax-settings.data';
 import {
   orgUserSettingsData,
   orgUserSettingsData2,
@@ -31,12 +30,8 @@ import {
   recentlyUsedProjectRes,
   recentlyUsedRes,
 } from 'src/app/core/mock-data/recently-used.data';
-import {
-  expectedErpt,
-  reportOptionsData,
-  reportOptionsData2,
-  reportOptionsData3,
-} from 'src/app/core/mock-data/report-unflattened.data';
+import { reportOptionsData, reportOptionsData2, reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
+import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { expectedTaxGroupData, taxGroupData } from 'src/app/core/mock-data/tax-group.data';
 import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
@@ -836,7 +831,7 @@ export function TestCases5(getTestBed) {
       expect(result).toEqual(projectDependentFields);
     });
 
-    it('getCostCenterDependentFields(): should get project dependent fields', () => {
+    it('getCostCenterDependentFields(): should get cost center dependent fields', () => {
       component.fg = formBuilder.group({
         cost_center_dependent_fields: [],
       });
@@ -875,7 +870,7 @@ export function TestCases5(getTestBed) {
         component.txnFields$ = of(defaultTxnFieldValuesData2);
         component.filteredCategories$ = of(transformedOrgCategories);
 
-        spyOn(component, 'initSubjectObservables');
+        spyOn(component, 'initClassObservables');
         tokenService.getClusterDomain.and.resolveTo('domain');
         categoriesService.getSystemCategories.and.returnValue(['Bus', 'Airlines', 'Lodging', 'Train']);
         categoriesService.getBreakfastSystemCategories.and.returnValue(['Lodging']);
@@ -924,7 +919,7 @@ export function TestCases5(getTestBed) {
 
         component.ionViewWillEnter();
 
-        expect(component.initSubjectObservables).toHaveBeenCalledTimes(1);
+        expect(component.initClassObservables).toHaveBeenCalledTimes(1);
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
 
         expect(categoriesService.getSystemCategories).toHaveBeenCalledTimes(1);
