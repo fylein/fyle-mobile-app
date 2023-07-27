@@ -1,37 +1,35 @@
-import { Inject, Injectable } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ApiService } from './api.service';
-import { NetworkService } from './network.service';
-import { StorageService } from './storage.service';
-import { catchError, concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { from, Observable, of, range, Subject, iif } from 'rxjs';
-import { AuthService } from './auth.service';
-import { ApiV2Service } from './api-v2.service';
-import { DateService } from './date.service';
-import { ExtendedReport } from '../models/report.model';
-import { isEqual } from 'lodash';
-import { DataTransformService } from './data-transform.service';
-import { Cacheable, CacheBuster } from 'ts-cacheable';
-import { TransactionService } from './transaction.service';
-import { Datum, StatsResponse } from '../models/v2/stats-response.model';
-import { UserEventService } from './user-event.service';
-import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { LaunchDarklyService } from './launch-darkly.service';
+import { Inject, Injectable } from '@angular/core';
+import { Observable, Subject, from, of, range } from 'rxjs';
+import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { PermissionsService } from './permissions.service';
-import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { OrgSettings } from '../models/org-settings.model';
-import { Expense } from '../models/expense.model';
-import { Approver } from '../models/v1/approver.model';
-import { ReportActions } from '../models/report-actions.model';
-import { ReportPurpose } from '../models/report-purpose.model';
+import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { ApiV2Response } from '../models/api-v2.model';
+import { Expense } from '../models/expense.model';
+import { OrgSettings } from '../models/org-settings.model';
+import { PdfExport } from '../models/pdf-exports.model';
+import { ReportActions } from '../models/report-actions.model';
+import { ReportQueryParams } from '../models/report-api-params.model';
+import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportParams } from '../models/report-params.model';
+import { ReportPurpose } from '../models/report-purpose.model';
 import { UnflattenedReport } from '../models/report-unflattened.model';
 import { ReportV1 } from '../models/report-v1.model';
-import { ReportQueryParams } from '../models/report-api-params.model';
-import { PdfExport } from '../models/pdf-exports.model';
+import { ExtendedReport } from '../models/report.model';
+import { Approver } from '../models/v1/approver.model';
+import { StatsResponse } from '../models/v2/stats-response.model';
+import { ApiV2Service } from './api-v2.service';
+import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
+import { DataTransformService } from './data-transform.service';
+import { DateService } from './date.service';
+import { LaunchDarklyService } from './launch-darkly.service';
+import { NetworkService } from './network.service';
+import { PermissionsService } from './permissions.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { StorageService } from './storage.service';
+import { TransactionService } from './transaction.service';
+import { UserEventService } from './user-event.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -63,14 +61,14 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  clearCache() {
+  clearCache(): Observable<null> {
     return of(null);
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  clearTransactionCache() {
+  clearTransactionCache(): Observable<null> {
     return this.transactionService.clearCache();
   }
 
@@ -112,7 +110,7 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getERpt(rptId: string) {
+  getERpt(rptId: string): Observable<UnflattenedReport> {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map((data) => {
         const erpt: UnflattenedReport = this.dataTransformService.unflatten(data);
@@ -566,11 +564,11 @@ export class ReportService {
     );
   }
 
-  getFilteredPendingReports(searchParams: { state: string }) {
+  getFilteredPendingReports(searchParams: { state: string }): Observable<UnflattenedReport[]> {
     const params = this.searchParamsGenerator(searchParams);
 
     return this.getPaginatedERptcCount(params).pipe(
-      switchMap((results) =>
+      switchMap((results: number) =>
         // getting all results -> offset = 0, limit = count
         this.getPaginatedERptc(0, results.count, params)
       ),

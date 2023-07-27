@@ -1,5 +1,6 @@
 import { ParsedResponse } from './parsed_response.model';
 
-export class ParsedReceipt {
+export interface ParsedReceipt {
   data: ParsedResponse;
+  exchangeRate?: number;
 }

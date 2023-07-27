@@ -1838,7 +1838,7 @@ export const responseAfterAppliedFilter: ExpenseField[] = [
   },
 ];
 
-export const customProperties: CustomProperty<any>[] = [
+export const customProperties: CustomProperty<string | boolean | string[] | Date>[] = [
   {
     name: 'USer List CF',
     value: [],

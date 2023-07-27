@@ -70,7 +70,7 @@ export interface Expense {
   tx_expense_number: string;
   tx_external_id?: any;
   tx_extracted_data?: any;
-  tx_file_ids?: any;
+  tx_file_ids?: string[];
   tx_flight_journey_travel_class?: any;
   tx_flight_return_travel_class?: any;
   tx_from_dt?: Date;

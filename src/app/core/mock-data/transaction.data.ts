@@ -1,4 +1,3 @@
-import { FileTransaction } from '../models/file-txn.model';
 import { Transaction } from '../models/v1/transaction.model';
 
 export const txnList: Transaction[] = [

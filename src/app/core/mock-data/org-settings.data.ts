@@ -1,5 +1,5 @@
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
-import { OrgSettings } from '../models/org-settings.model';
+import { OrgSettings, TaxSettings } from '../models/org-settings.model';
 import { orgSettingsData } from '../test-data/accounts.service.spec.data';
 
 export const orgSettingsRes: OrgSettings = {
@@ -1215,7 +1215,7 @@ export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
   },
 };
 
-export const taxSettingsData = {
+export const taxSettingsData: TaxSettings = {
   allowed: true,
   enabled: true,
   name: null,

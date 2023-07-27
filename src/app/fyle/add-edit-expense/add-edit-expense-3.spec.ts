@@ -22,7 +22,7 @@ import {
   fileObjectData1,
 } from 'src/app/core/mock-data/file-object.data';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
-import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
@@ -257,7 +257,7 @@ export function TestCases3(getTestBed) {
       it('should check if there are any policy violations and in case category is present', (done) => {
         policyService.transformTo.and.returnValue(platformPolicyExpenseData1);
         transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
-        component.checkPolicyViolation({ tx: publicPolicyExpenseData1, dataUrls: ['url1'] }).subscribe((res) => {
+        component.checkPolicyViolation({ tx: publicPolicyExpenseData1, dataUrls: fileObject4 }).subscribe((res) => {
           expect(res).toEqual(expensePolicyData);
           expect(policyService.transformTo).toHaveBeenCalledOnceWith({ ...publicPolicyExpenseData1, num_files: 1 });
           expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
@@ -270,7 +270,7 @@ export function TestCases3(getTestBed) {
         transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
         categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
         component
-          .checkPolicyViolation({ tx: { ...publicPolicyExpenseData1, org_category_id: null }, dataUrls: ['url1'] })
+          .checkPolicyViolation({ tx: { ...publicPolicyExpenseData1, org_category_id: null }, dataUrls: fileObject4 })
           .subscribe((res) => {
             expect(res).toEqual(expensePolicyData);
             expect(policyService.transformTo).toHaveBeenCalledOnceWith({
@@ -289,7 +289,7 @@ export function TestCases3(getTestBed) {
       it('should parse a pdf for expense information', () => {
         component.orgUserSettings$ = of(orgUserSettingsData);
         spyOn(component, 'getParsedReceipt').and.resolveTo(extractedData);
-        component.filteredCategories$ = of(filteredCategoriesData);
+        component.filteredCategories$ = of(categorieListRes);
         currencyService.getHomeCurrency.and.returnValue(of('INR'));
         component.inpageExtractedData = null;
         dateService.isSameDate.and.returnValue(true);
@@ -322,7 +322,7 @@ export function TestCases3(getTestBed) {
       it('should parse an image for expense information given there is pre-existing data', () => {
         component.orgUserSettings$ = of(orgUserSettingsData);
         spyOn(component, 'getParsedReceipt').and.resolveTo(extractedData);
-        component.filteredCategories$ = of(filteredCategoriesData);
+        component.filteredCategories$ = of(categorieListRes);
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         component.inpageExtractedData = {
           amount: 100,
@@ -945,7 +945,7 @@ export function TestCases3(getTestBed) {
         loaderService.hideLoader.and.resolveTo();
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedTxnData2);
-        spyOn(component, 'continueWithPolicyViolations').and.resolveTo(true);
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo({ comment: 'comment' });
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
 
         component
@@ -972,7 +972,7 @@ export function TestCases3(getTestBed) {
         loaderService.hideLoader.and.resolveTo();
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedTxnData2);
-        spyOn(component, 'continueWithPolicyViolations').and.resolveTo(false);
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo(null);
 
         component
           .policyViolationErrorHandler(
@@ -1211,7 +1211,7 @@ export function TestCases3(getTestBed) {
         component.orgUserSettings$ = of(orgUserSettingsWithCurrency);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
         component.homeCurrency$ = of('USD');
-        spyOn(component, 'getInstaFyleImageData').and.returnValue(of({ error: 'not found' }));
+        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(null));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         const UnmockedDate = Date;

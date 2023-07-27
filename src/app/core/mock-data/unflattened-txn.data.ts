@@ -110,7 +110,7 @@ export const unflattenedTxnData: UnflattenedTransaction = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -260,7 +260,7 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -431,7 +431,7 @@ export const expectedUnflattendedTxnData1: UnflattenedTransaction = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -601,7 +601,7 @@ export const unflattenedTxnData2: UnflattenedTransaction = {
   },
 };
 
-export const expectedUnflattendedTxnData3 = {
+export const expectedUnflattendedTxnData3: UnflattenedTransaction = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -742,6 +742,22 @@ export const expectedUnflattendedTxnData3 = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
 };
 
 export const expectedUnflattendedTxnData4 = {
@@ -1417,9 +1433,12 @@ export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
   },
 };
 
-export const unflattenedTransactionDataPersonalCard = {
-  ...expectedUnflattendedTxnData3.tx,
-  locations: null,
+export const unflattenedTransactionDataPersonalCard: UnflattenedTransaction = {
+  ...expectedUnflattendedTxnData3,
+  tx: {
+    ...expectedUnflattendedTxnData3.tx,
+    locations: null,
+  },
 };
 
 export const newUnflattenedTxn = {
@@ -2442,13 +2461,14 @@ export const checkDebitCCCExpenseData2: UnflattenedTransaction = {
   },
 };
 
-export const setupFormExpenseWoCurrency = {
+export const setupFormExpenseWoCurrency: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData,
     amount: null,
     currency: 'USD',
     user_amount: 100,
+    source: null,
     policy_amount: -10,
     locations: [],
     from_dt: new Date('2021-03-26T09:29:14.586Z'),
@@ -2466,10 +2486,10 @@ export const setupFormExpenseWoCurrency = {
   },
 };
 
-export const setupFormExpenseWoCurrency2 = {
+export const setupFormExpenseWoCurrency2: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: {
-    ...unflattenedTxnData,
+    ...unflattenedTxnData.tx,
     amount: null,
     currency: 'USD',
     user_amount: null,
@@ -2490,10 +2510,10 @@ export const setupFormExpenseWoCurrency2 = {
   },
 };
 
-export const setupFormExpenseWoCurrency3 = {
+export const setupFormExpenseWoCurrency3: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: {
-    ...unflattenedTxnData,
+    ...unflattenedTxnData.tx,
     id: 'id1',
     amount: null,
     state: 'DRAFT',

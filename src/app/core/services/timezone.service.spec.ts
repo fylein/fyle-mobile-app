@@ -3,6 +3,7 @@ import { CurrencyService } from './currency.service';
 import { expectedTxnCustomProperties, txnCustomPropertiesData } from '../mock-data/txn-custom-properties.data';
 import { TimezoneService } from './timezone.service';
 import { UtilityService } from './utility.service';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 describe('TimezoneService', () => {
   let timezoneService: TimezoneService;
@@ -53,8 +54,8 @@ describe('TimezoneService', () => {
         return callback(nonDateProp);
       });
 
-      const result = timezoneService.convertAllDatesToProperLocale(txnCustomPropertiesData, offset);
-      expect(result).toEqual(txnCustomPropertiesData[0].value);
+      const result = timezoneService.convertAllDatesToProperLocale([txnCustomPropertiesData[0]], offset);
+      expect(result).toEqual([txnCustomPropertiesData[0]]);
     });
   });
 
