@@ -5,13 +5,13 @@ export interface FileObject {
   name?: string;
   s3url?: string;
   transaction_id?: string;
-  invoice_id?: any;
-  advance_request_id?: any;
+  invoice_id?: string;
+  advance_request_id?: string;
   purpose?: string;
   content?: string;
-  password?: any;
-  receipt_coordinates?: any;
-  email_meta_data?: any;
+  password?: string;
+  receipt_coordinates?: { x: number; y: number; width: number; height: number };
+  email_meta_data?: string;
   fyle_sub_url?: string;
   url?: string;
   type?: string;

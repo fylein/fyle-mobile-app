@@ -69,6 +69,12 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { getElementBySelector, getElementRef } from 'src/app/core/dom-helpers';
+import { unflattenedData } from 'src/app/core/mock-data/data-transform.data';
+import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
+import { DebugElement } from '@angular/core';
+import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -272,7 +278,7 @@ export function TestCases4(getTestBed) {
 
         component.fileUpload = {
           nativeElement: dummyNativeElement,
-        };
+        } as DebugElement;
 
         const nativeElement = component.fileUpload.nativeElement as HTMLInputElement;
         spyOn(nativeElement, 'click').and.callThrough();
@@ -1141,8 +1147,8 @@ export function TestCases4(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(unflattenedExpenseWithCCCGroupId.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
-        component.selectedCCCTransaction = unflattenedExpenseWithCCCGroupId.tx;
-        component.matchedCCCTransaction = unflattenedExpenseWithCCCGroupId;
+        component.selectedCCCTransaction = expectedECccResponse[0].ccce;
+        component.matchedCCCTransaction = expectedECccResponse[0].ccce;
         transactionService.matchCCCExpense.and.returnValue(of(null));
         fixture.detectChanges();
 
@@ -1176,7 +1182,7 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(unflattenedExpenseWithCCCGroupId.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedExpenseWithCCCGroupId));
         component.selectedCCCTransaction = null;
-        component.matchedCCCTransaction = unflattenedExpenseWithCCCGroupId;
+        component.matchedCCCTransaction = expectedECccResponse[0].ccce;
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
         fixture.detectChanges();
 
@@ -1208,8 +1214,8 @@ export function TestCases4(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(unflattenedExpenseWithCCCGroupId.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedExpenseWithCCCGroupId));
-        component.selectedCCCTransaction = unflattenedExpenseWithCCCGroupId.tx;
-        component.matchedCCCTransaction = unflattenedExpenseWithCCCGroupId;
+        component.selectedCCCTransaction = expectedECccResponse[0].ccce;
+        component.matchedCCCTransaction = expectedECccResponse[0].ccce;
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
         transactionService.matchCCCExpense.and.returnValue(of(null));
         fixture.detectChanges();

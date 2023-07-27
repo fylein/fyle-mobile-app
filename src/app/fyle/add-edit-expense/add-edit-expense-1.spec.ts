@@ -67,6 +67,7 @@ import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -392,7 +393,7 @@ export function TestCases1(getTestBed) {
 
     describe('checkIfInvalidPaymentMode():', () => {
       it('should check for invalid payment mode', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(unflattenedExpData);
         component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
@@ -407,7 +408,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should check for invalid payment in case of Advance accounts', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(unflattenedExpData);
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE },
@@ -426,7 +427,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should check for invalid payment mode if the source account ID matches with the account type', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(unflattenedExpData);
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'acc5APeygFjRd' },
@@ -480,7 +481,7 @@ export function TestCases1(getTestBed) {
       it('should show popup and selected txns if primary action is selected', fakeAsync(() => {
         popupService.showPopup.and.resolveTo('primary');
 
-        component.unmatchExpense(unflattenExp1);
+        component.unmatchExpense(unflattenedExpData);
         tick(500);
 
         expect(popupService.showPopup).toHaveBeenCalledOnceWith({

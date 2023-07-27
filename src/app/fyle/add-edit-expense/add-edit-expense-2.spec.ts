@@ -238,10 +238,7 @@ export function TestCases2(getTestBed) {
 
     describe('getPaymentModes():', () => {
       it('should get payment modes', (done) => {
-        component.etxn$ = of({
-          ...unflattenExp1,
-          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: false },
-        });
+        component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
@@ -265,10 +262,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should get payment modes in case org settings are not present', (done) => {
-        component.etxn$ = of({
-          ...unflattenExp1,
-          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: null },
-        });
+        component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(null));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
@@ -293,10 +287,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should get payment modes if CCC expense is enabled', (done) => {
-        component.etxn$ = of({
-          ...unflattenExp1,
-          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: null },
-        });
+        component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
@@ -511,7 +502,7 @@ export function TestCases2(getTestBed) {
     describe('goToTransaction():', () => {
       const txn_ids = ['txfCdl3TEZ7K'];
       it('should navigate to add-edit mileage if category is mileage', () => {
-        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'MILEAGE' } };
+        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' } };
         component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -527,7 +518,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should navigate to per diem expense form if the category is per diem', () => {
-        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'PER DIEM' } };
+        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' } };
         component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -543,7 +534,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should navigate to expense form', () => {
-        const expense = unflattenExp1;
+        const expense = unflattenedTxnData;
         component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -1119,7 +1110,7 @@ export function TestCases2(getTestBed) {
 
     describe('openCommentsModal():', () => {
       it('should add comment', fakeAsync(() => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(unflattenedTxnData);
         modalProperties.getModalDefaultProperties.and.returnValue(properties);
         const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
 
@@ -1134,7 +1125,7 @@ export function TestCases2(getTestBed) {
           component: ViewCommentComponent,
           componentProps: {
             objectType: 'transactions',
-            objectId: unflattenExp1.tx.id,
+            objectId: unflattenedTxnData.tx.id,
           },
           ...properties,
         });
@@ -1143,7 +1134,7 @@ export function TestCases2(getTestBed) {
       }));
 
       it('should view comment', fakeAsync(() => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(unflattenedTxnData);
         modalProperties.getModalDefaultProperties.and.returnValue(properties);
         const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
 
@@ -1158,7 +1149,7 @@ export function TestCases2(getTestBed) {
           component: ViewCommentComponent,
           componentProps: {
             objectType: 'transactions',
-            objectId: unflattenExp1.tx.id,
+            objectId: unflattenedTxnData.tx.id,
           },
           ...properties,
         });
