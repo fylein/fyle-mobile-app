@@ -1,4 +1,5 @@
 import { CustomInput } from '../models/custom-input.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 export const customInputData1: Partial<CustomInput>[] = [
   {
@@ -55,7 +56,7 @@ export const customInputData1: Partial<CustomInput>[] = [
   },
 ];
 
-export const customInputData2: Partial<CustomInput>[] = [
+export const customInputData2: TxnCustomProperties[] = [
   {
     id: 218266,
     options: [],

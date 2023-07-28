@@ -1,5 +1,6 @@
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
+import { personalCardTxn } from './transaction.data';
 
 export const unflattenedTxnData: UnflattenedTransaction = {
   tx: {
@@ -761,7 +762,7 @@ export const expectedUnflattendedTxnData3: UnflattenedTransaction = {
   },
 };
 
-export const expectedUnflattendedTxnData4 = {
+export const expectedUnflattendedTxnData4: UnflattenedTransaction = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -896,6 +897,22 @@ export const expectedUnflattendedTxnData4 = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
 };
 
 export const expectedUnflattendedTxnData5 = {
@@ -1437,7 +1454,7 @@ export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
 export const unflattenedTransactionDataPersonalCard: UnflattenedTransaction = {
   ...expectedUnflattendedTxnData3,
   tx: {
-    ...expectedUnflattendedTxnData3.tx,
+    ...personalCardTxn,
     locations: null,
   },
 };
