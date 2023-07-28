@@ -230,7 +230,7 @@ export class AddEditExpensePage implements OnInit {
 
   flightJourneyTravelClassOptions$: Observable<{ label: string; value: string }[] | string[]>;
 
-  customInputs$: Observable<CustomInputsOption[]>;
+  customInputs$: Observable<CustomInputsOption[] | ExpenseField[]>;
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
@@ -2465,7 +2465,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }),
           startWith(initialProject),
-          concatMap((project) =>
+          concatMap((project: ExtendedProject) =>
             activeCategories$.pipe(
               map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
             )
@@ -3211,7 +3211,7 @@ export class AddEditExpensePage implements OnInit {
     etxn$: Observable<UnflattenedTransaction>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
     isPolicyEtxn = false
-  ): Observable<UnflattenedTransaction | Partial<UnflattenedTransaction>> {
+  ): Observable<Partial<UnflattenedTransaction>> {
     let txId: string;
     etxn$.subscribe((etxn) => {
       txId = etxn.tx.id;
@@ -3373,7 +3373,7 @@ export class AddEditExpensePage implements OnInit {
     return CCDependentFieldsControl.cost_center_dependent_fields;
   }
 
-  getCustomFields(): Observable<CustomProperty<string>[]> {
+  getCustomFields(): Observable<TxnCustomProperties[]> {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
         const allDependentFields = [
@@ -3702,25 +3702,28 @@ export class AddEditExpensePage implements OnInit {
           })
         );
       }),
-      catchError((err) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (err.status === 500) {
-          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-            map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-          );
+      catchError(
+        (err: {
+          status?: number;
+          type: string;
+          policyViolations: string[];
+          policyAction: FinalExpensePolicyState;
+          etxn: Partial<UnflattenedTransaction>;
+        }) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+              map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+            );
+          }
+          if (err.type === 'criticalPolicyViolations') {
+            return this.criticalPolicyViolationErrorHandler(err, customFields$);
+          } else if (err.type === 'policyViolations') {
+            return this.policyViolationErrorHandler(err, customFields$);
+          } else {
+            return throwError(err);
+          }
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (err.type === 'criticalPolicyViolations') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return this.criticalPolicyViolationErrorHandler(err, customFields$);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        } else if (err.type === 'policyViolations') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return this.policyViolationErrorHandler(err, customFields$);
-        } else {
-          return throwError(err);
-        }
-      }),
+      ),
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         forkJoin({
           eou: from(this.authService.getEou()),
@@ -3875,9 +3878,13 @@ export class AddEditExpensePage implements OnInit {
 
   criticalPolicyViolationErrorHandler(
     err: {
-      policyViolations: string[];
+      status?: number;
+      type?: string;
+      policyViolations?: string[];
+      policyAction?: FinalExpensePolicyState;
+      etxn?: Partial<UnflattenedTransaction>;
     },
-    customFields$: Observable<CustomField[]>
+    customFields$: Observable<CustomField[] | TxnCustomProperties[]>
   ): Observable<UnflattenedTransaction | unknown> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
@@ -3899,10 +3906,13 @@ export class AddEditExpensePage implements OnInit {
 
   policyViolationErrorHandler(
     err: {
-      policyViolations: string[];
-      policyAction: FinalExpensePolicyState;
+      status?: number;
+      type?: string;
+      policyViolations?: string[];
+      policyAction?: FinalExpensePolicyState;
+      etxn?: Partial<UnflattenedTransaction>;
     },
-    customFields$: Observable<CustomField[]>
+    customFields$: Observable<CustomField[] | TxnCustomProperties[]>
   ): Observable<UnflattenedTransaction | unknown> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
@@ -4003,24 +4013,27 @@ export class AddEditExpensePage implements OnInit {
         )
       ),
 
-      catchError((err) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (err.status === 500) {
-          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
-        }
+      catchError(
+        (err: {
+          status?: number;
+          type?: string;
+          policyViolations?: string[];
+          policyAction?: FinalExpensePolicyState;
+          etxn?: Partial<UnflattenedTransaction>;
+        }) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (err.type === 'criticalPolicyViolations') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return this.criticalPolicyViolationErrorHandler(err, customFields$);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        } else if (err.type === 'policyViolations') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return this.policyViolationErrorHandler(err, customFields$);
-        } else {
-          return throwError(err);
+          if (err.type === 'criticalPolicyViolations') {
+            return this.criticalPolicyViolationErrorHandler(err, customFields$);
+          } else if (err.type === 'policyViolations') {
+            return this.policyViolationErrorHandler(err, customFields$);
+          } else {
+            return throwError(err);
+          }
         }
-      }),
+      ),
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         from(this.authService.getEou()).pipe(
           switchMap(() => {
@@ -4666,23 +4679,27 @@ export class AddEditExpensePage implements OnInit {
             })
           )
         ),
-        catchError((err) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          if (err.status === 500) {
-            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+        catchError(
+          (err: {
+            status?: number;
+            type: string;
+            policyViolations: string[];
+            policyAction: FinalExpensePolicyState;
+            etxn: Partial<UnflattenedTransaction>;
+          }) => {
+            if (err.status === 500) {
+              return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+            }
+
+            if (err.type === 'criticalPolicyViolations') {
+              return this.criticalPolicyViolationErrorHandler(err, customFields$);
+            } else if (err.type === 'policyViolations') {
+              return this.policyViolationErrorHandler(err, customFields$);
+            } else {
+              return throwError(err);
+            }
           }
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          if (err.type === 'criticalPolicyViolations') {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return this.criticalPolicyViolationErrorHandler(err, customFields$);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          } else if (err.type === 'policyViolations') {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return this.policyViolationErrorHandler(err, customFields$);
-          } else {
-            return throwError(err);
-          }
-        }),
+        ),
         switchMap(({ etxn }: { etxn: UnflattenedTransaction }) => {
           const personalCardTxn =
             this.activatedRoute.snapshot.params.personalCardTxn &&

@@ -7,5 +7,5 @@ export interface CustomInput {
   prefix: string;
   type: string;
   value: string;
-  parent_field_id: number;
+  parent_field_id?: number;
 }
