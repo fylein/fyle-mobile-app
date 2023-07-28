@@ -468,9 +468,9 @@ export function TestCases3(getTestBed) {
     });
 
     it('onCategoryDependentFieldsTouched(): should update touchedCategoryDependentFields with the touched category dependent fields', () => {
-      component.touchedCategoryDepedentFields = [];
+      component.touchedCategoryDependentFields = [];
       component.onCategoryDependentFieldsTouched(['category', 'sub_category']);
-      expect(component.touchedCategoryDepedentFields).toEqual(['category', 'sub_category']);
+      expect(component.touchedCategoryDependentFields).toEqual(['category', 'sub_category']);
     });
 
     describe('patchCategoryDependentFields(): ', () => {
@@ -504,7 +504,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should call getFieldValueOnChange with correct args', () => {
-        component.touchedCategoryDepedentFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
+        component.touchedCategoryDependentFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
         component.categoryDependentForm.patchValue({
           location_1: optionsData15.options[0].value,
           location_2: optionsData33.options[0].value,
@@ -548,7 +548,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should call getFieldValueOnChange with correct args if expense is undefined', () => {
-        component.touchedCategoryDepedentFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
+        component.touchedCategoryDependentFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
         component.categoryDependentForm.patchValue({
           location_1: optionsData15.options[0].value,
           location_2: optionsData33.options[0].value,
@@ -581,7 +581,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should call getFieldValueOnChange with correct args if touchedGenericFields is undefined', () => {
-        component.touchedCategoryDepedentFields = undefined;
+        component.touchedCategoryDependentFields = undefined;
         component.categoryDependentForm.patchValue({
           location_1: optionsData15.options[0].value,
           location_2: optionsData33.options[0].value,
@@ -624,7 +624,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should call getFieldValueOnChange with correct args if genericFields form is undefined', () => {
-        component.touchedCategoryDepedentFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
+        component.touchedCategoryDependentFields = ['location_1', 'from_dt', 'flight_journey_travel_class'];
         component.patchCategoryDependentFields(1);
         const location1Call = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
         expect(location1Call).toEqual([optionsData15, true, optionsData15.options[0].value, undefined]);
