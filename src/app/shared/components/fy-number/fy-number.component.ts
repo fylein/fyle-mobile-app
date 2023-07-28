@@ -43,6 +43,8 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
 
   isNegativeExpensePluginEnabled = false;
 
+  fcValue: string;
+
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: string | number) => void = noop;
@@ -66,6 +68,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
     if (value !== this.innerValue) {
       this.innerValue = value && parseFloat(value);
       this.fc.setValue(value && parseFloat(value));
+      this.fcValue = this.fc.value as string;
     }
   }
 
