@@ -26,7 +26,7 @@ import { OutboxQueue } from '../models/outbox-queue.model';
 export class TransactionsOutboxService {
   queue: OutboxQueue[] = [];
 
-  syncDeferred: Promise<boolean> = null;
+  syncDeferred: Promise<void> = null;
 
   syncInProgress = false;
 
@@ -426,7 +426,7 @@ export class TransactionsOutboxService {
     });
   }
 
-  sync(): Promise<boolean> {
+  sync(): Promise<void> {
     const that = this;
 
     if (that.syncDeferred) {
@@ -447,7 +447,7 @@ export class TransactionsOutboxService {
           //   TransactionService.deleteCache();
           // }
           that.processDataExtractionEntry();
-          resolve(true);
+          resolve();
         })
         .catch((err) => {
           reject(err);
@@ -458,7 +458,7 @@ export class TransactionsOutboxService {
         });
     });
 
-    return this.syncDeferred.then(() => null);
+    return this.syncDeferred.then(() => Promise.resolve());
   }
 
   isSyncInProgress(): boolean {

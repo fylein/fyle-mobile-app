@@ -155,9 +155,9 @@ export class MyReportsPage {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
-    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
-        map((event: KeyboardEvent) => (<HTMLInputElement>event.srcElement).value),
+        map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(1000)
       )
