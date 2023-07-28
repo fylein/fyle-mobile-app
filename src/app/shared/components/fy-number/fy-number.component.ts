@@ -126,39 +126,9 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  handleNegativeExpensePluginEnabled(event: KeyboardEvent): void {
-    const inputElement = event.target as HTMLInputElement;
-    const inputValue = inputElement.value;
-
-    if (event.code === 'Comma') {
-      this.commaClicked = true;
-      this.fc.patchValue(inputValue);
-    } else {
-      if (this.commaClicked) {
-        this.commaClicked = false;
-        this.fc.patchValue(this.inputWithoutDecimal + '.' + event.key);
-        event.preventDefault();
-      }
-      this.inputWithoutDecimal = inputValue + event.key;
-    }
-  }
-
   handleNegativeExpenseChange(event: KeyboardEvent): void {
-    const inputElement = event.target as HTMLInputElement;
-    const inputValue = inputElement.value;
-
-    if (this.isKeyboardPluginEnabled) {
-      if (this.keysForNegativeExpense.includes(event.key) || event.code === 'Comma' || event.code === 'Backspace') {
-        this.handleNegativeExpensePluginEnabled(event);
-      } else {
-        event.preventDefault();
-      }
-    } else {
-      if (this.keysForNegativeExpense.includes(event.key) || event.code === 'Backspace') {
-        this.fc.patchValue(inputValue);
-      } else {
-        event.preventDefault();
-      }
+    if (!this.keysForNegativeExpense.includes(event.key) && !(event.code === 'Backspace')) {
+      event.preventDefault();
     }
   }
 }

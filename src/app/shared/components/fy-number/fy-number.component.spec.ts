@@ -9,6 +9,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { DebugElement, Injector } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { getAllElementsBySelector, getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 
 describe('FyNumberComponent', () => {
   let component: FyNumberComponent;
@@ -237,117 +238,38 @@ describe('FyNumberComponent', () => {
 
   describe('handleNegativeExpenseChange():', () => {
     it('should handle comma correctly if keyboard plugin and negative expense plugin are enabled and should not allow any non-numeric value', () => {
-      spyOn(component.fc, 'setValue').and.callThrough();
-      spyOn(component.fc, 'patchValue').and.callThrough();
-      spyOn(component, 'handleNegativeExpensePluginEnabled').and.callThrough();
+      const allInputElements = getAllElementsBySelector(fixture, '.fy-number--input') as HTMLInputElement[];
 
-      let mockEvent = { target: { value: '' }, code: 'Minus', key: '-', preventDefault: () => {} } as any;
+      let mockEvent = { target: { value: '-1' }, code: 'Digit2', key: '2', preventDefault: () => {} } as any;
       spyOn(mockEvent, 'preventDefault');
       component.handleNegativeExpenseChange(mockEvent);
-      expect(component.commaClicked).toBeFalse();
-      expect(component.fc.patchValue).not.toHaveBeenCalled();
-      expect(component.handleNegativeExpensePluginEnabled).toHaveBeenCalledWith(mockEvent);
-      expect(component.inputWithoutDecimal).toBe('-');
       expect(mockEvent.preventDefault).not.toHaveBeenCalled();
 
-      mockEvent = { target: { value: '1' }, code: 'Digit2', key: '2', preventDefault: () => {} } as any;
+      mockEvent = { target: { value: '-12' }, code: 'KeyA', key: 'a', preventDefault: () => {} } as any;
       spyOn(mockEvent, 'preventDefault');
       component.handleNegativeExpenseChange(mockEvent);
-      expect(component.commaClicked).toBeFalse();
-      expect(component.fc.patchValue).not.toHaveBeenCalled();
-      expect(component.handleNegativeExpensePluginEnabled).toHaveBeenCalledWith(mockEvent);
-      expect(component.inputWithoutDecimal).toBe('12');
-      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
-
-      mockEvent = { target: { value: '12' }, code: 'KeyA', key: 'a', preventDefault: () => {} } as any;
-      spyOn(mockEvent, 'preventDefault');
-      component.handleNegativeExpenseChange(mockEvent);
-      expect(component.commaClicked).toBeFalse();
-      expect(component.fc.patchValue).not.toHaveBeenCalled();
-      expect(component.inputWithoutDecimal).toBe('12');
       expect(mockEvent.preventDefault).toHaveBeenCalled();
 
-      mockEvent = { target: { value: '12' }, code: 'Comma', key: ',', preventDefault: () => {} } as any;
+      mockEvent = { target: { value: '-12' }, code: 'Comma', key: ',', preventDefault: () => {} } as any;
       spyOn(mockEvent, 'preventDefault');
       component.handleNegativeExpenseChange(mockEvent);
-      expect(component.commaClicked).toBeTrue();
-      expect(component.fc.patchValue).toHaveBeenCalledWith('12');
-      expect(component.handleNegativeExpensePluginEnabled).toHaveBeenCalledWith(mockEvent);
-      expect(component.inputWithoutDecimal).toBe('12');
-      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
-
-      mockEvent = { target: { value: '12,' }, code: 'Digit5', key: '5', preventDefault: () => {} } as any;
-      spyOn(mockEvent, 'preventDefault');
-      component.handleNegativeExpenseChange(mockEvent);
-      expect(component.commaClicked).toBeFalse();
-      expect(component.fc.patchValue).toHaveBeenCalledWith('12.5');
-      expect(component.value).toBe(12.5);
-      expect(component.handleNegativeExpensePluginEnabled).toHaveBeenCalledWith(mockEvent);
-      expect(component.inputWithoutDecimal).toBe('12,5');
       expect(mockEvent.preventDefault).toHaveBeenCalled();
 
-      const inputWithPlugin = fixture.debugElement.query(By.css('#inputWithPlugin input'));
+      mockEvent = { target: { value: '12.' }, code: 'Digit5', key: '5', preventDefault: () => {} } as any;
+      spyOn(mockEvent, 'preventDefault');
+      component.handleNegativeExpenseChange(mockEvent);
+      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
+
+      const inputWithPlugin = getElementBySelector(fixture, '#inputWithPlugin input');
       expect(inputWithPlugin).toBeNull();
 
-      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithPlugin input'));
+      const inputWithoutPlugin = getElementBySelector(fixture, '#inputWithPlugin input');
       expect(inputWithoutPlugin).toBeNull();
 
-      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
-      expect(inputElement.length).toBe(1);
+      expect(allInputElements.length).toBe(1);
 
       expect(component.isIos).toBeTrue();
       expect(component.isKeyboardPluginEnabled).toBeTrue();
-      expect(component.isNegativeExpensePluginEnabled).toBeTrue();
-    });
-
-    it('should not allow non-numeric value when negative expense is enabled', () => {
-      spyOn(component.fc, 'setValue').and.callThrough();
-      spyOn(component.fc, 'patchValue').and.callThrough();
-      spyOn(component, 'handleChange').and.callThrough();
-      component.isKeyboardPluginEnabled = false;
-
-      let mockEvent = { target: { value: '12' }, code: 'Digit1', key: '2', preventDefault: () => {} } as any;
-      spyOn(mockEvent, 'preventDefault');
-      component.handleNegativeExpenseChange(mockEvent);
-      expect(component.fc.patchValue).toHaveBeenCalledWith('12');
-      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
-
-      mockEvent = { target: { value: '12a' }, code: 'KeyA', key: 'a', preventDefault: () => {} } as any;
-      spyOn(mockEvent, 'preventDefault');
-      component.handleNegativeExpenseChange(mockEvent);
-      expect(component.fc.patchValue).not.toHaveBeenCalledWith('12a');
-      expect(mockEvent.preventDefault).toHaveBeenCalled();
-
-      mockEvent = { target: { value: '12.' }, code: 'Period', key: '.', preventDefault: () => {} } as any;
-      spyOn(mockEvent, 'preventDefault');
-      component.handleNegativeExpenseChange(mockEvent);
-      expect(component.fc.patchValue).toHaveBeenCalledWith('12.');
-      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
-
-      mockEvent = { target: { value: '12./' }, code: 'Slash', key: '/', preventDefault: () => {} } as any;
-      spyOn(mockEvent, 'preventDefault');
-      component.handleNegativeExpenseChange(mockEvent);
-      expect(component.fc.patchValue).not.toHaveBeenCalledWith('12./');
-      expect(mockEvent.preventDefault).toHaveBeenCalled();
-
-      mockEvent = { target: { value: '12.8' }, code: 'Digit8', key: '8', preventDefault: () => {} } as any;
-      spyOn(mockEvent, 'preventDefault');
-      component.handleNegativeExpenseChange(mockEvent);
-      expect(component.fc.patchValue).toHaveBeenCalledWith('12.8');
-      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
-      expect(component.value).toBe(12.8);
-
-      const inputWithPlugin = fixture.debugElement.query(By.css('#inputWithPlugin input'));
-      expect(inputWithPlugin).toBeNull();
-
-      const inputWithoutPlugin = fixture.debugElement.query(By.css('#inputWithPlugin input'));
-      expect(inputWithoutPlugin).toBeNull();
-
-      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
-      expect(inputElement.length).toBe(1);
-
-      expect(component.isIos).toBeTrue();
-      expect(component.isKeyboardPluginEnabled).toBeFalse();
       expect(component.isNegativeExpensePluginEnabled).toBeTrue();
     });
   });
