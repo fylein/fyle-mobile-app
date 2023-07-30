@@ -152,32 +152,17 @@
 
   <ng-container *ngIf="isConnected$ | async; else offlineMessage">
     <div class="stats--ccc-cards-section" *ngIf="isCCCEnabled || isPersonalCardsEnabled">
-      <ng-container *ngIf="cardTransactionsAndDetails">
-        <ion-grid class="stats--ccc-cards-grid-multiple">
-          <ion-row>
-            <ion-col>
-              <div class="stats--header stats--ccc-cards-header">CARD SPEND</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-
-        <ng-container *ngIf="cardTransactionsAndDetails?.length === 0 && (isYodleeEnabled || isPersonalCardsEnabled)">
-          <ion-grid>
-            <ion-row class="stats--ccc-cards-row">
-              <ion-col>
-                <app-add-card [showZeroStateMessage]="true"></app-add-card>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ng-container>
-
+      <ng-container *ngIf="!isCCCStatsLoading">
         <ng-container *ngIf="cardTransactionsAndDetails?.length > 0">
+          <div class="stats--header stats--ccc-stats-header">CARD SPEND</div>
+
           <app-spent-cards
             *ngIf="cardTransactionsAndDetails?.length > 1"
             [spentCards]="cardTransactionsAndDetails"
             [homeCurrency]="homeCurrency$"
             [currencySymbol]="currencySymbol$"
           ></app-spent-cards>
+
           <div *ngIf="cardTransactionsAndDetails?.length === 1" class="stats--single-ccc">
             <app-card-detail
               [cardDetail]="cardTransactionsAndDetails[0]"
@@ -185,6 +170,14 @@
               [currencySymbol]="currencySymbol$"
             >
             </app-card-detail>
+          </div>
+        </ng-container>
+
+        <!-- Show add card empty state when the user doesn't have any cards, and has yodlee / personal cards enabled to allow adding cards -->
+        <ng-container *ngIf="cardTransactionsAndDetails?.length === 0 && (isYodleeEnabled || isPersonalCardsEnabled)">
+          <div class="stats--header stats--ccc-stats-header">CARD SPEND</div>
+          <div class="stats--ccc-zero-state">
+            <app-add-card [showZeroStateMessage]="true"></app-add-card>
           </div>
         </ng-container>
       </ng-container>

@@ -164,10 +164,12 @@ export class StatsComponent implements OnInit {
   }
 
   initializeCCCStats(): void {
-    this.dashboardService.getCCCDetails().subscribe((details) => {
-      this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-    });
-    finalize(() => (this.isCCCStatsLoading = false));
+    this.dashboardService
+      .getCCCDetails()
+      .pipe(finalize(() => (this.isCCCStatsLoading = false)))
+      .subscribe((details) => {
+        this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
+      });
   }
 
   /*
@@ -204,8 +206,6 @@ export class StatsComponent implements OnInit {
       if (this.isCCCEnabled) {
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
-      } else {
-        this.cardTransactionsAndDetails = [];
       }
     });
 
