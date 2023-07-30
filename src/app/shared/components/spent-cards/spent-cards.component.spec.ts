@@ -55,4 +55,17 @@ describe('SpentCardsComponent', () => {
     // Adding + 1 for add new card swiper slide
     expect(swiperSlides.length).toBe(component.spentCards.length + 1);
   });
+
+  it('should have add new card swiper slide at the end', () => {
+    component.spentCards = cardDetailRes;
+    fixture.detectChanges();
+
+    const swiperSlides = getAllElementsBySelector(fixture, '.swiper-slide');
+    const lastSlide = swiperSlides[swiperSlides.length - 1];
+
+    const addCardComponent = getElementBySelector(fixture, '[data-testid="add-card"]');
+    expect(addCardComponent).toBeTruthy();
+
+    expect(lastSlide.contains(addCardComponent)).toBeTrue();
+  });
 });
