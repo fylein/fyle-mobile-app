@@ -32,7 +32,8 @@ describe('SpentCardsComponent', () => {
     const swiper = getElementBySelector(fixture, 'swiper');
     expect(swiper).toBeTruthy();
     const swiperSlides = getAllElementsBySelector(fixture, '.swiper-slide');
-    expect(swiperSlides.length).toBe(3);
+    // Adding + 1 for add new card swiper slide
+    expect(swiperSlides.length).toBe(component.spentCards.length + 1);
   });
 
   it('should set pagination to dynamic bullets', () => {
@@ -51,6 +52,7 @@ describe('SpentCardsComponent', () => {
     const cardDetail = getElementBySelector(fixture, '.spent-card app-card-detail');
     expect(cardDetail).toBeTruthy();
     const swiperSlides = getAllElementsBySelector(fixture, '.swiper-slide');
-    expect(swiperSlides.length).toBe(1);
+    // Adding + 1 for add new card swiper slide
+    expect(swiperSlides.length).toBe(component.spentCards.length + 1);
   });
 });
