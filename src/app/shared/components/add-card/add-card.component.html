@@ -1,8 +1,8 @@
 <div class="add-card-container">
   <img src="../../../../assets/images/cards.svg" />
-  <p>No card added yet!</p>
+  <p *ngIf="showZeroStateMessage">No card added yet!</p>
 
-  <button class="add-card-container__cta">
+  <button class="add-card-container__cta" (click)="addCardClick.emit($event)">
     <ion-icon class="add-card-container__cta--icon" src="../../../../assets/svg/plus.svg"></ion-icon>
     <span class="add-card-container__cta--text">Add Card</span>
   </button>
