@@ -20,6 +20,7 @@ import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { cloneDeep } from 'lodash';
 import { CardDetails } from 'src/app/core/models/card-details.model';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-stats',
@@ -69,6 +70,8 @@ export class StatsComponent implements OnInit {
 
   isCCCEnabled: boolean;
 
+  isYodleeEnabled: boolean;
+
   isPersonalCardsEnabled: boolean;
 
   constructor(
@@ -79,7 +82,8 @@ export class StatsComponent implements OnInit {
     private trackingService: TrackingService,
     private orgSettingsService: OrgSettingsService,
     private orgService: OrgService,
-    private paymentModeService: PaymentModesService
+    private paymentModeService: PaymentModesService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   get ReportStates(): typeof ReportStates {
@@ -173,7 +177,6 @@ export class StatsComponent implements OnInit {
    * **/
   init(): void {
     const that = this;
-    that.cardTransactionsAndDetails = [];
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
@@ -181,15 +184,23 @@ export class StatsComponent implements OnInit {
 
     that.initializeReportStats();
     that.initializeExpensesStats();
-    that.orgSettingsService.get().subscribe((orgSettings) => {
+    forkJoin({
+      orgSettings: that.orgSettingsService.get(),
+      orgUserSettings: that.orgUserSettingsService.get(),
+    }).subscribe(({ orgSettings, orgUserSettings }) => {
       this.isCCCEnabled =
         orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
 
-      // TODO: Add org user settings check here as well and check if we need anything else
-      this.isPersonalCardsEnabled =
-        orgSettings.org_personal_cards_settings.allowed && orgSettings.org_personal_cards_settings.enabled;
+      this.isYodleeEnabled =
+        orgSettings.bank_data_aggregation_settings.allowed &&
+        orgSettings.bank_data_aggregation_settings.enabled &&
+        orgUserSettings.bank_data_aggregation_settings.enabled;
 
-      // TODO: Figure out a way to not show the add card component when loading stats
+      this.isPersonalCardsEnabled =
+        orgSettings.org_personal_cards_settings.allowed &&
+        orgSettings.org_personal_cards_settings.enabled &&
+        orgUserSettings.personal_cards_settings.enabled;
+
       if (this.isCCCEnabled) {
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();

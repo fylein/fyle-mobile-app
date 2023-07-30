@@ -151,8 +151,8 @@
   </div>
 
   <ng-container *ngIf="isConnected$ | async; else offlineMessage">
-    <div class="stats--ccc-cards-section">
-      <ng-container *ngIf="isCCCEnabled || isPersonalCardsEnabled">
+    <div class="stats--ccc-cards-section" *ngIf="isCCCEnabled || isPersonalCardsEnabled">
+      <ng-container *ngIf="cardTransactionsAndDetails">
         <ion-grid class="stats--ccc-cards-grid-multiple">
           <ion-row>
             <ion-col>
@@ -161,7 +161,7 @@
           </ion-row>
         </ion-grid>
 
-        <ng-container *ngIf="cardTransactionsAndDetails?.length === 0">
+        <ng-container *ngIf="cardTransactionsAndDetails?.length === 0 && (isYodleeEnabled || isPersonalCardsEnabled)">
           <ion-grid>
             <ion-row class="stats--ccc-cards-row">
               <ion-col>
@@ -170,23 +170,23 @@
             </ion-row>
           </ion-grid>
         </ng-container>
-      </ng-container>
 
-      <ng-container *ngIf="cardTransactionsAndDetails?.length > 0">
-        <app-spent-cards
-          *ngIf="cardTransactionsAndDetails?.length > 1"
-          [spentCards]="cardTransactionsAndDetails"
-          [homeCurrency]="homeCurrency$"
-          [currencySymbol]="currencySymbol$"
-        ></app-spent-cards>
-        <div *ngIf="cardTransactionsAndDetails?.length === 1" class="stats--single-ccc">
-          <app-card-detail
-            [cardDetail]="cardTransactionsAndDetails[0]"
+        <ng-container *ngIf="cardTransactionsAndDetails?.length > 0">
+          <app-spent-cards
+            *ngIf="cardTransactionsAndDetails?.length > 1"
+            [spentCards]="cardTransactionsAndDetails"
             [homeCurrency]="homeCurrency$"
             [currencySymbol]="currencySymbol$"
-          >
-          </app-card-detail>
-        </div>
+          ></app-spent-cards>
+          <div *ngIf="cardTransactionsAndDetails?.length === 1" class="stats--single-ccc">
+            <app-card-detail
+              [cardDetail]="cardTransactionsAndDetails[0]"
+              [homeCurrency]="homeCurrency$"
+              [currencySymbol]="currencySymbol$"
+            >
+            </app-card-detail>
+          </div>
+        </ng-container>
       </ng-container>
 
       <ng-template #cccStatsLoading>
