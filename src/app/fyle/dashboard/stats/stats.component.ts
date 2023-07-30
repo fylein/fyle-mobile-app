@@ -179,6 +179,8 @@ export class StatsComponent implements OnInit {
    * **/
   init(): void {
     const that = this;
+    that.cardTransactionsAndDetails = [];
+
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
