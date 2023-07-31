@@ -1,4 +1,4 @@
-import { OrgCategory } from '../models/v1/org-category.model';
+import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
 
 export const orgCategoryData: OrgCategory = {
   code: null,
@@ -935,7 +935,7 @@ export const filteredCategoriesData = [
   },
 ];
 
-export const expectedAutoFillCategory = {
+export const expectedAutoFillCategory: OrgCategory = {
   code: null,
   created_at: new Date('2018-01-31T23:50:27.235Z'),
   displayName: 'Food',
@@ -948,7 +948,7 @@ export const expectedAutoFillCategory = {
   updated_at: new Date('2022-05-05T17:45:42.092Z'),
 };
 
-export const expectedAutoFillCategory2 = {
+export const expectedAutoFillCategory2: OrgCategory = {
   code: null,
   created_at: new Date('2020-03-04T09:51:01.619Z'),
   displayName: 'Office supplies',
@@ -961,7 +961,7 @@ export const expectedAutoFillCategory2 = {
   updated_at: new Date('2022-11-23T13:11:51.771Z'),
 };
 
-export const TaxiCategory = {
+export const TaxiCategory: OrgCategory = {
   code: null,
   created_at: new Date('2020-03-04T09:51:01.619Z'),
   displayName: 'Office supplies',

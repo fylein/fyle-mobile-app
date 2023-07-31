@@ -369,17 +369,31 @@ export function TestCases6(getTestBed) {
 
     it('initSplitTxn(): should initialize split txns made using ccc', () => {
       transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
-      corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
       component.etxn$ = of(unflattenedExpWithCCCExpn);
+      spyOn(component, 'handleCCCExpenses');
+      spyOn(component, 'getSplitExpenses');
       fixture.detectChanges();
 
       component.initSplitTxn(of(orgSettingsData));
       expect(transactionService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+      expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+      expect(component.getSplitExpenses).toHaveBeenCalledOnceWith(splitExpData);
+    });
+
+    it('handleCCCExpenses(): should handle CCC expenses', () => {
+      corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
+
+      component.handleCCCExpenses(unflattenedExpWithCCCExpn);
       expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
-      expect(component.isSplitExpensesPresent).toBeTrue();
-      expect(component.canEditCCCMatchedSplitExpense).toBeTrue();
       expect(component.cardNumber).toEqual('869');
       expect(component.matchedCCCTransaction).toEqual(expectedECccResponse[0].ccce);
+    });
+
+    it('getSplitExpenses(): should get split expenses', () => {
+      component.getSplitExpenses(splitExpData);
+
+      expect(component.isSplitExpensesPresent).toBeTrue();
+      expect(component.canEditCCCMatchedSplitExpense).toBeTrue();
     });
 
     it('clearCategoryOnValueChange(): should clear category dependent fields if category changes', fakeAsync(() => {

@@ -1740,7 +1740,7 @@ export const unflattenedExp2 = {
   ],
 };
 
-export const unflattenedExpWithCCCExpn = {
+export const unflattenedExpWithCCCExpn: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
