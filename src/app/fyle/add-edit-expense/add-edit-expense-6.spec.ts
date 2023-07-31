@@ -428,17 +428,29 @@ export function TestCases6(getTestBed) {
       expect(component.isRedirectedFromReport).toBeTrue();
     });
 
-    it('currencyObjValidator(): should validate currency object', () => {
-      component.fg.controls.currencyObj.setValue({
-        amount: null,
-        currency: null,
-        orig_amount: 10,
-        orig_currency: 'USD',
-      });
-      fixture.detectChanges();
+    describe('currencyObjValidator():', () => {
+      it('should validate currency object', () => {
+        component.fg.controls.currencyObj.setValue({
+          amount: null,
+          currency: null,
+          orig_amount: 10,
+          orig_currency: 'USD',
+        });
+        fixture.detectChanges();
 
-      const result = component.currencyObjValidator(component.fg.controls.currencyObj);
-      expect(result).toBeNull();
+        const result = component.currencyObjValidator(component.fg.controls.currencyObj);
+        expect(result).toBeNull();
+      });
+
+      it('should return false if there is no value in form control', () => {
+        component.fg.controls.currencyObj.setValue(null);
+        fixture.detectChanges();
+
+        const result = component.currencyObjValidator(component.fg.controls.currencyObj);
+        expect(result).toEqual({
+          required: false,
+        });
+      });
     });
   });
 }
