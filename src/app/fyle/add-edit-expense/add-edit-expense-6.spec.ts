@@ -215,7 +215,7 @@ export function TestCases6(getTestBed) {
       component.projectDependentFieldsRef = dependentFieldSpy;
       component.costCenterDependentFieldsRef = dependentFieldSpy;
 
-      component.initSubjectObservables();
+      component.initClassObservables();
 
       expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
         BackButtonActionPriority.MEDIUM,

@@ -10,14 +10,15 @@ import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { eCCCData1, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
-import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
+import { customInputData2 } from 'src/app/core/mock-data/custom-input.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
-import { dependentCustomFields, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
+
+import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expenseData1, splitExpData } from 'src/app/core/mock-data/expense.data';
+
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
-import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgCategoryData, sortedCategory, transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
 import { taxSettingsData, taxSettingsData2 } from 'src/app/core/mock-data/org-settings.data';
 import {
@@ -31,12 +32,8 @@ import {
   recentlyUsedProjectRes,
   recentlyUsedRes,
 } from 'src/app/core/mock-data/recently-used.data';
-import {
-  expectedErpt,
-  reportOptionsData,
-  reportOptionsData2,
-  reportOptionsData3,
-} from 'src/app/core/mock-data/report-unflattened.data';
+import { reportOptionsData, reportOptionsData2, reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
+import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { expectedTaxGroupData, taxGroupData } from 'src/app/core/mock-data/tax-group.data';
 import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
@@ -90,11 +87,12 @@ import {
   orgSettingsData,
   unflattenedAccount1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
-import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import { customInput2, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -831,7 +829,7 @@ export function TestCases5(getTestBed) {
       expect(result).toEqual(projectDependentFields);
     });
 
-    it('getCostCenterDependentFields(): should get project dependent fields', () => {
+    it('getCostCenterDependentFields(): should get cost center dependent fields', () => {
       component.fg = formBuilder.group({
         cost_center_dependent_fields: [],
       });
@@ -843,11 +841,11 @@ export function TestCases5(getTestBed) {
     });
 
     it('getCustomFields(): should get custom fields data', () => {
-      component.dependentFields$ = of(dependentCustomFields);
-      customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
+      component.dependentFields$ = of(dependentCustomFields2);
+      customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties2);
       spyOn(component, 'getProjectDependentFields').and.returnValue([]);
       spyOn(component, 'getCostCenterDependentFields').and.returnValue([]);
-      component.customInputs$ = of(customInputData);
+      component.customInputs$ = of(customInput2);
       component.fg = formBuilder.group({
         project_dependent_fields: [],
         custom_inputs: [],
@@ -857,8 +855,8 @@ export function TestCases5(getTestBed) {
       fixture.detectChanges();
 
       component.getCustomFields().subscribe((res) => {
-        expect(res).toEqual(customInputData1);
-        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields);
+        expect(res).toEqual(customInputData2);
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields2);
         expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
         expect(component.getCostCenterDependentFields).toHaveBeenCalledTimes(1);
       });
@@ -879,7 +877,7 @@ export function TestCases5(getTestBed) {
         component.txnFields$ = of(defaultTxnFieldValuesData2);
         component.filteredCategories$ = of(transformedOrgCategories);
 
-        spyOn(component, 'initSubjectObservables');
+        spyOn(component, 'initClassObservables');
         tokenService.getClusterDomain.and.resolveTo('domain');
         categoriesService.getSystemCategories.and.returnValue(['Bus', 'Airlines', 'Lodging', 'Train']);
         categoriesService.getBreakfastSystemCategories.and.returnValue(['Lodging']);
@@ -931,7 +929,7 @@ export function TestCases5(getTestBed) {
 
         component.ionViewWillEnter();
 
-        expect(component.initSubjectObservables).toHaveBeenCalledTimes(1);
+        expect(component.initClassObservables).toHaveBeenCalledTimes(1);
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
 
         expect(categoriesService.getSystemCategories).toHaveBeenCalledTimes(1);
@@ -1087,7 +1085,7 @@ export function TestCases5(getTestBed) {
         activatedRoute.snapshot.params.id = null;
         spyOn(component, 'initCCCTxn').and.returnValue(null);
 
-        spyOn(component, 'initSubjectObservables');
+        spyOn(component, 'initClassObservables');
         tokenService.getClusterDomain.and.resolveTo('domain');
         categoriesService.getSystemCategories.and.returnValue(['Bus', 'Airlines', 'Lodging', 'Train']);
         categoriesService.getBreakfastSystemCategories.and.returnValue(['Lodging']);
@@ -1142,7 +1140,7 @@ export function TestCases5(getTestBed) {
 
         component.ionViewWillEnter();
 
-        expect(component.initSubjectObservables).toHaveBeenCalledTimes(1);
+        expect(component.initClassObservables).toHaveBeenCalledTimes(1);
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
 
         expect(categoriesService.getSystemCategories).toHaveBeenCalledTimes(1);

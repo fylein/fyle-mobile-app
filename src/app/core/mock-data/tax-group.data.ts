@@ -21,7 +21,7 @@ export const taxGroupData: TaxGroup[] = [
   },
 ];
 
-export const expectedTaxGroupData = [
+export const expectedTaxGroupData: { label: string; value: TaxGroup }[] = [
   {
     label: 'GST',
     value: {

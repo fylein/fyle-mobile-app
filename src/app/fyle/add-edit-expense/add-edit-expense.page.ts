@@ -2398,7 +2398,7 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  initSubjectObservables() {
+  initClassObservables() {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
@@ -2534,7 +2534,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.initSubjectObservables();
+    this.initClassObservables();
 
     this.newExpenseDataUrls = [];
 

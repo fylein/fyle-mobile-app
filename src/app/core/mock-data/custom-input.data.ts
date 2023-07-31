@@ -43,7 +43,7 @@ export const customInputData1: Partial<CustomInput>[] = [
   },
   {
     name: 'CUSTOM FIELD',
-    value: 'qwwq',
+    value: 'custom field',
   },
   {
     name: 'Cost Code',
@@ -98,14 +98,10 @@ export const customInputData2: Partial<CustomInput>[] = [
   },
   {
     name: 'CUSTOM FIELD',
-    value: 'qwwq',
+    value: 'custom field',
   },
   {
     name: 'Cost Code',
     value: 'Wow this Works',
-  },
-  {
-    name: 'Cost Area',
-    value: '-',
   },
 ];
