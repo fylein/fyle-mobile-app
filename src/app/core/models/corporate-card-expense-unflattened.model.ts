@@ -44,4 +44,5 @@ export interface CCCExpUnflattened {
   balance: {
     transfer_settlement_id: string;
   };
+  flow?: string;
 }
