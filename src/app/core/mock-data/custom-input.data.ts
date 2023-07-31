@@ -43,7 +43,7 @@ export const customInputData1: Partial<CustomInput>[] = [
   },
   {
     name: 'CUSTOM FIELD',
-    value: 'qwwq',
+    value: 'custom field',
   },
   {
     name: 'Cost Code',
@@ -56,26 +56,6 @@ export const customInputData1: Partial<CustomInput>[] = [
 ];
 
 export const customInputData2: Partial<CustomInput>[] = [
-  {
-    id: 218266,
-    options: [],
-    placeholder: 'Enter Date',
-    type: 'DATE',
-    value: null,
-    mandatory: undefined,
-    name: undefined,
-    prefix: undefined,
-  },
-  {
-    id: 218266,
-    options: [],
-    placeholder: 'Enter Date',
-    type: 'DATE',
-    value: null,
-    mandatory: undefined,
-    name: undefined,
-    prefix: undefined,
-  },
   {
     id: 211326,
     options: [],
@@ -98,14 +78,10 @@ export const customInputData2: Partial<CustomInput>[] = [
   },
   {
     name: 'CUSTOM FIELD',
-    value: 'qwwq',
+    value: 'custom field',
   },
   {
     name: 'Cost Code',
     value: 'Wow this Works',
-  },
-  {
-    name: 'Cost Area',
-    value: null,
   },
 ];
