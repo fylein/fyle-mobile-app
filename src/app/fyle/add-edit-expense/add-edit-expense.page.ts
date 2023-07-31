@@ -1326,8 +1326,8 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentProjects() {
-    this.recentlyUsedProjects$ = forkJoin({
+  getRecentProjects(): Observable<ExtendedProject[]> {
+    return forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
     }).pipe(
@@ -1342,8 +1342,14 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentCostCenters() {
-    this.recentlyUsedCostCenters$ = forkJoin({
+  getRecentCostCenters(): Observable<
+    {
+      label: string;
+      value: CostCenter;
+      selected?: boolean;
+    }[]
+  > {
+    return forkJoin({
       costCenters: this.costCenters$,
       recentValue: this.recentlyUsedValues$,
     }).pipe(
@@ -1353,8 +1359,8 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentCurrencies() {
-    this.recentlyUsedCurrencies$ = forkJoin({
+  getRecentCurrencies(): Observable<Currency[]> {
+    return forkJoin({
       recentValues: this.recentlyUsedValues$,
       currencies: this.currencyService.getAll(),
     }).pipe(
@@ -1422,13 +1428,13 @@ export class AddEditExpensePage implements OnInit {
 
     const selectedPaymentMode$ = this.getSelectedPaymentModes();
 
-    this.getRecentCostCenters();
+    this.recentlyUsedCostCenters$ = this.getRecentCostCenters();
 
     const defaultPaymentMode$ = this.getDefaultPaymentModes();
 
-    this.getRecentProjects();
+    this.recentlyUsedProjects$ = this.getRecentProjects();
 
-    this.getRecentCurrencies();
+    this.recentlyUsedCurrencies$ = this.getRecentCurrencies();
 
     const selectedCostCenter$ = this.getSelectedCostCenters();
 

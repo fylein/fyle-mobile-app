@@ -594,9 +594,7 @@ export function TestCases5(getTestBed) {
       recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
       fixture.detectChanges();
 
-      component.getRecentProjects();
-
-      component.recentlyUsedProjects$.subscribe((res) => {
+      component.getRecentProjects().subscribe((res) => {
         expect(res).toEqual(recentlyUsedProjectRes);
         expect(authService.getEou).toHaveBeenCalledOnceWith();
         expect(recentlyUsedItemsService.getRecentlyUsedProjects).toHaveBeenCalledOnceWith({
@@ -614,9 +612,7 @@ export function TestCases5(getTestBed) {
       recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(recentlyUsedCostCentersRes));
       fixture.detectChanges();
 
-      component.getRecentCostCenters();
-
-      component.recentlyUsedCostCenters$.subscribe((res) => {
+      component.getRecentCostCenters().subscribe((res) => {
         expect(res).toEqual(recentlyUsedCostCentersRes);
         expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledTimes(1);
         done();
@@ -629,9 +625,7 @@ export function TestCases5(getTestBed) {
       recentlyUsedItemsService.getRecentCurrencies.and.returnValue(of(recentCurrencyRes));
       fixture.detectChanges();
 
-      component.getRecentCurrencies();
-
-      component.recentlyUsedCurrencies$.subscribe((res) => {
+      component.getRecentCurrencies().subscribe((res) => {
         expect(res).toEqual(recentCurrencyRes);
         expect(currencyService.getAll).toHaveBeenCalledOnceWith();
         expect(recentlyUsedItemsService.getRecentCurrencies).toHaveBeenCalledTimes(1);
@@ -713,9 +707,9 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
         spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
-        spyOn(component, 'getRecentCostCenters');
-        spyOn(component, 'getRecentProjects');
-        spyOn(component, 'getRecentCurrencies');
+        spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
+        spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
+        spyOn(component, 'getRecentCurrencies').and.returnValue(of(recentCurrencyRes));
         spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
@@ -773,9 +767,9 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
         spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
-        spyOn(component, 'getRecentCostCenters');
-        spyOn(component, 'getRecentProjects');
-        spyOn(component, 'getRecentCurrencies');
+        spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
+        spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
+        spyOn(component, 'getRecentCurrencies').and.returnValue(of(recentCurrencyRes));
         spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
