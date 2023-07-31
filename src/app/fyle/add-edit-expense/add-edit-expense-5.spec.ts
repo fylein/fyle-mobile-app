@@ -855,6 +855,7 @@ export function TestCases5(getTestBed) {
       fixture.detectChanges();
 
       component.getCustomFields().subscribe((res) => {
+        console.log(res);
         expect(res).toEqual(customInputData2);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields2);
         expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
