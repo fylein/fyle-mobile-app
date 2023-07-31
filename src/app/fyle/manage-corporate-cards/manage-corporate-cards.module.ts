@@ -8,9 +8,10 @@ import { ManageCorporateCardsPageRoutingModule } from './manage-corporate-cards-
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { CorporateCardComponent } from './corporate-card/corporate-card.component';
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, SharedModule, ManageCorporateCardsPageRoutingModule],
-  declarations: [ManageCorporateCardsPage],
+  declarations: [ManageCorporateCardsPage, CorporateCardComponent],
 })
 export class ManageCorporateCardsPageModule {}

@@ -1,0 +1,27 @@
+<div class="corporate-card">
+  <div
+    class="corporate-card__logo"
+    [ngClass]="{
+      'corporate-card__logo--visa': card.is_visa_enrolled,
+      'corporate-card__logo--mastercard': card.is_mastercard_enrolled,
+      'corporate-card__logo--default': !card.is_visa_enrolled && !card.is_mastercard_enrolled
+    }"
+  >
+    <ng-container *ngIf="card.is_visa_enrolled">
+      <ion-icon src="../../../../assets/svg/visa-logo.svg" class="corporate-card__logo--visa__icon"></ion-icon>
+    </ng-container>
+    <ng-container *ngIf="card.is_mastercard_enrolled">
+      <ion-icon
+        src="../../../../assets/svg/mastercard-logo.svg"
+        class="corporate-card__logo--mastercard__icon"
+      ></ion-icon>
+    </ng-container>
+    <ng-container *ngIf="!card.is_visa_enrolled && !card.is_mastercard_enrolled">
+      <ion-icon src="../../../../assets/svg/card.svg" class="corporate-card__logo--default__icon"></ion-icon>
+    </ng-container>
+  </div>
+
+  <div class="corporate-card__number">
+    <app-card-number [cardNumber]="card.card_number"></app-card-number>
+  </div>
+</div>

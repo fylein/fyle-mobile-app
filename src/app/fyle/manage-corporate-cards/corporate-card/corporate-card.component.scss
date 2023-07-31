@@ -1,0 +1,43 @@
+@import '../../../../theme/colors';
+
+.corporate-card {
+  width: 100%;
+  height: 162px;
+  padding: 20px 16px;
+
+  border-radius: 16px;
+  background: url('../../../../assets/images/corporate-card-bg.png');
+
+  &__logo {
+    width: 44px;
+    height: 26px;
+    background-color: $white;
+    border: 1px solid $lighter-grey;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--visa,
+    &--mastercard {
+      padding: 2px;
+
+      &__icon {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &--default {
+      padding: 4px 10px;
+
+      &__icon {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+
+  &__number {
+    margin-top: 12px;
+  }
+}

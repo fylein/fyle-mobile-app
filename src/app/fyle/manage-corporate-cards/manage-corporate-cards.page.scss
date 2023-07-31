@@ -12,4 +12,14 @@
     line-height: normal;
     padding: 18px 0 18px 14px;
   }
+
+  &__cards {
+    padding: 24px 16px;
+  }
+
+  &__cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 }
