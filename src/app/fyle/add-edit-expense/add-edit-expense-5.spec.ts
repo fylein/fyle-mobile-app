@@ -10,7 +10,7 @@ import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { eCCCData1, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
-import { customInputData2 } from 'src/app/core/mock-data/custom-input.data';
+import { customInputData2, customInputsData3 } from 'src/app/core/mock-data/custom-input.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 
@@ -855,8 +855,7 @@ export function TestCases5(getTestBed) {
       fixture.detectChanges();
 
       component.getCustomFields().subscribe((res) => {
-        console.log(res);
-        expect(res).toEqual(customInputData2);
+        expect(res).toEqual(customInputsData3);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields2);
         expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
         expect(component.getCostCenterDependentFields).toHaveBeenCalledTimes(1);
