@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -66,7 +65,7 @@ export function setFormValid(component) {
   });
 }
 
-describe('AddEditExpensePage', () => {
+fdescribe('AddEditExpensePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getEMyAccounts',

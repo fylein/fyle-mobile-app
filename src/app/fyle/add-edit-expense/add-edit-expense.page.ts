@@ -1330,8 +1330,8 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentProjects() {
-    this.recentlyUsedProjects$ = forkJoin({
+  getRecentProjects(): Observable<ExtendedProject[]> {
+    return forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
     }).pipe(
@@ -1346,8 +1346,14 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentCostCenters() {
-    this.recentlyUsedCostCenters$ = forkJoin({
+  getRecentCostCenters(): Observable<
+    {
+      label: string;
+      value: CostCenter;
+      selected?: boolean;
+    }[]
+  > {
+    return forkJoin({
       costCenters: this.costCenters$,
       recentValue: this.recentlyUsedValues$,
     }).pipe(
@@ -1357,8 +1363,8 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentCurrencies() {
-    this.recentlyUsedCurrencies$ = forkJoin({
+  getRecentCurrencies(): Observable<Currency[]> {
+    return forkJoin({
       recentValues: this.recentlyUsedValues$,
       currencies: this.currencyService.getAll(),
     }).pipe(
@@ -1426,13 +1432,13 @@ export class AddEditExpensePage implements OnInit {
 
     const selectedPaymentMode$ = this.getSelectedPaymentModes();
 
-    this.getRecentCostCenters();
+    this.recentlyUsedCostCenters$ = this.getRecentCostCenters();
 
     const defaultPaymentMode$ = this.getDefaultPaymentModes();
 
-    this.getRecentProjects();
+    this.recentlyUsedProjects$ = this.getRecentProjects();
 
-    this.getRecentCurrencies();
+    this.recentlyUsedCurrencies$ = this.getRecentCurrencies();
 
     const selectedCostCenter$ = this.getSelectedCostCenters();
 
@@ -2395,7 +2401,7 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  initSubjectObservables() {
+  initClassObservables() {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
@@ -2462,6 +2468,45 @@ export class AddEditExpensePage implements OnInit {
     this.isCreatedFromCCC = true;
   }
 
+  handleCCCExpenses(etxn: UnflattenedTransaction): Subscription {
+    return this.corporateCreditCardExpenseService
+      .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
+      .subscribe((matchedExpense: CCCExpUnflattened[]) => {
+        this.matchedCCCTransaction = matchedExpense[0].ccce;
+        this.selectedCCCTransaction = this.matchedCCCTransaction;
+        this.cardEndingDigits = (
+          this.selectedCCCTransaction.corporate_credit_card_account_number
+            ? this.selectedCCCTransaction.corporate_credit_card_account_number
+            : this.selectedCCCTransaction.card_or_account_number
+        ).slice(-4);
+
+        etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+
+        const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
+
+        this.selectedCCCTransaction.displayObject =
+          txnDt +
+          ' - ' +
+          (this.selectedCCCTransaction.vendor
+            ? this.selectedCCCTransaction.vendor
+            : this.selectedCCCTransaction.description) +
+          this.selectedCCCTransaction.amount;
+
+        if (this.selectedCCCTransaction) {
+          this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
+        }
+      });
+  }
+
+  getSplitExpenses(splitExpenses: Expense[]): void {
+    this.isSplitExpensesPresent = splitExpenses.length > 1;
+    if (this.isSplitExpensesPresent) {
+      this.alreadyApprovedExpenses = splitExpenses.filter((txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1);
+
+      this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
+    }
+  }
+
   initSplitTxn(orgSettings$: Observable<OrgSettings>) {
     orgSettings$
       .pipe(
@@ -2481,43 +2526,10 @@ export class AddEditExpensePage implements OnInit {
       )
       .subscribe(({ etxn, splitExpenses }) => {
         if (splitExpenses && splitExpenses.length > 0) {
-          this.isSplitExpensesPresent = splitExpenses.length > 1;
-          if (this.isSplitExpensesPresent) {
-            this.alreadyApprovedExpenses = splitExpenses.filter(
-              (txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1
-            );
-
-            this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
-          }
+          this.getSplitExpenses(splitExpenses);
         }
 
-        this.corporateCreditCardExpenseService
-          .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
-          .subscribe((matchedExpense: CCCExpUnflattened[]) => {
-            this.matchedCCCTransaction = matchedExpense[0].ccce;
-            this.selectedCCCTransaction = this.matchedCCCTransaction;
-            this.cardEndingDigits = (
-              this.selectedCCCTransaction.corporate_credit_card_account_number
-                ? this.selectedCCCTransaction.corporate_credit_card_account_number
-                : this.selectedCCCTransaction.card_or_account_number
-            ).slice(-4);
-
-            etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
-
-            const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
-
-            this.selectedCCCTransaction.displayObject =
-              txnDt +
-              ' - ' +
-              (this.selectedCCCTransaction.vendor
-                ? this.selectedCCCTransaction.vendor
-                : this.selectedCCCTransaction.description) +
-              this.selectedCCCTransaction.amount;
-
-            if (this.selectedCCCTransaction) {
-              this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
-            }
-          });
+        this.handleCCCExpenses(etxn);
       });
   }
 
@@ -2545,7 +2557,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.initSubjectObservables();
+    this.initClassObservables();
 
     this.newExpenseDataUrls = [];
 

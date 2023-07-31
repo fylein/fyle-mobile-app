@@ -22,6 +22,7 @@ import {
   orgSettingsCCCDisabled,
   orgSettingsCCCDisabled2,
   orgSettingsCCCDisabled3,
+  orgSettingsParamWoCCC,
 } from 'src/app/core/mock-data/org-settings.data';
 import { taxGroupData } from 'src/app/core/mock-data/tax-group.data';
 import {
@@ -234,7 +235,7 @@ export function TestCases6(getTestBed) {
         component.projectDependentFieldsRef = dependentFieldSpy;
         component.costCenterDependentFieldsRef = dependentFieldSpy;
 
-        component.initSubjectObservables();
+        component.initClassObservables();
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
@@ -249,7 +250,7 @@ export function TestCases6(getTestBed) {
         component.projectDependentFieldsRef = null;
         component.costCenterDependentFieldsRef = null;
 
-        component.initSubjectObservables();
+        component.initClassObservables();
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
@@ -433,36 +434,59 @@ export function TestCases6(getTestBed) {
       });
     });
 
-    describe('initSplitTxn(): ', () => {
+    describe('initSplitTxn():', () => {
       it('should initialize split txns made using ccc', () => {
         transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
-        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
         component.etxn$ = of(unflattenedExpWithCCCExpn);
+        spyOn(component, 'handleCCCExpenses');
+        spyOn(component, 'getSplitExpenses');
         fixture.detectChanges();
 
         component.initSplitTxn(of(orgSettingsData));
         expect(transactionService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+        expect(component.getSplitExpenses).toHaveBeenCalledOnceWith(splitExpData);
+      });
+
+      it('should initialize CCC expenses with group ID', () => {
+        transactionService.getSplitExpenses.and.returnValue(of(null));
+        component.etxn$ = of(unflattenedExpWithCCCExpn);
+        spyOn(component, 'handleCCCExpenses');
+        spyOn(component, 'getSplitExpenses');
+        fixture.detectChanges();
+
+        component.initSplitTxn(of(orgSettingsParamWoCCC));
+        expect(transactionService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+        expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith(splitExpData);
+      });
+    });
+
+    describe('handleCCCExpenses():', () => {
+      it('should handle CCC expenses', () => {
+        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
+
+        component.handleCCCExpenses(unflattenedExpWithCCCExpn);
         expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
-        expect(component.isSplitExpensesPresent).toBeTrue();
-        expect(component.canEditCCCMatchedSplitExpense).toBeTrue();
         expect(component.cardNumber).toEqual('869');
         expect(component.matchedCCCTransaction).toEqual(expectedECccResponse[0].ccce);
       });
 
-      it('should intialize split txn when ccc disabled', () => {
-        transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
+      it('should show card digits and vendor description', () => {
         corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of([eCCCData2]));
-        component.etxn$ = of(unflattenedExpWithCCCExpn);
-        fixture.detectChanges();
 
-        component.initSplitTxn(of(orgSettingsCCCDisabled));
-        expect(transactionService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+        component.handleCCCExpenses(unflattenedExpWithCCCExpn);
         expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
-        expect(component.isSplitExpensesPresent).toBeTrue();
-        expect(component.canEditCCCMatchedSplitExpense).toBeTrue();
         expect(component.cardNumber).toEqual('869');
         expect(component.matchedCCCTransaction).toEqual(eCCCData2.ccce);
       });
+    });
+
+    it('getSplitExpenses(): should get split expenses', () => {
+      component.getSplitExpenses(splitExpData);
+
+      expect(component.isSplitExpensesPresent).toBeTrue();
+      expect(component.canEditCCCMatchedSplitExpense).toBeTrue();
     });
 
     it('clearCategoryOnValueChange(): should clear category dependent fields if category changes', fakeAsync(() => {
@@ -497,17 +521,29 @@ export function TestCases6(getTestBed) {
       expect(component.isRedirectedFromReport).toBeTrue();
     });
 
-    it('currencyObjValidator(): should validate currency object', () => {
-      component.fg.controls.currencyObj.setValue({
-        amount: null,
-        currency: null,
-        orig_amount: 10,
-        orig_currency: 'USD',
-      });
-      fixture.detectChanges();
+    describe('currencyObjValidator():', () => {
+      it('should validate currency object', () => {
+        component.fg.controls.currencyObj.setValue({
+          amount: null,
+          currency: null,
+          orig_amount: 10,
+          orig_currency: 'USD',
+        });
+        fixture.detectChanges();
 
-      const result = component.currencyObjValidator(component.fg.controls.currencyObj);
-      expect(result).toBeNull();
+        const result = component.currencyObjValidator(component.fg.controls.currencyObj);
+        expect(result).toBeNull();
+      });
+
+      it('should return false if there is no value in form control', () => {
+        component.fg.controls.currencyObj.setValue(null);
+        fixture.detectChanges();
+
+        const result = component.currencyObjValidator(component.fg.controls.currencyObj);
+        expect(result).toEqual({
+          required: false,
+        });
+      });
     });
 
     describe('getSourceAccID():', () => {

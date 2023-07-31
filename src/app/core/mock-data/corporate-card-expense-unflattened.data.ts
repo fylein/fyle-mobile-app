@@ -50,7 +50,7 @@ export const expectedECccResponse: CCCExpUnflattened[] = [
   },
 ];
 
-export const eCCCData1 = {
+export const eCCCData1: CCCExpUnflattened = {
   ...expectedECccResponse[0],
   ccce: {
     ...expectedECccResponse[0].ccce,
