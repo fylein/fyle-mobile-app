@@ -81,7 +81,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     if (this.searchBarRef && this.searchBarRef.nativeElement) {
       this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-        map((event: KeyboardEvent) => (event.target as HTMLInputElement).value),
+        map((event) => (event.target as HTMLInputElement).value),
         startWith(''),
         distinctUntilChanged(),
         map((searchText: string) => {
