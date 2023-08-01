@@ -1,36 +1,35 @@
 <div class="corporate-card">
   <ion-row class="ion-align-items-center">
     <ion-col>
+      <div *ngIf="!isCardConnectedToRTF" class="corporate-card__logo corporate-card__logo--default">
+        <ion-icon src="../../../../assets/svg/card.svg" class="corporate-card__logo--default__icon"></ion-icon>
+      </div>
+
       <div
+        *ngIf="isCardConnectedToRTF"
         class="corporate-card__logo"
         [ngClass]="{
           'corporate-card__logo--visa': card.is_visa_enrolled,
-          'corporate-card__logo--mastercard': card.is_mastercard_enrolled,
-          'corporate-card__logo--default': !card.is_visa_enrolled && !card.is_mastercard_enrolled
+          'corporate-card__logo--mastercard': card.is_mastercard_enrolled
         }"
       >
-        <ng-container *ngIf="card.is_visa_enrolled">
-          <ion-icon src="../../../../assets/svg/visa-logo.svg" class="corporate-card__logo--visa__icon"></ion-icon>
-        </ng-container>
-        <ng-container *ngIf="card.is_mastercard_enrolled">
-          <ion-icon
-            src="../../../../assets/svg/mastercard-logo.svg"
-            class="corporate-card__logo--mastercard__icon"
-          ></ion-icon>
-        </ng-container>
-        <ng-container *ngIf="!card.is_visa_enrolled && !card.is_mastercard_enrolled">
-          <ion-icon src="../../../../assets/svg/card.svg" class="corporate-card__logo--default__icon"></ion-icon>
-        </ng-container>
+        <ion-icon
+          *ngIf="card.is_visa_enrolled"
+          src="../../../../assets/svg/visa-logo.svg"
+          class="corporate-card__logo--visa__icon"
+        ></ion-icon>
+        <ion-icon
+          *ngIf="card.is_mastercard_enrolled"
+          src="../../../../assets/svg/mastercard-logo.svg"
+          class="corporate-card__logo--mastercard__icon"
+        ></ion-icon>
       </div>
     </ion-col>
+
     <ion-col size="auto">
       <!-- Only show the options menu to RTF enrolled cards and statement uploaded cards-->
       <button
-        *ngIf="
-          card.is_visa_enrolled ||
-          card.is_mastercard_enrolled ||
-          (card.data_feed_source === 'STATEMENT_UPLOAD' && (isVisaRTFEnabled || isMastercardRTFEnabled))
-        "
+        *ngIf="isCardConnectedToRTF || (card.data_feed_source === dataFeedSourceTypes.STATEMENT_UPLOAD && isRTFEnabled)"
         class="corporate-card__more-options-btn"
         (click)="cardOptionsClick.emit(card)"
       >
@@ -44,23 +43,23 @@
   </div>
 
   <div class="corporate-card__feed">
-    <ng-container *ngIf="card.data_feed_source === 'YODLEE'">
+    <ng-container *ngIf="isCardConnectedToRTF">
+      <span class="corporate-card__feed-label">Transactions Feed</span>
+      <div class="corporate-card__feed-value corporate-card__feed-live">
+        <div class="corporate-card__feed-live-dot"></div>
+        <span>Live</span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.YODLEE">
       <span class="corporate-card__feed-label">Last Synced</span>
       <span class="corporate-card__feed-value">{{ card.last_synced_at | date : 'MMM dd, YYYY' }}</span>
     </ng-container>
 
-    <ng-container *ngIf="card.is_visa_enrolled || card.is_mastercard_enrolled">
-      <span class="corporate-card__feed-label">Transactions Feed</span>
-      <div class="corporate-card__feed-value corporate-card__feed-live">
-        <div class="corporate-card__feed-live-dot"></div>
-        Live
-      </div>
-    </ng-container>
-
     <ng-container
       *ngIf="
-        (card.data_feed_source === 'STATEMENT_UPLOAD' && !card.is_visa_enrolled && !card.is_mastercard_enrolled) ||
-        card.data_feed_source.includes('BANK FEED')
+        (card.data_feed_source === dataFeedSourceTypes.STATEMENT_UPLOAD && !isCardConnectedToRTF) ||
+        isCardConnectedToBankFeed
       "
     >
       <span class="corporate-card__feed-label">Synced Using</span>

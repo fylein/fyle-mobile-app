@@ -17,6 +17,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { Cacheable } from 'ts-cacheable';
 import { CardDetails } from '../models/card-details.model';
+import { DataFeedSource } from '../enums/data-feed-source.enum';
 
 type Config = Partial<{
   offset: number;
@@ -42,6 +43,16 @@ export class CorporateCreditCardExpenseService {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformCorporateCard>>('/corporate_cards')
       .pipe(map((res) => res.data));
+  }
+
+  getBankFeedSources(): DataFeedSource[] {
+    return [
+      DataFeedSource.BANK_FEED_AMEX,
+      DataFeedSource.BANK_FEED_CDF,
+      DataFeedSource.BANK_FEED_VCF,
+      DataFeedSource.BANK_FEED_S3DF,
+      DataFeedSource.BANK_FEED_HAPPAY,
+    ];
   }
 
   getv2CardTransactions(config: Config): Observable<ApiV2Response<CorporateCardExpense>> {

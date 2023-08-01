@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController } from '@ionic/angular';
 import { Observable, forkJoin, map } from 'rxjs';
+import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -69,7 +70,7 @@ export class ManageCorporateCardsPage {
               },
             });
           }
-        } else if (card.data_feed_source === 'STATEMENT_UPLOAD') {
+        } else if (card.data_feed_source === DataFeedSource.STATEMENT_UPLOAD) {
           if (isVisaRTFEnabled) {
             actionSheetButtons.push({
               text: 'Connect to Visa Real-time Feed',
