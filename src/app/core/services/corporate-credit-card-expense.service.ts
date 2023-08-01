@@ -80,11 +80,11 @@ export class CorporateCreditCardExpenseService {
       );
   }
 
-  markPersonal(corporateCreditCardExpenseGroupId: string): Observable<void> {
+  markPersonal(corporateCreditCardExpenseGroupId: string): Observable<null> {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/personal');
   }
 
-  dismissCreditTransaction(corporateCreditCardExpenseId: string): Observable<void> {
+  dismissCreditTransaction(corporateCreditCardExpenseId: string): Observable<null> {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/ignore');
   }
 
