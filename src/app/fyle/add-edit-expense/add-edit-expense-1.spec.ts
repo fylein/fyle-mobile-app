@@ -600,7 +600,7 @@ export function TestCases1(getTestBed) {
       it('should mark a CCC txn as personal', (done) => {
         transactionService.delete.and.returnValue(of(expenseData1));
         trackingService.deleteExpense.and.returnValue(null);
-        corporateCreditCardExpenseService.markPersonal.and.returnValue(of(expenseData1));
+        corporateCreditCardExpenseService.markPersonal.and.returnValue(of(null));
 
         component.markCCCAsPersonal(expenseData1.tx_id).subscribe((res) => {
           expect(res).toEqual(expenseData1);
@@ -628,7 +628,7 @@ export function TestCases1(getTestBed) {
       it('should dismiss CCC txn', (done) => {
         transactionService.delete.and.returnValue(of(expenseData1));
         trackingService.deleteExpense.and.returnValue(null);
-        corporateCreditCardExpenseService.dismissCreditTransaction.and.returnValue(of(expenseData1));
+        corporateCreditCardExpenseService.dismissCreditTransaction.and.returnValue(of(null));
 
         component
           .dismissCCC(expenseData1.tx_id, expenseData1.tx_corporate_credit_card_expense_group_id)
