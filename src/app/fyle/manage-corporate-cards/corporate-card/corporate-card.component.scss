@@ -5,6 +5,9 @@
   height: 162px;
   padding: 20px 16px;
 
+  display: flex;
+  flex-direction: column;
+
   border-radius: 16px;
   background: url('../../../../assets/images/corporate-card-bg.png');
 
@@ -39,5 +42,40 @@
 
   &__number {
     margin-top: 12px;
+  }
+
+  &__feed {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+  }
+
+  &__feed-label {
+    color: $black-light;
+    font-size: 12px;
+    line-height: normal;
+  }
+
+  &__feed-value {
+    font-size: 12px;
+    color: $blue-black;
+    line-height: 1.16;
+  }
+
+  &__feed-live {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__feed-live-dot {
+    width: 8px;
+    height: 8px;
+    background-color: $green;
+    border-radius: 50%;
+  }
+
+  &__more-options-btn {
+    background: transparent;
   }
 }

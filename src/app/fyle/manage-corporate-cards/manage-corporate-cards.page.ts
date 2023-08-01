@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { ActionSheetButton, ActionSheetController } from '@ionic/angular';
+import { Observable, forkJoin, map } from 'rxjs';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -12,7 +14,16 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 export class ManageCorporateCardsPage {
   corporateCards$: Observable<PlatformCorporateCard[]>;
 
-  constructor(private router: Router, private corporateCreditCardExpenseService: CorporateCreditCardExpenseService) {}
+  isVisaRTFEnabled$: Observable<boolean>;
+
+  isMastercardRTFEnabled$: Observable<boolean>;
+
+  constructor(
+    private router: Router,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private actionSheetController: ActionSheetController,
+    private orgSettingsService: OrgSettingsService
+  ) {}
 
   goBack(): void {
     this.router.navigate(['/', 'enterprise', 'my_profile']);
@@ -20,5 +31,80 @@ export class ManageCorporateCardsPage {
 
   ionViewWillEnter(): void {
     this.corporateCards$ = this.corporateCreditCardExpenseService.getCorporateCards();
+
+    const orgSettings$ = this.orgSettingsService.get();
+
+    this.isVisaRTFEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+    );
+
+    this.isMastercardRTFEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
+      )
+    );
+  }
+
+  prepareActionSheetButtons(card: PlatformCorporateCard): Observable<ActionSheetButton[]> {
+    return forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
+      map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => {
+        const actionSheetButtons: ActionSheetButton[] = [];
+
+        if (card.is_visa_enrolled || card.is_mastercard_enrolled) {
+          actionSheetButtons.push({
+            text: 'Disconnect',
+            handler() {
+              // TODO: Disconnect
+              console.log('Disconnect clicked');
+            },
+          });
+
+          if (card.is_dummy) {
+            actionSheetButtons.push({
+              text: 'Create Dummy Transaction',
+              handler() {
+                // TODO: Create Dummy Transaction
+                console.log('Create Dummy Transaction clicked');
+              },
+            });
+          }
+        } else if (card.data_feed_source === 'STATEMENT_UPLOAD') {
+          if (isVisaRTFEnabled) {
+            actionSheetButtons.push({
+              text: 'Connect to Visa Real-time Feed',
+              handler() {
+                // TODO: Connect to Visa Real-time Feed
+                console.log('Connect to Visa Real-time Feed clicked');
+              },
+            });
+          }
+
+          if (isMastercardRTFEnabled) {
+            actionSheetButtons.push({
+              text: 'Connect to Mastercard Real-time Feed',
+              handler() {
+                // TODO: Connect to Mastercard Real-time Feed
+                console.log('Connect to Mastercard Real-time Feed clicked');
+              },
+            });
+          }
+        }
+
+        return actionSheetButtons;
+      })
+    );
+  }
+
+  openCardOptions(card: PlatformCorporateCard): void {
+    this.prepareActionSheetButtons(card).subscribe(async (actionSheetButtons) => {
+      const actionSheet = await this.actionSheetController.create({
+        buttons: actionSheetButtons,
+        cssClass: 'fy-action-sheet',
+        mode: 'md',
+      });
+
+      await actionSheet.present();
+    });
   }
 }

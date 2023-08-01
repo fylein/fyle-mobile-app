@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 
 @Component({
@@ -8,4 +8,10 @@ import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-cor
 })
 export class CorporateCardComponent {
   @Input() card: PlatformCorporateCard;
+
+  @Input() isVisaRTFEnabled: boolean;
+
+  @Input() isMastercardRTFEnabled: boolean;
+
+  @Output() cardOptionsClick: EventEmitter<PlatformCorporateCard> = new EventEmitter<PlatformCorporateCard>();
 }
