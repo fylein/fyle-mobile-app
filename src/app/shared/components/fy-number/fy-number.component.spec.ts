@@ -57,10 +57,10 @@ describe('FyNumberComponent', () => {
   });
 
   it('should set the input value', () => {
-    const value = '35.8';
+    const value = 35.8;
     component.writeValue(value);
-    expect(component.value).toEqual(35.8);
-    expect(component.innerValue).toEqual(35.8);
+    expect(component.value).toEqual(value);
+    expect(component.innerValue).toEqual(value);
   });
 
   it('onBlur(): should call onTouchedCallback', () => {

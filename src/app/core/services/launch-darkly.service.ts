@@ -65,7 +65,7 @@ export class LaunchDarklyService {
   }
 
   checkIfNegativeExpensePluginIsEnabled(): Observable<boolean> {
-    return this.getVariation('numeric-keypad', true);
+    return this.getVariation('numeric-keypad', false);
   }
 
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)

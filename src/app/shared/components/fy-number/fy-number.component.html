@@ -1,4 +1,4 @@
-<ng-container *ngIf="isIos && isAmount && isNegativeExpensePluginEnabled; else inputWithPlugin">
+<ng-container *ngIf="isIos && isAmount && isNegativeExpensePluginEnabled; else inputWithKeyboardPlugin">
   <input
     class="fy-number--input smartlook-show"
     [min]="min"
@@ -7,12 +7,12 @@
     [placeholder]="placeholder || ''"
     (blur)="(onBlur)"
     type="number"
-    [(ngModel)]="fcValue"
+    [(ngModel)]="negativeExpense"
     (keydown)="handleNegativeExpenseChange($event)"
   />
 </ng-container>
 
-<ng-template #inputWithPlugin>
+<ng-template #inputWithKeyboardPlugin>
   <ng-container *ngIf="isIos && isKeyboardPluginEnabled; else inputWithoutPlugin">
     <input
       class="fy-number--input smartlook-show"

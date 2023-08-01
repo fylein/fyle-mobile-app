@@ -82,7 +82,7 @@ describe('LaunchDarklyService', () => {
 
     launchDarklyService.checkIfNegativeExpensePluginIsEnabled().subscribe((res) => {
       expect(res).toBeTrue();
-      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, true);
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, false);
       done();
     });
   });
