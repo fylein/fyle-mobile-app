@@ -16,9 +16,9 @@
         <app-corporate-card
           *ngFor="let corporateCard of corporateCards"
           [card]="corporateCard"
-          (cardOptionsClick)="openCardOptions($event)"
           [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
           [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
+          (cardOptionsClick)="openCardOptions($event)"
         ></app-corporate-card>
       </div>
     </ng-container>
