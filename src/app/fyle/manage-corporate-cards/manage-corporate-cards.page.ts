@@ -57,7 +57,6 @@ export class ManageCorporateCardsPage {
             text: 'Disconnect',
             handler() {
               // TODO: Disconnect
-              console.log('Disconnect clicked');
             },
           });
 
@@ -66,7 +65,6 @@ export class ManageCorporateCardsPage {
               text: 'Create Dummy Transaction',
               handler() {
                 // TODO: Create Dummy Transaction
-                console.log('Create Dummy Transaction clicked');
               },
             });
           }
@@ -76,7 +74,6 @@ export class ManageCorporateCardsPage {
               text: 'Connect to Visa Real-time Feed',
               handler() {
                 // TODO: Connect to Visa Real-time Feed
-                console.log('Connect to Visa Real-time Feed clicked');
               },
             });
           }
@@ -86,7 +83,6 @@ export class ManageCorporateCardsPage {
               text: 'Connect to Mastercard Real-time Feed',
               handler() {
                 // TODO: Connect to Mastercard Real-time Feed
-                console.log('Connect to Mastercard Real-time Feed clicked');
               },
             });
           }

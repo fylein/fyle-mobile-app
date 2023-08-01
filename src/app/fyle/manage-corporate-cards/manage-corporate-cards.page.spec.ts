@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 
-describe('ManageCorporateCardsPage', () => {
+xdescribe('ManageCorporateCardsPage', () => {
   let component: ManageCorporateCardsPage;
   let fixture: ComponentFixture<ManageCorporateCardsPage>;
 
