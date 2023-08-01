@@ -576,7 +576,7 @@ describe('SplitExpensePage', () => {
       splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns3.txns));
 
       component.fileObjs = fileObject6;
-      reportService.addTransactions.and.returnValue(of(expenseList2[0]));
+      reportService.addTransactions.and.returnValue(of(undefined));
       splitExpenseService.getBase64Content.and.returnValue(
         of([
           {
@@ -640,7 +640,7 @@ describe('SplitExpensePage', () => {
       splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns4.txns));
       component.totalSplitAmount = 436342.464;
       splitExpenseService.linkTxnWithFiles.and.returnValue(of([null]));
-      reportService.addTransactions.and.returnValue(of(expenseList2[0]));
+      reportService.addTransactions.and.returnValue(of(undefined));
 
       const mockCompleteTxnIds = ['txPazncEIY9Q', 'tx12SqYytrm'];
       component.createAndLinkTxnsWithFiles(splitExpData).subscribe((result) => {
@@ -665,7 +665,7 @@ describe('SplitExpensePage', () => {
       component.transaction = txnAmount2;
       component.reportId = 'rpPNBrdR9NaE';
       component.totalSplitAmount = 6000;
-      reportService.addTransactions.and.returnValue(of(expenseList2[0]));
+      reportService.addTransactions.and.returnValue(of(undefined));
       splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns6.txns));
       splitExpenseService.getBase64Content.and.returnValue(
         of([
@@ -700,7 +700,7 @@ describe('SplitExpensePage', () => {
 
       component.reportId = 'rpPNBrdR9NaE';
       component.totalSplitAmount = 635;
-      reportService.addTransactions.and.returnValue(of(expenseList2[0]));
+      reportService.addTransactions.and.returnValue(of(undefined));
       splitExpenseService.createSplitTxns.and.returnValue(of(fileTxns7.txns));
 
       const mockCompleteTxnIds = ['txegSZ66da1T'];

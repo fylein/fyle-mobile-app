@@ -184,7 +184,7 @@ describe('CreateNewReportComponent', () => {
       expect(component.showReportNameError).toBeTrue();
     });
 
-    it('shoud create a new draft report with the title and add transactions', fakeAsync(() => {
+    it('should create a new draft report with the title and add transactions', fakeAsync(() => {
       component.reportTitle = '#3 : Mar 2023';
       const reportID = 'rp5eUkeNm9wB';
       const tnxs = ['tx3nHShG60zq'];
@@ -196,7 +196,7 @@ describe('CreateNewReportComponent', () => {
       const Report_Value = 0;
       const report = reportUnflattenedData2;
       reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
-      reportService.addTransactions.and.returnValue(of(expenseList2[0]));
+      reportService.addTransactions.and.returnValue(of(undefined));
       component.ctaClickedEvent('create_draft_report');
       fixture.detectChanges();
       tick(500);
@@ -212,7 +212,7 @@ describe('CreateNewReportComponent', () => {
       });
     }));
 
-    it('shoud create a new draft report with the title and return the report of no transactions ids are present', fakeAsync(() => {
+    it('should create a new draft report with the title and return the report of no transactions ids are present', fakeAsync(() => {
       component.selectedElements = [];
       component.reportTitle = '#3 : Mar 2023';
       const tnxs = [];
@@ -238,7 +238,7 @@ describe('CreateNewReportComponent', () => {
       });
     }));
 
-    it('shoud create a new report with the title and submit the report', fakeAsync(() => {
+    it('should create a new report with the title and submit the report', fakeAsync(() => {
       component.reportTitle = '#3 : Mar 2023';
       const reportPurpose = {
         purpose: '#3 : Mar 2023',

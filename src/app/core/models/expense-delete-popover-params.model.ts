@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
-export interface DeletePopoverParams {
+export interface ExpenseDeletePopoverParams {
   component: typeof FyDeleteDialogComponent;
   cssClass: string;
   backdropDismiss: boolean;
@@ -9,6 +9,8 @@ export interface DeletePopoverParams {
     header: string;
     body: string;
     infoMessage: string;
+    ctaText: string;
+    ctaLoadingText: string;
     deleteMethod: () => Observable<void>;
   };
 }

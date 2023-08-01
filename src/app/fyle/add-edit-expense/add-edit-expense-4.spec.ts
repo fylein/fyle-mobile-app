@@ -735,7 +735,7 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(txnData2));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
         component.fg.controls.report.setValue(expectedErpt[0]);
-        reportService.addTransactions.and.returnValue(of(expenseList2[0]));
+        reportService.addTransactions.and.returnValue(of(undefined));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
@@ -766,8 +766,8 @@ export function TestCases4(getTestBed) {
         component.fg.controls.report.setValue(expectedErpt[0]);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        reportService.removeTransaction.and.returnValue(of(expenseList2[0]));
-        reportService.addTransactions.and.returnValue(of(expenseList2[0]));
+        reportService.removeTransaction.and.returnValue(of(undefined));
+        reportService.addTransactions.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithReportID.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnDataWithReportID));
@@ -802,7 +802,7 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(unflattenedTxnDataWithReportID2);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        reportService.removeTransaction.and.returnValue(of(expenseList2[0]));
+        reportService.removeTransaction.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithReportID2.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnDataWithReportID2));

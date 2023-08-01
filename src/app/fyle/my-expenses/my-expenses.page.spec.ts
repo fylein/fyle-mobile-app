@@ -2289,7 +2289,7 @@ describe('MyExpensesPage', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo(true);
 
-    reportService.addTransactions.and.returnValue(of(expenseList2[0]));
+    reportService.addTransactions.and.returnValue(of());
     component
       .addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv'])
       .pipe(

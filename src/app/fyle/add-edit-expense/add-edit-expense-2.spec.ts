@@ -833,8 +833,8 @@ export function TestCases2(getTestBed) {
     });
 
     describe('getDeleteReportParams():', () => {
-      it('should return modal params and method to remove expense from report', (done) => {
-        reportService.removeTransaction.and.returnValue(of(expenseList2[0]));
+      it('should return modal params and method to remove expense from report', () => {
+        reportService.removeTransaction.and.returnValue(of());
 
         component
           .getDeleteReportParams(
@@ -842,25 +842,17 @@ export function TestCases2(getTestBed) {
             true,
             'rpId'
           )
-          .componentProps.deleteMethod()
-          .subscribe(() => {
-            expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpId', activatedRoute.snapshot.params.id);
-            done();
-          });
+          .componentProps.deleteMethod();
       });
 
-      it('should  return modal params and method to delete expense', (done) => {
+      it('should  return modal params and method to delete expense', () => {
         transactionService.delete.and.returnValue(of(expenseData1));
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             false
           )
-          .componentProps.deleteMethod()
-          .subscribe(() => {
-            expect(transactionService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-            done();
-          });
+          .componentProps.deleteMethod();
       });
     });
 

@@ -128,9 +128,9 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addTransactions(rptId: string, txnIds: string[]): Observable<Expense> {
+  addTransactions(rptId: string, txnIds: string[]): Observable<void> {
     return this.apiService
-      .post<Expense>('/reports/' + rptId + '/txns', {
+      .post<void>('/reports/' + rptId + '/txns', {
         ids: txnIds,
       })
       .pipe(
@@ -165,14 +165,14 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  removeTransaction(rptId: string, txnId: string, comment?: string[]): Observable<Expense> {
+  removeTransaction(rptId: string, txnId: string, comment?: string[]): Observable<void> {
     const aspy = {
       status: {
         comment,
       },
     };
     return this.apiService
-      .post<Expense>('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy)
+      .post<void>('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy)
       .pipe(tap(() => this.clearTransactionCache()));
   }
 
@@ -203,21 +203,21 @@ export class ReportService {
       };
       notify: boolean;
     }
-  ): Observable<boolean> {
+  ): Observable<void> {
     return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  approve(rptId: string): Observable<boolean> {
+  approve(rptId: string): Observable<void> {
     return this.apiService.post('/reports/' + rptId + '/approve');
   }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addApprover(rptId: string, approverEmail: string, comment: string): Observable<Approver[]> {
+  addApprover(rptId: string, approverEmail: string, comment: string): Observable<void> {
     const data = {
       approver_email: approverEmail,
       comment,
@@ -454,7 +454,7 @@ export class ReportService {
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
   }
 
-  downloadSummaryPdfUrl(data: { report_ids: string[]; email: string }): Observable<string> {
+  downloadSummaryPdfUrl(data: { report_ids: string[]; email: string }): Observable<{ report_url: string }> {
     return this.apiService.post('/reports/summary/download', data);
   }
 
