@@ -1,20 +1,24 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { LoaderService } from 'src/app/core/services/loader.service';
+import { Position } from '@capacitor/geolocation';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import * as dayjs from 'dayjs';
+import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
+  Observable,
+  Subject,
+  Subscription,
   combineLatest,
   concat,
   forkJoin,
   from,
   iif,
-  Observable,
   of,
-  Subject,
-  Subscription,
   throwError,
 } from 'rxjs';
 import {
@@ -30,61 +34,83 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
-import * as dayjs from 'dayjs';
-import { AccountsService } from 'src/app/core/services/accounts.service';
-import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { ProjectsService } from 'src/app/core/services/projects.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { MileageService } from 'src/app/core/services/mileage.service';
-import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { PolicyService } from 'src/app/core/services/policy.service';
-import { StatusService } from 'src/app/core/services/status.service';
-import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
-import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { DateService } from 'src/app/core/services/date.service';
-import { TrackingService } from '../../core/services/tracking.service';
-import { TokenService } from 'src/app/core/services/token.service';
-import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
-import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
-import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
-import { LocationService } from 'src/app/core/services/location.service';
-import { Position } from '@capacitor/geolocation';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
-import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
-import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
-import { AccountOption } from 'src/app/core/models/account-option.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
-import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { CategoriesService } from 'src/app/core/services/categories.service';
+import { AccountOption } from 'src/app/core/models/account-option.model';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
+import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { MileageDetails } from 'src/app/core/models/mileage.model';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { CustomInputsOption } from 'src/app/core/models/txn-custom-properties.model';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
+import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
+import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { AccountsService } from 'src/app/core/services/accounts.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
+import { DateService } from 'src/app/core/services/date.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { LocationService } from 'src/app/core/services/location.service';
+import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
+import { MileageService } from 'src/app/core/services/mileage.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { TrackingService } from '../../core/services/tracking.service';
+import { Location } from 'src/app/core/models/location.model';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
+
+type FormValue = {
+  route: {
+    roundTrip: boolean;
+    mileageLocations: Location[];
+  };
+  category: OrgCategory;
+  sub_category: OrgCategory;
+  report: UnflattenedReport;
+  duplicate_detection_reason: string;
+  paymentMode: ExtendedAccount;
+  custom_inputs: CustomInput[];
+  mileage_rate_name: unknown;
+};
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -114,35 +140,35 @@ export class AddEditMileagePage implements OnInit {
 
   maxDate: string;
 
-  reviewList: [];
+  reviewList: string[];
 
   fg: FormGroup;
 
-  txnFields$: Observable<any>;
+  txnFields$: Observable<Partial<ExpenseFieldsObj>>;
 
   paymentModes$: Observable<AccountOption[]>;
 
-  homeCurrency$: Observable<any>;
+  homeCurrency$: Observable<string>;
 
-  subCategories$: Observable<any>;
+  subCategories$: Observable<OrgCategory[]>;
 
-  filteredCategories$: Observable<any>;
+  filteredCategories$: Observable<OrgCategoryListItem[]>;
 
-  etxn$: Observable<any>;
+  etxn$: Observable<UnflattenedTransaction>;
 
   isIndividualProjectsEnabled$: Observable<boolean>;
 
-  individualProjectIds$: Observable<string[]>;
+  individualProjectIds$: Observable<number[]>;
 
   isProjectsEnabled$: Observable<boolean>;
 
   isCostCentersEnabled$: Observable<boolean>;
 
-  customInputs$: Observable<any>;
+  customInputs$: Observable<CustomInputsOption[] | ExpenseField[]>;
 
-  costCenters$: Observable<any>;
+  costCenters$: Observable<CostCenterOptions[]>;
 
-  reports$: Observable<any>;
+  reports$: Observable<{ label: string; value: UnflattenedReport }[]>;
 
   isAmountCapped$: Observable<boolean>;
 
@@ -154,7 +180,7 @@ export class AddEditMileagePage implements OnInit {
 
   amount$: Observable<number>;
 
-  mileageConfig$: Observable<any>;
+  mileageConfig$: Observable<MileageDetails>;
 
   individualMileageRatesEnabled$: Observable<boolean>;
 
@@ -162,7 +188,7 @@ export class AddEditMileagePage implements OnInit {
 
   mileageRates$: Observable<PlatformMileageRates[]>;
 
-  mileageRatesOptions$: Observable<any>;
+  mileageRatesOptions$: Observable<{ label: string; value: string }[]>;
 
   rate$: Observable<number>;
 
@@ -174,7 +200,7 @@ export class AddEditMileagePage implements OnInit {
 
   isAdvancesEnabled$: Observable<boolean>;
 
-  comments$: Observable<any>;
+  comments$: Observable<ExtendedStatus[]>;
 
   expenseStartTime;
 
@@ -263,10 +289,8 @@ export class AddEditMileagePage implements OnInit {
     private transactionsOutboxService: TransactionsOutboxService,
     private policyService: PolicyService,
     private statusService: StatusService,
-    private dataTransformService: DataTransformService,
     private modalController: ModalController,
     private networkService: NetworkService,
-    private popupService: PopupService,
     private navController: NavController,
     private dateService: DateService,
     private trackingService: TrackingService,
@@ -288,15 +312,15 @@ export class AddEditMileagePage implements OnInit {
     private storageService: StorageService
   ) {}
 
-  get showSaveAndNext() {
+  get showSaveAndNext(): boolean {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
   }
 
-  get route() {
+  get route(): AbstractControl {
     return this.fg.controls.route;
   }
 
-  get isExpandedView() {
+  get isExpandedView(): boolean {
     return this._isExpandedView;
   }
 
@@ -310,7 +334,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   @HostListener('keydown')
-  scrollInputIntoView() {
+  scrollInputIntoView(): void {
     const el = document.activeElement;
     if (el && el instanceof HTMLInputElement) {
       el.scrollIntoView({
@@ -319,13 +343,21 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  ngOnInit() {
+  getFormValues(): FormValue {
+    return this.fg.value as FormValue;
+  }
+
+  getFormControl(name: string): AbstractControl {
+    return this.fg.controls[name];
+  }
+
+  ngOnInit(): void {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
   }
 
-  goToPrev() {
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+  goToPrev(): void {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
 
     if (this.reviewList[+this.activeIndex - 1]) {
       this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
@@ -334,8 +366,8 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  goToNext() {
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+  goToNext(): void {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
 
     if (this.reviewList[+this.activeIndex + 1]) {
       this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
@@ -344,7 +376,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  goToTransaction(expense, reviewList, activeIndex) {
+  goToTransaction(expense: UnflattenedTransaction, reviewList, activeIndex: number): void {
     let category;
 
     if (expense.tx.org_category) {
@@ -387,7 +419,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -396,8 +428,9 @@ export class AddEditMileagePage implements OnInit {
     this.connectionStatus$ = this.isConnected$.pipe(map((isConnected) => ({ connected: isConnected })));
   }
 
-  getCalculateDistance() {
-    return this.mileageService.getDistance(this.fg.controls.route.value?.mileageLocations).pipe(
+  getCalculateDistance(): Observable<string> {
+    const routeControl = this.getFormControl('route') as { value: { mileageLocations: Location[] } };
+    return this.mileageService.getDistance(routeControl.value?.mileageLocations).pipe(
       switchMap((distance) =>
         this.etxn$.pipe(
           map((etxn) => {
@@ -408,7 +441,8 @@ export class AddEditMileagePage implements OnInit {
         )
       ),
       map((finalDistance) => {
-        if (this.fg.value.route.roundTrip) {
+        const formValue = this.getFormValues();
+        if (formValue.route.roundTrip) {
           return (finalDistance * 2).toFixed(2);
         } else {
           return finalDistance.toFixed(2);
@@ -418,7 +452,8 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  setupFilteredCategories(activeCategories$: Observable<any>) {
+  setupFilteredCategories(activeCategories$: Observable<OrgCategory>): void {
+    const formValue = this.getFormValues();
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
         if (!this.fg.controls.project.value) {
@@ -430,7 +465,10 @@ export class AddEditMileagePage implements OnInit {
       startWith(this.fg.controls.project.value),
       concatMap((project) =>
         activeCategories$.pipe(
-          map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
+          map(
+            (activeCategories) =>
+              this.projectService.getAllowedOrgCategoryIds(project, activeCategories) as OrgCategory[]
+          )
         )
       ),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
@@ -438,11 +476,9 @@ export class AddEditMileagePage implements OnInit {
 
     this.filteredCategories$.subscribe((categories) => {
       if (
-        this.fg.value.sub_category &&
-        this.fg.value.sub_category.id &&
-        !categories.some(
-          (category) => this.fg.value.sub_category && this.fg.value.sub_category.id === category.value.id
-        )
+        formValue.sub_category &&
+        formValue.sub_category.id &&
+        !categories.some((category) => formValue.sub_category && formValue.sub_category.id === category.value.id)
       ) {
         this.fg.controls.sub_category.reset();
       }
@@ -461,7 +497,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getMileageCategories() {
+  getMileageCategories(): Observable<{ defaultMileageCategory: OrgCategory; mileageCategories: OrgCategory[] }> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const orgCategoryName = 'mileage';
@@ -500,7 +536,7 @@ export class AddEditMileagePage implements OnInit {
           })
         )
       ),
-      map((expenseFieldsMap: any) => {
+      map((expenseFieldsMap: ExpenseFieldsMap) => {
         if (expenseFieldsMap) {
           for (const tfc of Object.keys(expenseFieldsMap)) {
             if (expenseFieldsMap[tfc].options && expenseFieldsMap[tfc].options.length > 0) {
@@ -515,10 +551,10 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  setupTfcDefaultValues() {
+  setupTfcDefaultValues(): void {
     const tfcValues$ = this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue) =>
+      switchMap((formValue: FormValue) =>
         forkJoin({
           expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           mileageCategoriesContainer: this.getMileageCategories(),
@@ -586,7 +622,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getSubCategories() {
+  getSubCategories(): Observable<OrgCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const parentCategoryName = 'mileage';
@@ -619,7 +655,7 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       switchMap((category) => {
-        const formValue = this.fg.value;
+        const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
           map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
           map((customFields) =>
@@ -668,13 +704,13 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getRateByVehicleType(mileageRates, vehicle_type) {
+  getRateByVehicleType(mileageRates, vehicle_type: string): number {
     const filteredMileageRate = mileageRates.find((mileageRate) => mileageRate.vehicle_type === vehicle_type);
 
     return filteredMileageRate?.rate;
   }
 
-  getMileageByVehicleType(mileageRates, vehicle_type) {
+  getMileageByVehicleType(mileageRates, vehicle_type: string): number {
     const filteredMileageRate = mileageRates.find((mileageRate) => mileageRate.vehicle_type === vehicle_type);
 
     return filteredMileageRate;
@@ -690,54 +726,40 @@ export class AddEditMileagePage implements OnInit {
       mileageRates: this.mileageRates$,
       mileageConfig: this.mileageConfig$,
     }).pipe(
-      map(
-        ({
-          vehicleType,
-          orgUserMileageSettings,
-          orgSettings,
-          orgUserSettings,
-          recentValue,
-          mileageRates,
-          mileageConfig,
-        }) => {
-          const isRecentVehicleTypePresent =
-            orgSettings.org_expense_form_autofills &&
-            orgSettings.org_expense_form_autofills.allowed &&
-            orgSettings.org_expense_form_autofills.enabled &&
-            orgUserSettings.expense_form_autofills.allowed &&
-            orgUserSettings.expense_form_autofills.enabled &&
-            recentValue &&
-            recentValue.recent_vehicle_types &&
-            recentValue.recent_vehicle_types.length > 0;
-          if (isRecentVehicleTypePresent) {
-            vehicleType = recentValue.recent_vehicle_types[0];
-            this.presetVehicleType = recentValue.recent_vehicle_types[0];
-          }
-
-          // if any employee assigned mileage rate is present
-          // -> the recently used mileage rate should be part of the allowed mileage rates.
-          if (
-            orgUserMileageSettings?.mileage_rate_labels?.length > 0 &&
-            !orgUserMileageSettings.mileage_rate_labels.some((label) => vehicleType === label)
-          ) {
-            vehicleType = orgUserMileageSettings.mileage_rate_labels[0];
-          }
-
-          const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
-
-          // if mileage_vehicle_type is not set or if the set mileage rate is not enabled; set the 1st from mileageRates
-          // (when the org doesn't use employee restricted mileage rates)
-          if (
-            (!vehicleType || !finalMileageRateNames.includes(vehicleType)) &&
-            mileageRates &&
-            mileageRates.length > 0
-          ) {
-            vehicleType = mileageRates[0].vehicle_type;
-          }
-
-          return vehicleType as string;
+      map(({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageRates }) => {
+        const isRecentVehicleTypePresent =
+          orgSettings.org_expense_form_autofills &&
+          orgSettings.org_expense_form_autofills.allowed &&
+          orgSettings.org_expense_form_autofills.enabled &&
+          orgUserSettings.expense_form_autofills.allowed &&
+          orgUserSettings.expense_form_autofills.enabled &&
+          recentValue &&
+          recentValue.recent_vehicle_types &&
+          recentValue.recent_vehicle_types.length > 0;
+        if (isRecentVehicleTypePresent) {
+          vehicleType = recentValue.recent_vehicle_types[0];
+          this.presetVehicleType = recentValue.recent_vehicle_types[0];
         }
-      )
+
+        // if any employee assigned mileage rate is present
+        // -> the recently used mileage rate should be part of the allowed mileage rates.
+        if (
+          orgUserMileageSettings?.mileage_rate_labels?.length > 0 &&
+          !orgUserMileageSettings.mileage_rate_labels.some((label) => vehicleType === label)
+        ) {
+          vehicleType = orgUserMileageSettings.mileage_rate_labels[0];
+        }
+
+        const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
+
+        // if mileage_vehicle_type is not set or if the set mileage rate is not enabled; set the 1st from mileageRates
+        // (when the org doesn't use employee restricted mileage rates)
+        if ((!vehicleType || !finalMileageRateNames.includes(vehicleType)) && mileageRates && mileageRates.length > 0) {
+          vehicleType = mileageRates[0].vehicle_type;
+        }
+
+        return vehicleType;
+      })
     );
 
     const defaultMileage$ = forkJoin({
@@ -861,15 +883,17 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getEditExpense() {
-    return this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
+  getEditExpense(): Observable<UnflattenedTransaction> {
+    return this.transactionService
+      .getETxnUnflattened(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
   }
 
-  customDateValidator(control: AbstractControl) {
+  customDateValidator(control: AbstractControl): null | { invalidDateSelection: boolean } {
     const today = new Date();
     const minDate = dayjs(new Date('Jan 1, 2001'));
     const maxDate = dayjs(new Date(today)).add(1, 'day');
-    const passedInDate = control.value && dayjs(new Date(control.value));
+    const passedInDate = control.value && dayjs(new Date(control.value as string));
     if (passedInDate) {
       return passedInDate.isBefore(maxDate) && passedInDate.isAfter(minDate)
         ? null
@@ -879,7 +903,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  customDistanceValidator(control: AbstractControl) {
+  customDistanceValidator(control: AbstractControl): null | { invalidDistance: boolean } {
     const passedInDistance = control.value && +control.value;
     if (passedInDistance !== null) {
       return passedInDistance > 0
@@ -890,13 +914,13 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject(null);
-    this.selectedCostCenter$ = new BehaviorSubject(null);
+    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -909,7 +933,7 @@ export class AddEditMileagePage implements OnInit {
       this.clusterDomain = clusterDomain;
     });
 
-    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
     this.expenseStartTime = new Date().getTime();
     this.fg = this.fb.group({
       mileage_rate_name: [],
@@ -943,9 +967,9 @@ export class AddEditMileagePage implements OnInit {
     this.fg.reset();
     this.title = 'Add Mileage';
 
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
-    this.reviewList =
-      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
+    this.reviewList = (this.activatedRoute.snapshot.params.txnIds &&
+      JSON.parse(this.activatedRoute.snapshot.params.txnIds as string)) as string[];
 
     this.title =
       this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
@@ -1004,7 +1028,7 @@ export class AddEditMileagePage implements OnInit {
       switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
       map((projectCount) => projectCount > 0)
     );
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
 
     this.filteredCategories$.subscribe((subCategories) => {
       if (subCategories.length) {
@@ -1026,7 +1050,7 @@ export class AddEditMileagePage implements OnInit {
       allMileageRates: this.mileageRateService.getAllMileageRates(),
       mileageConfig: this.mileageConfig$,
     }).pipe(
-      map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {
+      map(({ orgUserMileageSettings, allMileageRates }) => {
         let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
         const mileageRateSettings = orgUserMileageSettings?.mileage_rate_labels || [];
         if (mileageRateSettings.length > 0) {
@@ -1062,7 +1086,7 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.individualProjectIds$ = orgUserSettings$.pipe(
-      map((orgUserSettings: any) => orgUserSettings.project_ids || [])
+      map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])
     );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
@@ -1198,7 +1222,7 @@ export class AddEditMileagePage implements OnInit {
     this.getPolicyDetails();
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      switchMap((paymentMode) => {
+      switchMap((paymentMode: ExtendedAccount) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return this.accountsService
             .getEMyAccounts()
@@ -1219,7 +1243,7 @@ export class AddEditMileagePage implements OnInit {
     this.rate$ = iif(
       () => this.mode === 'edit',
       this.fg.valueChanges.pipe(
-        map((formValue) => formValue.mileage_rate_name),
+        map((formValue: FormValue) => formValue.mileage_rate_name),
         switchMap((formValue) =>
           forkJoin({
             etxn: this.etxn$,
@@ -1415,7 +1439,6 @@ export class AddEditMileagePage implements OnInit {
           paymentMode,
           project,
           subCategory,
-          txnFields,
           report,
           costCenter,
           customExpenseFields,
@@ -1579,7 +1602,7 @@ export class AddEditMileagePage implements OnInit {
       );
   }
 
-  async showClosePopup() {
+  async showClosePopup(): Promise<void> {
     const isAutofilled =
       this.presetProjectId || this.presetCostCenterId || this.presetVehicleType || this.presetLocation;
     if (this.fg.touched || isAutofilled) {
@@ -1602,7 +1625,11 @@ export class AddEditMileagePage implements OnInit {
 
       await unsavedChangesPopOver.present();
 
-      const { data } = await unsavedChangesPopOver.onWillDismiss();
+      const { data } = (await unsavedChangesPopOver.onWillDismiss()) as {
+        data: {
+          action: string;
+        };
+      };
 
       if (data && data.action === 'continue') {
         if (this.navigateBack) {
@@ -1624,7 +1651,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  close() {
+  close(): void {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
@@ -1632,13 +1659,14 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  checkIfInvalidPaymentMode() {
+  checkIfInvalidPaymentMode(): Observable<boolean> {
     return forkJoin({
       amount: this.amount$.pipe(take(1)),
       etxn: this.etxn$,
     }).pipe(
-      map(({ etxn, amount }) => {
-        const paymentAccount = this.fg.value.paymentMode;
+      map(({ etxn, amount }: { etxn: UnflattenedTransaction; amount: number }) => {
+        const formValue = this.getFormValues();
+        const paymentAccount = formValue.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
         if (paymentAccount?.acc?.type === AccountType.ADVANCE) {
@@ -1656,7 +1684,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  showAddToReportSuccessToast(reportId: string) {
+  showAddToReportSuccessToast(reportId: string): void {
     const toastMessageData = {
       message: 'Mileage expense added to report successfully',
       redirectionText: 'View Report',
@@ -1672,7 +1700,7 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  saveExpense() {
+  saveExpense(): void {
     const that = this;
 
     that
@@ -1707,12 +1735,12 @@ export class AddEditMileagePage implements OnInit {
       });
   }
 
-  async reloadCurrentRoute() {
+  async reloadCurrentRoute(): Promise<void> {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
     await this.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
   }
 
-  saveAndNewExpense() {
+  saveAndNewExpense(): void {
     const that = this;
 
     that
@@ -1752,7 +1780,7 @@ export class AddEditMileagePage implements OnInit {
       });
   }
 
-  saveExpenseAndGotoPrev() {
+  saveExpenseAndGotoPrev(): void {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
@@ -1787,7 +1815,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  saveExpenseAndGotoNext() {
+  saveExpenseAndGotoNext(): void {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
@@ -1858,7 +1886,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
     return from(this.mileageRates$).pipe(
       switchMap((rates) => {
         const transactionCopy = cloneDeep(etxn.tx);
@@ -1876,7 +1904,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
+  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]): Promise<unknown> {
     const fyCriticalPolicyViolationPopOver = await this.modalController.create({
       component: FyCriticalPolicyViolationComponent,
       componentProps: {
@@ -1889,11 +1917,16 @@ export class AddEditMileagePage implements OnInit {
 
     await fyCriticalPolicyViolationPopOver.present();
 
-    const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
+    const { data } = (await fyCriticalPolicyViolationPopOver.onWillDismiss()) as {
+      data: unknown;
+    };
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
+  async continueWithPolicyViolations(
+    policyViolations: string[],
+    policyAction: FinalExpensePolicyState
+  ): Promise<unknown> {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
@@ -1906,11 +1939,13 @@ export class AddEditMileagePage implements OnInit {
 
     await currencyModal.present();
 
-    const { data } = await currencyModal.onWillDismiss();
+    const { data } = (await currencyModal.onWillDismiss()) as {
+      data: unknown;
+    };
     return data;
   }
 
-  generateEtxnFromFg(etxn$, standardisedCustomProperties$, calculatedDistance$) {
+  generateEtxnFromFg(etxn$: Observable<UnflattenedTransaction>, standardisedCustomProperties$, calculatedDistance$) {
     return forkJoin({
       etxn: etxn$.pipe(take(1)),
       customProperties: standardisedCustomProperties$.pipe(take(1)),
@@ -1921,8 +1956,8 @@ export class AddEditMileagePage implements OnInit {
       rate: this.rate$.pipe(take(1)),
     }).pipe(
       map((res) => {
-        const etxn: any = res.etxn;
-        let customProperties: any = res.customProperties;
+        const etxn: UnflattenedTransaction = res.etxn;
+        let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
           if (customProperty.type === 'DATE') {
             customProperty.value = customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value));
@@ -1976,13 +2011,13 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getTimeSpentOnPage() {
+  getTimeSpentOnPage(): number {
     const expenseEndTime = new Date().getTime();
     // Get time spent on page in seconds
     return (expenseEndTime - this.expenseStartTime) / 1000;
   }
 
-  trackPolicyCorrections() {
+  trackPolicyCorrections(): void {
     this.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
       if (isCriticalPolicyViolated && this.fg.dirty) {
         this.trackingService.policyCorrection({ Violation: 'Critical', Mode: 'Edit Expense' });
@@ -2001,7 +2036,7 @@ export class AddEditMileagePage implements OnInit {
       });
   }
 
-  editExpense(redirectedFrom) {
+  editExpense(redirectedFrom): Observable<unknown | null> {
     this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
     this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
     this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
@@ -2022,7 +2057,7 @@ export class AddEditMileagePage implements OnInit {
         )
       ),
       map((finalDistance) => {
-        if (this.fg.value.route.roundTrip) {
+        if (this.getFormValues().route.roundTrip) {
           return (finalDistance * 2).toFixed(2);
         } else {
           return finalDistance.toFixed(2);
@@ -2106,12 +2141,12 @@ export class AddEditMileagePage implements OnInit {
           return throwError(err);
         }
       }),
-      switchMap(({ etxn, comment }: any) =>
+      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         forkJoin({
           eou: from(this.authService.getEou()),
           txnCopy: this.etxn$,
         }).pipe(
-          switchMap(({ eou, txnCopy }) => {
+          switchMap(({ txnCopy }) => {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
               this.trackingService.editExpense({
@@ -2147,7 +2182,8 @@ export class AddEditMileagePage implements OnInit {
               switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
-                const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
+                const formValue = this.getFormValues();
+                const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;
                 const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
@@ -2211,7 +2247,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  addExpense(redirectedFrom) {
+  addExpense(redirectedFrom): Observable<unknown | null> {
     this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
     this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
     this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
@@ -2223,7 +2259,8 @@ export class AddEditMileagePage implements OnInit {
       take(1),
       switchMap((isConnected) => {
         if (isConnected) {
-          return this.mileageService.getDistance(this.fg.controls.route.value?.mileageLocations).pipe(
+          const routeControl = this.getFormControl('route') as { value: { mileageLocations: Location[] } };
+          return this.mileageService.getDistance(routeControl.value?.mileageLocations).pipe(
             switchMap((distance) => {
               if (distance) {
                 return this.etxn$.pipe(
@@ -2239,7 +2276,7 @@ export class AddEditMileagePage implements OnInit {
             }),
             map((finalDistance) => {
               if (finalDistance) {
-                if (this.fg.value.route.roundTrip) {
+                if (this.getFormValues().route.roundTrip) {
                   return (finalDistance * 2).toFixed(2);
                 } else {
                   return finalDistance.toFixed(2);
@@ -2331,9 +2368,9 @@ export class AddEditMileagePage implements OnInit {
           return throwError(err);
         }
       }),
-      switchMap(({ etxn, comment }: any) =>
+      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         from(this.authService.getEou()).pipe(
-          switchMap((eou) => {
+          switchMap(() => {
             const comments = [];
             this.trackingService.createExpense({
               Type: 'Mileage',
@@ -2361,15 +2398,17 @@ export class AddEditMileagePage implements OnInit {
               comments.push(comment);
             }
 
+            const reportValue = this.getFormValues();
+
             let reportId;
             if (
-              this.fg.value.report &&
+              reportValue.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = this.fg.value.report.rp.id;
+              reportId = reportValue.report.rp.id;
             }
             return of(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId)).pipe(
-              switchMap((txnData: Promise<any>) => from(txnData)),
+              switchMap((txnData: Promise<unknown>) => from(txnData)),
               map(() => etxn)
             );
           })
@@ -2385,8 +2424,8 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  async deleteExpense(reportId?: string) {
-    const id = this.activatedRoute.snapshot.params.id;
+  async deleteExpense(reportId?: string): Promise<void> {
+    const id = this.activatedRoute.snapshot.params.id as string;
     const removeMileageFromReport = reportId && this.isRedirectedFromReport;
 
     const header = removeMileageFromReport ? 'Remove Mileage' : 'Delete Mileage';
@@ -2415,7 +2454,11 @@ export class AddEditMileagePage implements OnInit {
     });
 
     await deletePopover.present();
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = (await deletePopover.onDidDismiss()) as {
+      data: {
+        status: string;
+      };
+    };
 
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
@@ -2433,7 +2476,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  scrollCommentsIntoView() {
+  scrollCommentsIntoView(): void {
     if (this.commentsContainer) {
       const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
       if (commentsContainer) {
@@ -2446,13 +2489,13 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  async onRouteVisualizerClick() {
+  async onRouteVisualizerClick(): Promise<void> {
     if (this.routeSelector) {
       await this.routeSelector.openModal();
     }
   }
 
-  async openCommentsModal() {
+  async openCommentsModal(): Promise<void> {
     const etxn = await this.etxn$.toPromise();
 
     const modal = await this.modalController.create({
@@ -2466,7 +2509,11 @@ export class AddEditMileagePage implements OnInit {
 
     await modal.present();
 
-    const { data } = await modal.onDidDismiss();
+    const { data } = (await modal.onDidDismiss()) as {
+      data: {
+        updated: unknown;
+      };
+    };
 
     if (data && data.updated) {
       this.trackingService.addComment();
@@ -2475,7 +2522,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  hideFields() {
+  hideFields(): void {
     this.trackingService.hideMoreClicked({
       source: 'Add Mileage page',
     });
@@ -2483,7 +2530,7 @@ export class AddEditMileagePage implements OnInit {
     this.isExpandedView = false;
   }
 
-  showFields() {
+  showFields(): void {
     this.trackingService.showMoreClicked({
       source: 'Add Mileage page',
     });
@@ -2491,8 +2538,8 @@ export class AddEditMileagePage implements OnInit {
     this.isExpandedView = true;
   }
 
-  getPolicyDetails() {
-    const expenseId = this.activatedRoute.snapshot.params.id;
+  getPolicyDetails(): void {
+    const expenseId = this.activatedRoute.snapshot.params.id as string;
     if (expenseId) {
       from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
         .pipe()
@@ -2502,7 +2549,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.hardwareBackButtonAction.unsubscribe();
     this.projectDependentFieldsRef?.ngOnDestroy();
     this.costCenterDependentFieldsRef?.ngOnDestroy();
