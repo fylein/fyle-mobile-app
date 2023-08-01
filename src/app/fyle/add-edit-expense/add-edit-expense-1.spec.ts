@@ -603,7 +603,7 @@ export function TestCases1(getTestBed) {
         corporateCreditCardExpenseService.markPersonal.and.returnValue(of(null));
 
         component.markCCCAsPersonal(expenseData1.tx_id).subscribe((res) => {
-          expect(res).toEqual(expenseData1);
+          expect(res).toBeNull();
           expect(transactionService.delete).toHaveBeenCalledOnceWith(expenseData1.tx_id);
           expect(trackingService.deleteExpense).toHaveBeenCalledOnceWith({ Type: 'Marked Personal' });
           expect(corporateCreditCardExpenseService.markPersonal).toHaveBeenCalledOnceWith(
@@ -633,7 +633,7 @@ export function TestCases1(getTestBed) {
         component
           .dismissCCC(expenseData1.tx_id, expenseData1.tx_corporate_credit_card_expense_group_id)
           .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+            expect(res).toBeNull();
             expect(transactionService.delete).toHaveBeenCalledOnceWith(expenseData1.tx_id);
             expect(trackingService.deleteExpense).toHaveBeenCalledOnceWith({ Type: 'Dismiss as Card Payment' });
             expect(corporateCreditCardExpenseService.dismissCreditTransaction).toHaveBeenCalledOnceWith(

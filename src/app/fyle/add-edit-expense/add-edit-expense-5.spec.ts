@@ -220,7 +220,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+            expect(res).toBeNull();
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'cccet1B17R8gWZ');
             expect(component.markCCCAsPersonal).toHaveBeenCalledOnceWith('txfCdl3TEZ7K');
             done();
@@ -246,7 +246,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+            expect(res).toBeNull();
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'tx3qHxFNgRcZ');
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'tx3qHxFNgRcZ');
             done();
