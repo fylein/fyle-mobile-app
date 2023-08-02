@@ -28,6 +28,8 @@ import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobil
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
 import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
 import { cloneDeep } from 'lodash';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 
 xdescribe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -143,6 +145,18 @@ xdescribe('MyProfilePage', () => {
   xit('ionViewWillEnter', () => {});
 
   xit('reset', () => {});
+
+  it('setCCCFlags(): should set ccc flags as per the org and org user settings', () => {
+    component.orgSettings = orgSettingsRes;
+    component.orgUserSettings = orgUserSettingsData;
+
+    component.setCCCFlags();
+
+    expect(component.isCCCEnabled).toBeTrue();
+    expect(component.isVisaRTFEnabled).toBeTrue();
+    expect(component.isMastercardRTFEnabled).toBeTrue();
+    expect(component.isYodleeEnabled).toBeTrue();
+  });
 
   describe('setInfoCardsData(): ', () => {
     it('should show only email card for non USD orgs', () => {

@@ -46,6 +46,18 @@
         ></ion-icon>
       </div>
 
+      <ng-container *ngIf="isCCCEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled || isYodleeEnabled)">
+        <div class="my-profile__section-header">Corporate Cards</div>
+        <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'manage_corporate_cards' ]" matRipple>
+          <div class="my-profile__card__title">Manage Corporate Cards</div>
+          <ion-icon
+            class="my-profile__navigate-icon"
+            src="../../../assets/svg/navigate-right.svg"
+            slot="icon-only"
+          ></ion-icon>
+        </div>
+      </ng-container>
+
       <div class="my-profile__section-header">Preferences</div>
       <div class="my-profile__preference-container">
         <div
