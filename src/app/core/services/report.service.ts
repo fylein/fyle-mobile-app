@@ -566,7 +566,7 @@ export class ReportService {
     );
   }
 
-  getFilteredPendingReports(searchParams: { state: string }) {
+  getFilteredPendingReports(searchParams: { state: string }): Observable<UnflattenedReport[]> {
     const params = this.searchParamsGenerator(searchParams);
 
     return this.getPaginatedERptcCount(params).pipe(

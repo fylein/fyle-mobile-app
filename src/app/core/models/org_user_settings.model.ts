@@ -18,7 +18,7 @@ export interface AnnualMileageOfUserBeforeJoiningFyle {
 }
 
 export interface MileageSettings {
-  mileage_rate_labels?: any;
+  mileage_rate_labels?: string[];
   annual_mileage_of_user_before_joining_fyle: AnnualMileageOfUserBeforeJoiningFyle;
 }
 
