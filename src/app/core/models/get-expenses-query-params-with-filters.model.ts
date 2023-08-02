@@ -1,8 +1,8 @@
-import { GetExpensesQueryParams } from './get-expenses-query-params.model';
+import { FilterQueryParams } from './filter-query-params.model';
 
 export type GetExpensesQueryParamsWithFilters = {
   pageNumber: number;
-  queryParams: Partial<GetExpensesQueryParams>;
+  queryParams: FilterQueryParams;
   sortParam: string;
   sortDir: string;
   searchString: string;

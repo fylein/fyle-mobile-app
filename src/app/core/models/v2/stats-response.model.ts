@@ -44,7 +44,7 @@ export class StatsResponse {
     this.url = url;
   }
 
-  getDatum(index: number) {
+  getDatum(index: number): Datum {
     return this.data && this.data.length > 0 && this.data[index];
   }
 }

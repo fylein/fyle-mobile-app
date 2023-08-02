@@ -6,12 +6,12 @@ import { from, Observable, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { CustomField } from '../models/custom_field.model';
-import { CustomProperty } from '../models/custom-properties.model';
 import { Expense } from '../models/expense.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { ExpenseFieldsService } from './expense-fields.service';
+import { CustomInput } from '../models/custom-input.model';
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
@@ -64,7 +64,7 @@ export class CustomInputsService {
 
   fillCustomProperties(
     orgCategoryId: number,
-    customProperties: CustomProperty<any>[],
+    customProperties: Partial<CustomInput>[],
     active: boolean
   ): Observable<CustomField[]> {
     return this.getAll(active).pipe(
@@ -118,15 +118,15 @@ export class CustomInputsService {
     );
   }
 
-  setCustomPropertyValue(property: CustomField, customProperties: CustomField[], index: number) {
+  setCustomPropertyValue(property: CustomField, customProperties: Partial<CustomInput>[], index: number): void {
     if (property.type === 'DATE' && customProperties[index].value) {
-      property.value = new Date(customProperties[index].value);
+      property.value = new Date(<string>customProperties[index].value);
     } else {
       property.value = customProperties[index].value;
     }
   }
 
-  setSelectMultiselectValue(customInput: ExpenseField, property: CustomField) {
+  setSelectMultiselectValue(customInput: ExpenseField, property: CustomField): void {
     if (customInput.type === 'SELECT' || customInput.type === 'MULTI_SELECT') {
       property.value = '';
     }
@@ -136,7 +136,7 @@ export class CustomInputsService {
     let displayValue = '-';
 
     if (customProperty.type === 'TEXT' || customProperty.type === 'SELECT') {
-      displayValue = customProperty.value || '-';
+      displayValue = customProperty.value?.toString() || '-';
     } else if (customProperty.type === 'NUMBER') {
       displayValue = this.formatNumberCustomProperty(customProperty);
     } else if (customProperty.type === 'BOOLEAN') {
@@ -178,24 +178,28 @@ export class CustomInputsService {
   }
 
   private formatDateCustomProperty(customProperty: CustomField): string {
-    return customProperty.value ? this.datePipe.transform(customProperty.value, 'MMM dd, yyyy') : '-';
+    return customProperty.value
+      ? this.datePipe.transform(<string | number | Date>customProperty.value, 'MMM dd, yyyy')
+      : '-';
   }
 
   private formatMultiselectCustomProperty(customProperty: CustomField): string {
-    return customProperty.value && customProperty.value.length > 0 ? customProperty.value.join(', ') : '-';
+    return customProperty.value && (<string[]>customProperty.value).length > 0
+      ? (<string[]>customProperty.value).join(', ')
+      : '-';
   }
 
   private formatNumberCustomProperty(customProperty: CustomField): string {
-    return customProperty.value ? this.decimalPipe.transform(customProperty.value, '1.2-2') : '-';
+    return customProperty.value ? this.decimalPipe.transform(<string | number>customProperty.value, '1.2-2') : '-';
   }
 
   private getLocationDisplayValue(displayValue: string, customProperty: CustomField): string {
     displayValue = '-';
     if (customProperty.value) {
       if (customProperty.value.hasOwnProperty('display')) {
-        displayValue = customProperty.value.display || '-';
+        displayValue = (<{ display: string }>customProperty.value).display || '-';
       } else {
-        displayValue = customProperty.value;
+        displayValue = customProperty.value.toString();
       }
     }
     return displayValue;
