@@ -3,14 +3,6 @@
 $ccc-bank-name: #c4cae8;
 
 .stats {
-  &--ccc-cards-grid {
-    margin-bottom: 2%;
-  }
-
-  &--ccc-cards-grid-multiple {
-    margin-bottom: -4%;
-  }
-
   &--menu-button {
     padding: 8px;
   }
@@ -149,7 +141,7 @@ $ccc-bank-name: #c4cae8;
 
   &--expenses-stats-row {
     padding-bottom: 18px;
-    padding-top: 19px;
+    padding-top: 18px;
     --ion-grid-column-padding: 0;
   }
 
@@ -159,8 +151,13 @@ $ccc-bank-name: #c4cae8;
     margin-bottom: 30%;
   }
 
-  &--ccc-cards-header {
-    margin-left: 6px;
+  &--ccc-stats-header {
+    margin: 18px 16px 0 16px;
+  }
+
+  &--ccc-zero-state {
+    height: 350px;
+    margin: 18px 16px 16px 16px;
   }
 
   &--ccc-card-details {

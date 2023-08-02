@@ -1,22 +1,26 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { delay, finalize, map, switchMap, tap } from 'rxjs/operators';
+import { finalize, map, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
-import { concat, forkJoin, of, Subject } from 'rxjs';
+import { concat, forkJoin, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ReportStats } from 'src/app/core/models/report-stats.model';
+import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
+import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
+import { cloneDeep } from 'lodash';
+import { CardDetails } from 'src/app/core/models/card-details.model';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-stats',
@@ -64,6 +68,12 @@ export class StatsComponent implements OnInit {
     isNonReimbursableOrg: boolean;
   }>;
 
+  isCCCEnabled: boolean;
+
+  isYodleeEnabled: boolean;
+
+  isPersonalCardsEnabled: boolean;
+
   constructor(
     private dashboardService: DashboardService,
     private currencyService: CurrencyService,
@@ -72,14 +82,15 @@ export class StatsComponent implements OnInit {
     private trackingService: TrackingService,
     private orgSettingsService: OrgSettingsService,
     private orgService: OrgService,
-    private paymentModeService: PaymentModesService
+    private paymentModeService: PaymentModesService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
-  get ReportStates() {
+  get ReportStates(): typeof ReportStates {
     return ReportStates;
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -87,7 +98,7 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  initializeReportStats() {
+  initializeReportStats(): void {
     this.reportStatsLoading = true;
     const reportStats$ = this.dashboardService.getReportsStats().pipe(
       tap(() => {
@@ -122,7 +133,7 @@ export class StatsComponent implements OnInit {
     this.processingStats$ = reportStats$.pipe(map((stats) => stats.processing));
   }
 
-  initializeExpensesStats() {
+  initializeExpensesStats(): void {
     this.unreportedExpensesStats$ = this.dashboardService.getUnreportedExpensesStats().pipe(
       shareReplay(1),
       tap(() => {
@@ -138,8 +149,8 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  getCardDetail(statsResponses) {
-    const cardNames = [];
+  getCardDetail(statsResponses: CardAggregateStats[]): UniqueCardStats[] {
+    const cardNames: CardDetails[] = [];
     statsResponses.forEach((response) => {
       const cardDetail = {
         cardNumber: response.key[1].column_value,
@@ -147,16 +158,18 @@ export class StatsComponent implements OnInit {
       };
       cardNames.push(cardDetail);
     });
-    const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+    const uniqueCards = cloneDeep(cardNames);
 
     return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
   }
 
-  initializeCCCStats() {
-    this.dashboardService.getCCCDetails().subscribe((details) => {
-      this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-    });
-    finalize(() => (this.isCCCStatsLoading = false));
+  initializeCCCStats(): void {
+    this.dashboardService
+      .getCCCDetails()
+      .pipe(finalize(() => (this.isCCCStatsLoading = false)))
+      .subscribe((details) => {
+        this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
+      });
   }
 
   /*
@@ -164,9 +177,10 @@ export class StatsComponent implements OnInit {
    * The ionViewWillEnter is an alternative for this but not present in child pages.
    * Here, I am setting up the initialize method to be called from the parent's ionViewWillEnter method.
    * **/
-  init() {
+  init(): void {
     const that = this;
     that.cardTransactionsAndDetails = [];
+
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
@@ -174,12 +188,26 @@ export class StatsComponent implements OnInit {
 
     that.initializeReportStats();
     that.initializeExpensesStats();
-    that.orgSettingsService.get().subscribe((orgSettings) => {
-      if (orgSettings?.corporate_credit_card_settings?.enabled) {
+    forkJoin({
+      orgSettings: that.orgSettingsService.get(),
+      orgUserSettings: that.orgUserSettingsService.get(),
+    }).subscribe(({ orgSettings, orgUserSettings }) => {
+      this.isCCCEnabled =
+        orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
+
+      this.isYodleeEnabled =
+        orgSettings.bank_data_aggregation_settings.allowed &&
+        orgSettings.bank_data_aggregation_settings.enabled &&
+        orgUserSettings.bank_data_aggregation_settings.enabled;
+
+      this.isPersonalCardsEnabled =
+        orgSettings.org_personal_cards_settings.allowed &&
+        orgSettings.org_personal_cards_settings.enabled &&
+        orgUserSettings.personal_cards_settings.enabled;
+
+      if (this.isCCCEnabled) {
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
-      } else {
-        this.cardTransactionsAndDetails = [];
       }
     });
 
@@ -196,7 +224,7 @@ export class StatsComponent implements OnInit {
         const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
 
         // eslint-disable-next-line @typescript-eslint/dot-notation
-        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
+        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
 
         // Converting the duration to seconds and fix it to 3 decimal places
         const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
@@ -212,12 +240,12 @@ export class StatsComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.setupNetworkWatcher();
   }
 
-  goToReportsPage(state: ReportStates) {
+  goToReportsPage(state: ReportStates): void {
     this.router.navigate(['/', 'enterprise', 'my_reports'], {
       queryParams: {
         filters: JSON.stringify({ state: [state.toString()] }),
@@ -229,7 +257,7 @@ export class StatsComponent implements OnInit {
     });
   }
 
-  goToExpensesPage(state: string) {
+  goToExpensesPage(state: string): void {
     if (state === 'COMPLETE') {
       const queryParams: Params = { filters: JSON.stringify({ state: ['READY_TO_REPORT'] }) };
       this.router.navigate(['/', 'enterprise', 'my_expenses'], {
@@ -247,7 +275,7 @@ export class StatsComponent implements OnInit {
     }
   }
 
-  private trackDashboardLaunchTime() {
+  private trackDashboardLaunchTime(): void {
     try {
       if (performance.getEntriesByName(PerfTrackers.dashboardLaunchTime).length === 0) {
         // Time taken to land on dashboard page after switching org
