@@ -6,7 +6,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { IonicModule, ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
@@ -300,7 +300,7 @@ describe('MyViewReportPage', () => {
         ...expenseData2,
         tx_policy_flag: true,
         tx_manual_flag: false,
-        tx_policy_amount: '1000',
+        tx_policy_amount: 1000,
       });
 
       expect(result).toBeTrue();
@@ -624,7 +624,7 @@ describe('MyViewReportPage', () => {
 
   describe('getDeleteReportPopupParams(): ', () => {
     it('should get delete report popup props', (done) => {
-      reportService.delete.and.returnValue(of(true));
+      reportService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(expectedAllReports[0]);
       props.componentProps.deleteMethod().subscribe(() => {
         expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
@@ -634,7 +634,7 @@ describe('MyViewReportPage', () => {
     });
 
     it('should return null info message if number of txns is 0', (done) => {
-      reportService.delete.and.returnValue(of(true));
+      reportService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
         cloneDeep({ ...expectedAllReports[0], rp_num_transactions: 0, rp_state: 'DRAFT' })
       );
@@ -978,7 +978,7 @@ describe('MyViewReportPage', () => {
         detail: {
           value: '100',
         },
-      });
+      } as SegmentCustomEvent);
 
       expect(component.segmentValue).toEqual(parseInt('100', 10));
     });

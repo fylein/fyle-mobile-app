@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'snakeCaseToSpaceCase',
 })
 export class SnakeCaseToSpaceCase implements PipeTransform {
-  transform(input) {
+  transform(input: string): string {
     if (input) {
       return input.replace(/_/g, ' ');
     }

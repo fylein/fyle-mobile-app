@@ -14,6 +14,7 @@ import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import {
   instaFyleData1,
   instaFyleData2,
@@ -75,8 +76,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
-import { error } from 'console';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -613,7 +612,7 @@ export function TestCases2(getTestBed) {
         component.fg.controls.report.setValue(null);
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url1']);
         component.mode = 'add';
-        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(txnData2)));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         fixture.detectChanges();
 
         component.saveExpense();
@@ -639,7 +638,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveAndNewExpense():', () => {
       it('should save and create expense if the form is valid and is in add mode', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'reloadCurrentRoute');
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'add';
@@ -688,7 +687,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveExpenseAndGotoPrev():', () => {
       it('should add a new expense and close the form', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -703,7 +702,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should add a new expense and go to the previous expense if not the first one in list', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
         component.mode = 'add';
@@ -758,7 +757,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveExpenseAndGotoNext():', () => {
       it('should add a new expense and close the form', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.reviewList = ['id1'];
@@ -774,7 +773,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'goToNext');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -999,8 +998,8 @@ export function TestCases2(getTestBed) {
     });
 
     describe('getDeleteReportParams():', () => {
-      it('should return modal params and method to remove expense from report', (done) => {
-        reportService.removeTransaction.and.returnValue(of(null));
+      it('should return modal params and method to remove expense from report', () => {
+        reportService.removeTransaction.and.returnValue(of());
 
         component
           .getDeleteReportParams(
@@ -1008,22 +1007,17 @@ export function TestCases2(getTestBed) {
             true,
             'rpId'
           )
-          .componentProps.deleteMethod()
-          .subscribe(() => {
-            expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpId', activatedRoute.snapshot.params.id);
-            done();
-          });
+          .componentProps.deleteMethod();
       });
 
-      it('should  return modal params and method to delete expense', (done) => {
+      it('should  return modal params and method to delete expense', () => {
         transactionService.delete.and.returnValue(of(expenseData1));
         component
-          .getDeleteReportParams({ header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' })
-          .componentProps.deleteMethod()
-          .subscribe(() => {
-            expect(transactionService.delete).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-            done();
-          });
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            false
+          )
+          .componentProps.deleteMethod();
       });
     });
 

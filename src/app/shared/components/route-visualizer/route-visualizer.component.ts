@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { Observable, map, filter } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { LocationService } from 'src/app/core/services/location.service';
@@ -15,13 +15,7 @@ import { StaticMapPropertiesService } from 'src/app/core/services/static-map-pro
 export class RouteVisualizerComponent implements OnChanges, OnInit {
   @Input() mileageLocations: MileageLocation[];
 
-  @Input() loadDynamicMap: boolean;
-
   @Output() mapClick = new EventEmitter<void>();
-
-  dynamicMapOptions: google.maps.MapOptions = {
-    disableDefaultUI: true,
-  };
 
   showCurrentLocation = false;
 
@@ -29,7 +23,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
   mapHeight: number;
 
-  directions$: Observable<google.maps.DirectionsResult>;
+  directionsPolyline$: Observable<string>;
 
   directionsMapUrl$: Observable<string>;
 
@@ -54,7 +48,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
       const mileageRoute = this.locationService.getMileageRoute(this.mileageLocations);
       this.renderMap(mileageRoute);
     } else {
-      this.directions$ = null;
+      this.directionsPolyline$ = null;
       this.directionsMapUrl$ = null;
 
       if (validLocations.length === 0) {
@@ -88,22 +82,23 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
   handleMapLoadError(event) {
     this.showCurrentLocation = false;
 
-    this.directions$ = null;
+    this.directionsPolyline$ = null;
     this.directionsMapUrl$ = null;
   }
 
   private renderMap(mileageRoute: MileageRoute) {
-    this.directions$ = this.gmapsService.getDirections(mileageRoute);
+    this.directionsPolyline$ = this.locationService.getDirections(
+      mileageRoute.origin,
+      mileageRoute.destination,
+      mileageRoute.waypoints
+    );
 
-    if (!this.loadDynamicMap) {
-      this.directionsMapUrl$ = this.directions$.pipe(
-        filter((directionsResults) => directionsResults.routes.length > 0),
-        map((directionsResults) => ({
-          ...mileageRoute,
-          directions: directionsResults.routes[0],
-        })),
-        map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute))
-      );
-    }
+    this.directionsMapUrl$ = this.directionsPolyline$.pipe(
+      map((directionsPolyline) => ({
+        ...mileageRoute,
+        directionsPolyline,
+      })),
+      map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute))
+    );
   }
 }

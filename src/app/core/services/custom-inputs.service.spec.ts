@@ -232,7 +232,7 @@ describe('CustomInputsService', () => {
       options: null,
     };
 
-    const expectedProperty = ['some', 'location'];
+    const expectedProperty = 'some,location';
 
     const result = customInputsService.getCustomPropertyDisplayValue(testProperty);
     expect(result).toEqual(expectedProperty);
