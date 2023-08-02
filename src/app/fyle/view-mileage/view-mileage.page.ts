@@ -31,6 +31,7 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -192,19 +193,7 @@ export class ViewMileagePage {
     }
   }
 
-  getDeleteDialogProps(etxn: Expense): {
-    component: typeof FyDeleteDialogComponent;
-    cssClass: string;
-    backdropDismiss: boolean;
-    componentProps: {
-      header: string;
-      body: string;
-      infoMessage: string;
-      ctaText: string;
-      ctaLoadingText: string;
-      deleteMethod: () => Observable<void>;
-    };
-  } {
+  getDeleteDialogProps(etxn: Expense): ExpenseDeletePopoverParams {
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
