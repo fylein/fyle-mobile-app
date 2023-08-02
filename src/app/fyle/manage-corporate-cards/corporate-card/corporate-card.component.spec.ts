@@ -53,7 +53,10 @@ describe('CorporateCardComponent', () => {
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
 
     corporateCreditCardExpenseService.getBankFeedSources.and.returnValue(bankFeedSourcesData);
+
+    // Default inputs
     component.card = mastercardRTFCard;
+    component.isMastercardRTFEnabled = true;
 
     fixture.detectChanges();
   }));
@@ -66,24 +69,11 @@ describe('CorporateCardComponent', () => {
     const cardNumberComponent = fixture.debugElement.query(By.directive(MockCardNumberComponent));
 
     expect(cardNumberComponent).toBeTruthy();
-    expect(cardNumberComponent.componentInstance.cardNumber).toBe(component.card.card_number);
+    expect(cardNumberComponent.componentInstance.cardNumber).toBe(mastercardRTFCard.card_number);
   });
 
   describe('card logo', () => {
-    it('should show the default card icon when the card is not connected to visa and mastercard RTF', () => {
-      component.card = statementUploadedCard;
-
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      const icon = getElementBySelector(fixture, '[data-testid="default-icon"]');
-      expect(icon).toBeTruthy();
-    });
-
     it('should show mastercard icon when the card is connected to mastercard RTF', () => {
-      component.card = mastercardRTFCard;
-      component.isMastercardRTFEnabled = true;
-
       component.ngOnInit();
       fixture.detectChanges();
 
@@ -99,6 +89,16 @@ describe('CorporateCardComponent', () => {
       fixture.detectChanges();
 
       const icon = getElementBySelector(fixture, '[data-testid="visa-icon"]');
+      expect(icon).toBeTruthy();
+    });
+
+    it('should show the default card icon when the card is not connected to visa and mastercard RTF', () => {
+      component.card = statementUploadedCard;
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const icon = getElementBySelector(fixture, '[data-testid="default-icon"]');
       expect(icon).toBeTruthy();
     });
   });
@@ -124,9 +124,6 @@ describe('CorporateCardComponent', () => {
     });
 
     it('should be visible for mastercard rtf cards', () => {
-      component.card = mastercardRTFCard;
-      component.isMastercardRTFEnabled = true;
-
       component.ngOnInit();
       fixture.detectChanges();
 
@@ -136,7 +133,6 @@ describe('CorporateCardComponent', () => {
 
     it('should be visible for statement uploaded cards if either visa/mastercard RTF is enabled for the org', () => {
       component.card = statementUploadedCard;
-      component.isMastercardRTFEnabled = true;
 
       component.ngOnInit();
       fixture.detectChanges();
