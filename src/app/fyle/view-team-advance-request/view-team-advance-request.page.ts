@@ -1,31 +1,34 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
+import { Subject, forkJoin, from } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
-import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
-import { File } from 'src/app/core/models/file.model';
+import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, take } from 'rxjs/operators';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { Approval } from 'src/app/core/models/approval.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { File } from 'src/app/core/models/file.model';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { FileService } from 'src/app/core/services/file.service';
-import { from, Subject, forkJoin } from 'rxjs';
-import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith, take, tap } from 'rxjs/operators';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { PopoverController, ModalController, ActionSheetController } from '@ionic/angular';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import { TrackingService } from '../../core/services/tracking.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { FileObject } from 'src/app/core/models/file-obj.model';
-import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
-import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
-import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -35,7 +38,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 export class ViewTeamAdvanceRequestPage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
 
-  actions$: Observable<any>;
+  actions$: Observable<AdvanceRequestActions>;
 
   approvals$: Observable<Approval[]>;
 
@@ -49,7 +52,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   showAdvanceActions$: Observable<boolean>;
 
-  customFields$: Observable<any>;
+  customFields$: Observable<CustomField[] | AdvanceRequestsCustomFields[]>;
 
   isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
@@ -82,17 +85,17 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
-  get StatisticTypes() {
+  get StatisticTypes(): typeof StatisticTypes {
     return StatisticTypes;
   }
 
-  async getAndUpdateProjectName() {
+  async getAndUpdateProjectName(): Promise<ExpenseField> {
     const expenseFields = await this.expenseFieldsService.getAllEnabled().toPromise();
     return expenseFields.filter((expenseField) => expenseField.column_name === 'project_id')[0];
   }
 
-  ionViewWillEnter() {
-    const id = this.activatedRoute.snapshot.params.id;
+  ionViewWillEnter(): void {
+    const id = this.activatedRoute.snapshot.params.id as string;
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() =>
@@ -134,12 +137,12 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
 
-    this.advanceRequestCustomFields$ = forkJoin({
+    const customFields$ = forkJoin({
       advanceRequest: this.advanceRequest$.pipe(take(1)),
       customFields: this.customFields$,
       eou: from(this.authService.getEou()),
     }).pipe(
-      map((res) => {
+      map((res: { advanceRequest: ExtendedAdvanceRequest; customFields: CustomField[]; eou: ExtendedOrgUser }) => {
         if (res.eou.ou.org_id === res.advanceRequest.ou_org_id) {
           let customFieldValues = [];
           if (
@@ -147,12 +150,12 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             res.advanceRequest.areq_custom_field_values.length > 0
           ) {
             customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-              JSON.parse(res.advanceRequest.areq_custom_field_values)
+              JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
             );
           }
 
           res.customFields.map((customField) => {
-            customFieldValues.filter((customFieldValue) => {
+            customFieldValues.filter((customFieldValue: CustomField) => {
               if (customField.id === customFieldValue.id) {
                 customField.value = customFieldValue.value;
               }
@@ -161,40 +164,41 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           return res.customFields;
         } else {
           return this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            JSON.parse(res.advanceRequest.areq_custom_field_values)
+            JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
           );
         }
       })
     );
+    this.advanceRequestCustomFields$ = customFields$;
 
     this.setupActionScheet();
     this.getAndUpdateProjectName().then((projectField) => (this.projectFieldName = projectField.field_name));
   }
 
-  edit() {
+  edit(): void {
     this.router.navigate([
       '/',
       'enterprise',
       'add_edit_advance_request',
       {
-        id: this.activatedRoute.snapshot.params.id,
+        id: this.activatedRoute.snapshot.params.id as string,
         from: 'TEAM_ADVANCE',
       },
     ]);
   }
 
-  getApproverEmails(activeApprovals) {
+  getApproverEmails(activeApprovals: Approval[]): string[] {
     return activeApprovals?.map((approver) => approver.approver_email);
   }
 
-  onUpdateApprover(message: boolean) {
+  onUpdateApprover(message: boolean): void {
     if (message) {
       this.refreshApprovers$.next(null);
     }
   }
 
-  async delete() {
-    const id = this.activatedRoute.snapshot.params.id;
+  async delete(): Promise<void> {
+    const id = this.activatedRoute.snapshot.params.id as string;
 
     const popupResults = await this.popupService.showPopup({
       header: 'Confirm',
@@ -211,7 +215,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     }
   }
 
-  setupActionScheet() {
+  setupActionScheet(): void {
     this.actions$.subscribe((actions) => {
       if (actions.can_approve) {
         this.actionSheetButtons.push({
@@ -242,18 +246,18 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     });
   }
 
-  async openActionSheet() {
+  async openActionSheet(): Promise<void> {
     const that = this;
     const actionSheet = await this.actionSheetController.create({
       header: 'ADVANCE ACTIONS',
       mode: 'md',
       cssClass: 'fy-action-sheet advances-action-sheet',
-      buttons: that.actionSheetButtons,
+      buttons: that.actionSheetButtons as ActionSheetButton[],
     });
     await actionSheet.present();
   }
 
-  async showApproveAdvanceSummaryPopover() {
+  async showApproveAdvanceSummaryPopover(): Promise<void> {
     const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
     const advanceAmount = this.humanizeCurrency.transform(areq.areq_amount, areq.areq_currency, false);
     const showApprover = await this.popoverController.create({
@@ -275,7 +279,11 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     await showApprover.present();
 
-    const { data } = await showApprover.onWillDismiss();
+    const { data } = (await showApprover.onWillDismiss()) as {
+      data: {
+        action: string;
+      };
+    };
 
     if (data && data.action === 'approve') {
       this.isLoading = true;
@@ -288,7 +296,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     }
   }
 
-  async showSendBackAdvanceSummaryPopover() {
+  async showSendBackAdvanceSummaryPopover(): Promise<void> {
     const showApprover = await this.popoverController.create({
       component: FyPopoverComponent,
       cssClass: 'fy-dialog-popover',
@@ -300,9 +308,13 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     await showApprover.present();
 
-    const { data } = await showApprover.onWillDismiss();
+    const { data } = (await showApprover.onWillDismiss()) as {
+      data: {
+        comment: string;
+      };
+    };
 
-    const id = this.activatedRoute.snapshot.params.id;
+    const id = this.activatedRoute.snapshot.params.id as string;
 
     if (data) {
       this.sendBackLoading = true;
@@ -327,7 +339,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     }
   }
 
-  async showRejectAdvanceSummaryPopup() {
+  async showRejectAdvanceSummaryPopup(): Promise<void> {
     const showApprover = await this.popoverController.create({
       component: FyPopoverComponent,
       cssClass: 'fy-dialog-popover',
@@ -339,9 +351,13 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     await showApprover.present();
 
-    const { data } = await showApprover.onWillDismiss();
+    const { data } = (await showApprover.onWillDismiss()) as {
+      data: {
+        comment: string;
+      };
+    };
 
-    const id = this.activatedRoute.snapshot.params.id;
+    const id = this.activatedRoute.snapshot.params.id as string;
 
     if (data) {
       this.rejectLoading = true;
@@ -365,8 +381,8 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     }
   }
 
-  async openCommentsModal() {
-    const advanceRequestId = this.activatedRoute.snapshot.params.id;
+  async openCommentsModal(): Promise<void> {
+    const advanceRequestId = this.activatedRoute.snapshot.params.id as string;
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
@@ -377,7 +393,11 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data } = (await modal.onDidDismiss()) as {
+      data: {
+        updated: boolean;
+      };
+    };
 
     if (data && data.updated) {
       this.trackingService.addComment();
@@ -400,5 +420,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     await attachmentsModal.present();
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    return;
+  }
 }
