@@ -15,7 +15,6 @@ import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
 import { CurrencyService } from './currency.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { File } from '../models/file.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
@@ -217,7 +216,7 @@ export class TransactionsOutboxService {
           receipt_coordinates: receiptCoordinates,
         })
         .toPromise()
-        .then((fileObj: File) =>
+        .then((fileObj: FileObject) =>
           this.fileService
             .uploadUrl(fileObj.id)
             .toPromise()

@@ -9,7 +9,6 @@ import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { Expense } from 'src/app/core/models/expense.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
-import { File } from 'src/app/core/models/file.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -170,7 +169,7 @@ export class ExpensesCardComponent implements OnInit {
         this.fileService
           .getFilesWithThumbnail(this.expense.tx_id)
           .pipe(
-            map((ThumbFiles: File[]) => {
+            map((ThumbFiles: FileObject[]) => {
               if (ThumbFiles.length > 0) {
                 this.fileService
                   .downloadThumbnailUrl(ThumbFiles[0].id)
@@ -205,8 +204,7 @@ export class ExpensesCardComponent implements OnInit {
     const hasUserManuallyEnteredData =
       (this.expense.tx_amount || this.expense.tx_user_amount) &&
       isNumber(this.expense.tx_amount || this.expense.tx_user_amount);
-    const isRequiredExtractedDataPresent = (this.expense.tx_extracted_data &&
-      this.expense.tx_extracted_data.amount) as boolean;
+    const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
     // also transcription kicks in within 15-24 hours, so only post that we should revert to default state

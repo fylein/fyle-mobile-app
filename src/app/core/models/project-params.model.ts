@@ -11,7 +11,7 @@ export interface ProjectParams {
   project_name?: string;
   sortDirection?: string;
   sortOrder?: string;
-  orgCategoryIds?: number[];
+  orgCategoryIds?: string[];
   projectIds?: number[];
   searchNameText?: string;
 }

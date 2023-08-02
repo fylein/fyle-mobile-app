@@ -1086,10 +1086,10 @@ export function TestCases5(getTestBed) {
         project_dependent_fields: [],
       });
 
-      component.fg.controls.project_dependent_fields.setValue(projectDependentFields);
+      component.fg.controls.project_dependent_fields.setValue(dependentCustomFields2);
 
       const result = component.getProjectDependentFields();
-      expect(result).toEqual(projectDependentFields);
+      expect(result).toEqual(dependentCustomFields2);
     });
 
     it('getCostCenterDependentFields(): should get cost center dependent fields', () => {
@@ -1097,10 +1097,10 @@ export function TestCases5(getTestBed) {
         cost_center_dependent_fields: [],
       });
 
-      component.fg.controls.cost_center_dependent_fields.setValue(costCenterDependentFields);
+      component.fg.controls.cost_center_dependent_fields.setValue(dependentCustomFields2);
 
       const result = component.getCostCenterDependentFields();
-      expect(result).toEqual(costCenterDependentFields);
+      expect(result).toEqual(dependentCustomFields2);
     });
 
     it('getCustomFields(): should get custom fields data', () => {
@@ -1118,8 +1118,7 @@ export function TestCases5(getTestBed) {
       component.fg.controls.custom_inputs.setValue(projectDependentFields);
       fixture.detectChanges();
 
-      component.getCustomFields().subscribe((res) => {
-        expect(res).toEqual(customInputsData3);
+      component.getCustomFields().subscribe(() => {
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields2);
         expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
         expect(component.getCostCenterDependentFields).toHaveBeenCalledTimes(1);

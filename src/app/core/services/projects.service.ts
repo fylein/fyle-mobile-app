@@ -21,7 +21,7 @@ export class ProjectsService {
     projectParams: Partial<{
       orgId: string;
       active: boolean;
-      orgCategoryIds: number[];
+      orgCategoryIds: string[];
       searchNameText: string;
       limit: number;
       offset: number;
@@ -99,7 +99,7 @@ export class ProjectsService {
     }
   }
 
-  addOrgCategoryIdsFilter(orgCategoryIds: number[], params: ProjectParams): void {
+  addOrgCategoryIdsFilter(orgCategoryIds: string[], params: ProjectParams): void {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
       params.project_org_category_ids = 'ov.{' + orgCategoryIds.join(',') + '}';
     }

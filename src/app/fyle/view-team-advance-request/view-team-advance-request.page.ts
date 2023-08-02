@@ -41,7 +41,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   activeApprovals$: Observable<Approval[]>;
 
-  attachedFiles$: Observable<File[]>;
+  attachedFiles$: Observable<File[] | FileObject[]>;
 
   advanceRequestCustomFields$: Observable<CustomField[]>;
 
@@ -118,7 +118,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap((res) => from(res)),
-      concatMap((fileObj: File) =>
+      concatMap((fileObj: FileObject) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
@@ -129,7 +129,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           })
         )
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as File[])
+      reduce((acc, curr) => acc.concat(curr), [] as FileObject[])
     );
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();

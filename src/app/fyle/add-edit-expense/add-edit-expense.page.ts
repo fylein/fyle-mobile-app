@@ -130,6 +130,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 
 type FormValue = {
   currencyObj: {
@@ -1650,25 +1651,27 @@ export class AddEditExpensePage implements OnInit {
             this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
           );
 
-          const customInputValues: { name: string; value: string | number | string[] | number[] | Date | boolean }[] =
-            customInputs
-              .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
-              .map((customInput) => {
-                const cpor =
-                  etxn.tx.custom_properties &&
-                  etxn.tx.custom_properties.find((customProp) => customProp.name === customInput.name);
-                if (customInput.type === 'DATE') {
-                  return {
-                    name: customInput.name,
-                    value: (cpor && cpor.value && dayjs(new Date(cpor.value as string)).format('YYYY-MM-DD')) || null,
-                  };
-                } else {
-                  return {
-                    name: customInput.name,
-                    value: (cpor && cpor.value) || null,
-                  };
-                }
-              });
+          const customInputValues: {
+            name: string;
+            value: string | number | string[] | number[] | Date | boolean | { display: string };
+          }[] = customInputs
+            .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
+            .map((customInput) => {
+              const cpor =
+                etxn.tx.custom_properties &&
+                etxn.tx.custom_properties.find((customProp) => customProp.name === customInput.name);
+              if (customInput.type === 'DATE') {
+                return {
+                  name: customInput.name,
+                  value: (cpor && cpor.value && dayjs(new Date(cpor.value as string)).format('YYYY-MM-DD')) || null,
+                };
+              } else {
+                return {
+                  name: customInput.name,
+                  value: (cpor && cpor.value) || null,
+                };
+              }
+            });
 
           if (etxn.tx.amount && etxn.tx.currency) {
             this.fg.patchValue({
@@ -2255,18 +2258,18 @@ export class AddEditExpensePage implements OnInit {
         if (expenseFieldsMap) {
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
+            const options = expenseField.options as string[];
             const ifOptions = expenseField.options && expenseField.options.length > 0;
             if (ifOptions) {
               if (tfc === 'vendor_id') {
-                expenseField.options = expenseField.options.map((value) => ({
+                expenseField.options = options.map((value) => ({
                   label: value,
                   value: {
                     display_name: value,
                   },
                 }));
               } else {
-                const expenseFieldOptions = expenseField.options;
-                expenseField.options = expenseFieldOptions.map((value) => ({
+                expenseField.options = options.map((value) => ({
                   label: value,
                   value,
                 }));
@@ -2725,7 +2728,7 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  initSplitTxn(orgSettings$: Observable<OrgSettings>) {
+  initSplitTxn(orgSettings$: Observable<OrgSettings>): void {
     orgSettings$
       .pipe(
         switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
@@ -3011,18 +3014,20 @@ export class AddEditExpensePage implements OnInit {
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map((txnFields) => {
-        const txnFieldsOptions = txnFields.flight_journey_travel_class.options;
+        const txnFieldsOptions = txnFields.flight_journey_travel_class.options as string[];
         return txnFields.flight_journey_travel_class && txnFieldsOptions.map((v) => ({ label: v, value: v }));
       })
     );
 
     this.taxSettings$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.tax_settings),
-      map((taxSettings) => ({
-        ...taxSettings,
-        groups:
-          taxSettings.groups && taxSettings.groups.map((tax: Partial<TaxGroup>) => ({ label: tax.name, value: tax })),
-      }))
+      map((taxSettings) => {
+        const taxOptions = taxSettings.groups as TaxGroup[];
+        return {
+          ...taxSettings,
+          groups: taxOptions && taxOptions.map((tax) => ({ label: tax.name, value: tax })),
+        };
+      })
     );
 
     this.reports$ = this.reportService
@@ -3477,7 +3482,7 @@ export class AddEditExpensePage implements OnInit {
                 .pipe(
                   switchMap((txnData) => {
                     if (txnData) {
-                      return from(txnData as Promise<UnflattenedTransaction>);
+                      return from(txnData as Promise<OutboxQueue>);
                     } else {
                       return of(null);
                     }
@@ -3967,7 +3972,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  addExpense(redirectedFrom: string): Observable<Partial<UnflattenedTransaction>> {
+  addExpense(redirectedFrom: string): Observable<OutboxQueue | Promise<OutboxQueue>> {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
@@ -4051,7 +4056,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         from(this.authService.getEou()).pipe(
           switchMap(() => {
-            const comments = [];
+            const comments: string[] = [];
             const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
             this.trackCreateExpense(etxn, isInstaFyleExpense);
 
@@ -4071,7 +4076,7 @@ export class AddEditExpensePage implements OnInit {
               reportId = formValues.report.rp.id;
             }
 
-            etxn.dataUrls = etxn.dataUrls.map((data) => {
+            etxn.dataUrls = etxn.dataUrls.map((data: FileObject) => {
               let attachmentType = 'image';
 
               if (data.type === 'application/pdf' || data.type === 'pdf') {
@@ -4084,7 +4089,14 @@ export class AddEditExpensePage implements OnInit {
             });
 
             if (this.activatedRoute.snapshot.params.bankTxn) {
-              return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
+              return from(
+                this.transactionOutboxService.addEntryAndSync(
+                  etxn.tx,
+                  etxn.dataUrls as { url: string; type: string }[],
+                  comments,
+                  reportId
+                )
+              );
             } else {
               return this.isConnected$.pipe(
                 take(1),
@@ -4095,10 +4107,17 @@ export class AddEditExpensePage implements OnInit {
 
                   if (this.activatedRoute.snapshot.params.rp_id) {
                     return of(
-                      this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId)
+                      this.transactionOutboxService.addEntryAndSync(
+                        etxn.tx,
+                        etxn.dataUrls as { url: string; type: string }[],
+                        comments,
+                        reportId
+                      )
                     );
                   } else {
-                    this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId).then(noop);
+                    this.transactionOutboxService
+                      .addEntry(etxn.tx, etxn.dataUrls as { url: string; type: string }[], comments, reportId)
+                      .then(noop);
 
                     return of(null);
                   }

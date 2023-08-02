@@ -796,7 +796,7 @@ describe('ExpensesCardComponent', () => {
       spyOn(component, 'onFileUpload').and.stub();
       spyOn(nativeElement1, 'click').and.callThrough();
 
-      component.addAttachments(event);
+      component.addAttachments(event as unknown as Event);
       fixture.detectChanges();
       tick(500);
       nativeElement1.dispatchEvent(new Event('change'));
@@ -822,7 +822,7 @@ describe('ExpensesCardComponent', () => {
       popoverController.create.and.returnValue(Promise.resolve(popOverSpy));
       popOverSpy.onWillDismiss.and.returnValue(Promise.resolve(receiptDetails));
 
-      component.addAttachments(event);
+      component.addAttachments(event as unknown as Event);
       fixture.detectChanges();
       tick(500);
       expect(event.stopPropagation).toHaveBeenCalledTimes(1);
@@ -865,7 +865,7 @@ describe('ExpensesCardComponent', () => {
       captureReceiptModalSpy.onWillDismiss.and.returnValue(Promise.resolve(dataRes));
       fileService.getImageTypeFromDataUrl.and.returnValue('png');
 
-      component.addAttachments(event);
+      component.addAttachments(event as unknown as Event);
       tick(500);
       expect(event.stopPropagation).toHaveBeenCalledTimes(1);
       expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -941,7 +941,7 @@ describe('ExpensesCardComponent', () => {
       preventDefault: jasmine.createSpy('preventDefault'),
     };
 
-    component.dismiss(event);
+    component.dismiss(event as unknown as Event);
     expect(event.stopPropagation).toHaveBeenCalledTimes(1);
     expect(event.preventDefault).toHaveBeenCalledTimes(1);
     expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);

@@ -629,7 +629,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveAndNewExpense():', () => {
       it('should save and create expense if the form is valid and is in add mode', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'reloadCurrentRoute');
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'add';
@@ -678,7 +678,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveExpenseAndGotoPrev():', () => {
       it('should add a new expense and close the form', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -693,7 +693,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should add a new expense and go to the previous expense if not the first one in list', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
         component.mode = 'add';
@@ -748,7 +748,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveExpenseAndGotoNext():', () => {
       it('should add a new expense and close the form', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.reviewList = ['id1'];
@@ -764,7 +764,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'goToNext');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -853,7 +853,7 @@ export function TestCases2(getTestBed) {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
       currencyModalSpy.onWillDismiss.and.resolveTo({
-        data: { action: 'primary' },
+        data: { comment: 'comment' },
       });
       modalController.create.and.resolveTo(currencyModalSpy);
 
@@ -862,7 +862,7 @@ export function TestCases2(getTestBed) {
         splitPolicyExp4.data.final_desired_state
       );
 
-      expect(result).toEqual({ action: 'primary' });
+      expect(result).toEqual({ comment: 'comment' });
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyPolicyViolationComponent,
         componentProps: {

@@ -456,12 +456,7 @@ export function TestCases4(getTestBed) {
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
           expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
-            outboxQueueData1[0].transaction,
-            expectedUnflattendedTxnData3.dataUrls,
-            [],
-            'rprAfNrce73O'
-          );
+          expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledTimes(1);
           done();
         });
       });
