@@ -208,7 +208,7 @@ export class TransactionService {
     cacheBusterObserver: transactionsCacheBuster$,
   })
   // TODO: Remove `any` type once the stats response implementation is fixed
-  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<any> {
+  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<Datum[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiV2Service.getStats<StatsResponse>('/expenses/stats', {
@@ -250,7 +250,7 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  upsert(transaction: Transaction): Observable<Transaction> {
+  upsert(transaction: Partial<Transaction>): Observable<Partial<Transaction>> {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
 
@@ -316,7 +316,10 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  createTxnWithFiles(txn: Transaction, fileUploads$: Observable<FileObject[]>): Observable<Transaction> {
+  createTxnWithFiles(
+    txn: Partial<Transaction>,
+    fileUploads$: Observable<FileObject[]>
+  ): Observable<Partial<Transaction>> {
     return fileUploads$.pipe(
       switchMap((fileObjs: FileObject[]) =>
         this.upsert(txn).pipe(
@@ -548,7 +551,7 @@ export class TransactionService {
         ...etxn,
         paymentMode: this.getPaymentModeForEtxn(etxn, paymentModes),
       }))
-      .reduce((paymentMap, etxnData) => {
+      .reduce((paymentMap: PaymentModeSummary, etxnData) => {
         if (paymentMap.hasOwnProperty(etxnData.paymentMode.key)) {
           paymentMap[etxnData.paymentMode.key].name = etxnData.paymentMode.name;
           paymentMap[etxnData.paymentMode.key].key = etxnData.paymentMode.key;
@@ -567,7 +570,7 @@ export class TransactionService {
   }
 
   getCurrenyWiseSummary(etxns: Expense[]): CurrencySummary[] {
-    const currencyMap = {};
+    const currencyMap: Record<string, CurrencySummary> = {};
     etxns.forEach((etxn) => {
       if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
         this.addEtxnToCurrencyMap(currencyMap, etxn.tx_currency, etxn.tx_amount);
@@ -676,7 +679,7 @@ export class TransactionService {
     if (stateOrFilter.length > 0) {
       let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParamsCopy.or.push(combinedStateOrFilter);
+      (newQueryParamsCopy.or as string[]).push(combinedStateOrFilter);
     }
 
     return newQueryParamsCopy;
@@ -717,11 +720,11 @@ export class TransactionService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
-        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.true)');
+        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.true)');
       }
 
       if (filters.splitExpense === 'NO') {
-        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.false)');
+        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.false)');
       }
     }
 
@@ -761,7 +764,7 @@ export class TransactionService {
     if (typeOrFilter.length > 0) {
       let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      newQueryParamsCopy.or.push(combinedTypeOrFilter);
+      (newQueryParamsCopy.or as string[]).push(combinedTypeOrFilter);
     }
 
     return newQueryParamsCopy;
@@ -852,7 +855,12 @@ export class TransactionService {
     );
   }
 
-  private addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {
+  private addEtxnToCurrencyMap(
+    currencyMap: Record<string, CurrencySummary>,
+    txCurrency: string,
+    txAmount: number,
+    txOrigAmount: number = null
+  ): void {
     if (currencyMap.hasOwnProperty(txCurrency)) {
       currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
       currencyMap[txCurrency].amount += txAmount;

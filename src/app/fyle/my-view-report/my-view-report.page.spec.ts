@@ -624,7 +624,7 @@ describe('MyViewReportPage', () => {
 
   describe('getDeleteReportPopupParams(): ', () => {
     it('should get delete report popup props', (done) => {
-      reportService.delete.and.returnValue(of(true));
+      reportService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(expectedAllReports[0]);
       props.componentProps.deleteMethod().subscribe(() => {
         expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
@@ -634,7 +634,7 @@ describe('MyViewReportPage', () => {
     });
 
     it('should return null info message if number of txns is 0', (done) => {
-      reportService.delete.and.returnValue(of(true));
+      reportService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
         cloneDeep({ ...expectedAllReports[0], rp_num_transactions: 0, rp_state: 'DRAFT' })
       );

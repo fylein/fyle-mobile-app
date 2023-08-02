@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
@@ -224,7 +224,7 @@ export const popoverControllerParams = {
   cssClass: 'pop-up-in-center',
 };
 
-const mockDeleteMethod = () => of(true);
+const mockDeleteMethod = (): Observable<void> => of();
 
 export const deletePopoverParamsRes = {
   component: FyDeleteDialogComponent,
