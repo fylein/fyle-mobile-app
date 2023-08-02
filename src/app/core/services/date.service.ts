@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as dayjs from 'dayjs';
+import { DateParams } from '../models/date-parameters.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,29 +41,27 @@ export class DateService {
 
   meridians = ['AM', 'PM'];
 
-  constructor() {}
-
-  firstOfThisMonth() {
+  firstOfThisMonth(): Date {
     return new Date(this.year, this.month, 1);
   }
 
-  lastOfThisMonth() {
+  lastOfThisMonth(): Date {
     return new Date(this.year, this.month + 1, 0, 23, 59);
   }
 
-  getUTCDate(date) {
+  getUTCDate(date: Date): Date {
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
     return new Date(date.getTime() + userTimezoneOffset);
   }
 
-  getLocalDate(date) {
+  getLocalDate(date: Date): Date {
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
     return new Date(date.getTime() - userTimezoneOffset);
   }
 
   // unovoidable right now
   // eslint-disable-next-line complexity
-  fixDates(data) {
+  fixDates<T>(data: T & Partial<DateParams>): T {
     if (data.txn_dt) {
       data.txn_dt = this.getUTCDate(new Date(data.txn_dt));
     }
@@ -132,7 +131,7 @@ export class DateService {
   }
 
   // Use this method if you are getting api response from V2.
-  fixDatesV2(data) {
+  fixDatesV2<T>(data: T & Partial<DateParams>): T {
     if (data.tx_txn_dt) {
       data.tx_txn_dt = new Date(data.tx_txn_dt);
     }
@@ -164,13 +163,16 @@ export class DateService {
     return data;
   }
 
-  addDaysToDate(fromDate, numOfDays) {
-    numOfDays = parseInt(numOfDays, 10);
+  addDaysToDate(fromDate: Date, numOfDays: string | number): Date {
+    numOfDays = parseInt(numOfDays as string, 10);
 
     return new Date(fromDate.getTime() + numOfDays * 24 * 60 * 60 * 1000);
   }
 
-  getThisMonthRange() {
+  getThisMonthRange(): {
+    from: Date;
+    to: Date;
+  } {
     const firstDay = this.firstOfThisMonth();
     const lastDay = this.lastOfThisMonth();
     const range = {
@@ -181,15 +183,18 @@ export class DateService {
     return range;
   }
 
-  firstOfLastMonth() {
+  firstOfLastMonth(): Date {
     return new Date(this.year, this.month - 1, 1);
   }
 
-  lastOfLastMonth() {
+  lastOfLastMonth(): Date {
     return new Date(this.year, this.month, 0, 23, 59);
   }
 
-  getLastMonthRange() {
+  getLastMonthRange(): {
+    from: Date;
+    to: Date;
+  } {
     const firstDay = this.firstOfLastMonth();
     const lastDay = this.lastOfLastMonth();
     const range = {
@@ -200,22 +205,28 @@ export class DateService {
     return range;
   }
 
-  firstOfThisWeek() {
+  firstOfThisWeek(): dayjs.Dayjs {
     return dayjs().startOf('week');
   }
 
-  lastOfThisWeek() {
+  lastOfThisWeek(): dayjs.Dayjs {
     return dayjs().startOf('week').add(7, 'days');
   }
 
-  getThisWeekRange() {
+  getThisWeekRange(): {
+    from: dayjs.Dayjs;
+    to: dayjs.Dayjs;
+  } {
     return {
       from: this.firstOfThisWeek(),
       to: this.lastOfThisWeek(),
     };
   }
 
-  getLastDaysRange(numOfDays) {
+  getLastDaysRange(numOfDays): {
+    from: Date;
+    to: Date;
+  } {
     const startDate = new Date(this.today.getTime() - numOfDays * 24 * 60 * 60 * 1000);
     return {
       from: startDate,
@@ -223,7 +234,7 @@ export class DateService {
     };
   }
 
-  convertUTCDateToLocalDate(date) {
+  convertUTCDateToLocalDate(date: Date): Date {
     const newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
     const offset = date.getTimezoneOffset() / 60;
     const hours = date.getHours();
@@ -232,11 +243,11 @@ export class DateService {
     return newDate;
   }
 
-  isSameDate(date1: Date, date2: Date) {
+  isSameDate(date1: Date, date2: Date): boolean {
     return dayjs(date1).startOf('day').isSame(dayjs(date2).startOf('day'));
   }
 
-  isValidDate(date) {
+  isValidDate(date: string | Date): boolean {
     return dayjs(date).isValid();
   }
 }

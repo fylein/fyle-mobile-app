@@ -6,7 +6,7 @@ export interface TxnCustomProperties {
   placeholder?: string;
   prefix?: string;
   type?: string;
-  value: string | number | string[] | boolean | Date;
+  value: string | string[] | boolean | Date | number | { display: string };
   parent_field_id?: number;
 }
 
