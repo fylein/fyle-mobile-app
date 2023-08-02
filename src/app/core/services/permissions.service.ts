@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { map, switchMap } from 'rxjs/operators';
-import { throwError, of, iif } from 'rxjs';
+import { throwError, of, iif, Observable } from 'rxjs';
 import { OrgSettings } from '../models/org-settings.model';
 import { ReportAllowedActions } from '../models/allowed-actions.model';
 
@@ -10,7 +10,7 @@ import { ReportAllowedActions } from '../models/allowed-actions.model';
 })
 export class PermissionsService {
   // can check roleActionMap[role]['company']['view'] for whether he is allowed company view.
-  roleActionMap = {
+  roleActionMap: Record<string, Record<string, Record<string, boolean>>> = {
     owner: {
       expenses: {
         create: false,
@@ -1577,9 +1577,20 @@ export class PermissionsService {
 
   constructor(private authService: AuthService) {}
 
-  allowedActions(resource: string, actions: string[], orgSettings: OrgSettings) {
+  allowedActions(
+    resource: string,
+    actions: string[],
+    orgSettings: OrgSettings
+  ): Observable<
+    Partial<{
+      allowedRouteAccess: boolean;
+      approve: boolean;
+      create: boolean;
+      delete: boolean;
+    }>
+  > {
     const roles$ = this.authService.getRoles();
-    const allowedActions: any = {
+    const allowedActions = {
       allowedRouteAccess: false,
     };
 
@@ -1617,7 +1628,12 @@ export class PermissionsService {
     );
   }
 
-  setAllowedActions(actions: string[], allowedActions: Partial<ReportAllowedActions>, role: string, resource: string) {
+  setAllowedActions(
+    actions: string[],
+    allowedActions: Partial<ReportAllowedActions>,
+    role: string,
+    resource: string
+  ): void {
     for (const action of actions) {
       if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {
         allowedActions[action] = this.roleActionMap[role][resource][action];
