@@ -23,7 +23,7 @@ class MockCardNumberComponent {
   @Input() cardNumber: string;
 }
 
-fdescribe('CorporateCardComponent', () => {
+describe('CorporateCardComponent', () => {
   let component: CorporateCardComponent;
   let fixture: ComponentFixture<CorporateCardComponent>;
 
