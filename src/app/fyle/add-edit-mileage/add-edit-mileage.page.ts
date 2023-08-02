@@ -476,10 +476,14 @@ export class AddEditMileagePage implements OnInit {
       startWith(this.fg.controls.project.value),
       concatMap((project: ExtendedProject) =>
         activeCategories$.pipe(
-          map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
+          map((activeCategories: OrgCategory[]) =>
+            this.projectService.getAllowedOrgCategoryIds(project, activeCategories)
+          )
         )
       ),
-      map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
+      map((categories) =>
+        categories.map((category: OrgCategory) => ({ label: category.sub_category, value: category }))
+      )
     );
 
     this.filteredCategories$.subscribe((categories) => {
@@ -548,9 +552,12 @@ export class AddEditMileagePage implements OnInit {
         if (expenseFieldsMap) {
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
-            const options = expenseField.options;
+            const options = expenseField.options as string[];
             if (options && options.length > 0) {
-              const newOptions = options.map((value) => ({ label: value, value }));
+              const newOptions: { label: string; value: string }[] = options.map((value: string) => ({
+                label: value,
+                value,
+              }));
               expenseField.options = newOptions;
             }
           }

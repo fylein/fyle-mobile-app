@@ -23,12 +23,12 @@ export interface MileageSettings {
 }
 
 export interface CostCenterSettings {
-  default_cost_center_id?: any;
-  default_cost_center_name?: any;
+  default_cost_center_id?: number;
+  default_cost_center_name?: string;
 }
 
 export interface PerDiemRateSettings {
-  allowed_per_diem_ids: any[];
+  allowed_per_diem_ids: number[];
 }
 
 export interface AccessDelegationSettings {
@@ -69,7 +69,7 @@ export interface SmsFyleSettings {
 export interface OneClickActionSettings {
   enabled: boolean;
   allowed: boolean;
-  module?: any;
+  module?: string;
 }
 
 export interface Email {
@@ -87,7 +87,6 @@ export interface Push {
 export interface Whatsapp {
   allowed: boolean;
   enabled: boolean;
-  unsubscribed_events?: any;
 }
 
 export interface NotificationSettings {
@@ -118,7 +117,7 @@ export interface Locale {
 export interface InAppChatSettings {
   allowed: boolean;
   enabled: boolean;
-  restore_id?: any;
+  restore_id?: string;
 }
 
 export interface ExpenseFormAutofills {
@@ -154,7 +153,7 @@ export interface OrgUserSettings {
   org_user_id: string;
   auto_fyle_settings: AutoFyleSettings;
   mileage_settings: MileageSettings;
-  cost_center_ids: any[];
+  cost_center_ids: number[];
   project_ids: number[];
   cost_center_settings: CostCenterSettings;
   per_diem_rate_settings: PerDiemRateSettings;
