@@ -37,7 +37,7 @@ import {
   addMobileNumberTask,
   verifyMobileNumberTask,
 } from '../mock-data/task.data';
-import { platformCorporateCard } from '../mock-data/platform-corporate-card.data';
+import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -691,7 +691,7 @@ describe('TasksService', () => {
       })
       .and.returnValue(of(incompleteExpensesResponse));
 
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([platformCorporateCard]));
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
   }
 
   it('should be able to fetch tasks with no filters', (done) => {
@@ -984,7 +984,7 @@ describe('TasksService', () => {
   describe('getMobileNumberVerificationTasks(): ', () => {
     it('should not return any task if user has verified mobile number', (done) => {
       authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([platformCorporateCard]));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
@@ -1015,7 +1015,7 @@ describe('TasksService', () => {
       eou.ou.mobile_verified = false;
       eou.ou.mobile = null;
       authService.getEou.and.returnValue(Promise.resolve(eou));
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([platformCorporateCard]));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask]
       );
@@ -1031,7 +1031,7 @@ describe('TasksService', () => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       authService.getEou.and.returnValue(Promise.resolve(eou));
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([platformCorporateCard]));
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask]
       );
