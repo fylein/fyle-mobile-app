@@ -1,3 +1,5 @@
+import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
+
 export const mergeExpenseFormData1 = {
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
@@ -18,8 +20,8 @@ export const mergeExpenseFormData1 = {
     ],
   },
   categoryDependent: {
-    location_1: 'Pune',
-    location_2: 'Mumbai',
+    location_1: optionsData15.options[0].value,
+    location_2: optionsData33.options[0].value,
   },
 };
 
@@ -43,7 +45,7 @@ export const mergeExpenseFormData2 = {
     ],
   },
   categoryDependent: {
-    location_1: 'Pune',
+    location_1: optionsData15.options[0].value,
   },
 };
 
@@ -87,8 +89,8 @@ export const mergeExpenseFormData4 = {
     ],
   },
   categoryDependent: {
-    location_1: 'Pune',
-    location_2: 'Mumbai',
+    location_1: optionsData15.options[0].value,
+    location_2: optionsData33.options[0].value,
   },
 };
 
@@ -110,7 +112,7 @@ export const mergeExpenseFormData5 = {
     ],
   },
   categoryDependent: {
-    location_1: 'Pune',
-    location_2: 'Mumbai',
+    location_1: optionsData15.options[0].value,
+    location_2: optionsData33.options[0].value,
   },
 };

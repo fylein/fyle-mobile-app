@@ -1,5 +1,4 @@
-import { Aggregate, Value, Key } from '../models/v2/stats-response.model';
-import { StatsResponse } from '../models/v2/stats-response.model';
+import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 // type StatsResponse = {
 //   data: {
 //     dimensions: string[];
@@ -317,3 +316,101 @@ export const txnStats = new StatsResponse({
   ],
   url: '/v2/expenses/stats',
 });
+
+export const transactionDatum1: Datum[] = [
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 4,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 3494,
+      },
+    ],
+  },
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 964,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 568437,
+      },
+    ],
+  },
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 5,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 371.87,
+      },
+    ],
+  },
+];
+
+export const transactionDatum2: Datum[] = [
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [],
+  },
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 964,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 568437,
+      },
+    ],
+  },
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 5,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 371.87,
+      },
+    ],
+  },
+];
+
+export const transactionDatum3: Datum[] = [
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 4,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: null,
+      },
+    ],
+  },
+];

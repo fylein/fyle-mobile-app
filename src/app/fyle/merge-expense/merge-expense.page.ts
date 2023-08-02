@@ -2,7 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular
 import { BehaviorSubject, forkJoin, noop, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
@@ -16,16 +16,21 @@ import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expe
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { CombinedOptions } from 'src/app/core/models/combined-options.model';
-import { ProjectDependentFieldsMapping } from 'src/app/core/models/project-dependent-fields-mapping.model';
-import { CostCenterDependentFieldsMapping } from 'src/app/core/models/cost-center-dependent-fields-mapping.model';
 import { GeneratedFormProperties } from 'src/app/core/models/generated-form-properties.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { Destination } from 'src/app/core/models/destination.model';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { DependentFieldsMapping } from 'src/app/core/models/dependent-field-mapping.model';
+import { CustomInputOptions } from 'src/app/core/models/custom-input-options.model';
+import { GenericFieldsOptions } from 'src/app/core/models/generic-fields-options.model';
+import { CategoryDependentFieldsOptions } from 'src/app/core/models/category-dependent-fields-options.model';
+import { GenericFieldsFormValues } from 'src/app/core/models/generic-fields-form-values.model';
+import { CategoryDependentFieldsFormValues } from 'src/app/core/models/category-dependent-fields-form-values.model';
+import { CustomFieldsFormValues } from 'src/app/core/models/custom-fields-form-values.model';
 
 @Component({
   selector: 'app-merge-expense',
@@ -37,55 +42,55 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   fg: FormGroup;
 
-  expenseOptions$: Observable<MergeExpensesOption[]>;
+  expenseOptions$: Observable<MergeExpensesOption<string>[]>;
 
-  amountOptionsData$: Observable<MergeExpensesOptionsData>;
+  amountOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  dateOfSpendOptionsData$: Observable<MergeExpensesOptionsData>;
+  dateOfSpendOptionsData$: Observable<MergeExpensesOptionsData<Date>>;
 
-  paymentModeOptionsData$: Observable<MergeExpensesOptionsData>;
+  paymentModeOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  projectOptionsData$: Observable<MergeExpensesOptionsData>;
+  projectOptionsData$: Observable<MergeExpensesOptionsData<number>>;
 
-  billableOptionsData$: Observable<MergeExpensesOptionsData>;
+  billableOptionsData$: Observable<MergeExpensesOptionsData<boolean>>;
 
-  vendorOptionsData$: Observable<MergeExpensesOptionsData>;
+  vendorOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  categoryOptionsData$: Observable<MergeExpensesOptionsData>;
+  categoryOptionsData$: Observable<MergeExpensesOptionsData<number>>;
 
-  taxGroupOptionsData$: Observable<MergeExpensesOptionsData>;
+  taxGroupOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  taxAmountOptionsData$: Observable<MergeExpensesOptionsData>;
+  taxAmountOptionsData$: Observable<MergeExpensesOptionsData<number>>;
 
-  constCenterOptionsData$: Observable<MergeExpensesOptionsData>;
+  constCenterOptionsData$: Observable<MergeExpensesOptionsData<number>>;
 
-  purposeOptionsData$: Observable<MergeExpensesOptionsData>;
+  purposeOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  location1OptionsData$: Observable<MergeExpensesOptionsData>;
+  location1OptionsData$: Observable<MergeExpensesOptionsData<Destination>>;
 
-  location2OptionsData$: Observable<MergeExpensesOptionsData>;
+  location2OptionsData$: Observable<MergeExpensesOptionsData<Destination>>;
 
-  onwardDateOptionsData$: Observable<MergeExpensesOptionsData>;
+  onwardDateOptionsData$: Observable<MergeExpensesOptionsData<Date>>;
 
-  returnDateOptionsData$: Observable<MergeExpensesOptionsData>;
+  returnDateOptionsData$: Observable<MergeExpensesOptionsData<Date>>;
 
-  flightJourneyTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
+  flightJourneyTravelClassOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  flightReturnTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
+  flightReturnTravelClassOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  trainTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
+  trainTravelClassOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  busTravelClassOptionsData$: Observable<MergeExpensesOptionsData>;
+  busTravelClassOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  distanceOptionsData$: Observable<MergeExpensesOptionsData>;
+  distanceOptionsData$: Observable<MergeExpensesOptionsData<number>>;
 
-  distanceUnitOptionsData$: Observable<MergeExpensesOptionsData>;
+  distanceUnitOptionsData$: Observable<MergeExpensesOptionsData<string>>;
 
-  receiptOptions: MergeExpensesOption[];
+  receiptOptions: MergeExpensesOption<string>[];
 
-  genericFieldsOptions$: Observable<CombinedOptions>;
+  genericFieldsOptions$: Observable<GenericFieldsOptions>;
 
-  categoryDependentFieldsOptions$: Observable<CombinedOptions>;
+  categoryDependentFieldsOptions$: Observable<CategoryDependentFieldsOptions>;
 
   loadCustomFields$: BehaviorSubject<string>;
 
@@ -97,7 +102,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   attachments: FileObject[];
 
-  combinedCustomProperties: CombinedOptions = {};
+  combinedCustomProperties: { [key: string]: Partial<CustomInput> } = {};
 
   disableFormElements = false;
 
@@ -117,13 +122,13 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   touchedGenericFields: string[];
 
-  touchedCategoryDepedentFields: string[];
+  touchedCategoryDependentFields: string[];
 
   systemCategories: string[];
 
-  projectDependentFieldsMapping$: Observable<ProjectDependentFieldsMapping>;
+  projectDependentFieldsMapping$: Observable<DependentFieldsMapping>;
 
-  costCenterDependentFieldsMapping$: Observable<CostCenterDependentFieldsMapping>;
+  costCenterDependentFieldsMapping$: Observable<DependentFieldsMapping>;
 
   constructor(
     private router: Router,
@@ -142,20 +147,32 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     private cdRef: ChangeDetectorRef
   ) {}
 
-  get genericFieldsForm() {
+  get genericFieldsForm(): AbstractControl {
     return this.fg.controls.genericFields;
   }
 
-  get categoryDependentForm() {
+  get categoryDependentForm(): AbstractControl {
     return this.fg.controls.categoryDependent;
   }
 
-  ngOnInit() {
-    this.expenses = JSON.parse(this.activatedRoute.snapshot.params.selectedElements);
-    this.redirectedFrom = this.activatedRoute.snapshot.params.from;
+  get genericFieldsFormValues(): GenericFieldsFormValues {
+    return this.genericFieldsForm.value as GenericFieldsFormValues;
   }
 
-  ionViewWillEnter() {
+  get categoryDependentFieldsFormValues(): CategoryDependentFieldsFormValues {
+    return this.categoryDependentForm.value as CategoryDependentFieldsFormValues;
+  }
+
+  get customInputsFormValues(): CustomFieldsFormValues {
+    return this.fg.controls.custom_inputs.value as CustomFieldsFormValues;
+  }
+
+  ngOnInit(): void {
+    this.expenses = JSON.parse(this.activatedRoute.snapshot.params.selectedElements as string) as Expense[];
+    this.redirectedFrom = this.activatedRoute.snapshot.params.from as string;
+  }
+
+  ionViewWillEnter(): void {
     this.fg = this.formBuilder.group({
       target_txn_id: [, Validators.required],
       genericFields: [],
@@ -251,7 +268,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       purposeOptionsData: this.purposeOptionsData$,
     });
 
-    this.loadCustomFields$ = new BehaviorSubject(null);
+    this.loadCustomFields$ = new BehaviorSubject<string>(null);
 
     this.setupCustomInputs();
 
@@ -262,7 +279,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     this.combinedCustomProperties = this.generateCustomInputOptions();
   }
 
-  loadGenericFieldsOptions() {
+  loadGenericFieldsOptions(): void {
     this.genericFieldsOptions$.subscribe(
       ({
         amountOptionsData,
@@ -299,15 +316,15 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     );
   }
 
-  subscribeExpenseChange() {
-    this.fg.controls.target_txn_id.valueChanges.subscribe((expenseId) => {
+  subscribeExpenseChange(): void {
+    this.fg.controls.target_txn_id.valueChanges.subscribe((expenseId: string) => {
       const selectedIndex = this.expenses.map((e) => e.tx_id).indexOf(expenseId);
       this.onExpenseChanged(selectedIndex);
       this.patchCategoryDependentFields(selectedIndex);
     });
   }
 
-  onExpenseChanged(selectedIndex: number) {
+  onExpenseChanged(selectedIndex: number): void {
     this.genericFieldsOptions$.subscribe(
       ({
         amountOptionsData,
@@ -333,67 +350,67 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
               amountOptionsData,
               this.touchedGenericFields?.includes('amount'),
               this.expenses[selectedIndex]?.tx_id,
-              this.genericFieldsForm.value?.amount
+              this.genericFieldsFormValues?.amount
             ),
             dateOfSpend: this.mergeExpensesService.getFieldValueOnChange(
               dateOfSpendOptionsData,
               this.touchedGenericFields?.includes('dateOfSpend'),
               this.expenses[selectedIndex]?.tx_txn_dt,
-              this.genericFieldsForm.value?.dateOfSpend
+              this.genericFieldsFormValues?.dateOfSpend
             ),
             paymentMode: this.mergeExpensesService.getFieldValueOnChange(
               paymentModeOptionsData,
               this.touchedGenericFields?.includes('paymentMode'),
               this.expenses[selectedIndex]?.source_account_type,
-              this.genericFieldsForm.value?.paymentMode
+              this.genericFieldsFormValues?.paymentMode
             ),
             project: this.mergeExpensesService.getFieldValueOnChange(
               projectOptionsData,
               this.touchedGenericFields?.includes('project'),
               this.expenses[selectedIndex]?.tx_project_id,
-              this.genericFieldsForm.value?.project
+              this.genericFieldsFormValues?.project
             ),
             billable: this.mergeExpensesService.getFieldValueOnChange(
               billableOptionsData,
               this.touchedGenericFields?.includes('billable'),
               this.expenses[selectedIndex]?.tx_billable,
-              this.genericFieldsForm.value?.billable
+              this.genericFieldsFormValues?.billable
             ),
             category: this.mergeExpensesService.getFieldValueOnChange(
               categoryOptionsData,
               this.touchedGenericFields?.includes('category'),
               this.expenses[selectedIndex]?.tx_org_category_id,
-              this.genericFieldsForm.value?.category
+              this.genericFieldsFormValues?.category
             ),
             vendor: this.mergeExpensesService.getFieldValueOnChange(
               vendorOptionsData,
               this.touchedGenericFields?.includes('vendor'),
               this.expenses[selectedIndex]?.tx_vendor,
-              this.genericFieldsForm.value?.vendor
+              this.genericFieldsFormValues?.vendor
             ),
             tax_group: this.mergeExpensesService.getFieldValueOnChange(
               taxGroupOptionsData,
               this.touchedGenericFields?.includes('tax_group'),
               this.expenses[selectedIndex]?.tx_tax_group_id,
-              this.genericFieldsForm.value?.tax_group
+              this.genericFieldsFormValues?.tax_group
             ),
             tax_amount: this.mergeExpensesService.getFieldValueOnChange(
               taxAmountOptionsData,
               this.touchedGenericFields?.includes('tax_amount'),
               this.expenses[selectedIndex]?.tx_tax,
-              this.genericFieldsForm.value?.tax_amount
+              this.genericFieldsFormValues?.tax_amount
             ),
             costCenter: this.mergeExpensesService.getFieldValueOnChange(
               constCenterOptionsData,
               this.touchedGenericFields?.includes('costCenter'),
               this.expenses[selectedIndex]?.tx_cost_center_name,
-              this.genericFieldsForm.value?.costCenter
+              this.genericFieldsFormValues?.costCenter
             ),
             purpose: this.mergeExpensesService.getFieldValueOnChange(
               purposeOptionsData,
               this.touchedGenericFields?.includes('purpose'),
               this.expenses[selectedIndex]?.tx_purpose,
-              this.genericFieldsForm.value?.purpose
+              this.genericFieldsFormValues?.purpose
             ),
           },
         });
@@ -401,7 +418,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     );
   }
 
-  loadCategoryDependentFields() {
+  loadCategoryDependentFields(): void {
     this.categoryDependentFieldsOptions$ = forkJoin({
       location1OptionsData: this.location1OptionsData$,
       location2OptionsData: this.location2OptionsData$,
@@ -446,19 +463,19 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     );
   }
 
-  onReceiptChanged(receipt_ids: string) {
+  onReceiptChanged(receipt_ids: string): void {
     this.mergeExpensesService.getAttachements(receipt_ids).subscribe((receipts) => {
       this.selectedReceiptsId = receipts.map((receipt) => receipt.id);
       this.attachments = receipts;
     });
   }
 
-  mergeExpense() {
-    const selectedExpense = this.fg.value.target_txn_id;
+  mergeExpense(): void {
+    const selectedExpense = (this.fg.value as { target_txn_id: string }).target_txn_id;
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       this.isMerging = true;
-      let sourceTxnIds = [];
+      let sourceTxnIds: string[] = [];
       this.expenses.map((expense) => {
         sourceTxnIds.push(expense.tx_id);
       });
@@ -487,7 +504,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     }
   }
 
-  goBack() {
+  goBack(): void {
     if (this.redirectedFrom === 'EDIT_EXPENSE') {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     } else {
@@ -495,7 +512,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     }
   }
 
-  showMergedSuccessToast() {
+  showMergedSuccessToast(): void {
     const toastMessageData = {
       message: 'Expenses merged Successfully',
     };
@@ -508,62 +525,65 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       .subscribe(noop);
   }
 
-  generateFromFg(dependentFieldsMapping: { [id: number]: CustomProperty<string>[] }): GeneratedFormProperties {
+  generateFromFg(dependentFieldsMapping: DependentFieldsMapping): GeneratedFormProperties {
     const sourceExpense = this.expenses.find(
-      (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
+      (expense) => expense.source_account_type === this.genericFieldsFormValues.paymentMode
     );
-    const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
+    const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsFormValues.amount);
     const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
-    let locations: string[];
-    if (this.categoryDependentForm.value.location_1 && this.categoryDependentForm.value.location_2) {
-      locations = [this.categoryDependentForm.value.location_1, this.categoryDependentForm.value.location_2];
-    } else if (this.categoryDependentForm.value.location_1) {
-      locations = [this.categoryDependentForm.value.location_1];
+    let locations: Destination[];
+    if (this.categoryDependentFieldsFormValues.location_1 && this.categoryDependentFieldsFormValues.location_2) {
+      locations = [
+        this.categoryDependentFieldsFormValues.location_1,
+        this.categoryDependentFieldsFormValues.location_2,
+      ];
+    } else if (this.categoryDependentFieldsFormValues.location_1) {
+      locations = [this.categoryDependentFieldsFormValues.location_1];
     }
-    const projectDependantFieldValues = dependentFieldsMapping[this.genericFieldsForm.value.project] || [];
-    const costCenterDependentFieldValues = dependentFieldsMapping[this.genericFieldsForm.value.costCenter] || [];
+    const projectDependantFieldValues = dependentFieldsMapping[this.genericFieldsFormValues.project] || [];
+    const costCenterDependentFieldValues = dependentFieldsMapping[this.genericFieldsFormValues.costCenter] || [];
 
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
-      billable: this.genericFieldsForm.value.billable,
+      billable: this.genericFieldsFormValues.billable,
       currency: amountExpense?.tx_currency,
       amount: amountExpense?.tx_amount,
-      project_id: this.genericFieldsForm.value.project,
-      cost_center_id: this.genericFieldsForm.value.costCenter,
-      tax_amount: this.genericFieldsForm.value.tax_amount,
-      tax_group_id: this.genericFieldsForm.value.tax_group,
-      org_category_id: this.genericFieldsForm.value.category,
-      fyle_category: this.genericFieldsForm.value.category,
-      vendor: this.genericFieldsForm.value.vendor,
-      purpose: this.genericFieldsForm.value.purpose,
-      txn_dt: this.genericFieldsForm.value.dateOfSpend,
+      project_id: this.genericFieldsFormValues.project,
+      cost_center_id: this.genericFieldsFormValues.costCenter,
+      tax_amount: this.genericFieldsFormValues.tax_amount,
+      tax_group_id: this.genericFieldsFormValues.tax_group,
+      org_category_id: this.genericFieldsFormValues.category,
+      fyle_category: this.genericFieldsFormValues.category?.toString(),
+      vendor: this.genericFieldsFormValues.vendor,
+      purpose: this.genericFieldsFormValues.purpose,
+      txn_dt: this.genericFieldsFormValues.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
       custom_properties: [
-        ...this.fg.controls.custom_inputs.value.fields,
+        ...this.customInputsFormValues.fields,
         ...projectDependantFieldValues,
         ...costCenterDependentFieldValues,
       ],
       ccce_group_id: CCCMatchedExpense?.tx_corporate_credit_card_expense_group_id,
-      from_dt: this.genericFieldsForm.value.from_dt,
-      to_dt: this.genericFieldsForm.value.to_dt,
-      flight_journey_travel_class: this.genericFieldsForm.value.flight_journey_travel_class,
-      flight_return_travel_class: this.genericFieldsForm.value.flight_return_travel_class,
-      train_travel_class: this.genericFieldsForm.value.train_travel_class,
-      bus_travel_class: this.genericFieldsForm.value.bus_travel_class,
-      distance: this.genericFieldsForm.value.distance,
-      distance_unit: this.genericFieldsForm.value.distance_unit,
+      from_dt: this.categoryDependentFieldsFormValues.from_dt,
+      to_dt: this.categoryDependentFieldsFormValues.to_dt,
+      flight_journey_travel_class: this.categoryDependentFieldsFormValues.flight_journey_travel_class,
+      flight_return_travel_class: this.categoryDependentFieldsFormValues.flight_return_travel_class,
+      train_travel_class: this.categoryDependentFieldsFormValues.train_travel_class,
+      bus_travel_class: this.categoryDependentFieldsFormValues.bus_travel_class,
+      distance: this.categoryDependentFieldsFormValues.distance,
+      distance_unit: this.categoryDependentFieldsFormValues.distance_unit,
       locations: locations || [],
     };
   }
 
-  onCategoryChanged(categoryId: string) {
+  onCategoryChanged(categoryId: string): void {
     this.mergeExpensesService.getCategoryName(categoryId).subscribe((categoryName) => {
       this.selectedCategoryName = categoryName;
     });
     this.loadCustomFields$.next(categoryId);
   }
 
-  setupCustomInputs() {
+  setupCustomInputs(): void {
     const allCustomFields$ = this.customInputsService.getAll(true);
 
     this.customInputs$ = this.loadCustomFields$.pipe(
@@ -573,12 +593,12 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
           map((fields) => fields.filter((field) => field.type !== 'DEPENDENT_SELECT')),
           switchMap((fields) => {
             const customFields = this.customFieldsService.standardizeCustomFields(
-              this.fg.controls.custom_inputs.value?.fields || [],
+              this.customInputsFormValues?.fields || [],
               this.customInputsService.filterByCategory(fields, categoryId)
             );
             return customFields;
           }),
-          reduce((acc, curr) => {
+          reduce((acc: TxnCustomProperties[], curr) => {
             acc.push(curr);
             return acc;
           }, [])
@@ -595,7 +615,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     this.costCenterDependentFieldsMapping$ = this.getDependentFieldsMapping('COST_CENTER');
   }
 
-  getDependentFieldsMapping(parentField: 'PROJECT' | 'COST_CENTER') {
+  getDependentFieldsMapping(parentField: 'PROJECT' | 'COST_CENTER'): Observable<DependentFieldsMapping> {
     const expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     return expenseFields$.pipe(
@@ -619,7 +639,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     );
   }
 
-  patchCustomInputsValues(customInputs: TxnCustomProperties[]) {
+  patchCustomInputsValues(customInputs: Partial<CustomInput>[]): void {
     const customInputValues = customInputs.map((customInput) => {
       if (
         this.combinedCustomProperties[customInput.name]?.areSameValues &&
@@ -627,7 +647,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       ) {
         return {
           name: customInput.name,
-          value: this.combinedCustomProperties[customInput.name].options[0].value || null,
+          value: (<CustomInputOptions>this.combinedCustomProperties[customInput.name].options[0]).value || null,
         };
       } else {
         return {
@@ -639,18 +659,18 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     this.fg.controls.custom_inputs.patchValue(customInputValues);
   }
 
-  onPaymentModeChanged() {
+  onPaymentModeChanged(): void {
     this.mergeExpensesService.getCorporateCardTransactions(this.expenses).subscribe((txns) => {
       this.CCCTxns = txns;
     });
   }
 
-  generateCustomInputOptions(): CombinedOptions {
+  generateCustomInputOptions(): { [key: string]: Partial<CustomInput> } {
     const customProperties = this.mergeExpensesService.getCustomInputValues(this.expenses);
 
-    let combinedCustomProperties = [].concat.apply([], customProperties);
+    let combinedCustomProperties = <Partial<CustomInput>[]>[].concat.apply([], customProperties);
 
-    combinedCustomProperties = combinedCustomProperties.map((field) => {
+    combinedCustomProperties = combinedCustomProperties.map((field: Partial<CustomInput>) => {
       if (field.value && field.value instanceof Array) {
         field.options = [
           {
@@ -667,7 +687,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
         } else {
           field.options = [
             {
-              label: field.value,
+              label: field.value.toString(),
               value: field.value,
             },
           ];
@@ -678,12 +698,12 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     return this.mergeExpensesService.formatCustomInputOptions(combinedCustomProperties);
   }
 
-  setAdvanceOrApprovedAndAbove(expensesInfo: ExpensesInfo) {
+  setAdvanceOrApprovedAndAbove(expensesInfo: ExpensesInfo): void {
     const isApprovedAndAbove = this.mergeExpensesService.isApprovedAndAbove(this.expenses);
     this.disableFormElements = (isApprovedAndAbove && isApprovedAndAbove.length > 0) || expensesInfo.isAdvancePresent;
   }
 
-  setIsReported(expensesInfo: ExpensesInfo) {
+  setIsReported(expensesInfo: ExpensesInfo): void {
     const isReported = this.mergeExpensesService.isReportedPresent(this.expenses);
     this.isReportedExpensePresent = isReported && isReported.length > 0;
     if (this.isReportedExpensePresent && expensesInfo.isAdvancePresent) {
@@ -692,7 +712,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     }
   }
 
-  setInitialExpenseToKeepDetails(expensesInfo: ExpensesInfo, isAllAdvanceExpenses: boolean) {
+  setInitialExpenseToKeepDetails(expensesInfo: ExpensesInfo, isAllAdvanceExpenses: boolean): void {
     if (expensesInfo.defaultExpenses) {
       if (this.mergeExpensesService.isReportedOrAbove(expensesInfo)) {
         this.setIsReported(expensesInfo);
@@ -717,15 +737,15 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     }
   }
 
-  onGenericFieldsTouched(touchedGenericFields: string[]) {
+  onGenericFieldsTouched(touchedGenericFields: string[]): void {
     this.touchedGenericFields = touchedGenericFields;
   }
 
-  onCategoryDependentFieldsTouched(touchedGenericFields: string[]) {
-    this.touchedCategoryDepedentFields = touchedGenericFields;
+  onCategoryDependentFieldsTouched(touchedGenericFields: string[]): void {
+    this.touchedCategoryDependentFields = touchedGenericFields;
   }
 
-  patchCategoryDependentFields(selectedIndex: number) {
+  patchCategoryDependentFields(selectedIndex: number): void {
     this.categoryDependentFieldsOptions$.subscribe(
       ({
         location1OptionsData,
@@ -743,63 +763,63 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
           categoryDependent: {
             location_1: this.mergeExpensesService.getFieldValueOnChange(
               location1OptionsData,
-              this.touchedGenericFields?.includes('location_1'),
+              this.touchedCategoryDependentFields?.includes('location_1'),
               this.expenses[selectedIndex]?.tx_locations[0],
-              this.genericFieldsForm.value?.location_1
+              this.categoryDependentFieldsFormValues?.location_1
             ),
             location_2: this.mergeExpensesService.getFieldValueOnChange(
               location2OptionsData,
-              this.touchedGenericFields?.includes('location_2'),
+              this.touchedCategoryDependentFields?.includes('location_2'),
               this.expenses[selectedIndex]?.tx_locations[1],
-              this.genericFieldsForm.value?.location_2
+              this.categoryDependentFieldsFormValues?.location_2
             ),
             from_dt: this.mergeExpensesService.getFieldValueOnChange(
               onwardDateOptionsData,
-              this.touchedGenericFields?.includes('from_dt'),
+              this.touchedCategoryDependentFields?.includes('from_dt'),
               this.expenses[selectedIndex]?.tx_from_dt,
-              this.genericFieldsForm.value?.from_dt
+              this.categoryDependentFieldsFormValues?.from_dt
             ),
             to_dt: this.mergeExpensesService.getFieldValueOnChange(
               returnDateOptionsData,
-              this.touchedGenericFields?.includes('to_dt'),
+              this.touchedCategoryDependentFields?.includes('to_dt'),
               this.expenses[selectedIndex]?.tx_to_dt,
-              this.genericFieldsForm.value?.to_dt
+              this.categoryDependentFieldsFormValues?.to_dt
             ),
             flight_journey_travel_class: this.mergeExpensesService.getFieldValueOnChange(
               flightJourneyTravelClassOptionsData,
-              this.touchedGenericFields?.includes('flight_journey_travel_class'),
+              this.touchedCategoryDependentFields?.includes('flight_journey_travel_class'),
               this.expenses[selectedIndex]?.tx_flight_journey_travel_class,
-              this.genericFieldsForm.value?.flight_journey_travel_class
+              this.categoryDependentFieldsFormValues?.flight_journey_travel_class
             ),
             flight_return_travel_class: this.mergeExpensesService.getFieldValueOnChange(
               flightReturnTravelClassOptionsData,
-              this.touchedGenericFields?.includes('flight_return_travel_class'),
+              this.touchedCategoryDependentFields?.includes('flight_return_travel_class'),
               this.expenses[selectedIndex]?.tx_flight_return_travel_class,
-              this.genericFieldsForm.value?.flight_return_travel_class
+              this.categoryDependentFieldsFormValues?.flight_return_travel_class
             ),
             train_travel_class: this.mergeExpensesService.getFieldValueOnChange(
               trainTravelClassOptionsData,
-              this.touchedGenericFields?.includes('train_travel_class'),
+              this.touchedCategoryDependentFields?.includes('train_travel_class'),
               this.expenses[selectedIndex]?.tx_train_travel_class,
-              this.genericFieldsForm.value?.train_travel_class
+              this.categoryDependentFieldsFormValues?.train_travel_class
             ),
             bus_travel_class: this.mergeExpensesService.getFieldValueOnChange(
               busTravelClassOptionsData,
-              this.touchedGenericFields?.includes('bus_travel_class'),
+              this.touchedCategoryDependentFields?.includes('bus_travel_class'),
               this.expenses[selectedIndex]?.tx_bus_travel_class,
-              this.genericFieldsForm.value?.bus_travel_class
+              this.categoryDependentFieldsFormValues?.bus_travel_class
             ),
             distance: this.mergeExpensesService.getFieldValueOnChange(
               distanceOptionsData,
-              this.touchedGenericFields?.includes('distance'),
+              this.touchedCategoryDependentFields?.includes('distance'),
               this.expenses[selectedIndex]?.tx_distance,
-              this.genericFieldsForm.value?.distance
+              this.categoryDependentFieldsFormValues?.distance
             ),
             distance_unit: this.mergeExpensesService.getFieldValueOnChange(
               distanceUnitOptionsData,
-              this.touchedGenericFields?.includes('distance_unit'),
+              this.touchedCategoryDependentFields?.includes('distance_unit'),
               this.expenses[selectedIndex]?.tx_distance_unit,
-              this.genericFieldsForm.value?.distance_unit
+              this.categoryDependentFieldsFormValues?.distance_unit
             ),
           },
         });
@@ -808,7 +828,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
   }
 
   // Added this to fix the error for value being changed after it is checked in the case of rendering customInputs$
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     this.cdRef.detectChanges();
   }
 }

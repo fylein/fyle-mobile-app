@@ -1,4 +1,4 @@
-export interface MergeExpensesOption {
+export interface MergeExpensesOption<T> {
   label: string;
-  value: any; // Value can be anything number, string, list, etc.
+  value: T; // Value can be anything number, string, list, etc.
 }

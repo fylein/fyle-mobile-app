@@ -1,5 +1,5 @@
-import { CustomProperty } from './custom-properties.model';
+import { CustomInput } from './custom-input.model';
 
 export interface CostCenterDependentFieldsMapping {
-  [costCenterId: number]: CustomProperty<string>[];
+  [costCenterId: number]: Partial<CustomInput>[];
 }
