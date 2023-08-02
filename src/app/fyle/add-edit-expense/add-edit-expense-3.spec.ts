@@ -435,7 +435,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getSourceAccID').and.returnValue('id');
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00'));
+        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -447,7 +447,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getDisplayName').and.returnValue('asd');
         spyOn(component, 'getPurpose').and.returnValue('purpose');
         spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
-        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00'));
+        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
         spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
         spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
         spyOn(component, 'getTrainTravelClass').and.returnValue(null);
@@ -508,7 +508,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getSourceAccID').and.returnValue('id');
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00'));
+        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -520,7 +520,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getDisplayName').and.returnValue('asd');
         spyOn(component, 'getPurpose').and.returnValue('purpose');
         spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
-        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00'));
+        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
         spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
         spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
         spyOn(component, 'getTrainTravelClass').and.returnValue(null);
@@ -582,7 +582,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getSourceAccID').and.returnValue('id');
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00'));
+        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -594,7 +594,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getDisplayName').and.returnValue('asd');
         spyOn(component, 'getPurpose').and.returnValue('purpose');
         spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
-        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00'));
+        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
         spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
         spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
         spyOn(component, 'getTrainTravelClass').and.returnValue(null);
@@ -653,7 +653,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getSourceAccID').and.returnValue('id');
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00'));
+        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -665,7 +665,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getDisplayName').and.returnValue('asd');
         spyOn(component, 'getPurpose').and.returnValue('purpose');
         spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
-        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00'));
+        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
         spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
         spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
         spyOn(component, 'getTrainTravelClass').and.returnValue(null);
