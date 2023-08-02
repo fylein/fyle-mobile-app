@@ -360,7 +360,7 @@ export const testProjectParams = {
   active: true,
   sortDirection: 'asc',
   sortOrder: 'project_name',
-  orgCategoryIds: [null, 122269, 122270, 122271, 122272, 122273],
+  orgCategoryIds: [null, '122269', '122270', '122271', '122272', '122273'],
   projectIds: [3943, 305792, 148971, 247936],
   offset: 0,
   limit: 10,
