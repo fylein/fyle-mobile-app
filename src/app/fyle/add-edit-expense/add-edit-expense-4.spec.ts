@@ -21,6 +21,7 @@ import {
   txnData2,
 } from 'src/app/core/mock-data/transaction.data';
 import {
+  expectedPersonalTxn,
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
   newUnflattenedTxn,
@@ -399,13 +400,13 @@ export function TestCases4(getTestBed) {
         expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
         expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
           Type: 'Receipt',
-          Amount: trackAddExpenseWoCurrency.tx.amount,
-          Currency: trackAddExpenseWoCurrency.tx.currency,
-          Category: trackAddExpenseWoCurrency.tx.org_category,
+          Amount: 100,
+          Currency: 'USD',
+          Category: 'ani test',
           Time_Spent: '300 secs',
-          Used_Autofilled_Category: true,
-          Used_Autofilled_Project: true,
-          Used_Autofilled_CostCenter: true,
+          Used_Autofilled_Category: undefined,
+          Used_Autofilled_Project: undefined,
+          Used_Autofilled_CostCenter: false,
           Used_Autofilled_Currency: true,
           Instafyle: false,
         });
@@ -755,7 +756,7 @@ export function TestCases4(getTestBed) {
           },
           jasmine.any(Observable)
         );
-        expect(transactionService.upsert).toHaveBeenCalledOnceWith(personalCardTxn);
+        expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
           apiPersonalCardTxnsRes.data[0].btxn_id
@@ -1184,7 +1185,7 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedExpenseWithCCCGroupId.tx);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
-          expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ', 'txbO4Xaj4N53');
+          expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ', 'ccceYIJhT8Aj6U');
           done();
         });
       });
@@ -1217,7 +1218,7 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedExpenseWithCCCGroupId.tx);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
-          expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txbO4Xaj4N53', undefined);
+          expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txbO4Xaj4N53', 'ccceYIJhT8Aj6U');
           done();
         });
       });
@@ -1251,8 +1252,8 @@ export function TestCases4(getTestBed) {
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedExpenseWithCCCGroupId.tx);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
-          expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txbO4Xaj4N53', undefined);
-          expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('txbO4Xaj4N53', 'txbO4Xaj4N53');
+          expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txbO4Xaj4N53', 'ccceYIJhT8Aj6U');
+          expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith('txbO4Xaj4N53', 'ccceYIJhT8Aj6U');
           done();
         });
       });

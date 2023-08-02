@@ -297,8 +297,8 @@ export function TestCases5(getTestBed) {
           .componentProps.deleteMethod()
           .subscribe((res) => {
             expect(res).toEqual(expenseData1);
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'tx3qHxFNgRcZ');
-            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'tx3qHxFNgRcZ');
+            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
+            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
             done();
           });
       });
@@ -1009,7 +1009,7 @@ export function TestCases5(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, undefined);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -1069,7 +1069,7 @@ export function TestCases5(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, undefined);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,

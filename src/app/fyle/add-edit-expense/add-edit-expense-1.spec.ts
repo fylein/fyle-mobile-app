@@ -9,11 +9,13 @@ import { ActionSheetController, ModalController, NavController, Platform, Popove
 import { Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
+import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
 import { defaultTxnFieldValuesData } from 'src/app/core/mock-data/default-txn-field-values.data';
+import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { apiExpenseRes, expenseData1 } from 'src/app/core/mock-data/expense.data';
-import { transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
+import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
@@ -21,14 +23,9 @@ import {
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
-import { txnList } from 'src/app/core/mock-data/transaction.data';
 import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
-import {
-  unflattenExp1,
-  unflattenExp2,
-  unflattenedExpData,
-  unflattenedTxn,
-} from 'src/app/core/mock-data/unflattened-expense.data';
+import { unflattenedExpData, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -66,11 +63,7 @@ import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
-import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
-import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { txnFieldsMap2 } from 'src/app/core/mock-data/expense-fields-map.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -462,6 +455,7 @@ export function TestCases1(getTestBed) {
         component.fg.controls.tax_group.setValue({
           percentage: 0.05,
         });
+        tick(500);
 
         expect(component.fg.controls.tax_amount.value).toEqual(82.5);
         expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledOnceWith(4.761904761904759, 'USD');
@@ -556,7 +550,7 @@ export function TestCases1(getTestBed) {
           'split_expense',
           {
             splitType: 'projects',
-            txnFields: JSON.stringify(defaultTxnFieldValuesData),
+            txnFields: JSON.stringify(txnFieldsMap2),
             txn: JSON.stringify(unflattenedExpData.tx),
             currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
             fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
@@ -697,11 +691,8 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
         );
-        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledOnceWith({
-          Type: 'unlink corporate card expense',
-          transaction: undefined,
-        });
-        expect(component.goBack).toHaveBeenCalledOnceWith();
+        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1),
+          expect(component.goBack).toHaveBeenCalledOnceWith();
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',

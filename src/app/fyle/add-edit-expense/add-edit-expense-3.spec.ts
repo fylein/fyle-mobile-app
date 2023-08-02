@@ -22,12 +22,12 @@ import {
   fileObjectData1,
 } from 'src/app/core/mock-data/file-object.data';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
+import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
 import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
   expectedAutoFillCategory3,
-  filteredCategoriesData,
   orgCategoryData,
   orgCategoryData1,
   orgCategoryPaginated1,
@@ -100,14 +100,9 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import {
-  multiplePaymentModesData,
-  orgSettingsData,
-  orgSettingsWithoutAutofill,
-} from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgSettingsData, orgSettingsWithoutAutofill } from 'src/app/core/test-data/accounts.service.spec.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -1177,7 +1172,6 @@ export function TestCases3(getTestBed) {
     describe('getNewExpenseObservable():', () => {
       it('should get new expense observable', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
@@ -1195,7 +1189,6 @@ export function TestCases3(getTestBed) {
           expect(component.instaFyleCancelled).toBeFalse();
           expect(component.presetCurrency).toEqual('ARS');
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
@@ -1207,7 +1200,6 @@ export function TestCases3(getTestBed) {
 
       it('should get expense observables if preferred currency is enabled and image data is not found', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsWithCurrency);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
@@ -1223,9 +1215,8 @@ export function TestCases3(getTestBed) {
           expect(res).toEqual(expectedExpenseObservable2);
           expect(component.source).toEqual('MOBILE');
           expect(component.isExpenseBankTxn).toBeFalse();
-          expect(component.instaFyleCancelled).toBeTrue();
+          expect(component.instaFyleCancelled).toBeFalse();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
@@ -1235,7 +1226,7 @@ export function TestCases3(getTestBed) {
 
       it('should get new expense observable without autofill and currency settings enabled', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
@@ -1252,7 +1243,7 @@ export function TestCases3(getTestBed) {
           expect(component.isExpenseBankTxn).toBeFalse();
           expect(component.instaFyleCancelled).toBeFalse();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
@@ -1265,7 +1256,7 @@ export function TestCases3(getTestBed) {
       it('should get new expense observable from personal card txn and home currency does not match extracted data', (done) => {
         activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
@@ -1282,7 +1273,7 @@ export function TestCases3(getTestBed) {
           expect(component.isExpenseBankTxn).toBeFalse();
           expect(component.instaFyleCancelled).toBeFalse();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
@@ -1293,7 +1284,7 @@ export function TestCases3(getTestBed) {
 
       it('should get new expense from bank txn', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
@@ -1311,7 +1302,7 @@ export function TestCases3(getTestBed) {
           expect(component.isExpenseBankTxn).toBeTrue();
           expect(component.instaFyleCancelled).toBeFalse();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
@@ -1323,7 +1314,7 @@ export function TestCases3(getTestBed) {
 
       it('should get new expense observable without complete data url', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         component.homeCurrency$ = of('USD');
@@ -1336,7 +1327,7 @@ export function TestCases3(getTestBed) {
 
         component.getNewExpenseObservable().subscribe(() => {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');

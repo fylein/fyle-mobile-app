@@ -668,7 +668,7 @@ export class AddEditExpensePage implements OnInit {
 
   openSplitExpenseModal(splitType: string): void {
     const customFields$ = this.getCustomFields();
-    const reportValue = this.fg.value as { report: UnflattenedReport };
+    const reportValue = this.getFormValues();
 
     forkJoin({
       generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
@@ -1178,7 +1178,6 @@ export class AddEditExpensePage implements OnInit {
       orgUserSettings: this.orgUserSettings$,
       categories: this.categoriesService.getAll(),
       homeCurrency: this.homeCurrency$,
-
       eou: eou$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get<Currency>('recent-currency-cache')),

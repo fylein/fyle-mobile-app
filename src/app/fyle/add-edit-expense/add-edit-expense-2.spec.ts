@@ -999,6 +999,7 @@ export function TestCases2(getTestBed) {
             'rpId'
           )
           .componentProps.deleteMethod();
+        expect(reportService.removeTransaction).toHaveBeenCalledTimes(1);
       });
 
       it('should  return modal params and method to delete expense', () => {
@@ -1009,6 +1010,7 @@ export function TestCases2(getTestBed) {
             false
           )
           .componentProps.deleteMethod();
+        expect(transactionService.delete).toHaveBeenCalledTimes(1);
       });
     });
 
