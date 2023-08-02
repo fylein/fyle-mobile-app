@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { map, Observable, of } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Cacheable } from 'ts-cacheable';
 import { DependentFieldValuesApiParams } from '../models/platform/dependent-field-values-api-params.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { CustomInputsService } from './custom-inputs.service';
-import { shareReplay, switchMap } from 'rxjs/operators';
+import { shareReplay } from 'rxjs/operators';
 import { ExpenseField } from '../models/v1/expense-field.model';
-import { CustomProperty } from '../models/custom-properties.model';
 import { CustomInput } from '../models/custom-input.model';
 
 @Injectable({
@@ -55,17 +54,14 @@ export class DependentFieldsService {
 
   //This method returns array of dependent field values based on id of base field
   getDependentFieldValuesForBaseField(
-    txnCustomProperties: CustomProperty<string>[] | CustomInput[],
+    txnCustomProperties: Partial<CustomInput>[],
     parentFieldId: number
-  ): Observable<CustomProperty<string>[] | CustomInput[]> {
+  ): Observable<Partial<CustomInput>[]> {
     return this.getDependentFieldsForBaseField(parentFieldId).pipe(
       map((dependentExpenseFields: ExpenseField[]) =>
         dependentExpenseFields.reduce(
-          (
-            dependentCustomProperties: CustomProperty<string>[] | CustomInput[],
-            dependentExpenseField: ExpenseField
-          ) => {
-            const dependentFieldValue: CustomProperty<string> = txnCustomProperties.find(
+          (dependentCustomProperties: Partial<CustomInput>[], dependentExpenseField: ExpenseField) => {
+            const dependentFieldValue: Partial<CustomInput> = txnCustomProperties.find(
               (customProperty) => customProperty.name === dependentExpenseField.field_name
             );
             if (dependentFieldValue) {

@@ -1,5 +1,5 @@
-import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, combineLatest, concat, noop, forkJoin, iif, of } from 'rxjs';
+import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Observable, from, Subject, concat, noop, forkJoin } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -29,21 +29,23 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 
 @Component({
   selector: 'app-view-expense',
   templateUrl: './view-expense.page.html',
   styleUrls: ['./view-expense.page.scss'],
 })
-export class ViewExpensePage implements OnInit {
+export class ViewExpensePage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
   etxn$: Observable<Expense>;
 
-  policyViloations$: Observable<any>;
+  policyViloations$: Observable<ExtendedStatus[]>;
 
   isAmountCapped$: Observable<boolean>;
 
@@ -57,11 +59,11 @@ export class ViewExpensePage implements OnInit {
 
   canDelete$: Observable<boolean>;
 
-  orgSettings: any;
+  orgSettings: OrgSettings;
 
   reportId: string;
 
-  attachments$: Observable<any>;
+  attachments$: Observable<FileObject[]>;
 
   updateFlag$ = new Subject();
 
@@ -121,9 +123,9 @@ export class ViewExpensePage implements OnInit {
 
   txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
-  projectDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
   constructor(
     private loaderService: LoaderService,
@@ -147,15 +149,15 @@ export class ViewExpensePage implements OnInit {
     private dependentFieldsService: DependentFieldsService
   ) {}
 
-  get ExpenseView() {
+  get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -174,8 +176,8 @@ export class ViewExpensePage implements OnInit {
     return typeof val === 'number';
   }
 
-  async openCommentsModal() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+  async openCommentsModal(): Promise<void> {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
@@ -186,7 +188,7 @@ export class ViewExpensePage implements OnInit {
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data } = (await modal.onDidDismiss()) as { data: { updated: boolean } };
 
     if (data && data.updated) {
       this.trackingService.addComment({ view: this.view });
@@ -199,7 +201,7 @@ export class ViewExpensePage implements OnInit {
     return estatus.st_org_user_id === 'POLICY';
   }
 
-  getPolicyDetails(expenseId: string) {
+  getPolicyDetails(expenseId: string): void {
     if (expenseId) {
       if (this.view === ExpenseView.team) {
         from(this.policyService.getApproverExpensePolicyViolations(expenseId))
@@ -217,12 +219,12 @@ export class ViewExpensePage implements OnInit {
     }
   }
 
-  getDisplayValue(customProperties): boolean | string {
+  getDisplayValue(customProperties: CustomField): boolean | string {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
 
-  goBack() {
+  goBack(): void {
     if (this.view === ExpenseView.team) {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     } else {
@@ -230,9 +232,7 @@ export class ViewExpensePage implements OnInit {
     }
   }
 
-  ngOnInit() {}
-
-  setPaymentModeandIcon(etxn: Expense) {
+  setPaymentModeandIcon(etxn: Expense): void {
     if (etxn.source_account_type === AccountType.ADVANCE) {
       this.paymentMode = 'Advance';
       this.paymentModeIcon = 'fy-non-reimbursable';
@@ -249,9 +249,9 @@ export class ViewExpensePage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    const txId = this.activatedRoute.snapshot.params.id;
+    const txId = this.activatedRoute.snapshot.params.id as string;
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.systemCategoriesWithTaxi = this.categoriesService.getSystemCategoriesWithTaxi();
@@ -340,7 +340,7 @@ export class ViewExpensePage implements OnInit {
         map(([expenseFieldsMap, etxn]) => {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
-          this.isProjectShown = this.orgSettings.projects?.enabled && (etxn.tx_project_name || isProjectMandatory);
+          this.isProjectShown = this.orgSettings.projects?.enabled && (!!etxn.tx_project_name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -351,7 +351,7 @@ export class ViewExpensePage implements OnInit {
     );
 
     this.comments$ = this.statusService.find('transactions', txId);
-    this.view = this.activatedRoute.snapshot.params.view;
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
     this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
@@ -402,7 +402,7 @@ export class ViewExpensePage implements OnInit {
       take(1),
       switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx_id)),
       switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: any) =>
+      concatMap((fileObj: FileObject) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
@@ -413,7 +413,7 @@ export class ViewExpensePage implements OnInit {
           })
         )
       ),
-      reduce((acc, curr) => acc.concat(curr), [])
+      reduce((acc: FileObject[], curr) => acc.concat(curr), [])
     );
 
     this.attachments$ = editExpenseAttachments;
@@ -423,14 +423,14 @@ export class ViewExpensePage implements OnInit {
     });
 
     if (this.activatedRoute.snapshot.params.txnIds) {
-      const etxnIds = JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+      const etxnIds = JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[];
       this.numEtxnsInReport = etxnIds.length;
-      this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
+      this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     }
   }
 
-  getReceiptExtension(name: string) {
-    let res = null;
+  getReceiptExtension(name: string): string {
+    let res: string = null;
 
     if (name) {
       const filename = name.toLowerCase();
@@ -444,7 +444,7 @@ export class ViewExpensePage implements OnInit {
     return res;
   }
 
-  getReceiptDetails(file) {
+  getReceiptDetails(file: FileObject): { type: string; thumbnail: string } {
     const ext = this.getReceiptExtension(file.name);
     const res = {
       type: 'unknown',
@@ -462,7 +462,19 @@ export class ViewExpensePage implements OnInit {
     return res;
   }
 
-  getDeleteDialogProps(etxn: Expense) {
+  getDeleteDialogProps(etxn: Expense): {
+    component: typeof FyDeleteDialogComponent;
+    cssClass: string;
+    backdropDismiss: boolean;
+    componentProps: {
+      header: string;
+      body: string;
+      infoMessage: string;
+      ctaText: string;
+      ctaLoadingText: string;
+      deleteMethod: () => Observable<void>;
+    };
+  } {
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -473,16 +485,16 @@ export class ViewExpensePage implements OnInit {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
+        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
     };
   }
 
-  async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+  async removeExpenseFromReport(): Promise<void> {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
     const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
     await deletePopover.present();
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
@@ -490,8 +502,8 @@ export class ViewExpensePage implements OnInit {
     }
   }
 
-  async flagUnflagExpense(isExpenseFlagged: boolean) {
-    const id = this.activatedRoute.snapshot.params.id;
+  async flagUnflagExpense(isExpenseFlagged: boolean): Promise<void> {
+    const id = this.activatedRoute.snapshot.params.id as string;
     const etxn = await this.transactionService.getEtxn(id).toPromise();
 
     const title = isExpenseFlagged ? 'Unflag' : 'Flag';
@@ -505,7 +517,7 @@ export class ViewExpensePage implements OnInit {
     });
 
     await flagUnflagModal.present();
-    const { data } = await flagUnflagModal.onWillDismiss();
+    const { data } = (await flagUnflagModal.onWillDismiss()) as { data: { comment: string } };
 
     if (data && data.comment) {
       from(this.loaderService.showLoader('Please wait'))
@@ -531,7 +543,7 @@ export class ViewExpensePage implements OnInit {
     this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
-  viewAttachments() {
+  viewAttachments(): void {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => this.attachments$),

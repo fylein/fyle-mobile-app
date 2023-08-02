@@ -1,5 +1,6 @@
 import { GeneratedFormProperties } from '../models/generated-form-properties.model';
 import { dependentCustomProperties } from './custom-property.data';
+import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 
 export const generatedFormPropertiesData1: GeneratedFormProperties = {
   source_account_id: '1234',
@@ -35,7 +36,7 @@ export const generatedFormPropertiesData1: GeneratedFormProperties = {
   bus_travel_class: 'Economy',
   distance: 100,
   distance_unit: 'KM',
-  locations: ['Mumbai', 'Pune'],
+  locations: [optionsData15.value, optionsData33.value],
 };
 
 export const generatedFormPropertiesData2: GeneratedFormProperties = {
@@ -74,7 +75,7 @@ export const generatedFormPropertiesData2: GeneratedFormProperties = {
   bus_travel_class: undefined,
   distance: undefined,
   distance_unit: undefined,
-  locations: ['Pune', 'Mumbai'],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
 };
 
 export const generatedFormPropertiesData3: GeneratedFormProperties = {
@@ -111,7 +112,7 @@ export const generatedFormPropertiesData3: GeneratedFormProperties = {
   bus_travel_class: undefined,
   distance: undefined,
   distance_unit: undefined,
-  locations: ['Pune', 'Mumbai'],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
 };
 
 export const generatedFormPropertiesData4: GeneratedFormProperties = {
@@ -146,5 +147,5 @@ export const generatedFormPropertiesData5: GeneratedFormProperties = {
   bus_travel_class: undefined,
   distance: undefined,
   distance_unit: undefined,
-  locations: ['Pune', 'Mumbai'],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
 };

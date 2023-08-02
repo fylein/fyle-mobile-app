@@ -82,6 +82,7 @@ import {
   expectedFilterPill8,
   expectedFilterPill9,
 } from 'src/app/core/mock-data/my-reports-filterpills.data';
+import { transactionDatum1, transactionDatum2 } from 'src/app/core/mock-data/stats-response.data';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -235,7 +236,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
+      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -374,7 +375,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(undefined));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
+      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -513,7 +514,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of({ payment_mode_settings: { allowed: true, enabled: true } }));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
+      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -648,7 +649,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReportsCount.and.returnValue(of(0));
       orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam2));
+      transactionService.getTransactionStats.and.returnValue(of(transactionDatum2));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -783,7 +784,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
+      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
 
       activatedRoute.snapshot.queryParams.filters = '{"sortDir": "desc"}';
 
@@ -935,7 +936,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
+      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
 
       activatedRoute.snapshot.params.state = 'needsreceipt';
 
@@ -1071,10 +1072,6 @@ describe('MyReportsPage', () => {
 
   it('HeaderState(): should return the HeaderState', () => {
     expect(component.HeaderState).toEqual(HeaderState);
-  });
-
-  it('ngOnInit():', () => {
-    component.ngOnInit();
   });
 
   it('ionViewWillLeave(): should set the onPageExit to null', () => {
@@ -1431,7 +1428,7 @@ describe('MyReportsPage', () => {
   it('getDeleteReportPopoverParams(): should get delete report popup props', (done) => {
     const result = component.getDeleteReportPopoverParams(apiExtendedReportRes[0]);
 
-    reportService.delete.and.returnValue(of(true));
+    reportService.delete.and.returnValue(of(undefined));
 
     expect(result).toEqual({
       component: FyDeleteDialogComponent,
@@ -1517,7 +1514,7 @@ describe('MyReportsPage', () => {
   });
 
   it('onViewCommentsClick()', () => {
-    component.onViewCommentsClick({});
+    component.onViewCommentsClick();
     expect(isEmpty(component.onViewCommentsClick)).toBeTrue();
   });
 
