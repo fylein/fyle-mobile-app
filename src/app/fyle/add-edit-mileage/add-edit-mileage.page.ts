@@ -474,12 +474,9 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       startWith(this.fg.controls.project.value),
-      concatMap((project) =>
+      concatMap((project: ExtendedProject) =>
         activeCategories$.pipe(
-          map(
-            (activeCategories) =>
-              this.projectService.getAllowedOrgCategoryIds(project, activeCategories) as OrgCategory[]
-          )
+          map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
         )
       ),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
@@ -551,7 +548,7 @@ export class AddEditMileagePage implements OnInit {
         if (expenseFieldsMap) {
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
-            const options = expenseField.options as string[];
+            const options = expenseField.options;
             if (options && options.length > 0) {
               const newOptions = options.map((value) => ({ label: value, value }));
               expenseField.options = newOptions;
@@ -1903,7 +1900,7 @@ export class AddEditMileagePage implements OnInit {
     return CCDependentFieldsControl.cost_center_dependent_fields;
   }
 
-  getCustomFields(): Observable<CustomProperty<string>[]> {
+  getCustomFields(): Observable<CustomProperty<string | number | boolean | Date | string[] | { display: string }>[]> {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
         const allDependentFields = [
@@ -1930,7 +1927,9 @@ export class AddEditMileagePage implements OnInit {
           customInputs: CustomInput[];
           dependentFieldsWithValue: TxnCustomProperties[];
         }) => {
-          const customInpustWithValue: CustomProperty<string>[] = customInputs.map((customInput, i: number) => ({
+          const customInpustWithValue: CustomProperty<
+            string | number | boolean | Date | string[] | { display: string }
+          >[] = customInputs.map((customInput, i: number) => ({
             id: customInput.id,
             mandatory: customInput.mandatory,
             name: customInput.name,
@@ -2460,7 +2459,7 @@ export class AddEditMileagePage implements OnInit {
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         from(this.authService.getEou()).pipe(
           switchMap(() => {
-            const comments = [];
+            const comments: string[] = [];
             this.trackingService.createExpense({
               Type: 'Mileage',
               Amount: etxn.tx.amount,
@@ -2489,14 +2488,21 @@ export class AddEditMileagePage implements OnInit {
 
             const reportValue = this.getFormValues();
 
-            let reportId;
+            let reportId: string;
             if (
               reportValue.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
               reportId = reportValue.report.rp.id;
             }
-            return of(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId)).pipe(
+            return of(
+              this.transactionsOutboxService.addEntryAndSync(
+                etxn.tx,
+                etxn.dataUrls as { url: string; type: string }[],
+                comments,
+                reportId
+              )
+            ).pipe(
               switchMap((txnData: Promise<unknown>) => from(txnData)),
               map(() => etxn)
             );
