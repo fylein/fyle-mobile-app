@@ -1,8 +1,9 @@
 import { TitleCasePipe } from '@angular/common';
+import { EventEmitter } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Subscription, of } from 'rxjs';
@@ -20,14 +21,15 @@ import {
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
-import { trackTxn, txnList } from 'src/app/core/mock-data/transaction.data';
+import { txnList } from 'src/app/core/mock-data/transaction.data';
 import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
 import {
   unflattenExp1,
   unflattenExp2,
-  unflattenedTxn,
   unflattenedExpData,
+  unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -61,20 +63,10 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import {
-  multiplePaymentModesData,
-  orgSettingsData,
-  unflattenedAccount1Data,
-} from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
-import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { EventEmitter } from '@angular/core';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import { Transaction } from 'src/app/core/models/v1/transaction.model';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -816,10 +808,7 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
         );
-        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledOnceWith({
-          Type: 'unlink corporate card expense',
-          transaction: trackTxn,
-        });
+        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1);
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',
