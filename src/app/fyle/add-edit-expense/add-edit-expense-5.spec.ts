@@ -9,20 +9,14 @@ import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
-import { customInputData1, customInputData2 } from 'src/app/core/mock-data/custom-input.data';
-import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
+import { customInputData2 } from 'src/app/core/mock-data/custom-input.data';
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
-import {
-  dependentCustomFields,
-  dependentCustomFields2,
-  expenseFieldResponse,
-} from 'src/app/core/mock-data/expense-field.data';
+import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgCategoryData, sortedCategory, transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
-import { taxSettingsData } from 'src/app/core/mock-data/tax-settings.data';
 import {
   orgUserSettingsData,
   orgUserSettingsData2,
@@ -37,6 +31,7 @@ import {
 import { reportOptionsData, reportOptionsData2, reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { expectedTaxGroupData, taxGroupData } from 'src/app/core/mock-data/tax-group.data';
+import { taxSettingsData } from 'src/app/core/mock-data/tax-settings.data';
 import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
   expectedExpenseObservable,
@@ -88,11 +83,12 @@ import {
   orgSettingsData,
   unflattenedAccount1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { customInput2, customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { customInput2, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -871,7 +867,7 @@ export function TestCases5(getTestBed) {
     describe('ionViewWillEnter():', () => {
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
-        component.txnFields$ = of(defaultTxnFieldValuesData2);
+        component.txnFields$ = of(txnFieldsData2);
         component.filteredCategories$ = of(transformedOrgCategories);
 
         spyOn(component, 'initClassObservables');
@@ -1015,8 +1011,16 @@ export function TestCases5(getTestBed) {
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toEqual([
             {
-              value: 'BUSINESS',
-              label: 'BUSINESS',
+              value: 'eco',
+              label: 'eco',
+            },
+            {
+              value: 'business',
+              label: 'business',
+            },
+            {
+              value: 'jhgjg',
+              label: 'jhgjg',
             },
           ]);
         });
