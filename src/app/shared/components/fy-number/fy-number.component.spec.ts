@@ -104,8 +104,8 @@ describe('FyNumberComponent', () => {
 
       component.ngOnInit();
       fixture.detectChanges();
-      const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
-      expect(component.isIos).toBe(false);
+      const inputElement = getAllElementsBySelector(fixture, '.fy-number--input');
+      expect(component.isIos).toBeFalse();
       expect(component.isNegativeExpensePluginEnabled).toBeFalse();
       expect(inputElement.length).toBe(1);
       expect(component.handleChange).not.toHaveBeenCalled();
