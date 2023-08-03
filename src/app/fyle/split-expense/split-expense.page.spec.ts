@@ -117,6 +117,14 @@ import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/t
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import * as dayjs from 'dayjs';
 import { expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { cloneDeep } from 'lodash';
+import {
+  splitExpenseFormData1,
+  splitExpenseFormData2,
+  splitExpenseFormData3,
+  splitExpenseFormData5,
+  splitExpenseFormData6,
+} from 'src/app/core/mock-data/split-expense-form.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -337,6 +345,94 @@ describe('SplitExpensePage', () => {
       expect(splitExpenseForm1.controls.amount.value).toEqual(1920);
       expect(splitExpenseForm1.controls.percentage.value).toEqual(96);
       expect(otherSplitExpenseForm.controls.percentage.value).toEqual(4);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should return void immediately if amount is null', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
+
+      Object.defineProperty(splitExpenseForm1.controls.amount, '_pendingChange', { value: true });
+
+      component.onChangeAmount(splitExpenseForm1, 0);
+
+      expect(splitExpenseForm1.controls.amount.value).toEqual(120);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(60);
+      expect(component.getTotalSplitAmount).not.toHaveBeenCalled();
+    });
+
+    it('should return void immediately if splitExpenseForm.amount is not a number', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      component.amount = 2000;
+      const splitExpenseForm1 = cloneDeep(splitExpenseFormData2);
+
+      Object.defineProperty(splitExpenseForm1.controls.amount, '_pendingChange', { value: true });
+
+      component.onChangeAmount(splitExpenseForm1, 0);
+
+      expect(splitExpenseForm1.controls.amount.value).toEqual(null);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(60);
+      expect(component.getTotalSplitAmount).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('onChangePercentage():', () => {
+    it('should return void immediately if amount is null', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
+
+      Object.defineProperty(splitExpenseForm1.controls.percentage, '_pendingChange', { value: true });
+
+      component.onChangePercentage(splitExpenseForm1, 0);
+
+      expect(splitExpenseForm1.controls.amount.value).toEqual(120);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(60);
+      expect(component.getTotalSplitAmount).not.toHaveBeenCalled();
+    });
+
+    it('should return void immediately if splitExpenseForm.percentage is not a number', () => {
+      spyOn(component, 'getTotalSplitAmount');
+      component.amount = 2000;
+      const splitExpenseForm1 = cloneDeep(splitExpenseFormData3);
+
+      Object.defineProperty(splitExpenseForm1.controls.percentage, '_pendingChange', { value: true });
+
+      component.onChangePercentage(splitExpenseForm1, 0);
+
+      expect(splitExpenseForm1.controls.amount.value).toEqual(120);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(null);
+      expect(component.getTotalSplitAmount).not.toHaveBeenCalled();
+    });
+
+    it('should get the new amount and percentage value after percentage is changed for first split', fakeAsync(() => {
+      spyOn(component, 'getTotalSplitAmount');
+      component.amount = 2000;
+      const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
+      const otherSplitExpenseForm = cloneDeep(splitExpenseFormData5);
+      Object.defineProperty(splitExpenseForm1.controls.percentage, '_pendingChange', { value: true });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+
+      component.onChangePercentage(splitExpenseForm1, 0);
+
+      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(40);
+      expect(otherSplitExpenseForm.controls.amount.value).toEqual(800);
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(60);
+      expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should get the new amount and percentage value after percentage is changed for second split', fakeAsync(() => {
+      spyOn(component, 'getTotalSplitAmount');
+      component.amount = 2000;
+      const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
+      const otherSplitExpenseForm = cloneDeep(splitExpenseFormData6);
+      Object.defineProperty(otherSplitExpenseForm.controls.percentage, '_pendingChange', { value: true });
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+
+      component.onChangePercentage(otherSplitExpenseForm, 1);
+
+      expect(splitExpenseForm1.controls.percentage.value).toEqual(4);
+      expect(splitExpenseForm1.controls.amount.value).toEqual(80);
+      expect(otherSplitExpenseForm.controls.percentage.value).toEqual(96);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(1);
     }));
   });
