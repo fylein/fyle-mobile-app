@@ -1,10 +1,8 @@
-import { ExpenseField } from './expense-field.model';
-
 export interface DefaultTxnFieldValues {
   bus_travel_class: string;
   distance_unit: string;
-  flight_journey_travel_class: string | Partial<ExpenseField>;
-  flight_return_travel_class: string | Partial<ExpenseField>;
+  flight_journey_travel_class: string;
+  flight_return_travel_class: string;
   purpose: string;
   train_travel_class: string;
   vendor_id: string;

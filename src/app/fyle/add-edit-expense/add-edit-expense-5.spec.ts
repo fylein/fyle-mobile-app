@@ -10,15 +10,16 @@ import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { eCCCData1, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
-import { customInputData2, customInputsData3 } from 'src/app/core/mock-data/custom-input.data';
-import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
+import { customInputsData3 } from 'src/app/core/mock-data/custom-input.data';
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expenseData1, splitExpData } from 'src/app/core/mock-data/expense.data';
 
+import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgCategoryData, sortedCategory, transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
 import { taxSettingsData, taxSettingsData2 } from 'src/app/core/mock-data/org-settings.data';
 import {
@@ -92,7 +93,7 @@ import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-dat
 import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -874,7 +875,7 @@ export function TestCases5(getTestBed) {
     describe('ionViewWillEnter():', () => {
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
-        component.txnFields$ = of(defaultTxnFieldValuesData2);
+        component.txnFields$ = of(txnFieldsData2);
         component.filteredCategories$ = of(transformedOrgCategories);
 
         spyOn(component, 'initClassObservables');
@@ -1022,8 +1023,16 @@ export function TestCases5(getTestBed) {
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toEqual([
             {
-              value: 'BUSINESS',
-              label: 'BUSINESS',
+              value: 'eco',
+              label: 'eco',
+            },
+            {
+              value: 'business',
+              label: 'business',
+            },
+            {
+              value: 'jhgjg',
+              label: 'jhgjg',
             },
           ]);
         });
@@ -1078,7 +1087,7 @@ export function TestCases5(getTestBed) {
 
       it('should setup class variables for offline mode', (done) => {
         component.isConnected$ = of(false);
-        component.txnFields$ = of(defaultTxnFieldValuesData2);
+        component.txnFields$ = of(txnFieldsData2);
         component.filteredCategories$ = of(transformedOrgCategories);
         component.etxn$ = of(unflattenedExpenseWithCCCGroupId);
         activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse[0]);
@@ -1232,8 +1241,16 @@ export function TestCases5(getTestBed) {
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toEqual([
             {
-              value: 'BUSINESS',
-              label: 'BUSINESS',
+              value: 'eco',
+              label: 'eco',
+            },
+            {
+              value: 'business',
+              label: 'business',
+            },
+            {
+              value: 'jhgjg',
+              label: 'jhgjg',
             },
           ]);
         });
