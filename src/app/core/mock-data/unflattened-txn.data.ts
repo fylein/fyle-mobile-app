@@ -1763,7 +1763,7 @@ export const unflattenedExpWithCCCExpn: UnflattenedTransaction = {
   ],
 };
 
-export const trackCreateExpData = {
+export const trackCreateExpData: UnflattenedTransaction = {
   ...unflattenedExp2,
   tx: {
     ...unflattenedExp2.tx,
@@ -1775,7 +1775,7 @@ export const trackCreateExpData = {
   },
 };
 
-export const trackCreateExpDataWoCurrency = {
+export const trackCreateExpDataWoCurrency: UnflattenedTransaction = {
   ...unflattenedExp2,
   tx: {
     ...unflattenedExp2.tx,
@@ -1799,4 +1799,25 @@ export const trackAddExpenseWoCurrency = {
     orig_currency: 'USD',
     cost_center_id: 1234,
   },
+  ou: {
+    ...expectedUnflattendedTxnData4.ou,
+    level: 0,
+  },
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
+  dataUrls: null,
 };

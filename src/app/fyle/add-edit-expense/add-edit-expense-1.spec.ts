@@ -20,7 +20,7 @@ import {
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
-import { txnList } from 'src/app/core/mock-data/transaction.data';
+import { trackTxn, txnList } from 'src/app/core/mock-data/transaction.data';
 import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
 import {
   unflattenExp1,
@@ -73,6 +73,8 @@ import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data'
 import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { EventEmitter } from '@angular/core';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -760,7 +762,7 @@ export function TestCases1(getTestBed) {
         });
       }));
 
-      it('should show popup but take no action', fakeAsync(() => {
+      it('should show remove CCC expense popup but take no action', fakeAsync(() => {
         const txn = { ...unflattenedTxn, tx: { ...unflattenedTxn.tx, report_id: 'rpFE5X1Pqi9P' } };
         component.etxn$ = of(txn);
         transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
@@ -789,8 +791,8 @@ export function TestCases1(getTestBed) {
         expect(component.showSnackBarToast).not.toHaveBeenCalled();
       }));
 
-      it('should do back to expenses page if no expense is found', fakeAsync(() => {
-        component.etxn$ = of(null);
+      it('should go back to expenses page if no expense is found', fakeAsync(() => {
+        component.etxn$ = of(unflattenedTxnData);
         transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
         spyOn(component, 'getRemoveCCCExpModalParams');
         spyOn(component, 'showSnackBarToast');
@@ -816,7 +818,7 @@ export function TestCases1(getTestBed) {
         );
         expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledOnceWith({
           Type: 'unlink corporate card expense',
-          transaction: undefined,
+          transaction: trackTxn,
         });
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },

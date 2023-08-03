@@ -107,6 +107,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { CorporateCardExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -279,7 +280,7 @@ export class AddEditExpensePage implements OnInit {
 
   recentCurrencies: Currency[];
 
-  presetProjectId: number;
+  presetProjectId: number | string;
 
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
 

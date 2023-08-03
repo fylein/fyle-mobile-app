@@ -351,7 +351,7 @@ export function TestCases5(getTestBed) {
         tick(500);
       }));
 
-      it('should return false account type changes to null', fakeAsync(() => {
+      it('should return false when account type changes to null', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(null));
         component.setupBalanceFlag();
         tick(500);

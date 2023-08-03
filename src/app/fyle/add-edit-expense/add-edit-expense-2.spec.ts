@@ -15,8 +15,12 @@ import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
 import {
+  expectedInstaFyleData1,
+  expectedInstaFyleData2,
   instaFyleData1,
   instaFyleData2,
+  parsedInfo1,
+  parsedInfo2,
   parsedReceiptData1,
   parsedReceiptData2,
 } from 'src/app/core/mock-data/parsed-receipt.data';
@@ -259,7 +263,7 @@ export function TestCases2(getTestBed) {
       it('should get payment modes in case org settings are not present', (done) => {
         component.etxn$ = of({
           ...unflattenExp1,
-          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: false },
+          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: null },
         });
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(null));
@@ -285,7 +289,7 @@ export function TestCases2(getTestBed) {
       it('should get payment modes if CCC expense is enabled', (done) => {
         component.etxn$ = of({
           ...unflattenExp1,
-          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: false },
+          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: null },
         });
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
@@ -330,7 +334,7 @@ export function TestCases2(getTestBed) {
         transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData1);
 
         component.getInstaFyleImageData().subscribe((res) => {
-          expect(res).toEqual(instaFyleData1);
+          expect(res).toEqual(expectedInstaFyleData1);
           expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('data-url');
           expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
@@ -351,7 +355,7 @@ export function TestCases2(getTestBed) {
         component.getInstaFyleImageData().subscribe((res) => {
           expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('data-url');
           expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-          expect(res).toEqual(instaFyleData2);
+          expect(res).toEqual(expectedInstaFyleData2);
           done();
         });
       });
@@ -840,17 +844,7 @@ export function TestCases2(getTestBed) {
         tick(500);
 
         result.then((res) => {
-          expect(res).toEqual({
-            data: {
-              category: 'SYSTEM',
-              currency: 'USD',
-              amount: 100,
-              date: new Date('2023-02-15T06:30:00.000Z'),
-              invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
-              vendor_name: 'vendor',
-            },
-            exchangeRate: 82,
-          });
+          expect(res).toEqual(parsedInfo1);
           expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('base64encoded', 'jpeg');
           expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
@@ -870,17 +864,7 @@ export function TestCases2(getTestBed) {
         tick(500);
 
         result.then((res) => {
-          expect(res).toEqual({
-            data: {
-              category: 'SYSTEM',
-              currency: 'USD',
-              amount: 100,
-              date: null,
-              invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
-              vendor_name: 'vendor',
-            },
-            exchangeRate: 82,
-          });
+          expect(res).toEqual(parsedInfo2);
           expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('base64encoded', 'jpeg');
           expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith('USD', 'INR', jasmine.any(Date));
