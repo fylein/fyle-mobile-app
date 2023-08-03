@@ -679,7 +679,7 @@ export class TransactionService {
     if (stateOrFilter.length > 0) {
       let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      (newQueryParamsCopy.or as string[]).push(combinedStateOrFilter);
+      newQueryParamsCopy.or.push(combinedStateOrFilter);
     }
 
     return newQueryParamsCopy;
@@ -720,11 +720,11 @@ export class TransactionService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
-        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.true)');
+        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.true)');
       }
 
       if (filters.splitExpense === 'NO') {
-        (newQueryParamsCopy.or as string[]).push('(tx_is_split_expense.eq.false)');
+        newQueryParamsCopy.or.push('(tx_is_split_expense.eq.false)');
       }
     }
 
@@ -764,7 +764,7 @@ export class TransactionService {
     if (typeOrFilter.length > 0) {
       let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      (newQueryParamsCopy.or as string[]).push(combinedTypeOrFilter);
+      newQueryParamsCopy.or.push(combinedTypeOrFilter);
     }
 
     return newQueryParamsCopy;
