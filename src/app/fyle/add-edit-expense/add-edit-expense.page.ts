@@ -2451,20 +2451,6 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  initCCCTxn() {
-    const bankTxn =
-      this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-    this.showSelectedTransaction = true;
-    this.selectedCCCTransaction = bankTxn.ccce;
-    let cccAccountNumber;
-    if (bankTxn.flow && bankTxn.flow === 'newCCCFlow') {
-      cccAccountNumber = this.selectedCCCTransaction.corporate_credit_card_account_number;
-    }
-    this.cardEndingDigits = cccAccountNumber && cccAccountNumber.slice(-4);
-    this.selectedCCCTransaction.corporate_credit_card_account_number = cccAccountNumber;
-    this.isCreatedFromCCC = true;
-  }
-
   handleCCCExpenses(etxn: UnflattenedTransaction): Subscription {
     return this.corporateCreditCardExpenseService
       .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
@@ -2581,10 +2567,6 @@ export class AddEditExpensePage implements OnInit {
     this.setupSelectedProjectObservable();
 
     this.setupSelectedCostCenterObservable();
-
-    if (this.activatedRoute.snapshot.params.bankTxn) {
-      this.initCCCTxn();
-    }
 
     this.getCCCpaymentMode();
 
