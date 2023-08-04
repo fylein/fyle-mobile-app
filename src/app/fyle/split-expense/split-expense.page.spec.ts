@@ -1010,6 +1010,8 @@ describe('SplitExpensePage', () => {
       dateService.addDaysToDate.and.returnValue(new Date());
 
       spyOn(component, 'getActiveCategories').and.callThrough();
+      launchDarklyService.getVariation.and.returnValue(of(false));
+      component.transaction = cloneDeep(txnData);
     });
 
     it('should should show all categories if show_project_mapped_categories_in_split_expense flag is false', () => {
@@ -1071,10 +1073,6 @@ describe('SplitExpensePage', () => {
     });
 
     it('should set dependentCustomProperties$ correctly if splitType is projects', () => {
-      launchDarklyService.getVariation.and.returnValue(of(false));
-      component.transaction = cloneDeep(txnData);
-      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
-
       component.ionViewWillEnter();
 
       component.dependentCustomProperties$.subscribe((dependentCustomProperties) => {
@@ -1087,9 +1085,6 @@ describe('SplitExpensePage', () => {
     });
 
     it('should set dependentCustomProperties$ correctly if splitType is cost centers', () => {
-      launchDarklyService.getVariation.and.returnValue(of(false));
-      component.transaction = cloneDeep(txnData);
-      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
       activateRouteMock.snapshot.params.splitType = 'cost centers';
 
       component.ionViewWillEnter();
@@ -1106,9 +1101,6 @@ describe('SplitExpensePage', () => {
     it('should set costCenters$ correctly if splitType is cost centers', () => {
       const mockCostCenters = costCentersData3.slice(0, 2);
       orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(mockCostCenters));
-      launchDarklyService.getVariation.and.returnValue(of(false));
-      component.transaction = cloneDeep(txnData);
-      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
       activateRouteMock.snapshot.params.splitType = 'cost centers';
 
       component.ionViewWillEnter();
@@ -1125,9 +1117,6 @@ describe('SplitExpensePage', () => {
       const mockOrgSettings = cloneDeep(orgSettingsGetData);
       mockOrgSettings.cost_centers.enabled = false;
       orgSettingsService.get.and.returnValue(of(mockOrgSettings));
-      launchDarklyService.getVariation.and.returnValue(of(false));
-      component.transaction = cloneDeep(txnData);
-      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
       activateRouteMock.snapshot.params.splitType = 'cost centers';
 
       component.ionViewWillEnter();
@@ -1141,7 +1130,6 @@ describe('SplitExpensePage', () => {
     });
 
     it('should set isCorporateCardsEnabled$ correctly and call setValuesForCCC once', () => {
-      launchDarklyService.getVariation.and.returnValue(of(false));
       activateRouteMock.snapshot.params.currencyObj =
         '{"amount":23,"currency":"USD","orig_amount":23,"orig_currency":"USD"}';
       spyOn(component, 'setValuesForCCC');
