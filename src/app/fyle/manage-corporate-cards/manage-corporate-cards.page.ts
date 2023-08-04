@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ActionSheetButton, ActionSheetController } from '@ionic/angular';
+import { ActionSheetButton, ActionSheetController, PopoverController } from '@ionic/angular';
 import { Observable, forkJoin, map } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -23,7 +24,8 @@ export class ManageCorporateCardsPage {
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private actionSheetController: ActionSheetController,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private popoverController: PopoverController
   ) {}
 
   goBack(): void {
@@ -103,5 +105,14 @@ export class ManageCorporateCardsPage {
 
       await actionSheet.present();
     });
+  }
+
+  async openAddCorporateCardPopover(): Promise<void> {
+    const addCorporateCardPopover = await this.popoverController.create({
+      component: AddCorporateCardComponent,
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await addCorporateCardPopover.present();
   }
 }
