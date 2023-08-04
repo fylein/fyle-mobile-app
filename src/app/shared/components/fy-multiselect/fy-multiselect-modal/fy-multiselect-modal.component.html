@@ -18,7 +18,6 @@
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': currentSelections?.length > 0 }">
     <mat-form-field
       class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="none"
       [ngClass]="{ 'selection-modal--form-container__chips': currentSelections?.length > 0 }"
     >
       <mat-chip-list #chipList aria-label="Multi select">
