@@ -125,6 +125,9 @@ import {
   splitExpenseFormData5,
   splitExpenseFormData6,
 } from 'src/app/core/mock-data/split-expense-form.data';
+import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
+import { costCentersData3, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
+import { currencyObjData1 } from 'src/app/core/mock-data/currency-obj.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -1065,6 +1068,91 @@ describe('SplitExpensePage', () => {
       component.categories$.subscribe((categories) => {
         expect(categories).toEqual(testActiveCategoryListOptions);
       });
+    });
+
+    it('should set dependentCustomProperties$ correctly if splitType is projects', () => {
+      launchDarklyService.getVariation.and.returnValue(of(false));
+      component.transaction = cloneDeep(txnData);
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
+
+      component.ionViewWillEnter();
+
+      component.dependentCustomProperties$.subscribe((dependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
+          txnData.custom_properties,
+          undefined
+        );
+        expect(dependentCustomProperties).toBeNull();
+      });
+    });
+
+    it('should set dependentCustomProperties$ correctly if splitType is cost centers', () => {
+      launchDarklyService.getVariation.and.returnValue(of(false));
+      component.transaction = cloneDeep(txnData);
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
+      activateRouteMock.snapshot.params.splitType = 'cost centers';
+
+      component.ionViewWillEnter();
+
+      component.dependentCustomProperties$.subscribe((dependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
+          txnData.custom_properties,
+          undefined
+        );
+        expect(dependentCustomProperties).toBeNull();
+      });
+    });
+
+    it('should set costCenters$ correctly if splitType is cost centers', () => {
+      const mockCostCenters = costCentersData3.slice(0, 2);
+      orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(mockCostCenters));
+      launchDarklyService.getVariation.and.returnValue(of(false));
+      component.transaction = cloneDeep(txnData);
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
+      activateRouteMock.snapshot.params.splitType = 'cost centers';
+
+      component.ionViewWillEnter();
+
+      component.costCenters$.subscribe((costCenters) => {
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+        expect(costCenters).toEqual(expectedCCdata);
+      });
+    });
+
+    it('should set costCenters$ to empty array if cost_centers are not enabled in orgSettings', () => {
+      const mockOrgSettings = cloneDeep(orgSettingsGetData);
+      mockOrgSettings.cost_centers.enabled = false;
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      launchDarklyService.getVariation.and.returnValue(of(false));
+      component.transaction = cloneDeep(txnData);
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
+      activateRouteMock.snapshot.params.splitType = 'cost centers';
+
+      component.ionViewWillEnter();
+
+      component.costCenters$.subscribe((costCenters) => {
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.getAllowedCostCenters).not.toHaveBeenCalled();
+        expect(costCenters).toEqual([]);
+      });
+    });
+
+    it('should set isCorporateCardsEnabled$ correctly and call setValuesForCCC once', () => {
+      launchDarklyService.getVariation.and.returnValue(of(false));
+      activateRouteMock.snapshot.params.currencyObj =
+        '{"amount":23,"currency":"USD","orig_amount":23,"orig_currency":"USD"}';
+      spyOn(component, 'setValuesForCCC');
+
+      component.ionViewWillEnter();
+
+      component.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
+        expect(isCorporateCardsEnabled).toEqual(true);
+      });
+
+      expect(component.setValuesForCCC).toHaveBeenCalledOnceWith(currencyObjData1, 'USD', true);
     });
   });
 
