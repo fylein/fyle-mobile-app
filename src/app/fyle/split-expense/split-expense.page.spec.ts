@@ -370,7 +370,7 @@ describe('SplitExpensePage', () => {
 
       component.onChangeAmount(splitExpenseForm1, 0);
 
-      expect(splitExpenseForm1.controls.amount.value).toEqual(null);
+      expect(splitExpenseForm1.controls.amount.value).toBeNull();
       expect(splitExpenseForm1.controls.percentage.value).toEqual(60);
       expect(component.getTotalSplitAmount).not.toHaveBeenCalled();
     });
@@ -400,7 +400,7 @@ describe('SplitExpensePage', () => {
       component.onChangePercentage(splitExpenseForm1, 0);
 
       expect(splitExpenseForm1.controls.amount.value).toEqual(120);
-      expect(splitExpenseForm1.controls.percentage.value).toEqual(null);
+      expect(splitExpenseForm1.controls.percentage.value).toBeNull();
       expect(component.getTotalSplitAmount).not.toHaveBeenCalled();
     });
 
