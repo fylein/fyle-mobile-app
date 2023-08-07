@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -36,6 +36,7 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import * as dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
+import { DeletePopoverParams } from 'src/app/core/models/delete-popover-params.model';
 
 type Filters = Partial<{
   state: string | string[];
@@ -51,8 +52,8 @@ type Filters = Partial<{
   templateUrl: './my-reports.page.html',
   styleUrls: ['./my-reports.page.scss'],
 })
-export class MyReportsPage implements OnInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+export class MyReportsPage {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
 
@@ -74,7 +75,7 @@ export class MyReportsPage implements OnInit {
 
   currentPageNumber = 1;
 
-  acc = [];
+  acc: ExtendedReport[] = [];
 
   filters: Filters;
 
@@ -127,17 +128,15 @@ export class MyReportsPage implements OnInit {
     private reportStatePipe: ReportState
   ) {}
 
-  get HeaderState() {
+  get HeaderState(): typeof HeaderState {
     return HeaderState;
   }
 
-  ngOnInit() {}
-
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.tasksService.getReportsTaskCount().subscribe((reportsTaskCount) => {
       this.reportsTaskCount = reportsTaskCount;
     });
@@ -156,9 +155,9 @@ export class MyReportsPage implements OnInit {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
-    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
-        map((event: any) => event.srcElement.value as string),
+        map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(1000)
       )
@@ -222,9 +221,9 @@ export class MyReportsPage implements OnInit {
       switchMap((erpts) => this.count$.pipe(map((count) => count > erpts.length)))
     );
 
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
 
-    this.loadData$.subscribe((params) => {
+    this.loadData$.subscribe(() => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -234,7 +233,7 @@ export class MyReportsPage implements OnInit {
     });
 
     this.expensesAmountStats$ = this.loadData$.pipe(
-      switchMap((_) =>
+      switchMap(() =>
         this.transactionService
           .getTransactionStats('count(tx_id),sum(tx_amount)', {
             scalar: true,
@@ -279,15 +278,19 @@ export class MyReportsPage implements OnInit {
     this.isInfiniteScrollRequired$.subscribe(noop);
 
     if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.filters = Object.assign(
+        {},
+        this.filters,
+        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Filters
+      );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
     } else if (this.activatedRoute.snapshot.params.state) {
       const filters = {
-        rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
-        state: this.activatedRoute.snapshot.params.state.toUpperCase(),
+        rp_state: `in.(${(this.activatedRoute.snapshot.params.state as string).toLowerCase()})`,
+        state: (this.activatedRoute.snapshot.params.state as string).toUpperCase(),
       };
 
       this.filters = Object.assign({}, this.filters, filters);
@@ -304,7 +307,7 @@ export class MyReportsPage implements OnInit {
     }, 500);
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -341,7 +344,7 @@ export class MyReportsPage implements OnInit {
     });
   }
 
-  generateCustomDateParams(newQueryParams: { or: string[]; and?: string }) {
+  generateCustomDateParams(newQueryParams: { or: string[]; and?: string }): void {
     if (this.filters.date === DateFilters.custom) {
       const startDate = this.filters.customDateStart?.toISOString();
       const endDate = this.filters.customDateEnd?.toISOString();
@@ -355,7 +358,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateDateParams(newQueryParams: { or: string[]; and?: string }) {
+  generateDateParams(newQueryParams: { or: string[]; and?: string }): void {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
@@ -378,7 +381,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateStateFilters(newQueryParams: { or: string[]; and?: string }) {
+  generateStateFilters(newQueryParams: { or: string[]; and?: string }): void {
     const stateOrFilter: string[] = [];
 
     if (this.filters.state) {
@@ -426,7 +429,7 @@ export class MyReportsPage implements OnInit {
       sortDir: string;
       searchString: string;
     }>
-  ) {
+  ): void {
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
@@ -463,7 +466,7 @@ export class MyReportsPage implements OnInit {
     return currentParams;
   }
 
-  clearFilters() {
+  clearFilters(): void {
     this.filters = {};
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -471,11 +474,11 @@ export class MyReportsPage implements OnInit {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  onReportClick(erpt: ExtendedReport) {
+  onReportClick(erpt: ExtendedReport): void {
     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.rp_id, navigateBack: true }]);
   }
 
-  getDeleteReportPopoverParams(erpt: ExtendedReport) {
+  getDeleteReportPopoverParams(erpt: ExtendedReport): DeletePopoverParams {
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -484,12 +487,12 @@ export class MyReportsPage implements OnInit {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: () => this.reportService.delete(erpt.rp_id),
+        deleteMethod: (): Observable<void> => this.reportService.delete(erpt.rp_id),
       },
     };
   }
 
-  async onDeleteReportClick(erpt: ExtendedReport) {
+  async onDeleteReportClick(erpt: ExtendedReport): Promise<void> {
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
       const cannotDeleteReportPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
@@ -509,7 +512,7 @@ export class MyReportsPage implements OnInit {
       const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(erpt));
 
       await deleteReportPopover.present();
-      const { data } = await deleteReportPopover.onDidDismiss();
+      const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
 
       if (data && data.status === 'success') {
         from(this.loaderService.showLoader())
@@ -525,7 +528,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  onHomeClicked() {
+  onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -536,7 +539,7 @@ export class MyReportsPage implements OnInit {
     });
   }
 
-  onTaskClicked() {
+  onTaskClicked(): void {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'reports' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -547,17 +550,17 @@ export class MyReportsPage implements OnInit {
     });
   }
 
-  onCameraClicked() {
+  onCameraClicked(): void {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
-  onViewCommentsClick(event) {
+  onViewCommentsClick(): void {
     // TODO: Add when view comments is done
   }
 
-  clearText(isFromCancel: string) {
+  clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
@@ -567,20 +570,20 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  onSimpleSearchCancel() {
+  onSimpleSearchCancel(): void {
     this.headerState = HeaderState.base;
     this.clearText('onSimpleSearchCancel');
   }
 
-  onSearchBarFocus() {
+  onSearchBarFocus(): void {
     this.isSearchBarFocused = true;
   }
 
-  onFilterPillsClearAll() {
+  onFilterPillsClearAll(): void {
     this.clearFilters();
   }
 
-  async onFilterClick(filterType: string) {
+  async onFilterClick(filterType: string): Promise<void> {
     if (filterType === 'state') {
       await this.openFilters('State');
     } else if (filterType === 'date') {
@@ -590,7 +593,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  onFilterClose(filterType: string) {
+  onFilterClose(filterType: string): void {
     if (filterType === 'sort') {
       delete this.filters.sortDir;
       delete this.filters.sortParam;
@@ -603,9 +606,9 @@ export class MyReportsPage implements OnInit {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  searchClick() {
+  searchClick(): void {
     this.headerState = HeaderState.simpleSearch;
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     setTimeout(() => {
       searchInput.focus();
     }, 300);
@@ -621,7 +624,7 @@ export class MyReportsPage implements OnInit {
       sortDir: string;
     }>,
     generatedFilters: SelectedFilters<string>[]
-  ) {
+  ): void {
     if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -645,7 +648,7 @@ export class MyReportsPage implements OnInit {
       sortDir: string;
     }>,
     generatedFilters: SelectedFilters<string>[]
-  ) {
+  ): void {
     this.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
     this.convertAmountSortToSelectedFilters(filter, generatedFilters);
@@ -653,8 +656,8 @@ export class MyReportsPage implements OnInit {
     this.convertNameSortToSelectedFilters(filter, generatedFilters);
   }
 
-  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
-    const generatedFilters: SelectedFilters<any>[] = [];
+  generateSelectedFilters(filter: Filters): SelectedFilters<string>[] {
+    const generatedFilters: SelectedFilters<string>[] = [];
 
     if (filter.state) {
       generatedFilters.push({
@@ -691,7 +694,7 @@ export class MyReportsPage implements OnInit {
       sortDir: string;
     }>,
     generatedFilters: SelectedFilters<string>[]
-  ) {
+  ): void {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -715,7 +718,7 @@ export class MyReportsPage implements OnInit {
       sortParam: string;
       sortDir: string;
     }>
-  ) {
+  ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
         generatedFilters.sortParam = 'rp_created_at';
@@ -749,7 +752,7 @@ export class MyReportsPage implements OnInit {
 
     const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
     if (dateFilter) {
-      generatedFilters.date = <string>dateFilter.value;
+      generatedFilters.date = dateFilter.value;
       generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
@@ -761,7 +764,7 @@ export class MyReportsPage implements OnInit {
     return generatedFilters;
   }
 
-  generateStateFilterPills(filterPills: FilterPill[], filter: Filters) {
+  generateStateFilterPills(filterPills: FilterPill[], filter: Filters): void {
     this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
       filterPills.push({
         label: 'State',
@@ -773,7 +776,7 @@ export class MyReportsPage implements OnInit {
     });
   }
 
-  generateCustomDatePill(filter: Filters, filterPills: FilterPill[]) {
+  generateCustomDatePill(filter: Filters, filterPills: FilterPill[]): void {
     const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
     const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
 
@@ -798,7 +801,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateDateFilterPills(filter: Filters, filterPills: FilterPill[]) {
+  generateDateFilterPills(filter: Filters, filterPills: FilterPill[]): void {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Date',
@@ -836,7 +839,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortRptDatePills(filter: Filters, filterPills: FilterPill[]) {
+  generateSortRptDatePills(filter: Filters, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -852,7 +855,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortAmountPills(filter: Filters, filterPills: FilterPill[]) {
+  generateSortAmountPills(filter: Filters, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
@@ -868,7 +871,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortNamePills(filter: Filters, filterPills: FilterPill[]) {
+  generateSortNamePills(filter: Filters, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -884,7 +887,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  generateSortFilterPills(filter: Filters, filterPills: FilterPill[]) {
+  generateSortFilterPills(filter: Filters, filterPills: FilterPill[]): void {
     this.generateSortRptDatePills(filter, filterPills);
 
     this.generateSortAmountPills(filter, filterPills);
@@ -920,7 +923,7 @@ export class MyReportsPage implements OnInit {
       sortDir: string;
     }>,
     generatedFilters: SelectedFilters<string>[]
-  ) {
+  ): void {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -934,7 +937,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterInitialName?: string): Promise<void> {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
@@ -1088,7 +1091,7 @@ export class MyReportsPage implements OnInit {
 
     await filterPopover.present();
 
-    const { data } = await filterPopover.onWillDismiss();
+    const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string>[] };
     if (data) {
       this.filters = this.convertFilters(data);
       this.currentPageNumber = 1;

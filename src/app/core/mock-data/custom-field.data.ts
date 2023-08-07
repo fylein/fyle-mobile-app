@@ -116,3 +116,38 @@ export const expectedCustomFieldsWithDate = [
     type: 'DATE',
   },
 ];
+
+export const expectedCustomInputFields: CustomField[] = [
+  {
+    name: 'userlist',
+    value: 'txKJAJ1flx7n',
+  },
+  {
+    name: 'User List',
+    value: null,
+  },
+  {
+    name: 'test',
+    value: null,
+  },
+  {
+    name: 'category2',
+    value: null,
+  },
+  {
+    name: 'pub create hola 1',
+    value: null,
+  },
+  {
+    name: 'test 112',
+    value: null,
+  },
+  {
+    name: '2232323',
+    value: null,
+  },
+  {
+    name: 'select all 2',
+    value: null,
+  },
+];
