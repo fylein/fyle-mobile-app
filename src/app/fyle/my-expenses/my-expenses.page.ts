@@ -296,7 +296,8 @@ export class MyExpensesPage implements OnInit {
 
         if (queryParams.corporate_credit_card_account_number) {
           const cardParamsCopy = JSON.parse(JSON.stringify(queryParams.corporate_credit_card_account_number)) as string;
-          queryParams.or = '(corporate_credit_card_account_number.' + cardParamsCopy + ')';
+          queryParams.or = queryParams.or || [];
+          queryParams.or.push('(corporate_credit_card_account_number.' + cardParamsCopy + ')');
           delete queryParams.corporate_credit_card_account_number;
         }
 

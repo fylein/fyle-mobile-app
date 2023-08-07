@@ -1051,7 +1051,7 @@ describe('MyExpensesPage', () => {
           scalar: true,
           tx_report_id: 'is.null',
           tx_state: 'in.(COMPLETE,DRAFT)',
-          or: '(corporate_credit_card_account_number.8698)',
+          or: ['(corporate_credit_card_account_number.8698)'],
         });
         expect(allExpenseStats).toEqual({
           count: 4,
@@ -1096,7 +1096,7 @@ describe('MyExpensesPage', () => {
         scalar: true,
         tx_report_id: 'is.null',
         tx_state: 'in.(COMPLETE,DRAFT)',
-        or: '(corporate_credit_card_account_number.8698)',
+        or: ['(corporate_credit_card_account_number.8698)'],
       });
     });
   });
