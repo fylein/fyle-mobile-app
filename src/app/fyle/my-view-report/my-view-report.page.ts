@@ -93,7 +93,7 @@ export class MyViewReportPage {
 
   loadReportTxns$ = new BehaviorSubject<void>(null);
 
-  segmentValue: number = ReportPageSegment.EXPENSES;
+  segmentValue: string = ReportPageSegment.EXPENSES;
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
@@ -329,8 +329,9 @@ export class MyViewReportPage {
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
         switchMap(
-          (editReportNamePopover) => editReportNamePopover?.onWillDismiss() as Promise<{ data: { reportName: string } }>
-        )
+          (editReportNamePopover) =>
+            editReportNamePopover?.onWillDismiss() as Promise<{ data: { reportName: string } }>,
+        ),
       )
       .subscribe((editReportNamePopoverDetails) => {
         const newReportName = editReportNamePopoverDetails?.data?.reportName;
@@ -560,8 +561,8 @@ export class MyViewReportPage {
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
         switchMap(
           (addExpensesToReportModal) =>
-            addExpensesToReportModal?.onWillDismiss() as Promise<{ data: { selectedTxnIds: string[] } }>
-        )
+            addExpensesToReportModal?.onWillDismiss() as Promise<{ data: { selectedTxnIds: string[] } }>,
+        ),
       )
       .subscribe((addExpensesToReportModalDetails) => {
         const selectedTxnIds = addExpensesToReportModalDetails?.data?.selectedTxnIds;
