@@ -280,7 +280,6 @@ export function TestCases4(getTestBed) {
         tick(500);
 
         nativeElement.dispatchEvent(new Event('change'));
-        nativeElement.dispatchEvent(new Event('click'));
 
         expect(component.onChangeCallback).toHaveBeenCalledTimes(1);
         expect(nativeElement.click).toHaveBeenCalledTimes(1);
@@ -373,7 +372,7 @@ export function TestCases4(getTestBed) {
         });
       }));
 
-      it('should track adding expense to with original currency only', fakeAsync(() => {
+      it('should track adding expense where original currency is same as the preset currency', fakeAsync(() => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(trackAddExpenseWoCurrency));
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
@@ -836,8 +835,8 @@ export function TestCases4(getTestBed) {
         expect(component.getTimeSpentOnPage).toHaveBeenCalledTimes(1);
       });
 
-      it('should track edit expense event for an expense without currency', () => {
-        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.project_id;
+      it('should track edit expense event for an expense where the original currency is same as preset currency', () => {
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
         component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
         component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
@@ -851,7 +850,7 @@ export function TestCases4(getTestBed) {
           Currency: trackCreateExpDataWoCurrency.tx.currency,
           Category: trackCreateExpDataWoCurrency.tx.org_category,
           Time_Spent: '30 secs',
-          Used_Autofilled_Category: false,
+          Used_Autofilled_Category: true,
           Used_Autofilled_Project: true,
           Used_Autofilled_CostCenter: true,
           Used_Autofilled_Currency: true,

@@ -280,7 +280,7 @@ export class AddEditExpensePage implements OnInit {
 
   recentCurrencies: Currency[];
 
-  presetProjectId: number;
+  presetProjectId: number | string;
 
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
 

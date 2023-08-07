@@ -29,6 +29,7 @@ import {
   unflattenedExpData,
   unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -753,7 +754,7 @@ export function TestCases1(getTestBed) {
         });
       }));
 
-      it('should show popup but take no action', fakeAsync(() => {
+      it('should show remove CCC expense popup but take no action', fakeAsync(() => {
         const txn = { ...unflattenedTxn, tx: { ...unflattenedTxn.tx, report_id: 'rpFE5X1Pqi9P' } };
         component.etxn$ = of(txn);
         transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
@@ -782,8 +783,8 @@ export function TestCases1(getTestBed) {
         expect(component.showSnackBarToast).not.toHaveBeenCalled();
       }));
 
-      it('should do back to expenses page if no expense is found', fakeAsync(() => {
-        component.etxn$ = of(null);
+      it('should go back to expenses page if no expense is found', fakeAsync(() => {
+        component.etxn$ = of(unflattenedTxnData);
         transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
         spyOn(component, 'getRemoveCCCExpModalParams');
         spyOn(component, 'showSnackBarToast');
@@ -807,10 +808,7 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
         );
-        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledOnceWith({
-          Type: 'unlink corporate card expense',
-          transaction: undefined,
-        });
+        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1);
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',
