@@ -92,7 +92,7 @@ export class MyViewReportPage {
 
   loadReportTxns$ = new BehaviorSubject<void>(null);
 
-  segmentValue = ReportPageSegment.EXPENSES;
+  segmentValue: number = ReportPageSegment.EXPENSES;
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
@@ -112,7 +112,7 @@ export class MyViewReportPage {
     private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
     private refinerService: RefinerService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
   ) {}
 
   get Segment() {
@@ -124,7 +124,7 @@ export class MyViewReportPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -175,9 +175,9 @@ export class MyViewReportPage {
     this.erpt$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
-        this.reportService.getReport(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
+        this.reportService.getReport(this.reportId).pipe(finalize(() => this.loaderService.hideLoader())),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
     const eou$ = from(this.authService.getEou());
 
@@ -192,11 +192,11 @@ export class MyViewReportPage {
               status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
               status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
               return status;
-            })
+            }),
           ),
-          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
-        )
-      )
+          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf())),
+        ),
+      ),
     );
 
     this.estatuses$.subscribe((estatuses) => {
@@ -223,7 +223,7 @@ export class MyViewReportPage {
     });
 
     this.totalCommentsCount$ = this.estatuses$.pipe(
-      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
+      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length),
     );
 
     this.erpt$.pipe(take(1)).subscribe((erpt) => {
@@ -249,16 +249,16 @@ export class MyViewReportPage {
             tx_report_id: 'eq.' + this.reportId,
             order: 'tx_txn_dt.desc,tx_id.desc',
           })
-          .pipe(finalize(() => (this.isExpensesLoading = false)))
+          .pipe(finalize(() => (this.isExpensesLoading = false))),
       ),
       map((etxns) =>
         etxns.map((etxn) => {
           etxn.vendor = this.getVendorName(etxn);
           etxn.violation = this.getShowViolation(etxn);
           return etxn;
-        })
+        }),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const actions$ = this.reportService.actions(this.reportId).pipe(shareReplay(1));
@@ -290,13 +290,13 @@ export class MyViewReportPage {
             }
           });
           this.unReportedEtxns = etxns;
-        })
+        }),
       )
       .subscribe(noop);
 
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
+      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) })),
     );
   }
 
@@ -307,7 +307,7 @@ export class MyViewReportPage {
         switchMap((erpt) => {
           erpt.rp_purpose = reportName;
           return this.reportService.updateReportDetails(erpt);
-        })
+        }),
       )
       .subscribe(() => this.loadReportDetails$.next());
   }
@@ -327,7 +327,7 @@ export class MyViewReportPage {
           return editReportNamePopover;
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
-        switchMap((editReportNamePopover) => editReportNamePopover?.onWillDismiss())
+        switchMap((editReportNamePopover) => editReportNamePopover?.onWillDismiss()),
       )
       .subscribe((editReportNamePopoverDetails) => {
         const newReportName = editReportNamePopoverDetails?.data?.reportName;
@@ -432,7 +432,7 @@ export class MyViewReportPage {
             navigate_back: true,
             remove_from_report: erpt.rp_num_transactions > 1,
           },
-        ])
+        ]),
       );
     } else {
       this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
@@ -545,7 +545,7 @@ export class MyViewReportPage {
     from(addExpensesToReportModal)
       .pipe(
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
-        switchMap((addExpensesToReportModal) => addExpensesToReportModal?.onWillDismiss())
+        switchMap((addExpensesToReportModal) => addExpensesToReportModal?.onWillDismiss()),
       )
       .subscribe((addExpensesToReportModalDetails) => {
         const selectedTxnIds = addExpensesToReportModalDetails?.data?.selectedTxnIds;
@@ -562,7 +562,7 @@ export class MyViewReportPage {
       this.loadReportTxns$.next();
       this.trackingService.addToExistingReport();
       this.unReportedEtxns = this.unReportedEtxns.filter(
-        (unReportedEtxn) => !selectedEtxnIds.includes(unReportedEtxn.tx_id)
+        (unReportedEtxn) => !selectedEtxnIds.includes(unReportedEtxn.tx_id),
       );
     });
   }
