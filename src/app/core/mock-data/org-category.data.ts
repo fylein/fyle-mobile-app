@@ -974,7 +974,7 @@ export const TaxiCategory: OrgCategory = {
   updated_at: new Date('2022-11-23T13:11:51.771Z'),
 };
 
-export const expectedAutoFillCategory3 = {
+export const expectedAutoFillCategory3: OrgCategory = {
   code: null,
   created_at: new Date('2018-01-31T23:50:27.235Z'),
   displayName: 'Food',

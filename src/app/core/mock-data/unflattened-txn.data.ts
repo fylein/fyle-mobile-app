@@ -1028,7 +1028,7 @@ export const unflattenedTxnDataWithoutCategoryData: UnflattenedTransaction = {
   },
 };
 
-export const expWithCriticalViolation = {
+export const expWithCriticalViolation: { etxn: UnflattenedTransaction; comment: string } = {
   etxn: {
     tx: {
       risk_state: null,
@@ -1242,7 +1242,7 @@ export const unflattenedPaidExp2: UnflattenedTransaction = {
   },
 };
 
-export const expectedExpenseObservable = {
+export const expectedExpenseObservable: Partial<UnflattenedTransaction> = {
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1297,7 +1297,7 @@ export const expectedExpenseObservable2 = {
   dataUrls: [],
 };
 
-export const expectedExpenseObservable3 = {
+export const expectedExpenseObservable3: Partial<UnflattenedTransaction> = {
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1333,7 +1333,7 @@ export const expectedExpenseObservable3 = {
   ],
 };
 
-export const expectedExpenseObservable4 = {
+export const expectedExpenseObservable4: Partial<UnflattenedTransaction> = {
   tx: {
     source: 'MOBILE',
     currency: 'INR',
@@ -1367,7 +1367,7 @@ export const expectedExpenseObservable4 = {
   ],
 };
 
-export const expectedExpenseObservable5 = {
+export const expectedExpenseObservable5: Partial<UnflattenedTransaction> = {
   tx: {
     source: 'MOBILE',
     currency: 'USD',

@@ -653,7 +653,7 @@ export function TestCases3(getTestBed) {
           });
       });
 
-      it('should generate expense from form without cost center and location data and not a policy expense in edit mode', (done) => {
+      it('should generate expense from form without cost center and location data in edit mode and is not a policy violation', (done) => {
         spyOn(component, 'getSourceAccID').and.returnValue('id');
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
@@ -1155,7 +1155,7 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should return null if not category could be found', (done) => {
+      it('should return null in case the expense does not have an expense and auto-fill category is not found', (done) => {
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
@@ -1320,7 +1320,7 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should get new expense observable without complete data url', (done) => {
+      it('should get new expense observable without insta fyle image data URL?', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
         authService.getEou.and.resolveTo(apiEouRes);

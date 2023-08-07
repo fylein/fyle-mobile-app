@@ -1,4 +1,5 @@
 import { ParsedReceipt } from '../models/parsed_receipt.model';
+import { ParsedResponse } from '../models/parsed_response.model';
 
 export const parsedReceiptData1: ParsedReceipt = {
   data: {

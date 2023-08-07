@@ -468,7 +468,7 @@ export function TestCases2(getTestBed) {
         });
       });
 
-      it('shuld return txn without category', (done) => {
+      it('should return txn when the expense or the extracted data does not contain any category', (done) => {
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnWithExtractedData2));
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
 

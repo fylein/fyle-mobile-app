@@ -59,7 +59,7 @@ export const eCCCData1: CCCExpUnflattened = {
   flow: 'newCCCFlow',
 };
 
-export const eCCCData2 = {
+export const eCCCData2: CCCExpUnflattened = {
   ...expectedECccResponse[0],
   ccce: {
     ...expectedECccResponse[0].ccce,

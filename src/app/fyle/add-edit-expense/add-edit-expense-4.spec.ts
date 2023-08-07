@@ -764,7 +764,7 @@ export function TestCases4(getTestBed) {
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
 
-      it('should match an expense while offline', () => {
+      it('should generate an expense in offline mode and match with a card', () => {
         const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
         generateEtxnSpy
           .withArgs(component.etxn$, jasmine.any(Observable), true)
