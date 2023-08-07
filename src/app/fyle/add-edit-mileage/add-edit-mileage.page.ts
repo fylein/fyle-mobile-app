@@ -1973,7 +1973,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]): Promise<unknown> {
+  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]): Promise<boolean> {
     const fyCriticalPolicyViolationPopOver = await this.modalController.create({
       component: FyCriticalPolicyViolationComponent,
       componentProps: {
@@ -1987,7 +1987,7 @@ export class AddEditMileagePage implements OnInit {
     await fyCriticalPolicyViolationPopOver.present();
 
     const { data } = (await fyCriticalPolicyViolationPopOver.onWillDismiss()) as {
-      data: unknown;
+      data: string;
     };
     return !!data;
   }
@@ -1995,7 +1995,7 @@ export class AddEditMileagePage implements OnInit {
   async continueWithPolicyViolations(
     policyViolations: string[],
     policyAction: FinalExpensePolicyState
-  ): Promise<unknown> {
+  ): Promise<{ comment: string }> {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
@@ -2009,7 +2009,7 @@ export class AddEditMileagePage implements OnInit {
     await currencyModal.present();
 
     const { data } = (await currencyModal.onWillDismiss()) as {
-      data: unknown;
+      data: { comment: string };
     };
     return data;
   }
@@ -2613,7 +2613,7 @@ export class AddEditMileagePage implements OnInit {
 
     const { data } = (await modal.onDidDismiss()) as {
       data: {
-        updated: unknown;
+        updated: string;
       };
     };
 
