@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -6,20 +6,10 @@ import { PopoverController } from '@ionic/angular';
   templateUrl: './add-corporate-card.component.html',
   styleUrls: ['./add-corporate-card.component.scss'],
 })
-export class AddCorporateCardComponent implements OnInit {
-  showTnc: boolean;
-
+export class AddCorporateCardComponent {
   constructor(private popoverController: PopoverController) {}
-
-  ngOnInit(): void {
-    this.showTnc = false;
-  }
 
   closePopover(): void {
     this.popoverController.dismiss();
-  }
-
-  toggleTnc(): void {
-    this.showTnc = !this.showTnc;
   }
 }

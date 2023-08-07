@@ -14,7 +14,7 @@
     position: absolute;
   }
 
-  &__body {
+  &__content {
     padding-top: 16px;
     padding-inline: 16px;
     display: flex;
@@ -61,26 +61,25 @@
 
   &__view-tnc-btn {
     width: 100%;
-    text-align: left;
-    background-color: transparent;
     background: $pink-gradient;
     background-clip: text;
     color: transparent;
     padding: 12px 0;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+  }
 
-    &__icon {
-      width: 18px;
-      height: 18px;
-    }
+  &__view-tnc-btn-icon {
+    width: 18px;
+    height: 18px;
   }
 
   &__tnc {
-    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
   }
 
   &__tnc-heading {
@@ -89,11 +88,27 @@
   }
 
   &__tnc-list {
-    margin: 24px 0 0 0;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
+    list-style-position: inside;
     gap: 16px;
-    padding-left: 16px;
+
+    & > * {
+      line-height: normal;
+    }
+  }
+
+  &__tnc-link {
+    color: $blue-4;
+    text-decoration: none;
+
+    &__icon {
+      width: 16px;
+      height: 16px;
+      vertical-align: bottom;
+    }
   }
 
   &__footer {

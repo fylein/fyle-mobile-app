@@ -10,17 +10,9 @@ import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { CorporateCardComponent } from './corporate-card/corporate-card.component';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
-import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    SharedModule,
-    ManageCorporateCardsPageRoutingModule,
-    MatInputModule,
-  ],
+  imports: [CommonModule, FormsModule, IonicModule, SharedModule, ManageCorporateCardsPageRoutingModule],
   declarations: [ManageCorporateCardsPage, CorporateCardComponent, AddCorporateCardComponent],
 })
 export class ManageCorporateCardsPageModule {}
