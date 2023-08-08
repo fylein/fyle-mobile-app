@@ -67,6 +67,10 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { getElementBySelector, getElementRef } from 'src/app/core/dom-helpers';
 import { unflattenedData } from 'src/app/core/mock-data/data-transform.data';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
+import {
+  createExpenseProperties,
+  createExpenseProperties2,
+} from 'src/app/core/mock-data/track-expense-properties.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -358,18 +362,7 @@ export function TestCases4(getTestBed) {
         tick(500);
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
         expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
-        expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
-          Type: 'Receipt',
-          Amount: expectedUnflattendedTxnData4.tx.amount,
-          Currency: expectedUnflattendedTxnData4.tx.currency,
-          Category: expectedUnflattendedTxnData4.tx.org_category,
-          Time_Spent: '300 secs',
-          Used_Autofilled_Category: undefined,
-          Used_Autofilled_Project: undefined,
-          Used_Autofilled_CostCenter: true,
-          Used_Autofilled_Currency: true,
-          Instafyle: false,
-        });
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties);
       }));
 
       it('should track adding expense where original currency is same as the preset currency', fakeAsync(() => {
@@ -386,18 +379,7 @@ export function TestCases4(getTestBed) {
         tick(500);
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
         expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
-        expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
-          Type: 'Receipt',
-          Amount: trackAddExpenseWoCurrency.tx.amount,
-          Currency: trackAddExpenseWoCurrency.tx.currency,
-          Category: trackAddExpenseWoCurrency.tx.org_category,
-          Time_Spent: '300 secs',
-          Used_Autofilled_Category: true,
-          Used_Autofilled_Project: true,
-          Used_Autofilled_CostCenter: true,
-          Used_Autofilled_Currency: true,
-          Instafyle: false,
-        });
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties2);
       }));
     });
 
