@@ -61,14 +61,7 @@ describe('ApproverDialogComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ApproverDialogComponent],
-      imports: [
-        IonicModule.forRoot(),
-        MatIconTestingModule,
-        MatIconModule,
-        FormsModule,
-        MatChipsModule,
-        MatCheckboxModule,
-      ],
+      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule, MatCheckboxModule],
       providers: [
         {
           provide: LoaderService,
