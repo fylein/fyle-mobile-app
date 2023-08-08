@@ -576,23 +576,32 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setUpTaxCalculations(): void {
-    const currencyObjControl = this.fg.controls.currencyObj.value as {
-      amount: number;
-      currency: string;
+    const currencyObjControl = this.getFormControl('currencyObj') as {
+      value: {
+        amount: number;
+        currency: string;
+      };
     };
 
-    const taxGroupControl = this.fg.controls.tax_group.value as {
-      percentage: number;
+    const taxGroupControl = this.getFormControl('tax_group') as {
+      value: {
+        percentage: number;
+      };
     };
+
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax_group.valueChanges).subscribe(() => {
       if (
         this.fg.controls.tax_group.value &&
-        isNumber(taxGroupControl.percentage) &&
+        isNumber(taxGroupControl.value?.percentage) &&
         this.fg.controls.currencyObj.value
       ) {
-        const amount = currencyObjControl.amount - currencyObjControl.amount / (taxGroupControl.percentage + 1);
+        const amount =
+          currencyObjControl.value?.amount - currencyObjControl.value?.amount / (taxGroupControl.value?.percentage + 1);
 
-        const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(amount, currencyObjControl.currency);
+        const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(
+          amount,
+          currencyObjControl.value?.currency
+        );
 
         this.fg.controls.tax_amount.setValue(formattedAmount);
       } else {
@@ -3013,7 +3022,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map((txnFields) => {
-        const txnFieldsOptions = txnFields.flight_journey_travel_class.options as string[];
+        const txnFieldsOptions = txnFields?.flight_journey_travel_class?.options as string[];
         return txnFields.flight_journey_travel_class && txnFieldsOptions.map((v) => ({ label: v, value: v }));
       })
     );

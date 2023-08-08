@@ -65,7 +65,7 @@ export function setFormValid(component) {
   });
 }
 
-fdescribe('AddEditExpensePage', () => {
+describe('AddEditExpensePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getEMyAccounts',
@@ -209,7 +209,7 @@ fdescribe('AddEditExpensePage', () => {
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         FormBuilder,
         {

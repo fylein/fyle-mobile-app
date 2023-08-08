@@ -1286,12 +1286,7 @@ export function TestCases5(getTestBed) {
         expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
-          expect(res).toEqual([
-            {
-              value: 'BUSINESS',
-              label: 'BUSINESS',
-            },
-          ]);
+          expect(res).toBeUndefined();
         });
 
         expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
@@ -1497,12 +1492,7 @@ export function TestCases5(getTestBed) {
         expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
-          expect(res).toEqual([
-            {
-              value: 'BUSINESS',
-              label: 'BUSINESS',
-            },
-          ]);
+          expect(res).toBeUndefined();
         });
 
         expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));

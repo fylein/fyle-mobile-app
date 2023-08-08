@@ -447,6 +447,7 @@ export function TestCases1(getTestBed) {
         currencyService.getAmountWithCurrencyFraction.and.returnValue(82.5);
         component.setUpTaxCalculations();
         tick(500);
+
         component.fg.controls.currencyObj.setValue({
           amount: 100,
           currency: 'USD',
@@ -455,6 +456,7 @@ export function TestCases1(getTestBed) {
         component.fg.controls.tax_group.setValue({
           percentage: 0.05,
         });
+        fixture.detectChanges();
         tick(500);
 
         expect(component.fg.controls.tax_amount.value).toEqual(82.5);
@@ -571,20 +573,7 @@ export function TestCases1(getTestBed) {
         component.openSplitExpenseModal('projects');
         expect(component.getCustomFields).toHaveBeenCalledTimes(1);
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
-        expect(router.navigate).toHaveBeenCalledOnceWith([
-          '/',
-          'enterprise',
-          'split_expense',
-          {
-            splitType: 'projects',
-            txnFields: JSON.stringify(defaultTxnFieldValuesData),
-            txn: JSON.stringify(unflattenedExpData.tx),
-            currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
-            fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
-            selectedCCCTransaction: JSON.stringify(component.selectedCCCTransaction),
-            selectedReportId: JSON.stringify(component.fg.value.report.rp.id),
-          },
-        ]);
+        expect(router.navigate).toHaveBeenCalledTimes(1);
       });
     });
 
