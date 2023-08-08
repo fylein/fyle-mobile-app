@@ -1073,6 +1073,19 @@ describe('SplitExpensePage', () => {
     });
 
     it('should set dependentCustomProperties$ correctly if splitType is projects', () => {
+      activateRouteMock.snapshot.params.txnFields = JSON.stringify(txnFieldData);
+      component.ionViewWillEnter();
+
+      component.dependentCustomProperties$.subscribe((dependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
+          txnData.custom_properties,
+          184692
+        );
+        expect(dependentCustomProperties).toEqual(dependentFieldValues);
+      });
+    });
+
+    it('should set dependentCustomProperties$ to NULL if splitType is projects', () => {
       component.ionViewWillEnter();
 
       component.dependentCustomProperties$.subscribe((dependentCustomProperties) => {
@@ -1130,8 +1143,7 @@ describe('SplitExpensePage', () => {
     });
 
     it('should set isCorporateCardsEnabled$ correctly and call setValuesForCCC once', () => {
-      activateRouteMock.snapshot.params.currencyObj =
-        '{"amount":23,"currency":"USD","orig_amount":23,"orig_currency":"USD"}';
+      activateRouteMock.snapshot.params.currencyObj = JSON.stringify(currencyObjData1);
       spyOn(component, 'setValuesForCCC');
 
       component.ionViewWillEnter();

@@ -86,7 +86,7 @@ export class SplitExpensePage implements OnInit {
 
   categoryList: OrgCategory[];
 
-  dependentCustomProperties$: Observable<CustomInput[]>;
+  dependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -536,7 +536,7 @@ export class SplitExpensePage implements OnInit {
       this.dependentFieldsService.getDependentFieldValuesForBaseField(
         this.transaction.custom_properties,
         parentFieldId
-      ) as Observable<CustomInput[]>,
+      ),
       of(null)
     );
 
