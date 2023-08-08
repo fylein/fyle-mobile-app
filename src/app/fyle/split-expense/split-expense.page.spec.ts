@@ -36,11 +36,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterTestingModule } from '@angular/router/testing';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import {
   expectedFilterOrgCategory,
   expectedOrgCategoriesPaginated,
   filterOrgCategoryParam,
+  orgCategoryData,
+  transformedOrgCategories,
 } from 'src/app/core/mock-data/org-category.data';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
@@ -77,6 +79,7 @@ import {
   splitExpFile3,
   splitExpFileObj,
   thumbnailUrlMockData,
+  fileObjectData1,
 } from 'src/app/core/mock-data/file-object.data';
 import {
   fileTxns,
@@ -128,6 +131,7 @@ import {
 import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { costCentersData3, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import { currencyObjData1 } from 'src/app/core/mock-data/currency-obj.data';
+import { matchedCCCTransactionData1 } from 'src/app/core/mock-data/matchedCCCTransaction.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -1605,6 +1609,134 @@ describe('SplitExpensePage', () => {
       //@ts-ignore
       const isEvenSplit = component.isEvenlySplit();
       expect(isEvenSplit).toBe(true);
+    });
+  });
+
+  describe('save():', () => {
+    beforeEach(() => {
+      const mockSplitExpForm = formBuilder.group({
+        amount: [23, Validators.required],
+        currency: ['USD'],
+        percentage: [50],
+        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+      });
+      component.splitExpensesFormArray = new FormArray([mockSplitExpForm]);
+      spyOn(component, 'generateSplitEtxnFromFg').and.returnValue(of(txnList[0]));
+      spyOn(component, 'uploadFiles').and.returnValue(of(fileObjectData1));
+      spyOn(component, 'createAndLinkTxnsWithFiles').and.returnValue(of(['txSQ9yM7IYEy', 'txbSFbl4vmf1']));
+      const mockTransaction = cloneDeep(txnList[0]);
+      mockTransaction.corporate_credit_card_expense_group_id = 'cccet1B17R8gWZ';
+      component.transaction = mockTransaction;
+      component.selectedCCCTransaction = matchedCCCTransactionData1;
+      transactionService.delete.and.returnValue(of(expenseList2[0]));
+      transactionService.matchCCCExpense.and.returnValue(of(null));
+      spyOn(component, 'isEvenlySplit').and.returnValue(true);
+      component.fileObjs = fileObject6;
+      component.categoryList = transformedOrgCategories;
+      component.splitType = 'projects';
+      spyOn(component, 'handleSplitExpensePolicyViolations');
+    });
+
+    it('should return void and show error message if amount is not equal to totalSplitAmount', fakeAsync(() => {
+      component.amount = 2000;
+      component.totalSplitAmount = 3000;
+
+      component.save();
+
+      expect(component.showErrorBlock).toBeTrue();
+      expect(component.errorMessage).toEqual('Split amount cannot be more than 2000.');
+      tick(2500);
+      expect(component.showErrorBlock).toBeFalse();
+    }));
+
+    it('should return void and show error message if expense is less than 0.01', fakeAsync(() => {
+      component.amount = 2000;
+      component.totalSplitAmount = 2000;
+      component.isCorporateCardsEnabled$ = of(false);
+      const mockSplitExpForm = formBuilder.group({
+        amount: [-23, Validators.required],
+        currency: ['USD'],
+        percentage: [50],
+        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+      });
+      component.splitExpensesFormArray = new FormArray([mockSplitExpForm]);
+
+      component.save();
+
+      expect(component.showErrorBlock).toBeTrue();
+      expect(component.errorMessage).toEqual('Amount should be greater than 0.01');
+      tick(2500);
+      expect(component.showErrorBlock).toBeFalse();
+    }));
+
+    it('should return void and show error message if expense is less than 0.01', () => {
+      component.amount = 2000;
+      component.totalSplitAmount = 2000;
+      component.isCorporateCardsEnabled$ = of(true);
+      splitExpenseService.checkForPolicyViolations.and.returnValue(of(policyVoilationData2));
+      component.save();
+
+      expect(component.generateSplitEtxnFromFg).toHaveBeenCalledOnceWith(component.splitExpensesFormArray.value[0]);
+      expect(component.uploadFiles).toHaveBeenCalledOnceWith(component.transaction.tx);
+      expect(component.createAndLinkTxnsWithFiles).toHaveBeenCalledOnceWith([txnList[0]]);
+      expect(transactionService.delete).toHaveBeenCalledOnceWith(txnList[0].id);
+      expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith(
+        'txSQ9yM7IYEy',
+        matchedCCCTransactionData1.id
+      );
+      expect(splitExpenseService.checkForPolicyViolations).toHaveBeenCalledOnceWith(
+        ['txSQ9yM7IYEy', 'txbSFbl4vmf1'],
+        fileObject6,
+        transformedOrgCategories
+      );
+      expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
+        'Split Type': 'projects',
+        'Is Evenly Split': true,
+      });
+      expect(component.handleSplitExpensePolicyViolations).toHaveBeenCalledOnceWith(policyVoilationData2);
+    });
+
+    it('should throw error and navigate to my_expenses page if createAndLinkTxnsWithFiles fails', fakeAsync(() => {
+      component.amount = 2000;
+      component.totalSplitAmount = 2000;
+      component.isCorporateCardsEnabled$ = of(true);
+      splitExpenseService.checkForPolicyViolations.and.returnValue(
+        throwError(() => new Error('Policy Violation checks were failed!'))
+      );
+      spyOn(component, 'toastWithoutCTA');
+
+      try {
+        component.save();
+        tick(100);
+      } catch (err) {
+        expect(err).toEqual(new Error('Policy Violation checks were failed!'));
+        expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
+          'We were unable to split your expense. Please try again later.',
+          'failure',
+          'msb-failure-with-camera-icon'
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
+          'Split Type': 'projects',
+          'Is Evenly Split': true,
+        });
+        expect(component.handleSplitExpensePolicyViolations).not.toHaveBeenCalled();
+      }
+    }));
+
+    it('should set all fields as touched if splitExpensesFormArray is invalid', () => {
+      const mockSplitExpForm = formBuilder.group({
+        amount: [, Validators.required],
+        currency: ['USD'],
+        percentage: [50],
+        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+      });
+      component.splitExpensesFormArray = new FormArray([mockSplitExpForm]);
+      spyOn(component.splitExpensesFormArray, 'markAllAsTouched');
+
+      component.save();
+
+      expect(component.splitExpensesFormArray.markAllAsTouched).toHaveBeenCalledTimes(1);
     });
   });
 });
