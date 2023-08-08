@@ -1110,7 +1110,7 @@ describe('SplitExpensePage', () => {
       component.ionViewWillEnter();
 
       component.costCenters$.subscribe((costCenters) => {
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
         expect(costCenters).toEqual(expectedCCdata);
@@ -1126,7 +1126,7 @@ describe('SplitExpensePage', () => {
       component.ionViewWillEnter();
 
       component.costCenters$.subscribe((costCenters) => {
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedCostCenters).not.toHaveBeenCalled();
         expect(costCenters).toEqual([]);
