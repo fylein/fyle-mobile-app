@@ -16,10 +16,77 @@
         <span>Enter Card Number</span>
         <span class="add-corporate-card__input-container__mandatory"> * </span>
       </div>
-      <input class="smartlook-show add-corporate-card__input-container__input" inputmode="decimal" type="number" />
+
+      <div
+        class="add-corporate-card__input-container__input-wrapper"
+        [ngClass]="{
+          'add-corporate-card__input-container__input-wrapper--error': cardForm.touched && cardForm.invalid
+        }"
+      >
+        <input
+          class="smartlook-show add-corporate-card__input-container__input"
+          inputmode="numeric"
+          [formControl]="cardForm"
+          mask="9999 9999 9999 9999"
+          (keydown.enter)="enrollCard()"
+          autocomplete="cc-number"
+          required
+        />
+
+        <ng-container *ngIf="cardForm.untouched || cardForm.valid">
+          <ion-icon
+            *ngIf="!cardType || cardType === rtfCardTypes.OTHERS"
+            src="../../../../assets/svg/card.svg"
+            class="add-corporate-card__input-container__input-default-icon"
+          ></ion-icon>
+
+          <ion-icon
+            *ngIf="cardType === rtfCardTypes.VISA"
+            src="../../../../assets/svg/visa-logo.svg"
+            class="add-corporate-card__input-container__input-issuer-icon"
+          ></ion-icon>
+
+          <ion-icon
+            *ngIf="cardType === rtfCardTypes.MASTERCARD"
+            src="../../../../assets/svg/mastercard-logo.svg"
+            class="add-corporate-card__input-container__input-issuer-icon"
+          ></ion-icon>
+        </ng-container>
+      </div>
+
+      <div class="add-corporate-card__input-container__error-space"></div>
+
+      <div *ngIf="cardForm.touched && cardForm.invalid" class="add-corporate-card__input-container__input-error">
+        <span
+          *ngIf="
+            cardForm.errors.invalidCardNumber ||
+            cardForm.errors.required ||
+            cardForm.errors.minLength ||
+            cardForm.errors.maxLength
+          "
+          >Please enter a valid card number.</span
+        >
+        <span *ngIf="cardForm.errors.invalidCardIssuer && isVisaRTFEnabled && isMastercardRTFEnabled"
+          >Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.</span
+        >
+        <span *ngIf="cardForm.errors.invalidCardIssuer && isVisaRTFEnabled && !isMastercardRTFEnabled">
+          Enter a valid Visa number. If you have other cards, please contact your admin.
+        </span>
+        <span *ngIf="cardForm.errors.invalidCardIssuer && !isVisaRTFEnabled && isMastercardRTFEnabled">
+          Enter a valid Mastercard number. If you have other cards, please contact your admin.
+        </span>
+      </div>
     </div>
 
-    <div class="add-corporate-card__tnc-container">
+    <div
+      *ngIf="
+        !cardType ||
+        (cardType === rtfCardTypes.OTHERS && cardForm.invalid) ||
+        cardType === rtfCardTypes.VISA ||
+        cardType === rtfCardTypes.MASTERCARD
+      "
+      class="add-corporate-card__tnc-container"
+    >
       <ion-accordion-group>
         <ion-accordion>
           <div class="add-corporate-card__view-tnc-btn" slot="header">
@@ -73,9 +140,20 @@
         </ion-accordion>
       </ion-accordion-group>
     </div>
+
+    <ng-container *ngIf="cardType === rtfCardTypes.OTHERS && cardForm.valid && isYodleeEnabled">
+      <app-fy-alert-info
+        type="information"
+        message="Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin."
+      ></app-fy-alert-info>
+    </ng-container>
   </div>
 
   <div class="add-corporate-card__footer">
-    <ion-button class="fy-footer-cta fy-footer-cta--primary">Add</ion-button>
+    <ion-button
+      [disabled]="cardType === rtfCardTypes.OTHERS && cardForm.valid && isYodleeEnabled"
+      class="fy-footer-cta fy-footer-cta--primary"
+      >Add</ion-button
+    >
   </div>
 </div>
