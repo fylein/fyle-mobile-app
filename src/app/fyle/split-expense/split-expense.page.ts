@@ -541,7 +541,6 @@ export class SplitExpensePage implements OnInit {
     );
 
     if (this.splitType === 'cost centers') {
-      const orgSettings$ = this.orgSettingsService.get();
       const orgUserSettings$ = this.orgUserSettingsService.get();
       this.costCenters$ = forkJoin({
         orgSettings: orgSettings$,
