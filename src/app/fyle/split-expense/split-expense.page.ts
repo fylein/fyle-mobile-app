@@ -421,7 +421,7 @@ export class SplitExpensePage implements OnInit {
         canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
           const negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
           if (!isCorporateCardsEnabled && negativeAmountPresent) {
-            defaultValue = false && defaultValue;
+            defaultValue = false;
           }
           return defaultValue;
         }, true);
