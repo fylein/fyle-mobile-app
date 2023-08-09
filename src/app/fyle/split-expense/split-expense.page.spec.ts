@@ -1085,7 +1085,7 @@ describe('SplitExpensePage', () => {
       });
     });
 
-    it('should set dependentCustomProperties$ to NULL if splitType is projects', () => {
+    it('should set dependentCustomProperties$ to NULL if splitType is projects and parentFieldId is undefined', () => {
       component.ionViewWillEnter();
 
       component.dependentCustomProperties$.subscribe((dependentCustomProperties) => {
