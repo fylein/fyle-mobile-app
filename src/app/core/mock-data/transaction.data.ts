@@ -3627,3 +3627,58 @@ export const editExpTxn5 = {
   categoryDisplayName: 'ani test',
   tx_policy_amount: 0,
 };
+
+export const modifiedTxnData4: Transaction = {
+  ...txnData4,
+  from_dt: new Date('2023-08-04'),
+  to_dt: new Date('2023-08-07'),
+  amount: 120,
+  tax_amount: 23,
+  project_id: undefined,
+  billable: true,
+  cost_center_id: undefined,
+  org_category_id: 184692,
+  custom_properties: [
+    {
+      name: 'test',
+      value: '',
+    },
+    {
+      name: 'category2',
+      value: '',
+    },
+    {
+      name: 'pub create hola 1',
+      value: null,
+    },
+    {
+      name: 'test 112',
+      value: null,
+    },
+    {
+      name: '2232323',
+      value: null,
+    },
+    {
+      name: 'select all 2',
+      value: '2023-02-13T17:00:00.000Z',
+    },
+  ],
+};
+
+export const modifiedTxnData5: Transaction = {
+  ...modifiedTxnData4,
+  project_id: 384582,
+};
+
+export const modifiedTxnData6: Transaction = {
+  ...modifiedTxnData4,
+  cost_center_id: 384582,
+  project_id: undefined,
+};
+
+export const modifiedTxnData7: Transaction = {
+  ...modifiedTxnData4,
+  cost_center_id: undefined,
+  project_id: undefined,
+};

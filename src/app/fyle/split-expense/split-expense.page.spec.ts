@@ -49,6 +49,10 @@ import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {
   amtTxn3,
+  modifiedTxnData4,
+  modifiedTxnData5,
+  modifiedTxnData6,
+  modifiedTxnData7,
   sourceTxn2,
   splitExpenseTxn1,
   splitExpenseTxn1_1,
@@ -62,6 +66,7 @@ import {
   txnAmount1,
   txnAmount2,
   txnData,
+  txnData4,
   txnList,
 } from 'src/app/core/mock-data/transaction.data';
 import { splitTransactionData1 } from 'src/app/core/mock-data/public-policy-expense.data';
@@ -1749,6 +1754,115 @@ describe('SplitExpensePage', () => {
       component.save();
 
       expect(component.splitExpensesFormArray.markAllAsTouched).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('generateSplitEtxnFromFg():', () => {
+    beforeEach(() => {
+      const mockTxn = cloneDeep(txnData4);
+      mockTxn.to_dt = new Date('2023-02-16T17:00:00.000Z');
+      component.transaction = mockTxn;
+      dateService.getUTCDate.and.returnValues(new Date('2023-08-04'), new Date('2023-08-07'));
+      spyOn(component, 'setUpSplitExpenseBillable').and.returnValue(true);
+      spyOn(component, 'setUpSplitExpenseTax').and.returnValue(23);
+      const mockDependentCustomProps = mockTxn.custom_properties.slice(0, 2);
+      component.dependentCustomProperties$ = of(mockDependentCustomProps);
+    });
+
+    it('should return split expense object with all the fields if splitType is projects', () => {
+      component.splitType = 'projects';
+      const splitExpenseForm1 = {
+        amount: 120,
+        currency: 'INR',
+        percentage: 60,
+        txn_dt: '2023-01-11',
+        category: {
+          id: 184692,
+        },
+        project: {
+          project_id: 384582,
+        },
+      };
+
+      component.generateSplitEtxnFromFg(splitExpenseForm1).subscribe((splitExpense) => {
+        expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+        expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+        expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-16T17:00:00.000Z'));
+        expect(component.setUpSplitExpenseBillable).toHaveBeenCalledOnceWith(splitExpenseForm1);
+        expect(component.setUpSplitExpenseTax).toHaveBeenCalledOnceWith(splitExpenseForm1);
+        expect(splitExpense).toEqual(modifiedTxnData5);
+      });
+    });
+
+    it('should return split expense object with all the fields if splitType is projects and splitExpenseValue.project is undefined', () => {
+      component.splitType = 'projects';
+      const splitExpenseForm1 = {
+        amount: 120,
+        currency: 'INR',
+        percentage: 60,
+        txn_dt: '2023-01-11',
+        category: {
+          id: 184692,
+        },
+        project: undefined,
+      };
+
+      component.generateSplitEtxnFromFg(splitExpenseForm1).subscribe((splitExpense) => {
+        expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+        expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+        expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-16T17:00:00.000Z'));
+        expect(component.setUpSplitExpenseBillable).toHaveBeenCalledOnceWith(splitExpenseForm1);
+        expect(component.setUpSplitExpenseTax).toHaveBeenCalledOnceWith(splitExpenseForm1);
+        expect(splitExpense).toEqual(modifiedTxnData4);
+      });
+    });
+
+    it('should return split expense object with all the fields if splitType is cost centers', () => {
+      component.splitType = 'cost centers';
+      const splitExpenseForm1 = {
+        amount: 120,
+        currency: 'INR',
+        percentage: 60,
+        txn_dt: '2023-01-11',
+        category: {
+          id: 184692,
+        },
+        cost_center: {
+          id: 384582,
+        },
+      };
+
+      component.generateSplitEtxnFromFg(splitExpenseForm1).subscribe((splitExpense) => {
+        expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+        expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+        expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-16T17:00:00.000Z'));
+        expect(component.setUpSplitExpenseBillable).toHaveBeenCalledOnceWith(splitExpenseForm1);
+        expect(component.setUpSplitExpenseTax).toHaveBeenCalledOnceWith(splitExpenseForm1);
+        expect(splitExpense).toEqual(modifiedTxnData6);
+      });
+    });
+
+    it('should return split expense object with all the fields if splitType is cost centers and splitExpenseValue.cost_centers is undefined', () => {
+      component.splitType = 'cost centers';
+      const splitExpenseForm1 = {
+        amount: 120,
+        currency: 'INR',
+        percentage: 60,
+        txn_dt: '2023-01-11',
+        category: {
+          id: 184692,
+        },
+        cost_center: undefined,
+      };
+
+      component.generateSplitEtxnFromFg(splitExpenseForm1).subscribe((splitExpense) => {
+        expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+        expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+        expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-16T17:00:00.000Z'));
+        expect(component.setUpSplitExpenseBillable).toHaveBeenCalledOnceWith(splitExpenseForm1);
+        expect(component.setUpSplitExpenseTax).toHaveBeenCalledOnceWith(splitExpenseForm1);
+        expect(splitExpense).toEqual(modifiedTxnData7);
+      });
     });
   });
 });
