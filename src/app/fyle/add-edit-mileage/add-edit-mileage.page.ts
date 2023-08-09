@@ -40,7 +40,9 @@ import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
+import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -54,12 +56,14 @@ import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-f
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { CustomInputsOption, TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -97,10 +101,6 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from '../../core/services/tracking.service';
-import { CustomInputsOption, TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { Expense } from 'src/app/core/models/expense.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 
 type FormValue = {
   route: {
@@ -965,7 +965,7 @@ export class AddEditMileagePage implements OnInit {
       );
   }
 
-  ionViewWillEnter(): void {
+  initClassObservables(): void {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
@@ -979,211 +979,9 @@ export class AddEditMileagePage implements OnInit {
         this.showClosePopup();
       }
     );
+  }
 
-    from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
-      this.clusterDomain = clusterDomain;
-    });
-
-    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
-    this.expenseStartTime = new Date().getTime();
-    this.fg = this.fb.group({
-      mileage_rate_name: [],
-      dateOfSpend: [, this.customDateValidator],
-      route: [],
-      paymentMode: [, Validators.required],
-      purpose: [],
-      project: [],
-      billable: [],
-      sub_category: [, Validators.required],
-      custom_inputs: new FormArray([]),
-      costCenter: [],
-      report: [],
-      duplicate_detection_reason: [],
-      project_dependent_fields: this.fb.array([]),
-      cost_center_dependent_fields: this.fb.array([]),
-    });
-
-    const today = new Date();
-    this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
-    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
-
-    this.fg.controls.project.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
-
-    this.fg.controls.costCenter.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
-
-    this.fg.reset();
-    this.title = 'Add Mileage';
-
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
-    this.reviewList = (this.activatedRoute.snapshot.params.txnIds &&
-      JSON.parse(this.activatedRoute.snapshot.params.txnIds as string)) as string[];
-
-    this.title =
-      this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
-    if (this.activatedRoute.snapshot.params.id) {
-      this.mode = 'edit';
-    }
-
-    // If User has already clicked on See More he need not to click again and again
-    from(this.storageService.get<boolean>('isExpandedViewMileage')).subscribe((expandedView) => {
-      this.isExpandedView = this.mode !== 'add' || expandedView;
-    });
-
-    const orgSettings$ = this.orgSettingsService.get();
-    const orgUserSettings$ = this.orgUserSettingsService.get();
-
-    this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
-    this.isAdvancesEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) =>
-          (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
-      )
-    );
-
-    orgSettings$.subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
-    });
-
-    this.setupNetworkWatcher();
-
-    this.recentlyUsedValues$ = this.isConnected$.pipe(
-      take(1),
-      switchMap((isConnected) => {
-        if (isConnected) {
-          return this.recentlyUsedItemsService.getRecentlyUsed();
-        } else {
-          return of(null);
-        }
-      })
-    );
-
-    this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
-      map((recentlyUsedValues) => ({
-        recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
-        recent_end_locations: recentlyUsedValues?.recent_end_locations || [],
-        recent_locations: recentlyUsedValues?.recent_locations || [],
-      }))
-    );
-
-    this.txnFields$ = this.getTransactionFields();
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    this.subCategories$ = this.getSubCategories();
-    this.setupFilteredCategories(this.subCategories$);
-    this.projectCategoryIds$ = this.getProjectCategoryIds();
-    this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
-      map((projectCount) => projectCount > 0)
-    );
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
-
-    this.filteredCategories$.subscribe((subCategories) => {
-      if (subCategories.length) {
-        this.fg.controls.sub_category.setValidators(Validators.required);
-      } else {
-        this.fg.controls.sub_category.clearValidators();
-      }
-      this.fg.controls.sub_category.updateValueAndValidity();
-    });
-
-    this.individualMileageRatesEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates)
-    );
-
-    this.allMileageRates$ = this.mileageRateService.getAllMileageRates();
-
-    this.mileageRates$ = forkJoin({
-      orgUserMileageSettings: this.mileageService.getOrgUserMileageSettings(),
-      allMileageRates: this.mileageRateService.getAllMileageRates(),
-      mileageConfig: this.mileageConfig$,
-    }).pipe(
-      map(({ orgUserMileageSettings, allMileageRates }) => {
-        let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
-        const mileageRateSettings = orgUserMileageSettings?.mileage_rate_labels || [];
-        if (mileageRateSettings.length > 0) {
-          enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
-        }
-        return enabledMileageRates;
-      })
-    );
-
-    this.mileageRatesOptions$ = forkJoin({
-      mileageRates: this.mileageRates$,
-      homeCurrency: this.homeCurrency$,
-    }).pipe(
-      map(({ mileageRates, homeCurrency }) =>
-        mileageRates.map((rate) => {
-          rate.readableRate = this.mileageRatesService.getReadableRate(rate.rate, homeCurrency, rate.unit);
-          return {
-            label: this.mileageRatesService.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')',
-            value: rate,
-          };
-        })
-      )
-    );
-
-    this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
-
-    this.setupTfcDefaultValues();
-
-    this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
-
-    this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
-    );
-
-    this.individualProjectIds$ = orgUserSettings$.pipe(
-      map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])
-    );
-
-    this.isProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
-    );
-
-    this.customInputs$ = this.getCustomInputs();
-
-    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
-
-    this.paymentModes$ = this.getPaymentModes();
-
-    this.costCenters$ = forkJoin({
-      orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
-    }).pipe(
-      switchMap(({ orgSettings, orgUserSettings }) => {
-        if (orgSettings.cost_centers.enabled) {
-          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
-        } else {
-          return of([]);
-        }
-      }),
-      map((costCenters) =>
-        costCenters.map((costCenter: CostCenter) => ({
-          label: costCenter.name,
-          value: costCenter,
-        }))
-      )
-    );
-
-    this.recentlyUsedCostCenters$ = forkJoin({
-      costCenters: this.costCenters$,
-      recentValue: this.recentlyUsedValues$,
-    }).pipe(
-      concatMap(({ costCenters, recentValue }) =>
-        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
-      )
-    );
-
-    this.reports$ = this.reportService
-      .getFilteredPendingReports({ state: 'edit' })
-      .pipe(
-        map((reports) => reports.map((report: UnflattenedReport) => ({ label: report.rp.purpose, value: report })))
-      );
-
+  setupTxnFields(): void {
     this.txnFields$
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
@@ -1262,19 +1060,67 @@ export class AddEditMileagePage implements OnInit {
           });
         }
       );
+  }
 
-    this.isAmountCapped$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
+  setupSelectedProjects(): void {
+    this.fg.controls.project.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
+  }
+
+  setupSelectedCostCenters(): void {
+    this.fg.controls.costCenter.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
+  }
+
+  checkNewReportsFlow(orgSettings$: Observable<OrgSettings>): void {
+    orgSettings$.subscribe((orgSettings) => {
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+    });
+  }
+
+  checkAdvanceEnabled(orgSettings$: Observable<OrgSettings>): Observable<boolean> {
+    return orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          (orgSettings.advances && orgSettings.advances.enabled) ||
+          (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
+      )
     );
+  }
 
-    this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
-
-    this.isCriticalPolicyViolated$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
+  getRecentlyUsedValues(): Observable<RecentlyUsed | null> {
+    return this.isConnected$.pipe(
+      take(1),
+      switchMap((isConnected) => {
+        if (isConnected) {
+          return this.recentlyUsedItemsService.getRecentlyUsed();
+        } else {
+          return of(null);
+        }
+      })
     );
+  }
 
-    this.getPolicyDetails();
+  checkIndividualMileageEnabled(orgSettings$: Observable<OrgSettings>): void {
+    this.individualMileageRatesEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates)
+    );
+  }
 
+  getExpenseAmount(): Observable<number> {
+    return combineLatest(this.fg.valueChanges, this.rate$).pipe(
+      map(([formValue, mileageRate]) => {
+        const value = formValue as FormValue;
+        const distance = value.route?.distance || 0;
+        return distance * mileageRate;
+      }),
+      shareReplay(1)
+    );
+  }
+
+  checkAvailableAdvance(): void {
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode: ExtendedAccount) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
@@ -1293,50 +1139,10 @@ export class AddEditMileagePage implements OnInit {
         return of(false);
       })
     );
+  }
 
-    this.rate$ = iif(
-      () => this.mode === 'edit',
-      this.fg.valueChanges.pipe(
-        map((formValue: FormValue) => formValue.mileage_rate_name),
-        switchMap((formValue) =>
-          forkJoin({
-            etxn: this.etxn$,
-            mileageRates: this.mileageRates$,
-          }).pipe(
-            map(({ etxn, mileageRates }: { etxn: UnflattenedTransaction; mileageRates: PlatformMileageRates[] }) => {
-              if (formValue) {
-                if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue?.vehicle_type) {
-                  return etxn.tx.mileage_rate;
-                } else {
-                  return this.getRateByVehicleType(mileageRates, formValue?.vehicle_type);
-                }
-              }
-            })
-          )
-        ),
-        shareReplay(1)
-      ),
-      this.fg.valueChanges.pipe(
-        map((formValue: FormValue) => formValue.mileage_rate_name),
-        switchMap((formValue) =>
-          this.mileageRates$.pipe(
-            map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type))
-          )
-        ),
-        shareReplay(1)
-      )
-    );
-
-    this.amount$ = combineLatest(this.fg.valueChanges, this.rate$).pipe(
-      map(([formValue, mileageRate]) => {
-        const value = formValue as FormValue;
-        const distance = value.route?.distance || 0;
-        return distance * mileageRate;
-      }),
-      shareReplay(1)
-    );
-
-    const selectedProject$ = this.etxn$.pipe(
+  getProjects(): Observable<ExtendedProject | null> {
+    return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
           return of(etxn.tx.project_id);
@@ -1361,6 +1167,311 @@ export class AddEditMileagePage implements OnInit {
         }
       })
     );
+  }
+
+  getReports(): Observable<UnflattenedReport | null> {
+    return forkJoin({
+      autoSubmissionReportName: this.autoSubmissionReportName$,
+      etxn: this.etxn$,
+      reportOptions: this.reports$,
+    }).pipe(
+      map(({ autoSubmissionReportName, etxn, reportOptions }) => {
+        if (etxn.tx.report_id) {
+          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
+        } else if (
+          !autoSubmissionReportName &&
+          reportOptions.length === 1 &&
+          reportOptions[0].value.rp.state === 'DRAFT'
+        ) {
+          return reportOptions[0].value;
+        } else {
+          return null;
+        }
+      })
+    );
+  }
+
+  getCostCenters(
+    orgSettings$: Observable<OrgSettings>,
+    orgUserSettings$: Observable<OrgUserSettings>
+  ): Observable<CostCenterOptions[]> {
+    return forkJoin({
+      orgSettings: orgSettings$,
+      orgUserSettings: orgUserSettings$,
+    }).pipe(
+      switchMap(({ orgSettings, orgUserSettings }) => {
+        if (orgSettings.cost_centers.enabled) {
+          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
+        } else {
+          return of([]);
+        }
+      }),
+      map((costCenters) =>
+        costCenters.map((costCenter: CostCenter) => ({
+          label: costCenter.name,
+          value: costCenter,
+        }))
+      )
+    );
+  }
+
+  getEditRates(): Observable<number> {
+    return this.fg.valueChanges.pipe(
+      map((formValue: FormValue) => formValue.mileage_rate_name),
+      switchMap((formValue) =>
+        forkJoin({
+          etxn: this.etxn$,
+          mileageRates: this.mileageRates$,
+        }).pipe(
+          map(({ etxn, mileageRates }: { etxn: UnflattenedTransaction; mileageRates: PlatformMileageRates[] }) => {
+            if (formValue) {
+              if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue?.vehicle_type) {
+                return etxn.tx.mileage_rate;
+              } else {
+                return this.getRateByVehicleType(mileageRates, formValue?.vehicle_type);
+              }
+            }
+          })
+        )
+      ),
+      shareReplay(1)
+    );
+  }
+
+  getAddRates(): Observable<number> {
+    return this.fg.valueChanges.pipe(
+      map((formValue: FormValue) => formValue.mileage_rate_name),
+      switchMap((formValue) =>
+        this.mileageRates$.pipe(
+          map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type))
+        )
+      ),
+      shareReplay(1)
+    );
+  }
+
+  getSelectedCostCenters(): Observable<CostCenter | null> {
+    return this.etxn$.pipe(
+      switchMap((etxn) => {
+        if (etxn.tx.cost_center_id) {
+          return of(etxn.tx.cost_center_id);
+        } else {
+          return forkJoin({
+            orgSettings: this.orgSettingsService.get(),
+            costCenters: this.costCenters$,
+          }).pipe(
+            map(({ orgSettings, costCenters }) => {
+              if (orgSettings.cost_centers.enabled) {
+                if (costCenters.length === 1 && this.mode === 'add') {
+                  return costCenters[0].value.id;
+                }
+              }
+            })
+          );
+        }
+      }),
+      switchMap((costCenterId) => {
+        if (costCenterId) {
+          return this.costCenters$.pipe(
+            map((costCenters) =>
+              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId)
+            )
+          );
+        } else {
+          return of(null);
+        }
+      })
+    );
+  }
+
+  ionViewWillEnter(): void {
+    this.initClassObservables();
+
+    from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
+      this.clusterDomain = clusterDomain;
+    });
+
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
+    this.expenseStartTime = new Date().getTime();
+    this.fg = this.fb.group({
+      mileage_rate_name: [],
+      dateOfSpend: [, this.customDateValidator],
+      route: [],
+      paymentMode: [, Validators.required],
+      purpose: [],
+      project: [],
+      billable: [],
+      sub_category: [, Validators.required],
+      custom_inputs: new FormArray([]),
+      costCenter: [],
+      report: [],
+      duplicate_detection_reason: [],
+      project_dependent_fields: this.fb.array([]),
+      cost_center_dependent_fields: this.fb.array([]),
+    });
+
+    const today = new Date();
+    this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
+
+    this.setupSelectedProjects();
+
+    this.setupSelectedCostCenters();
+
+    this.fg.reset();
+    this.title = 'Add Mileage';
+
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
+    this.reviewList = (this.activatedRoute.snapshot.params.txnIds &&
+      JSON.parse(this.activatedRoute.snapshot.params.txnIds as string)) as string[];
+
+    this.title =
+      this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
+    if (this.activatedRoute.snapshot.params.id) {
+      this.mode = 'edit';
+    }
+
+    // If User has already clicked on See More he need not to click again and again
+    from(this.storageService.get<boolean>('isExpandedViewMileage')).subscribe((expandedView) => {
+      this.isExpandedView = this.mode !== 'add' || expandedView;
+    });
+
+    const orgSettings$ = this.orgSettingsService.get();
+    const orgUserSettings$ = this.orgUserSettingsService.get();
+
+    this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
+    this.isAdvancesEnabled$ = this.checkAdvanceEnabled(orgSettings$);
+
+    this.checkNewReportsFlow(orgSettings$);
+
+    this.setupNetworkWatcher();
+
+    this.recentlyUsedValues$ = this.getRecentlyUsedValues();
+
+    this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
+      map((recentlyUsedValues) => ({
+        recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
+        recent_end_locations: recentlyUsedValues?.recent_end_locations || [],
+        recent_locations: recentlyUsedValues?.recent_locations || [],
+      }))
+    );
+
+    this.txnFields$ = this.getTransactionFields();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    this.subCategories$ = this.getSubCategories();
+    this.setupFilteredCategories(this.subCategories$);
+    this.projectCategoryIds$ = this.getProjectCategoryIds();
+    this.isProjectVisible$ = this.projectCategoryIds$.pipe(
+      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
+      map((projectCount) => projectCount > 0)
+    );
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
+
+    this.filteredCategories$.subscribe((subCategories) => {
+      if (subCategories.length) {
+        this.fg.controls.sub_category.setValidators(Validators.required);
+      } else {
+        this.fg.controls.sub_category.clearValidators();
+      }
+      this.fg.controls.sub_category.updateValueAndValidity();
+    });
+
+    this.checkIndividualMileageEnabled(orgSettings$);
+
+    this.allMileageRates$ = this.mileageRateService.getAllMileageRates();
+
+    this.mileageRates$ = forkJoin({
+      orgUserMileageSettings: this.mileageService.getOrgUserMileageSettings(),
+      allMileageRates: this.mileageRateService.getAllMileageRates(),
+      mileageConfig: this.mileageConfig$,
+    }).pipe(
+      map(({ orgUserMileageSettings, allMileageRates }) => {
+        let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
+        const mileageRateSettings = orgUserMileageSettings?.mileage_rate_labels || [];
+        if (mileageRateSettings.length > 0) {
+          enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
+        }
+        return enabledMileageRates;
+      })
+    );
+
+    this.mileageRatesOptions$ = forkJoin({
+      mileageRates: this.mileageRates$,
+      homeCurrency: this.homeCurrency$,
+    }).pipe(
+      map(({ mileageRates, homeCurrency }) =>
+        mileageRates.map((rate) => {
+          rate.readableRate = this.mileageRatesService.getReadableRate(rate.rate, homeCurrency, rate.unit);
+          return {
+            label: this.mileageRatesService.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')',
+            value: rate,
+          };
+        })
+      )
+    );
+
+    this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
+
+    this.setupTfcDefaultValues();
+
+    this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
+
+    this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
+    );
+
+    this.individualProjectIds$ = orgUserSettings$.pipe(
+      map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])
+    );
+
+    this.isProjectsEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
+    );
+
+    this.customInputs$ = this.getCustomInputs();
+
+    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
+
+    this.paymentModes$ = this.getPaymentModes();
+
+    this.costCenters$ = this.getCostCenters(orgSettings$, orgUserSettings$);
+
+    this.recentlyUsedCostCenters$ = forkJoin({
+      costCenters: this.costCenters$,
+      recentValue: this.recentlyUsedValues$,
+    }).pipe(
+      concatMap(({ costCenters, recentValue }) =>
+        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
+      )
+    );
+
+    this.reports$ = this.reportService
+      .getFilteredPendingReports({ state: 'edit' })
+      .pipe(
+        map((reports) => reports.map((report: UnflattenedReport) => ({ label: report.rp.purpose, value: report })))
+      );
+
+    this.setupTxnFields();
+
+    this.isAmountCapped$ = this.etxn$.pipe(
+      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
+    );
+
+    this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
+
+    this.isCriticalPolicyViolated$ = this.etxn$.pipe(
+      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
+    );
+
+    this.getPolicyDetails();
+
+    this.checkAvailableAdvance();
+
+    this.rate$ = iif(() => this.mode === 'edit', this.getEditRates(), this.getAddRates());
+
+    this.amount$ = this.getExpenseAmount();
+
+    const selectedProject$ = this.getProjects();
 
     const selectedPaymentMode$ = forkJoin({
       etxn: this.etxn$,
@@ -1398,58 +1509,9 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
-    const selectedReport$ = forkJoin({
-      autoSubmissionReportName: this.autoSubmissionReportName$,
-      etxn: this.etxn$,
-      reportOptions: this.reports$,
-    }).pipe(
-      map(({ autoSubmissionReportName, etxn, reportOptions }) => {
-        if (etxn.tx.report_id) {
-          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
-        } else if (
-          !autoSubmissionReportName &&
-          reportOptions.length === 1 &&
-          reportOptions[0].value.rp.state === 'DRAFT'
-        ) {
-          return reportOptions[0].value;
-        } else {
-          return null;
-        }
-      })
-    );
+    const selectedReport$ = this.getReports();
 
-    const selectedCostCenter$ = this.etxn$.pipe(
-      switchMap((etxn) => {
-        if (etxn.tx.cost_center_id) {
-          return of(etxn.tx.cost_center_id);
-        } else {
-          return forkJoin({
-            orgSettings: this.orgSettingsService.get(),
-            costCenters: this.costCenters$,
-          }).pipe(
-            map(({ orgSettings, costCenters }) => {
-              if (orgSettings.cost_centers.enabled) {
-                if (costCenters.length === 1 && this.mode === 'add') {
-                  return costCenters[0].value.id;
-                }
-              }
-            })
-          );
-        }
-      }),
-      switchMap((costCenterId) => {
-        if (costCenterId) {
-          return this.costCenters$.pipe(
-            map((costCenters) =>
-              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId)
-            )
-          );
-        } else {
-          return of(null);
-        }
-      })
-    );
-
+    const selectedCostCenter$ = this.getSelectedCostCenters();
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
     from(this.loaderService.showLoader('Please wait...', 10000))
@@ -2114,18 +2176,34 @@ export class AddEditMileagePage implements OnInit {
     return isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
   }
 
-  editExpense(redirectedFrom): Observable<unknown | null> {
-    this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
-    this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
-    this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
-    this.saveAndPrevMileageLoader = redirectedFrom === 'SAVE_AND_PREV_MILEAGE';
+  trackEditExpense(etxn: UnflattenedTransaction): void {
+    this.trackingService.editExpense({
+      Type: 'Mileage',
+      Amount: etxn.tx.amount,
+      Currency: etxn.tx.currency,
+      Category: etxn.tx.org_category,
+      Time_Spent: this.getTimeSpentOnPage() + ' secs',
+      Used_Autofilled_Project:
+        etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
+      Used_Autofilled_CostCenter:
+        etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
+      Used_Autofilled_VehicleType:
+        etxn.tx.mileage_vehicle_type &&
+        this.presetVehicleType &&
+        etxn.tx.mileage_vehicle_type === this.presetVehicleType,
+      Used_Autofilled_StartLocation:
+        etxn.tx.locations &&
+        etxn.tx.locations.length > 0 &&
+        this.presetLocation &&
+        etxn.tx.locations[0] &&
+        etxn.tx.locations[0].display === this.presetLocation,
+    });
+  }
 
-    const customFields$ = this.getCustomFields();
-
-    this.trackPolicyCorrections();
-
-    const mileageLocations = this.getFormControl('route') as { value: { mileageLocations: Location[] } };
-    const calculatedDistance$ = this.mileageService.getDistance(mileageLocations.value?.mileageLocations).pipe(
+  getEditCalculatedDistance(mileageLocations: {
+    value: { mileageLocations: Location[] };
+  }): Observable<number | string> {
+    return this.mileageService.getDistance(mileageLocations.value?.mileageLocations).pipe(
       switchMap((distance) =>
         this.etxn$.pipe(
           map((etxn) => {
@@ -2144,6 +2222,20 @@ export class AddEditMileagePage implements OnInit {
       }),
       shareReplay(1)
     );
+  }
+
+  editExpense(redirectedFrom): Observable<unknown | null> {
+    this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
+    this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
+    this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+    this.saveAndPrevMileageLoader = redirectedFrom === 'SAVE_AND_PREV_MILEAGE';
+
+    const customFields$ = this.getCustomFields();
+
+    this.trackPolicyCorrections();
+
+    const mileageLocations = this.getFormControl('route') as { value: { mileageLocations: Location[] } };
+    const calculatedDistance$ = this.getEditCalculatedDistance(mileageLocations);
 
     return from(this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$)).pipe(
       switchMap((etxn) =>
@@ -2192,9 +2284,9 @@ export class AddEditMileagePage implements OnInit {
         (err: {
           status?: number;
           type?: string;
-          policyViolations?: string[];
-          etxn?: UnflattenedTransaction;
-          policyAction?: FinalExpensePolicyState;
+          policyViolations: string[];
+          etxn: UnflattenedTransaction;
+          policyAction: FinalExpensePolicyState;
         }) => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$).pipe(
@@ -2202,27 +2294,9 @@ export class AddEditMileagePage implements OnInit {
             );
           }
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
-              switchMap((continueWithTransaction) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.criticalPolicyViolationHandler(err);
           } else if (err.type === 'policyViolations') {
-            return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
-              switchMap((continueWithTransaction: { comment?: string }) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
-                  );
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.policyViolationHandler(err);
           } else {
             return throwError(err);
           }
@@ -2236,29 +2310,7 @@ export class AddEditMileagePage implements OnInit {
           switchMap(({ txnCopy }) => {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
-              this.trackingService.editExpense({
-                Type: 'Mileage',
-                Amount: etxn.tx.amount,
-                Currency: etxn.tx.currency,
-                Category: etxn.tx.org_category,
-                Time_Spent: this.getTimeSpentOnPage() + ' secs',
-                Used_Autofilled_Project:
-                  etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
-                Used_Autofilled_CostCenter:
-                  etxn.tx.cost_center_id &&
-                  this.presetCostCenterId &&
-                  etxn.tx.cost_center_id === this.presetCostCenterId,
-                Used_Autofilled_VehicleType:
-                  etxn.tx.mileage_vehicle_type &&
-                  this.presetVehicleType &&
-                  etxn.tx.mileage_vehicle_type === this.presetVehicleType,
-                Used_Autofilled_StartLocation:
-                  etxn.tx.locations &&
-                  etxn.tx.locations.length > 0 &&
-                  this.presetLocation &&
-                  etxn.tx.locations[0] &&
-                  etxn.tx.locations[0].display === this.presetLocation,
-              });
+              this.trackEditExpense(etxn);
             } else {
               // tracking expense closed without editing
               this.trackingService.viewExpense({ Type: 'Mileage' });
@@ -2334,15 +2386,8 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  addExpense(redirectedFrom): Observable<unknown | null> {
-    this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
-    this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
-    this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
-    this.saveAndPrevMileageLoader = redirectedFrom === 'SAVE_AND_PREV_MILEAGE';
-
-    const customFields$ = this.getCustomFields();
-
-    const calculatedDistance$ = this.isConnected$.pipe(
+  getCalculatedDistance(): Observable<number | string> {
+    return this.isConnected$.pipe(
       take(1),
       switchMap((isConnected) => {
         if (isConnected) {
@@ -2379,6 +2424,74 @@ export class AddEditMileagePage implements OnInit {
       }),
       shareReplay(1)
     );
+  }
+
+  trackCreateExpense(etxn: UnflattenedTransaction): void {
+    this.trackingService.createExpense({
+      Type: 'Mileage',
+      Amount: etxn.tx.amount,
+      Currency: etxn.tx.currency,
+      Category: etxn.tx.org_category,
+      Time_Spent: this.getTimeSpentOnPage() + ' secs',
+      Used_Autofilled_Project:
+        etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
+      Used_Autofilled_CostCenter:
+        etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
+      Used_Autofilled_VehicleType:
+        etxn.tx.mileage_vehicle_type &&
+        this.presetVehicleType &&
+        etxn.tx.mileage_vehicle_type === this.presetVehicleType,
+      Used_Autofilled_StartLocation:
+        etxn.tx.locations &&
+        etxn.tx.locations.length > 0 &&
+        this.presetLocation &&
+        etxn.tx.locations[0] &&
+        etxn.tx.locations[0].display === this.presetLocation,
+    });
+  }
+
+  criticalPolicyViolationHandler(err: {
+    policyViolations: string[];
+    etxn: UnflattenedTransaction;
+  }): Observable<{ etxn: UnflattenedTransaction }> {
+    return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  policyViolationHandler(err: {
+    policyViolations: string[];
+    etxn: UnflattenedTransaction;
+    policyAction: FinalExpensePolicyState;
+  }): Observable<{ etxn: UnflattenedTransaction; comment: string }> {
+    return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
+      switchMap((continueWithTransaction: { comment: string }) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  addExpense(redirectedFrom): Observable<unknown | null> {
+    this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
+    this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
+    this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
+    this.saveAndPrevMileageLoader = redirectedFrom === 'SAVE_AND_PREV_MILEAGE';
+
+    const customFields$ = this.getCustomFields();
+
+    const calculatedDistance$ = this.getCalculatedDistance();
 
     return from(this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$)).pipe(
       switchMap((etxn) =>
@@ -2427,9 +2540,9 @@ export class AddEditMileagePage implements OnInit {
         (err: {
           status?: number;
           type?: string;
-          policyViolations?: string[];
-          etxn?: UnflattenedTransaction;
-          policyAction?: FinalExpensePolicyState;
+          policyViolations: string[];
+          etxn: UnflattenedTransaction;
+          policyAction: FinalExpensePolicyState;
         }) => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$).pipe(
@@ -2437,27 +2550,9 @@ export class AddEditMileagePage implements OnInit {
             );
           }
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
-              switchMap((continueWithTransaction) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.criticalPolicyViolationHandler(err);
           } else if (err.type === 'policyViolations') {
-            return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
-              switchMap((continueWithTransaction: { comment: string }) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
-                  );
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.policyViolationHandler(err);
           } else {
             return throwError(err);
           }
@@ -2467,27 +2562,8 @@ export class AddEditMileagePage implements OnInit {
         from(this.authService.getEou()).pipe(
           switchMap(() => {
             const comments: string[] = [];
-            this.trackingService.createExpense({
-              Type: 'Mileage',
-              Amount: etxn.tx.amount,
-              Currency: etxn.tx.currency,
-              Category: etxn.tx.org_category,
-              Time_Spent: this.getTimeSpentOnPage() + ' secs',
-              Used_Autofilled_Project:
-                etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
-              Used_Autofilled_CostCenter:
-                etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
-              Used_Autofilled_VehicleType:
-                etxn.tx.mileage_vehicle_type &&
-                this.presetVehicleType &&
-                etxn.tx.mileage_vehicle_type === this.presetVehicleType,
-              Used_Autofilled_StartLocation:
-                etxn.tx.locations &&
-                etxn.tx.locations.length > 0 &&
-                this.presetLocation &&
-                etxn.tx.locations[0] &&
-                etxn.tx.locations[0].display === this.presetLocation,
-            });
+
+            this.trackCreateExpense(etxn);
 
             if (comment) {
               comments.push(comment);
