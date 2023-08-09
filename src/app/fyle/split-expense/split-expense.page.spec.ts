@@ -1072,7 +1072,7 @@ describe('SplitExpensePage', () => {
       });
     });
 
-    it('should set dependentCustomProperties$ correctly if splitType is projects', () => {
+    it('should set dependentCustomProperties$ correctly if splitType is projects and parentFieldId is defined', () => {
       activateRouteMock.snapshot.params.txnFields = JSON.stringify(txnFieldData);
       component.ionViewWillEnter();
 
@@ -1149,7 +1149,7 @@ describe('SplitExpensePage', () => {
       component.ionViewWillEnter();
 
       component.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
-        expect(isCorporateCardsEnabled).toEqual(true);
+        expect(isCorporateCardsEnabled).toBeTrue();
       });
 
       expect(component.setValuesForCCC).toHaveBeenCalledOnceWith(currencyObjData1, 'USD', true);
