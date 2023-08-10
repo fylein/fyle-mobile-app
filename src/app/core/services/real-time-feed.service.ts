@@ -1,16 +1,21 @@
 import { Injectable } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, map, throwError } from 'rxjs';
 
-// Move this to different file
-enum RTFCardType {
-  VISA = 'VISA',
-  MASTERCARD = 'MASTERCARD',
-  OTHERS = 'OTHERS',
-}
+import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
+import { PlatformApiPayload } from '../models/platform/platform-api-payload.model';
+import { EnrollCardPayload } from '../models/platform/enroll-card-payload.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { EnrollCardResponse } from '../models/platform/enroll-card-response.model';
+import { RTFCardType } from '../enums/rtf-card-type.enum';
+import { PlatformApiError } from '../models/platform/platform-api-error.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RealTimeFeedService {
+  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
+
   isCardNumberValid(cardNumber: string): boolean {
     let checksum = 0;
 
@@ -54,5 +59,41 @@ export class RealTimeFeedService {
       default:
         return RTFCardType.OTHERS;
     }
+  }
+
+  enroll(cardNumber: string, cardId?: string): Observable<PlatformCorporateCard> {
+    const card: PlatformApiPayload<EnrollCardPayload> = {
+      data: {
+        card_number: cardNumber,
+      },
+    };
+
+    if (cardId) {
+      card.data.id = cardId;
+    }
+
+    const cardType = this.getCardType(cardNumber);
+    let endpoint: string;
+
+    switch (cardType) {
+      case RTFCardType.VISA:
+        endpoint = '/corporate_cards/visa_enroll';
+        break;
+
+      case RTFCardType.MASTERCARD:
+        endpoint = '/corporate_cards/mastercard_enroll';
+        break;
+
+      default:
+        throw new Error(`Invalid card type ${cardType}`);
+    }
+
+    return this.spenderPlatformV1ApiService.post<EnrollCardResponse>(endpoint, card).pipe(
+      map((res) => res.data),
+      catchError((err: HttpErrorResponse) => {
+        const error = err.error as PlatformApiError;
+        return throwError(() => Error(error.message));
+      })
+    );
   }
 }
