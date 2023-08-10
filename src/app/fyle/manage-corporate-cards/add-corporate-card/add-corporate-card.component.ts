@@ -24,15 +24,19 @@ export class AddCorporateCardComponent implements OnInit {
 
   enrollmentFailureMessage: string;
 
+  cardNetworksText: string;
+
   rtfCardTypes: typeof RTFCardType = RTFCardType;
 
   constructor(private popoverController: PopoverController, private realTimeFeedService: RealTimeFeedService) {}
 
   ngOnInit(): void {
     this.cardForm = new FormControl('', [this.cardNumberValidator.bind(this), this.cardIssuerValidator.bind(this)]);
+    this.updateTnc();
 
     this.cardForm.valueChanges.pipe(distinctUntilChanged()).subscribe((value: string) => {
       this.cardType = this.realTimeFeedService.getCardType(value);
+      this.updateTnc();
     });
   }
 
@@ -58,6 +62,54 @@ export class AddCorporateCardComponent implements OnInit {
       .subscribe((enrolledCard) => {
         this.handleEnrollmentSuccess(enrolledCard);
       });
+  }
+
+  private updateTnc(): void {
+    const cardNetworks = [];
+
+    if (!this.cardType || this.cardType === RTFCardType.OTHERS) {
+      cardNetworks.push(...this.getAllowedCardNetworks());
+    } else {
+      cardNetworks.push(this.getSelectedCardNetwork());
+    }
+
+    switch (cardNetworks.length) {
+      case 1:
+        this.cardNetworksText = `${cardNetworks[0]}`;
+        break;
+      case 2:
+        this.cardNetworksText = `${cardNetworks[0]} and ${cardNetworks[1]}`;
+        break;
+      case 3:
+        this.cardNetworksText = `${cardNetworks[0]}, ${cardNetworks[1]} and ${cardNetworks[2]}`;
+        break;
+    }
+  }
+
+  private getAllowedCardNetworks(): string[] {
+    const cardNetworks: string[] = [];
+
+    if (this.isVisaRTFEnabled) {
+      cardNetworks.push('Visa');
+    }
+    if (this.isMastercardRTFEnabled) {
+      cardNetworks.push('Mastercard');
+    }
+    if (this.isYodleeEnabled) {
+      cardNetworks.push('Others');
+    }
+
+    return cardNetworks;
+  }
+
+  private getSelectedCardNetwork(): string {
+    const cardTypeMap: Record<RTFCardType, string> = {
+      [RTFCardType.VISA]: 'Visa',
+      [RTFCardType.MASTERCARD]: 'Mastercard',
+      [RTFCardType.OTHERS]: 'Others',
+    };
+
+    return cardTypeMap[this.cardType];
   }
 
   private cardNumberValidator(control: AbstractControl): ValidationErrors {
