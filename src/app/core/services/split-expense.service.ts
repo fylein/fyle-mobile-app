@@ -38,7 +38,7 @@ export class SplitExpenseService {
     private utilityService: UtilityService
   ) {}
 
-  linkTxnWithFiles(data: FileTransaction): Observable<FileObject[]> {
+  linkTxnWithFiles(data: Partial<FileTransaction>): Observable<FileObject[]> {
     const observables = [];
     const files = data.files;
     const txns = data.txns;
