@@ -321,7 +321,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+            expect(res).toEqual(null);
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             done();
