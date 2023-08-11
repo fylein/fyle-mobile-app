@@ -843,7 +843,7 @@ describe('MergeExpensesService', () => {
       // @ts-ignore
       const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData22);
       expect(res).toEqual(optionsData23);
-      expect(dateService.isValidDate).toHaveBeenCalledWith(optionsData22[1].value);
+      expect(dateService.isValidDate).toHaveBeenCalledWith(<Date>optionsData22[1].value);
     });
 
     it('should return the formatted custom input options by type without date', () => {
@@ -909,7 +909,7 @@ describe('MergeExpensesService', () => {
   });
 
   it('setformattedDate(): should return formatted date', () => {
-    const mockDate = new Date('2021-03-10T05:31:00.000Z');
+    const mockDate = '2021-03-10T05:31:00.000Z';
     expect(mergeExpensesService.setFormattedDate(mockDate)).toEqual(dayjs(mockDate).format('MMM DD, YYYY'));
   });
 });

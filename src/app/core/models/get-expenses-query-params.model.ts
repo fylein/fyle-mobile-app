@@ -1,5 +1,5 @@
 export type GetExpensesQueryParams = {
-  or: string[];
+  or: string | string[];
   and: string;
   tx_report_id: string;
   tx_state: string;
