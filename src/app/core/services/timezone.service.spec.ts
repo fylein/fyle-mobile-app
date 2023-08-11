@@ -3,6 +3,7 @@ import { CurrencyService } from './currency.service';
 import { expectedTxnCustomProperties, txnCustomPropertiesData } from '../mock-data/txn-custom-properties.data';
 import { TimezoneService } from './timezone.service';
 import { UtilityService } from './utility.service';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 describe('TimezoneService', () => {
   let timezoneService: TimezoneService;
@@ -33,7 +34,7 @@ describe('TimezoneService', () => {
       const date = new Date('2023-02-13T17:00:00.000Z');
       const offset = '05:30:00';
       spyOn(timezoneService, 'convertToUtc').and.callThrough();
-      utilityService.traverse.and.callFake((object, callback) => {
+      utilityService.traverse.and.callFake((object: TxnCustomProperties, callback) => {
         callback(object);
         timezoneService.convertToUtc(date, offset);
         return expectedTxnCustomProperties;
@@ -50,11 +51,11 @@ describe('TimezoneService', () => {
 
       utilityService.traverse.and.callFake((object, callback) => {
         const nonDateProp = txnCustomPropertiesData[0].value;
-        return callback(nonDateProp);
+        return callback(<Date>nonDateProp);
       });
 
       const result = timezoneService.convertAllDatesToProperLocale(txnCustomPropertiesData, offset);
-      expect(result).toEqual(txnCustomPropertiesData[0].value);
+      expect(result).toEqual(<Date>txnCustomPropertiesData[0].value);
     });
   });
 

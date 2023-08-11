@@ -18,13 +18,8 @@ import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
+import { Datum } from '../models/v2/stats-response.model';
 
-type StatsResponse = {
-  aggregates: {
-    function_name: string;
-    function_value: number;
-  }[];
-}[];
 @Injectable({
   providedIn: 'root',
 })
@@ -424,12 +419,12 @@ export class TasksService {
     );
   }
 
-  getSentBackReports(): Observable<StatsResponse> {
+  getSentBackReports(): Observable<Datum[]> {
     return this.reportService.getReportStatsData({
       scalar: true,
       aggregates: 'count(rp_id),sum(rp_amount)',
       rp_state: 'in.(APPROVER_INQUIRY)',
-    }) as Observable<StatsResponse>;
+    });
   }
 
   getSentBackReportTasks(): Observable<DashboardTask[]> {
@@ -437,27 +432,27 @@ export class TasksService {
       reportsStats: this.getSentBackReports(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: StatsResponse; homeCurrency: string }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
         this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
   }
 
-  getUnsubmittedReportsStats(): Observable<StatsResponse> {
+  getUnsubmittedReportsStats(): Observable<Datum[]> {
     return this.reportService.getReportStatsData({
       scalar: true,
       aggregates: 'count(rp_id),sum(rp_amount)',
       rp_state: 'in.(DRAFT)',
-    }) as Observable<StatsResponse>;
+    });
   }
 
-  getSentBackAdvancesStats(): Observable<StatsResponse> {
+  getSentBackAdvancesStats(): Observable<Datum[]> {
     return this.advancesRequestService.getMyAdvanceRequestStats({
       aggregates: 'count(areq_id),sum(areq_amount)',
       areq_state: 'in.(DRAFT)',
       areq_is_sent_back: 'is.true',
       scalar: true,
-    }) as Observable<StatsResponse>;
+    });
   }
 
   getSentBackAdvanceTasks(): Observable<DashboardTask[]> {
@@ -465,27 +460,26 @@ export class TasksService {
       advancesStats: this.getSentBackAdvancesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ advancesStats, homeCurrency }: { advancesStats: StatsResponse; homeCurrency: string }) =>
+      map(({ advancesStats, homeCurrency }: { advancesStats: Datum[]; homeCurrency: string }) =>
         this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
       )
     );
   }
 
-  getTeamReportsStats(): Observable<StatsResponse> {
+  getTeamReportsStats(): Observable<Datum[]> {
     return from(this.authService.getEou()).pipe(
-      switchMap(
-        (eou) =>
-          this.reportService.getReportStatsData(
-            {
-              approved_by: 'cs.{' + eou.ou.id + '}',
-              rp_approval_state: ['in.(APPROVAL_PENDING)'],
-              rp_state: ['in.(APPROVER_PENDING)'],
-              sequential_approval_turn: ['in.(true)'],
-              aggregates: 'count(rp_id),sum(rp_amount)',
-              scalar: true,
-            },
-            false
-          ) as Observable<StatsResponse>
+      switchMap((eou) =>
+        this.reportService.getReportStatsData(
+          {
+            approved_by: 'cs.{' + eou.ou.id + '}',
+            rp_approval_state: ['in.(APPROVAL_PENDING)'],
+            rp_state: ['in.(APPROVER_PENDING)'],
+            sequential_approval_turn: ['in.(true)'],
+            aggregates: 'count(rp_id),sum(rp_amount)',
+            scalar: true,
+          },
+          false
+        )
       )
     );
   }
@@ -495,7 +489,7 @@ export class TasksService {
       reportsStats: this.getTeamReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: StatsResponse; homeCurrency: string }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
         this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
@@ -558,19 +552,19 @@ export class TasksService {
       reportsStats: this.getUnsubmittedReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: StatsResponse; homeCurrency: string }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
         this.mapAggregateToUnsubmittedReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
   }
 
-  getUnreportedExpensesStats(): Observable<StatsResponse> {
+  getUnreportedExpensesStats(): Observable<Datum[]> {
     return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
       scalar: true,
       tx_state: 'in.(COMPLETE)',
       or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
       tx_report_id: 'is.null',
-    }) as Observable<StatsResponse>;
+    });
   }
 
   getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
@@ -583,18 +577,18 @@ export class TasksService {
       transactionStats: this.getUnreportedExpensesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ transactionStats, homeCurrency }: { transactionStats: StatsResponse; homeCurrency: string }) =>
+      map(({ transactionStats, homeCurrency }: { transactionStats: Datum[]; homeCurrency: string }) =>
         this.mapAggregateToUnreportedExpensesTask(this.mapScalarStatsResponse(transactionStats), homeCurrency)
       )
     );
   }
 
-  getDraftExpensesStats(): Observable<StatsResponse> {
+  getDraftExpensesStats(): Observable<Datum[]> {
     return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
       scalar: true,
       tx_state: 'in.(DRAFT)',
       tx_report_id: 'is.null',
-    }) as Observable<StatsResponse>;
+    });
   }
 
   getDraftExpensesTasks(): Observable<DashboardTask[]> {
@@ -602,7 +596,7 @@ export class TasksService {
       transactionStats: this.getDraftExpensesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ transactionStats, homeCurrency }: { transactionStats: StatsResponse; homeCurrency: string }) =>
+      map(({ transactionStats, homeCurrency }: { transactionStats: Datum[]; homeCurrency: string }) =>
         this.mapAggregateToDraftExpensesTask(this.mapScalarStatsResponse(transactionStats), homeCurrency)
       )
     );
@@ -783,7 +777,7 @@ export class TasksService {
   }
 
   getStatsFromResponse(
-    statsResponse: StatsResponse,
+    statsResponse: Datum[],
     countName: string,
     sumName: string
   ): { totalCount: number; totalAmount: number } {
@@ -795,15 +789,15 @@ export class TasksService {
     };
   }
 
-  mapScalarReportStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
+  mapScalarReportStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(rp_id)', 'sum(rp_amount)');
   }
 
-  mapScalarAdvanceStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
+  mapScalarAdvanceStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(areq_id)', 'sum(areq_amount)');
   }
 
-  mapScalarStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
+  mapScalarStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(tx_id)', 'sum(tx_amount)');
   }
 }
