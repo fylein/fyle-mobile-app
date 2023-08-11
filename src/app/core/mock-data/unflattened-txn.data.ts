@@ -1925,7 +1925,29 @@ export const newExpFromFg = {
     per_diem_rate_id: null,
     activity_policy_pending: null,
     activity_details: null,
-    locations: ['loc1', 'loc2'],
+    locations: [
+      {
+        actual: 'null',
+        city: 'Kalyan',
+        country: 'India',
+        display: 'Kalyan Station Road, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra, India',
+        formatted_address: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
+        latitude: 19.238037,
+        longitude: 73.1296469,
+        state: 'Maharashtra',
+      },
+      {
+        actual: 'null',
+        city: 'Bhiwandi',
+        country: 'India',
+        display: 'Bhiwandi Railway Station Road, Brahmanand Nagar, Kamatghar, Bhiwandi, Maharashtra, India',
+        formatted_address:
+          'Bhiwandi Railway Station Rd, Brahmanand Nagar, Kamatghar, Bhiwandi, Maharashtra 421302, India',
+        latitude: 19.2687341,
+        longitude: 73.0484305,
+        state: 'Maharashtra',
+      },
+    ],
     custom_properties: [
       {
         id: 111,
@@ -2056,7 +2078,18 @@ export const newExpFromFg2 = {
     per_diem_rate_id: null,
     activity_policy_pending: null,
     activity_details: null,
-    locations: ['loc1'],
+    locations: [
+      {
+        actual: 'null',
+        city: 'Kalyan',
+        country: 'India',
+        display: 'Kalyan Station Road, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra, India',
+        formatted_address: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
+        latitude: 19.238037,
+        longitude: 73.1296469,
+        state: 'Maharashtra',
+      },
+    ],
     custom_properties: [
       {
         id: 111,

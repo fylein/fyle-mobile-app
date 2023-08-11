@@ -615,7 +615,7 @@ export function TestCases2(getTestBed) {
         component.fg.controls.report.setValue(null);
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url1']);
         component.mode = 'add';
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         fixture.detectChanges();
 
         component.saveExpense();
@@ -991,6 +991,7 @@ export function TestCases2(getTestBed) {
             'rpId'
           )
           .componentProps.deleteMethod();
+        expect(reportService.removeTransaction).toHaveBeenCalledTimes(1);
       });
 
       it('should  return modal params and method to delete expense', () => {
@@ -1001,6 +1002,7 @@ export function TestCases2(getTestBed) {
             false
           )
           .componentProps.deleteMethod();
+        expect(transactionService.delete).toHaveBeenCalledTimes(1);
       });
     });
 

@@ -1,14 +1,13 @@
 import { InstaFyleResponse } from '../models/insta-fyle-data.model';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
-import { ParsedResponse } from '../models/parsed_response.model';
 
 export const parsedReceiptData1: ParsedReceipt = {
   data: {
     category: 'SYSTEM',
     currency: 'USD',
     amount: 100,
-    date: '2023-02-15T06:30:00.000Z',
-    invoice_dt: '2023-02-24T12:03:57.680Z',
+    date: new Date('2023-02-15T06:30:00.000Z'),
+    invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
     vendor_name: 'vendor',
   },
 };
@@ -19,7 +18,7 @@ export const parsedReceiptData2: ParsedReceipt = {
     currency: 'USD',
     amount: 100,
     date: null,
-    invoice_dt: '2023-02-24T12:03:57.680Z',
+    invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
     vendor_name: 'vendor',
   },
 };
@@ -32,8 +31,8 @@ export const expectedInstaFyleData1: InstaFyleResponse = {
     category: 'SYSTEM',
     currency: 'USD',
     amount: 100,
-    date: '2023-02-15T06:30:00.000Z',
-    invoice_dt: '2023-02-24T12:03:57.680Z',
+    date: new Date('2023-02-15T06:30:00.000Z'),
+    invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
     vendor_name: 'vendor',
   },
   exchangeRate: 82,
@@ -74,8 +73,8 @@ export const expectedInstaFyleData2: InstaFyleResponse = {
     category: 'SYSTEM',
     currency: 'USD',
     amount: 100,
-    date: '2023-02-15T06:30:00.000Z',
-    invoice_dt: '2023-02-24T12:03:57.680Z',
+    date: new Date('2023-02-15T06:30:00.000Z'),
+    invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
     vendor_name: 'vendor',
   },
 };
@@ -100,8 +99,8 @@ export const parsedInfo1: ParsedReceipt = {
     category: 'SYSTEM',
     currency: 'USD',
     amount: 100,
-    date: '2023-02-15T06:30:00.000Z',
-    invoice_dt: '2023-02-24T12:03:57.680Z',
+    date: new Date('2023-02-15T06:30:00.000Z'),
+    invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
     vendor_name: 'vendor',
   },
   exchangeRate: 82,
@@ -113,7 +112,7 @@ export const parsedInfo2: ParsedReceipt = {
     currency: 'USD',
     amount: 100,
     date: null,
-    invoice_dt: '2023-02-24T12:03:57.680Z',
+    invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
     vendor_name: 'vendor',
   },
   exchangeRate: 82,
