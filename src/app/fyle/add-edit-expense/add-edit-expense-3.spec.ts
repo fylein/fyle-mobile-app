@@ -107,6 +107,7 @@ import {
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -464,8 +465,8 @@ export function TestCases3(getTestBed) {
 
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
-        component.fg.controls.location_1.setValue('loc1');
-        component.fg.controls.location_2.setValue('loc2');
+        component.fg.controls.location_1.setValue(optionsData15.options[0].value);
+        component.fg.controls.location_2.setValue(optionsData33.options[0].value);
         component.fg.controls.currencyObj.setValue({
           amount: 500,
           currency: 'USD',
@@ -537,7 +538,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAmount').and.returnValue(100);
 
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
-        component.fg.controls.location_1.setValue('loc1');
+        component.fg.controls.location_1.setValue(optionsData15.options[0].value);
         component.fg.controls.category.setValue({
           name: 'TRAVEL',
           sub_category: 'TAXI',

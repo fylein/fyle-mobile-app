@@ -9,6 +9,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { DebugElement, Injector } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { getAllElementsBySelector, getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 
 describe('FyNumberComponent', () => {
   let component: FyNumberComponent;
@@ -19,7 +20,10 @@ describe('FyNumberComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['checkIfKeyboardPluginIsEnabled']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfKeyboardPluginIsEnabled',
+      'checkIfNegativeExpensePluginIsEnabled',
+    ]);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
 
     TestBed.configureTestingModule({
@@ -40,6 +44,7 @@ describe('FyNumberComponent', () => {
 
     platform.is.withArgs('ios').and.returnValue(true);
     launchDarklyService.checkIfKeyboardPluginIsEnabled.and.returnValue(of(true));
+    launchDarklyService.checkIfNegativeExpensePluginIsEnabled.and.returnValue(of(true));
     fixture = TestBed.createComponent(FyNumberComponent);
     component = fixture.componentInstance;
     inputEl = fixture.debugElement.query(By.css('input'));
@@ -87,6 +92,21 @@ describe('FyNumberComponent', () => {
       const inputElement = fixture.debugElement.queryAll(By.css('.fy-number--input'));
       expect(component.isIos).toBe(false);
       expect(component.isKeyboardPluginEnabled).toBeFalse();
+      expect(inputElement.length).toBe(1);
+      expect(component.handleChange).not.toHaveBeenCalled();
+    });
+
+    it('should not enable the negative expense plugin when checkIfKeyboardPluginIsEnabled returns false', () => {
+      spyOn(component, 'handleChange');
+
+      platform.is.withArgs('ios').and.returnValue(false);
+      launchDarklyService.checkIfNegativeExpensePluginIsEnabled.and.returnValue(of(false));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+      const inputElement = getAllElementsBySelector(fixture, '.fy-number--input');
+      expect(component.isIos).toBeFalse();
+      expect(component.isNegativeExpensePluginEnabled).toBeFalse();
       expect(inputElement.length).toBe(1);
       expect(component.handleChange).not.toHaveBeenCalled();
     });
@@ -214,5 +234,43 @@ describe('FyNumberComponent', () => {
     const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
     inputElement.dispatchEvent(new KeyboardEvent('keyup', { key: '1' }));
     expect(component.handleChange).toHaveBeenCalledTimes(1);
+  });
+
+  describe('handleNegativeExpenseChange():', () => {
+    it('should handle comma correctly if keyboard plugin and negative expense plugin are enabled and should not allow any non-numeric value', () => {
+      const allInputElements = getAllElementsBySelector(fixture, '.fy-number--input') as HTMLInputElement[];
+
+      let mockEvent = { target: { value: '-1' }, code: 'Digit2', key: '2', preventDefault: () => {} } as any;
+      spyOn(mockEvent, 'preventDefault');
+      component.handleNegativeExpenseChange(mockEvent);
+      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
+
+      mockEvent = { target: { value: '-12' }, code: 'KeyA', key: 'a', preventDefault: () => {} } as any;
+      spyOn(mockEvent, 'preventDefault');
+      component.handleNegativeExpenseChange(mockEvent);
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+
+      mockEvent = { target: { value: '-12' }, code: 'Comma', key: ',', preventDefault: () => {} } as any;
+      spyOn(mockEvent, 'preventDefault');
+      component.handleNegativeExpenseChange(mockEvent);
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+
+      mockEvent = { target: { value: '12.' }, code: 'Digit5', key: '5', preventDefault: () => {} } as any;
+      spyOn(mockEvent, 'preventDefault');
+      component.handleNegativeExpenseChange(mockEvent);
+      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
+
+      const inputWithPlugin = getElementBySelector(fixture, '#inputWithPlugin input');
+      expect(inputWithPlugin).toBeNull();
+
+      const inputWithoutPlugin = getElementBySelector(fixture, '#inputWithPlugin input');
+      expect(inputWithoutPlugin).toBeNull();
+
+      expect(allInputElements.length).toBe(1);
+
+      expect(component.isIos).toBeTrue();
+      expect(component.isKeyboardPluginEnabled).toBeTrue();
+      expect(component.isNegativeExpensePluginEnabled).toBeTrue();
+    });
   });
 });

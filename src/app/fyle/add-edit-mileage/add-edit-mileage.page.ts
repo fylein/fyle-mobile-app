@@ -72,7 +72,6 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -245,8 +244,6 @@ export class AddEditMileagePage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
-  loadDynamicMap$: Observable<boolean>;
-
   private _isExpandedView = false;
 
   constructor(
@@ -281,7 +278,6 @@ export class AddEditMileagePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
     private currencyService: CurrencyService,
     private mileageRateService: MileageRatesService,
@@ -326,8 +322,6 @@ export class AddEditMileagePage implements OnInit {
   ngOnInit() {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-
-    this.loadDynamicMap$ = this.launchDarklyService.getVariation('show_dynamic_maps', false);
   }
 
   goToPrev() {

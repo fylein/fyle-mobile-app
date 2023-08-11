@@ -1,5 +1,5 @@
-import { FileTransaction } from '../models/file-txn.model';
 import { Transaction } from '../models/v1/transaction.model';
+import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 
 export const txnList: Transaction[] = [
   {
@@ -3280,7 +3280,7 @@ export const editExpTxn2 = {
   per_diem_rate_id: null,
   activity_policy_pending: null,
   activity_details: null,
-  locations: ['loc1', 'loc2'],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
   custom_properties: [
     {
       id: 111,
@@ -3389,7 +3389,7 @@ export const editExpTxn3 = {
   per_diem_rate_id: null,
   activity_policy_pending: null,
   activity_details: null,
-  locations: ['loc1', 'loc2'],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
   custom_properties: [
     {
       id: 111,
@@ -3498,7 +3498,7 @@ export const editExpTxn4 = {
   per_diem_rate_id: null,
   activity_policy_pending: null,
   activity_details: null,
-  locations: ['loc1', 'loc2'],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
   custom_properties: [
     {
       id: 111,
@@ -3608,7 +3608,7 @@ export const editExpTxn5 = {
   per_diem_rate_id: null,
   activity_policy_pending: null,
   activity_details: null,
-  locations: ['loc1', 'loc2'],
+  locations: [optionsData15.options[0].value, optionsData33.options[0].value],
   custom_properties: [
     {
       id: 111,

@@ -1,3 +1,4 @@
+import { Destination } from '../destination.model';
 import { TxnCustomProperties } from '../txn-custom-properties.model';
 
 export interface Transaction {
@@ -34,7 +35,7 @@ export interface Transaction {
   hotel_is_breakfast_provided?: boolean;
   id?: string;
   invoice_number?: number;
-  locations?: any;
+  locations?: Destination[];
   mandatory_fields_present?: boolean;
   manual_flag?: boolean;
   mileage_calculated_amount?: number;
