@@ -510,8 +510,33 @@ export const draftUnflattendedTxn = {
   tx: {
     ...unflattenedExpData.tx,
     id: null,
+    source: 'MOBILE',
     state: 'DRAFT',
     org_category_id: null,
-    fyle_category: 'unspecified',
+    fyle_category: 'UNSPECIFIED',
+  },
+};
+
+export const draftUnflattendedTxn2 = {
+  ...unflattenedExpData,
+  tx: {
+    ...unflattenedExpData.tx,
+    id: null,
+    source: 'MOBILE',
+    state: 'DRAFT',
+    org_category_id: 'null',
+    fyle_category: null,
+  },
+};
+
+export const draftUnflattendedTxn3 = {
+  ...unflattenedExpData,
+  tx: {
+    ...unflattenedExpData.tx,
+    id: 'txCYDX0peUw5',
+    source: 'MOBILE',
+    state: 'DRAFT',
+    org_category_id: null,
+    fyle_category: 'UNSPECIFIED',
   },
 };

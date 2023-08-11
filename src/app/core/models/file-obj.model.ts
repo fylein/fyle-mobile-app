@@ -1,5 +1,5 @@
 export interface FileObject {
-  id: string;
+  id?: string;
   org_user_id?: string;
   created_at?: Date;
   name?: string;

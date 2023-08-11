@@ -2,21 +2,29 @@ import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, combineLatest, of, throwError } from 'rxjs';
-import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
+import { Observable, Subscription, of, throwError } from 'rxjs';
+import { expensePolicyData, expensePolicyDataWoData } from 'src/app/core/mock-data/expense-policy.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { fileObject4, fileObjectAdv1 } from 'src/app/core/mock-data/file-object.data';
+import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import {
+  createExpenseProperties,
+  createExpenseProperties2,
+} from 'src/app/core/mock-data/track-expense-properties.data';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { editExpTxn2, editExpTxn3, editExpTxn4, editExpTxn5, txnData2 } from 'src/app/core/mock-data/transaction.data';
 import {
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
   newUnflattenedTxn,
+  trackAddExpenseWoCurrency,
+  trackCreateExpData,
+  trackCreateExpDataWoCurrency,
   unflattenedExpenseWithCCCGroupId,
   unflattenedTransactionDataPersonalCard,
   unflattenedTxnData,
@@ -61,11 +69,6 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { getElementBySelector, getElementRef } from 'src/app/core/dom-helpers';
-import { unflattenedData } from 'src/app/core/mock-data/data-transform.data';
-import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
-import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
-import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -245,7 +248,45 @@ export function TestCases4(getTestBed) {
       }));
     });
 
+    it('onChangeCallback(): should call upload file callback', fakeAsync(() => {
+      spyOn(component, 'uploadFileCallback');
+
+      const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
+      const mockNativeElement = {
+        files: [mockFile],
+      } as unknown as HTMLInputElement;
+
+      component.onChangeCallback(mockNativeElement);
+      tick(500);
+
+      expect(component.uploadFileCallback).toHaveBeenCalledOnceWith(mockFile);
+    }));
+
     describe('addAttachments():', () => {
+      it('should upload file if platform is ios', fakeAsync(() => {
+        platform.is.and.returnValue(true);
+        spyOn(component, 'onChangeCallback');
+        fixture.detectChanges();
+
+        const dummyNativeElement = document.createElement('input');
+
+        component.fileUpload = {
+          nativeElement: dummyNativeElement,
+        };
+
+        const nativeElement = component.fileUpload.nativeElement as HTMLInputElement;
+        spyOn(nativeElement, 'click').and.callThrough();
+
+        component.addAttachments(new Event('click'));
+        fixture.detectChanges();
+        tick(500);
+
+        nativeElement.dispatchEvent(new Event('change'));
+
+        expect(component.onChangeCallback).toHaveBeenCalledTimes(1);
+        expect(nativeElement.click).toHaveBeenCalledTimes(1);
+      }));
+
       it('should show add popup if the platform is android and open camera', fakeAsync(() => {
         platform.is.and.returnValue(false);
         fileService.getImageTypeFromDataUrl.and.returnValue('png');
@@ -304,33 +345,41 @@ export function TestCases4(getTestBed) {
       }));
     });
 
-    it('trackAddExpense(): should track adding expense', fakeAsync(() => {
-      spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-      spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
-      spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-      component.presetCategoryId = expectedUnflattendedTxnData4.tx.org_category_id;
-      component.presetProjectId = expectedUnflattendedTxnData4.tx.project_id;
-      component.presetCostCenterId = expectedUnflattendedTxnData4.tx.cost_center_id;
-      component.presetCurrency = expectedUnflattendedTxnData4.tx.currency;
-      fixture.detectChanges();
+    describe('trackAddExpense():', () => {
+      it('should track adding expense', fakeAsync(() => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
+        spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
+        component.presetCategoryId = expectedUnflattendedTxnData4.tx.org_category_id as number;
+        component.presetProjectId = expectedUnflattendedTxnData4.tx.project_id as number;
+        component.presetCostCenterId = expectedUnflattendedTxnData4.tx.cost_center_id;
+        component.presetCurrency = expectedUnflattendedTxnData4.tx.currency;
+        fixture.detectChanges();
 
-      component.trackAddExpense();
-      tick(500);
-      expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-      expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
-      expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
-        Type: 'Receipt',
-        Amount: expectedUnflattendedTxnData4.tx.amount,
-        Currency: expectedUnflattendedTxnData4.tx.currency,
-        Category: expectedUnflattendedTxnData4.tx.org_category,
-        Time_Spent: '300 secs',
-        Used_Autofilled_Category: undefined,
-        Used_Autofilled_Project: undefined,
-        Used_Autofilled_CostCenter: true,
-        Used_Autofilled_Currency: true,
-        Instafyle: false,
-      });
-    }));
+        component.trackAddExpense();
+        tick(500);
+        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties);
+      }));
+
+      it('should track adding expense where original currency is same as the preset currency', fakeAsync(() => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(trackAddExpenseWoCurrency));
+        spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
+        component.presetCategoryId = trackAddExpenseWoCurrency.tx.org_category_id;
+        component.presetProjectId = trackAddExpenseWoCurrency.tx.project_id;
+        component.presetCostCenterId = trackAddExpenseWoCurrency.tx.cost_center_id;
+        component.presetCurrency = trackAddExpenseWoCurrency.tx.orig_currency;
+        fixture.detectChanges();
+
+        component.trackAddExpense();
+        tick(500);
+        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties2);
+      }));
+    });
 
     it('showAddToReportSuccessToast(): should show success message on adding expense to report', () => {
       const modalSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
@@ -355,7 +404,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData3));
         spyOn(component, 'trackAddExpense');
         component.isConnected$ = of(true);
-        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
         authService.getEou.and.resolveTo(apiEouRes);
@@ -547,7 +596,7 @@ export function TestCases4(getTestBed) {
           .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         component.isConnected$ = of(true);
-        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
         activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
@@ -696,29 +745,100 @@ export function TestCases4(getTestBed) {
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
+
+      it('should generate an expense in offline mode and match with a card', () => {
+        const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
+        generateEtxnSpy
+          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+        generateEtxnSpy
+          .withArgs(component.etxn$, jasmine.any(Observable))
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        component.isConnected$ = of(false);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard));
+        personalCardsService.matchExpense.and.returnValue(
+          of({
+            id: expectedUnflattendedTxnData3.tx.id,
+            transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
+          })
+        );
+        spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
+        spyOn(component, 'showSnackBarToast');
+        fixture.detectChanges();
+
+        component.saveAndMatchWithPersonalCardTxn();
+        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard);
+        expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id,
+          apiPersonalCardTxnsRes.data[0].btxn_id
+        );
+        expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id
+        );
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Expense created successfully.' },
+          'success',
+          ['msb-success']
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
+      });
     });
 
-    it('trackEditExpense(): should track edit expense event', () => {
-      spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-      component.presetCategoryId = expectedUnflattendedTxnData3.tx.org_category_id;
-      component.presetProjectId = expectedUnflattendedTxnData3.tx.project_id;
-      component.presetCostCenterId = expectedUnflattendedTxnData3.tx.cost_center_id;
-      component.presetCurrency = expectedUnflattendedTxnData3.tx.currency;
-      fixture.detectChanges();
+    describe('trackEditExpense():', () => {
+      it('should track edit expense event', () => {
+        spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
+        component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
+        component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
+        component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
+        fixture.detectChanges();
 
-      component.trackEditExpense(expectedUnflattendedTxnData3);
-      expect(trackingService.editExpense).toHaveBeenCalledOnceWith({
-        Type: 'Receipt',
-        Amount: expectedUnflattendedTxnData3.tx.amount,
-        Currency: expectedUnflattendedTxnData3.tx.currency,
-        Category: expectedUnflattendedTxnData3.tx.org_category,
-        Time_Spent: '300 secs',
-        Used_Autofilled_Category: undefined,
-        Used_Autofilled_Project: undefined,
-        Used_Autofilled_CostCenter: true,
-        Used_Autofilled_Currency: true,
+        component.trackEditExpense(trackCreateExpData);
+        expect(trackingService.editExpense).toHaveBeenCalledOnceWith({
+          Type: 'Receipt',
+          Amount: trackCreateExpDataWoCurrency.tx.amount,
+          Currency: 'USD',
+          Category: trackCreateExpDataWoCurrency.tx.org_category,
+          Time_Spent: '300 secs',
+          Used_Autofilled_Category: true,
+          Used_Autofilled_Project: true,
+          Used_Autofilled_CostCenter: true,
+          Used_Autofilled_Currency: true,
+        });
+        expect(component.getTimeSpentOnPage).toHaveBeenCalledTimes(1);
       });
-      expect(component.getTimeSpentOnPage).toHaveBeenCalledTimes(1);
+
+      it('should track edit expense event for an expense where the original currency is same as preset currency', () => {
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
+        component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
+        component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
+        component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
+        spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
+        fixture.detectChanges();
+
+        component.trackEditExpense(trackCreateExpDataWoCurrency);
+        expect(trackingService.editExpense).toHaveBeenCalledOnceWith({
+          Type: 'Receipt',
+          Amount: trackCreateExpDataWoCurrency.tx.amount,
+          Currency: trackCreateExpDataWoCurrency.tx.currency,
+          Category: trackCreateExpDataWoCurrency.tx.org_category,
+          Time_Spent: '30 secs',
+          Used_Autofilled_Category: true,
+          Used_Autofilled_Project: true,
+          Used_Autofilled_CostCenter: true,
+          Used_Autofilled_Currency: true,
+        });
+      });
     });
 
     describe('editExpense():', () => {
@@ -799,6 +919,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         spyOn(component, 'trackPolicyCorrections');
         spyOn(component, 'trackEditExpense');
+
         component.etxn$ = of(unflattenedTxnDataWithReportID2);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
@@ -834,6 +955,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         spyOn(component, 'trackPolicyCorrections');
         spyOn(component, 'trackEditExpense');
+        spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
         policyService.getCriticalPolicyRules.and.returnValue([
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
         ]);
@@ -870,6 +992,7 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview.tx);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
           expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview.tx.id);
+          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(2);
           done();
         });
       });
@@ -880,6 +1003,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         spyOn(component, 'trackPolicyCorrections');
         spyOn(component, 'trackEditExpense');
+        spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
@@ -889,7 +1013,7 @@ export function TestCases4(getTestBed) {
         );
         component.etxn$ = of(unflattenedTxnDataWithViolationUserReview);
         authService.getEou.and.resolveTo(apiEouRes);
-        transactionService.review.and.returnValue(of(null));
+
         transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithViolationUserReview.tx));
         statusService.findLatestComment.and.returnValue(of('a comment'));
         statusService.post.and.returnValue(of(txnStatusData));
@@ -920,7 +1044,7 @@ export function TestCases4(getTestBed) {
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview.tx);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
-          expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnDataWithViolationUserReview.tx.id);
+
           expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
             unflattenedTxnDataWithViolationUserReview.tx.id,
             'transactions',
@@ -932,6 +1056,7 @@ export function TestCases4(getTestBed) {
             { comment: 'comment' },
             true
           );
+          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(2);
           done();
         });
       });
