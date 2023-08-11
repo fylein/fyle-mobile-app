@@ -15,7 +15,7 @@ import {
 } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ActionSheetController, ModalController, PopoverController, Platform, NavController } from '@ionic/angular';
+import { ActionSheetController, ModalController, PopoverController, NavController } from '@ionic/angular';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   catchError,
@@ -39,7 +39,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { assign, cloneDeep, isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -67,12 +67,15 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
-import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { UnformattedTransaction } from 'src/app/core/models/unformatted-transaction.model';
 import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expenses-query-params-with-filters.model';
-import { GetExpensesQueryParams } from 'src/app/core/models/get-expenses-query-params.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
+import { Datum } from 'src/app/core/models/v2/stats-response.model';
+import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
+import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
+import { CardDetail } from 'src/app/core/models/card-detail.model';
+import { FilterQueryParams } from 'src/app/core/models/filter-query-params.model';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 
 @Component({
   selector: 'app-my-expenses',
@@ -80,7 +83,7 @@ import { Transaction } from 'src/app/core/models/v1/transaction.model';
   styleUrls: ['./my-expenses.page.scss'],
 })
 export class MyExpensesPage implements OnInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
 
@@ -94,7 +97,7 @@ export class MyExpensesPage implements OnInit {
 
   currentPageNumber = 1;
 
-  acc = [];
+  acc: Expense[] = [];
 
   filters: Partial<ExpenseFilters>;
 
@@ -136,7 +139,7 @@ export class MyExpensesPage implements OnInit {
 
   headerState: HeaderState = HeaderState.base;
 
-  actionSheetButtons = [];
+  actionSheetButtons: { text: string; icon: string; cssClass: string; handler: () => void }[] = [];
 
   selectAll = false;
 
@@ -144,7 +147,7 @@ export class MyExpensesPage implements OnInit {
 
   reviewMode = false;
 
-  ROUTER_API_ENDPOINT: any;
+  ROUTER_API_ENDPOINT: string;
 
   isReportableExpensesSelected = false;
 
@@ -208,13 +211,13 @@ export class MyExpensesPage implements OnInit {
     private navController: NavController
   ) {}
 
-  get HeaderState() {
+  get HeaderState(): typeof HeaderState {
     return HeaderState;
   }
 
-  clearText(isFromCancel) {
+  clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
@@ -224,25 +227,25 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  onSearchBarFocus() {
+  onSearchBarFocus(): void {
     this.isSearchBarFocused = true;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
   }
 
-  formatTransactions(transactions: Partial<UnformattedTransaction>[]): Partial<Expense>[] {
+  formatTransactions(transactions: Partial<Transaction>[]): Partial<Expense>[] {
     return transactions.map((transaction) => {
       const formattedTxn = <Partial<Expense>>{};
-      Object.keys(transaction).forEach((key) => {
+      Object.keys(transaction).forEach((key: keyof Partial<Transaction>) => {
         formattedTxn['tx_' + key] = transaction[key];
       });
       return formattedTxn;
     });
   }
 
-  switchSelectionMode(expense?: Expense) {
+  switchSelectionMode(expense?: Expense): void {
     this.selectionMode = !this.selectionMode;
     if (!this.selectionMode) {
       if (this.loadData$.getValue().searchString) {
@@ -267,7 +270,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async sendFirstExpenseCreatedEvent() {
+  async sendFirstExpenseCreatedEvent(): Promise<void> {
     // checking if the expense is first expense
     const isFirstExpenseCreated = await this.storageService.get('isFirstExpenseCreated');
 
@@ -282,17 +285,19 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  setAllExpensesCountAndAmount() {
+  setAllExpensesCountAndAmount(): void {
     this.allExpensesStats$ = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = JSON.parse(JSON.stringify(params.queryParams)) || {};
+        const queryParams: FilterQueryParams =
+          (JSON.parse(JSON.stringify(params.queryParams)) as FilterQueryParams) || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
         if (queryParams.corporate_credit_card_account_number) {
-          const cardParamsCopy = JSON.parse(JSON.stringify(queryParams.corporate_credit_card_account_number));
-          queryParams.or = '(corporate_credit_card_account_number.' + cardParamsCopy + ')';
+          const cardParamsCopy = JSON.parse(JSON.stringify(queryParams.corporate_credit_card_account_number)) as string;
+          queryParams.or = queryParams.or || [];
+          queryParams.or.push('(corporate_credit_card_account_number.' + cardParamsCopy + ')');
           delete queryParams.corporate_credit_card_account_number;
         }
 
@@ -302,8 +307,8 @@ export class MyExpensesPage implements OnInit {
             ...queryParams,
           })
           .pipe(
-            catchError((err) => EMPTY),
-            map((stats: CardAggregateStats[]) => {
+            catchError(() => EMPTY),
+            map((stats: Datum[]) => {
               const count = stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
               const amount = stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
               return {
@@ -317,7 +322,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   actionSheetButtonsHandler(action: string, route: string) {
-    return () => {
+    return (): void => {
       this.trackingService.myExpensesActionSheetAction({
         Action: action,
       });
@@ -332,7 +337,7 @@ export class MyExpensesPage implements OnInit {
     };
   }
 
-  setupActionSheet(orgSettings: OrgSettings) {
+  setupActionSheet(orgSettings: OrgSettings): void {
     const that = this;
     const mileageEnabled = orgSettings.mileage.enabled;
     const isPerDiemEnabled = orgSettings.per_diem.enabled;
@@ -370,7 +375,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  getCardDetail(statsResponses: CardAggregateStats[]) {
+  getCardDetail(statsResponses: CardAggregateStats[]): UniqueCardStats[] {
     const cardNames: { cardNumber: string; cardName: string }[] = [];
     statsResponses.forEach((response) => {
       const cardDetail = {
@@ -379,17 +384,17 @@ export class MyExpensesPage implements OnInit {
       };
       cardNames.push(cardDetail);
     });
-    const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+    const uniqueCards = JSON.parse(JSON.stringify(cardNames)) as CardDetail[];
 
     return this.corporateCreditCardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.hardwareBackButton.unsubscribe();
     this.onPageExit$.next(null);
   }
 
-  backButtonAction() {
+  backButtonAction(): void {
     if (this.headerState === HeaderState.multiselect) {
       this.switchSelectionMode();
     } else if (this.headerState === HeaderState.simpleSearch) {
@@ -399,7 +404,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
     this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
@@ -487,9 +492,9 @@ export class MyExpensesPage implements OnInit {
     });
 
     this.simpleSearchInput.nativeElement.value = '';
-    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
-        map((event: any) => event.srcElement.value as string),
+        map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(400)
       )
@@ -560,7 +565,7 @@ export class MyExpensesPage implements OnInit {
       switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length)))
     );
 
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
 
     this.setAllExpensesCountAndAmount();
 
@@ -592,7 +597,7 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.loadData$.subscribe((params) => {
+    this.loadData$.subscribe(() => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -605,22 +610,26 @@ export class MyExpensesPage implements OnInit {
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.filters = Object.assign(
+        {},
+        this.filters,
+        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<ExpenseFilters>
+      );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
     } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
-      if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
+      if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'needsreceipt') {
         filters = { tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT' };
-      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
+      } else if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'policyviolated') {
         filters = {
           tx_policy_flag: 'eq.true',
           or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
           state: 'POLICY_VIOLATED',
         };
-      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
+      } else if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'cannotreport') {
         filters = { tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT' };
       }
       this.filters = Object.assign({}, this.filters, filters);
@@ -653,7 +662,7 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
@@ -671,7 +680,7 @@ export class MyExpensesPage implements OnInit {
     }, 1000);
   }
 
-  syncOutboxExpenses() {
+  syncOutboxExpenses(): void {
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
     if (this.pendingTransactions.length > 0) {
       this.syncing = true;
@@ -708,7 +717,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  generateFilterPills(filter: Partial<ExpenseFilters>) {
+  generateFilterPills(filter: Partial<ExpenseFilters>): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
     if (filter.state?.length > 0) {
@@ -742,10 +751,10 @@ export class MyExpensesPage implements OnInit {
     return filterPills;
   }
 
-  addNewFiltersToParams() {
+  addNewFiltersToParams(): Partial<GetExpensesQueryParamsWithFilters> {
     let currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    let newQueryParams: Partial<GetExpensesQueryParams> = {
+    let newQueryParams: FilterQueryParams = {
       or: [],
     };
 
@@ -782,7 +791,7 @@ export class MyExpensesPage implements OnInit {
     return currentParams;
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterInitialName?: string): Promise<void> {
     const filterMain = this.myExpensesService.getFilters();
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
@@ -804,7 +813,7 @@ export class MyExpensesPage implements OnInit {
 
     await filterPopover.present();
 
-    const { data } = await filterPopover.onWillDismiss();
+    const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | string[]>[] };
     if (data) {
       this.filters = this.myExpensesService.convertFilters(data);
       this.currentPageNumber = 1;
@@ -817,7 +826,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  clearFilters() {
+  clearFilters(): void {
     this.filters = {};
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -825,7 +834,7 @@ export class MyExpensesPage implements OnInit {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  async setState() {
+  async setState(): Promise<void> {
     this.isLoading = true;
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -835,14 +844,14 @@ export class MyExpensesPage implements OnInit {
     }, 500);
   }
 
-  setExpenseStatsOnSelect() {
+  setExpenseStatsOnSelect(): void {
     this.allExpensesStats$ = of({
       count: this.selectedElements.length,
       amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0),
     });
   }
 
-  selectExpense(expense: Expense) {
+  selectExpense(expense: Expense): void {
     let isSelectedElementsIncludesExpense = false;
     if (expense.tx_id) {
       isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
@@ -879,7 +888,7 @@ export class MyExpensesPage implements OnInit {
     this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedElements);
   }
 
-  goToTransaction({ etxn: expense }) {
+  goToTransaction({ etxn: expense }: { etxn: Expense; etxnIndex: number }): void {
     let category: string;
 
     if (expense.tx_org_category) {
@@ -895,7 +904,11 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async openCriticalPolicyViolationPopOver(config: { title: string; message: string; reportType: string }) {
+  async openCriticalPolicyViolationPopOver(config: {
+    title: string;
+    message: string;
+    reportType: string;
+  }): Promise<void> {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
@@ -915,7 +928,7 @@ export class MyExpensesPage implements OnInit {
 
     await criticalPolicyViolationPopOver.present();
 
-    const { data } = await criticalPolicyViolationPopOver.onWillDismiss();
+    const { data } = (await criticalPolicyViolationPopOver.onWillDismiss()) as { data: { action: string } };
 
     if (data && data.action) {
       if (data.action === 'continue') {
@@ -928,7 +941,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showNonReportableExpenseSelectedToast(message: string) {
+  showNonReportableExpenseSelectedToast(message: string): void {
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
       panelClass: ['msb-failure-with-report-btn'],
@@ -936,7 +949,7 @@ export class MyExpensesPage implements OnInit {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
-  async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport') {
+  async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport'): Promise<void> {
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
     selectedElements = selectedElements.filter((expense) => expense.tx_id);
@@ -1001,7 +1014,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async showNewReportModal() {
+  async showNewReportModal(): Promise<void> {
     const reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
@@ -1013,19 +1026,21 @@ export class MyExpensesPage implements OnInit {
     });
     await addExpenseToNewReportModal.present();
 
-    const { data } = await addExpenseToNewReportModal.onDidDismiss();
+    const { data } = (await addExpenseToNewReportModal.onDidDismiss()) as {
+      data: { report: ExtendedReport; message: string };
+    };
 
     if (data && data.report) {
       this.showAddToReportSuccessToast({ report: data.report, message: data.message });
     }
   }
 
-  openCreateReport() {
+  openCreateReport(): void {
     this.trackingService.clickCreateReport();
     this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
-  openReviewExpenses() {
+  openReviewExpenses(): void {
     const allDataPipe$ = this.loadData$.pipe(
       take(1),
       switchMap((params) => {
@@ -1119,14 +1134,14 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  filterExpensesBySearchString(expense: Expense, searchString: string) {
+  filterExpensesBySearchString(expense: Expense, searchString: string): boolean {
     return Object.values(expense)
-      .map((value) => value && value.toString().toLowerCase())
+      .map((value: keyof Expense) => value && value.toString().toLowerCase())
       .filter((value) => !!value)
       .some((value) => value.toLowerCase().includes(searchString.toLowerCase()));
   }
 
-  async onAddTransactionToReport(event: { tx_id: string }) {
+  async onAddTransactionToReport(event: { tx_id: string }): Promise<void> {
     const addExpenseToReportModal = await this.modalController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {
@@ -1137,13 +1152,13 @@ export class MyExpensesPage implements OnInit {
     });
     await addExpenseToReportModal.present();
 
-    const { data } = await addExpenseToReportModal.onDidDismiss();
+    const { data } = (await addExpenseToReportModal.onDidDismiss()) as { data: { reload: boolean } };
     if (data && data.reload) {
       this.doRefresh();
     }
   }
 
-  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport }) {
+  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport }): void {
     const toastMessageData = {
       message: config.message,
       redirectionText: 'View Report',
@@ -1171,7 +1186,7 @@ export class MyExpensesPage implements OnInit {
     );
   }
 
-  showOldReportsMatBottomSheet() {
+  showOldReportsMatBottomSheet(): void {
     const reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
     const selectedExpensesId = reportAbleExpenses.map((expenses) => expenses.tx_id);
 
@@ -1182,7 +1197,7 @@ export class MyExpensesPage implements OnInit {
             data: { openReports, isNewReportsFlowEnabled: this.isNewReportsFlowEnabled },
             panelClass: ['mat-bottom-sheet-1'],
           });
-          return addTxnToReportDialog.afterDismissed();
+          return addTxnToReportDialog.afterDismissed() as Observable<{ report: ExtendedReport }>;
         }),
         switchMap((data) => {
           if (data && data.report) {
@@ -1205,7 +1220,7 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  async openActionSheet() {
+  async openActionSheet(): Promise<void> {
     const that = this;
     const actionSheet = await this.actionSheetController.create({
       header: 'ADD EXPENSE',
@@ -1227,7 +1242,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async openDeleteExpensesPopover() {
+  async openDeleteExpensesPopover(): Promise<void> {
     const offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
 
     const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
@@ -1254,7 +1269,7 @@ export class MyExpensesPage implements OnInit {
 
     await deletePopover.present();
 
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
@@ -1288,7 +1303,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  onSelectAll(checked: boolean) {
+  onSelectAll(checked: boolean): void {
     if (checked) {
       this.selectedElements = [];
       if (this.pendingTransactions.length > 0) {
@@ -1334,16 +1349,16 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  onSimpleSearchCancel() {
+  onSimpleSearchCancel(): void {
     this.headerState = HeaderState.base;
     this.clearText('onSimpleSearchCancel');
   }
 
-  onFilterPillsClearAll() {
+  onFilterPillsClearAll(): void {
     this.clearFilters();
   }
 
-  async onFilterClick(filterType: string) {
+  async onFilterClick(filterType: string): Promise<void> {
     if (filterType === 'state') {
       await this.openFilters('Type');
     } else if (filterType === 'receiptsAttached') {
@@ -1359,7 +1374,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  onFilterClose(filterType: string) {
+  onFilterClose(filterType: string): void {
     if (filterType === 'sort') {
       delete this.filters.sortDir;
       delete this.filters.sortParam;
@@ -1372,7 +1387,7 @@ export class MyExpensesPage implements OnInit {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  onHomeClicked() {
+  onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -1383,7 +1398,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  onTaskClicked() {
+  onTaskClicked(): void {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'expenses' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -1394,7 +1409,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  onCameraClicked() {
+  onCameraClicked(): void {
     this.router.navigate([
       '/',
       'enterprise',
@@ -1405,15 +1420,15 @@ export class MyExpensesPage implements OnInit {
     ]);
   }
 
-  searchClick() {
+  searchClick(): void {
     this.headerState = HeaderState.simpleSearch;
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     setTimeout(() => {
       searchInput.focus();
     }, 300);
   }
 
-  mergeExpenses() {
+  mergeExpenses(): void {
     this.router.navigate([
       '/',
       'enterprise',
@@ -1425,7 +1440,7 @@ export class MyExpensesPage implements OnInit {
     ]);
   }
 
-  showCamera(isCameraPreviewStarted: boolean) {
+  showCamera(isCameraPreviewStarted: boolean): void {
     this.isCameraPreviewStarted = isCameraPreviewStarted;
   }
 }

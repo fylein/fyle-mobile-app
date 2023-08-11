@@ -19,11 +19,11 @@ export class LaunchDarklyService {
 
   getVariation(key: string, defaultValue: boolean): Observable<boolean> {
     if (this.ldClient) {
-      return of(this.ldClient.variation(key, defaultValue));
+      return of(this.ldClient.variation(key, defaultValue)) as Observable<boolean>;
     }
 
     return from(this.storageService.get('cachedLDFlags')).pipe(
-      map((cachedFlags) => {
+      map((cachedFlags: Record<string, boolean>) => {
         if (cachedFlags) {
           return cachedFlags[key] === undefined ? defaultValue : cachedFlags[key];
         } else {
@@ -37,7 +37,7 @@ export class LaunchDarklyService {
    * https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#off
    * https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#close
    */
-  shutDownClient() {
+  shutDownClient(): void {
     if (this.ldClient) {
       this.ldClient.off('initialized', this.updateCache, this);
       this.ldClient.off('change', this.updateCache, this);
@@ -47,7 +47,7 @@ export class LaunchDarklyService {
     }
   }
 
-  initializeUser(user: LDClient.LDUser) {
+  initializeUser(user: LDClient.LDUser): void {
     /**
      * Only makes LaunchDarkly call if the user has changed since the last initalization
      * This is done to avoid redundant calls
@@ -60,8 +60,12 @@ export class LaunchDarklyService {
     }
   }
 
-  checkIfKeyboardPluginIsEnabled() {
+  checkIfKeyboardPluginIsEnabled(): Observable<boolean> {
     return this.getVariation('keyboard_plugin_enabled', true);
+  }
+
+  checkIfNegativeExpensePluginIsEnabled(): Observable<boolean> {
+    return this.getVariation('numeric-keypad', false);
   }
 
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)
@@ -72,7 +76,7 @@ export class LaunchDarklyService {
     return isUserEqual;
   }
 
-  private updateCache() {
+  private updateCache(): void {
     if (this.ldClient) {
       const latestFlags = this.ldClient.allFlags();
       this.storageService.set('cachedLDFlags', latestFlags);

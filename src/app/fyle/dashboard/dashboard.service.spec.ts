@@ -116,7 +116,7 @@ describe('DashboardService', () => {
   });
 
   it('getUnreportedExpensesStats(): should return empty or undefined for UNREPORTED expense stats as api sends empty values as response', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of({}));
+    transactionService.getTransactionStats.and.returnValue(of([]));
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedEmptyStats);
@@ -158,7 +158,7 @@ describe('DashboardService', () => {
   });
 
   it('getIncompleteExpenseStats(): should return empty or undefined for INCOMPLETE expense stats as api sends empty values as response', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of({}));
+    transactionService.getTransactionStats.and.returnValue(of([]));
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedEmptyStats);

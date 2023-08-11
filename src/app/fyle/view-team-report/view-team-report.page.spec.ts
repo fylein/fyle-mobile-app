@@ -608,7 +608,7 @@ describe('ViewTeamReportPage', () => {
   it('deleteReport(): should delete report', async () => {
     popupService.showPopup.and.returnValue(Promise.resolve('primary'));
     loaderService.showLoader.and.returnValue(Promise.resolve());
-    reportService.delete.and.returnValue(of(true));
+    reportService.delete.and.returnValue(of(undefined));
     loaderService.hideLoader.and.returnValue(Promise.resolve());
 
     await component.deleteReport();
@@ -646,7 +646,7 @@ describe('ViewTeamReportPage', () => {
       );
 
       popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
-      reportService.approve.and.returnValue(of(true));
+      reportService.approve.and.returnValue(of(undefined));
       refinerService.startSurvey.and.returnValue(null);
 
       component.erpt$ = of(expectedReportSingleResponse);
@@ -790,7 +790,7 @@ describe('ViewTeamReportPage', () => {
     );
     popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
 
-    reportService.downloadSummaryPdfUrl.and.returnValue(of('encodedcontent'));
+    reportService.downloadSummaryPdfUrl.and.returnValue(of({ report_url: 'encodedcontent' }));
 
     await component.shareReport(new Event('event'));
     expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -825,7 +825,7 @@ describe('ViewTeamReportPage', () => {
     );
 
     popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
-    reportService.inquire.and.returnValue(of(true));
+    reportService.inquire.and.returnValue(of(undefined));
     snackbarProperties.setSnackbarProperties.and.returnValue(properties);
 
     await component.sendBack();
