@@ -304,7 +304,7 @@ export function TestCases5(getTestBed) {
 
       it('should get modal params with method to dismiss expense if matched expense does not exist', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'dismissCCC').and.returnValue(of(expenseData1));
+        spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.matchedCCCTransaction = null;
         fixture.detectChanges();
