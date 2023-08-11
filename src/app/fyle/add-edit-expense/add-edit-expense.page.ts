@@ -1,7 +1,7 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
-import { Component, DebugElement, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -50,16 +50,17 @@ import { CCCExpUnflattened, CCCExpense } from 'src/app/core/models/corporate-car
 import { CostCenterOptions } from 'src/app/core/models/cost-centers-options.model';
 import { Currency } from 'src/app/core/models/currency.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
-import { CustomField } from 'src/app/core/models/custom_field.model';
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { InstaFyleResponse } from 'src/app/core/models/insta-fyle-data.model';
 import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
 import { OrgSettings, TaxSettings } from 'src/app/core/models/org-settings.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { ParsedReceipt } from 'src/app/core/models/parsed_receipt.model';
 import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
@@ -75,7 +76,6 @@ import { UndoMerge } from 'src/app/core/models/undo-merge.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
@@ -128,9 +128,6 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 
 type FormValue = {
   currencyObj: {
@@ -175,13 +172,9 @@ type FormValue = {
   styleUrls: ['./add-edit-expense.page.scss'],
 })
 export class AddEditExpensePage implements OnInit {
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;
 
-  @ViewChild('formContainer') formContainer: ElementRef;
-
-  @ViewChild('comments') commentsContainer: ElementRef;
-
-  @ViewChild('fileUpload', { static: false }) fileUpload: DebugElement;
+  @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
 
   @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
 
@@ -229,9 +222,9 @@ export class AddEditExpensePage implements OnInit {
 
   isCostCentersEnabled$: Observable<boolean>;
 
-  flightJourneyTravelClassOptions$: Observable<{ label: string; value: string }[] | string[]>;
+  flightJourneyTravelClassOptions$: Observable<{ label: string; value: string }[]>;
 
-  customInputs$: Observable<CustomInputsOption[] | ExpenseField[]>;
+  customInputs$: Observable<TxnCustomProperties[]>;
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
@@ -271,7 +264,7 @@ export class AddEditExpensePage implements OnInit {
 
   loadAttachments$ = new BehaviorSubject<void>(null);
 
-  attachments$: Observable<FileObject[] | unknown>;
+  attachments$: Observable<FileObject[]>;
 
   focusState = false;
 
@@ -2084,7 +2077,7 @@ export class AddEditExpensePage implements OnInit {
 
     const categoryControl = this.getFormControl('category');
 
-    const customInputsFeilds$ = categoryControl.valueChanges.pipe(
+    const customInputsFeilds$: Observable<TxnCustomProperties[]> = categoryControl.valueChanges.pipe(
       filter((category) => !!category),
       startWith({}),
       distinctUntilChanged(),
@@ -2098,7 +2091,6 @@ export class AddEditExpensePage implements OnInit {
       switchMap((category: OrgCategory) => {
         const formValue = this.fg.value as {
           custom_inputs: CustomInput[];
-          customInputs: CustomInput;
         };
         return customExpenseFields$.pipe(
           map((customFields: ExpenseField[]) =>
@@ -2124,7 +2116,7 @@ export class AddEditExpensePage implements OnInit {
           return customField;
         })
       ),
-      switchMap((customFields: CustomField[]) =>
+      switchMap((customFields: TxnCustomProperties[]) =>
         this.isConnected$.pipe(
           take(1),
           map((isConnected: boolean) => {
@@ -2152,14 +2144,14 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.customInputs$ = customInputsFeilds$ as unknown as Observable<CustomInputsOption[]>;
+    this.customInputs$ = customInputsFeilds$;
 
     this.dependentFields$ = customExpenseFields$.pipe(
       map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
     );
   }
 
-  generateTxnFieldsMap(): Observable<Partial<ExpenseFieldsMap | ExpenseFieldsObj>> {
+  generateTxnFieldsMap(): Observable<Partial<ExpenseFieldsObj>> {
     return this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue: FormValue) =>
@@ -2192,7 +2184,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  updateFormForExpenseFields(txnFieldsMap$: Observable<Partial<ExpenseFieldsObj | ExpenseFieldsMap>>): void {
+  updateFormForExpenseFields(txnFieldsMap$: Observable<Partial<ExpenseFieldsObj>>): void {
     this.etxn$
       .pipe(
         switchMap(() => txnFieldsMap$),
@@ -3004,7 +2996,7 @@ export class AddEditExpensePage implements OnInit {
               })
             )
           ),
-          reduce((acc, curr) => acc.concat(curr) as unknown as FileObject, [])
+          reduce((acc: FileObject[], curr) => acc.concat(curr), [])
         )
       )
     );
@@ -3102,7 +3094,7 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  getExpenseAttachments(mode: string, txnId?: string): Observable<FileObject[] | unknown> {
+  getExpenseAttachments(mode: string, txnId?: string): Observable<FileObject[]> {
     if (mode === 'add') {
       return of(
         this.newExpenseDataUrls.map((fileObj: FileObject) => {
@@ -3315,11 +3307,7 @@ export class AddEditExpensePage implements OnInit {
             purpose: this.getPurpose(),
             locations: locations || [],
             custom_properties: customProperties || [],
-            num_files: isPolicyEtxn
-              ? (res.attachments as Array<FileObject>)?.length
-              : this.activatedRoute.snapshot.params?.dataUrl
-              ? 1
-              : 0,
+            num_files: isPolicyEtxn ? res.attachments?.length : this.activatedRoute.snapshot.params?.dataUrl ? 1 : 0,
             ...policyProps,
             org_user_id: etxn.tx.org_user_id,
             from_dt: this.getFromDt(),
@@ -3384,14 +3372,14 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  getProjectDependentFields(): ExpenseField[] | CustomInputsOption[] {
+  getProjectDependentFields(): ExpenseField[] {
     const projectDependentFieldsControl = this.fg.value as {
       project_dependent_fields: ExpenseField[];
     };
     return projectDependentFieldsControl.project_dependent_fields;
   }
 
-  getCostCenterDependentFields(): ExpenseField[] | CustomInputsOption[] {
+  getCostCenterDependentFields(): ExpenseField[] {
     const CCDependentFieldsControl = this.fg.value as {
       cost_center_dependent_fields: ExpenseField[];
     };
@@ -3401,10 +3389,7 @@ export class AddEditExpensePage implements OnInit {
   getCustomFields(): Observable<TxnCustomProperties[]> {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
-        const allDependentFields = [
-          ...this.getProjectDependentFields(),
-          ...this.getCostCenterDependentFields(),
-        ] as CustomInputsOption[];
+        const allDependentFields = [...this.getProjectDependentFields(), ...this.getCostCenterDependentFields()];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
@@ -3422,22 +3407,23 @@ export class AddEditExpensePage implements OnInit {
           customInputs,
           dependentFieldsWithValue,
         }: {
-          customInputs: CustomInputsOption[];
+          customInputs: TxnCustomProperties[];
           dependentFieldsWithValue: TxnCustomProperties[];
         }) => {
-          const customInpustWithValue: CustomProperty<
-            string | number | boolean | Date | string[] | { display: string }
-          >[] = customInputs.map((customInput, i: number) => ({
+          const customInpustWithValue: TxnCustomProperties[] = customInputs.map((customInput, i: number) => ({
             id: customInput.id,
             mandatory: customInput.mandatory,
             name: customInput.name,
-            options: customInput.options,
-            placeholder: customInput.placeholder,
-            prefix: customInput.prefix,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            options: customInput?.options,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            placeholder: customInput?.placeholder,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            prefix: customInput?.prefix,
             type: customInput.type,
             value: this.getFormValues().custom_inputs[i].value,
           }));
-          customInpustWithValue.concat(dependentFieldsWithValue as unknown as CustomProperty<string>);
+          customInpustWithValue.concat(dependentFieldsWithValue);
           return customInpustWithValue;
         }
       )
@@ -3911,7 +3897,7 @@ export class AddEditExpensePage implements OnInit {
       policyAction?: FinalExpensePolicyState;
       etxn?: Partial<UnflattenedTransaction>;
     },
-    customFields$: Observable<CustomField[] | TxnCustomProperties[]>
+    customFields$: Observable<TxnCustomProperties[]>
   ): Observable<UnflattenedTransaction | unknown> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
@@ -3939,7 +3925,7 @@ export class AddEditExpensePage implements OnInit {
       policyAction?: FinalExpensePolicyState;
       etxn?: Partial<UnflattenedTransaction>;
     },
-    customFields$: Observable<CustomField[] | TxnCustomProperties[]>
+    customFields$: Observable<TxnCustomProperties[]>
   ): Observable<UnflattenedTransaction | unknown> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
@@ -4385,7 +4371,7 @@ export class AddEditExpensePage implements OnInit {
     event.stopPropagation();
 
     if (this.platform.is('ios')) {
-      const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
+      const nativeElement = this.fileUpload.nativeElement;
       // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
       nativeElement.onchange = async () => {
         this.onChangeCallback(nativeElement);

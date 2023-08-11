@@ -40,9 +40,9 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
 
-  @Input() previousExpenseTxnDate;
+  @Input() previousExpenseTxnDate: string | Date;
 
-  @Input() previousExpenseCreatedAt;
+  @Input() previousExpenseCreatedAt: string | Date;
 
   @Input() isSelectionModeEnabled: boolean;
 
@@ -138,7 +138,7 @@ export class ExpensesCardComponent implements OnInit {
     private orgSettingsService: OrgSettingsService
   ) {}
 
-  get isSelected(): Expense[] | boolean {
+  get isSelected(): boolean {
     if (this.selectedElements) {
       if (this.expense.tx_id) {
         return this.selectedElements.some((txn) => this.expense.tx_id === txn.tx_id);
@@ -146,6 +146,7 @@ export class ExpensesCardComponent implements OnInit {
         return this.selectedElements.some((txn) => isEqual(this.expense, txn));
       }
     }
+    return false;
   }
 
   onGoToTransaction(): void {
@@ -313,9 +314,7 @@ export class ExpensesCardComponent implements OnInit {
       this.showDt = !!this.isFirstOfflineExpense;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = this.expense && new Date(this.expense.tx_txn_dt || this.expense.tx_created_at).toDateString();
-      const previousDate = new Date(
-        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
-      ).toDateString();
+      const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
       this.showDt = currentDate !== previousDate;
     }
 
@@ -368,7 +367,7 @@ export class ExpensesCardComponent implements OnInit {
 
   async onFileUpload(nativeElement: HTMLInputElement): Promise<void> {
     const file = nativeElement.files[0];
-    let receiptDetails;
+    let receiptDetails: ReceiptDetail;
     if (file?.size < MAX_FILE_SIZE) {
       const dataUrl = await this.fileService.readFile(file);
       this.trackingService.addAttachment({ type: file.type });
@@ -377,7 +376,7 @@ export class ExpensesCardComponent implements OnInit {
         dataUrl,
         actionSource: 'gallery_upload',
       };
-      this.attachReceipt(receiptDetails as ReceiptDetail);
+      this.attachReceipt(receiptDetails);
     } else {
       this.showSizeLimitExceededPopover();
     }

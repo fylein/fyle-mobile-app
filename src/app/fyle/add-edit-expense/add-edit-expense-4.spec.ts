@@ -263,9 +263,9 @@ export function TestCases4(getTestBed) {
       const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
       const mockNativeElement = {
         files: [mockFile],
-      } as unknown as HTMLInputElement;
+      };
 
-      component.onChangeCallback(mockNativeElement);
+      component.onChangeCallback(mockNativeElement as any);
       tick(500);
 
       expect(component.uploadFileCallback).toHaveBeenCalledOnceWith(mockFile);

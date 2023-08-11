@@ -135,14 +135,14 @@ export class ExpenseFieldsService {
     tfcMap: Partial<ExpenseFieldsMap>,
     fields: string[],
     orgCategory: OrgCategory
-  ): Observable<Partial<ExpenseFieldsMap | ExpenseFieldsObj>> {
+  ): Observable<Partial<ExpenseFieldsObj>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map((fields) =>
         fields
           .map((field) => {
-            const configurations = tfcMap[field];
-            let filteredField;
+            const configurations = tfcMap[field] as ExpenseField[];
+            let filteredField: ExpenseField;
 
             const fieldsIndependentOfCategory = ['project_id', 'billable', 'tax_group_id', 'org_category_id'];
             const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'];
