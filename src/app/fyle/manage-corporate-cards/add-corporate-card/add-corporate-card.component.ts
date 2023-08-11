@@ -67,12 +67,21 @@ export class AddCorporateCardComponent implements OnInit {
   }
 
   private getCardNetworks(): string[] {
+    const cardNetworks: string[] = [];
+
     const cardTypeMap: Record<RTFCardType, string> = {
       [RTFCardType.VISA]: 'Visa',
       [RTFCardType.MASTERCARD]: 'Mastercard',
       [RTFCardType.OTHERS]: 'Others',
     };
 
-    return [cardTypeMap[this.cardType]] || this.getAllowedCardNetworks();
+    const cardNetwork = cardTypeMap[this.cardType];
+    if (cardNetwork) {
+      cardNetworks.push(cardNetwork);
+    } else {
+      cardNetworks.push(...this.getAllowedCardNetworks());
+    }
+
+    return cardNetworks;
   }
 }
