@@ -1531,27 +1531,3 @@ export const expectedAddedApproverERpts: UnflattenedReport[] = [
     },
   },
 ];
-
-export const reportOptionsData = [
-  {
-    label: 'report1',
-    value: expectedErpt[0],
-  },
-  {
-    label: 'report2',
-    value: expectedErpt[1],
-  },
-];
-
-export const reportOptionsData2 = [
-  {
-    label: 'report1',
-    value: {
-      ...expectedErpt[0],
-      rp: {
-        ...expectedErpt[0].rp,
-        state: 'DRAFT',
-      },
-    },
-  },
-];

@@ -1,8 +1,9 @@
 import { TitleCasePipe } from '@angular/common';
+import { EventEmitter } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Subscription, of } from 'rxjs';
@@ -25,9 +26,10 @@ import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
 import {
   unflattenExp1,
   unflattenExp2,
-  unflattenedTxn,
   unflattenedExpData,
+  unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -61,18 +63,10 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import {
-  multiplePaymentModesData,
-  orgSettingsData,
-  unflattenedAccount1Data,
-} from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
-import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { EventEmitter } from '@angular/core';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -694,6 +688,7 @@ export function TestCases1(getTestBed) {
         const ctaText = 'Confirm';
         const ctaLoadingText = 'Confirming';
 
+        expect(transactionService.getRemoveCardExpenseDialogBody).toHaveBeenCalledTimes(1);
         expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
@@ -733,6 +728,7 @@ export function TestCases1(getTestBed) {
         const ctaText = 'Confirm';
         const ctaLoadingText = 'Confirming';
 
+        expect(transactionService.getRemoveCardExpenseDialogBody).toHaveBeenCalledTimes(1);
         expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
@@ -748,6 +744,71 @@ export function TestCases1(getTestBed) {
           'my_view_report',
           { id: 'rpFE5X1Pqi9P', navigateBack: true },
         ]);
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Successfully removed the card details from the expense.' },
+          'information',
+          ['msb-info']
+        );
+        expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+          ToastContent: 'Successfully removed the card details from the expense.',
+        });
+      }));
+
+      it('should show remove CCC expense popup but take no action', fakeAsync(() => {
+        const txn = { ...unflattenedTxn, tx: { ...unflattenedTxn.tx, report_id: 'rpFE5X1Pqi9P' } };
+        component.etxn$ = of(txn);
+        transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
+        spyOn(component, 'getRemoveCCCExpModalParams');
+        spyOn(component, 'showSnackBarToast');
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+        deletePopoverSpy.onDidDismiss.and.resolveTo({ data: null });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+
+        component.removeCorporateCardExpense();
+        tick(500);
+
+        const header = 'Remove Card Expense';
+        const body = 'removed';
+        const ctaText = 'Confirm';
+        const ctaLoadingText = 'Confirming';
+
+        expect(transactionService.getRemoveCardExpenseDialogBody).toHaveBeenCalledTimes(1);
+        expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
+        );
+        expect(trackingService.unlinkCorporateCardExpense).not.toHaveBeenCalled();
+        expect(component.showSnackBarToast).not.toHaveBeenCalled();
+      }));
+
+      it('should go back to expenses page if no expense is found', fakeAsync(() => {
+        component.etxn$ = of(unflattenedTxnData);
+        transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
+        spyOn(component, 'getRemoveCCCExpModalParams');
+        spyOn(component, 'showSnackBarToast');
+        fixture.detectChanges();
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+        deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+
+        component.removeCorporateCardExpense();
+        tick(500);
+
+        const header = 'Remove Card Expense';
+        const body = 'removed';
+        const ctaText = 'Confirm';
+        const ctaLoadingText = 'Confirming';
+
+        expect(transactionService.getRemoveCardExpenseDialogBody).toHaveBeenCalledTimes(1);
+        expect(component.getRemoveCCCExpModalParams).toHaveBeenCalledOnceWith(header, body, ctaText, ctaLoadingText);
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
+        );
+        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1);
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',
@@ -813,6 +874,37 @@ export function TestCases1(getTestBed) {
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
           ToastContent: 'Marked expense as Personal',
         });
+      }));
+
+      it('should mark txn as personal if CCC group id is null', fakeAsync(() => {
+        spyOn(component, 'getMarkDismissModalParams');
+        spyOn(component, 'showSnackBarToast');
+        component.etxn$ = of(null);
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+        deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isExpenseMatchedForDebitCCCE = true;
+
+        fixture.detectChanges();
+
+        component.markPeronsalOrDismiss('personal');
+        tick(500);
+
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getMarkDismissModalParams(getMarkDismissModalParamsData2, true)
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Marked expense as Personal' },
+          'information',
+          ['msb-info']
+        );
+        expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+          ToastContent: 'Marked expense as Personal',
+        });
+        expect(component.corporateCreditCardExpenseGroupId).toBeUndefined();
       }));
     });
 
@@ -922,7 +1014,10 @@ export function TestCases1(getTestBed) {
         launchDarklyService.getVariation.and.returnValue(of(true));
         fixture.detectChanges();
 
+        let actionSheetOptions;
+
         component.getActionSheetOptions().subscribe((res) => {
+          actionSheetOptions = res;
           expect(res.length).toEqual(6);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
@@ -930,8 +1025,21 @@ export function TestCases1(getTestBed) {
             'show_project_mapped_categories_in_split_expense',
             false
           );
-          done();
         });
+
+        actionSheetOptions[0].handler();
+        expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
+        actionSheetOptions[1].handler();
+        expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
+        actionSheetOptions[2].handler();
+        expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
+        actionSheetOptions[3].handler();
+        expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+        actionSheetOptions[4].handler();
+        expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
+        actionSheetOptions[5].handler();
+        expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+        done();
       });
 
       it('should get action sheet options when split expense is not allowed', (done) => {

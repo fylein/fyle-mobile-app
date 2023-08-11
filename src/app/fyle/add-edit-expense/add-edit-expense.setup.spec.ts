@@ -1,17 +1,17 @@
 import { TitleCasePipe } from '@angular/common';
-import { Sanitizer, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import {
+  ActionSheetController,
   IonicModule,
   ModalController,
-  PopoverController,
   NavController,
-  ActionSheetController,
   Platform,
+  PopoverController,
 } from '@ionic/angular';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -32,6 +32,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -46,16 +47,17 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { DependentFieldComponent } from 'src/app/shared/components/dependent-fields/dependent-field/dependent-field.component';
+import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
+import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { AddEditExpensePage } from './add-edit-expense.page';
 import { TestCases1 } from './add-edit-expense-1.spec';
 import { TestCases2 } from './add-edit-expense-2.spec';
 import { TestCases3 } from './add-edit-expense-3.spec';
 import { TestCases4 } from './add-edit-expense-4.spec';
-import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
 import { TestCases5 } from './add-edit-expense-5.spec';
-import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
-import { DependentFieldComponent } from 'src/app/shared/components/dependent-fields/dependent-field/dependent-field.component';
+import { TestCases6 } from './add-edit-expense-6.spec';
+import { AddEditExpensePage } from './add-edit-expense.page';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -203,6 +205,7 @@ describe('AddEditExpensePage', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['set', 'get']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
+    const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
@@ -389,6 +392,10 @@ describe('AddEditExpensePage', () => {
           provide: Platform,
           useValue: platformSpy,
         },
+        {
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     });
@@ -401,4 +408,5 @@ describe('AddEditExpensePage', () => {
   TestCases3(getTestBed);
   TestCases4(getTestBed);
   TestCases5(getTestBed);
+  TestCases6(getTestBed);
 });
