@@ -3,7 +3,6 @@ import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { catchError, distinctUntilChanged, throwError } from 'rxjs';
 import { RTFCardType } from 'src/app/core/enums/rtf-card-type.enum';
-import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 
 @Component({
@@ -59,8 +58,8 @@ export class AddCorporateCardComponent implements OnInit {
           return throwError(() => error);
         })
       )
-      .subscribe((enrolledCard) => {
-        this.handleEnrollmentSuccess(enrolledCard);
+      .subscribe(() => {
+        this.handleEnrollmentSuccess();
       });
   }
 
@@ -151,8 +150,7 @@ export class AddCorporateCardComponent implements OnInit {
     this.enrollmentFailureMessage = error.message || 'Something went wrong. Please try after some time.';
   }
 
-  private handleEnrollmentSuccess(enrolledCard: PlatformCorporateCard): void {
-    console.log(enrolledCard);
+  private handleEnrollmentSuccess(): void {
     this.popoverController.dismiss({ success: true });
   }
 }

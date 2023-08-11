@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, PopoverController } from '@ionic/angular';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, Subject, forkJoin, map, switchMap } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -23,6 +24,8 @@ export class ManageCorporateCardsPage {
 
   isYodleeEnabled$: Observable<boolean>;
 
+  private fetchCorporateCards$: Subject<void> = new Subject<void>();
+
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -37,7 +40,9 @@ export class ManageCorporateCardsPage {
   }
 
   ionViewWillEnter(): void {
-    this.corporateCards$ = this.corporateCreditCardExpenseService.getCorporateCards();
+    this.corporateCards$ = this.fetchCorporateCards$.pipe(
+      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards())
+    );
 
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.orgUserSettingsService.get();
@@ -135,6 +140,11 @@ export class ManageCorporateCardsPage {
         });
 
         await addCorporateCardPopover.present();
+
+        const { data }: OverlayResponse<{ success: boolean }> = await addCorporateCardPopover.onDidDismiss();
+        if (data.success) {
+          this.fetchCorporateCards$.next();
+        }
       }
     );
   }
