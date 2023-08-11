@@ -1,5 +1,5 @@
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
-import { OrgSettings } from '../models/org-settings.model';
+import { OrgSettings, TaxSettings } from '../models/org-settings.model';
 import { orgSettingsData } from '../test-data/accounts.service.spec.data';
 
 export const orgSettingsRes: OrgSettings = {
@@ -1197,9 +1197,90 @@ export const orgSettingsCCCDisabled: OrgSettings = {
     enabled: false,
   },
 };
+
+export const orgSettingsCCCEnabled: OrgSettings = {
+  ...orgSettingsData,
+  corporate_credit_card_settings: {
+    ...orgSettingsData.corporate_credit_card_settings,
+    allowed: true,
+    enabled: true,
+  },
+};
+
 export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
   ...orgSettingsRes,
   simplified_report_closure_settings: {
+    allowed: true,
+    enabled: true,
+  },
+};
+
+export const taxSettingsData: TaxSettings = {
+  allowed: true,
+  enabled: true,
+  name: null,
+  groups: [
+    {
+      label: 'GST',
+      value: {
+        name: 'GST',
+        percentage: 0.23,
+      },
+    },
+    {
+      label: 'GST-free capital @0%',
+      value: {
+        name: 'GST-free capital @0%',
+        percentage: 0,
+      },
+    },
+    {
+      label: 'GST-free non-capital @0%',
+      value: {
+        name: 'GST-free non-capital @0%',
+        percentage: 0,
+      },
+    },
+  ],
+};
+
+export const taxSettingsData2: TaxSettings = {
+  ...taxSettingsData,
+  enabled: false,
+};
+
+export const orgSettingsWoTax: OrgSettings = {
+  ...orgSettingsData,
+  tax_settings: { ...orgSettingsData.tax_settings, enabled: false },
+  advances: null,
+  simplified_report_closure_settings: {
+    enabled: true,
+  },
+  corporate_credit_card_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advance_requests: {
+    enabled: true,
+  },
+};
+
+export const orgSettingsCCCDisabled2: OrgSettings = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: null,
+};
+
+export const orgSettingsCCCDisabled3: OrgSettings = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: {
+    allowed: true,
+    enabled: null,
+  },
+};
+
+export const orgSettingsWithProjectAndAutofill: OrgSettings = {
+  ...orgSettingsRes,
+  org_expense_form_autofills: {
     allowed: true,
     enabled: true,
   },
