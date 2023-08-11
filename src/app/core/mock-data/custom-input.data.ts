@@ -57,6 +57,57 @@ export const customInputData1: Partial<CustomInput>[] = [
 
 export const customInputData2: Partial<CustomInput>[] = [
   {
+    id: 218266,
+    options: [],
+    placeholder: 'Enter Date',
+    type: 'DATE',
+    value: null,
+    mandatory: undefined,
+    name: undefined,
+    prefix: undefined,
+  },
+  {
+    id: 218266,
+    options: [],
+    placeholder: 'Enter Date',
+    type: 'DATE',
+    value: null,
+    mandatory: undefined,
+    name: undefined,
+    prefix: undefined,
+  },
+  {
+    id: 211326,
+    options: [],
+    placeholder: 'helo date',
+    type: 'DATE',
+    value: null,
+    mandatory: undefined,
+    name: undefined,
+    prefix: undefined,
+  },
+  {
+    id: 218265,
+    options: [],
+    placeholder: 'Boolean value',
+    type: 'BOOLEAN',
+    value: null,
+    mandatory: undefined,
+    name: undefined,
+    prefix: undefined,
+  },
+  {
+    name: 'CUSTOM FIELD',
+    value: 'custom field',
+  },
+  {
+    name: 'Cost Code',
+    value: 'Wow this Works',
+  },
+];
+
+export const customInputsData3: Partial<CustomInput>[] = [
+  {
     id: 211326,
     options: [],
     placeholder: 'helo date',

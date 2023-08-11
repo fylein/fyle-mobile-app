@@ -17,6 +17,7 @@ import {
   expectedFileData1,
   fileObject4,
   fileObject7,
+  fileObjectAdv1,
   fileObjectData,
   fileObjectData1,
 } from 'src/app/core/mock-data/file-object.data';
@@ -25,13 +26,14 @@ import { recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-lis
 import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
+  expectedAutoFillCategory3,
   filteredCategoriesData,
   orgCategoryData,
   orgCategoryData1,
   orgCategoryPaginated1,
 } from 'src/app/core/mock-data/org-category.data';
 import { orgUserSettingsData, orgUserSettingsWithCurrency } from 'src/app/core/mock-data/org-user-settings.data';
-import { extractedData, instaFyleData1 } from 'src/app/core/mock-data/parsed-receipt.data';
+import { extractedData, instaFyleData1, instaFyleData5 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
 import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
@@ -39,6 +41,8 @@ import { expensePolicyData, publicPolicyExpenseData1 } from 'src/app/core/mock-d
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
   draftUnflattendedTxn,
+  draftUnflattendedTxn2,
+  draftUnflattendedTxn3,
   unflattenedExpData,
   unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
@@ -48,12 +52,15 @@ import {
   expectedExpenseObservable3,
   expectedExpenseObservable4,
   expectedExpenseObservable5,
-  expectedUnflattendedTxnData2,
-  expectedUnflattendedTxnData3,
-  expectedUnflattendedTxnData4,
-  expectedUnflattendedTxnData5,
+  newExpFromFg,
+  newExpFromFg2,
+  newExpFromFg3,
+  newExpFromFg4,
+  trackCreateExpData,
+  trackCreateExpDataWoCurrency,
   unflattenedDraftExp,
   unflattenedDraftExp2,
+  unflattenedDraftExp3,
   unflattenedPaidExp,
   unflattenedTxnData,
   unflattenedTxnData2,
@@ -368,7 +375,7 @@ export function TestCases3(getTestBed) {
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
           recentCategories: recentUsedCategoriesRes,
-          etxn: draftUnflattendedTxn,
+          etxn: draftUnflattendedTxn3,
           category: orgCategoryData,
         });
 
@@ -376,9 +383,21 @@ export function TestCases3(getTestBed) {
         expect(component.recentCategories).toEqual(recentUsedCategoriesRes);
         expect(component.presetCategoryId).toEqual(expectedAutoFillCategory2.id);
       });
+
+      it('return auto fill category if recent categories is not present and expense category is empty', () => {
+        const result = component.getAutofillCategory({
+          isAutofillsEnabled: true,
+          recentValue: null,
+          recentCategories: null,
+          etxn: draftUnflattendedTxn2,
+          category: orgCategoryData,
+        });
+
+        expect(result).toEqual(expectedAutoFillCategory3);
+      });
     });
 
-    describe('returnAddOrEditObservable():', () => {
+    describe('getExpenseAttachments():', () => {
       it('should return file observables in edit mode', (done) => {
         fileService.findByTransactionId.and.returnValue(of(fileObject4));
         fileService.downloadUrl.and.returnValue(of('url'));
@@ -404,10 +423,45 @@ export function TestCases3(getTestBed) {
           done();
         });
       });
+
+      it('should return new expense file objects of type pdf in add mode', (done) => {
+        component.newExpenseDataUrls = [fileObjectAdv1];
+
+        component.getExpenseAttachments('add').subscribe((res) => {
+          expect(res).toEqual([fileObjectAdv1]);
+          done();
+        });
+      });
     });
 
     describe('generateEtxnFromFg():', () => {
       it('should generate expense object from input in the form', (done) => {
+        spyOn(component, 'getSourceAccID').and.returnValue('id');
+        spyOn(component, 'getBillable').and.returnValue(true);
+        spyOn(component, 'getSkipRemibursement').and.returnValue(false);
+        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalAmount').and.returnValue(100);
+        spyOn(component, 'getProjectID').and.returnValue(1234);
+        spyOn(component, 'getTaxAmount').and.returnValue(120);
+        spyOn(component, 'getTaxGroupID').and.returnValue('tgXEJA6YUoZ1');
+        spyOn(component, 'getOrgCategoryID').and.returnValue(215481);
+        spyOn(component, 'getFyleCategory').and.returnValue('Groceries');
+        spyOn(component, 'getDisplayName').and.returnValue('asd');
+        spyOn(component, 'getPurpose').and.returnValue('purpose');
+        spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
+        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
+        spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
+        spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
+        spyOn(component, 'getTrainTravelClass').and.returnValue(null);
+        spyOn(component, 'getBusTravelClass').and.returnValue(null);
+        spyOn(component, 'getDistance').and.returnValue(100);
+        spyOn(component, 'getDistanceUnit').and.returnValue('KM');
+        spyOn(component, 'getBreakfastProvided').and.returnValue(true);
+        spyOn(component, 'getDuplicateReason').and.returnValue('reason');
+        spyOn(component, 'getAmount').and.returnValue(500);
+
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue('loc1');
@@ -422,15 +476,66 @@ export function TestCases3(getTestBed) {
         component
           .generateEtxnFromFg(of(unflattenedExpData), of([expectedCustomField[0], expectedCustomField[2]]))
           .subscribe((res) => {
-            expect(res).toEqual(expectedUnflattendedTxnData2);
+            expect(res).toEqual(newExpFromFg);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedExpData.tx.id);
+            expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+            expect(component.getBillable).toHaveBeenCalledTimes(1);
+            expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
+            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+            expect(component.getCurrency).toHaveBeenCalledTimes(1);
+            expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
+            expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
+            expect(component.getProjectID).toHaveBeenCalledTimes(1);
+            expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
+            expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
+            expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
+            expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
+            expect(component.getDisplayName).toHaveBeenCalledTimes(1);
+            expect(component.getPurpose).toHaveBeenCalledTimes(1);
+            expect(component.getFromDt).toHaveBeenCalledTimes(1);
+            expect(component.getToDt).toHaveBeenCalledTimes(1);
+            expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
+            expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
+            expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
+            expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
+            expect(component.getDistance).toHaveBeenCalledTimes(1);
+            expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
+            expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
+            expect(component.getDuplicateReason).toHaveBeenCalledTimes(1);
+            expect(component.getAmount).toHaveBeenCalledTimes(1);
             done();
           });
       });
 
       it('should generate expense object from form if the expense is a policy txn and has location data', (done) => {
         dateService.getUTCDate.and.returnValue(new Date('2017-07-25T00:00:00.000Z'));
+        spyOn(component, 'getSourceAccID').and.returnValue('id');
+        spyOn(component, 'getBillable').and.returnValue(true);
+        spyOn(component, 'getSkipRemibursement').and.returnValue(false);
+        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalAmount').and.returnValue(100);
+        spyOn(component, 'getProjectID').and.returnValue(1234);
+        spyOn(component, 'getTaxAmount').and.returnValue(120);
+        spyOn(component, 'getTaxGroupID').and.returnValue('tgXEJA6YUoZ1');
+        spyOn(component, 'getOrgCategoryID').and.returnValue(215481);
+        spyOn(component, 'getFyleCategory').and.returnValue('Groceries');
+        spyOn(component, 'getDisplayName').and.returnValue('asd');
+        spyOn(component, 'getPurpose').and.returnValue('purpose');
+        spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
+        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
+        spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
+        spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
+        spyOn(component, 'getTrainTravelClass').and.returnValue(null);
+        spyOn(component, 'getBusTravelClass').and.returnValue(null);
+        spyOn(component, 'getDistance').and.returnValue(100);
+        spyOn(component, 'getDistanceUnit').and.returnValue('KM');
+        spyOn(component, 'getBreakfastProvided').and.returnValue(true);
+        spyOn(component, 'getDuplicateReason').and.returnValue('reason');
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
+        spyOn(component, 'getAmount').and.returnValue(100);
+
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.location_1.setValue('loc1');
         component.fg.controls.category.setValue({
@@ -444,20 +549,71 @@ export function TestCases3(getTestBed) {
         fixture.detectChanges();
 
         component.generateEtxnFromFg(of(unflattenedTxnData2), of(customFieldData2), true).subscribe((res) => {
-          expect(res).toEqual(expectedUnflattendedTxnData3);
-          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData2.tx.id);
+          expect(res).toEqual(newExpFromFg2);
+          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, 'tx3qHxFNgRcZ');
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
+          expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+          expect(component.getBillable).toHaveBeenCalledTimes(1);
+          expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
+          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getCurrency).toHaveBeenCalledTimes(1);
+          expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
+          expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
+          expect(component.getProjectID).toHaveBeenCalledTimes(1);
+          expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
+          expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
+          expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
+          expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
+          expect(component.getDisplayName).toHaveBeenCalledTimes(1);
+          expect(component.getPurpose).toHaveBeenCalledTimes(1);
+          expect(component.getFromDt).toHaveBeenCalledTimes(1);
+          expect(component.getToDt).toHaveBeenCalledTimes(1);
+          expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
+          expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
+          expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
+          expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
+          expect(component.getDistance).toHaveBeenCalledTimes(1);
+          expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
+          expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
+          expect(component.getDuplicateReason).toHaveBeenCalledTimes(1);
+          expect(component.getAmount).toHaveBeenCalledTimes(1);
           done();
         });
       });
 
       it('should generate expense from form without location data', (done) => {
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
+        spyOn(component, 'getSourceAccID').and.returnValue('id');
+        spyOn(component, 'getBillable').and.returnValue(true);
+        spyOn(component, 'getSkipRemibursement').and.returnValue(false);
+        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalAmount').and.returnValue(100);
+        spyOn(component, 'getProjectID').and.returnValue(1234);
+        spyOn(component, 'getTaxAmount').and.returnValue(120);
+        spyOn(component, 'getTaxGroupID').and.returnValue('tgXEJA6YUoZ1');
+        spyOn(component, 'getOrgCategoryID').and.returnValue(215481);
+        spyOn(component, 'getFyleCategory').and.returnValue('Groceries');
+        spyOn(component, 'getDisplayName').and.returnValue('asd');
+        spyOn(component, 'getPurpose').and.returnValue('purpose');
+        spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
+        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
+        spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
+        spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
+        spyOn(component, 'getTrainTravelClass').and.returnValue(null);
+        spyOn(component, 'getBusTravelClass').and.returnValue(null);
+        spyOn(component, 'getDistance').and.returnValue(100);
+        spyOn(component, 'getDistanceUnit').and.returnValue('KM');
+        spyOn(component, 'getBreakfastProvided').and.returnValue(true);
+        spyOn(component, 'getDuplicateReason').and.returnValue('reason');
+        spyOn(component, 'getAmount').and.returnValue(100);
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.currencyObj.setValue({
           amount: 100,
           currency: 'USD',
         });
+        component.source = null;
         component.mode = 'add';
         component.newExpenseDataUrls = [];
         fixture.detectChanges();
@@ -465,16 +621,64 @@ export function TestCases3(getTestBed) {
         component
           .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
           .subscribe((res) => {
-            expect(res).toEqual(expectedUnflattendedTxnData4);
-            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(
-              component.mode,
-              draftUnflattendedTxn.tx.id
-            );
+            expect(res).toEqual(newExpFromFg3);
+            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, null);
+
+            expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+            expect(component.getBillable).toHaveBeenCalledTimes(1);
+            expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
+            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+            expect(component.getCurrency).toHaveBeenCalledTimes(1);
+            expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
+            expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
+            expect(component.getProjectID).toHaveBeenCalledTimes(1);
+            expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
+            expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
+            expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
+            expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
+            expect(component.getDisplayName).toHaveBeenCalledTimes(1);
+            expect(component.getPurpose).toHaveBeenCalledTimes(1);
+            expect(component.getFromDt).toHaveBeenCalledTimes(1);
+            expect(component.getToDt).toHaveBeenCalledTimes(1);
+            expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
+            expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
+            expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
+            expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
+            expect(component.getDistance).toHaveBeenCalledTimes(1);
+            expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
+            expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
+            expect(component.getDuplicateReason).toHaveBeenCalledTimes(1);
+            expect(component.getAmount).toHaveBeenCalledTimes(1);
             done();
           });
       });
 
-      it('should generate expense from form without cost center and location data and not a policy expense in edit mode', (done) => {
+      it('should generate expense from form without cost center and location data in edit mode and is not a policy violation', (done) => {
+        spyOn(component, 'getSourceAccID').and.returnValue('id');
+        spyOn(component, 'getBillable').and.returnValue(true);
+        spyOn(component, 'getSkipRemibursement').and.returnValue(false);
+        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
+        spyOn(component, 'getOriginalAmount').and.returnValue(100);
+        spyOn(component, 'getProjectID').and.returnValue(1234);
+        spyOn(component, 'getTaxAmount').and.returnValue(120);
+        spyOn(component, 'getTaxGroupID').and.returnValue('tgXEJA6YUoZ1');
+        spyOn(component, 'getOrgCategoryID').and.returnValue(215481);
+        spyOn(component, 'getFyleCategory').and.returnValue('Groceries');
+        spyOn(component, 'getDisplayName').and.returnValue('asd');
+        spyOn(component, 'getPurpose').and.returnValue('purpose');
+        spyOn(component, 'getFromDt').and.returnValue(new Date('2023-03-13T05:31:00.000Z'));
+        spyOn(component, 'getToDt').and.returnValue(new Date('2023-01-26T17:00:00Z'));
+        spyOn(component, 'getFlightJourneyClass').and.returnValue('FIRST');
+        spyOn(component, 'getFlightReturnClass').and.returnValue('ECONOMY');
+        spyOn(component, 'getTrainTravelClass').and.returnValue(null);
+        spyOn(component, 'getBusTravelClass').and.returnValue(null);
+        spyOn(component, 'getDistance').and.returnValue(100);
+        spyOn(component, 'getDistanceUnit').and.returnValue('KM');
+        spyOn(component, 'getBreakfastProvided').and.returnValue(true);
+        spyOn(component, 'getDuplicateReason').and.returnValue('reason');
+        spyOn(component, 'getAmount').and.returnValue(100);
         component.mode = 'edit';
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         component.fg.controls.currencyObj.setValue({
@@ -485,11 +689,36 @@ export function TestCases3(getTestBed) {
         component
           .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
           .subscribe((res) => {
-            expect(res).toEqual(expectedUnflattendedTxnData5);
+            expect(res).toEqual(newExpFromFg4);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(
               component.mode,
               draftUnflattendedTxn.tx.id
             );
+            expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+            expect(component.getBillable).toHaveBeenCalledTimes(1);
+            expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
+            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+            expect(component.getCurrency).toHaveBeenCalledTimes(1);
+            expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
+            expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
+            expect(component.getProjectID).toHaveBeenCalledTimes(1);
+            expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
+            expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
+            expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
+            expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
+            expect(component.getDisplayName).toHaveBeenCalledTimes(1);
+            expect(component.getPurpose).toHaveBeenCalledTimes(1);
+            expect(component.getFromDt).toHaveBeenCalledTimes(1);
+            expect(component.getToDt).toHaveBeenCalledTimes(1);
+            expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
+            expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
+            expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
+            expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
+            expect(component.getDistance).toHaveBeenCalledTimes(1);
+            expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
+            expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
+            expect(component.getDuplicateReason).toHaveBeenCalledTimes(1);
+            expect(component.getAmount).toHaveBeenCalledTimes(1);
             done();
           });
       });
@@ -593,25 +822,51 @@ export function TestCases3(getTestBed) {
       });
     });
 
-    it('trackCreateExpense(): should track create expense event', () => {
-      component.presetCategoryId = unflattenedExpData.tx.project_id;
-      component.presetCostCenterId = unflattenedExpData.tx.cost_center_id;
-      component.presetCurrency = unflattenedExpData.tx.orig_currency;
-      spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
-      fixture.detectChanges();
+    describe('trackCreateExpense(): ', () => {
+      it('should track create expense event', () => {
+        component.presetCategoryId = trackCreateExpData.tx.org_category_id;
+        component.presetCostCenterId = trackCreateExpData.tx.cost_center_id;
+        component.presetCurrency = trackCreateExpData.tx.orig_currency;
+        component.presetProjectId = trackCreateExpData.tx.project_id;
+        spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
+        fixture.detectChanges();
 
-      component.trackCreateExpense(unflattenedExpData, true);
-      expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
-        Type: 'Receipt',
-        Amount: unflattenedExpData.tx.amount,
-        Currency: unflattenedExpData.tx.currency,
-        Category: unflattenedExpData.tx.org_category,
-        Time_Spent: '30 secs',
-        Used_Autofilled_Category: null,
-        Used_Autofilled_Project: null,
-        Used_Autofilled_CostCenter: null,
-        Used_Autofilled_Currency: null,
-        Instafyle: true,
+        component.trackCreateExpense(trackCreateExpData, true);
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
+          Type: 'Receipt',
+          Amount: trackCreateExpData.tx.amount,
+          Currency: trackCreateExpData.tx.currency,
+          Category: trackCreateExpData.tx.org_category,
+          Time_Spent: '30 secs',
+          Used_Autofilled_Category: true,
+          Used_Autofilled_Project: true,
+          Used_Autofilled_CostCenter: true,
+          Used_Autofilled_Currency: true,
+          Instafyle: true,
+        });
+      });
+
+      it('should track create expense event for an expense with only original currency', () => {
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
+        component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
+        component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
+        component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
+        spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
+        fixture.detectChanges();
+
+        component.trackCreateExpense(trackCreateExpDataWoCurrency, true);
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
+          Type: 'Receipt',
+          Amount: trackCreateExpDataWoCurrency.tx.amount,
+          Currency: trackCreateExpDataWoCurrency.tx.currency,
+          Category: trackCreateExpDataWoCurrency.tx.org_category,
+          Time_Spent: '30 secs',
+          Used_Autofilled_Category: true,
+          Used_Autofilled_Project: true,
+          Used_Autofilled_CostCenter: true,
+          Used_Autofilled_Currency: true,
+          Instafyle: true,
+        });
       });
     });
 
@@ -859,6 +1114,40 @@ export function TestCases3(getTestBed) {
           done();
         });
       });
+
+      it('should get category if initial fetch is false', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedDraftExp2);
+        component.initialFetch = false;
+        fixture.detectChanges();
+
+        component.getCategoryOnEdit(orgCategoryData[0]).subscribe((res) => {
+          expect(res).toBeUndefined();
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return null in case the expense does not have an expense and auto-fill category is not found', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of(unflattenedDraftExp3);
+        component.initialFetch = true;
+        fixture.detectChanges();
+
+        component.getCategoryOnEdit(orgCategoryData[0]).subscribe((res) => {
+          expect(res).toBeNull();
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
     });
 
     describe('getNewExpenseObservable():', () => {
@@ -1004,6 +1293,30 @@ export function TestCases3(getTestBed) {
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
           expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+          done();
+        });
+      });
+
+      it('should get new expense observable without insta fyle image data URL?', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        authService.getEou.and.resolveTo(apiEouRes);
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.homeCurrency$ = of('USD');
+        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData5));
+        activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);
+        recentLocalStorageItemsService.get.and.resolveTo(null);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+        fixture.detectChanges();
+
+        component.getNewExpenseObservable().subscribe(() => {
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
+          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
           done();
         });
       });
