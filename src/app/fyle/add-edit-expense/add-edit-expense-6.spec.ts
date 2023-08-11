@@ -6,7 +6,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
-import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { eCCCData2, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { defaultTxnFieldValuesData3 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import {
@@ -15,10 +16,21 @@ import {
   txnFieldsData2,
   txnFieldsData3,
 } from 'src/app/core/mock-data/expense-fields-map.data';
-import { splitExpData } from 'src/app/core/mock-data/expense.data';
+import { policyExpense2, splitExpData } from 'src/app/core/mock-data/expense.data';
 import { TaxiCategory, filteredCategoriesData, orgCategoryData1 } from 'src/app/core/mock-data/org-category.data';
+import {
+  orgSettingsCCCDisabled2,
+  orgSettingsCCCDisabled3,
+  orgSettingsParamWoCCC,
+} from 'src/app/core/mock-data/org-settings.data';
 import { taxGroupData } from 'src/app/core/mock-data/tax-group.data';
-import { unflattenedExpWithCCCExpn } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  checkDebitCCCExpenseData1,
+  checkDebitCCCExpenseData2,
+  checkSplitExpData1,
+  checkSplitExpData2,
+  unflattenedExpWithCCCExpn,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -107,6 +119,12 @@ export function TestCases6(getTestBed) {
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let platform: jasmine.SpyObj<Platform>;
     let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
+
+    function setFormValueNull() {
+      Object.defineProperty(component.fg, 'value', {
+        get: () => null,
+      });
+    }
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -208,20 +226,36 @@ export function TestCases6(getTestBed) {
       expect(component).toBeTruthy();
     });
 
-    it('initSubjectObservables(): should setup subject obserbvables', () => {
-      platformHandlerService.registerBackButtonAction.and.stub();
-      const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnInit']);
+    describe('initSubjectObservables():', () => {
+      it('should setup subject obserbvables', () => {
+        platformHandlerService.registerBackButtonAction.and.stub();
+        const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnInit']);
 
-      component.projectDependentFieldsRef = dependentFieldSpy;
-      component.costCenterDependentFieldsRef = dependentFieldSpy;
+        component.projectDependentFieldsRef = dependentFieldSpy;
+        component.costCenterDependentFieldsRef = dependentFieldSpy;
 
-      component.initClassObservables();
+        component.initClassObservables();
 
-      expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
-        BackButtonActionPriority.MEDIUM,
-        jasmine.any(Function)
-      );
-      expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
+        expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
+          BackButtonActionPriority.MEDIUM,
+          jasmine.any(Function)
+        );
+        expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
+      });
+
+      it('should setup observables without dependent fields observables', () => {
+        platformHandlerService.registerBackButtonAction.and.stub();
+
+        component.projectDependentFieldsRef = null;
+        component.costCenterDependentFieldsRef = null;
+
+        component.initClassObservables();
+
+        expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
+          BackButtonActionPriority.MEDIUM,
+          jasmine.any(Function)
+        );
+      });
     });
 
     it('setupSelectedProjectObservable(): should call project observable if value changes', fakeAsync(() => {
@@ -248,18 +282,33 @@ export function TestCases6(getTestBed) {
       expect(component.selectedCostCenter$.next).toHaveBeenCalledOnceWith(expectedCCdata2[0].value);
     }));
 
-    it('getCCCpaymentMode(): should set the CCC payment mode', fakeAsync(() => {
-      component.getCCCpaymentMode();
-      tick(500);
+    describe('getCCCpaymentMode():', () => {
+      it('should set the CCC payment mode', fakeAsync(() => {
+        component.getCCCpaymentMode();
+        tick(500);
 
-      component.isCCCPaymentModeSelected$.subscribe((res) => {
-        expect(res).toBeFalse();
-      });
-      component.fg.controls.paymentMode.setValue(multiplePaymentModesData[0]);
-      fixture.detectChanges();
+        component.isCCCPaymentModeSelected$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesData[0]);
+        fixture.detectChanges();
 
-      tick(500);
-    }));
+        tick(500);
+      }));
+
+      it('should set CCC payment mode to null in case removed', fakeAsync(() => {
+        component.getCCCpaymentMode();
+        tick(500);
+
+        component.isCCCPaymentModeSelected$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+        component.fg.controls.paymentMode.setValue(null);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+    });
 
     it('generateTxnFieldsMap(): should generate txn fields map', fakeAsync(() => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
@@ -365,28 +414,71 @@ export function TestCases6(getTestBed) {
         expect(component.generateTxnFieldsMap).toHaveBeenCalledOnceWith();
         expect(component.updateFormForExpenseFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
       });
+
+      it('should setup expense fields if cost centers are empty', () => {
+        spyOn(component, 'generateTxnFieldsMap').and.returnValue(of(txnFieldsData3));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.isIndividualProjectsEnabled$ = of(true);
+        component.individualProjectIds$ = of([123]);
+        component.costCenters$ = of(null);
+        component.isConnected$ = of(false);
+        component.taxGroups$ = of(taxGroupData);
+        component.filteredCategories$ = of(filteredCategoriesData);
+        spyOn(component, 'updateFormForExpenseFields');
+        fixture.detectChanges();
+
+        component.setupExpenseFields();
+        expect(component.generateTxnFieldsMap).toHaveBeenCalledOnceWith();
+        expect(component.updateFormForExpenseFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+      });
     });
 
-    it('initSplitTxn(): should initialize split txns made using ccc', () => {
-      transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
-      component.etxn$ = of(unflattenedExpWithCCCExpn);
-      spyOn(component, 'handleCCCExpenses');
-      spyOn(component, 'getSplitExpenses');
-      fixture.detectChanges();
+    describe('initSplitTxn():', () => {
+      it('should initialize split txns made using ccc', () => {
+        transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
+        component.etxn$ = of(unflattenedExpWithCCCExpn);
+        spyOn(component, 'handleCCCExpenses');
+        spyOn(component, 'getSplitExpenses');
+        fixture.detectChanges();
 
-      component.initSplitTxn(of(orgSettingsData));
-      expect(transactionService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-      expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
-      expect(component.getSplitExpenses).toHaveBeenCalledOnceWith(splitExpData);
+        component.initSplitTxn(of(orgSettingsData));
+        expect(transactionService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+        expect(component.getSplitExpenses).toHaveBeenCalledOnceWith(splitExpData);
+      });
+
+      it('should initialize CCC expenses with group ID', () => {
+        transactionService.getSplitExpenses.and.returnValue(of(null));
+        component.etxn$ = of(unflattenedExpWithCCCExpn);
+        spyOn(component, 'handleCCCExpenses');
+        spyOn(component, 'getSplitExpenses');
+        fixture.detectChanges();
+
+        component.initSplitTxn(of(orgSettingsParamWoCCC));
+        expect(transactionService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+        expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith(splitExpData);
+      });
     });
 
-    it('handleCCCExpenses(): should handle CCC expenses', () => {
-      corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
+    describe('handleCCCExpenses():', () => {
+      it('should handle CCC expenses', () => {
+        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
 
-      component.handleCCCExpenses(unflattenedExpWithCCCExpn);
-      expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
-      expect(component.cardNumber).toEqual('869');
-      expect(component.matchedCCCTransaction).toEqual(expectedECccResponse[0].ccce);
+        component.handleCCCExpenses(unflattenedExpWithCCCExpn);
+        expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
+        expect(component.cardNumber).toEqual('869');
+        expect(component.matchedCCCTransaction).toEqual(expectedECccResponse[0].ccce);
+      });
+
+      it('should show card digits and vendor description', () => {
+        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of([eCCCData2]));
+
+        component.handleCCCExpenses(unflattenedExpWithCCCExpn);
+        expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
+        expect(component.cardNumber).toEqual('869');
+        expect(component.matchedCCCTransaction).toEqual(eCCCData2.ccce);
+      });
     });
 
     it('getSplitExpenses(): should get split expenses', () => {
@@ -418,5 +510,599 @@ export function TestCases6(getTestBed) {
       expect(component.fg.controls.train_travel_class.value).toBeNull();
       expect(component.fg.controls.bus_travel_class.value).toBeNull();
     }));
+
+    it('ngOnInit(): should populate report permissions', () => {
+      activatedRoute.snapshot.params.remove_from_report = JSON.stringify(true);
+      fixture.detectChanges();
+
+      component.ngOnInit();
+      expect(component.canRemoveFromReport).toBeTrue();
+      expect(component.isRedirectedFromReport).toBeTrue();
+    });
+
+    describe('currencyObjValidator():', () => {
+      it('should validate currency object', () => {
+        component.fg.controls.currencyObj.setValue({
+          amount: null,
+          currency: null,
+          orig_amount: 10,
+          orig_currency: 'USD',
+        });
+        fixture.detectChanges();
+
+        const result = component.currencyObjValidator(component.fg.controls.currencyObj);
+        expect(result).toBeNull();
+      });
+
+      it('should return false if there is no value in form control', () => {
+        component.fg.controls.currencyObj.setValue(null);
+        fixture.detectChanges();
+
+        const result = component.currencyObjValidator(component.fg.controls.currencyObj);
+        expect(result).toEqual({
+          required: false,
+        });
+      });
+    });
+
+    describe('getSourceAccID():', () => {
+      it('should get source account id', () => {
+        component.fg.controls.paymentMode.setValue({
+          acc: { id: 'id' },
+        });
+
+        const result = component.getSourceAccID();
+        expect(result).toEqual('id');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getSourceAccID();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getBillable():', () => {
+      it('should get billable', () => {
+        component.fg.controls.billable.setValue(true);
+
+        const result = component.getBillable();
+        expect(result).toBeTrue();
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getBillable();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getSkipRemibursement():', () => {
+      it('should get reimbursement', () => {
+        component.fg.controls.paymentMode.setValue({
+          acc: {
+            type: AccountType.PERSONAL,
+          },
+        });
+
+        const result = component.getSkipRemibursement();
+        expect(result).toBeTrue();
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getSkipRemibursement();
+        expect(result).toBeFalse();
+      });
+    });
+
+    describe('getTxnDate():', () => {
+      it('should get txn date', () => {
+        dateService.getUTCDate.and.returnValue(null);
+        component.fg.controls.dateOfSpend.setValue({
+          acc: {
+            type: AccountType.PERSONAL,
+          },
+        });
+
+        const result = component.getTxnDate();
+        expect(result).toBeNull();
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getTxnDate();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getCurrency():', () => {
+      it('should get currency', () => {
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+        });
+
+        const result = component.getCurrency();
+        expect(result).toEqual('USD');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getCurrency();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getOriginalCurrency():', () => {
+      it('should get currency', () => {
+        component.fg.controls.currencyObj.setValue({
+          orig_currency: 'USD',
+        });
+
+        const result = component.getOriginalCurrency();
+        expect(result).toEqual('USD');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getOriginalCurrency();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getOriginalAmount():', () => {
+      it('should get currency', () => {
+        component.fg.controls.currencyObj.setValue({
+          orig_amount: 100,
+        });
+
+        const result = component.getOriginalAmount();
+        expect(result).toEqual(100);
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getOriginalAmount();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getProjectID():', () => {
+      it('should get project ID', () => {
+        component.fg.controls.project.setValue({
+          project_id: 100,
+        });
+
+        const result = component.getProjectID();
+        expect(result).toEqual(100);
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getProjectID();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getTaxAmount():', () => {
+      it('should get tax amount', () => {
+        component.fg.controls.tax_amount.setValue(100);
+
+        const result = component.getTaxAmount();
+        expect(result).toEqual(100);
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getTaxAmount();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getTaxGroupID():', () => {
+      it('should get tax group ID', () => {
+        component.fg.controls.tax_group.setValue({
+          id: 100,
+        });
+
+        const result = component.getTaxGroupID();
+        expect(result).toEqual(100);
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getTaxGroupID();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getOrgCategoryID():', () => {
+      it('should get category ID', () => {
+        component.fg.controls.category.setValue({
+          id: 100,
+        });
+
+        const result = component.getOrgCategoryID();
+        expect(result).toEqual(100);
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getOrgCategoryID();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getFyleCategory():', () => {
+      it('should get fyle category', () => {
+        component.fg.controls.category.setValue({
+          fyle_category: 'cat',
+        });
+
+        const result = component.getFyleCategory();
+        expect(result).toEqual('cat');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getFyleCategory();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getDisplayName():', () => {
+      it('should get display name', () => {
+        component.fg.controls.vendor_id.setValue({
+          display_name: 'vendor',
+        });
+
+        const result = component.getDisplayName();
+        expect(result).toEqual('vendor');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getDisplayName();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getPurpose():', () => {
+      it('should get purpose', () => {
+        component.fg.controls.purpose.setValue('purpose');
+
+        const result = component.getPurpose();
+        expect(result).toEqual('purpose');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getPurpose();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getFlightJourneyClass():', () => {
+      it('should get flight journey class', () => {
+        component.fg.controls.flight_journey_travel_class.setValue('FIRST');
+
+        const result = component.getFlightJourneyClass();
+        expect(result).toEqual('FIRST');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getFlightJourneyClass();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getFlightReturnClass():', () => {
+      it('should get flight return journey class', () => {
+        component.fg.controls.flight_return_travel_class.setValue('FIRST');
+
+        const result = component.getFlightReturnClass();
+        expect(result).toEqual('FIRST');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getFlightReturnClass();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getTrainTravelClass():', () => {
+      it('should get train travel class', () => {
+        component.fg.controls.train_travel_class.setValue('FIRST');
+
+        const result = component.getTrainTravelClass();
+        expect(result).toEqual('FIRST');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getTrainTravelClass();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getBusTravelClass():', () => {
+      it('should get bus travel class', () => {
+        component.fg.controls.bus_travel_class.setValue('FIRST');
+
+        const result = component.getBusTravelClass();
+        expect(result).toEqual('FIRST');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getBusTravelClass();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getDistance():', () => {
+      it('should get distance', () => {
+        component.fg.controls.distance.setValue(100);
+
+        const result = component.getDistance();
+        expect(result).toEqual(100);
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getDistance();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getDistanceUnit():', () => {
+      it('should get distance unit', () => {
+        component.fg.controls.distance_unit.setValue('KM');
+
+        const result = component.getDistanceUnit();
+        expect(result).toEqual('KM');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getDistanceUnit();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getBreakfastProvided():', () => {
+      it('should get if breakfast was provided', () => {
+        component.fg.controls.hotel_is_breakfast_provided.setValue(true);
+
+        const result = component.getBreakfastProvided();
+        expect(result).toBeTrue();
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getBreakfastProvided();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getDuplicateReason():', () => {
+      it('should get duplicate expense reason', () => {
+        component.fg.controls.duplicate_detection_reason.setValue('reason');
+
+        const result = component.getDuplicateReason();
+        expect(result).toEqual('reason');
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getDuplicateReason();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getTxnDate():', () => {
+      it('should get txn date', () => {
+        dateService.getUTCDate.and.returnValue(null);
+        component.fg.controls.dateOfSpend.setValue({
+          acc: {
+            type: AccountType.PERSONAL,
+          },
+        });
+
+        const result = component.getTxnDate();
+        expect(result).toBeNull();
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getTxnDate();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getFromDt():', () => {
+      it('should get txn date', () => {
+        dateService.getUTCDate.and.returnValue(null);
+        component.fg.controls.from_dt.setValue(new Date('2019-06-19T06:30:00'));
+
+        const result = component.getFromDt();
+        expect(result).toBeNull();
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getFromDt();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getToDt():', () => {
+      it('should get txn date', () => {
+        dateService.getUTCDate.and.returnValue(null);
+        component.fg.controls.to_dt.setValue(new Date('2019-06-19T06:30:00'));
+
+        const result = component.getToDt();
+        expect(result).toBeNull();
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getToDt();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('getAmount():', () => {
+      it('should get tax amount', () => {
+        component.fg.controls.currencyObj.setValue({
+          amount: 100,
+        });
+
+        const result = component.getAmount();
+        expect(result).toEqual(100);
+      });
+
+      it('should return null', () => {
+        setFormValueNull();
+
+        const result = component.getAmount();
+        expect(result).toBeUndefined();
+      });
+    });
+
+    it('getIsPolicyExpense(): should get if an expense is policy', () => {
+      const result = component.getIsPolicyExpense(policyExpense2);
+
+      expect(result).toBeTrue();
+    });
+
+    describe('getCCCSettings():', () => {
+      it('should return true if CCC settings are enabled', () => {
+        const result = component.getCCCSettings(orgSettingsData);
+
+        expect(result).toBeTrue();
+      });
+
+      it('should return null if no CCC settings exist', () => {
+        const result = component.getCCCSettings(orgSettingsCCCDisabled2);
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should return null if no org settings exist', () => {
+        const result = component.getCCCSettings(null);
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should return false if CCC no enabled', () => {
+        const result = component.getCCCSettings(orgSettingsCCCDisabled3);
+
+        expect(result).toBeNull();
+      });
+    });
+
+    describe('getCheckSpiltExpense():', () => {
+      it('should check if the expense is a  split expense', () => {
+        const result = component.getCheckSpiltExpense(checkSplitExpData1);
+
+        expect(result).toBeFalse();
+      });
+
+      it('should return true if split group ID is absent', () => {
+        const result = component.getCheckSpiltExpense(checkSplitExpData2);
+
+        expect(result).toBeTrue();
+      });
+
+      it('should return false if no expense is present', () => {
+        const result = component.getCheckSpiltExpense(null);
+
+        expect(result).toBeFalse();
+      });
+    });
+
+    describe('getDebitCCCExpense():', () => {
+      it('should return whether the expense is debit', () => {
+        const result = component.getDebitCCCExpense(checkDebitCCCExpenseData1);
+
+        expect(result).toBeTrue();
+      });
+
+      it('should return false if expense is not present', () => {
+        const result = component.getDebitCCCExpense(null);
+
+        expect(result).toBeFalse();
+      });
+    });
+
+    describe('getDismissCCCExpense():', () => {
+      it('should return whether the expense is debit', () => {
+        const result = component.getDismissCCCExpense(checkDebitCCCExpenseData2);
+
+        expect(result).toBeTrue();
+      });
+
+      it('should return false if expense is not present', () => {
+        const result = component.getDismissCCCExpense(null);
+
+        expect(result).toBeFalse();
+      });
+    });
+
+    describe('getRemoveCCCExpense():', () => {
+      it('should return true if a CCC expense can be removed', () => {
+        const result = component.getRemoveCCCExpense(checkDebitCCCExpenseData2);
+
+        expect(result).toBeTrue();
+      });
+
+      it('should return false if expense is not present', () => {
+        const result = component.getRemoveCCCExpense(null);
+
+        expect(result).toBeFalse();
+      });
+    });
+
+    describe('checkAdvanceAccountAndBalance():', () => {
+      it('should return false is account is not present', () => {
+        const result = component.checkAdvanceAccountAndBalance(null);
+
+        expect(result).toBeFalse();
+      });
+
+      it('should return true if account is of type advace', () => {
+        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModesData[2]);
+
+        expect(result).toBeTrue();
+      });
+    });
   });
 }

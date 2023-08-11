@@ -7,7 +7,7 @@ export interface OrgUser {
   user_id?: string;
   employee_id?: any;
   location: string;
-  level?: number;
+  level?: number | string;
   level_id?: string;
   band?: string;
   business_unit?: string;
