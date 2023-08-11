@@ -9,11 +9,12 @@ import { Subscription, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { expenseData1, expenseData2, expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import {
   expectedInstaFyleData1,
   expectedInstaFyleData2,
@@ -27,7 +28,6 @@ import {
 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { editExpTxn, txnData2 } from 'src/app/core/mock-data/transaction.data';
-import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
   expectedUnflattendedTxnData1,
   unflattenedTxnData,
@@ -77,8 +77,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
-import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -606,7 +604,7 @@ export function TestCases2(getTestBed) {
         component.fg.controls.report.setValue(null);
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url1']);
         component.mode = 'add';
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         fixture.detectChanges();
 
         component.saveExpense();
@@ -856,7 +854,7 @@ export function TestCases2(getTestBed) {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
       currencyModalSpy.onWillDismiss.and.resolveTo({
-        data: { action: 'primary' },
+        data: { comment: 'primary' },
       });
       modalController.create.and.resolveTo(currencyModalSpy);
 
@@ -865,7 +863,7 @@ export function TestCases2(getTestBed) {
         splitPolicyExp4.data.final_desired_state
       );
 
-      expect(result).toEqual({ action: 'primary' });
+      expect(result).toEqual({ comment: 'primary' });
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyPolicyViolationComponent,
         componentProps: {
@@ -982,6 +980,7 @@ export function TestCases2(getTestBed) {
             'rpId'
           )
           .componentProps.deleteMethod();
+        expect(reportService.removeTransaction).toHaveBeenCalledTimes(1);
       });
 
       it('should  return modal params and method to delete expense', () => {
@@ -992,6 +991,7 @@ export function TestCases2(getTestBed) {
             false
           )
           .componentProps.deleteMethod();
+        expect(transactionService.delete).toHaveBeenCalledTimes(1);
       });
     });
 

@@ -573,7 +573,7 @@ export class ReportService {
     const params = this.searchParamsGenerator(searchParams);
 
     return this.getPaginatedERptcCount(params).pipe(
-      switchMap((results: number) =>
+      switchMap((results: { count: number }) =>
         // getting all results -> offset = 0, limit = count
         this.getPaginatedERptc(0, results.count, params)
       ),

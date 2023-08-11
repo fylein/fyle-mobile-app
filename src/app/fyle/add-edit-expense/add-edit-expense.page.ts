@@ -130,6 +130,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 
 type FormValue = {
   currencyObj: {
@@ -230,7 +231,7 @@ export class AddEditExpensePage implements OnInit {
 
   flightJourneyTravelClassOptions$: Observable<{ label: string; value: string }[] | string[]>;
 
-  customInputs$: Observable<CustomInputsOption[]>;
+  customInputs$: Observable<CustomInputsOption[] | ExpenseField[]>;
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
@@ -337,7 +338,7 @@ export class AddEditExpensePage implements OnInit {
 
   recentCurrencies: Currency[];
 
-  presetProjectId: number | string;
+  presetProjectId: number;
 
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
 
@@ -575,23 +576,32 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setUpTaxCalculations(): void {
-    const currencyObjControl = this.fg.controls.currencyObj.value as {
-      amount: number;
-      currency: string;
+    const currencyObjControl = this.getFormControl('currencyObj') as {
+      value: {
+        amount: number;
+        currency: string;
+      };
     };
 
-    const taxGroupControl = this.fg.controls.tax_group.value as {
-      percentage: number;
+    const taxGroupControl = this.getFormControl('tax_group') as {
+      value: {
+        percentage: number;
+      };
     };
+
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax_group.valueChanges).subscribe(() => {
       if (
         this.fg.controls.tax_group.value &&
-        isNumber(taxGroupControl.percentage) &&
+        isNumber(taxGroupControl.value?.percentage) &&
         this.fg.controls.currencyObj.value
       ) {
-        const amount = currencyObjControl.amount - currencyObjControl.amount / (taxGroupControl.percentage + 1);
+        const amount =
+          currencyObjControl.value?.amount - currencyObjControl.value?.amount / (taxGroupControl.value?.percentage + 1);
 
-        const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(amount, currencyObjControl.currency);
+        const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(
+          amount,
+          currencyObjControl.value?.currency
+        );
 
         this.fg.controls.tax_amount.setValue(formattedAmount);
       } else {
@@ -667,7 +677,7 @@ export class AddEditExpensePage implements OnInit {
 
   openSplitExpenseModal(splitType: string): void {
     const customFields$ = this.getCustomFields();
-    const reportValue = this.fg.value as { report: UnflattenedReport };
+    const reportValue = this.getFormValues();
 
     forkJoin({
       generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
@@ -1177,7 +1187,6 @@ export class AddEditExpensePage implements OnInit {
       orgUserSettings: this.orgUserSettings$,
       categories: this.categoriesService.getAll(),
       homeCurrency: this.homeCurrency$,
-
       eou: eou$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get<Currency>('recent-currency-cache')),
@@ -1650,25 +1659,27 @@ export class AddEditExpensePage implements OnInit {
             this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
           );
 
-          const customInputValues: { name: string; value: string | number | string[] | number[] | Date | boolean }[] =
-            customInputs
-              .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
-              .map((customInput) => {
-                const cpor =
-                  etxn.tx.custom_properties &&
-                  etxn.tx.custom_properties.find((customProp) => customProp.name === customInput.name);
-                if (customInput.type === 'DATE') {
-                  return {
-                    name: customInput.name,
-                    value: (cpor && cpor.value && dayjs(new Date(cpor.value as string)).format('YYYY-MM-DD')) || null,
-                  };
-                } else {
-                  return {
-                    name: customInput.name,
-                    value: (cpor && cpor.value) || null,
-                  };
-                }
-              });
+          const customInputValues: {
+            name: string;
+            value: string | number | string[] | number[] | Date | boolean | { display: string };
+          }[] = customInputs
+            .filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')
+            .map((customInput) => {
+              const cpor =
+                etxn.tx.custom_properties &&
+                etxn.tx.custom_properties.find((customProp) => customProp.name === customInput.name);
+              if (customInput.type === 'DATE') {
+                return {
+                  name: customInput.name,
+                  value: (cpor && cpor.value && dayjs(new Date(cpor.value as string)).format('YYYY-MM-DD')) || null,
+                };
+              } else {
+                return {
+                  name: customInput.name,
+                  value: (cpor && cpor.value) || null,
+                };
+              }
+            });
 
           if (etxn.tx.amount && etxn.tx.currency) {
             this.fg.patchValue({
@@ -2255,18 +2266,18 @@ export class AddEditExpensePage implements OnInit {
         if (expenseFieldsMap) {
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
+            const options = expenseField.options as string[];
             const ifOptions = expenseField.options && expenseField.options.length > 0;
             if (ifOptions) {
               if (tfc === 'vendor_id') {
-                expenseField.options = expenseField.options.map((value) => ({
+                expenseField.options = options.map((value) => ({
                   label: value,
                   value: {
                     display_name: value,
                   },
                 }));
               } else {
-                const expenseFieldOptions = expenseField.options;
-                expenseField.options = expenseFieldOptions.map((value) => ({
+                expenseField.options = options.map((value) => ({
                   label: value,
                   value,
                 }));
@@ -2471,7 +2482,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }),
           startWith(initialProject),
-          concatMap((project) =>
+          concatMap((project: ExtendedProject) =>
             activeCategories$.pipe(
               map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
             )
@@ -2671,6 +2682,21 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  initCCCTxn(): void {
+    const bankTxn =
+      this.activatedRoute.snapshot.params.bankTxn &&
+      (JSON.parse(this.activatedRoute.snapshot.params.bankTxn as string) as CCCExpUnflattened);
+    this.showSelectedTransaction = true;
+    this.selectedCCCTransaction = bankTxn.ccce;
+    let cccAccountNumber: string;
+    if (bankTxn.flow && bankTxn.flow === 'newCCCFlow') {
+      cccAccountNumber = this.selectedCCCTransaction.corporate_credit_card_account_number;
+    }
+    this.cardEndingDigits = cccAccountNumber && cccAccountNumber.slice(-4);
+    this.selectedCCCTransaction.corporate_credit_card_account_number = cccAccountNumber;
+    this.isCreatedFromCCC = true;
+  }
+
   handleCCCExpenses(etxn: UnflattenedTransaction): Subscription {
     return this.corporateCreditCardExpenseService
       .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
@@ -2710,7 +2736,7 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  initSplitTxn(orgSettings$: Observable<OrgSettings>) {
+  initSplitTxn(orgSettings$: Observable<OrgSettings>): void {
     orgSettings$
       .pipe(
         switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
@@ -2808,6 +2834,10 @@ export class AddEditExpensePage implements OnInit {
     this.setupSelectedProjectObservable();
 
     this.setupSelectedCostCenterObservable();
+
+    if (this.activatedRoute.snapshot.params.bankTxn) {
+      this.initCCCTxn();
+    }
 
     this.getCCCpaymentMode();
 
@@ -2992,18 +3022,20 @@ export class AddEditExpensePage implements OnInit {
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map((txnFields) => {
-        const txnFieldsOptions = txnFields.flight_journey_travel_class.options;
+        const txnFieldsOptions = txnFields?.flight_journey_travel_class?.options as string[];
         return txnFields.flight_journey_travel_class && txnFieldsOptions.map((v) => ({ label: v, value: v }));
       })
     );
 
     this.taxSettings$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.tax_settings),
-      map((taxSettings) => ({
-        ...taxSettings,
-        groups:
-          taxSettings.groups && taxSettings.groups.map((tax: Partial<TaxGroup>) => ({ label: tax.name, value: tax })),
-      }))
+      map((taxSettings) => {
+        const taxOptions = taxSettings.groups as TaxGroup[];
+        return {
+          ...taxSettings,
+          groups: taxOptions && taxOptions.map((tax) => ({ label: tax.name, value: tax })),
+        };
+      })
     );
 
     this.reports$ = this.reportService
@@ -3204,7 +3236,7 @@ export class AddEditExpensePage implements OnInit {
     etxn$: Observable<UnflattenedTransaction>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
     isPolicyEtxn = false
-  ): Observable<UnflattenedTransaction | Partial<UnflattenedTransaction>> {
+  ): Observable<Partial<UnflattenedTransaction>> {
     let txId: string;
     etxn$.subscribe((etxn) => {
       txId = etxn.tx.id;
@@ -3366,7 +3398,7 @@ export class AddEditExpensePage implements OnInit {
     return CCDependentFieldsControl.cost_center_dependent_fields;
   }
 
-  getCustomFields(): Observable<CustomProperty<string>[]> {
+  getCustomFields(): Observable<TxnCustomProperties[]> {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
         const allDependentFields = [
@@ -3458,7 +3490,7 @@ export class AddEditExpensePage implements OnInit {
                 .pipe(
                   switchMap((txnData) => {
                     if (txnData) {
-                      return from(txnData as Promise<UnflattenedTransaction>);
+                      return from(txnData as Promise<OutboxQueue>);
                     } else {
                       return of(null);
                     }
@@ -3697,25 +3729,28 @@ export class AddEditExpensePage implements OnInit {
           })
         );
       }),
-      catchError((err) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (err.status === 500) {
-          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-            map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-          );
+      catchError(
+        (err: {
+          status?: number;
+          type: string;
+          policyViolations: string[];
+          policyAction: FinalExpensePolicyState;
+          etxn: Partial<UnflattenedTransaction>;
+        }) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+              map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+            );
+          }
+          if (err.type === 'criticalPolicyViolations') {
+            return this.criticalPolicyViolationErrorHandler(err, customFields$);
+          } else if (err.type === 'policyViolations') {
+            return this.policyViolationErrorHandler(err, customFields$);
+          } else {
+            return throwError(err);
+          }
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (err.type === 'criticalPolicyViolations') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return this.criticalPolicyViolationErrorHandler(err, customFields$);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        } else if (err.type === 'policyViolations') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return this.policyViolationErrorHandler(err, customFields$);
-        } else {
-          return throwError(err);
-        }
-      }),
+      ),
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         forkJoin({
           eou: from(this.authService.getEou()),
@@ -3870,9 +3905,13 @@ export class AddEditExpensePage implements OnInit {
 
   criticalPolicyViolationErrorHandler(
     err: {
-      policyViolations: string[];
+      status?: number;
+      type?: string;
+      policyViolations?: string[];
+      policyAction?: FinalExpensePolicyState;
+      etxn?: Partial<UnflattenedTransaction>;
     },
-    customFields$: Observable<CustomField[]>
+    customFields$: Observable<CustomField[] | TxnCustomProperties[]>
   ): Observable<UnflattenedTransaction | unknown> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
@@ -3894,10 +3933,13 @@ export class AddEditExpensePage implements OnInit {
 
   policyViolationErrorHandler(
     err: {
-      policyViolations: string[];
-      policyAction: FinalExpensePolicyState;
+      status?: number;
+      type?: string;
+      policyViolations?: string[];
+      policyAction?: FinalExpensePolicyState;
+      etxn?: Partial<UnflattenedTransaction>;
     },
-    customFields$: Observable<CustomField[]>
+    customFields$: Observable<CustomField[] | TxnCustomProperties[]>
   ): Observable<UnflattenedTransaction | unknown> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
@@ -3938,7 +3980,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  addExpense(redirectedFrom: string): Observable<Partial<UnflattenedTransaction>> {
+  addExpense(redirectedFrom: string): Observable<OutboxQueue | Promise<OutboxQueue>> {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
@@ -3998,28 +4040,31 @@ export class AddEditExpensePage implements OnInit {
         )
       ),
 
-      catchError((err) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (err.status === 500) {
-          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
-        }
+      catchError(
+        (err: {
+          status?: number;
+          type?: string;
+          policyViolations?: string[];
+          policyAction?: FinalExpensePolicyState;
+          etxn?: Partial<UnflattenedTransaction>;
+        }) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (err.type === 'criticalPolicyViolations') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return this.criticalPolicyViolationErrorHandler(err, customFields$);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        } else if (err.type === 'policyViolations') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return this.policyViolationErrorHandler(err, customFields$);
-        } else {
-          return throwError(err);
+          if (err.type === 'criticalPolicyViolations') {
+            return this.criticalPolicyViolationErrorHandler(err, customFields$);
+          } else if (err.type === 'policyViolations') {
+            return this.policyViolationErrorHandler(err, customFields$);
+          } else {
+            return throwError(err);
+          }
         }
-      }),
+      ),
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         from(this.authService.getEou()).pipe(
           switchMap(() => {
-            const comments = [];
+            const comments: string[] = [];
             const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
             this.trackCreateExpense(etxn, isInstaFyleExpense);
 
@@ -4039,7 +4084,7 @@ export class AddEditExpensePage implements OnInit {
               reportId = formValues.report.rp.id;
             }
 
-            etxn.dataUrls = etxn.dataUrls.map((data) => {
+            etxn.dataUrls = etxn.dataUrls.map((data: FileObject) => {
               let attachmentType = 'image';
 
               if (data.type === 'application/pdf' || data.type === 'pdf') {
@@ -4052,7 +4097,14 @@ export class AddEditExpensePage implements OnInit {
             });
 
             if (this.activatedRoute.snapshot.params.bankTxn) {
-              return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
+              return from(
+                this.transactionOutboxService.addEntryAndSync(
+                  etxn.tx,
+                  etxn.dataUrls as { url: string; type: string }[],
+                  comments,
+                  reportId
+                )
+              );
             } else {
               return this.isConnected$.pipe(
                 take(1),
@@ -4063,10 +4115,17 @@ export class AddEditExpensePage implements OnInit {
 
                   if (this.activatedRoute.snapshot.params.rp_id) {
                     return of(
-                      this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId)
+                      this.transactionOutboxService.addEntryAndSync(
+                        etxn.tx,
+                        etxn.dataUrls as { url: string; type: string }[],
+                        comments,
+                        reportId
+                      )
                     );
                   } else {
-                    this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId).then(noop);
+                    this.transactionOutboxService
+                      .addEntry(etxn.tx, etxn.dataUrls as { url: string; type: string }[], comments, reportId)
+                      .then(noop);
 
                     return of(null);
                   }
@@ -4661,23 +4720,27 @@ export class AddEditExpensePage implements OnInit {
             })
           )
         ),
-        catchError((err) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          if (err.status === 500) {
-            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+        catchError(
+          (err: {
+            status?: number;
+            type: string;
+            policyViolations: string[];
+            policyAction: FinalExpensePolicyState;
+            etxn: Partial<UnflattenedTransaction>;
+          }) => {
+            if (err.status === 500) {
+              return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+            }
+
+            if (err.type === 'criticalPolicyViolations') {
+              return this.criticalPolicyViolationErrorHandler(err, customFields$);
+            } else if (err.type === 'policyViolations') {
+              return this.policyViolationErrorHandler(err, customFields$);
+            } else {
+              return throwError(err);
+            }
           }
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          if (err.type === 'criticalPolicyViolations') {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return this.criticalPolicyViolationErrorHandler(err, customFields$);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          } else if (err.type === 'policyViolations') {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return this.policyViolationErrorHandler(err, customFields$);
-          } else {
-            return throwError(err);
-          }
-        }),
+        ),
         switchMap(({ etxn }: { etxn: UnflattenedTransaction }) => {
           const personalCardTxn =
             this.activatedRoute.snapshot.params.personalCardTxn &&

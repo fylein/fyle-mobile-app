@@ -5599,7 +5599,7 @@ export const expectedFormattedTransaction: Partial<Expense>[] = [
   },
 ];
 
-export const policyExpense2: Expense = {
+export const policyExpense2 = {
   ...apiExpenseRes[0],
   tx_policy_amount: 0,
 };

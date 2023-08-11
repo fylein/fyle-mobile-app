@@ -1,4 +1,4 @@
-import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
+import { OrgCategory } from '../models/v1/org-category.model';
 
 export const orgCategoryData: OrgCategory = {
   code: null,

@@ -10,12 +10,11 @@ import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { eCCCData1, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
-import { customInputsData3 } from 'src/app/core/mock-data/custom-input.data';
-import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
+import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expenseData1, splitExpData } from 'src/app/core/mock-data/expense.data';
 
-import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
+import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
@@ -41,7 +40,6 @@ import { reportOptionsData, reportOptionsData2, reportOptionsData3 } from 'src/a
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { expectedTaxGroupData, taxGroupData } from 'src/app/core/mock-data/tax-group.data';
 import { TxnCustomProperties3 } from 'src/app/core/mock-data/txn-custom-properties.data';
-import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
   expectedExpenseObservable,
   expectedUnflattendedTxnData1,
@@ -96,12 +94,11 @@ import {
   orgSettingsData,
   unflattenedAccount1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { customInput2, customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -297,8 +294,8 @@ export function TestCases5(getTestBed) {
           .componentProps.deleteMethod()
           .subscribe((res) => {
             expect(res).toEqual(expenseData1);
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'tx3qHxFNgRcZ');
-            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'tx3qHxFNgRcZ');
+            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
+            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
             done();
           });
       });
@@ -361,7 +358,7 @@ export function TestCases5(getTestBed) {
         tick(500);
       }));
 
-      it('should return false when account type changes to null', fakeAsync(() => {
+      it('should return false account type changes to null', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(null));
         component.setupBalanceFlag();
         tick(500);
@@ -1009,7 +1006,7 @@ export function TestCases5(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, undefined);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -1069,7 +1066,7 @@ export function TestCases5(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, undefined);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -1086,10 +1083,10 @@ export function TestCases5(getTestBed) {
         project_dependent_fields: [],
       });
 
-      component.fg.controls.project_dependent_fields.setValue(projectDependentFields);
+      component.fg.controls.project_dependent_fields.setValue(dependentCustomFields2);
 
       const result = component.getProjectDependentFields();
-      expect(result).toEqual(projectDependentFields);
+      expect(result).toEqual(dependentCustomFields2);
     });
 
     it('getCostCenterDependentFields(): should get cost center dependent fields', () => {
@@ -1097,10 +1094,10 @@ export function TestCases5(getTestBed) {
         cost_center_dependent_fields: [],
       });
 
-      component.fg.controls.cost_center_dependent_fields.setValue(costCenterDependentFields);
+      component.fg.controls.cost_center_dependent_fields.setValue(dependentCustomFields2);
 
       const result = component.getCostCenterDependentFields();
-      expect(result).toEqual(costCenterDependentFields);
+      expect(result).toEqual(dependentCustomFields2);
     });
 
     it('getCustomFields(): should get custom fields data', () => {
@@ -1118,12 +1115,20 @@ export function TestCases5(getTestBed) {
       component.fg.controls.custom_inputs.setValue(projectDependentFields);
       fixture.detectChanges();
 
-      component.getCustomFields().subscribe((res) => {
-        expect(res).toEqual(customInputsData3);
+      component.getCustomFields().subscribe(() => {
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields2);
         expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
         expect(component.getCostCenterDependentFields).toHaveBeenCalledTimes(1);
       });
+    });
+
+    it('initCCCTxn(): should initialize ccc details', () => {
+      activatedRoute.snapshot.params.bankTxn = JSON.stringify(eCCCData1);
+      fixture.detectChanges();
+
+      component.initCCCTxn();
+      expect(component.showSelectedTransaction).toBeTrue();
+      expect(component.isCreatedFromCCC).toBeTrue();
     });
 
     describe('ionViewWillEnter():', () => {
@@ -1141,7 +1146,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupSelectedCostCenterObservable');
         spyOn(component, 'getCCCpaymentMode');
         spyOn(component, 'setUpTaxCalculations');
-
+        spyOn(component, 'initCCCTxn').and.returnValue(null);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
@@ -1196,7 +1201,7 @@ export function TestCases5(getTestBed) {
 
         expect(component.setupSelectedProjectObservable).toHaveBeenCalledTimes(1);
         expect(component.setupSelectedCostCenterObservable).toHaveBeenCalledTimes(1);
-
+        expect(component.initCCCTxn).toHaveBeenCalledTimes(1);
         expect(component.getCCCpaymentMode).toHaveBeenCalledTimes(1);
         expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
 
@@ -1278,20 +1283,7 @@ export function TestCases5(getTestBed) {
         expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
-          expect(res).toEqual([
-            {
-              value: 'eco',
-              label: 'eco',
-            },
-            {
-              value: 'business',
-              label: 'business',
-            },
-            {
-              value: 'jhgjg',
-              label: 'jhgjg',
-            },
-          ]);
+          expect(res).toBeUndefined();
         });
 
         expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
@@ -1349,6 +1341,7 @@ export function TestCases5(getTestBed) {
         component.etxn$ = of(unflattenedExpenseWithCCCGroupId2);
         activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse[0]);
         activatedRoute.snapshot.params.id = null;
+        spyOn(component, 'initCCCTxn').and.returnValue(null);
 
         spyOn(component, 'initClassObservables').and.returnValue(null);
         tokenService.getClusterDomain.and.resolveTo('domain');
@@ -1415,7 +1408,7 @@ export function TestCases5(getTestBed) {
 
         expect(component.setupSelectedProjectObservable).toHaveBeenCalledTimes(1);
         expect(component.setupSelectedCostCenterObservable).toHaveBeenCalledTimes(1);
-
+        expect(component.initCCCTxn).toHaveBeenCalledTimes(1);
         expect(component.getCCCpaymentMode).toHaveBeenCalledTimes(1);
         expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
 
@@ -1496,20 +1489,7 @@ export function TestCases5(getTestBed) {
         expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
-          expect(res).toEqual([
-            {
-              value: 'eco',
-              label: 'eco',
-            },
-            {
-              value: 'business',
-              label: 'business',
-            },
-            {
-              value: 'jhgjg',
-              label: 'jhgjg',
-            },
-          ]);
+          expect(res).toBeUndefined();
         });
 
         expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));

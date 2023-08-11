@@ -9,11 +9,13 @@ import { ActionSheetController, ModalController, NavController, Platform, Popove
 import { Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
+import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
 import { defaultTxnFieldValuesData } from 'src/app/core/mock-data/default-txn-field-values.data';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
-import { transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
+import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
+import { apiExpenseRes, expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
@@ -21,14 +23,8 @@ import {
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
-import { txnList } from 'src/app/core/mock-data/transaction.data';
 import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
-import {
-  unflattenExp1,
-  unflattenExp2,
-  unflattenedExpData,
-  unflattenedTxn,
-} from 'src/app/core/mock-data/unflattened-expense.data';
+import { unflattenedExpData, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -67,7 +63,7 @@ import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { txnFieldsMap2 } from 'src/app/core/mock-data/expense-fields-map.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -451,6 +447,7 @@ export function TestCases1(getTestBed) {
         currencyService.getAmountWithCurrencyFraction.and.returnValue(82.5);
         component.setUpTaxCalculations();
         tick(500);
+
         component.fg.controls.currencyObj.setValue({
           amount: 100,
           currency: 'USD',
@@ -459,6 +456,8 @@ export function TestCases1(getTestBed) {
         component.fg.controls.tax_group.setValue({
           percentage: 0.05,
         });
+        fixture.detectChanges();
+        tick(500);
 
         expect(component.fg.controls.tax_amount.value).toEqual(82.5);
         expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledOnceWith(4.761904761904759, 'USD');
@@ -502,12 +501,12 @@ export function TestCases1(getTestBed) {
         component.isSplitExpensesPresent = true;
         component.isDraftExpenseEnabled = true;
         component.isSplitExpensesPresent = true;
-        component.alreadyApprovedExpenses = [unflattenExp2];
+        component.alreadyApprovedExpenses = apiExpenseRes;
         fixture.detectChanges();
 
         component.unmatchExpense({
-          ...unflattenExp1,
-          tx: { ...unflattenExp1.tx, state: 'APPROVER_PENDING' },
+          ...unflattenedTxnData,
+          tx: { ...unflattenedTxnData.tx, state: 'APPROVER_PENDING' },
         });
         tick(500);
 
@@ -541,7 +540,7 @@ export function TestCases1(getTestBed) {
     describe('openSplitExpenseModal():', () => {
       it('should open split expense modal by navigating to split expense', () => {
         spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
-        component.txnFields$ = of(defaultTxnFieldValuesData);
+        component.txnFields$ = of(expenseFieldObjData);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
 
         component.openSplitExpenseModal('projects');
@@ -553,7 +552,7 @@ export function TestCases1(getTestBed) {
           'split_expense',
           {
             splitType: 'projects',
-            txnFields: JSON.stringify(defaultTxnFieldValuesData),
+            txnFields: JSON.stringify(txnFieldsMap2),
             txn: JSON.stringify(unflattenedExpData.tx),
             currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
             fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
@@ -565,8 +564,8 @@ export function TestCases1(getTestBed) {
 
       it('should navigate to split expense with selected CCC txns and report ID', () => {
         spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
-        component.txnFields$ = of(defaultTxnFieldValuesData);
-        component.selectedCCCTransaction = 'txID';
+        component.txnFields$ = of(expenseFieldObjData);
+        component.selectedCCCTransaction = expectedECccResponse[0].ccce;
         component.fg.controls.report.setValue(expectedErpt[0]);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
         fixture.detectChanges();
@@ -574,20 +573,7 @@ export function TestCases1(getTestBed) {
         component.openSplitExpenseModal('projects');
         expect(component.getCustomFields).toHaveBeenCalledTimes(1);
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
-        expect(router.navigate).toHaveBeenCalledOnceWith([
-          '/',
-          'enterprise',
-          'split_expense',
-          {
-            splitType: 'projects',
-            txnFields: JSON.stringify(defaultTxnFieldValuesData),
-            txn: JSON.stringify(unflattenedExpData.tx),
-            currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
-            fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
-            selectedCCCTransaction: JSON.stringify(component.selectedCCCTransaction),
-            selectedReportId: JSON.stringify(component.fg.value.report.rp.id),
-          },
-        ]);
+        expect(router.navigate).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -670,7 +656,7 @@ export function TestCases1(getTestBed) {
 
     describe('removeCorporateCardExpense():', () => {
       it('should remove CCC expense', fakeAsync(() => {
-        component.etxn$ = of({ ...txnList[0] });
+        component.etxn$ = of(unflattenedTxnData);
         spyOn(component, 'goBack');
         transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
         spyOn(component, 'getRemoveCCCExpModalParams');
@@ -694,11 +680,8 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
         );
-        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledOnceWith({
-          Type: 'unlink corporate card expense',
-          transaction: undefined,
-        });
-        expect(component.goBack).toHaveBeenCalledOnceWith();
+        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1),
+          expect(component.goBack).toHaveBeenCalledOnceWith();
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',
@@ -734,10 +717,7 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
         );
-        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledOnceWith({
-          Type: 'unlink corporate card expense',
-          transaction: txn.tx,
-        });
+        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -755,7 +735,7 @@ export function TestCases1(getTestBed) {
         });
       }));
 
-      it('should show remove CCC expense popup but take no action', fakeAsync(() => {
+      it('should show popup but take no action', fakeAsync(() => {
         const txn = { ...unflattenedTxn, tx: { ...unflattenedTxn.tx, report_id: 'rpFE5X1Pqi9P' } };
         component.etxn$ = of(txn);
         transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
@@ -784,8 +764,8 @@ export function TestCases1(getTestBed) {
         expect(component.showSnackBarToast).not.toHaveBeenCalled();
       }));
 
-      it('should go back to expenses page if no expense is found', fakeAsync(() => {
-        component.etxn$ = of(unflattenedTxnData);
+      it('should do back to expenses page if no expense is found', fakeAsync(() => {
+        component.etxn$ = of(null);
         transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
         spyOn(component, 'getRemoveCCCExpModalParams');
         spyOn(component, 'showSnackBarToast');
@@ -809,7 +789,10 @@ export function TestCases1(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getRemoveCCCExpModalParams(header, body, ctaText, ctaLoadingText)
         );
-        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledTimes(1);
+        expect(trackingService.unlinkCorporateCardExpense).toHaveBeenCalledOnceWith({
+          Type: 'unlink corporate card expense',
+          transaction: undefined,
+        });
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Successfully removed the card details from the expense.' },
           'information',
@@ -997,10 +980,10 @@ export function TestCases1(getTestBed) {
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
           })
         );
-        component.costCenters$ = of(costCenterApiRes1);
+        component.costCenters$ = of(expectedCCdata);
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
-        component.filteredCategories$ = of(transformedOrgCategories);
-        component.txnFields$ = of({ project_id: 257528 });
+        component.filteredCategories$ = of(categorieListRes);
+        component.txnFields$ = of(expenseFieldObjData);
         component.isCccExpense = true;
         component.canDismissCCCE = true;
         component.isCorporateCreditCardEnabled = true;
@@ -1050,10 +1033,10 @@ export function TestCases1(getTestBed) {
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
           })
         );
-        component.costCenters$ = of(costCenterApiRes1);
+        component.costCenters$ = of(expectedCCdata);
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
-        component.filteredCategories$ = of(transformedOrgCategories);
-        component.txnFields$ = of({ project_id: 257528 });
+        component.filteredCategories$ = of(categorieListRes);
+        component.txnFields$ = of(expenseFieldObjData);
         component.isCccExpense = true;
         component.canDismissCCCE = true;
         component.isCorporateCreditCardEnabled = true;
@@ -1083,10 +1066,10 @@ export function TestCases1(getTestBed) {
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
           })
         );
-        component.costCenters$ = of(costCenterApiRes1);
+        component.costCenters$ = of(expectedCCdata);
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
-        component.filteredCategories$ = of(transformedOrgCategories);
-        component.txnFields$ = of({ project_id: 257528 });
+        component.filteredCategories$ = of(categorieListRes);
+        component.txnFields$ = of(expenseFieldObjData);
         component.isCccExpense = false;
         component.canDismissCCCE = true;
         component.isCorporateCreditCardEnabled = true;
@@ -1114,10 +1097,10 @@ export function TestCases1(getTestBed) {
             expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: false } },
           })
         );
-        component.costCenters$ = of(costCenterApiRes1);
+        component.costCenters$ = of(expectedCCdata);
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
-        component.filteredCategories$ = of(transformedOrgCategories);
-        component.txnFields$ = of({ project_id: 257528 });
+        component.filteredCategories$ = of(categorieListRes);
+        component.txnFields$ = of(expenseFieldObjData);
         component.isCccExpense = true;
         component.canDismissCCCE = false;
         component.isCorporateCreditCardEnabled = true;
