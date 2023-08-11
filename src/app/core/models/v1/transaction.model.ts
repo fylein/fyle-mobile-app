@@ -25,6 +25,7 @@ export interface Transaction {
     description?: string;
     vendor?: string;
     category?: string;
+    vendor_name?: string;
     invoice_dt?: Date;
   };
   flight_journey_travel_class?: string;

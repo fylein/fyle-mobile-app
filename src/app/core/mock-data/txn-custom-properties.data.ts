@@ -434,3 +434,26 @@ export const expectedTxnCustomProperties: TxnCustomProperties[] = [
     value: new Date('2023-02-13T17:00:00.000Z'),
   },
 ];
+
+export const TxnCustomProperties3: TxnCustomProperties[] = [
+  {
+    id: 200227,
+    mandatory: false,
+    name: 'userlist',
+    options: [],
+    placeholder: 'userlist_custom_field',
+    prefix: '',
+    type: 'USER_LIST',
+    value: [],
+  },
+  {
+    id: 211326,
+    mandatory: false,
+    name: 'select all 2',
+    options: [],
+    placeholder: 'helo date',
+    prefix: '',
+    type: 'DATE',
+    value: '2023-02-13T17:00:00.000Z',
+  },
+];
