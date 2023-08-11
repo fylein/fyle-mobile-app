@@ -1,0 +1,128 @@
+<div class="add-corporate-card">
+  <ion-header mode="md">
+    <ion-toolbar mode="md" class="fy-modal-toolbar add-corporate-card__toolbar">
+      <ion-title class="text-center add-corporate-card__toolbar-title">Add Corporate Card</ion-title>
+
+      <ion-buttons slot="start">
+        <ion-button class="add-corporate-card__toolbar-close-btn" (click)="closePopover()">
+          <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="add-corporate-card__content">
+    <div class="add-corporate-card__input-container">
+      <div class="add-corporate-card__input-label">
+        <span>Enter Card Number</span>
+        <span class="add-corporate-card__input-label--mandatory"> * </span>
+      </div>
+
+      <div class="add-corporate-card__input-inner-container">
+        <input
+          class="smartlook-show add-corporate-card__card-number-input pl-0"
+          inputmode="numeric"
+          [formControl]="cardForm"
+          mask="9999 9999 9999 9999"
+          (keydown.enter)="enrollCard()"
+          autocomplete="cc-number"
+          required
+        />
+
+        <ion-icon
+          *ngIf="!cardType || cardType === rtfCardTypes.OTHERS"
+          src="../../../../assets/svg/card.svg"
+          class="add-corporate-card__input-default-icon"
+        ></ion-icon>
+
+        <ion-icon
+          *ngIf="cardType === rtfCardTypes.VISA"
+          src="../../../../assets/svg/visa-logo.svg"
+          class="add-corporate-card__input-visa-icon"
+        ></ion-icon>
+
+        <ion-icon
+          *ngIf="cardType === rtfCardTypes.MASTERCARD"
+          src="../../../../assets/svg/mastercard-logo.svg"
+          class="add-corporate-card__input-mastercard-icon"
+        ></ion-icon>
+      </div>
+
+      <div class="add-corporate-card__input-error-space"></div>
+
+      <!-- TODO: Add all possible errors here -->
+    </div>
+
+    <ng-container *ngIf="isAddingNonRTFCard && isYodleeEnabled; else tnc">
+      <app-fy-alert-info
+        type="information"
+        message="Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin."
+      ></app-fy-alert-info>
+    </ng-container>
+
+    <ng-template #tnc>
+      <ion-accordion-group>
+        <ion-accordion>
+          <div class="add-corporate-card__view-tnc-btn" slot="header">
+            <span>View Terms and Conditions</span>
+            <ion-icon
+              src="../../../../assets/svg/arrow-down-primary.svg"
+              class="add-corporate-card__view-tnc-btn-icon ion-accordion-toggle-icon"
+            ></ion-icon>
+          </div>
+          <div slot="content" class="add-corporate-card__tnc">
+            <div class="add-corporate-card__tnc-heading">
+              By enrolling your card and clicking on "Add", you hereby agree to:
+            </div>
+            <ul class="add-corporate-card__tnc-list">
+              <li>
+                Allow your employer, card network ({{ cardNetworks | arrayToCommaList }}) and Fyle Inc to access details
+                of all transactions made using the enrolled card. This includes the transaction amount, the name of the
+                merchant, the date and time of the transaction, and any other relevant information deemed necessary to
+                provide services.
+              </li>
+              <li>
+                Allow Fyle to use the above details to create expenses on your behalf and enable program notifications.
+              </li>
+              <li>
+                Agree to our
+                <a
+                  href="https://www.fylehq.com/privacy/terms-and-conditions"
+                  target="_blank"
+                  class="add-corporate-card__tnc-link"
+                >
+                  Terms and Conditions
+                  <ion-icon
+                    src="../../../../assets/svg/open-in-new-tab.svg"
+                    class="add-corporate-card__tnc-link-icon"
+                  ></ion-icon>
+                </a>
+                and
+                <a
+                  href="https://www.fylehq.com/privacy/privacy-policy"
+                  target="_blank"
+                  class="add-corporate-card__tnc-link"
+                >
+                  Privacy Policy
+                  <ion-icon
+                    src="../../../../assets/svg/open-in-new-tab.svg"
+                    class="add-corporate-card__tnc-link-icon"
+                  ></ion-icon>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
+    </ng-template>
+  </div>
+
+  <div class="add-corporate-card__footer">
+    <ion-button
+      (click)="enrollCard()"
+      [disabled]="isAddingNonRTFCard && isYodleeEnabled"
+      class="fy-footer-cta fy-footer-cta--primary"
+      >Add</ion-button
+    >
+  </div>
+</div>

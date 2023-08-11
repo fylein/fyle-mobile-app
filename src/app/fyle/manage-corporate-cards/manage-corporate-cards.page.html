@@ -1,5 +1,5 @@
 <ion-header mode="md">
-  <ion-toolbar class="manage-corporate-cards--toolbar">
+  <ion-toolbar class="manage-corporate-cards__toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-button (click)="goBack()">
         <mat-icon>keyboard_backspace</mat-icon>
@@ -11,16 +11,33 @@
 
 <ion-content>
   <div class="manage-corporate-cards__cards">
-    <ng-container *ngIf="corporateCards$ | async as corporateCards">
-      <div class="manage-corporate-cards__cards-list">
-        <app-corporate-card
-          *ngFor="let corporateCard of corporateCards"
-          [card]="corporateCard"
-          [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
-          [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
-          (cardOptionsClick)="openCardOptions($event)"
-        ></app-corporate-card>
-      </div>
-    </ng-container>
+    <div class="manage-corporate-cards__cards-list" *ngIf="corporateCards$ | async as corporateCards">
+      <ng-container *ngIf="isLoadingCards; else cards">
+        <!-- Shimmers here -->
+      </ng-container>
+
+      <ng-template #cards>
+        <ng-container *ngIf="corporateCards.length > 0; else zeroState">
+          <app-corporate-card
+            *ngFor="let corporateCard of corporateCards"
+            [card]="corporateCard"
+            [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
+            [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
+            (cardOptionsClick)="openCardOptions($event)"
+          ></app-corporate-card>
+        </ng-container>
+        <ng-template #zeroState>
+          <!-- Zero state here -->
+        </ng-template>
+      </ng-template>
+    </div>
   </div>
 </ion-content>
+
+<ion-footer>
+  <div class="fy-footer-cta-container">
+    <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="openAddCorporateCardPopover()"
+      >Add Corporate Card</ion-button
+    >
+  </div>
+</ion-footer>

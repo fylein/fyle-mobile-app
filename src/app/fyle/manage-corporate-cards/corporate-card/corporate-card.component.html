@@ -1,7 +1,7 @@
 <div class="corporate-card">
   <ion-row class="ion-align-items-center">
-    <ion-col>
-      <div *ngIf="!isCardConnectedToRTF" class="corporate-card__logo corporate-card__logo--default">
+    <ion-col class="p-0">
+      <div *ngIf="!isCardConnectedToRTF" class="corporate-card__logo--default">
         <ion-icon
           src="../../../../assets/svg/card.svg"
           class="corporate-card__logo--default__icon"
@@ -9,15 +9,7 @@
         ></ion-icon>
       </div>
 
-      <div
-        *ngIf="isCardConnectedToRTF"
-        class="corporate-card__logo"
-        [ngClass]="{
-          'corporate-card__logo--visa': card.is_visa_enrolled,
-          'corporate-card__logo--mastercard': card.is_mastercard_enrolled
-        }"
-        data-testid="icon-container"
-      >
+      <ng-container *ngIf="isCardConnectedToRTF">
         <ion-icon
           *ngIf="card.is_visa_enrolled"
           src="../../../../assets/svg/visa-logo.svg"
@@ -30,10 +22,10 @@
           class="corporate-card__logo--mastercard__icon"
           data-testid="mastercard-icon"
         ></ion-icon>
-      </div>
+      </ng-container>
     </ion-col>
 
-    <ion-col size="auto">
+    <ion-col size="auto" class="p-0">
       <button
         *ngIf="showCardOptionsMenu"
         class="corporate-card__more-options-btn"
