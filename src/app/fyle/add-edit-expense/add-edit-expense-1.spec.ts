@@ -875,6 +875,37 @@ export function TestCases1(getTestBed) {
           ToastContent: 'Marked expense as Personal',
         });
       }));
+
+      it('should mark txn as personal if CCC group id is null', fakeAsync(() => {
+        spyOn(component, 'getMarkDismissModalParams');
+        spyOn(component, 'showSnackBarToast');
+        component.etxn$ = of(null);
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+        deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isExpenseMatchedForDebitCCCE = true;
+
+        fixture.detectChanges();
+
+        component.markPeronsalOrDismiss('personal');
+        tick(500);
+
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getMarkDismissModalParams(getMarkDismissModalParamsData2, true)
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Marked expense as Personal' },
+          'information',
+          ['msb-info']
+        );
+        expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+          ToastContent: 'Marked expense as Personal',
+        });
+        expect(component.corporateCreditCardExpenseGroupId).toBeUndefined();
+      }));
     });
 
     it('removeCCCHandler(): should call method to remove CCC expense', () => {

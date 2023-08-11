@@ -1215,7 +1215,7 @@ export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
   },
 };
 
-export const taxSettingsData = {
+export const taxSettingsData: TaxSettings = {
   allowed: true,
   enabled: true,
   name: null,
@@ -1244,7 +1244,44 @@ export const taxSettingsData = {
   ],
 };
 
-export const taxSettingsData2 = {
+export const taxSettingsData2: TaxSettings = {
   ...taxSettingsData,
   enabled: false,
+};
+
+export const orgSettingsWoTax: OrgSettings = {
+  ...orgSettingsData,
+  tax_settings: { ...orgSettingsData.tax_settings, enabled: false },
+  advances: null,
+  simplified_report_closure_settings: {
+    enabled: true,
+  },
+  corporate_credit_card_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advance_requests: {
+    enabled: true,
+  },
+};
+
+export const orgSettingsCCCDisabled2: OrgSettings = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: null,
+};
+
+export const orgSettingsCCCDisabled3: OrgSettings = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: {
+    allowed: true,
+    enabled: null,
+  },
+};
+
+export const orgSettingsWithProjectAndAutofill: OrgSettings = {
+  ...orgSettingsRes,
+  org_expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
 };

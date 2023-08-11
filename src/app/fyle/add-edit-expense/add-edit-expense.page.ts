@@ -107,7 +107,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { CorporateCardExpenseProperties } from 'src/app/core/models/tracking-properties.model';
+import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -936,23 +936,26 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  checkAdvanceAccountAndBalance(account: ExtendedAccount) {
+    return account?.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0;
+  }
+
   setupBalanceFlag() {
     const accounts$ = this.accountsService.getEMyAccounts();
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return accounts$.pipe(
-            map(
-              (accounts) =>
-                accounts.filter(
-                  (account) => account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
-                ).length > 0
-            )
+            map((accounts) => accounts.filter((account) => this.checkAdvanceAccountAndBalance(account)).length > 0)
           );
         }
         return of(false);
       })
     );
+  }
+
+  getCCCSettings(orgSettings) {
+    return orgSettings?.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings.enabled;
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
@@ -964,8 +967,7 @@ export class AddEditExpensePage implements OnInit {
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-        const isCCCEnabled =
-          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+        const isCCCEnabled = this.getCCCSettings(orgSettings);
 
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
@@ -2473,7 +2475,7 @@ export class AddEditExpensePage implements OnInit {
         this.matchedCCCTransaction = matchedExpense[0].ccce;
         this.selectedCCCTransaction = this.matchedCCCTransaction;
         this.cardEndingDigits = (
-          this.selectedCCCTransaction.cxorporate_credit_card_account_number
+          this.selectedCCCTransaction.corporate_credit_card_account_number
             ? this.selectedCCCTransaction.corporate_credit_card_account_number
             : this.selectedCCCTransaction.card_or_account_number
         ).slice(-4);
@@ -2510,10 +2512,7 @@ export class AddEditExpensePage implements OnInit {
       .pipe(
         switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
         filter(
-          ({ orgSettings, etxn }) =>
-            (orgSettings.corporate_credit_card_settings?.allowed &&
-              orgSettings.corporate_credit_card_settings?.enabled) ||
-            etxn.tx.corporate_credit_card_expense_group_id
+          ({ orgSettings, etxn }) => this.getCCCSettings(orgSettings) || etxn.tx.corporate_credit_card_expense_group_id
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
         switchMap(({ etxn }) =>
@@ -2532,6 +2531,29 @@ export class AddEditExpensePage implements OnInit {
 
         this.handleCCCExpenses(etxn);
       });
+  }
+
+  getIsPolicyExpense(etxn: Expense) {
+    return isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
+  }
+
+  getCheckSpiltExpense(etxn: UnflattenedTransaction) {
+    return etxn?.tx?.split_group_id !== etxn?.tx?.id;
+  }
+
+  getDebitCCCExpense(etxn: UnflattenedTransaction) {
+    return !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
+  }
+
+  getDismissCCCExpense(etxn: UnflattenedTransaction) {
+    return !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
+  }
+
+  getRemoveCCCExpense(etxn: UnflattenedTransaction) {
+    return (
+      !!etxn?.tx?.corporate_credit_card_expense_group_id &&
+      ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn.tx.state)
+    );
   }
 
   ionViewWillEnter() {
@@ -2624,8 +2646,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     orgSettings$.subscribe((orgSettings) => {
-      this.isCorporateCreditCardEnabled =
-        orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+      this.isCorporateCreditCardEnabled = this.getCCCSettings(orgSettings);
 
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
 
@@ -2817,13 +2838,11 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.etxn$.subscribe((etxn) => {
-      this.isSplitExpense = etxn?.tx?.split_group_id !== etxn?.tx?.id;
+      this.isSplitExpense = this.getCheckSpiltExpense(etxn);
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
-      this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
-      this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
-      this.canRemoveCardExpense =
-        !!etxn?.tx?.corporate_credit_card_expense_group_id &&
-        ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn?.tx?.state);
+      this.isExpenseMatchedForDebitCCCE = this.getDebitCCCExpense(etxn);
+      this.canDismissCCCE = this.getDismissCCCExpense(etxn);
+      this.canRemoveCardExpense = this.getRemoveCCCExpense(etxn);
     });
 
     //Clear all category dependent fields when user changes the category
@@ -2861,6 +2880,108 @@ export class AddEditExpensePage implements OnInit {
         reduce((acc, curr) => acc.concat(curr), [])
       );
     }
+  }
+
+  getSourceAccID() {
+    return this.fg.value?.paymentMode?.acc?.id;
+  }
+
+  getBillable() {
+    return this.fg.value?.billable;
+  }
+
+  getSkipRemibursement() {
+    return (
+      this.fg.value?.paymentMode?.acc?.type === AccountType.PERSONAL && !this.fg.value.paymentMode.acc?.isReimbursable
+    );
+  }
+
+  getTxnDate() {
+    return this.fg.value?.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value.dateOfSpend));
+  }
+
+  getCurrency() {
+    return this.fg.value?.currencyObj?.currency;
+  }
+
+  getOriginalCurrency() {
+    return this.fg.value?.currencyObj?.orig_currency;
+  }
+
+  getOriginalAmount() {
+    return this.fg.value?.currencyObj?.orig_amount;
+  }
+
+  getProjectID() {
+    return this.fg.value?.project?.project_id;
+  }
+
+  getTaxAmount() {
+    return this.fg.value?.tax_amount;
+  }
+
+  getTaxGroupID() {
+    return this.fg.value?.tax_group?.id;
+  }
+
+  getOrgCategoryID() {
+    return this.fg.value?.category?.id;
+  }
+
+  getFyleCategory() {
+    return this.fg.value?.category?.fyle_category;
+  }
+
+  getDisplayName() {
+    return this.fg.value?.vendor_id?.display_name;
+  }
+
+  getPurpose() {
+    return this.fg.value?.purpose;
+  }
+
+  getFromDt() {
+    return this.fg.value?.from_dt && this.dateService.getUTCDate(new Date(this.fg.value.from_dt));
+  }
+
+  getToDt() {
+    return this.fg.value?.to_dt && this.dateService.getUTCDate(new Date(this.fg.value.to_dt));
+  }
+
+  getFlightJourneyClass() {
+    return this.fg.value?.flight_journey_travel_class;
+  }
+
+  getFlightReturnClass() {
+    return this.fg.value?.flight_return_travel_class;
+  }
+
+  getTrainTravelClass() {
+    return this.fg.value?.train_travel_class;
+  }
+
+  getBusTravelClass() {
+    return this.fg.value?.bus_travel_class;
+  }
+
+  getDistance() {
+    return this.fg.value?.distance;
+  }
+
+  getDistanceUnit() {
+    return this.fg.value?.distance_unit;
+  }
+
+  getBreakfastProvided() {
+    return this.fg.value?.hotel_is_breakfast_provided;
+  }
+
+  getDuplicateReason() {
+    return this.fg.value?.duplicate_detection_reason;
+  }
+
+  getAmount() {
+    return this.fg.value?.currencyObj?.amount;
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
@@ -2911,8 +3032,8 @@ export class AddEditExpensePage implements OnInit {
         }
 
         // If user has not edited the amount, then send user_amount to check_policies
-        let amount = this.fg.value?.currencyObj?.amount;
-        if (isPolicyEtxn && this.fg.value?.currencyObj?.amount === etxn.tx.amount && etxn.tx.user_amount) {
+        let amount = this.getAmount();
+        if (isPolicyEtxn && amount === etxn.tx.amount && etxn.tx.user_amount) {
           amount = etxn.tx.user_amount;
         }
 
@@ -2921,24 +3042,22 @@ export class AddEditExpensePage implements OnInit {
           tx: {
             ...etxn.tx,
             source: this.source || etxn.tx.source,
-            source_account_id: this.fg.value?.paymentMode?.acc?.id,
-            billable: this.fg.value?.billable,
-            skip_reimbursement:
-              this.fg.value?.paymentMode?.acc?.type === AccountType.PERSONAL &&
-              !this.fg.value?.paymentMode?.acc?.isReimbursable,
-            txn_dt: this.fg.value?.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value?.dateOfSpend)),
-            currency: this.fg.value?.currencyObj?.currency,
+            source_account_id: this.getSourceAccID(),
+            billable: this.getBillable(),
+            skip_reimbursement: this.getSkipRemibursement(),
+            txn_dt: this.getTxnDate(),
+            currency: this.getCurrency(),
             amount,
-            orig_currency: this.fg.value?.currencyObj?.orig_currency,
-            orig_amount: this.fg.value?.currencyObj?.orig_amount,
-            project_id: this.fg.value?.project?.project_id,
-            tax_amount: this.fg.value?.tax_amount,
-            tax_group_id: this.fg.value?.tax_group?.id,
-            org_category_id: this.fg.value?.category?.id,
-            fyle_category: this.fg.value?.category?.fyle_category,
+            orig_currency: this.getOriginalCurrency(),
+            orig_amount: this.getOriginalAmount(),
+            project_id: this.getProjectID(),
+            tax_amount: this.getTaxAmount(),
+            tax_group_id: this.getTaxGroupID(),
+            org_category_id: this.getOrgCategoryID(),
+            fyle_category: this.getFyleCategory(),
             policy_amount: null,
-            vendor: this.fg.value?.vendor_id?.display_name,
-            purpose: this.fg.value?.purpose,
+            vendor: this.getDisplayName(),
+            purpose: this.getPurpose(),
             locations: locations || [],
             custom_properties: customProperties || [],
             num_files: isPolicyEtxn
@@ -2948,16 +3067,16 @@ export class AddEditExpensePage implements OnInit {
               : 0,
             ...policyProps,
             org_user_id: etxn.tx.org_user_id,
-            from_dt: this.fg.value?.from_dt && this.dateService.getUTCDate(new Date(this.fg.value?.from_dt)),
-            to_dt: this.fg.value?.to_dt && this.dateService.getUTCDate(new Date(this.fg.value?.to_dt)),
-            flight_journey_travel_class: this.fg.value?.flight_journey_travel_class,
-            flight_return_travel_class: this.fg.value?.flight_return_travel_class,
-            train_travel_class: this.fg.value?.train_travel_class,
-            bus_travel_class: this.fg.value?.bus_travel_class,
-            distance: this.fg.value?.distance,
-            distance_unit: this.fg.value?.distance_unit,
-            hotel_is_breakfast_provided: this.fg.value?.hotel_is_breakfast_provided,
-            user_reason_for_duplicate_expenses: this.fg.value?.duplicate_detection_reason,
+            from_dt: this.getFromDt(),
+            to_dt: this.getToDt(),
+            flight_journey_travel_class: this.getFlightJourneyClass(),
+            flight_return_travel_class: this.getFlightReturnClass(),
+            train_travel_class: this.getTrainTravelClass(),
+            bus_travel_class: this.getBusTravelClass(),
+            distance: this.getDistance(),
+            distance_unit: this.getDistanceUnit(),
+            hotel_is_breakfast_provided: this.getBreakfastProvided(),
+            user_reason_for_duplicate_expenses: this.getDuplicateReason(),
             ...costCenter,
           },
           ou: etxn.ou,
@@ -3355,7 +3474,7 @@ export class AddEditExpensePage implements OnInit {
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
                 const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
-                const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
+                const criticalPolicyViolated = this.getIsPolicyExpense(etxn);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
@@ -3383,7 +3502,7 @@ export class AddEditExpensePage implements OnInit {
                 return of(null).pipe(map(() => tx));
               }),
               switchMap((tx) => {
-                const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
+                const criticalPolicyViolated = this.getIsPolicyExpense(etxn);
                 if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
                   return this.transactionService.review(tx.id).pipe(map(() => tx));
                 }
