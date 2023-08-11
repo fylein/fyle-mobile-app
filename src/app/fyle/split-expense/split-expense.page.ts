@@ -40,6 +40,7 @@ import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { PolicyViolationTxn } from 'src/app/core/models/policy-violation-txn.model';
 import { SplitExpenseForm } from 'src/app/core/models/split-expense-form.model';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
 
 @Component({
   selector: 'app-split-expense',
@@ -344,7 +345,7 @@ export class SplitExpensePage {
     });
   }
 
-  toastWithoutCTA(toastMessage: string, toastType: 'success' | 'failure' | 'information', panelClass: string): void {
+  toastWithoutCTA(toastMessage: string, toastType: ToastType, panelClass: string): void {
     const message = toastMessage;
 
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
@@ -369,11 +370,11 @@ export class SplitExpensePage {
         this.toastWithCTA(toastMessage);
       } else {
         const toastMessage = 'Your expense was split successfully. Review split expenses to add it to the report.';
-        this.toastWithoutCTA(toastMessage, 'information', 'msb-info');
+        this.toastWithoutCTA(toastMessage, ToastType.INFORMATION, 'msb-info');
       }
     } else {
       const toastMessage = 'Your expense was split successfully.';
-      this.toastWithoutCTA(toastMessage, 'success', 'msb-success-with-camera-icon');
+      this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
     }
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
@@ -483,7 +484,7 @@ export class SplitExpensePage {
             }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
-              this.toastWithoutCTA(message, 'failure', 'msb-failure-with-camera-icon');
+              this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
               return throwError(err);
             }),
@@ -644,7 +645,7 @@ export class SplitExpensePage {
     }
   }
 
-  add(amount?: number, currency?: string, percentage?: number, txnDt?: string | number | Date | dayjs.Dayjs): void {
+  add(amount?: number, currency?: string, percentage?: number, txnDt?: string | Date | dayjs.Dayjs): void {
     if (!txnDt) {
       const dateOfTxn = this.transaction?.txn_dt;
       const today = new Date();

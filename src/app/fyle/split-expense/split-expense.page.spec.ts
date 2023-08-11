@@ -147,6 +147,7 @@ import {
   currencyObjData4,
 } from 'src/app/core/mock-data/currency-obj.data';
 import { matchedCCCTransactionData1 } from 'src/app/core/mock-data/matchedCCCTransaction.data';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -872,7 +873,7 @@ describe('SplitExpensePage', () => {
 
   it('toastWithoutCTA(): should display the toast without CTA', () => {
     const message = 'Your expense was split successfully. All the split expenses were added to the report';
-    const toastType = 'success';
+    const toastType = ToastType.SUCCESS;
     const panelClassData = 'msb-success-with-camera-icon';
     component.toastWithoutCTA(message, toastType, panelClassData);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
@@ -913,7 +914,7 @@ describe('SplitExpensePage', () => {
       const toastMessage = 'Your expense was split successfully. Review split expenses to add it to the report.';
       spyOn(component, 'toastWithoutCTA');
       component.showSuccessToast();
-      expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(toastMessage, 'information', 'msb-info');
+      expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(toastMessage, ToastType.INFORMATION, 'msb-info');
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
     });
 
@@ -925,7 +926,7 @@ describe('SplitExpensePage', () => {
       component.showSuccessToast();
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         toastMessage,
-        'success',
+        ToastType.SUCCESS,
         'msb-success-with-camera-icon'
       );
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
@@ -1731,7 +1732,7 @@ describe('SplitExpensePage', () => {
         expect(err).toEqual(new Error('Policy Violation checks were failed!'));
         expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
           'We were unable to split your expense. Please try again later.',
-          'failure',
+          ToastType.FAILURE,
           'msb-failure-with-camera-icon'
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
