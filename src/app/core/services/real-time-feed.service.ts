@@ -17,6 +17,10 @@ export class RealTimeFeedService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
   isCardNumberValid(cardNumber: string): boolean {
+    if (!cardNumber) {
+      return false;
+    }
+
     let checksum = 0;
 
     /**
