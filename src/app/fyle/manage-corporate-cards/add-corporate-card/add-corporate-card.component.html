@@ -17,7 +17,10 @@
         <span class="add-corporate-card__input-label--mandatory"> * </span>
       </div>
 
-      <div class="add-corporate-card__input-inner-container">
+      <div
+        class="add-corporate-card__input-inner-container"
+        [ngClass]="{ 'add-corporate-card__input-inner-container--error': cardForm.touched && cardForm.invalid }"
+      >
         <input
           class="smartlook-show add-corporate-card__card-number-input pl-0"
           inputmode="numeric"
@@ -27,28 +30,57 @@
           required
         />
 
-        <ion-icon
-          *ngIf="!cardType || cardType === rtfCardTypes.OTHERS"
-          src="../../../../assets/svg/card.svg"
-          class="add-corporate-card__input-default-icon"
-        ></ion-icon>
+        <!-- Don't show the card issuer icon in error states -->
+        <ng-container *ngIf="!(cardForm.touched && cardForm.invalid)">
+          <ion-icon
+            *ngIf="!cardType || cardType === rtfCardTypes.OTHERS"
+            src="../../../../assets/svg/card.svg"
+            class="add-corporate-card__input-default-icon"
+          ></ion-icon>
 
-        <ion-icon
-          *ngIf="cardType === rtfCardTypes.VISA"
-          src="../../../../assets/svg/visa-logo.svg"
-          class="add-corporate-card__input-visa-icon"
-        ></ion-icon>
+          <ion-icon
+            *ngIf="cardType === rtfCardTypes.VISA"
+            src="../../../../assets/svg/visa-logo.svg"
+            class="add-corporate-card__input-visa-icon"
+          ></ion-icon>
 
-        <ion-icon
-          *ngIf="cardType === rtfCardTypes.MASTERCARD"
-          src="../../../../assets/svg/mastercard-logo.svg"
-          class="add-corporate-card__input-mastercard-icon"
-        ></ion-icon>
+          <ion-icon
+            *ngIf="cardType === rtfCardTypes.MASTERCARD"
+            src="../../../../assets/svg/mastercard-logo.svg"
+            class="add-corporate-card__input-mastercard-icon"
+          ></ion-icon>
+        </ng-container>
       </div>
 
       <div class="add-corporate-card__input-error-space"></div>
 
-      <!-- TODO: Add all possible errors here -->
+      <div *ngIf="cardForm.touched && cardForm.invalid" class="add-corporate-card__input-errors">
+        <span *ngIf="cardForm.errors.invalidCardNumber">Please enter a valid card number.</span>
+
+        <ng-container *ngIf="cardForm.errors.invalidCardIssuer">
+          <span *ngIf="isVisaRTFEnabled && isMastercardRTFEnabled; else visaOnlyOrg"
+            >Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.</span
+          >
+
+          <ng-template #visaOnlyOrg>
+            <!-- Check if only visa is enabled -->
+            <span *ngIf="cardForm.errors.invalidCardIssuer && isVisaRTFEnabled; else mastercardOnlyOrg"
+              >Enter a valid Visa number. If you have other cards, please contact your admin.</span
+            >
+          </ng-template>
+
+          <ng-template #mastercardOnlyOrg>
+            <!-- Check if only mastercard is enabled -->
+            <span *ngIf="cardForm.errors.invalidCardIssuer && isMastercardRTFEnabled"
+              >Enter a valid Mastercard number. If you have other cards, please contact your admin.</span
+            >
+          </ng-template>
+        </ng-container>
+
+        <span *ngIf="cardForm.errors.enrollmentError">
+          {{ enrollmentFailureMessage }}
+        </span>
+      </div>
     </div>
 
     <ng-container *ngIf="isAddingNonRTFCard && isYodleeEnabled; else tnc">

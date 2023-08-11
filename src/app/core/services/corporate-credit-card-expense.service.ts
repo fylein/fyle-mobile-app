@@ -39,7 +39,6 @@ export class CorporateCreditCardExpenseService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  @Cacheable()
   getCorporateCards(): Observable<PlatformCorporateCard[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformCorporateCard>>('/corporate_cards')

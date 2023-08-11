@@ -12,15 +12,23 @@
 <ion-content>
   <div class="manage-corporate-cards__cards">
     <ng-container *ngIf="corporateCards$ | async as corporateCards">
-      <div class="manage-corporate-cards__cards-list">
-        <app-corporate-card
-          *ngFor="let corporateCard of corporateCards"
-          [card]="corporateCard"
-          [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
-          [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
-          (cardOptionsClick)="openCardOptions($event)"
-        ></app-corporate-card>
-      </div>
+      <ng-container *ngIf="isLoadingCards; else cards">
+        <!-- Shimmers here -->
+      </ng-container>
+      <ng-template #cards>
+        <div *ngIf="corporateCards.length > 0; else zeroState" class="manage-corporate-cards__cards-list">
+          <app-corporate-card
+            *ngFor="let corporateCard of corporateCards"
+            [card]="corporateCard"
+            [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
+            [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
+            (cardOptionsClick)="openCardOptions($event)"
+          ></app-corporate-card>
+        </div>
+        <ng-template #zeroState>
+          <!-- Zero state here -->
+        </ng-template>
+      </ng-template>
     </ng-container>
   </div>
 </ion-content>

@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, PopoverController } from '@ionic/angular';
-import { Observable, forkJoin, map } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, map, switchMap, tap } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -23,6 +24,10 @@ export class ManageCorporateCardsPage {
 
   isYodleeEnabled$: Observable<boolean>;
 
+  loadCorporateCards$ = new BehaviorSubject<void>(null);
+
+  isLoadingCards: boolean;
+
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -37,7 +42,14 @@ export class ManageCorporateCardsPage {
   }
 
   ionViewWillEnter(): void {
-    this.corporateCards$ = this.corporateCreditCardExpenseService.getCorporateCards();
+    this.isLoadingCards = true;
+
+    this.corporateCards$ = this.loadCorporateCards$.pipe(
+      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
+      tap(() => {
+        this.isLoadingCards = false;
+      })
+    );
 
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.orgUserSettingsService.get();
@@ -135,7 +147,11 @@ export class ManageCorporateCardsPage {
         });
 
         await addCorporateCardPopover.present();
-        // TODO: Handle popover dismiss and success case
+        const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
+
+        if (popoverResponse.data?.success) {
+          this.loadCorporateCards$.next();
+        }
       }
     );
   }
