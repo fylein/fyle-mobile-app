@@ -1,9 +1,9 @@
 export interface CCCExpUnflattened {
   ccce: {
     id: string;
-    created_at: Date;
-    updated_at: Date;
-    txn_dt: Date;
+    created_at: string;
+    updated_at: string;
+    txn_dt: string;
     creator_id: string | number;
     orig_currency: string;
     orig_amount: number;
