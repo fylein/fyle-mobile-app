@@ -150,7 +150,9 @@ export class ManageCorporateCardsPage {
         const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
 
         if (popoverResponse.data?.success) {
-          this.loadCorporateCards$.next();
+          this.corporateCreditCardExpenseService.clearCache().subscribe(() => {
+            this.loadCorporateCards$.next();
+          });
         }
       }
     );
