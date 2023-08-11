@@ -714,7 +714,12 @@ export class SplitExpensePage {
     this.getTotalSplitAmount();
   }
 
-  setEvenSplit(evenAmount: number, evenPercentage: number, lastSplitAmount: number, lastSplitPercentage: number): void {
+  private setEvenSplit(
+    evenAmount: number,
+    evenPercentage: number,
+    lastSplitAmount: number,
+    lastSplitPercentage: number
+  ): void {
     const lastSplitIndex = this.splitExpensesFormArray.length - 1;
 
     this.splitExpensesFormArray.controls.forEach((control, index) => {
@@ -732,7 +737,7 @@ export class SplitExpensePage {
     });
   }
 
-  isEvenlySplit(): boolean {
+  private isEvenlySplit(): boolean {
     let splitAmount: number;
 
     // First Assuming that the expense is evenly split

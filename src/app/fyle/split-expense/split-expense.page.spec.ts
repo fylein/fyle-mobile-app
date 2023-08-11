@@ -1627,7 +1627,7 @@ describe('SplitExpensePage', () => {
       ]);
       //@ts-ignore
       const isEvenSplit = component.isEvenlySplit();
-      expect(isEvenSplit).toBe(true);
+      expect(isEvenSplit).toBeTrue();
     });
   });
 
@@ -1649,6 +1649,7 @@ describe('SplitExpensePage', () => {
       component.selectedCCCTransaction = matchedCCCTransactionData1;
       transactionService.delete.and.returnValue(of(expenseList2[0]));
       transactionService.matchCCCExpense.and.returnValue(of(null));
+      // @ts-ignore
       spyOn(component, 'isEvenlySplit').and.returnValue(true);
       component.fileObjs = fileObject6;
       component.categoryList = transformedOrgCategories;
@@ -1657,7 +1658,7 @@ describe('SplitExpensePage', () => {
       component.fileUrls = fileObjectData1;
     });
 
-    it('should return void and show error message if amount is not equal to totalSplitAmount', fakeAsync(() => {
+    it('should show error message and return if amount is not equal to totalSplitAmount', fakeAsync(() => {
       component.amount = 2000;
       component.totalSplitAmount = 3000;
 
@@ -1669,7 +1670,7 @@ describe('SplitExpensePage', () => {
       expect(component.showErrorBlock).toBeFalse();
     }));
 
-    it('should return void and show error message if expense is less than 0.01', fakeAsync(() => {
+    it('should show an error message and return if the expense amount is less than 0.01', fakeAsync(() => {
       component.amount = 2000;
       component.totalSplitAmount = 2000;
       component.isCorporateCardsEnabled$ = of(false);
@@ -1689,7 +1690,7 @@ describe('SplitExpensePage', () => {
       expect(component.showErrorBlock).toBeFalse();
     }));
 
-    it('should return void and show error message if expense is less than 0.01', () => {
+    it('should perform split expense and call handleSplitExpensePolicyViolations', () => {
       component.amount = 2000;
       component.totalSplitAmount = 2000;
       component.isCorporateCardsEnabled$ = of(true);
