@@ -1,4 +1,5 @@
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
+import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 
 export const unflattenedTxnData: UnflattenedTransaction = {
   tx: {
@@ -562,7 +563,7 @@ export const expectedUnflattendedTxnData2 = {
     per_diem_rate_id: null,
     activity_policy_pending: null,
     activity_details: null,
-    locations: ['loc1', 'loc2'],
+    locations: [optionsData15.options[0].value, optionsData33.options[0].value],
     custom_properties: [
       { id: 111, name: 'Test Number', value: 121, type: 'NUMBER' },
       { id: 150, name: 'checking', value: false, type: 'BOOLEAN' },
@@ -692,7 +693,7 @@ export const expectedUnflattendedTxnData3 = {
     org_category_id: undefined,
     activity_policy_pending: null,
     activity_details: null,
-    locations: ['loc1'],
+    locations: [optionsData15.options[0].value],
     custom_properties: [
       {
         id: 111,

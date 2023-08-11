@@ -9,7 +9,8 @@
   flex-direction: column;
 
   border-radius: 16px;
-  background: url('../../../../assets/images/corporate-card-bg.png');
+  background: url('../../../../assets/images/corporate-card-bg.png') no-repeat center;
+  background-size: cover;
 
   &__logo {
     &--default {

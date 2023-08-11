@@ -39,6 +39,7 @@ import {
   expenseData1,
   expenseData2,
   expenseData3,
+  expenseList2,
   expenseList4,
   mileageExpenseWithoutDistance,
   perDiemExpenseSingleNumDays,
@@ -102,6 +103,7 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -401,7 +403,7 @@ describe('MyExpensesPage', () => {
         tx_state: 'in.(COMPLETE,DRAFT)',
       });
       transactionService.getMyExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
+      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
       transactionService.getMyExpenses.and.returnValue(
         of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
       );
@@ -409,7 +411,7 @@ describe('MyExpensesPage', () => {
       reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
       spyOn(component, 'doRefresh');
       spyOn(component, 'backButtonAction');
-      transactionOutboxService.getPendingTransactions.and.returnValue(apiExpenseRes);
+      transactionOutboxService.getPendingTransactions.and.returnValue(txnList);
       spyOn(component, 'formatTransactions').and.returnValue(apiExpenseRes);
       spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1, sortDir: 'desc' });
       spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
@@ -1042,14 +1044,14 @@ describe('MyExpensesPage', () => {
           corporate_credit_card_account_number: '8698',
         },
       });
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam));
+      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
         expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
           scalar: true,
           tx_report_id: 'is.null',
           tx_state: 'in.(COMPLETE,DRAFT)',
-          or: '(corporate_credit_card_account_number.8698)',
+          or: ['(corporate_credit_card_account_number.8698)'],
         });
         expect(allExpenseStats).toEqual({
           count: 4,
@@ -1062,7 +1064,7 @@ describe('MyExpensesPage', () => {
       component.loadData$ = new BehaviorSubject({
         queryParams: null,
       });
-      transactionService.getTransactionStats.and.returnValue(of(cardAggregateStatParam3));
+      transactionService.getTransactionStats.and.returnValue(of(transactionDatum3));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
         expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
@@ -1094,7 +1096,7 @@ describe('MyExpensesPage', () => {
         scalar: true,
         tx_report_id: 'is.null',
         tx_state: 'in.(COMPLETE,DRAFT)',
-        or: '(corporate_credit_card_account_number.8698)',
+        or: ['(corporate_credit_card_account_number.8698)'],
       });
     });
   });
@@ -1319,7 +1321,7 @@ describe('MyExpensesPage', () => {
 
   it('syncOutboxExpenses(): should call transactionoutboxService and do a refresh', fakeAsync(() => {
     spyOn(component, 'formatTransactions').and.returnValues(apiExpenseRes, []);
-    transactionOutboxService.getPendingTransactions.and.returnValues(apiExpenseRes, []);
+    transactionOutboxService.getPendingTransactions.and.returnValues(txnList, []);
     transactionOutboxService.sync.and.resolveTo(undefined);
     spyOn(component, 'doRefresh');
 
@@ -1770,7 +1772,7 @@ describe('MyExpensesPage', () => {
 
   describe('goToTransaction():', () => {
     it('should navigate to add_edit_mileage page if category is mileage', () => {
-      component.goToTransaction({ etxn: mileageExpenseWithoutDistance });
+      component.goToTransaction({ etxn: mileageExpenseWithoutDistance, etxnIndex: 1 });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
@@ -1780,7 +1782,7 @@ describe('MyExpensesPage', () => {
     });
 
     it('should navigate to add_edit_per_diem if category is per diem', () => {
-      component.goToTransaction({ etxn: perDiemExpenseSingleNumDays });
+      component.goToTransaction({ etxn: perDiemExpenseSingleNumDays, etxnIndex: 1 });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
@@ -1790,7 +1792,7 @@ describe('MyExpensesPage', () => {
     });
 
     it('should navigate to add_edit_expense if category is something else', () => {
-      component.goToTransaction({ etxn: expenseData3 });
+      component.goToTransaction({ etxn: expenseData3, etxnIndex: 1 });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
@@ -2287,7 +2289,7 @@ describe('MyExpensesPage', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo(true);
 
-    reportService.addTransactions.and.returnValue(of(apiExtendedReportRes));
+    reportService.addTransactions.and.returnValue(of());
     component
       .addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv'])
       .pipe(

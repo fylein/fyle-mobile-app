@@ -26,9 +26,8 @@
     </ion-col>
 
     <ion-col size="auto" class="p-0">
-      <!-- Only show the options menu to RTF enrolled cards and statement uploaded cards-->
       <button
-        *ngIf="isCardConnectedToRTF || (card.data_feed_source === dataFeedSourceTypes.STATEMENT_UPLOAD && isRTFEnabled)"
+        *ngIf="showCardOptionsMenu"
         class="corporate-card__more-options-btn"
         (click)="cardOptionsClick.emit(card)"
         data-testid="more-options-btn"

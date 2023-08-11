@@ -33,3 +33,12 @@ export const snackbarPropertiesRes4 = {
   },
   duration: 3000,
 };
+
+export const snackbarPropertiesRes5 = {
+  data: {
+    icon: 'success',
+    showCloseButton: true,
+    message: 'Expenses merged Successfully',
+  },
+  duration: 3000,
+};

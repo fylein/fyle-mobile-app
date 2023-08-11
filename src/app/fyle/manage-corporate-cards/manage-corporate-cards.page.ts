@@ -75,7 +75,7 @@ export class ManageCorporateCardsPage {
     );
   }
 
-  prepareActionSheetButtons(card: PlatformCorporateCard): Observable<ActionSheetButton[]> {
+  setActionSheetButtons(card: PlatformCorporateCard): Observable<ActionSheetButton[]> {
     return forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
       map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => {
         const actionSheetButtons: ActionSheetButton[] = [];
@@ -122,7 +122,7 @@ export class ManageCorporateCardsPage {
   }
 
   openCardOptions(card: PlatformCorporateCard): void {
-    this.prepareActionSheetButtons(card).subscribe(async (actionSheetButtons) => {
+    this.setActionSheetButtons(card).subscribe(async (actionSheetButtons) => {
       const actionSheet = await this.actionSheetController.create({
         buttons: actionSheetButtons,
         cssClass: 'fy-action-sheet',
