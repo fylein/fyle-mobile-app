@@ -2221,7 +2221,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  editExpense(redirectedFrom): Observable<unknown | null> {
+  editExpense(redirectedFrom): Observable<Partial<UnflattenedTransaction> | Partial<Transaction> | null> {
     this.saveMileageLoader = redirectedFrom === 'SAVE_MILEAGE';
     this.saveAndNewMileageLoader = redirectedFrom === 'SAVE_AND_NEW_MILEAGE';
     this.saveAndNextMileageLoader = redirectedFrom === 'SAVE_AND_NEXT_MILEAGE';
