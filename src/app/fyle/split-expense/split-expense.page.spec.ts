@@ -1666,6 +1666,7 @@ describe('SplitExpensePage', () => {
 
       expect(component.showErrorBlock).toBeTrue();
       expect(component.errorMessage).toEqual('Split amount cannot be more than 2000.');
+      // Tick is used to wait for the error block to disappear after 2500ms
       tick(2500);
       expect(component.showErrorBlock).toBeFalse();
     }));
@@ -1686,6 +1687,7 @@ describe('SplitExpensePage', () => {
 
       expect(component.showErrorBlock).toBeTrue();
       expect(component.errorMessage).toEqual('Amount should be greater than 0.01');
+      // Tick is used to wait for the error block to disappear after 2500ms
       tick(2500);
       expect(component.showErrorBlock).toBeFalse();
     }));
