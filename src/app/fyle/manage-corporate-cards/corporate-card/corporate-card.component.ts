@@ -23,6 +23,8 @@ export class CorporateCardComponent implements OnInit {
 
   isCardConnectedToBankFeed: boolean;
 
+  showCardOptionsMenu: boolean;
+
   dataFeedSourceTypes: typeof DataFeedSource = DataFeedSource;
 
   constructor(private corporateCreditCardExpenseService: CorporateCreditCardExpenseService) {}
@@ -34,5 +36,9 @@ export class CorporateCardComponent implements OnInit {
 
     const bankFeedSources = this.corporateCreditCardExpenseService.getBankFeedSources();
     this.isCardConnectedToBankFeed = bankFeedSources.includes(this.card.data_feed_source);
+
+    // Only show the options menu to RTF enrolled cards and statement uploaded cards where RTF is enabled
+    const isCardConnectedViaStatementUpload = this.card.data_feed_source === DataFeedSource.STATEMENT_UPLOAD;
+    this.showCardOptionsMenu = this.isCardConnectedToRTF || (isCardConnectedViaStatementUpload && this.isRTFEnabled);
   }
 }
