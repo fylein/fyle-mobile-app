@@ -1383,7 +1383,6 @@ export class AddEditMileagePage implements OnInit {
     this.mileageRates$ = forkJoin({
       orgUserMileageSettings: this.mileageService.getOrgUserMileageSettings(),
       allMileageRates: this.mileageRateService.getAllMileageRates(),
-      mileageConfig: this.mileageConfig$,
     }).pipe(
       map(({ orgUserMileageSettings, allMileageRates }) => {
         let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
@@ -1417,16 +1416,14 @@ export class AddEditMileagePage implements OnInit {
     this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
 
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
+      map((orgSettings) => !!orgSettings.advanced_projects?.enable_individual_projects)
     );
 
     this.individualProjectIds$ = orgUserSettings$.pipe(
       map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])
     );
 
-    this.isProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
-    );
+    this.isProjectsEnabled$ = orgSettings$.pipe(map((orgSettings) => !!orgSettings.projects?.enabled));
 
     this.customInputs$ = this.getCustomInputs();
 
@@ -1505,7 +1502,7 @@ export class AddEditMileagePage implements OnInit {
 
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap((etxn: UnflattenedTransaction) =>
-        iif(() => (etxn.tx.org_category_id ? true : false), this.getCategories(etxn), of(null))
+        iif(() => !!etxn.tx.org_category_id, this.getCategories(etxn), of(null))
       )
     );
 
