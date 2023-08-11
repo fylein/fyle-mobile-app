@@ -1,5 +1,5 @@
 <div class="card-number">
-  <div class="card-number__masked-digits">
+  <div class="card-number__masked-digits" data-testid="masked-digits">
     <ng-container *ngFor="let item of maskedDots; let index = index">
       <div
         class="card-number__masked-digits__dot"
@@ -7,7 +7,7 @@
       ></div>
     </ng-container>
   </div>
-  <div class="card-number__unmasked-digits">
+  <div class="card-number__unmasked-digits" data-testid="unmasked-digits">
     {{ cardNumber | slice : -4 }}
   </div>
 </div>
