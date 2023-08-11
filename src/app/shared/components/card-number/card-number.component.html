@@ -1,0 +1,13 @@
+<div class="card-number">
+  <div class="card-number__masked-digits">
+    <ng-container *ngFor="let item of maskedDots; let index = index">
+      <div
+        class="card-number__masked-digits__dot"
+        [ngClass]="{ 'card-number__masked-digits__fourth-dot': index % 4 === 3 }"
+      ></div>
+    </ng-container>
+  </div>
+  <div class="card-number__unmasked-digits">
+    {{ cardNumber | slice : -4 }}
+  </div>
+</div>

@@ -203,7 +203,7 @@ export function TestCases5(getTestBed) {
     describe('getMarkDismissModalParams():', () => {
       it('should get modal params with method to mark as personal', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'markCCCAsPersonal').and.returnValue(of(expenseData1));
+        spyOn(component, 'markCCCAsPersonal').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.corporateCreditCardExpenseGroupId = 'cccet1B17R8gWZ';
         fixture.detectChanges();
@@ -220,7 +220,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+            expect(res).toBeNull();
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'cccet1B17R8gWZ');
             expect(component.markCCCAsPersonal).toHaveBeenCalledOnceWith('txfCdl3TEZ7K');
             done();
@@ -229,7 +229,7 @@ export function TestCases5(getTestBed) {
 
       it('should get modal params with method to dismiss expense', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'dismissCCC').and.returnValue(of(expenseData1));
+        spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.matchedCCCTransaction = expectedUnflattendedTxnData1.tx;
         fixture.detectChanges();
@@ -246,7 +246,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+            expect(res).toBeNull();
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'tx3qHxFNgRcZ');
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'tx3qHxFNgRcZ');
             done();

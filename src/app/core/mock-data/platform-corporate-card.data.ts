@@ -1,3 +1,5 @@
+import { DataFeedSource } from '../enums/data-feed-source.enum';
+
 export const platformCorporateCard = {
   assignor_user_id: 'usvKA4X8Ugcr',
   bank_name: 'MASTERCARD_BANK',
@@ -5,7 +7,7 @@ export const platformCorporateCard = {
   cardholder_name: null,
   code: null,
   created_at: '2023-03-03T07:16:46.376082+00:00',
-  data_feed_source: 'MASTERCARD_RTF',
+  data_feed_source: DataFeedSource.MASTERCARD_RTF,
   id: 'bacc15bbrRGWzf',
   is_dummy: false,
   is_mastercard_enrolled: true,

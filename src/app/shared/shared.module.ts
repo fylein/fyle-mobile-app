@@ -139,6 +139,7 @@ import { ReportsCardComponent } from './components/reports-card/reports-card.com
 import { ViewDependentFieldsComponent } from './components/view-dependent-fields/view-dependent-fields.component';
 import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup-with-bullets.component';
 import { AddCardComponent } from './components/add-card/add-card.component';
+import { CardNumberComponent } from './components/card-number/card-number.component';
 
 @NgModule({
   declarations: [
@@ -257,6 +258,7 @@ import { AddCardComponent } from './components/add-card/add-card.component';
     ViewDependentFieldsComponent,
     PopupWithBulletsComponent,
     AddCardComponent,
+    CardNumberComponent,
   ],
   imports: [
     CommonModule,
@@ -380,6 +382,7 @@ import { AddCardComponent } from './components/add-card/add-card.component';
     ViewDependentFieldsComponent,
     PopupWithBulletsComponent,
     AddCardComponent,
+    CardNumberComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

@@ -17,6 +17,8 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { Cacheable } from 'ts-cacheable';
 import { CardDetails } from '../models/card-details.model';
+import { DataFeedSource } from '../enums/data-feed-source.enum';
+import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
 
 type Config = Partial<{
   offset: number;
@@ -44,6 +46,16 @@ export class CorporateCreditCardExpenseService {
       .pipe(map((res) => res.data));
   }
 
+  getBankFeedSources(): DataFeedSource[] {
+    return [
+      DataFeedSource.BANK_FEED_AMEX,
+      DataFeedSource.BANK_FEED_CDF,
+      DataFeedSource.BANK_FEED_VCF,
+      DataFeedSource.BANK_FEED_S3DF,
+      DataFeedSource.BANK_FEED_HAPPAY,
+    ];
+  }
+
   getv2CardTransactions(config: Config): Observable<ApiV2Response<CorporateCardExpense>> {
     return this.apiV2Service
       .get<CorporateCardExpense, { params: Config }>('/corporate_card_transactions', {
@@ -59,7 +71,7 @@ export class CorporateCreditCardExpenseService {
           (res) =>
             res as {
               count: number;
-              data: any[];
+              data: CorporateCardExpense[];
               limit: number;
               offset: number;
               url: string;
@@ -68,15 +80,15 @@ export class CorporateCreditCardExpenseService {
       );
   }
 
-  markPersonal(corporateCreditCardExpenseGroupId: string) {
+  markPersonal(corporateCreditCardExpenseGroupId: string): Observable<null> {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/personal');
   }
 
-  dismissCreditTransaction(corporateCreditCardExpenseId: string) {
+  dismissCreditTransaction(corporateCreditCardExpenseId: string): Observable<null> {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/ignore');
   }
 
-  getEccceByGroupId(groupId: string) {
+  getEccceByGroupId(groupId: string): Observable<CCCExpUnflattened[]> {
     const data = {
       params: {
         group_id: groupId,
