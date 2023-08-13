@@ -34,7 +34,7 @@ export class AddCorporateCardComponent implements OnInit {
   ngOnInit(): void {
     this.cardForm = new FormControl('', [this.cardNumberValidator.bind(this), this.cardIssuerValidator.bind(this)]);
 
-    this.cardNetworks = this.getAllowedCardNetworks();
+    this.cardNetworks = this.getCardNetworks();
 
     this.cardForm.valueChanges.pipe(distinctUntilChanged()).subscribe((value: string) => {
       this.cardType = this.realTimeFeedService.getCardType(value);
