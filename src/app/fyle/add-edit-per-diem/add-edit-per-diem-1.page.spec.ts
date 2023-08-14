@@ -34,6 +34,13 @@ import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { popoverControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
+import { of } from 'rxjs';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
+import { EventEmitter } from '@angular/core';
+import { unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { cloneDeep } from 'lodash';
 
 export function TestCases1(getTestBed) {
   return describe('add-edit-per-diem test cases set 1', () => {
@@ -297,6 +304,177 @@ export function TestCases1(getTestBed) {
 
         component.goBack();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      });
+    });
+
+    it('goToPrev(): should go to the previous txn', () => {
+      spyOn(component, 'goToTransaction');
+      activatedRoute.snapshot.params.activeIndex = 1;
+      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      fixture.detectChanges();
+
+      component.goToPrev();
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txSEM4DtjyKR');
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(unflattenedTxnData, component.reviewList, 0);
+    });
+
+    it('goToNext(): should got to the next txn', () => {
+      const etxn = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, id: 'txNyI8ot5CuJ' } };
+      spyOn(component, 'goToTransaction');
+      activatedRoute.snapshot.params.activeIndex = 0;
+      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
+      transactionService.getETxnUnflattened.and.returnValue(of(etxn));
+      fixture.detectChanges();
+
+      component.goToNext();
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txNyI8ot5CuJ');
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(etxn, component.reviewList, 1);
+    });
+
+    describe('goToTransaction():', () => {
+      const txn_ids = ['txfCdl3TEZ7K'];
+      it('should navigate to add-edit-mileage if category is mileage', () => {
+        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'MILEAGE' } };
+        component.goToTransaction(expense, txn_ids, 0);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_mileage',
+          {
+            id: expense.tx.id,
+            txnIds: JSON.stringify(txn_ids),
+            activeIndex: 0,
+          },
+        ]);
+      });
+
+      it('should navigate to add-edit-per-diem if the category is per diem', () => {
+        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'PER DIEM' } };
+        component.goToTransaction(expense, txn_ids, 0);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_per_diem',
+          {
+            id: expense.tx.id,
+            txnIds: JSON.stringify(txn_ids),
+            activeIndex: 0,
+          },
+        ]);
+      });
+
+      it('should navigate to add-edit-expense page if category is not amongst mileage and per diem', () => {
+        const expense = unflattenExp1;
+        component.goToTransaction(expense, txn_ids, 0);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          {
+            id: expense.tx.id,
+            txnIds: JSON.stringify(txn_ids),
+            activeIndex: 0,
+          },
+        ]);
+      });
+    });
+
+    it('setupNetworkWatcher(): should setup network watching', (done) => {
+      networkService.connectivityWatcher.and.returnValue(null);
+      networkService.isOnline.and.returnValue(of(true));
+
+      component.setupNetworkWatcher();
+      expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      component.isConnected$.subscribe((res) => {
+        expect(res).toBeTrue();
+        done();
+      });
+    });
+
+    describe('checkIfInvalidPaymentMode():', () => {
+      it('should check for invalid payment mode if payment account type is not advance account', (done) => {
+        component.etxn$ = of(unflattenExp1);
+        component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+          done();
+        });
+      });
+
+      it('should check for invalid payment in case of Advance accounts if source account ID does not match with account type', (done) => {
+        component.etxn$ = of(unflattenExp1);
+        component.fg.controls.paymentMode.setValue({
+          ...unflattenedAccount1Data,
+          acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE },
+        });
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should check for invalid payment mode if the source account ID matches with the account type', (done) => {
+        component.etxn$ = of(unflattenExp1);
+        component.fg.controls.paymentMode.setValue({
+          ...unflattenedAccount1Data,
+          acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'acc5APeygFjRd' },
+        });
+        component.fg.controls.currencyObj.setValue({
+          currency: 'USD',
+          amount: 500,
+        });
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount.acc is undefined', (done) => {
+        component.etxn$ = of(unflattenExp1);
+        const mockPaymentAccount = cloneDeep(unflattenedAccount1Data);
+        mockPaymentAccount.acc = undefined;
+        component.fg.controls.paymentMode.setValue(mockPaymentAccount);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+          done();
+        });
+      });
+
+      it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount is undefined', (done) => {
+        component.etxn$ = of(unflattenExp1);
+        component.fg.controls.paymentMode.setValue(undefined);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+          done();
+        });
       });
     });
   });
