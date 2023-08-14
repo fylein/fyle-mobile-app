@@ -4,7 +4,7 @@ export const platformReportData: PlatformReport = {
   amount: 0,
   approvals: [],
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
-  currency: 'INR',
+  currency: 'USD',
   employee: {
     ach_account: {
       added: true,
