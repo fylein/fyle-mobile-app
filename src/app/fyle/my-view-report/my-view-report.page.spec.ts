@@ -56,6 +56,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { MyViewReportPage } from './my-view-report.page';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
+import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -83,6 +84,7 @@ describe('MyViewReportPage', () => {
       'getApproversByReportId',
       'actions',
       'updateReportDetails',
+      'updateReportPurpose',
       'delete',
       'submit',
       'resubmit',
@@ -550,11 +552,11 @@ describe('MyViewReportPage', () => {
   it('updateReportName(): should update report name', () => {
     component.erpt$ = of(newReportParam);
     fixture.detectChanges();
-    reportService.updateReportDetails.and.returnValue(of(apiReportUpdatedDetails));
+    reportService.updateReportPurpose.and.returnValue(of(platformReportData));
     spyOn(component.loadReportDetails$, 'next');
 
-    component.updateReportName('new report');
-    expect(reportService.updateReportDetails).toHaveBeenCalledOnceWith(newReportParam);
+    component.updateReportName('#3:  Jul 2023 - Office expense');
+    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(newReportParam);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
