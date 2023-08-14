@@ -223,7 +223,7 @@ export function TestCases1(getTestBed) {
         expect(navController.back).toHaveBeenCalledTimes(1);
       }));
 
-      it('should show close popup and go back to expense page if navigate back is false', fakeAsync(() => {
+      it('should show close popup and go back to my expenses page if navigate back is false', fakeAsync(() => {
         const unsavedChangesPopOverSpy = jasmine.createSpyObj('unsavedChangesPopOver', ['present', 'onWillDismiss']);
         unsavedChangesPopOverSpy.onWillDismiss.and.resolveTo({
           data: {
