@@ -611,5 +611,39 @@ export function TestCases1(getTestBed) {
         });
       });
     });
+
+    describe('getProjectCategoryIds():', () => {
+      it('should return project category ids', (done) => {
+        categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, perDiemCategory]));
+        component.getProjectCategoryIds().subscribe((res) => {
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(['38912']);
+          done();
+        });
+      });
+
+      it('should return empty array if category id is undefined', (done) => {
+        const mockPerDiemCategory = cloneDeep(perDiemCategory);
+        mockPerDiemCategory.id = undefined;
+        categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, mockPerDiemCategory]));
+        component.getProjectCategoryIds().subscribe((res) => {
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(res).toEqual([undefined]);
+          done();
+        });
+      });
+    });
+
+    it('getPerDiemCategories(): should return defaultPerDiemCategory and perDiemCategories', (done) => {
+      categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, perDiemCategory]));
+      component.getPerDiemCategories().subscribe((res) => {
+        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+        expect(res).toEqual({
+          defaultPerDiemCategory: perDiemCategory,
+          perDiemCategories: [perDiemCategory],
+        });
+        done();
+      });
+    });
   });
 }
