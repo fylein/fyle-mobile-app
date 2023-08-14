@@ -37,7 +37,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TokenService } from 'src/app/core/services/token.service';
 import { DateService } from 'src/app/core/services/date.service';
 
-fdescribe('AddEditPerDiemPage', () => {
+describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getEMyAccounts',
