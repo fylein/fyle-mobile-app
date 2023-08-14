@@ -203,3 +203,19 @@ export const expectedCCdata: CostCenters[] = [
     },
   },
 ];
+
+export const expectedCCdata2: CostCenters[] = [
+  {
+    label: 'SMS1',
+    value: {
+      active: true,
+      code: null,
+      created_at: new Date('2019-06-24T15:12:04.002Z'),
+      description: null,
+      id: 2411,
+      name: 'SMS1',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2019-06-24T15:12:05.002Z'),
+    },
+  },
+];
