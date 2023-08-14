@@ -248,7 +248,7 @@ export interface ExpenseSettings {
 
 export interface TaxSettings extends CommonOrgSettings {
   name?: string;
-  groups?: TaxGroup[];
+  groups?: TaxGroup[] | { label: string; value: TaxGroup }[];
 }
 
 export interface TransactionFieldsSettings extends CommonOrgSettings {
