@@ -7,7 +7,7 @@ import { mastercardRTFCard, visaRTFCard } from '../mock-data/platform-corporate-
 import { catchError, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-fdescribe('RealTimeFeedService', () => {
+describe('RealTimeFeedService', () => {
   let realTimeFeedService: RealTimeFeedService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
@@ -138,5 +138,19 @@ fdescribe('RealTimeFeedService', () => {
         });
       });
     }));
+  });
+
+  describe('isCardNumberValid()', () => {
+    it('should return false for empty card number', () => {
+      expect(realTimeFeedService.isCardNumberValid('')).toBeFalse();
+    });
+
+    it('should return true for a valid card number', () => {
+      expect(realTimeFeedService.isCardNumberValid('5555555555554444')).toBeTrue();
+    });
+
+    it('should return false for an invalid card number', () => {
+      expect(realTimeFeedService.isCardNumberValid('411111111111111')).toBeFalse();
+    });
   });
 });
