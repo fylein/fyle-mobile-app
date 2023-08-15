@@ -3,6 +3,7 @@ import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { catchError, distinctUntilChanged, throwError } from 'rxjs';
 import { RTFCardType } from 'src/app/core/enums/rtf-card-type.enum';
+import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 
 @Component({
@@ -16,6 +17,8 @@ export class AddCorporateCardComponent implements OnInit {
   @Input() isMastercardRTFEnabled: boolean;
 
   @Input() isYodleeEnabled: boolean;
+
+  @Input() card: PlatformCorporateCard;
 
   cardForm: FormControl;
 
@@ -37,7 +40,7 @@ export class AddCorporateCardComponent implements OnInit {
     this.cardNetworks = this.getCardNetworks();
 
     this.cardForm.valueChanges.pipe(distinctUntilChanged()).subscribe((value: string) => {
-      this.cardType = this.realTimeFeedService.getCardType(value);
+      this.cardType = this.realTimeFeedService.getCardTypeFromNumber(value);
       this.cardNetworks = this.getCardNetworks();
 
       this.isAddingNonRTFCard = this.cardType === RTFCardType.OTHERS && this.cardForm.valid;
@@ -56,7 +59,7 @@ export class AddCorporateCardComponent implements OnInit {
     const cardNumber = this.cardForm.value as string;
 
     this.realTimeFeedService
-      .enroll(cardNumber)
+      .enroll(cardNumber, this.card.id)
       .pipe(
         catchError((error: Error) => {
           this.handleEnrollmentFailures(error);
@@ -109,7 +112,7 @@ export class AddCorporateCardComponent implements OnInit {
     const cardNumber = control.value as string;
 
     const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
-    const cardType = this.realTimeFeedService.getCardType(cardNumber);
+    const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
     if (cardType === RTFCardType.VISA || cardType === RTFCardType.MASTERCARD) {
       return isValid && cardNumber.length === 16 ? null : { invalidCardNumber: true };
@@ -120,7 +123,7 @@ export class AddCorporateCardComponent implements OnInit {
 
   private cardIssuerValidator(control: AbstractControl): ValidationErrors {
     const cardNumber = control.value as string;
-    const cardType = this.realTimeFeedService.getCardType(cardNumber);
+    const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
     if (!this.isYodleeEnabled && cardType === RTFCardType.OTHERS) {
       return { invalidCardIssuer: true };
