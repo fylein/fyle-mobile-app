@@ -9,6 +9,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { CardAddedComponent } from './card-added/card-added.component';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -150,11 +151,21 @@ export class ManageCorporateCardsPage {
         const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
 
         if (popoverResponse.data?.success) {
-          this.corporateCreditCardExpenseService.clearCache().subscribe(() => {
-            this.loadCorporateCards$.next();
-          });
+          this.handleEnrollmentSuccess();
         }
       }
     );
+  }
+
+  private handleEnrollmentSuccess(): void {
+    this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
+      this.loadCorporateCards$.next();
+
+      const cardAddedModal = await this.popoverController.create({
+        component: CardAddedComponent,
+        cssClass: 'pop-up-in-center',
+      });
+      await cardAddedModal.present();
+    });
   }
 }

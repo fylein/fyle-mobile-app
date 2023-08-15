@@ -297,7 +297,7 @@ export class MyProfilePage {
     const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
     let snackbarIcon: string;
     if (message.toLowerCase().includes('copied')) {
-      snackbarIcon = 'tick-circle-outline';
+      snackbarIcon = 'tick-circle-outline-white';
     }
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties(type, { message }, snackbarIcon),

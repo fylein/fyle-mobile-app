@@ -43,7 +43,7 @@ export class PopupWithBulletsComponent {
 
   showToastMessage(message: string) {
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', { message }, 'tick-circle-outline'),
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }, 'tick-circle-outline-white'),
       panelClass: 'msb-success',
     });
   }
