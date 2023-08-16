@@ -48,6 +48,7 @@ import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { CCCExpUnflattened, CCCExpense } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 import { CostCenterOptions } from 'src/app/core/models/cost-centers-options.model';
+import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { Currency } from 'src/app/core/models/currency.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { Destination } from 'src/app/core/models/destination.model';
@@ -127,6 +128,7 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
 
 type FormValue = {
   currencyObj: {
@@ -555,7 +557,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   currencyObjValidator(c: AbstractControl): ValidationErrors {
-    const controlValue = c.value as { currency: string; amount: number; orig_amount: number; orig_currency: string };
+    const controlValue = c.value as CurrencyObj;
     if (
       controlValue &&
       ((controlValue.amount && controlValue.currency) || (controlValue.orig_amount && controlValue.orig_currency))
@@ -692,7 +694,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  markCCCAsPersonal(txnId: string): Observable<unknown | null> {
+  markCCCAsPersonal(txnId: string): Observable<null> {
     return this.transactionService.delete(txnId).pipe(
       switchMap((res) => {
         if (res) {
@@ -705,7 +707,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  dismissCCC(txnId: string, corporateCreditCardExpenseId: string): Observable<unknown | null> {
+  dismissCCC(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
     return this.transactionService.delete(txnId).pipe(
       switchMap((res) => {
         if (res) {
@@ -732,7 +734,7 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<UndoMerge | null>;
+      deleteMethod: () => Observable<UndoMerge>;
     };
   } {
     return {
@@ -806,7 +808,7 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<unknown | null>;
+      deleteMethod: () => Observable<null>;
     };
   } {
     const id = this.activatedRoute.snapshot.params.id as string;
@@ -819,7 +821,7 @@ export class AddEditExpensePage implements OnInit {
         body: componentPropsParam.body,
         ctaText: componentPropsParam.ctaText,
         ctaLoadingText: componentPropsParam.ctaLoadingText,
-        deleteMethod: (): Observable<unknown | null> => {
+        deleteMethod: (): Observable<null> => {
           if (isMarkPersonal) {
             return this.transactionService
               .unmatchCCCExpense(id, this.corporateCreditCardExpenseGroupId)
@@ -1107,7 +1109,7 @@ export class AddEditExpensePage implements OnInit {
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
-  getInstaFyleImageData(): Observable<InstaFyleResponse | { thumbnail: string; type: string; url: string }> {
+  getInstaFyleImageData(): Observable<Partial<InstaFyleImageData>> {
     if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl as string;
       const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
@@ -1191,7 +1193,6 @@ export class AddEditExpensePage implements OnInit {
           categories: OrgCategory[];
           homeCurrency: string;
           eou: ExtendedOrgUser;
-
           imageData: InstaFyleResponse;
           recentCurrency: Currency[];
           recentValue: RecentlyUsed;
@@ -1202,7 +1203,6 @@ export class AddEditExpensePage implements OnInit {
             categories,
             homeCurrency,
             eou,
-
             imageData,
             recentCurrency,
             recentValue,
