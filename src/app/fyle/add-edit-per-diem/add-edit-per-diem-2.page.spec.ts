@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, waitForAsync } from '@angular/core/testing';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,16 +36,10 @@ import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { unflattenedTxnDataPerDiem } from 'src/app/core/mock-data/unflattened-expense.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import { apiV2ResponseMultiple } from 'src/app/core/test-data/projects.spec.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { etxnData } from 'src/app/core/mock-data/expense.data';
-import {
-  TxnCustomProperties3,
-  expectedTxnCustomProperties,
-  txnCustomPropertiesData,
-} from 'src/app/core/mock-data/txn-custom-properties.data';
+import { expectedTxnCustomProperties } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
-import { cloneDeep, omit } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { perDiemCustomInputsData1 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { projects } from 'src/app/core/mock-data/extended-projects.data';
 
@@ -189,7 +183,6 @@ export function TestCases2(getTestBed) {
         project: projects[0],
       });
       projectsService.getAllowedOrgCategoryIds.and.returnValue([orgCategoryData]);
-      component.billableDefaultValue = false;
       spyOn(component.fg.controls.sub_category, 'reset');
       component.setupFilteredCategories(of(orgCategoryData1));
       expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(projects[0], orgCategoryData1);
@@ -250,6 +243,7 @@ export function TestCases2(getTestBed) {
             ...otherProps,
           }));
           expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithControl);
+          // We just want to check the value and not the methods like pendingChange etc
           const controlValues = res.map(({ control }) => control.value);
           const expectedControlValues = perDiemCustomInputsData1.map(({ control }) => control.value);
           expect(controlValues).toEqual(expectedControlValues);
