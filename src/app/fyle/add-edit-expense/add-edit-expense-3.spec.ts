@@ -1300,7 +1300,6 @@ export function TestCases3(getTestBed) {
 
       it('should get new expense observable without insta fyle image data URL?', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         component.homeCurrency$ = of('USD');
@@ -1313,7 +1312,6 @@ export function TestCases3(getTestBed) {
 
         component.getNewExpenseObservable().subscribe(() => {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');

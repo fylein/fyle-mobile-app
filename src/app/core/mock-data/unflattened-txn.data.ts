@@ -1062,7 +1062,7 @@ export const unflattenedTxnDataWithoutCategoryData: UnflattenedTransaction = {
   },
 };
 
-export const expWithCriticalViolation = {
+export const expWithCriticalViolation: { etxn: UnflattenedTransaction; comment: string } = {
   etxn: {
     tx: {
       risk_state: null,
@@ -1276,7 +1276,7 @@ export const unflattenedPaidExp2: UnflattenedTransaction = {
   },
 };
 
-export const expectedExpenseObservable = {
+export const expectedExpenseObservable: Partial<UnflattenedTransaction> = {
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1331,7 +1331,7 @@ export const expectedExpenseObservable2 = {
   dataUrls: [],
 };
 
-export const expectedExpenseObservable3 = {
+export const expectedExpenseObservable3: Partial<UnflattenedTransaction> = {
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1367,7 +1367,7 @@ export const expectedExpenseObservable3 = {
   ],
 };
 
-export const expectedExpenseObservable4 = {
+export const expectedExpenseObservable4: Partial<UnflattenedTransaction> = {
   tx: {
     source: 'MOBILE',
     currency: 'INR',
@@ -1401,7 +1401,7 @@ export const expectedExpenseObservable4 = {
   ],
 };
 
-export const expectedExpenseObservable5 = {
+export const expectedExpenseObservable5: Partial<UnflattenedTransaction> = {
   tx: {
     source: 'MOBILE',
     currency: 'USD',
@@ -1811,7 +1811,7 @@ export const unflattenedExpWithCCCExpn: UnflattenedTransaction = {
   ],
 };
 
-export const trackCreateExpData = {
+export const trackCreateExpData: UnflattenedTransaction = {
   ...unflattenedExp2,
   tx: {
     ...unflattenedExp2.tx,
@@ -1823,7 +1823,7 @@ export const trackCreateExpData = {
   },
 };
 
-export const trackCreateExpDataWoCurrency = {
+export const trackCreateExpDataWoCurrency: UnflattenedTransaction = {
   ...unflattenedExp2,
   tx: {
     ...unflattenedExp2.tx,
@@ -1847,6 +1847,27 @@ export const trackAddExpenseWoCurrency: Partial<UnflattenedTransaction> = {
     orig_currency: 'USD',
     cost_center_id: 1234,
   },
+  ou: {
+    ...expectedUnflattendedTxnData4.ou,
+    level: 0,
+  },
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
+  dataUrls: null,
 };
 
 export const newExpFromFg = {
@@ -2139,7 +2160,7 @@ export const newExpFromFg2 = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: 0,
+    employee_id: '',
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',

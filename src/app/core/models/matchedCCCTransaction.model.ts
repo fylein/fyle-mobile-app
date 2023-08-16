@@ -14,6 +14,6 @@ export interface MatchedCCCTransaction {
   settlement_id: string;
   state: string;
   txn_dt: Date;
-  updated_at: Date;
+  updated_at: string;
   vendor: string;
 }

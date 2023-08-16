@@ -330,7 +330,7 @@ export class AddEditExpensePage implements OnInit {
 
   recentCurrencies: Currency[];
 
-  presetProjectId: number;
+  presetProjectId: number | string;
 
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
 
@@ -2825,10 +2825,6 @@ export class AddEditExpensePage implements OnInit {
     this.setupSelectedProjectObservable();
 
     this.setupSelectedCostCenterObservable();
-
-    if (this.activatedRoute.snapshot.params.bankTxn) {
-      this.initCCCTxn();
-    }
 
     this.getCCCpaymentMode();
 

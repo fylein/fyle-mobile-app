@@ -1,14 +1,17 @@
 import { TitleCasePipe } from '@angular/common';
+import { DebugElement } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { By, DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Observable, Subscription, of, throwError } from 'rxjs';
+import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { expensePolicyData, expensePolicyDataWoData } from 'src/app/core/mock-data/expense-policy.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { fileObject4, fileObjectAdv1 } from 'src/app/core/mock-data/file-object.data';
+import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
@@ -21,7 +24,6 @@ import {
   txnData2,
 } from 'src/app/core/mock-data/transaction.data';
 import {
-  expectedPersonalTxn,
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
   newUnflattenedTxn,
@@ -72,12 +74,7 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { getElementBySelector, getElementRef } from 'src/app/core/dom-helpers';
-import { unflattenedData } from 'src/app/core/mock-data/data-transform.data';
-import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
-import { DebugElement } from '@angular/core';
-import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
-import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
+import { createExpenseProperties2 } from 'src/app/core/mock-data/track-expense-properties.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -263,9 +260,9 @@ export function TestCases4(getTestBed) {
       const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
       const mockNativeElement = {
         files: [mockFile],
-      };
+      } as unknown as HTMLInputElement;
 
-      component.onChangeCallback(mockNativeElement as any);
+      component.onChangeCallback(mockNativeElement);
       tick(500);
 
       expect(component.uploadFileCallback).toHaveBeenCalledOnceWith(mockFile);
@@ -281,7 +278,7 @@ export function TestCases4(getTestBed) {
 
         component.fileUpload = {
           nativeElement: dummyNativeElement,
-        } as DebugElement;
+        };
 
         const nativeElement = component.fileUpload.nativeElement as HTMLInputElement;
         spyOn(nativeElement, 'click').and.callThrough();
@@ -291,7 +288,6 @@ export function TestCases4(getTestBed) {
         tick(500);
 
         nativeElement.dispatchEvent(new Event('change'));
-        nativeElement.dispatchEvent(new Event('click'));
 
         expect(component.onChangeCallback).toHaveBeenCalledTimes(1);
         expect(nativeElement.click).toHaveBeenCalledTimes(1);
@@ -370,21 +366,10 @@ export function TestCases4(getTestBed) {
         tick(500);
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
         expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
-        expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
-          Type: 'Receipt',
-          Amount: expectedUnflattendedTxnData4.tx.amount,
-          Currency: expectedUnflattendedTxnData4.tx.currency,
-          Category: expectedUnflattendedTxnData4.tx.org_category,
-          Time_Spent: '300 secs',
-          Used_Autofilled_Category: undefined,
-          Used_Autofilled_Project: undefined,
-          Used_Autofilled_CostCenter: true,
-          Used_Autofilled_Currency: true,
-          Instafyle: false,
-        });
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties);
       }));
 
-      it('should track adding expense to with original currency only', fakeAsync(() => {
+      it('should track adding expense where original currency is same as the preset currency', fakeAsync(() => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(trackAddExpenseWoCurrency));
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
@@ -398,18 +383,7 @@ export function TestCases4(getTestBed) {
         tick(500);
         expect(component.getCustomFields).toHaveBeenCalledOnceWith();
         expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
-        expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
-          Type: 'Receipt',
-          Amount: 120,
-          Currency: null,
-          Category: 'TAXI',
-          Time_Spent: '300 secs',
-          Used_Autofilled_Category: true,
-          Used_Autofilled_Project: true,
-          Used_Autofilled_CostCenter: true,
-          Used_Autofilled_Currency: true,
-          Instafyle: false,
-        });
+        expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties2);
       }));
     });
 
@@ -819,6 +793,53 @@ export function TestCases4(getTestBed) {
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
         expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
       });
+
+      it('should generate an expense in offline mode and match with a card', () => {
+        const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
+        generateEtxnSpy
+          .withArgs(component.etxn$, jasmine.any(Observable), true)
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+        generateEtxnSpy
+          .withArgs(component.etxn$, jasmine.any(Observable))
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
+        component.isConnected$ = of(false);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
+        transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard));
+        personalCardsService.matchExpense.and.returnValue(
+          of({
+            id: expectedUnflattendedTxnData3.tx.id,
+            transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
+          })
+        );
+        spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
+        spyOn(component, 'showSnackBarToast');
+        fixture.detectChanges();
+
+        component.saveAndMatchWithPersonalCardTxn();
+        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard);
+        expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id,
+          apiPersonalCardTxnsRes.data[0].btxn_id
+        );
+        expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
+          unflattenedTransactionDataPersonalCard.split_group_id
+        );
+        expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
+          { message: 'Expense created successfully.' },
+          'success',
+          ['msb-success']
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards']);
+        expect(trackingService.newExpenseCreatedFromPersonalCard).toHaveBeenCalledOnceWith();
+      });
     });
 
     describe('trackEditExpense():', () => {
@@ -845,8 +866,8 @@ export function TestCases4(getTestBed) {
         expect(component.getTimeSpentOnPage).toHaveBeenCalledTimes(1);
       });
 
-      it('should track edit expense event for an expense without currency', () => {
-        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.project_id;
+      it('should track edit expense event for an expense where the original currency is same as preset currency', () => {
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
         component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
         component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
@@ -860,7 +881,7 @@ export function TestCases4(getTestBed) {
           Currency: trackCreateExpDataWoCurrency.tx.currency,
           Category: trackCreateExpDataWoCurrency.tx.org_category,
           Time_Spent: '30 secs',
-          Used_Autofilled_Category: false,
+          Used_Autofilled_Category: true,
           Used_Autofilled_Project: true,
           Used_Autofilled_CostCenter: true,
           Used_Autofilled_Currency: true,

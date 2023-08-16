@@ -8,7 +8,7 @@ import { ActionSheetController, ModalController, NavController, Platform, Popove
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { eCCCData2, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
-import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
+import { expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { defaultTxnFieldValuesData3 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import {
   expenseFieldsMapResponse,
@@ -17,12 +17,8 @@ import {
   txnFieldsData3,
 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { policyExpense2, splitExpData } from 'src/app/core/mock-data/expense.data';
-import {
-  TaxiCategory,
-  filteredCategoriesData,
-  orgCategoryData1,
-  transformedOrgCategories,
-} from 'src/app/core/mock-data/org-category.data';
+import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { TaxiCategory, orgCategoryData1 } from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsCCCDisabled2,
   orgSettingsCCCDisabled3,
@@ -74,7 +70,6 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { multiplePaymentModesData, orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {

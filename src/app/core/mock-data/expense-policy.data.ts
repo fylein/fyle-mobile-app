@@ -16,7 +16,6 @@ export const expensePolicyData: ExpensePolicy = {
 };
 
 export const expensePolicyDataWoData: ExpensePolicy = {
-  ...expensePolicyData,
   data: null,
 };
 
