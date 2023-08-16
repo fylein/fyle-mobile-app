@@ -32,7 +32,6 @@ import { ReportQueryParams } from '../models/report-api-params.model';
 import { PdfExport } from '../models/pdf-exports.model';
 import { ReportStateMap } from '../models/report-state-map.model';
 import { ReportPermission } from '../models/report-permission.model';
-import { PlatformReport } from '../models/platform/platform-report.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -234,20 +233,6 @@ export class ReportService {
     return this.apiService
       .post<ReportV1>('/reports', reportData.rp)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
-  updateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {
-    const params = {
-      data: {
-        id: erpt.rp_id,
-        source: erpt.rp_source,
-        purpose: erpt.rp_purpose,
-      },
-    };
-    return this.spenderPlatformV1ApiService.post('/reports', params);
   }
 
   @Cacheable({

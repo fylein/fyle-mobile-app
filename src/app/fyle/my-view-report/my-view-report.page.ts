@@ -307,7 +307,7 @@ export class MyViewReportPage {
         take(1),
         switchMap((erpt) => {
           erpt.rp_purpose = reportName;
-          return this.reportService.updateReportPurpose(erpt);
+          return this.reportService.updateReportDetails(erpt);
         })
       )
       .subscribe(() => this.loadReportDetails$.next());
