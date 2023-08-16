@@ -71,7 +71,7 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/tracking-properties.model';
-import { CustomInputsOption, TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UndoMerge } from 'src/app/core/models/undo-merge.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
@@ -80,7 +80,6 @@ import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.mode
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -162,8 +161,8 @@ type FormValue = {
   billable: boolean;
   costCenter: CostCenter;
   hotel_is_breakfast_provided: boolean;
-  project_dependent_fields: ExpenseField[];
-  cost_center_dependent_fields: ExpenseField[];
+  project_dependent_fields: TxnCustomProperties[];
+  cost_center_dependent_fields: TxnCustomProperties[];
 };
 
 @Component({
@@ -228,7 +227,7 @@ export class AddEditExpensePage implements OnInit {
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
-  selectedCCCTransaction: CCCExpense | CorporateCardExpense;
+  selectedCCCTransaction: CCCExpense;
 
   canChangeMatchingCCCTransaction = true;
 
@@ -363,7 +362,7 @@ export class AddEditExpensePage implements OnInit {
 
   isSplitExpense: boolean;
 
-  isCccExpense: boolean | string;
+  isCccExpense: string;
 
   cardNumber: string;
 
@@ -1518,7 +1517,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedCostCenters(): Observable<CostCenter | null> {
+  getSelectedCostCenters(): Observable<CostCenter> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.cost_center_id) {
@@ -2030,7 +2029,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getCategoryOnAdd(category: OrgCategory): Observable<OrgCategory | null> {
+  getCategoryOnAdd(category: OrgCategory): Observable<OrgCategory> {
     if (category) {
       return of(category);
     } else {
@@ -2626,8 +2625,8 @@ export class AddEditExpensePage implements OnInit {
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject<ExtendedProject | null>(null);
-    this.selectedCostCenter$ = new BehaviorSubject<CostCenter | null>(null);
+    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
     };
@@ -3372,16 +3371,16 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  getProjectDependentFields(): ExpenseField[] {
+  getProjectDependentFields(): TxnCustomProperties[] {
     const projectDependentFieldsControl = this.fg.value as {
-      project_dependent_fields: ExpenseField[];
+      project_dependent_fields: TxnCustomProperties[];
     };
     return projectDependentFieldsControl.project_dependent_fields;
   }
 
-  getCostCenterDependentFields(): ExpenseField[] {
+  getCostCenterDependentFields(): TxnCustomProperties[] {
     const CCDependentFieldsControl = this.fg.value as {
-      cost_center_dependent_fields: ExpenseField[];
+      cost_center_dependent_fields: TxnCustomProperties[];
     };
     return CCDependentFieldsControl.cost_center_dependent_fields;
   }
@@ -3898,7 +3897,7 @@ export class AddEditExpensePage implements OnInit {
       etxn?: Partial<UnflattenedTransaction>;
     },
     customFields$: Observable<TxnCustomProperties[]>
-  ): Observable<UnflattenedTransaction | unknown> {
+  ): Observable<{ etxn: Partial<UnflattenedTransaction> }> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
       switchMap((continueWithTransaction) => {
@@ -3926,7 +3925,7 @@ export class AddEditExpensePage implements OnInit {
       etxn?: Partial<UnflattenedTransaction>;
     },
     customFields$: Observable<TxnCustomProperties[]>
-  ): Observable<UnflattenedTransaction | unknown> {
+  ): Observable<{ etxn: Partial<UnflattenedTransaction>; comment: string }> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
       switchMap((continueWithTransaction: { comment: string }) => {
@@ -4534,7 +4533,7 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<Expense | unknown>;
+      deleteMethod: () => Observable<Expense | void>;
     };
   } {
     return {
@@ -4546,7 +4545,7 @@ export class AddEditExpensePage implements OnInit {
         body: config.body,
         ctaText: config.ctaText,
         ctaLoadingText: config.ctaLoadingText,
-        deleteMethod: (): Observable<Expense | unknown> => {
+        deleteMethod: (): Observable<Expense | void> => {
           if (removeExpenseFromReport) {
             return this.reportService.removeTransaction(reportId, this.activatedRoute.snapshot.params.id as string);
           }
@@ -4852,7 +4851,7 @@ export class AddEditExpensePage implements OnInit {
     toastMessageData: { message: string; redirectionText?: string },
     type: 'success' | 'information' | 'failure',
     panelClass: string[]
-  ): MatSnackBarRef<ToastMessageComponent> | unknown {
+  ): MatSnackBarRef<ToastMessageComponent> {
     return this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties(type, toastMessageData),
       panelClass,

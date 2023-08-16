@@ -8,6 +8,7 @@ export interface TxnCustomProperties {
   type?: string;
   value: string | string[] | boolean | Date | number | { display: string };
   parent_field_id?: number;
+  label?: string;
 }
 
 export interface CustomInputsOption {
