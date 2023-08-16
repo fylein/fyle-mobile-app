@@ -24,7 +24,11 @@
   &__input-container {
     padding: 16px 16px 8px 16px;
     border-radius: 8px;
-    border: 1px solid $black-light;
+    border: 1px solid $grey;
+
+    &:focus-within:not(&--error) {
+      border: 1px solid $black-light;
+    }
   }
 
   &__input-label {
