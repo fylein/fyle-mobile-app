@@ -149,14 +149,6 @@ import {
 import { matchedCCCTransactionData1 } from 'src/app/core/mock-data/matchedCCCTransaction.data';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 
-interface SplitExpenseForm {
-  amount: number;
-  currency: string;
-  percentage: number;
-  txn_dt: string;
-  category: string;
-}
-
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
