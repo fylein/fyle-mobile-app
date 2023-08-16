@@ -540,3 +540,24 @@ export const draftUnflattendedTxn3 = {
     fyle_category: 'UNSPECIFIED',
   },
 };
+
+export const unflattenedTxnDataPerDiem = {
+  tx: {
+    skip_reimbursement: false,
+    source: 'MOBILE',
+    org_category_id: 38912,
+    org_category: 'Per Diem',
+    sub_category: 'Per Diem',
+    amount: 0,
+    currency: 'USD',
+    state: 'COMPLETE',
+    txn_dt: new Date(),
+    from_dt: null,
+    to_dt: null,
+    per_diem_rate_id: null,
+    num_days: null,
+    policy_amount: null,
+    custom_properties: [],
+    org_user_id: 'ouX8dwsbLCLv',
+  },
+};
