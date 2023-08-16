@@ -8,4 +8,9 @@ export interface DefaultTxnFieldValues {
   vendor_id: string;
   billable: boolean;
   tax_group_id: string;
+  num_days: number;
+  from_dt: string;
+  to_dt: string;
+  cost_center_id: number;
+  project_id: number;
 }
