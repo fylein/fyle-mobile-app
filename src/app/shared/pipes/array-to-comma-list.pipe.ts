@@ -7,7 +7,7 @@ export class ArrayToCommaListPipe implements PipeTransform {
   // Transforms a string array to a comma separated list
   // For example: ['a', 'b', 'c'] => 'a, b and c'
   transform(value: string[]): string {
-    if (value?.length === 0) {
+    if (!value || value.length === 0) {
       return '';
     }
 
