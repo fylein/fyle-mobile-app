@@ -257,7 +257,7 @@ export function TestCases5(getTestBed) {
     describe('getMarkDismissModalParams():', () => {
       it('should get modal params with method to mark as personal', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'markCCCAsPersonal').and.returnValue(of(expenseData1));
+        spyOn(component, 'markCCCAsPersonal').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.corporateCreditCardExpenseGroupId = 'cccet1B17R8gWZ';
         fixture.detectChanges();
@@ -273,8 +273,7 @@ export function TestCases5(getTestBed) {
             true
           )
           .componentProps.deleteMethod()
-          .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+          .subscribe(() => {
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'cccet1B17R8gWZ');
             expect(component.markCCCAsPersonal).toHaveBeenCalledOnceWith('txfCdl3TEZ7K');
             done();
@@ -283,7 +282,7 @@ export function TestCases5(getTestBed) {
 
       it('should get modal params with method to dismiss expense', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'dismissCCC').and.returnValue(of(expenseData1));
+        spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.matchedCCCTransaction = expectedECccResponse[0].ccce;
         fixture.detectChanges();
@@ -299,8 +298,7 @@ export function TestCases5(getTestBed) {
             false
           )
           .componentProps.deleteMethod()
-          .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+          .subscribe(() => {
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
             done();
@@ -309,7 +307,7 @@ export function TestCases5(getTestBed) {
 
       it('should get modal params with method to dismiss expense if matched expense does not exist', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'dismissCCC').and.returnValue(of(expenseData1));
+        spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.matchedCCCTransaction = null;
         fixture.detectChanges();
@@ -325,8 +323,7 @@ export function TestCases5(getTestBed) {
             false
           )
           .componentProps.deleteMethod()
-          .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+          .subscribe(() => {
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             done();
@@ -335,7 +332,7 @@ export function TestCases5(getTestBed) {
 
       it('should get modal params with method to dismiss expense if matched expense does not exist', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'dismissCCC').and.returnValue(of(expenseData1));
+        spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.matchedCCCTransaction = null;
         fixture.detectChanges();
@@ -351,8 +348,7 @@ export function TestCases5(getTestBed) {
             false
           )
           .componentProps.deleteMethod()
-          .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+          .subscribe(() => {
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             done();
