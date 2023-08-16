@@ -2,6 +2,10 @@ import { Destination } from '../destination.model';
 import { TxnCustomProperties } from '../txn-custom-properties.model';
 
 export interface Transaction {
+  corporate_credit_card_account_number?: string;
+  card_or_account_number?: number;
+  displayObject?: string;
+  description?: string;
   admin_amount: number;
   amount?: number;
   billable?: boolean;
@@ -25,6 +29,7 @@ export interface Transaction {
     description?: string;
     vendor?: string;
     category?: string;
+    vendor_name?: string;
     invoice_dt?: Date;
   };
   flight_journey_travel_class?: string;
@@ -34,7 +39,7 @@ export interface Transaction {
   hotel_is_breakfast_provided?: boolean;
   id?: string;
   invoice_number?: number;
-  locations?: Destination[];
+  locations?: string[] | Destination[];
   mandatory_fields_present?: boolean;
   manual_flag?: boolean;
   mileage_calculated_amount?: number;
@@ -102,6 +107,8 @@ export interface Transaction {
   is_implicit_merge_blocked?: boolean;
   categoryDisplayName?: string;
   matchCCCId?: string;
+  is_matching_ccc_expense?: boolean;
+  mileage_rate_id?: number;
   custom_attributes?: { name: string; value: string }[];
   transcribed_data?: {
     amount?: number;

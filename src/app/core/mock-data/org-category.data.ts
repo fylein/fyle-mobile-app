@@ -935,7 +935,7 @@ export const filteredCategoriesData = [
   },
 ];
 
-export const expectedAutoFillCategory = {
+export const expectedAutoFillCategory: OrgCategory = {
   code: null,
   created_at: new Date('2018-01-31T23:50:27.235Z'),
   displayName: 'Food',
@@ -948,7 +948,7 @@ export const expectedAutoFillCategory = {
   updated_at: new Date('2022-05-05T17:45:42.092Z'),
 };
 
-export const expectedAutoFillCategory2 = {
+export const expectedAutoFillCategory2: OrgCategory = {
   code: null,
   created_at: new Date('2020-03-04T09:51:01.619Z'),
   displayName: 'Office supplies',
@@ -959,4 +959,43 @@ export const expectedAutoFillCategory2 = {
   org_id: 'orNVthTo2Zyo',
   sub_category: 'Office supplies',
   updated_at: new Date('2022-11-23T13:11:51.771Z'),
+};
+
+export const TaxiCategory: OrgCategory = {
+  code: null,
+  created_at: new Date('2020-03-04T09:51:01.619Z'),
+  displayName: 'Office supplies',
+  enabled: true,
+  fyle_category: 'Taxi',
+  id: 89469,
+  name: 'UBER',
+  org_id: 'orNVthTo2Zyo',
+  sub_category: 'TRAVEL',
+  updated_at: new Date('2022-11-23T13:11:51.771Z'),
+};
+
+export const expectedAutoFillCategory3: OrgCategory = {
+  code: null,
+  created_at: new Date('2018-01-31T23:50:27.235Z'),
+  displayName: 'Food',
+  enabled: true,
+  fyle_category: 'Food',
+  id: 16566,
+  name: 'Food',
+  org_id: 'orNVthTo2Zyo',
+  sub_category: 'Food',
+  updated_at: new Date('2022-05-05T17:45:42.092Z'),
+};
+
+export const perDiemCategory: OrgCategory = {
+  code: null,
+  created_at: new Date('2018-07-27T08:52:38.938006+00:00'),
+  displayName: 'Per Diem',
+  enabled: true,
+  fyle_category: 'Per Diem',
+  id: 38912,
+  name: 'Per Diem',
+  org_id: 'orrb8EW1zZsy',
+  sub_category: 'Per Diem',
+  updated_at: new Date('2022-09-13T17:16:56.232081+00:00'),
 };
