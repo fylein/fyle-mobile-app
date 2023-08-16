@@ -5598,3 +5598,8 @@ export const expectedFormattedTransaction: Partial<Expense>[] = [
     tx_locations: [],
   },
 ];
+
+export const policyExpense2: Expense = {
+  ...apiExpenseRes[0],
+  tx_policy_amount: 0,
+};

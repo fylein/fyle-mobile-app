@@ -1,9 +1,9 @@
 export interface CCCExpUnflattened {
   ccce: {
     id: string;
-    created_at: Date;
-    updated_at: Date;
-    txn_dt: Date;
+    created_at: string;
+    updated_at: string;
+    txn_dt: string;
     creator_id: string | number;
     orig_currency: string;
     orig_amount: number;
@@ -17,6 +17,7 @@ export interface CCCExpUnflattened {
     group_id: string;
     card_or_account_number: string;
     balance_transfer_id: string | number;
+    corporate_credit_card_account_number?: string;
   };
   personal: boolean;
   matched: {
@@ -44,4 +45,5 @@ export interface CCCExpUnflattened {
   balance: {
     transfer_settlement_id: string;
   };
+  flow?: string;
 }
