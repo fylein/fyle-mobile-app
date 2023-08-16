@@ -149,6 +149,9 @@
 
   <div class="add-corporate-card__footer">
     <ion-button
+      appFormButtonValidation
+      [loading]="isEnrollingCard"
+      loadingText="Adding"
       (click)="enrollCard()"
       [disabled]="isAddingNonRTFCard && isYodleeEnabled"
       class="fy-footer-cta fy-footer-cta--primary"
