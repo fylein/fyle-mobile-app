@@ -11,3 +11,12 @@ export const defaultTxnFieldValuesData3: Partial<DefaultTxnFieldValues> = {
   vendor_id: 'vendor',
   billable: true,
 };
+
+export const defaultTxnFieldValuesData2: Partial<DefaultTxnFieldValues> = {
+  purpose: 'test_term',
+  cost_center_id: 15818,
+  from_dt: '2023-01-01',
+  to_dt: '2023-02-02',
+  num_days: 32,
+  billable: true,
+};
