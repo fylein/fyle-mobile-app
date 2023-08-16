@@ -1,5 +1,6 @@
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
+import { personalCardTxn } from './transaction.data';
 
 export const unflattenedTxnData: UnflattenedTransaction = {
   tx: {
@@ -111,7 +112,7 @@ export const unflattenedTxnData: UnflattenedTransaction = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -261,7 +262,7 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -432,7 +433,7 @@ export const expectedUnflattendedTxnData1: UnflattenedTransaction = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -602,7 +603,7 @@ export const unflattenedTxnData2: UnflattenedTransaction = {
   },
 };
 
-export const expectedUnflattendedTxnData3 = {
+export const expectedUnflattendedTxnData3: UnflattenedTransaction = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -743,9 +744,25 @@ export const expectedUnflattendedTxnData3 = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
 };
 
-export const expectedUnflattendedTxnData4 = {
+export const expectedUnflattendedTxnData4: UnflattenedTransaction = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -880,6 +897,22 @@ export const expectedUnflattendedTxnData4 = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
 };
 
 export const expectedUnflattendedTxnData5 = {
@@ -1418,9 +1451,12 @@ export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
   },
 };
 
-export const unflattenedTransactionDataPersonalCard = {
-  ...expectedUnflattendedTxnData3.tx,
-  locations: null,
+export const unflattenedTransactionDataPersonalCard: UnflattenedTransaction = {
+  ...expectedUnflattendedTxnData3,
+  tx: {
+    ...personalCardTxn,
+    locations: null,
+  },
 };
 
 export const newUnflattenedTxn = {
@@ -1799,10 +1835,10 @@ export const trackCreateExpDataWoCurrency: UnflattenedTransaction = {
   },
 };
 
-export const trackAddExpenseWoCurrency = {
+export const trackAddExpenseWoCurrency: Partial<UnflattenedTransaction> = {
   ...expectedUnflattendedTxnData4,
   tx: {
-    ...expectedUnflattendedTxnData4,
+    ...expectedUnflattendedTxnData4.tx,
     currency: null,
     org_category: 'TAXI',
     amount: 120,
@@ -2124,7 +2160,7 @@ export const newExpFromFg2 = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -2497,13 +2533,14 @@ export const checkDebitCCCExpenseData2: UnflattenedTransaction = {
   },
 };
 
-export const setupFormExpenseWoCurrency = {
+export const setupFormExpenseWoCurrency: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData,
     amount: null,
     currency: 'USD',
     user_amount: 100,
+    source: null,
     policy_amount: -10,
     locations: [],
     from_dt: new Date('2021-03-26T09:29:14.586Z'),
@@ -2521,10 +2558,10 @@ export const setupFormExpenseWoCurrency = {
   },
 };
 
-export const setupFormExpenseWoCurrency2 = {
+export const setupFormExpenseWoCurrency2: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: {
-    ...unflattenedTxnData,
+    ...unflattenedTxnData.tx,
     amount: null,
     currency: 'USD',
     user_amount: null,
@@ -2545,10 +2582,10 @@ export const setupFormExpenseWoCurrency2 = {
   },
 };
 
-export const setupFormExpenseWoCurrency3 = {
+export const setupFormExpenseWoCurrency3: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: {
-    ...unflattenedTxnData,
+    ...unflattenedTxnData.tx,
     id: 'id1',
     amount: null,
     state: 'DRAFT',
@@ -2558,4 +2595,155 @@ export const setupFormExpenseWoCurrency3 = {
     locations: [],
     project_id: null,
   },
+};
+
+export const expectedPersonalTxn: UnflattenedTransaction = {
+  tx: {
+    risk_state: null,
+    is_duplicate_expense: null,
+    duplicates: null,
+    id: 'tx3qHxFNgRcZ',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-01-24T04:24:24.186Z'),
+    receipt_required: false,
+    user_can_delete: true,
+    txn_dt: null,
+    category: null,
+    amount: 100,
+    user_amount: 100,
+    policy_amount: null,
+    admin_amount: null,
+    tax: 52.47,
+    tax_amount: null,
+    currency: 'USD',
+    report_id: null,
+    reported_at: null,
+    state: 'COMPLETE',
+    num_files: 1,
+    invoice_number: null,
+    purpose: null,
+    source: 'MOBILE',
+    billable: null,
+    project_name: 'Project 1 / asdfg',
+    project_code: null,
+    skip_reimbursement: false,
+    creator_id: 'ouX8dwsbLCLv',
+    user_reason_for_duplicate_expenses: null,
+    external_id: null,
+    cost_center_name: 'SMS1',
+    cost_center_code: null,
+    cost_center_id: 2411,
+    transcription_state: null,
+    verification_state: null,
+    physical_bill: null,
+    physical_bill_at: null,
+    policy_state: null,
+    manual_flag: null,
+    policy_flag: null,
+    vendor_id: 28860,
+    platform_vendor: null,
+    platform_vendor_id: null,
+    org_category: 'TRAVEL',
+    sub_category: 'TAXI',
+    org_category_code: '117',
+    expense_number: 'E/2023/01/T/99',
+    corporate_credit_card_expense_group_id: null,
+    split_group_id: 'tx3qHxFNgRcZ',
+    split_group_user_amount: 344,
+    extracted_data: {
+      amount: null,
+      currency: 'INR',
+      category: 'Software',
+      date: null,
+      vendor: null,
+      invoice_dt: null,
+    },
+    transcribed_data: null,
+    user_review_needed: true,
+    mandatory_fields_present: true,
+    distance: null,
+    distance_unit: null,
+    from_dt: null,
+    to_dt: null,
+    num_days: null,
+    mileage_calculated_distance: null,
+    mileage_calculated_amount: null,
+    mileage_vehicle_type: null,
+    mileage_rate: null,
+    mileage_is_round_trip: null,
+    hotel_is_breakfast_provided: null,
+    flight_journey_travel_class: null,
+    flight_return_travel_class: null,
+    train_travel_class: null,
+    bus_travel_class: null,
+    taxi_travel_class: null,
+    per_diem_rate_id: null,
+    activity_policy_pending: null,
+    activity_details: null,
+    locations: null,
+    custom_properties: [
+      {
+        id: 111,
+        name: 'Test Number',
+        value: 121,
+        type: 'NUMBER',
+      },
+      {
+        id: 115,
+        name: 'test date',
+        value: '2017-07-25T00:00:00.000Z',
+        type: 'DATE',
+      },
+      {
+        id: 150,
+        name: 'checking',
+        value: false,
+        type: 'BOOLEAN',
+      },
+      {
+        id: 151,
+        name: 'Select field',
+        value: 'select-1',
+        type: 'SELECT',
+      },
+    ],
+    is_implicit_merge_blocked: false,
+    categoryDisplayName: 'Software',
+  },
+  ou: {
+    org_name: 'Staging Loaded',
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    employee_id: '',
+    location: 'Mumbai',
+    level: 123,
+    band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
+    rank: 1121212121,
+    business_unit:
+      'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+    department_id: 'deptpmQ0SsMO0S',
+    department: '0000000',
+    title: 'director',
+    mobile: '123456',
+    sub_department: null,
+    joining_dt: new Date('2017-07-25T00:00:00.000Z'),
+  },
+  dataUrls: [],
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
+  us: undefined,
+  rp: undefined,
 };
