@@ -47,6 +47,17 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import {
+  expectedAutoFillCategory3,
+  mileageCategories,
+  transformedOrgCategoryById,
+} from 'src/app/core/mock-data/org-category.data';
+import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
+import { txnData2 } from 'src/app/core/mock-data/transaction.data';
+import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
+import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -285,6 +296,187 @@ export function TestCases1(getTestBed) {
         expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
         expect(trackingService.viewComment).toHaveBeenCalledOnceWith();
       }));
+    });
+
+    describe('goToTransaction():', () => {
+      const txn_ids = ['txfCdl3TEZ7K'];
+      it('should navigate to add-edit mileage if category is mileage', () => {
+        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' } };
+        component.goToTransaction(expense, txn_ids, 0);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_mileage',
+          {
+            id: expense.tx.id,
+            txnIds: JSON.stringify(txn_ids),
+            activeIndex: 0,
+          },
+        ]);
+      });
+
+      it('should navigate to per diem expense form if the category is per diem', () => {
+        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' } };
+        component.goToTransaction(expense, txn_ids, 0);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_per_diem',
+          {
+            id: expense.tx.id,
+            txnIds: JSON.stringify(txn_ids),
+            activeIndex: 0,
+          },
+        ]);
+      });
+
+      it('should navigate to expense form', () => {
+        const expense = unflattenedTxnData;
+        component.goToTransaction(expense, txn_ids, 0);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          {
+            id: expense.tx.id,
+            txnIds: JSON.stringify(txn_ids),
+            activeIndex: 0,
+          },
+        ]);
+      });
+    });
+
+    describe('getProjectCategoryIds():', () => {
+      it('should return MILEAGE category IDs', (done) => {
+        categoriesService.getAll.and.returnValue(of(mileageCategories));
+
+        component.getProjectCategoryIds().subscribe((res) => {
+          expect(res).toEqual(['141295', '141300']);
+          expect(categoriesService.getAll).toHaveBeenCalledOnceWith();
+          done();
+        });
+      });
+
+      it('should return an empty array if there are no MILEAGE categories', (done) => {
+        categoriesService.getAll.and.returnValue(of(transformedOrgCategoryById));
+
+        component.getProjectCategoryIds().subscribe((res) => {
+          expect(res).toEqual([]);
+          expect(categoriesService.getAll).toHaveBeenCalledOnceWith();
+          done();
+        });
+      });
+    });
+
+    describe('saveExpenseAndGotoNext():', () => {
+      it('should add a new expense and close the form', () => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'close');
+        component.activeIndex = 0;
+        component.reviewList = ['id1'];
+        component.mode = 'add';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoNext();
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
+        expect(component.close).toHaveBeenCalledOnceWith();
+      });
+
+      it('should add a new expense and go to the next expense if not the first one in list', () => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'goToNext');
+        component.activeIndex = 0;
+        component.mode = 'add';
+        component.reviewList = ['id1', 'id2'];
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoNext();
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
+        expect(component.goToNext).toHaveBeenCalledTimes(1);
+      });
+
+      it('should save an edited expense and close the form', () => {
+        spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'close');
+        component.activeIndex = 0;
+        component.mode = 'edit';
+        component.reviewList = ['id1'];
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoNext();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
+        expect(component.close).toHaveBeenCalledTimes(1);
+      });
+
+      it('should save an edited expense and go to the next expense', () => {
+        spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'goToNext');
+        component.activeIndex = 0;
+        component.mode = 'edit';
+        component.reviewList = ['id1', 'id2'];
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoNext();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
+        expect(component.goToNext).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('getTimeSpentOnPage(): should get time spent on page', () => {
+      component.expenseStartTime = 164577000;
+      fixture.detectChanges();
+
+      const result = component.getTimeSpentOnPage();
+      expect(result).toEqual((new Date().getTime() - component.expenseStartTime) / 1000);
+    });
+
+    it('reloadCurrentRoute(): should reload the current load', fakeAsync(() => {
+      component.reloadCurrentRoute();
+      tick(500);
+
+      expect(router.navigateByUrl).toHaveBeenCalledOnceWith('/enterprise/my_expenses', { skipLocationChange: true });
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'add_edit_mileage']);
+    }));
+
+    it('continueWithPolicyViolations(): should display violations and relevant CTA in a modal', async () => {
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+      currencyModalSpy.onWillDismiss.and.resolveTo({
+        data: { comment: 'primary' },
+      });
+      modalController.create.and.resolveTo(currencyModalSpy);
+
+      const result = await component.continueWithPolicyViolations(
+        criticalPolicyViolation2,
+        splitPolicyExp4.data.final_desired_state
+      );
+
+      expect(result).toEqual({ comment: 'primary' });
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyPolicyViolationComponent,
+        componentProps: {
+          policyViolationMessages: criticalPolicyViolation2,
+          policyAction: splitPolicyExp4.data.final_desired_state,
+        },
+        mode: 'ios',
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     });
   });
 }
