@@ -47,9 +47,10 @@ import {
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
 import { cloneDeep, omit } from 'lodash';
 import { perDiemCustomInputsData1 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
+import { projects } from 'src/app/core/mock-data/extended-projects.data';
 
 export function TestCases2(getTestBed) {
-  return fdescribe('add-edit-per-diem test cases set 2', () => {
+  return describe('add-edit-per-diem test cases set 2', () => {
     let component: AddEditPerDiemPage;
     let fixture: ComponentFixture<AddEditPerDiemPage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -185,13 +186,13 @@ export function TestCases2(getTestBed) {
         sub_category: {
           id: 247980,
         },
-        project: 13795,
+        project: projects[0],
       });
       projectsService.getAllowedOrgCategoryIds.and.returnValue([orgCategoryData]);
       component.billableDefaultValue = false;
       spyOn(component.fg.controls.sub_category, 'reset');
       component.setupFilteredCategories(of(orgCategoryData1));
-      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(13795, orgCategoryData1);
+      expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledOnceWith(projects[0], orgCategoryData1);
       expect(component.fg.controls.sub_category.reset).toHaveBeenCalledTimes(1);
     });
 
@@ -204,7 +205,7 @@ export function TestCases2(getTestBed) {
       expect(result).toEqual(endTime);
     });
 
-    fdescribe('getCustomInputs():', () => {
+    describe('getCustomInputs():', () => {
       const mockCategoryData = cloneDeep(orgCategoryData);
       mockCategoryData.id = 16577;
       beforeEach(() => {
