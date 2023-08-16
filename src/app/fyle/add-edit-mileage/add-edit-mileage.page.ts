@@ -101,6 +101,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from '../../core/services/tracking.service';
+import { Destination } from 'src/app/core/models/destination.model';
 
 type FormValue = {
   route: {
@@ -2175,6 +2176,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   trackEditExpense(etxn: UnflattenedTransaction): void {
+    const location = etxn.tx.locations[0] as Destination;
     this.trackingService.editExpense({
       Type: 'Mileage',
       Amount: etxn.tx.amount,
@@ -2193,8 +2195,8 @@ export class AddEditMileagePage implements OnInit {
         etxn.tx.locations &&
         etxn.tx.locations.length > 0 &&
         this.presetLocation &&
-        etxn.tx.locations[0] &&
-        etxn.tx.locations[0].display === this.presetLocation,
+        location &&
+        location.display === this.presetLocation,
     });
   }
 
@@ -2425,6 +2427,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   trackCreateExpense(etxn: UnflattenedTransaction): void {
+    const location = etxn.tx.locations[0] as Destination;
     this.trackingService.createExpense({
       Type: 'Mileage',
       Amount: etxn.tx.amount,
@@ -2443,8 +2446,8 @@ export class AddEditMileagePage implements OnInit {
         etxn.tx.locations &&
         etxn.tx.locations.length > 0 &&
         this.presetLocation &&
-        etxn.tx.locations[0] &&
-        etxn.tx.locations[0].display === this.presetLocation,
+        location &&
+        location.display === this.presetLocation,
     });
   }
 
