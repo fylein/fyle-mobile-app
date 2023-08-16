@@ -74,7 +74,10 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { createExpenseProperties2 } from 'src/app/core/mock-data/track-expense-properties.data';
+import {
+  createExpenseProperties,
+  createExpenseProperties2,
+} from 'src/app/core/mock-data/track-expense-properties.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -638,9 +641,9 @@ export function TestCases4(getTestBed) {
       });
 
       it('should save and match an expense with critical violation', () => {
-        const expense = { ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard };
+        const expense = { ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx };
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expense.tx));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expense));
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         policyService.getCriticalPolicyRules.and.returnValue([
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
@@ -670,7 +673,7 @@ export function TestCases4(getTestBed) {
             policyViolations: [
               'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
             ],
-            etxn: expense.tx,
+            etxn: expense,
           },
           jasmine.any(Observable)
         );
@@ -692,9 +695,9 @@ export function TestCases4(getTestBed) {
       });
 
       it('it should save and match an expense with policy violation', () => {
-        const expense = { ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard };
+        const expense = { ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx };
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expense.tx));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expense));
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([
@@ -726,7 +729,7 @@ export function TestCases4(getTestBed) {
               'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
             ],
             policyAction: expensePolicyData.data.final_desired_state,
-            etxn: expense.tx,
+            etxn: expense,
           },
           jasmine.any(Observable)
         );
@@ -798,17 +801,17 @@ export function TestCases4(getTestBed) {
         const generateEtxnSpy = spyOn(component, 'generateEtxnFromFg');
         generateEtxnSpy
           .withArgs(component.etxn$, jasmine.any(Observable), true)
-          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx }));
         generateEtxnSpy
           .withArgs(component.etxn$, jasmine.any(Observable))
-          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard }));
+          .and.returnValue(of({ ...expectedUnflattendedTxnData3, tx: unflattenedTransactionDataPersonalCard.tx }));
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         component.isConnected$ = of(false);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
         activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data[0]);
-        transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard));
+        transactionService.upsert.and.returnValue(of(unflattenedTransactionDataPersonalCard.tx));
         personalCardsService.matchExpense.and.returnValue(
           of({
             id: expectedUnflattendedTxnData3.tx.id,
@@ -824,13 +827,13 @@ export function TestCases4(getTestBed) {
         expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable), true);
         expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
-        expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard);
+        expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard.tx);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
-          unflattenedTransactionDataPersonalCard.split_group_id,
+          unflattenedTransactionDataPersonalCard.tx.split_group_id,
           apiPersonalCardTxnsRes.data[0].btxn_id
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
-          unflattenedTransactionDataPersonalCard.split_group_id
+          unflattenedTransactionDataPersonalCard.tx.split_group_id
         );
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Expense created successfully.' },

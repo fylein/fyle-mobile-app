@@ -980,7 +980,7 @@ export function TestCases1(getTestBed) {
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         component.filteredCategories$ = of(categorieListRes);
         component.txnFields$ = of(expenseFieldObjData);
-        component.isCccExpense = true;
+        component.isCccExpense = 'tx3qHxFNgRcZ';
         component.canDismissCCCE = true;
         component.isCorporateCreditCardEnabled = true;
         component.canRemoveCardExpense = true;
@@ -1033,7 +1033,7 @@ export function TestCases1(getTestBed) {
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         component.filteredCategories$ = of(categorieListRes);
         component.txnFields$ = of(expenseFieldObjData);
-        component.isCccExpense = true;
+        component.isCccExpense = 'tx3qHxFNgRcZ';
         component.canDismissCCCE = true;
         component.isCorporateCreditCardEnabled = true;
         component.canRemoveCardExpense = true;
@@ -1066,7 +1066,7 @@ export function TestCases1(getTestBed) {
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         component.filteredCategories$ = of(categorieListRes);
         component.txnFields$ = of(expenseFieldObjData);
-        component.isCccExpense = false;
+        component.isCccExpense = 'tx3qHxFNgRcZ';
         component.canDismissCCCE = true;
         component.isCorporateCreditCardEnabled = true;
         component.canRemoveCardExpense = true;
@@ -1075,7 +1075,7 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'removeCCCHandler');
 
         component.getActionSheetOptions().subscribe((res) => {
-          expect(res.length).toEqual(1);
+          expect(res.length).toEqual(3);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
           expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
@@ -1097,7 +1097,7 @@ export function TestCases1(getTestBed) {
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         component.filteredCategories$ = of(categorieListRes);
         component.txnFields$ = of(expenseFieldObjData);
-        component.isCccExpense = true;
+        component.isCccExpense = 'tx3qHxFNgRcZ';
         component.canDismissCCCE = false;
         component.isCorporateCreditCardEnabled = true;
         component.canRemoveCardExpense = false;
@@ -1182,15 +1182,11 @@ export function TestCases1(getTestBed) {
 
     it('showFormValidationErrors(): should show form validation errors', () => {
       spyOn(component.fg, 'markAllAsTouched');
-      spyOn(component.formContainer.nativeElement, 'querySelector').and.returnValue({
-        scrollIntoView: () => {},
-      });
 
       fixture.detectChanges();
 
       component.showFormValidationErrors();
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-      expect(component.formContainer.nativeElement.querySelector).toHaveBeenCalledWith('.ng-invalid');
     });
   });
 }

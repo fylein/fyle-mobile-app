@@ -2160,7 +2160,7 @@ export const newExpFromFg2 = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',

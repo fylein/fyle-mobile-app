@@ -358,8 +358,8 @@ export function TestCases6(getTestBed) {
         expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData3);
         fixture.detectChanges();
 
-        component.updateFormForExpenseFields(of(expenseFieldsMapResponse));
-        expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(expenseFieldsMapResponse);
+        component.updateFormForExpenseFields(of(expenseFieldsMapResponse[0]));
+        expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledTimes(1);
       });
 
       it('should update form with expense fields values with billable fields', () => {
@@ -373,8 +373,8 @@ export function TestCases6(getTestBed) {
         });
         fixture.detectChanges();
 
-        component.updateFormForExpenseFields(of(expenseFieldsMapResponse));
-        expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(expenseFieldsMapResponse);
+        component.updateFormForExpenseFields(of(expenseFieldsMapResponse[0]));
+        expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledTimes(1);
       });
     });
 

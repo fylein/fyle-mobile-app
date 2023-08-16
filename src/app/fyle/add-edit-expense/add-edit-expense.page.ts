@@ -3409,14 +3409,11 @@ export class AddEditExpensePage implements OnInit {
             id: customInput.id,
             mandatory: customInput.mandatory,
             name: customInput.name,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             options: customInput?.options,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             placeholder: customInput?.placeholder,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             prefix: customInput?.prefix,
             type: customInput.type,
-            value: this.getFormValues().custom_inputs[i].value,
+            value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
           customInpustWithValue.concat(dependentFieldsWithValue);
           return customInpustWithValue;

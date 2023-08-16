@@ -2,7 +2,7 @@ export interface MatchedCCCTransaction {
   amount: number;
   balance_transfer_id: number | string;
   card_or_account_number: string;
-  created_at: Date;
+  created_at: string;
   creator_id: number | string;
   currency: string;
   description: string;
@@ -13,7 +13,7 @@ export interface MatchedCCCTransaction {
   payment_id: string;
   settlement_id: string;
   state: string;
-  txn_dt: Date;
+  txn_dt: string;
   updated_at: string;
   vendor: string;
 }

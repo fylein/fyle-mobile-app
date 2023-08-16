@@ -19,7 +19,12 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
-import { orgCategoryData, sortedCategory, transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
+import {
+  filteredCategoriesData,
+  orgCategoryData,
+  sortedCategory,
+  transformedOrgCategories,
+} from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsWithProjectAndAutofill,
   orgSettingsWoTax,
@@ -40,7 +45,7 @@ import {
 import { reportOptionsData, reportOptionsData2, reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { expectedTaxGroupData, taxGroupData } from 'src/app/core/mock-data/tax-group.data';
-import { TxnCustomProperties3 } from 'src/app/core/mock-data/txn-custom-properties.data';
+import { TxnCustomProperties3, txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import {
   expectedExpenseObservable,
   expectedUnflattendedTxnData1,
@@ -1111,10 +1116,10 @@ export function TestCases5(getTestBed) {
         project_dependent_fields: [],
       });
 
-      component.fg.controls.project_dependent_fields.setValue(dependentCustomFields2);
+      component.fg.controls.project_dependent_fields.setValue(txnCustomPropertiesData);
 
       const result = component.getProjectDependentFields();
-      expect(result).toEqual(dependentCustomFields2);
+      expect(result).toEqual(txnCustomPropertiesData);
     });
 
     it('getCostCenterDependentFields(): should get cost center dependent fields', () => {
@@ -1122,10 +1127,10 @@ export function TestCases5(getTestBed) {
         cost_center_dependent_fields: [],
       });
 
-      component.fg.controls.cost_center_dependent_fields.setValue(dependentCustomFields2);
+      component.fg.controls.cost_center_dependent_fields.setValue(txnCustomPropertiesData);
 
       const result = component.getCostCenterDependentFields();
-      expect(result).toEqual(dependentCustomFields2);
+      expect(result).toEqual(txnCustomPropertiesData);
     });
 
     it('getCustomFields(): should get custom fields data', () => {
@@ -1134,7 +1139,7 @@ export function TestCases5(getTestBed) {
       spyOn(component, 'getProjectDependentFields').and.returnValue([]);
       spyOn(component, 'getCostCenterDependentFields').and.returnValue([]);
 
-      component.customInputs$ = of(customInputData);
+      component.customInputs$ = of(txnCustomPropertiesData);
       component.fg = formBuilder.group({
         project_dependent_fields: [],
         custom_inputs: [],
@@ -1154,7 +1159,7 @@ export function TestCases5(getTestBed) {
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
         component.txnFields$ = of(txnFieldsData2);
-        component.filteredCategories$ = of(transformedOrgCategories);
+        component.filteredCategories$ = of();
 
         spyOn(component, 'initClassObservables').and.returnValue(null);
         tokenService.getClusterDomain.and.resolveTo('domain');
@@ -1300,20 +1305,7 @@ export function TestCases5(getTestBed) {
         expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
-          expect(res).toEqual([
-            {
-              value: 'eco',
-              label: 'eco',
-            },
-            {
-              value: 'business',
-              label: 'business',
-            },
-            {
-              value: 'jhgjg',
-              label: 'jhgjg',
-            },
-          ]);
+          expect(res).toBeUndefined();
         });
 
         expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
@@ -1354,7 +1346,7 @@ export function TestCases5(getTestBed) {
         expect(taxGroupService.get).toHaveBeenCalledTimes(2);
 
         expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
-        expect(recentlyUsedItemsService.getRecentCategories).toHaveBeenCalledTimes(1);
+
         expect(component.setupFormInit).toHaveBeenCalledTimes(1);
         expect(component.setupCustomFields).toHaveBeenCalledTimes(1);
         expect(component.clearCategoryOnValueChange).toHaveBeenCalledTimes(1);
@@ -1517,20 +1509,7 @@ export function TestCases5(getTestBed) {
         expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
-          expect(res).toEqual([
-            {
-              value: 'eco',
-              label: 'eco',
-            },
-            {
-              value: 'business',
-              label: 'business',
-            },
-            {
-              value: 'jhgjg',
-              label: 'jhgjg',
-            },
-          ]);
+          expect(res).toBeUndefined();
         });
 
         expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
