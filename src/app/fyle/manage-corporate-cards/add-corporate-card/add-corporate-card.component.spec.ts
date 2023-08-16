@@ -85,15 +85,17 @@ fdescribe('AddCorporateCardComponent', () => {
   });
 
   describe('card issuer icon in input', () => {
-    it('should show a visa icon when entering a card number starting with 4', () => {
+    beforeEach(() => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
+    });
+
+    it('should show a visa icon when entering a card number starting with 4', () => {
       realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
 
       component.ngOnInit();
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '4111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
 
@@ -104,14 +106,12 @@ fdescribe('AddCorporateCardComponent', () => {
     });
 
     it('should show a mastercard icon when entering a card number starting with 5', () => {
-      realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardType.and.returnValue(RTFCardType.MASTERCARD);
 
       component.ngOnInit();
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '5111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
 
@@ -122,14 +122,12 @@ fdescribe('AddCorporateCardComponent', () => {
     });
 
     it('should show the default card icon when entering entering non visa/mastercard card number', () => {
-      realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardType.and.returnValue(RTFCardType.OTHERS);
 
       component.ngOnInit();
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '6111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
 
@@ -149,9 +147,7 @@ fdescribe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '6111111111111111';
-
       cardNumberInput.dispatchEvent(new Event('input'));
       cardNumberInput.dispatchEvent(new Event('blur'));
 
@@ -173,9 +169,7 @@ fdescribe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '4111111111111111';
-
       cardNumberInput.dispatchEvent(new Event('input'));
       cardNumberInput.dispatchEvent(new Event('blur'));
 
@@ -199,9 +193,7 @@ fdescribe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '5111111111111111';
-
       cardNumberInput.dispatchEvent(new Event('input'));
       cardNumberInput.dispatchEvent(new Event('blur'));
 
@@ -225,9 +217,7 @@ fdescribe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '3111111111111111';
-
       cardNumberInput.dispatchEvent(new Event('input'));
       cardNumberInput.dispatchEvent(new Event('blur'));
 
@@ -241,7 +231,7 @@ fdescribe('AddCorporateCardComponent', () => {
   });
 
   describe('card enrollment flow', () => {
-    it('should successfully enroll the card and close the popover if the user clicks on add corporate card button', () => {
+    it('should successfully enroll the card and close the popover if the user clicks on add corporate card button with a valid card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
       realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
@@ -262,7 +252,7 @@ fdescribe('AddCorporateCardComponent', () => {
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
     });
 
-    it('should show an error message if the user clicks on add corporate card button but something went wrong while enrolling the card', () => {
+    it('should show the error message received from backend when we face api errors while enrolling the card', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error('This card already exists in the system')));
@@ -272,14 +262,12 @@ fdescribe('AddCorporateCardComponent', () => {
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '4555555555555555';
-
       cardNumberInput.dispatchEvent(new Event('input'));
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
 
       const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
-
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
@@ -290,7 +278,7 @@ fdescribe('AddCorporateCardComponent', () => {
       expect(errorMessage.innerText).toBe('This card already exists in the system');
     });
 
-    it('should show a default error message if the user clicks on add corporate card button but something went wrong while enrolling the card and we dont know the cause', () => {
+    it('should show a default error message when we face api errors from backend but we dont have the error message', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
@@ -300,14 +288,12 @@ fdescribe('AddCorporateCardComponent', () => {
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
       cardNumberInput.value = '4555555555555555';
-
       cardNumberInput.dispatchEvent(new Event('input'));
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
 
       const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
-
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
@@ -326,7 +312,6 @@ fdescribe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '4555555555556767';
       cardNumberInput.dispatchEvent(new Event('input'));
 
@@ -348,18 +333,14 @@ fdescribe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '3111111111111111';
-
       cardNumberInput.dispatchEvent(new Event('input'));
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
 
       const alertMessageComponent = fixture.debugElement.query(By.directive(MockFyAlertInfoComponent));
-
       expect(alertMessageComponent).toBeTruthy();
-
       expect(alertMessageComponent.componentInstance.type).toBe('information');
       expect(alertMessageComponent.componentInstance.message).toBe(
         'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.'
@@ -371,7 +352,7 @@ fdescribe('AddCorporateCardComponent', () => {
   });
 
   describe('terms and conditions', () => {
-    it('should show the allowed card networks in terms and conditions by default', () => {
+    it('should show the card networks based on the allowed real time feeds by default', () => {
       component.ngOnInit();
       fixture.detectChanges();
 
@@ -379,7 +360,7 @@ fdescribe('AddCorporateCardComponent', () => {
       expect(termsAndConditions.textContent).toBe('Visa and Mastercard');
     });
 
-    it('should show visa in card network in terms and conditions if user is entering a visa card number', () => {
+    it('should show visa in card networks if the user is entering a visa card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
 
@@ -387,7 +368,6 @@ fdescribe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '4111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
 
@@ -397,7 +377,7 @@ fdescribe('AddCorporateCardComponent', () => {
       expect(termsAndConditions.textContent).toBe('Visa');
     });
 
-    it('should show mastercard in card networks in terms and conditions if user is entering a mastercard card number', () => {
+    it('should show mastercard in card networks if the user is entering a mastercard card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardType.and.returnValue(RTFCardType.MASTERCARD);
 
@@ -405,7 +385,6 @@ fdescribe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '5111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
 
@@ -415,7 +394,7 @@ fdescribe('AddCorporateCardComponent', () => {
       expect(termsAndConditions.textContent).toBe('Mastercard');
     });
 
-    it('should show others in card networks in terms and conditions if user is entering a non visa/mastercard card number', () => {
+    it('should show "others" in card networks if the user is entering a non visa/mastercard card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardType.and.returnValue(RTFCardType.OTHERS);
 
@@ -423,7 +402,6 @@ fdescribe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
       cardNumberInput.value = '3111111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
 
