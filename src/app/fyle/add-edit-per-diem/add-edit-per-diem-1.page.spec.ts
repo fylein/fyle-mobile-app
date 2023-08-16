@@ -40,6 +40,7 @@ import { unflattenExp1, unflattenedTxn } from 'src/app/core/mock-data/unflattene
 import { EventEmitter } from '@angular/core';
 import {
   accountsData,
+  paymentModesConfig,
   paymentModesData,
   unflattenedAccount1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
@@ -512,7 +513,7 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    it('setupTfcDefaultValues(): should update form with expense field value if some fields are empty', () => {
+    it('setupTfcDefaultValues(): should update the form with default expense field values if some fields are empty', () => {
       const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
       const mockTxnFieldData = cloneDeep(txnFieldsData2);
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
@@ -562,16 +563,11 @@ export function TestCases1(getTestBed) {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
-        const config = {
-          etxn: unflattenedTxn,
-          orgSettings: orgSettingsCCCDisabled,
-          expenseType: ExpenseType.MILEAGE,
-          isPaymentModeConfigurationsEnabled: true,
-        };
+
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           accountsData,
           [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
-          config
+          paymentModesConfig
         );
         done();
       });
@@ -622,12 +618,13 @@ export function TestCases1(getTestBed) {
         });
       });
 
-      it('should return empty array if category id is undefined', (done) => {
+      it('should return undefined if category id is undefined', (done) => {
         const mockPerDiemCategory = cloneDeep(perDiemCategory);
         mockPerDiemCategory.id = undefined;
         categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, mockPerDiemCategory]));
         component.getProjectCategoryIds().subscribe((res) => {
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          // If category id is undefined, it will return undefined due to default behaviour of map function
           expect(res).toEqual([undefined]);
           done();
         });
