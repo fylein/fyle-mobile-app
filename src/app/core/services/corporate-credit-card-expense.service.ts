@@ -17,6 +17,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { Cacheable } from 'ts-cacheable';
 import { CardDetails } from '../models/card-details.model';
+import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
 
 type Config = Partial<{
   offset: number;
@@ -59,7 +60,7 @@ export class CorporateCreditCardExpenseService {
           (res) =>
             res as {
               count: number;
-              data: any[];
+              data: CorporateCardExpense[];
               limit: number;
               offset: number;
               url: string;
@@ -68,15 +69,15 @@ export class CorporateCreditCardExpenseService {
       );
   }
 
-  markPersonal(corporateCreditCardExpenseGroupId: string) {
+  markPersonal(corporateCreditCardExpenseGroupId: string): Observable<null> {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/personal');
   }
 
-  dismissCreditTransaction(corporateCreditCardExpenseId: string) {
+  dismissCreditTransaction(corporateCreditCardExpenseId: string): Observable<null> {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/ignore');
   }
 
-  getEccceByGroupId(groupId: string) {
+  getEccceByGroupId(groupId: string): Observable<CCCExpUnflattened[]> {
     const data = {
       params: {
         group_id: groupId,
