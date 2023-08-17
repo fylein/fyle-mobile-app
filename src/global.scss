@@ -86,6 +86,10 @@ ion-popover.error-popover {
   }
 }
 
+div {
+  font-size: 14px;
+}
+
 .mat-bottom-sheet-1 {
   padding: 24px 16px !important;
   border-radius: 16px 16px 0px 0px !important;
@@ -528,8 +532,14 @@ mat-tab-group {
 }
 
 textarea,
-input {
+input,
+form {
   background-color: transparent;
+  font-size: 14px;
+}
+
+.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-text-field__input {
+  font-size: 14px;
 }
 
 .signin-signup-fields {
@@ -648,7 +658,7 @@ input {
 
 .other-details--container {
   mat-tab-group {
-    .mat-tab-body-content {
+    .mat-mdc-tab-body-content {
       overflow-x: hidden;
     }
   }
@@ -786,7 +796,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .dashboard {
   &--tabs {
-    .mat-tab-header {
+    .mat-mdc-tab-header {
       display: none;
     }
   }
