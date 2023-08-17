@@ -1,5 +1,5 @@
 export interface Destination {
-  actual?: any;
+  actual?: unknown;
   city: string;
   country: string;
   display: string;
