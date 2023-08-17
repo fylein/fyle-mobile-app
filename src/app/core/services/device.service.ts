@@ -21,7 +21,7 @@ export class DeviceService {
     }).pipe(
       map(({ deviceInfo, deviceId, appInfo }) =>
         Object.assign(deviceInfo, deviceId, {
-          uuid: '',
+          uuid: deviceId.identifier,
           appVersion: appInfo.version,
           liveUpdateAppVersion: environment.LIVE_UPDATE_APP_VERSION,
         }),
