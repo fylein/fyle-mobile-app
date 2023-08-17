@@ -291,6 +291,10 @@ export function TestCases2(getTestBed) {
 
     fdescribe('ionViewWillEnter():', () => {
       beforeEach(() => {
+        activatedRoute.snapshot.params = {
+          txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
+          id: 'tx5n59fvxk4z',
+        };
         spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
         tokenService.getClusterDomain.and.resolveTo(authResData1.cluster_domain);
         storageService.get.and.resolveTo(true);
@@ -347,7 +351,7 @@ export function TestCases2(getTestBed) {
         fixture.detectChanges();
       });
 
-      it('should initialize projectDependentFieldsRef, costCenterDependentFieldsRef and assign hardwareBackButtonAction', () => {
+      it('should initialize ', () => {
         const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnInit']);
         component.projectDependentFieldsRef = dependentFieldSpy;
         component.costCenterDependentFieldsRef = dependentFieldSpy;
