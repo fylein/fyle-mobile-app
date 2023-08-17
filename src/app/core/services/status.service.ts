@@ -116,6 +116,12 @@ export class StatusService {
           icon: 'fy-delete',
         };
         break;
+      case lowerCaseComment.indexOf('name was changed from') > -1:
+        statusCategory = {
+          category: 'Report Name Changed',
+          icon: 'edit',
+        };
+        break;
       case lowerCaseComment.indexOf('report') > -1:
         statusCategory = {
           category: 'Report',

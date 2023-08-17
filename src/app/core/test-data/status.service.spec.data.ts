@@ -685,6 +685,20 @@ export const apiCommentsResponse: ExtendedStatus[] = [
     isSelfComment: false,
     isOthersComment: true,
   },
+  {
+    st_id: 'staTVBWwrg5c',
+    st_created_at: new Date('2023-08-17T18:00:32.414Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment:
+      'Expense report name was changed from "#5:  Aug 2023" to "#5:  Aug 2023 - Office supply" by Abhishek Jain (ajain@fyle.in)',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rpKiynIWPcle',
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+  },
 ];
 
 export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
