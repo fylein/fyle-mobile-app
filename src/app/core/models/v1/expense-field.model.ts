@@ -11,7 +11,7 @@ export interface ExpenseField {
   is_custom: boolean;
   is_enabled: boolean;
   is_mandatory?: boolean;
-  options?: string[] | { label: string; value: string }[];
+  options?: string[] | { label: string; value: { display_name: string } | string }[];
   org_category_ids: number[];
   org_id: string;
   placeholder: string;

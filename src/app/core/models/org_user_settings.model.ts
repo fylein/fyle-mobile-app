@@ -69,7 +69,7 @@ export interface SmsFyleSettings {
 export interface OneClickActionSettings {
   enabled: boolean;
   allowed: boolean;
-  module?: string;
+  module?: unknown;
 }
 
 export interface Email {
@@ -87,6 +87,7 @@ export interface Push {
 export interface Whatsapp {
   allowed: boolean;
   enabled: boolean;
+  unsubscribed_events?: unknown;
 }
 
 export interface NotificationSettings {
