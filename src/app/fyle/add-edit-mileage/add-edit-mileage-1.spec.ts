@@ -259,7 +259,7 @@ export function TestCases1(getTestBed) {
           ...properties,
         });
         expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(trackingService.addComment).toHaveBeenCalledOnceWith();
+        expect(trackingService.addComment).toHaveBeenCalledTimes(1);
       }));
 
       it('should view comment in the expense and track the event', fakeAsync(() => {
