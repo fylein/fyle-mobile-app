@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { distinctUntilChanged } from 'rxjs';
-import { RTFCardType } from 'src/app/core/enums/rtf-card-type.enum';
+import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 
 @Component({
@@ -19,13 +19,13 @@ export class AddCorporateCardComponent implements OnInit {
 
   cardForm: FormControl;
 
-  cardType: RTFCardType;
+  cardType: CardNetworkType;
 
-  cardNetworks: string[];
+  cardNetworks: CardNetworkType[];
 
   isAddingNonRTFCard: boolean;
 
-  rtfCardTypes: typeof RTFCardType = RTFCardType;
+  cardNetworkTypes: typeof CardNetworkType = CardNetworkType;
 
   constructor(private popoverController: PopoverController, private realTimeFeedService: RealTimeFeedService) {}
 
@@ -38,7 +38,7 @@ export class AddCorporateCardComponent implements OnInit {
       this.cardType = this.realTimeFeedService.getCardType(value);
       this.cardNetworks = this.getCardNetworks();
 
-      this.isAddingNonRTFCard = this.cardType === RTFCardType.OTHERS && this.cardForm.valid;
+      this.isAddingNonRTFCard = this.cardType === CardNetworkType.OTHERS && this.cardForm.valid;
     });
   }
 
@@ -50,33 +50,28 @@ export class AddCorporateCardComponent implements OnInit {
     // TODO: Handle card enrollment
   }
 
-  private getAllowedCardNetworks(): string[] {
-    const cardNetworks: string[] = [];
+  private getAllowedCardNetworks(): CardNetworkType[] {
+    const cardNetworks: CardNetworkType[] = [];
 
     if (this.isVisaRTFEnabled) {
-      cardNetworks.push('Visa');
+      cardNetworks.push(CardNetworkType.VISA);
     }
     if (this.isMastercardRTFEnabled) {
-      cardNetworks.push('Mastercard');
+      cardNetworks.push(CardNetworkType.MASTERCARD);
     }
     if (this.isYodleeEnabled) {
-      cardNetworks.push('Others');
+      cardNetworks.push(CardNetworkType.OTHERS);
     }
 
     return cardNetworks;
   }
 
-  private getCardNetworks(): string[] {
-    const cardNetworks: string[] = [];
+  private getCardNetworks(): CardNetworkType[] {
+    const cardNetworks: CardNetworkType[] = [];
 
-    const cardTypeMap: Record<RTFCardType, string> = {
-      [RTFCardType.VISA]: 'Visa',
-      [RTFCardType.MASTERCARD]: 'Mastercard',
-      [RTFCardType.OTHERS]: 'Others',
-    };
+    const cardNetwork = this.cardType;
 
-    const cardNetwork = cardTypeMap[this.cardType];
-    if (cardNetwork) {
+    if (cardNetwork && cardNetwork !== CardNetworkType.OTHERS) {
       cardNetworks.push(cardNetwork);
     } else {
       cardNetworks.push(...this.getAllowedCardNetworks());

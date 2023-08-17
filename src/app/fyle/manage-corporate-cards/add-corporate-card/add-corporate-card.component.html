@@ -28,19 +28,19 @@
         />
 
         <ion-icon
-          *ngIf="!cardType || cardType === rtfCardTypes.OTHERS"
+          *ngIf="!cardType || cardType === cardNetworkTypes.OTHERS"
           src="../../../../assets/svg/card.svg"
           class="add-corporate-card__input-default-icon"
         ></ion-icon>
 
         <ion-icon
-          *ngIf="cardType === rtfCardTypes.VISA"
+          *ngIf="cardType === cardNetworkTypes.VISA"
           src="../../../../assets/svg/visa-logo.svg"
           class="add-corporate-card__input-visa-icon"
         ></ion-icon>
 
         <ion-icon
-          *ngIf="cardType === rtfCardTypes.MASTERCARD"
+          *ngIf="cardType === cardNetworkTypes.MASTERCARD"
           src="../../../../assets/svg/mastercard-logo.svg"
           class="add-corporate-card__input-mastercard-icon"
         ></ion-icon>
@@ -74,10 +74,14 @@
             </div>
             <ul class="add-corporate-card__tnc-list">
               <li>
-                Allow your employer, card network ({{ cardNetworks | arrayToCommaList }}) and Fyle Inc to access details
-                of all transactions made using the enrolled card. This includes the transaction amount, the name of the
-                merchant, the date and time of the transaction, and any other relevant information deemed necessary to
-                provide services.
+                Allow your employer,
+                <ng-container *ngIf="cardNetworks.length === 1">{{ cardNetworks[0] }}</ng-container>
+                <ng-container *ngIf="cardNetworks.length > 1"
+                  >card network ({{ cardNetworks | arrayToCommaList }})</ng-container
+                >
+                and Fyle Inc to access details of all transactions made using the enrolled card. This includes the
+                transaction amount, the name of the merchant, the date and time of the transaction, and any other
+                relevant information deemed necessary to provide services.
               </li>
               <li>
                 Allow Fyle to use the above details to create expenses on your behalf and enable program notifications.

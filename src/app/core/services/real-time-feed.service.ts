@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { RTFCardType } from '../enums/rtf-card-type.enum';
+import { CardNetworkType } from '../enums/card-network-type';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RealTimeFeedService {
-  getCardType(cardNumber: string): RTFCardType {
+  getCardType(cardNumber: string): CardNetworkType {
     if (!cardNumber) {
       return null;
     }
@@ -14,11 +14,11 @@ export class RealTimeFeedService {
 
     switch (firstDigit) {
       case '4':
-        return RTFCardType.VISA;
+        return CardNetworkType.VISA;
       case '5':
-        return RTFCardType.MASTERCARD;
+        return CardNetworkType.MASTERCARD;
       default:
-        return RTFCardType.OTHERS;
+        return CardNetworkType.OTHERS;
     }
   }
 }
