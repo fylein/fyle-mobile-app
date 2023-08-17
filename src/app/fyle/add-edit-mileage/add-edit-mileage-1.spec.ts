@@ -1,6 +1,6 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,11 +10,7 @@ import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-
 import { policyExpense2 } from 'src/app/core/mock-data/expense.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import {
-  mileageCategories,
-  orgCategoryData,
-  transformedOrgCategoryById,
-} from 'src/app/core/mock-data/org-category.data';
+import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock-data/org-category.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
@@ -55,16 +51,22 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
-import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
-import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
-import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
-import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
-import { publicPolicyExpenseData1 } from 'src/app/core/mock-data/public-policy-expense.data';
-import { unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
+import {
+  multiplePaymentModesData,
+  multiplePaymentModesWithoutAdvData,
+  orgSettingsData,
+} from 'src/app/core/test-data/accounts.service.spec.data';
+import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { locationData1, locationData2, locationData3 } from 'src/app/core/mock-data/location.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -877,6 +879,175 @@ export function TestCases1(getTestBed) {
         component.saveExpenseAndGotoPrev();
 
         expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+      });
+    });
+
+    describe('customDateValidator():', () => {
+      it('should return null when the date is within the valid range', () => {
+        const control = new FormControl('2023-06-15');
+        const result = component.customDateValidator(control);
+        expect(result).toBeNull();
+      });
+
+      it('should return an error object when the date is after the upper bound of the valid range', () => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 2);
+        const control = new FormControl(tomorrow.toISOString().substring(0, 10));
+        const result = component.customDateValidator(control);
+        expect(result).toEqual({ invalidDateSelection: true });
+      });
+    });
+
+    it('getEditExpense(): should return an unflattened expense to edit', (done) => {
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      activatedRoute.snapshot.params.id = JSON.parse(JSON.stringify(unflattenedTxnData.tx.id));
+      component.getEditExpense().subscribe((res) => {
+        expect(res).toEqual(unflattenedTxnData);
+        done();
+      });
+    });
+
+    describe('checkAvailableAdvance():', () => {
+      it('should setup balance available flag', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        component.checkAvailableAdvance();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        component.checkAvailableAdvance();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(accountsService.getEMyAccounts).not.toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[1]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false when account type changes to null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(null));
+        component.checkAvailableAdvance();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(accountsService.getEMyAccounts).not.toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(null);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+    });
+
+    it('getPaymentModes(): should get payment modes', (done) => {
+      accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
+      );
+      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
+      accountsService.getPaymentModes.and.returnValue(accountOptionData1);
+      component.etxn$ = of(unflattenedTxnData);
+      fixture.detectChanges();
+
+      const config = {
+        etxn: unflattenedTxnData,
+        orgSettings: orgSettingsData,
+        expenseType: ExpenseType.MILEAGE,
+        isPaymentModeConfigurationsEnabled: true,
+      };
+
+      component.getPaymentModes().subscribe((res) => {
+        expect(res).toEqual(accountOptionData1);
+        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+        expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
+          multiplePaymentModesData,
+          orgUserSettingsData.payment_mode_settings.allowed_payment_modes,
+          config
+        );
+        done();
+      });
+    });
+
+    describe('close():', () => {
+      it('should navigate back to the previous page if redirected from report', () => {
+        component.isRedirectedFromReport = true;
+        fixture.detectChanges();
+
+        component.close();
+
+        expect(navController.back).toHaveBeenCalledTimes(1);
+      });
+
+      it('should navigate to my expense page if the user was not redirected from report', () => {
+        component.isRedirectedFromReport = false;
+        fixture.detectChanges();
+
+        component.close();
+
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      });
+    });
+
+    describe('getEditCalculatedDistance():', () => {
+      it('should get distance in edit mode for a single trip', (done) => {
+        mileageService.getDistance.and.returnValue(of(5));
+        component.etxn$ = of(unflattenedTxnData);
+        spyOn(component, 'getFormValues').and.returnValue({
+          route: null,
+        });
+        fixture.detectChanges();
+
+        component
+          .getEditCalculatedDistance({
+            value: { mileageLocations: [locationData1, locationData2] },
+          })
+          .subscribe((res) => {
+            expect(res).toEqual('0.01');
+            expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData2]);
+            done();
+          });
+      });
+
+      it('should get distance in edit mode for a round trip', (done) => {
+        mileageService.getDistance.and.returnValue(of(10));
+        component.etxn$ = of(unflattenedTxnData);
+        spyOn(component, 'getFormValues').and.returnValue({
+          route: {
+            roundTrip: true,
+            mileageLocations: [],
+            distance: 0,
+          },
+        });
+        fixture.detectChanges();
+
+        component
+          .getEditCalculatedDistance({
+            value: { mileageLocations: [locationData1, locationData3] },
+          })
+          .subscribe((res) => {
+            expect(res).toEqual('0.02');
+            expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData3]);
+            done();
+          });
       });
     });
   });
