@@ -365,6 +365,7 @@ export function TestCases2(getTestBed) {
         const today = new Date();
         dateService.addDaysToDate.and.returnValue(tomorrow);
         component.ionViewWillEnter();
+        // tick(1000) is required as we are resolving promises (getClusterDomain) and there is a setTimeout in ionViewWillEnter
         tick(1000);
         expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
         expect(component.minDate).toEqual('2001-01-1');
