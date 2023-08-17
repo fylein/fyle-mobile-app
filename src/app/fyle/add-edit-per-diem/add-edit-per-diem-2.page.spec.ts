@@ -294,7 +294,7 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    fdescribe('ionViewWillEnter():', () => {
+    describe('ionViewWillEnter():', () => {
       beforeEach(() => {
         activatedRoute.snapshot.params = {
           txnIds: '["tx3qwe4ty","tx6sd7gh"]',
