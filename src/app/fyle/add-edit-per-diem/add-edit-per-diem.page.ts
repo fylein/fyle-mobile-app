@@ -255,8 +255,7 @@ export class AddEditPerDiemPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
-    private storageService: StorageService,
-    private platformHandlerService: PlatformHandlerService
+    private storageService: StorageService
   ) {}
 
   get minPerDiemDate() {
