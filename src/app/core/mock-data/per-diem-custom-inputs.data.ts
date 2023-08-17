@@ -9,6 +9,7 @@ export const perDiemCustomInputsData1 = [
     options: [],
     placeholder: 'userlist_custom_field',
     prefix: '',
+    // TODO - Move to enums
     type: 'USER_LIST',
     value: [],
     control: formBuilder.group({
@@ -90,3 +91,12 @@ export const perDiemCustomInputsData1 = [
     }),
   },
 ];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const expectedExpenseFieldWithoutControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
+  ...otherProps,
+}));
+
+export const expectedControlValues = perDiemCustomInputsData1.map(
+  ({ control }: { control: { value: string | string[] } }) => control.value
+);

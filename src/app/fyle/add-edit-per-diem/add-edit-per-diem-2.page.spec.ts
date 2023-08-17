@@ -40,7 +40,11 @@ import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-
 import { expectedTxnCustomProperties } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
 import { cloneDeep } from 'lodash';
-import { perDiemCustomInputsData1 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
+import {
+  expectedControlValues,
+  expectedExpenseFieldWithoutControl,
+  perDiemCustomInputsData1,
+} from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { projects } from 'src/app/core/mock-data/extended-projects.data';
 
 export function TestCases2(getTestBed) {
@@ -262,12 +266,8 @@ export function TestCases2(getTestBed) {
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], expenseFieldResponse);
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 38912);
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
-          const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
-            ...otherProps,
-          }));
-          expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithControl);
+          expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithoutControl);
           const controlValues = res.map(({ control }) => control.value);
-          const expectedControlValues = perDiemCustomInputsData1.map(({ control }) => control.value);
           expect(controlValues).toEqual(expectedControlValues);
         });
       });
