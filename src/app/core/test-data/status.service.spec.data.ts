@@ -686,7 +686,7 @@ export const apiCommentsResponse: ExtendedStatus[] = [
     isOthersComment: true,
   },
   {
-    st_id: 'staTVBWwrg5c',
+    st_id: 'st3xjYhJBfIu',
     st_created_at: new Date('2023-08-17T18:00:32.414Z'),
     st_org_user_id: 'SYSTEM',
     st_comment:
@@ -694,7 +694,7 @@ export const apiCommentsResponse: ExtendedStatus[] = [
     st_diff: null,
     st_state: null,
     st_transaction_id: null,
-    st_report_id: 'rpKiynIWPcle',
+    st_report_id: 'rp39MrwyOm9n',
     st_advance_request_id: null,
     us_full_name: null,
     us_email: null,
