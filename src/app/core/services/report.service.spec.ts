@@ -52,6 +52,7 @@ import {
   expectedReportSingleResponse,
   reportParam,
   expectedPaginatedReports,
+  reportData1,
 } from '../mock-data/report.data';
 import { getMyReportsParam1, getMyReportsParam2 } from '../mock-data/api-params.data';
 import { expectedReportRawStats } from '../mock-data/stats-dimension-response.data';
@@ -69,6 +70,7 @@ import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { dataErtpTransformed, apiErptReporDataParam } from '../mock-data/data-transform.data';
+import { platformReportData } from '../mock-data/platform-report.data';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -677,6 +679,21 @@ describe('ReportService', () => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/reports', apiErptReporDataParam.rp);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(reportParam);
+      done();
+    });
+  });
+
+  it('updateReportPurpose(): should update the report purpose', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(platformReportData));
+    reportService.updateReportPurpose(reportData1).subscribe((res) => {
+      expect(res).toEqual(platformReportData);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', {
+        data: {
+          id: 'rpMvN0P10l6F',
+          source: 'WEBAPP',
+          purpose: '#3:  Jul 2023 - Office expense',
+        },
+      });
       done();
     });
   });

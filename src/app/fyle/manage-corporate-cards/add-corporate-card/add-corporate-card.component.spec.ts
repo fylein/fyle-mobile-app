@@ -60,6 +60,7 @@ describe('AddCorporateCardComponent', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
 
+    // Default inputs
     component.isYodleeEnabled = false;
     component.isMastercardRTFEnabled = true;
     component.isVisaRTFEnabled = true;
@@ -83,346 +84,331 @@ describe('AddCorporateCardComponent', () => {
     expect(popoverController.dismiss).toHaveBeenCalled();
   });
 
-  it('should show a visa icon when entering a card number starting with 4', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.VISA);
+  describe('card issuer icon in input', () => {
+    beforeEach(() => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+    });
 
-    component.ngOnInit();
-    fixture.detectChanges();
+    it('should show a visa icon when entering a card number starting with 4', () => {
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
 
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      component.ngOnInit();
+      fixture.detectChanges();
 
-    cardNumberInput.value = '4111111111111111';
-    cardNumberInput.dispatchEvent(new Event('input'));
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
 
-    fixture.detectChanges();
+      fixture.detectChanges();
 
-    const visaIcon = getElementBySelector(fixture, '[data-testid="visa-icon"]');
-    expect(visaIcon).toBeTruthy();
+      const visaIcon = getElementBySelector(fixture, '[data-testid="visa-icon"]');
+      expect(visaIcon).toBeTruthy();
+    });
+
+    it('should show a mastercard icon when entering a card number starting with 5', () => {
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.MASTERCARD);
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '5111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
+
+      fixture.detectChanges();
+
+      const mastercardIcon = getElementBySelector(fixture, '[data-testid="mastercard-icon"]');
+      expect(mastercardIcon).toBeTruthy();
+    });
+
+    it('should show the default card icon when entering entering non visa/mastercard card number', () => {
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.OTHERS);
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '6111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
+
+      fixture.detectChanges();
+
+      const defaultIcon = getElementBySelector(fixture, '[data-testid="default-icon"]');
+      expect(defaultIcon).toBeTruthy();
+    });
   });
 
-  it('should show a mastercard icon when entering a card number starting with 5', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.MASTERCARD);
+  describe('card number validation errors', () => {
+    it('should show an error message when the user has entered an invalid card number', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(false);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.OTHERS);
 
-    component.ngOnInit();
-    fixture.detectChanges();
+      component.ngOnInit();
+      fixture.detectChanges();
 
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '6111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
+      cardNumberInput.dispatchEvent(new Event('blur'));
 
-    cardNumberInput.value = '5111111111111111';
-    cardNumberInput.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
 
-    fixture.detectChanges();
+      const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+      expect(errorMessage.innerText).toBe('Please enter a valid card number.');
+    });
 
-    const mastercardIcon = getElementBySelector(fixture, '[data-testid="mastercard-icon"]');
-    expect(mastercardIcon).toBeTruthy();
+    it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', () => {
+      component.isMastercardRTFEnabled = true;
+      component.isVisaRTFEnabled = false;
+      component.isYodleeEnabled = false;
+
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
+      cardNumberInput.dispatchEvent(new Event('blur'));
+
+      fixture.detectChanges();
+
+      const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+      expect(errorMessage.innerText).toBe(
+        'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
+      );
+    });
+
+    it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', () => {
+      component.isVisaRTFEnabled = true;
+      component.isMastercardRTFEnabled = false;
+      component.isYodleeEnabled = false;
+
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.MASTERCARD);
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '5111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
+      cardNumberInput.dispatchEvent(new Event('blur'));
+
+      fixture.detectChanges();
+
+      const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+      expect(errorMessage.innerText).toBe(
+        'Enter a valid Visa number. If you have other cards, please contact your admin.'
+      );
+    });
+
+    it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', () => {
+      component.isVisaRTFEnabled = true;
+      component.isMastercardRTFEnabled = true;
+      component.isYodleeEnabled = false;
+
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.OTHERS);
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '3111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
+      cardNumberInput.dispatchEvent(new Event('blur'));
+
+      fixture.detectChanges();
+
+      const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+      expect(errorMessage.innerText).toBe(
+        'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
+      );
+    });
   });
 
-  it('should show the default card icon when entering entering non visa/mastercard card number', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.OTHERS);
+  describe('card enrollment flow', () => {
+    it('should successfully enroll the card and close the popover if the user clicks on add corporate card button with a valid card number', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
+      realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
 
-    component.ngOnInit();
-    fixture.detectChanges();
+      component.ngOnInit();
+      fixture.detectChanges();
 
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4555555555555555';
+      cardNumberInput.dispatchEvent(new Event('input'));
 
-    cardNumberInput.value = '6111111111111111';
-    cardNumberInput.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
 
-    fixture.detectChanges();
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+      addCorporateCardBtn.click();
 
-    const defaultIcon = getElementBySelector(fixture, '[data-testid="default-icon"]');
-    expect(defaultIcon).toBeTruthy();
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555');
+      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
+    });
+
+    it('should show the error message received from backend when we face api errors while enrolling the card', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
+      realTimeFeedService.enroll.and.returnValue(throwError(() => new Error('This card already exists in the system')));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4555555555555555';
+      cardNumberInput.dispatchEvent(new Event('input'));
+      cardNumberInput.dispatchEvent(new Event('blur'));
+
+      fixture.detectChanges();
+
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+      addCorporateCardBtn.click();
+
+      fixture.detectChanges();
+
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555');
+
+      const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+      expect(errorMessage.innerText).toBe('This card already exists in the system');
+    });
+
+    it('should show a default error message when we face api errors from backend but we dont have the error message', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
+      realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4555555555555555';
+      cardNumberInput.dispatchEvent(new Event('input'));
+      cardNumberInput.dispatchEvent(new Event('blur'));
+
+      fixture.detectChanges();
+
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+      addCorporateCardBtn.click();
+
+      fixture.detectChanges();
+
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555');
+
+      const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+      expect(errorMessage.innerText).toBe('Something went wrong. Please try after some time.');
+    });
+
+    it('should disallow card enrollment if the user clicks on add corporate card button but the card number is invalid', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(false);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4555555555556767';
+      cardNumberInput.dispatchEvent(new Event('input'));
+
+      fixture.detectChanges();
+
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+      addCorporateCardBtn.click();
+
+      expect(realTimeFeedService.enroll).not.toHaveBeenCalled();
+    });
+
+    it('should disallow card enrollment and show a warning message if the user has entered a non visa/mastercard card number and yodlee is enabled in the org', () => {
+      component.isYodleeEnabled = true;
+
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.OTHERS);
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '3111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
+      cardNumberInput.dispatchEvent(new Event('blur'));
+
+      fixture.detectChanges();
+
+      const alertMessageComponent = fixture.debugElement.query(By.directive(MockFyAlertInfoComponent));
+      expect(alertMessageComponent).toBeTruthy();
+      expect(alertMessageComponent.componentInstance.type).toBe('information');
+      expect(alertMessageComponent.componentInstance.message).toBe(
+        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.'
+      );
+
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+      expect(addCorporateCardBtn.disabled).toBe(true);
+    });
   });
 
-  // Debug this failing test
-  xit('should show an error message when the user has entered an invalid card number', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(false);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.OTHERS);
+  describe('terms and conditions', () => {
+    it('should show the card networks based on the allowed real time feeds by default', () => {
+      component.ngOnInit();
+      fixture.detectChanges();
 
-    component.ngOnInit();
-    fixture.detectChanges();
+      const termsAndConditions = getElementBySelector(fixture, '[data-testid="tnc-card-networks"]');
+      expect(termsAndConditions.textContent).toBe('Visa and Mastercard');
+    });
 
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+    it('should show visa in card networks if the user is entering a visa card number', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.VISA);
 
-    cardNumberInput.value = '6111111111111111';
+      component.ngOnInit();
+      fixture.detectChanges();
 
-    cardNumberInput.dispatchEvent(new Event('input'));
-    cardNumberInput.dispatchEvent(new Event('blur'));
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
 
-    fixture.detectChanges();
+      fixture.detectChanges();
 
-    const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]');
-    expect(errorMessage.textContent).toBe('Please enter a valid card number.');
-  });
+      const termsAndConditions = getElementBySelector(fixture, '[data-testid="tnc-card-networks"]');
+      expect(termsAndConditions.textContent).toBe('Visa');
+    });
 
-  it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', () => {
-    component.isMastercardRTFEnabled = true;
-    component.isVisaRTFEnabled = false;
-    component.isYodleeEnabled = false;
+    it('should show mastercard in card networks if the user is entering a mastercard card number', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.MASTERCARD);
 
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.VISA);
+      component.ngOnInit();
+      fixture.detectChanges();
 
-    component.ngOnInit();
-    fixture.detectChanges();
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '5111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
 
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      fixture.detectChanges();
 
-    cardNumberInput.value = '4111111111111111';
+      const termsAndConditions = getElementBySelector(fixture, '[data-testid="tnc-card-networks"]');
+      expect(termsAndConditions.textContent).toBe('Mastercard');
+    });
 
-    cardNumberInput.dispatchEvent(new Event('input'));
-    cardNumberInput.dispatchEvent(new Event('blur'));
+    it('should show "others" in card networks if the user is entering a non visa/mastercard card number', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardType.and.returnValue(RTFCardType.OTHERS);
 
-    fixture.detectChanges();
+      component.ngOnInit();
+      fixture.detectChanges();
 
-    const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]');
-    expect(errorMessage.textContent).toBe(
-      'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
-    );
-  });
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '3111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
 
-  it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', () => {
-    component.isVisaRTFEnabled = true;
-    component.isMastercardRTFEnabled = false;
-    component.isYodleeEnabled = false;
+      fixture.detectChanges();
 
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.MASTERCARD);
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
-    cardNumberInput.value = '5111111111111111';
-
-    cardNumberInput.dispatchEvent(new Event('input'));
-    cardNumberInput.dispatchEvent(new Event('blur'));
-
-    fixture.detectChanges();
-
-    const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]');
-    expect(errorMessage.textContent).toBe(
-      'Enter a valid Visa number. If you have other cards, please contact your admin.'
-    );
-  });
-
-  it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', () => {
-    component.isVisaRTFEnabled = true;
-    component.isMastercardRTFEnabled = true;
-    component.isYodleeEnabled = false;
-
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.OTHERS);
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
-    cardNumberInput.value = '3111111111111111';
-
-    cardNumberInput.dispatchEvent(new Event('input'));
-    cardNumberInput.dispatchEvent(new Event('blur'));
-
-    fixture.detectChanges();
-
-    const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]');
-    expect(errorMessage.textContent).toBe(
-      'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
-    );
-  });
-
-  it('should show an warning message and disallow card enrollment if user has entered a non visa/mastercard card number and yodlee is enabled in the org', () => {
-    component.isYodleeEnabled = true;
-
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.OTHERS);
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
-    cardNumberInput.value = '3111111111111111';
-
-    cardNumberInput.dispatchEvent(new Event('input'));
-    cardNumberInput.dispatchEvent(new Event('blur'));
-
-    fixture.detectChanges();
-
-    const alertMessageComponent = fixture.debugElement.query(By.directive(MockFyAlertInfoComponent));
-
-    expect(alertMessageComponent).toBeTruthy();
-
-    expect(alertMessageComponent.componentInstance.type).toBe('information');
-    expect(alertMessageComponent.componentInstance.message).toBe(
-      'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.'
-    );
-
-    const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
-    expect(addCorporateCardBtn.disabled).toBe(true);
-  });
-
-  it('should show the allowed card networks in terms and conditions by default', () => {
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const termsAndConditions = getElementBySelector(fixture, '[data-testid="tnc-card-networks"]');
-    expect(termsAndConditions.textContent).toBe('Visa and Mastercard');
-  });
-
-  it('should show visa in card network in terms and conditions if user is entering a visa card number', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.VISA);
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
-    cardNumberInput.value = '4111111111111111';
-    cardNumberInput.dispatchEvent(new Event('input'));
-
-    fixture.detectChanges();
-
-    const termsAndConditions = getElementBySelector(fixture, '[data-testid="tnc-card-networks"]');
-    expect(termsAndConditions.textContent).toBe('Visa');
-  });
-
-  it('should show mastercard in card networks in terms and conditions if user is entering a mastercard card number', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.MASTERCARD);
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
-    cardNumberInput.value = '5111111111111111';
-    cardNumberInput.dispatchEvent(new Event('input'));
-
-    fixture.detectChanges();
-
-    const termsAndConditions = getElementBySelector(fixture, '[data-testid="tnc-card-networks"]');
-    expect(termsAndConditions.textContent).toBe('Mastercard');
-  });
-
-  it('should show others in card networks in terms and conditions if user is entering a non visa/mastercard card number', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.OTHERS);
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
-    cardNumberInput.value = '3111111111111111';
-    cardNumberInput.dispatchEvent(new Event('input'));
-
-    fixture.detectChanges();
-
-    const termsAndConditions = getElementBySelector(fixture, '[data-testid="tnc-card-networks"]');
-    expect(termsAndConditions.textContent).toBe('Others');
-  });
-
-  it('should successfully enroll the card and close the popover if the user clicks on add corporate card button', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.VISA);
-    realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-    cardNumberInput.value = '4555555555555555';
-    cardNumberInput.dispatchEvent(new Event('input'));
-
-    fixture.detectChanges();
-
-    const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
-    addCorporateCardBtn.click();
-
-    expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555');
-    expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
-  });
-
-  it('should show an error message if the user clicks on add corporate card button but something went wrong while enrolling the card', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.VISA);
-    realTimeFeedService.enroll.and.returnValue(throwError(() => new Error('This card already exists in the system')));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-    cardNumberInput.value = '4555555555555555';
-
-    cardNumberInput.dispatchEvent(new Event('input'));
-    cardNumberInput.dispatchEvent(new Event('blur'));
-
-    fixture.detectChanges();
-
-    const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
-
-    addCorporateCardBtn.click();
-
-    fixture.detectChanges();
-
-    expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555');
-
-    const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]');
-    expect(errorMessage.textContent.trim()).toBe('This card already exists in the system');
-  });
-
-  it('should show a default error message if the user clicks on add corporate card button but something went wrong while enrolling the card and we dont know the cause', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(true);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.VISA);
-    realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-    cardNumberInput.value = '4555555555555555';
-
-    cardNumberInput.dispatchEvent(new Event('input'));
-    cardNumberInput.dispatchEvent(new Event('blur'));
-
-    fixture.detectChanges();
-
-    const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
-
-    addCorporateCardBtn.click();
-
-    fixture.detectChanges();
-
-    expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555');
-
-    const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]');
-    expect(errorMessage.textContent.trim()).toBe('Something went wrong. Please try after some time.');
-  });
-
-  it('should not enroll the card if the user clicks on add corporate card button but the card number is invalid', () => {
-    realTimeFeedService.isCardNumberValid.and.returnValue(false);
-    realTimeFeedService.getCardTypeFromNumber.and.returnValue(RTFCardType.VISA);
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-
-    cardNumberInput.value = '4555555555556767';
-    cardNumberInput.dispatchEvent(new Event('input'));
-
-    fixture.detectChanges();
-
-    const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
-    addCorporateCardBtn.click();
-
-    expect(realTimeFeedService.enroll).not.toHaveBeenCalled();
+      const termsAndConditions = getElementBySelector(fixture, '[data-testid="tnc-card-networks"]');
+      expect(termsAndConditions.textContent).toBe('Others');
+    });
   });
 });

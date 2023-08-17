@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
-import { catchError, distinctUntilChanged, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, throwError } from 'rxjs';
 import { RTFCardType } from 'src/app/core/enums/rtf-card-type.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
@@ -29,6 +29,8 @@ export class AddCorporateCardComponent implements OnInit {
   isAddingNonRTFCard: boolean;
 
   enrollmentFailureMessage: string;
+
+  isEnrollingCard: boolean;
 
   rtfCardTypes: typeof RTFCardType = RTFCardType;
 
@@ -58,12 +60,17 @@ export class AddCorporateCardComponent implements OnInit {
 
     const cardNumber = this.cardForm.value as string;
 
+    this.isEnrollingCard = true;
+
     this.realTimeFeedService
       .enroll(cardNumber, this.card.id)
       .pipe(
         catchError((error: Error) => {
           this.handleEnrollmentFailures(error);
           return throwError(() => error);
+        }),
+        finalize(() => {
+          this.isEnrollingCard = false;
         })
       )
       .subscribe(() => {
