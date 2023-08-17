@@ -37,6 +37,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TokenService } from 'src/app/core/services/token.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { TestCases2 } from './add-edit-per-diem-2.page.spec';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
@@ -121,6 +122,7 @@ describe('AddEditPerDiemPage', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['addDaysToDate', 'getUTCDate']);
+    const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditPerDiemPage],
@@ -271,6 +273,10 @@ describe('AddEditPerDiemPage', () => {
         {
           provide: Router,
           useValue: routerSpy,
+        },
+        {
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

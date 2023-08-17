@@ -80,6 +80,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -254,7 +255,8 @@ export class AddEditPerDiemPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private platformHandlerService: PlatformHandlerService
   ) {}
 
   get minPerDiemDate() {
@@ -767,12 +769,11 @@ export class AddEditPerDiemPage implements OnInit {
     this.selectedProject$ = new BehaviorSubject(null);
     this.selectedCostCenter$ = new BehaviorSubject(null);
 
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-      BackButtonActionPriority.MEDIUM,
-      () => {
-        this.showClosePopup();
-      }
-    );
+    const fn = (): void => {
+      this.showClosePopup();
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, fn);
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
