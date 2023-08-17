@@ -80,7 +80,6 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
-import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
