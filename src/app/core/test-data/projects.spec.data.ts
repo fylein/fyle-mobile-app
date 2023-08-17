@@ -1,3 +1,4 @@
+import { ProjectParams } from '../models/project-params.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
 import { ExtendedProject } from '../models/v2/extended-project.model';
@@ -355,19 +356,19 @@ export const expectedProjectsResponse: ExtendedProject[] = [
   },
 ];
 
-export const testProjectParams = {
+export const testProjectParams: ProjectParams = {
   orgId: 'orNVthTo2Zyo',
   active: true,
   sortDirection: 'asc',
   sortOrder: 'project_name',
-  orgCategoryIds: [null, 122269, 122270, 122271, 122272, 122273],
+  orgCategoryIds: [null, '122269', '122270', '122271', '122272', '122273'],
   projectIds: [3943, 305792, 148971, 247936],
   offset: 0,
   limit: 10,
   searchNameText: 'search',
 };
 
-export const testProjectV2 = {
+export const testProjectV2: ExtendedProject = {
   ap1_email: null,
   ap1_full_name: null,
   ap2_email: null,

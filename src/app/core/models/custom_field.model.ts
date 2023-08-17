@@ -1,3 +1,5 @@
+import { AbstractControl } from '@angular/forms';
+
 export interface CustomField {
   id?: number;
   name: string;
@@ -5,4 +7,5 @@ export interface CustomField {
   type?: string;
   displayValue?: string | boolean | number | Date | string[] | { display: string };
   mandatory?: boolean;
+  control?: AbstractControl;
 }
