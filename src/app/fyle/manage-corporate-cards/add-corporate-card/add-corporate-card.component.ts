@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { catchError, distinctUntilChanged, finalize, throwError } from 'rxjs';
-import { RTFCardType } from 'src/app/core/enums/rtf-card-type.enum';
+import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 
 @Component({
@@ -19,9 +19,9 @@ export class AddCorporateCardComponent implements OnInit {
 
   cardForm: FormControl;
 
-  cardType: RTFCardType;
+  cardType: CardNetworkType;
 
-  cardNetworks: string[];
+  cardNetworks: CardNetworkType[];
 
   isAddingNonRTFCard: boolean;
 
@@ -29,12 +29,12 @@ export class AddCorporateCardComponent implements OnInit {
 
   isEnrollingCard: boolean;
 
-  rtfCardTypes: typeof RTFCardType = RTFCardType;
+  cardNetworkTypes: typeof CardNetworkType = CardNetworkType;
 
   constructor(private popoverController: PopoverController, private realTimeFeedService: RealTimeFeedService) {}
 
   ngOnInit(): void {
-    this.cardForm = new FormControl('', [this.cardNumberValidator.bind(this), this.cardIssuerValidator.bind(this)]);
+    this.cardForm = new FormControl('', [this.cardNumberValidator.bind(this), this.cardNetworkValidator.bind(this)]);
 
     this.cardNetworks = this.getAllowedCardNetworks();
 
@@ -42,7 +42,7 @@ export class AddCorporateCardComponent implements OnInit {
       this.cardType = this.realTimeFeedService.getCardType(value);
       this.cardNetworks = this.getCardNetworks();
 
-      this.isAddingNonRTFCard = this.cardType === RTFCardType.OTHERS && this.cardForm.valid;
+      this.isAddingNonRTFCard = this.cardType === CardNetworkType.OTHERS && this.cardForm.valid;
     });
   }
 
@@ -75,33 +75,28 @@ export class AddCorporateCardComponent implements OnInit {
       });
   }
 
-  private getAllowedCardNetworks(): string[] {
-    const cardNetworks: string[] = [];
+  private getAllowedCardNetworks(): CardNetworkType[] {
+    const cardNetworks: CardNetworkType[] = [];
 
     if (this.isVisaRTFEnabled) {
-      cardNetworks.push('Visa');
+      cardNetworks.push(CardNetworkType.VISA);
     }
     if (this.isMastercardRTFEnabled) {
-      cardNetworks.push('Mastercard');
+      cardNetworks.push(CardNetworkType.MASTERCARD);
     }
     if (this.isYodleeEnabled) {
-      cardNetworks.push('Others');
+      cardNetworks.push(CardNetworkType.OTHERS);
     }
 
     return cardNetworks;
   }
 
-  private getCardNetworks(): string[] {
-    const cardNetworks: string[] = [];
+  private getCardNetworks(): CardNetworkType[] {
+    const cardNetworks: CardNetworkType[] = [];
 
-    const cardTypeMap: Record<RTFCardType, string> = {
-      [RTFCardType.VISA]: 'Visa',
-      [RTFCardType.MASTERCARD]: 'Mastercard',
-      [RTFCardType.OTHERS]: 'Others',
-    };
+    const cardNetwork = this.cardType;
 
-    const cardNetwork = cardTypeMap[this.cardType];
-    if (cardNetwork) {
+    if (cardNetwork && cardNetwork !== CardNetworkType.OTHERS) {
       cardNetworks.push(cardNetwork);
     } else {
       cardNetworks.push(...this.getAllowedCardNetworks());
@@ -118,27 +113,23 @@ export class AddCorporateCardComponent implements OnInit {
     const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
     const cardType = this.realTimeFeedService.getCardType(cardNumber);
 
-    if (cardType === RTFCardType.VISA || cardType === RTFCardType.MASTERCARD) {
+    if (cardType === CardNetworkType.VISA || cardType === CardNetworkType.MASTERCARD) {
       return isValid && cardNumber.length === 16 ? null : { invalidCardNumber: true };
     }
 
     return isValid ? null : { invalidCardNumber: true };
   }
 
-  private cardIssuerValidator(control: AbstractControl): ValidationErrors {
+  private cardNetworkValidator(control: AbstractControl): ValidationErrors {
     const cardNumber = control.value as string;
     const cardType = this.realTimeFeedService.getCardType(cardNumber);
 
-    if (!this.isYodleeEnabled && cardType === RTFCardType.OTHERS) {
-      return { invalidCardIssuer: true };
-    }
-
-    if (!this.isVisaRTFEnabled && cardType === RTFCardType.VISA) {
-      return { invalidCardIssuer: true };
-    }
-
-    if (!this.isMastercardRTFEnabled && cardType === RTFCardType.MASTERCARD) {
-      return { invalidCardIssuer: true };
+    if (
+      (!this.isYodleeEnabled && cardType === CardNetworkType.OTHERS) ||
+      (!this.isVisaRTFEnabled && cardType === CardNetworkType.VISA) ||
+      (!this.isMastercardRTFEnabled && cardType === CardNetworkType.MASTERCARD)
+    ) {
+      return { invalidCardNetwork: true };
     }
 
     return null;

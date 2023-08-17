@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, forkJoin, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, map, switchMap } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -26,8 +26,6 @@ export class ManageCorporateCardsPage {
 
   loadCorporateCards$ = new BehaviorSubject<void>(null);
 
-  isLoadingCards: boolean;
-
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -42,13 +40,8 @@ export class ManageCorporateCardsPage {
   }
 
   ionViewWillEnter(): void {
-    this.isLoadingCards = true;
-
     this.corporateCards$ = this.loadCorporateCards$.pipe(
-      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
-      tap(() => {
-        this.isLoadingCards = false;
-      })
+      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards())
     );
 
     const orgSettings$ = this.orgSettingsService.get();
