@@ -2176,7 +2176,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   trackEditExpense(etxn: UnflattenedTransaction): void {
-    const location = etxn.tx.locations[0] as Destination;
+    const location = etxn.tx.locations[0] as unknown as Destination;
     this.trackingService.editExpense({
       Type: 'Mileage',
       Amount: etxn.tx.amount,
@@ -2427,7 +2427,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   trackCreateExpense(etxn: UnflattenedTransaction): void {
-    const location = etxn.tx.locations[0] as Destination;
+    const location = etxn.tx.locations[0] as unknown as Destination;
     this.trackingService.createExpense({
       Type: 'Mileage',
       Amount: etxn.tx.amount,
