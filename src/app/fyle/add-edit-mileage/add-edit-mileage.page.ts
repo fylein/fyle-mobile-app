@@ -1122,6 +1122,7 @@ export class AddEditMileagePage implements OnInit {
 
   checkAvailableAdvance(): void {
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
+      takeUntil(this.onPageExit$),
       switchMap((paymentMode: ExtendedAccount) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return this.accountsService
