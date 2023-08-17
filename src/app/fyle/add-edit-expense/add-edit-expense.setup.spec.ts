@@ -209,7 +209,7 @@ describe('AddEditExpensePage', () => {
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         FormBuilder,
         {

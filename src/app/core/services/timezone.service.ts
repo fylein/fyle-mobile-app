@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { cloneDeep } from 'lodash';
-import { UtilityService } from './utility.service';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { UtilityService } from './utility.service';
 
 @Injectable({
   providedIn: 'root',
