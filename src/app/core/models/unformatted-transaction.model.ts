@@ -46,7 +46,7 @@ export interface UnformattedTransaction {
   orig_amount: number;
   orig_currency: string;
   payment_id: string;
-  per_diem_rate_id: string;
+  per_diem_rate_id: number;
   physical_bill: boolean;
   physical_bill_at: Date;
   platform_vendor: string;
@@ -54,7 +54,7 @@ export interface UnformattedTransaction {
   policy_amount: number;
   policy_flag: boolean;
   policy_state: string;
-  project_id: number | string;
+  project_id: number;
   purpose: string;
   report_id: string;
   reported_at: Date;

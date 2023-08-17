@@ -44,6 +44,7 @@ import {
   expectedControlValues,
   expectedExpenseFieldWithoutControl,
   perDiemCustomInputsData1,
+  perDiemCustomInputsData2,
 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { projects } from 'src/app/core/mock-data/extended-projects.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
@@ -68,6 +69,7 @@ import {
   orgSettingsRes,
   orgSettingsWoTax,
 } from 'src/app/core/mock-data/org-settings.data';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
@@ -266,7 +268,7 @@ export function TestCases2(getTestBed) {
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
           const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
             ...otherProps,
-          }));
+          })) as TxnCustomProperties[];
           expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithControl);
           // We just want to check the value and not the methods like pendingChange etc
           const controlValues = res.map(({ control }) => control.value);
@@ -347,7 +349,7 @@ export function TestCases2(getTestBed) {
         );
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         spyOn(component, 'getNewExpense').and.returnValue(of(unflattenedTxnDataPerDiem));
-        spyOn(component, 'getCustomInputs').and.returnValue(of(perDiemCustomInputsData1));
+        spyOn(component, 'getCustomInputs').and.returnValue(of(perDiemCustomInputsData2));
         spyOn(component, 'getPolicyDetails');
         spyOn(component, 'getTransactionFields').and.returnValue(of(txnFieldsData3));
         spyOn(component, 'getPaymentModes').and.returnValue(of(paymentModesData));

@@ -35,7 +35,7 @@ import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { popoverControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
 import { of } from 'rxjs';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { expectedUnflattendedTxnData3, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { unflattenExp1, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
 import { EventEmitter } from '@angular/core';
 import {
@@ -347,7 +347,7 @@ export function TestCases1(getTestBed) {
       const txn_ids = ['txfCdl3TEZ7K'];
       it('should navigate to add-edit-mileage if category is mileage', () => {
         const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'MILEAGE' } };
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(expectedUnflattendedTxnData3, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -363,7 +363,7 @@ export function TestCases1(getTestBed) {
 
       it('should navigate to add-edit-per-diem if the category is per diem', () => {
         const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'PER DIEM' } };
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(expectedUnflattendedTxnData3, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -379,7 +379,7 @@ export function TestCases1(getTestBed) {
 
       it('should navigate to add-edit-expense page if category is not amongst mileage and per diem', () => {
         const expense = unflattenExp1;
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(expectedUnflattendedTxnData3, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -409,7 +409,7 @@ export function TestCases1(getTestBed) {
 
     describe('checkIfInvalidPaymentMode():', () => {
       it('should check for invalid payment mode if payment account type is not advance account', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(expectedUnflattendedTxnData3);
         component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
@@ -425,7 +425,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should check for invalid payment in case of Advance accounts if source account ID does not match with account type', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(expectedUnflattendedTxnData3);
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE },
@@ -444,7 +444,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should check for invalid payment mode if the source account ID matches with the account type', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(expectedUnflattendedTxnData3);
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'acc5APeygFjRd' },
@@ -463,7 +463,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount.acc is undefined', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(expectedUnflattendedTxnData3);
         const mockPaymentAccount = cloneDeep(unflattenedAccount1Data);
         mockPaymentAccount.acc = undefined;
         component.fg.controls.paymentMode.setValue(mockPaymentAccount);
@@ -477,7 +477,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount is undefined', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(expectedUnflattendedTxnData3);
         component.fg.controls.paymentMode.setValue(undefined);
         fixture.detectChanges();
 

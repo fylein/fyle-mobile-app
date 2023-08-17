@@ -30,7 +30,15 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { DateService } from 'src/app/core/services/date.service';
 import * as dayjs from 'dayjs';
@@ -75,7 +83,6 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
-import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -84,11 +91,17 @@ import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { PerDiemFormValue } from 'src/app/core/models/per-diem-form-values.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { OrgUser } from 'src/app/core/models/org-user.model';
+import { PerDiemCustomInputs } from 'src/app/core/models/per-diem-custom-inputs.model';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -144,11 +157,11 @@ export class AddEditPerDiemPage implements OnInit {
 
   isCostCentersEnabled$: Observable<boolean>;
 
-  customInputs$: Observable<any>;
+  customInputs$: Observable<PerDiemCustomInputs[]>;
 
   costCenters$: Observable<CostCenters[]>;
 
-  reports$: Observable<any[]>;
+  reports$: Observable<{ label: string; value: UnflattenedReport }[]>;
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
@@ -170,7 +183,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   isAdvancesEnabled$: Observable<boolean>;
 
-  comments$: Observable<any>;
+  comments$: Observable<ExtendedStatus[]>;
 
   expenseStartTime;
 
@@ -660,7 +673,7 @@ export class AddEditPerDiemPage implements OnInit {
         }
       }),
       startWith(this.fg.controls.project.value),
-      concatMap((project) =>
+      concatMap((project: ExtendedProject) =>
         activeCategories$.pipe(
           map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
         )
@@ -685,7 +698,7 @@ export class AddEditPerDiemPage implements OnInit {
     return (expenseEndTime - this.expenseStartTime) / 1000;
   }
 
-  getCustomInputs() {
+  getCustomInputs(): Observable<PerDiemCustomInputs[]> {
     this.initialFetch = true;
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
@@ -769,9 +782,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  customDateValidator(control: AbstractControl): {
-    invalidDateSelection: boolean;
-  } {
+  customDateValidator(control: AbstractControl): ValidationErrors {
     if (!this.fg) {
       return;
     }
@@ -1074,13 +1085,16 @@ export class AddEditPerDiemPage implements OnInit {
 
           for (const txnFieldKey of Object.keys(txnFields)) {
             const control = keyToControlMap[txnFieldKey];
+            const expenseField = txnFields[txnFieldKey] as ExpenseField;
 
-            if (txnFields[txnFieldKey].is_mandatory) {
+            if (expenseField.is_mandatory) {
               if (txnFieldKey === 'num_days') {
                 control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
               } else if (txnFieldKey === 'to_dt') {
                 control.setValidators(
-                  isConnected ? Validators.compose([this.customDateValidator.bind(this), Validators.required]) : null
+                  isConnected
+                    ? Validators.compose([this.customDateValidator.bind(this) as ValidatorFn, Validators.required])
+                    : null
                 );
               } else if (txnFieldKey === 'cost_center_id') {
                 control.setValidators(
@@ -1100,7 +1114,7 @@ export class AddEditPerDiemPage implements OnInit {
                 control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
               }
               if (txnFieldKey === 'to_dt') {
-                control.setValidators(isConnected ? this.customDateValidator.bind(this) : null);
+                control.setValidators(isConnected ? (this.customDateValidator.bind(this) as ValidatorFn) : null);
               }
             }
             control.updateValueAndValidity();
@@ -1128,8 +1142,8 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
       .subscribe(([fromDt, toDt]) => {
         if (fromDt && toDt) {
-          const fromDate = dayjs(new Date(fromDt));
-          const toDate = dayjs(new Date(toDt));
+          const fromDate = dayjs(new Date(fromDt as string));
+          const toDate = dayjs(new Date(toDt as string));
           if (toDate.isSame(fromDate)) {
             this.fg.controls.num_days.setValue(1);
           } else if (toDate.isAfter(fromDate)) {
@@ -1142,7 +1156,7 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
       .subscribe(([fromDt, numDays]) => {
         if (fromDt && numDays && numDays > 0) {
-          const fromDate = dayjs(this.dateService.getUTCDate(new Date(fromDt)));
+          const fromDate = dayjs(this.dateService.getUTCDate(new Date(fromDt as string)));
           this.fg.controls.to_dt.setValue(fromDate.add(+numDays - 1, 'day').format('YYYY-MM-DD'), {
             emitEvent: false,
           });
@@ -1150,13 +1164,14 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
     combineLatest(
-      this.fg.controls.per_diem_rate.valueChanges,
+      this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
       this.fg.controls.num_days.valueChanges,
       this.homeCurrency$
     )
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         filter(([perDiemRate, numDays, homeCurrency]) => !!perDiemRate && !!numDays && !!homeCurrency),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         filter(([perDiemRate, numDays, homeCurrency]) => perDiemRate.currency === homeCurrency)
       )
       .subscribe(([perDiemRate, numDays, homeCurrency]) => {
@@ -1176,13 +1191,14 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
     combineLatest(
-      this.fg.controls.per_diem_rate.valueChanges,
-      this.fg.controls.num_days.valueChanges,
+      this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
+      this.fg.controls.num_days.valueChanges as Observable<number>,
       this.homeCurrency$
     )
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         filter(([perDiemRate, numDays, homeCurrency]) => !!perDiemRate && !!numDays && !!homeCurrency),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         filter(([perDiemRate, numDays, homeCurrency]) => perDiemRate.currency !== homeCurrency),
         switchMap(([perDiemRate, numDays, homeCurrency]) =>
           this.currencyService
@@ -1190,7 +1206,7 @@ export class AddEditPerDiemPage implements OnInit {
             .pipe(map((res) => [perDiemRate, numDays, homeCurrency, res]))
         )
       )
-      .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]) => {
+      .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]: [PerDiemRates, number, string, number]) => {
         this.fg.controls.currencyObj.setValue({
           currency: homeCurrency,
           amount: this.currencyService.getAmountWithCurrencyFraction(
@@ -1206,7 +1222,7 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      switchMap((paymentMode) => {
+      switchMap((paymentMode: ExtendedAccount) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return this.accountsService
             .getEMyAccounts()
@@ -1300,7 +1316,7 @@ export class AddEditPerDiemPage implements OnInit {
             map((perDiemOptions) =>
               perDiemOptions
                 .map((res) => res.value)
-                .find((perDiemOption) => perDiemOption.id?.toString() === etxn.tx.per_diem_rate_id)
+                .find((perDiemOption) => perDiemOption.id === etxn.tx.per_diem_rate_id)
             )
           ),
           of(null)
@@ -1371,7 +1387,6 @@ export class AddEditPerDiemPage implements OnInit {
             project: selectedProject$,
             subCategory: selectedSubCategory$,
             perDiemRate: selectedPerDiemOption$,
-            txnFields: this.txnFields$.pipe(take(1)),
             report: selectedReport$,
             costCenter: selectedCostCenter$,
             customExpenseFields: customExpenseFields$,
@@ -1393,7 +1408,6 @@ export class AddEditPerDiemPage implements OnInit {
           project,
           subCategory,
           perDiemRate,
-          txnFields,
           report,
           costCenter,
           customExpenseFields,
@@ -1426,7 +1440,7 @@ export class AddEditPerDiemPage implements OnInit {
               if (customInput.type === 'DATE') {
                 return {
                   name: customInput.name,
-                  value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
+                  value: (cpor && cpor.value && dayjs(new Date(cpor.value as string)).format('YYYY-MM-DD')) || null,
                 };
               } else {
                 return {
@@ -1530,20 +1544,23 @@ export class AddEditPerDiemPage implements OnInit {
         }
       );
 
-    this.paymentModeInvalid$ = iif(() => this.activatedRoute.snapshot.params.id, this.etxn$, of(null)).pipe(
+    this.paymentModeInvalid$ = iif(
+      () => !!(this.activatedRoute.snapshot.params.id as string),
+      this.etxn$,
+      of(null)
+    ).pipe(
       map((etxn) => {
-        if (this.fg.value.paymentMode.acc.type === AccountType.ADVANCE) {
+        const formValue = this.getFormValues();
+        if (formValue.paymentMode.acc.type === AccountType.ADVANCE) {
           if (
             etxn &&
-            etxn.id &&
-            this.fg.value.paymentMode?.acc?.id === etxn.source_account_id &&
-            etxn.state !== 'DRAFT'
+            etxn.tx.id &&
+            formValue.paymentMode?.acc?.id === etxn.tx.source_account_id &&
+            etxn.tx.state !== 'DRAFT'
           ) {
-            return (
-              this.fg.value.paymentMode?.acc?.tentative_balance_amount + etxn.amount < this.fg.value.currencyObj.amount
-            );
+            return formValue.paymentMode?.acc?.tentative_balance_amount + etxn.tx.amount < formValue.currencyObj.amount;
           } else {
-            return this.fg.value.paymentMode?.acc?.tentative_balance_amount < this.fg.value.currencyObj.amount;
+            return formValue.paymentMode?.acc?.tentative_balance_amount < formValue.currencyObj.amount;
           }
         } else {
           return false;
@@ -1555,7 +1572,7 @@ export class AddEditPerDiemPage implements OnInit {
   generateEtxnFromFg(
     etxn$: Observable<UnflattenedTransaction>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>
-  ): Observable<Partial<UnflattenedTransaction>> {
+  ): Observable<{ tx: Partial<Transaction>; dataUrls: FileObject[]; ou: Partial<OrgUser> }> {
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,
@@ -1592,7 +1609,7 @@ export class AddEditPerDiemPage implements OnInit {
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',
             currency: amountData.currency,
-            amount: parseFloat(amountData.amount),
+            amount: parseFloat(amountData.amount?.toString()),
             orig_currency: amountData.orig_currency,
             orig_amount: amountData.orig_amount,
             project_id: formValue.project && formValue.project.project_id,
@@ -1615,13 +1632,11 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  getCustomFields() {
+  getCustomFields(): Observable<TxnCustomProperties[]> {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
-        const allDependentFields = [
-          ...this.fg.value.project_dependent_fields,
-          ...this.fg.value.cost_center_dependent_fields,
-        ];
+        const formValue = this.getFormValues();
+        const allDependentFields = [...formValue.project_dependent_fields, ...formValue.cost_center_dependent_fields];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
@@ -1635,7 +1650,8 @@ export class AddEditPerDiemPage implements OnInit {
       dependentFieldsWithValue: dependentFieldsWithValue$.pipe(take(1)),
     }).pipe(
       map(({ customInputs, dependentFieldsWithValue }) => {
-        const customInputsWithValue = customInputs.map((customInput, i) => ({
+        const formValue = this.getFormValues();
+        const customInputsWithValue: TxnCustomProperties[] = customInputs.map((customInput, i) => ({
           id: customInput.id,
           mandatory: customInput.mandatory,
           name: customInput.name,
@@ -1643,14 +1659,18 @@ export class AddEditPerDiemPage implements OnInit {
           placeholder: customInput.placeholder,
           prefix: customInput.prefix,
           type: customInput.type,
-          value: this.fg.value.custom_inputs[i].value,
+          value: formValue.custom_inputs[i].value,
         }));
         return customInputsWithValue.concat(dependentFieldsWithValue);
       })
     );
   }
 
-  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
+  checkPolicyViolation(etxn: {
+    tx: Partial<Transaction>;
+    dataUrls: FileObject[];
+    ou: Partial<OrgUser>;
+  }): Observable<ExpensePolicy> {
     const transactionCopy = cloneDeep(etxn.tx);
 
     /* Expense creation has not moved to platform yet and since policy is moved to platform,
@@ -1662,7 +1682,7 @@ export class AddEditPerDiemPage implements OnInit {
     return this.transactionService.checkPolicy(policyExpense);
   }
 
-  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
+  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]): Promise<boolean> {
     const fyCriticalPolicyViolationPopOver = await this.modalController.create({
       component: FyCriticalPolicyViolationComponent,
       componentProps: {
@@ -1675,11 +1695,16 @@ export class AddEditPerDiemPage implements OnInit {
 
     await fyCriticalPolicyViolationPopOver.present();
 
-    const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
+    const { data } = (await fyCriticalPolicyViolationPopOver.onWillDismiss()) as { data: boolean };
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
+  async continueWithPolicyViolations(
+    policyViolations: string[],
+    policyAction: FinalExpensePolicyState
+  ): Promise<{
+    comment: string;
+  }> {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
@@ -1692,11 +1717,11 @@ export class AddEditPerDiemPage implements OnInit {
 
     await currencyModal.present();
 
-    const { data } = await currencyModal.onWillDismiss();
+    const { data } = (await currencyModal.onWillDismiss()) as { data: { comment: string } };
     return data;
   }
 
-  addExpense(redirectedFrom) {
+  addExpense(redirectedFrom: string): Observable<OutboxQueue> {
     this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
     this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
     this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
@@ -1746,42 +1771,50 @@ export class AddEditPerDiemPage implements OnInit {
           })
         )
       ),
-      catchError((err) => {
-        if (err.status === 500) {
-          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+      catchError(
+        (err: {
+          status?: number;
+          type: string;
+          policyViolations: string[];
+          policyAction: FinalExpensePolicyState;
+          etxn: Partial<UnflattenedTransaction>;
+        }) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          }
+          if (err.type === 'criticalPolicyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else if (err.type === 'policyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else {
+            return throwError(err);
+          }
         }
-        if (err.type === 'criticalPolicyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
-        } else if (err.type === 'policyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
-        } else {
-          return throwError(err);
-        }
-      }),
-      switchMap(({ etxn, comment }: any) =>
+      ),
+      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         from(this.authService.getEou()).pipe(
-          switchMap((eou) => {
-            const comments = [];
+          switchMap(() => {
+            const comments: string[] = [];
             this.trackingService.createExpense({
               Type: 'Receipt',
               Amount: etxn.tx.amount,
@@ -1798,16 +1831,22 @@ export class AddEditPerDiemPage implements OnInit {
               comments.push(comment);
             }
 
-            let reportId;
+            let reportId: string;
+            const formValue = this.getFormValues();
             if (
-              this.fg.value.report &&
+              formValue.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = this.fg.value.report.rp.id;
+              reportId = formValue.report.rp.id;
             }
-            return of(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId)).pipe(
-              switchMap((txnData: Promise<any>) => from(txnData))
-            );
+            return of(
+              this.transactionsOutboxService.addEntryAndSync(
+                etxn.tx,
+                etxn.dataUrls as { url: string; type: string }[],
+                comments,
+                reportId
+              )
+            ).pipe(switchMap((txnData) => from(txnData)));
           })
         )
       ),
@@ -1819,7 +1858,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  trackPolicyCorrections() {
+  trackPolicyCorrections(): void {
     this.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
       if (isCriticalPolicyViolated && this.fg.dirty) {
         this.trackingService.policyCorrection({ Violation: 'Critical', Mode: 'Edit Expense' });
@@ -1919,7 +1958,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         }
       ),
-      switchMap(({ etxn, comment }) =>
+      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         this.etxn$.pipe(
           switchMap((txnCopy) => {
             if (!isEqual(etxn.tx, txnCopy)) {
@@ -1946,8 +1985,9 @@ export class AddEditPerDiemPage implements OnInit {
               switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
-                const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
-                const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
+                const formValue = this.getFormValues();
+                const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;
+                const criticalPolicyViolated = isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
@@ -1975,7 +2015,7 @@ export class AddEditPerDiemPage implements OnInit {
                 return of(null).pipe(map(() => tx));
               }),
               switchMap((tx) => {
-                const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
+                const criticalPolicyViolated = isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
                 if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
                   return this.transactionService.review(tx.id).pipe(map(() => tx));
                 }
