@@ -450,7 +450,9 @@ export function TestCases1(getTestBed) {
       });
 
       it('should check for invalid payment mode if the source account ID matches with the account type', (done) => {
-        component.etxn$ = of(expectedUnflattendedTxnData3);
+        const mockUnflattedData = cloneDeep(expectedUnflattendedTxnData3);
+        mockUnflattedData.tx.source_account_id = 'acc5APeygFjRd';
+        component.etxn$ = of(mockUnflattedData);
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'acc5APeygFjRd' },
