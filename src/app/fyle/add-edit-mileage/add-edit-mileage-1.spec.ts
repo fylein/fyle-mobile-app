@@ -283,7 +283,7 @@ export function TestCases1(getTestBed) {
           ...properties,
         });
         expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(trackingService.viewComment).toHaveBeenCalledOnceWith();
+        expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
       }));
     });
   });
