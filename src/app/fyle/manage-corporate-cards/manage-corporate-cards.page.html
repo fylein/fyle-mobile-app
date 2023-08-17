@@ -10,26 +10,36 @@
 </ion-header>
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <div class="manage-corporate-cards__cards">
-    <ng-container *ngIf="corporateCards$ | async as corporateCards">
-      <ng-container *ngIf="isLoadingCards; else cards">
-        <!-- Shimmers here -->
-      </ng-container>
-      <ng-template #cards>
-        <div *ngIf="corporateCards.length > 0; else zeroState" class="manage-corporate-cards__cards-list">
-          <app-corporate-card
-            *ngFor="let corporateCard of corporateCards"
-            [card]="corporateCard"
-            [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
-            [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
-            (cardOptionsClick)="openCardOptions($event)"
-          ></app-corporate-card>
+    <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
+      <div *ngIf="corporateCards.length > 0; else zeroState" class="manage-corporate-cards__cards-list">
+        <app-corporate-card
+          *ngFor="let corporateCard of corporateCards"
+          [card]="corporateCard"
+          [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
+          [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
+          (cardOptionsClick)="openCardOptions($event)"
+        ></app-corporate-card>
+      </div>
+      <ng-template #zeroState>
+        <div class="manage-corporate-cards__zero-state-container">
+          <img class="manage-corporate-cards__zero-state-img" src="../../../../assets/images/cards.svg" />
+
+          <div class="manage-corporate-cards__zero-state-heading">No corporate card added yet!</div>
+          <div class="manage-corporate-cards__zero-state-subheading">
+            Add Corporate Cards to sync your transactions on Fyle.
+          </div>
         </div>
-        <ng-template #zeroState>
-          <!-- Zero state here -->
-        </ng-template>
       </ng-template>
     </ng-container>
+
+    <ng-template #shimmers>
+      <ion-skeleton-text animated class="manage-corporate-cards__shimmer"></ion-skeleton-text>
+    </ng-template>
   </div>
 </ion-content>
 

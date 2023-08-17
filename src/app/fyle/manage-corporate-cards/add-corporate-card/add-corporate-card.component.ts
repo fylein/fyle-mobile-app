@@ -63,7 +63,7 @@ export class AddCorporateCardComponent implements OnInit {
     this.isEnrollingCard = true;
 
     this.realTimeFeedService
-      .enroll(cardNumber, this.card.id)
+      .enroll(cardNumber, this.card?.id)
       .pipe(
         catchError((error: Error) => {
           this.handleEnrollmentFailures(error);

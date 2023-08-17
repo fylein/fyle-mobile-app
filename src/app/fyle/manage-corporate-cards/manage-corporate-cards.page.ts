@@ -13,6 +13,7 @@ import { CardAddedComponent } from './card-added/card-added.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { RTFCardType } from 'src/app/core/enums/rtf-card-type.enum';
+import { RefresherCustomEvent } from '@ionic/core';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -30,8 +31,6 @@ export class ManageCorporateCardsPage {
 
   loadCorporateCards$ = new BehaviorSubject<void>(null);
 
-  isLoadingCards: boolean;
-
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -42,18 +41,20 @@ export class ManageCorporateCardsPage {
     private realTimeFeedService: RealTimeFeedService
   ) {}
 
+  refresh(event: RefresherCustomEvent): void {
+    this.corporateCreditCardExpenseService.clearCache().subscribe(() => {
+      this.loadCorporateCards$.next();
+      event.target.complete();
+    });
+  }
+
   goBack(): void {
     this.router.navigate(['/', 'enterprise', 'my_profile']);
   }
 
   ionViewWillEnter(): void {
-    this.isLoadingCards = true;
-
     this.corporateCards$ = this.loadCorporateCards$.pipe(
-      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
-      tap(() => {
-        this.isLoadingCards = false;
-      })
+      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards())
     );
 
     const orgSettings$ = this.orgSettingsService.get();
