@@ -12,6 +12,7 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from './card-added/card-added.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { RTFCardType } from 'src/app/core/enums/rtf-card-type.enum';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -98,7 +99,7 @@ export class ManageCorporateCardsPage {
             actionSheetButtons.push({
               text: 'Connect to Visa Real-time Feed',
               handler: () => {
-                this.openAddCorporateCardPopover(card);
+                this.openAddCorporateCardPopover(card, RTFCardType.VISA);
               },
             });
           }
@@ -107,7 +108,7 @@ export class ManageCorporateCardsPage {
             actionSheetButtons.push({
               text: 'Connect to Mastercard Real-time Feed',
               handler: () => {
-                this.openAddCorporateCardPopover(card);
+                this.openAddCorporateCardPopover(card, RTFCardType.MASTERCARD);
               },
             });
           }
@@ -130,7 +131,7 @@ export class ManageCorporateCardsPage {
     });
   }
 
-  openAddCorporateCardPopover(card?: PlatformCorporateCard): void {
+  openAddCorporateCardPopover(card?: PlatformCorporateCard, cardType?: RTFCardType): void {
     forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
       async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
         const addCorporateCardPopover = await this.popoverController.create({
@@ -141,6 +142,7 @@ export class ManageCorporateCardsPage {
             isMastercardRTFEnabled,
             isYodleeEnabled,
             card,
+            cardType,
           },
         });
 

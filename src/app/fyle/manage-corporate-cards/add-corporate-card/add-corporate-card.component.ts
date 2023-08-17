@@ -20,9 +20,9 @@ export class AddCorporateCardComponent implements OnInit {
 
   @Input() card: PlatformCorporateCard;
 
-  cardForm: FormControl;
+  @Input() cardType: RTFCardType;
 
-  cardType: RTFCardType;
+  cardForm: FormControl;
 
   cardNetworks: string[];
 
