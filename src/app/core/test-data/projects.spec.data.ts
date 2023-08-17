@@ -1,3 +1,4 @@
+import { ProjectParams } from '../models/project-params.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
 import { ExtendedProject } from '../models/v2/extended-project.model';
@@ -355,7 +356,7 @@ export const expectedProjectsResponse: ExtendedProject[] = [
   },
 ];
 
-export const testProjectParams = {
+export const testProjectParams: ProjectParams = {
   orgId: 'orNVthTo2Zyo',
   active: true,
   sortDirection: 'asc',
@@ -367,7 +368,7 @@ export const testProjectParams = {
   searchNameText: 'search',
 };
 
-export const testProjectV2 = {
+export const testProjectV2: ExtendedProject = {
   ap1_email: null,
   ap1_full_name: null,
   ap2_email: null,

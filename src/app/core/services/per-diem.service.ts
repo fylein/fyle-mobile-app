@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@angular/core';
+import { Observable, Subject, range } from 'rxjs';
+import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
+import { PAGINATION_SIZE } from 'src/app/constants';
 import { Cacheable } from 'ts-cacheable';
-import { Observable, range, Subject } from 'rxjs';
+import { OrgUserSettings } from '../models/org_user_settings.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformPerDiemRates } from '../models/platform/platform-per-diem-rates.model';
 import { PerDiemRates } from '../models/v1/per-diem-rates.model';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { switchMap, concatMap, map, reduce } from 'rxjs/operators';
-import { PAGINATION_SIZE } from 'src/app/constants';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { OrgUserSettings } from '../models/org_user_settings.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 const perDiemsCacheBuster$ = new Subject<void>();
 
@@ -49,7 +49,7 @@ export class PerDiemService {
           const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids as number[];
 
           if (allPerDiemRates?.length > 0) {
-            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.includes(perDiem.id));
+            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.includes(perDiem.id as never));
           }
         }
 

@@ -28,7 +28,7 @@ export interface CostCenterSettings {
 }
 
 export interface PerDiemRateSettings {
-  allowed_per_diem_ids: number[] | string[];
+  allowed_per_diem_ids: string[] | number[];
 }
 
 export interface AccessDelegationSettings {
