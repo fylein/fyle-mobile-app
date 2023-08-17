@@ -10,7 +10,11 @@ import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-
 import { policyExpense2 } from 'src/app/core/mock-data/expense.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock-data/org-category.data';
+import {
+  mileageCategories,
+  orgCategoryData,
+  transformedOrgCategoryById,
+} from 'src/app/core/mock-data/org-category.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
@@ -56,6 +60,11 @@ import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
+import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
+import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
+import { publicPolicyExpenseData1 } from 'src/app/core/mock-data/public-policy-expense.data';
+import { unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -436,6 +445,14 @@ export function TestCases1(getTestBed) {
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
         expect(component.goToNext).toHaveBeenCalledTimes(1);
       });
+
+      it('should show validation errors if the form is not valid', () => {
+        spyOn(component, 'showFormValidationErrors');
+
+        component.saveExpenseAndGotoNext();
+
+        expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+      });
     });
 
     it('getTimeSpentOnPage(): should get time spent on page', () => {
@@ -791,6 +808,76 @@ export function TestCases1(getTestBed) {
       component.trackPolicyCorrections();
       expect(trackingService.policyCorrection).toHaveBeenCalledWith({ Violation: 'Critical', Mode: 'Edit Expense' });
       expect(trackingService.policyCorrection).toHaveBeenCalledWith({ Violation: 'Regular', Mode: 'Edit Expense' });
+    });
+
+    describe('saveExpenseAndGotoPrev():', () => {
+      it('should add a new expense and close the form', () => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'close');
+        component.activeIndex = 0;
+        component.mode = 'add';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoPrev();
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
+        expect(component.close).toHaveBeenCalledOnceWith();
+      });
+
+      it('should add a new expense and go to the previous expense if not the first one in list', () => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'goToPrev');
+        component.activeIndex = 1;
+        component.mode = 'add';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoPrev();
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
+        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+      });
+
+      it('should save an edited expense and close the form', () => {
+        spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'close');
+        component.activeIndex = 0;
+        component.mode = 'edit';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoPrev();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
+        expect(component.close).toHaveBeenCalledOnceWith();
+      });
+
+      it('should save an edited expense and go to the previous expense', () => {
+        spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'goToPrev');
+        component.activeIndex = 1;
+        component.mode = 'edit';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoPrev();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
+        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+      });
+
+      it('should show validation errors if the form is not valid', () => {
+        spyOn(component, 'showFormValidationErrors');
+
+        component.saveExpenseAndGotoPrev();
+
+        expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+      });
     });
   });
 }
