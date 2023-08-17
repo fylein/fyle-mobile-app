@@ -2,10 +2,10 @@ import { TestBed, waitForAsync } from '@angular/core/testing';
 
 import { RealTimeFeedService } from './real-time-feed.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { RTFCardType } from '../enums/rtf-card-type.enum';
 import { mastercardRTFCard, visaRTFCard } from '../mock-data/platform-corporate-card.data';
 import { catchError, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { CardNetworkType } from '../enums/card-network-type';
 
 describe('RealTimeFeedService', () => {
   let realTimeFeedService: RealTimeFeedService;
@@ -40,21 +40,21 @@ describe('RealTimeFeedService', () => {
     });
 
     it('should return visa if the input card number starts with 4', () => {
-      expect(realTimeFeedService.getCardTypeFromNumber('4111111111111111')).toBe(RTFCardType.VISA);
+      expect(realTimeFeedService.getCardTypeFromNumber('4111111111111111')).toBe(CardNetworkType.VISA);
     });
 
     it('should return mastercard if the input card number starts with 5', () => {
-      expect(realTimeFeedService.getCardTypeFromNumber('5555555555555555')).toBe(RTFCardType.MASTERCARD);
+      expect(realTimeFeedService.getCardTypeFromNumber('5555555555555555')).toBe(CardNetworkType.MASTERCARD);
     });
 
     it('should return card type others if the input card number does not start with 4 or 5', () => {
-      expect(realTimeFeedService.getCardTypeFromNumber('6111111111111111')).toBe(RTFCardType.OTHERS);
+      expect(realTimeFeedService.getCardTypeFromNumber('6111111111111111')).toBe(CardNetworkType.OTHERS);
     });
   });
 
   describe('enroll()', () => {
     it('should handle enrollment of visa rtf cards', waitForAsync(() => {
-      spyOn(realTimeFeedService, 'getCardType').and.returnValue(RTFCardType.VISA);
+      spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.VISA);
       spenderPlatformV1ApiService.post.and.returnValue(of({ data: visaRTFCard }));
 
       realTimeFeedService.enroll('4111111111111111').subscribe((res) => {
@@ -71,7 +71,7 @@ describe('RealTimeFeedService', () => {
     }));
 
     it('should handle enrollment of mastercard rtf cards', waitForAsync(() => {
-      spyOn(realTimeFeedService, 'getCardType').and.returnValue(RTFCardType.MASTERCARD);
+      spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.MASTERCARD);
       spenderPlatformV1ApiService.post.and.returnValue(of({ data: mastercardRTFCard }));
 
       realTimeFeedService.enroll('5555555555555555').subscribe((res) => {
@@ -88,17 +88,17 @@ describe('RealTimeFeedService', () => {
     }));
 
     it('should throw an error if the card number passed does not belong to either visa/mastercard', waitForAsync(() => {
-      spyOn(realTimeFeedService, 'getCardTypeFromNumber').and.returnValue(RTFCardType.OTHERS);
+      spyOn(realTimeFeedService, 'getCardTypeFromNumber').and.returnValue(CardNetworkType.OTHERS);
 
       expect(() => realTimeFeedService.enroll('6111111111111111')).toThrowError(
-        `Invalid card type ${RTFCardType.OTHERS}`
+        `Invalid card type ${CardNetworkType.OTHERS}`
       );
 
       expect(realTimeFeedService.getCardTypeFromNumber).toHaveBeenCalledOnceWith('6111111111111111');
     }));
 
     it('should rethrow enroll api errors as a generic error', waitForAsync(() => {
-      spyOn(realTimeFeedService, 'getCardType').and.returnValue(RTFCardType.VISA);
+      spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.VISA);
       spenderPlatformV1ApiService.post.and.returnValue(
         throwError(
           () =>
@@ -122,7 +122,7 @@ describe('RealTimeFeedService', () => {
     }));
 
     it('should handle enrollment of existing cards', waitForAsync(() => {
-      spyOn(realTimeFeedService, 'getCardTypeFromNumber').and.returnValue(RTFCardType.VISA);
+      spyOn(realTimeFeedService, 'getCardTypeFromNumber').and.returnValue(CardNetworkType.VISA);
       spenderPlatformV1ApiService.post.and.returnValue(of({ data: visaRTFCard }));
 
       realTimeFeedService.enroll('4555555555555555', 'bacc15bbrRGWzf').subscribe((res) => {

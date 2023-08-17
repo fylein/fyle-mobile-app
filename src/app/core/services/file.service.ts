@@ -43,7 +43,7 @@ export class FileService {
 
   findByAdvanceRequestId(advanceRequestId: string): Observable<FileObject[]> {
     return from(
-      this.apiService.get<File[]>('/files', {
+      this.apiService.get<File[] | FileObject[]>('/files', {
         params: {
           advance_request_id: advanceRequestId,
           skip_html: 'true',
@@ -53,9 +53,9 @@ export class FileService {
       map((files) => {
         files.map((file) => {
           this.dateService.fixDates(file);
-          this.setFileType(file);
+          this.setFileType(file as FileObject);
         });
-        return files as FileObject[];
+        return files as unknown as FileObject[];
       })
     );
   }
@@ -88,7 +88,7 @@ export class FileService {
     return file;
   }
 
-  post(fileObj: File | Record<string, string> | FileObject) {
+  post(fileObj: File | Record<string, string> | FileObject): Observable<unknown> {
     return this.apiService.post('/files', fileObj);
   }
 
@@ -96,7 +96,7 @@ export class FileService {
     return this.apiService.post<File>('/files/' + fileId + '/upload_url').pipe(map((data) => data.url));
   }
 
-  uploadComplete(fileId: string) {
+  uploadComplete(fileId: string): Observable<File> {
     return this.apiService.post<File>('/files/' + fileId + '/upload_completed');
   }
 
@@ -122,19 +122,19 @@ export class FileService {
     return new Blob([uintArray], { type: mimeType });
   }
 
-  getDataUrlFromBlob(blob: Blob): Promise<string | ArrayBuffer> {
+  getDataUrlFromBlob(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(blob);
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
+      reader.onloadend = (): void => resolve(reader.result.toString());
+      reader.onerror = (error): void => reject(error);
     });
   }
 
-  readFile(file: Blob): Promise<string | ArrayBuffer> {
+  readFile(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
-      fileReader.onload = async () => {
+      fileReader.onload = async (): Promise<void> => {
         if (file.type === 'image/heic') {
           const result = await heic2any({
             blob: this.getBlobFromDataUrl(fileReader.result as string),
@@ -144,14 +144,14 @@ export class FileService {
           const dataUrl = await this.getDataUrlFromBlob(result as Blob);
           return resolve(dataUrl);
         }
-        return resolve(fileReader.result);
+        return resolve(fileReader.result.toString());
       };
       fileReader.readAsDataURL(file);
-      fileReader.onerror = (error) => reject(error);
+      fileReader.onerror = (error): void => reject(error);
     });
   }
 
-  delete(fileId: string) {
+  delete(fileId: string): Observable<unknown> {
     return this.apiService.delete('/files/' + fileId);
   }
 

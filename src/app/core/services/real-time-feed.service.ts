@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { RTFCardType } from '../enums/rtf-card-type.enum';
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { PlatformApiPayload } from '../models/platform/platform-api-payload.model';
 import { EnrollCardPayload } from '../models/platform/enroll-card-payload.model';
@@ -9,6 +8,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiError } from '../models/platform/platform-api-error.model';
 import { UnenrollCardPayload } from '../models/platform/unenroll-card-payload.model';
+import { CardNetworkType } from '../enums/card-network-type';
 
 @Injectable({
   providedIn: 'root',
@@ -52,7 +52,7 @@ export class RealTimeFeedService {
     return checksum % 10 === 0;
   }
 
-  unenroll(cardType: RTFCardType, cardId: string): Observable<void> {
+  unenroll(cardType: CardNetworkType, cardId: string): Observable<void> {
     const card: PlatformApiPayload<UnenrollCardPayload> = {
       data: {
         id: cardId,
@@ -62,11 +62,11 @@ export class RealTimeFeedService {
     let endpoint: string;
 
     switch (cardType) {
-      case RTFCardType.VISA:
+      case CardNetworkType.VISA:
         endpoint = '/corporate_cards/visa_unenroll';
         break;
 
-      case RTFCardType.MASTERCARD:
+      case CardNetworkType.MASTERCARD:
         endpoint = '/corporate_cards/mastercard_unenroll';
         break;
 
@@ -92,11 +92,11 @@ export class RealTimeFeedService {
     let endpoint: string;
 
     switch (cardType) {
-      case RTFCardType.VISA:
+      case CardNetworkType.VISA:
         endpoint = '/corporate_cards/visa_enroll';
         break;
 
-      case RTFCardType.MASTERCARD:
+      case CardNetworkType.MASTERCARD:
         endpoint = '/corporate_cards/mastercard_enroll';
         break;
 
@@ -113,7 +113,7 @@ export class RealTimeFeedService {
     );
   }
 
-  getCardTypeFromNumber(cardNumber: string): RTFCardType {
+  getCardTypeFromNumber(cardNumber: string): CardNetworkType {
     if (!cardNumber) {
       return null;
     }
@@ -122,23 +122,23 @@ export class RealTimeFeedService {
 
     switch (firstDigit) {
       case '4':
-        return RTFCardType.VISA;
+        return CardNetworkType.VISA;
       case '5':
-        return RTFCardType.MASTERCARD;
+        return CardNetworkType.MASTERCARD;
       default:
-        return RTFCardType.OTHERS;
+        return CardNetworkType.OTHERS;
     }
   }
 
-  getCardType(card: PlatformCorporateCard): RTFCardType {
+  getCardType(card: PlatformCorporateCard): CardNetworkType {
     if (card.is_mastercard_enrolled) {
-      return RTFCardType.MASTERCARD;
+      return CardNetworkType.MASTERCARD;
     }
 
     if (card.is_visa_enrolled) {
-      return RTFCardType.VISA;
+      return CardNetworkType.VISA;
     }
 
-    return RTFCardType.OTHERS;
+    return CardNetworkType.OTHERS;
   }
 }
