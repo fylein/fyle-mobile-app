@@ -346,8 +346,11 @@ export function TestCases1(getTestBed) {
     describe('goToTransaction():', () => {
       const txn_ids = ['txfCdl3TEZ7K'];
       it('should navigate to add-edit-mileage if category is mileage', () => {
-        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'MILEAGE' } };
-        component.goToTransaction(expectedUnflattendedTxnData3, txn_ids, 0);
+        const expense = {
+          ...expectedUnflattendedTxnData3,
+          tx: { ...expectedUnflattendedTxnData3.tx, org_category: 'MILEAGE' },
+        };
+        component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -362,8 +365,11 @@ export function TestCases1(getTestBed) {
       });
 
       it('should navigate to add-edit-per-diem if the category is per diem', () => {
-        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'PER DIEM' } };
-        component.goToTransaction(expectedUnflattendedTxnData3, txn_ids, 0);
+        const expense = {
+          ...expectedUnflattendedTxnData3,
+          tx: { ...expectedUnflattendedTxnData3.tx, org_category: 'PER DIEM' },
+        };
+        component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -378,8 +384,8 @@ export function TestCases1(getTestBed) {
       });
 
       it('should navigate to add-edit-expense page if category is not amongst mileage and per diem', () => {
-        const expense = unflattenExp1;
-        component.goToTransaction(expectedUnflattendedTxnData3, txn_ids, 0);
+        const expense = expectedUnflattendedTxnData3;
+        component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
