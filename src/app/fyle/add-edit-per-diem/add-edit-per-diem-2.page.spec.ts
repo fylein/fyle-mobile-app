@@ -42,7 +42,6 @@ import { dependentCustomProperties } from 'src/app/core/mock-data/custom-propert
 import { cloneDeep } from 'lodash';
 import { perDiemCustomInputsData1 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { projects } from 'src/app/core/mock-data/extended-projects.data';
-import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
 import {
@@ -99,7 +98,6 @@ export function TestCases2(getTestBed) {
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let perDiemService: jasmine.SpyObj<PerDiemService>;
-    let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -140,8 +138,6 @@ export function TestCases2(getTestBed) {
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
-      platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
-
       component.fg = formBuilder.group({
         currencyObj: [
           {
@@ -294,8 +290,8 @@ export function TestCases2(getTestBed) {
     });
 
     fdescribe('ionViewWillEnter():', () => {
-      const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnInit']);
       beforeEach(() => {
+        spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
         tokenService.getClusterDomain.and.resolveTo(authResData1.cluster_domain);
         storageService.get.and.resolveTo(true);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -351,8 +347,20 @@ export function TestCases2(getTestBed) {
         fixture.detectChanges();
       });
 
-      it('', () => {
+      it('should initialize projectDependentFieldsRef, costCenterDependentFieldsRef and assign hardwareBackButtonAction', () => {
+        const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnInit']);
+        component.projectDependentFieldsRef = dependentFieldSpy;
+        component.costCenterDependentFieldsRef = dependentFieldSpy;
+        const tomorrow = new Date('2023-08-18');
+        dateService.addDaysToDate.and.returnValue(tomorrow);
         component.ionViewWillEnter();
+        expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
+        expect(component.minDate).toEqual('2001-01-1');
+        expect(component.maxDate).toEqual('2023-08-18');
+        expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
+          BackButtonActionPriority.MEDIUM,
+          jasmine.any(Function)
+        );
       });
     });
   });

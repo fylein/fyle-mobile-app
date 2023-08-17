@@ -769,11 +769,12 @@ export class AddEditPerDiemPage implements OnInit {
     this.selectedProject$ = new BehaviorSubject(null);
     this.selectedCostCenter$ = new BehaviorSubject(null);
 
-    const fn = (): void => {
-      this.showClosePopup();
-    };
-    const priority = BackButtonActionPriority.MEDIUM;
-    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, fn);
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.showClosePopup();
+      }
+    );
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
