@@ -1,4 +1,4 @@
-import { ComponentFixture, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -59,6 +59,11 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
+import {
+  orgSettingsParamsWithSimplifiedReport,
+  orgSettingsRes,
+  orgSettingsWoTax,
+} from 'src/app/core/mock-data/org-settings.data';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
@@ -292,8 +297,9 @@ export function TestCases2(getTestBed) {
     fdescribe('ionViewWillEnter():', () => {
       beforeEach(() => {
         activatedRoute.snapshot.params = {
-          txnIds: '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]',
+          txnIds: '["tx3qwe4ty","tx6sd7gh"]',
           id: 'tx5n59fvxk4z',
+          activeIndex: 2,
         };
         spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
         tokenService.getClusterDomain.and.resolveTo(authResData1.cluster_domain);
@@ -351,20 +357,87 @@ export function TestCases2(getTestBed) {
         fixture.detectChanges();
       });
 
-      it('should initialize ', () => {
+      it('should initialize all the variables correctly', fakeAsync(() => {
         const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnInit']);
         component.projectDependentFieldsRef = dependentFieldSpy;
         component.costCenterDependentFieldsRef = dependentFieldSpy;
         const tomorrow = new Date('2023-08-18');
+        const today = new Date();
         dateService.addDaysToDate.and.returnValue(tomorrow);
         component.ionViewWillEnter();
+        tick(1000);
         expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
         expect(component.minDate).toEqual('2001-01-1');
         expect(component.maxDate).toEqual('2023-08-18');
+        expect(dateService.addDaysToDate).toHaveBeenCalledOnceWith(today, 1);
         expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
           jasmine.any(Function)
         );
+        expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+        expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
+        expect(component.title).toEqual('Edit');
+        expect(component.activeIndex).toEqual(2);
+        expect(component.reviewList).toEqual(['tx3qwe4ty', 'tx6sd7gh']);
+        expect(component.mode).toEqual('edit');
+        expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedViewPerDiem');
+        expect(component.isExpandedView).toBeTrue();
+      }));
+
+      it('should set mode as add if txnId is not defined', fakeAsync(() => {
+        activatedRoute.snapshot.params = {
+          txnIds: '["tx3qwe4ty","tx6sd7gh", "tx9qwu47v"]',
+          activeIndex: 0,
+        };
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.mode).toEqual('add');
+        expect(component.reviewList).toEqual(['tx3qwe4ty', 'tx6sd7gh', 'tx9qwu47v']);
+        expect(component.title).toEqual('Review');
+        expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedViewPerDiem');
+        expect(component.isExpandedView).toBeTrue();
+      }));
+
+      it('should call orgSettingsService.get, orgUserSettingsService.get, perDiemService.getRates and reportService.getAutoSubmissionReportName once and update isNewReportsFlowEnabled', () => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+        component.ionViewWillEnter();
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(perDiemService.getRates).toHaveBeenCalledTimes(1);
+        expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
+        component.autoSubmissionReportName$.subscribe((res) => {
+          expect(res).toEqual('#1: Aug 2023');
+        });
+        expect(component.isNewReportsFlowEnabled).toBeTrue();
+      });
+
+      it('should set isAdvancesEnabled$, individualPerDiemRatesEnabled$ and recentlyUsedValues$', () => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsWoTax));
+        component.ionViewWillEnter();
+        component.isAdvancesEnabled$.subscribe((res) => {
+          expect(res).toEqual(true);
+        });
+        component.individualPerDiemRatesEnabled$.subscribe((res) => {
+          expect(res).toEqual(false);
+        });
+        component.recentlyUsedValues$.subscribe((res) => {
+          expect(res).toEqual(recentlyUsedRes);
+        });
+        expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+        expect(recentlyUsedItemsService.getRecentlyUsed).toHaveBeenCalledTimes(1);
+      });
+
+      it('should set isAdvancesEnabled$ to true and recentlyUsedValues$ to null if orgSettings.advances.enabled is true and device is offline', () => {
+        component.isConnected$ = of(false);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        component.ionViewWillEnter();
+        component.isAdvancesEnabled$.subscribe((res) => {
+          expect(res).toEqual(true);
+        });
+        component.recentlyUsedValues$.subscribe((res) => {
+          expect(res).toEqual(null);
+        });
+        expect(recentlyUsedItemsService.getRecentlyUsed).not.toHaveBeenCalled();
       });
     });
   });

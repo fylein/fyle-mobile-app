@@ -1010,7 +1010,7 @@ export class AddEditPerDiemPage implements OnInit {
         switchMap((txnFields) =>
           forkJoin({
             isConnected: this.isConnected$.pipe(take(1)),
-            orgSettings: this.orgSettingsService.get(),
+            orgSettings: orgSettings$,
             costCenters: this.costCenters$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
             individualProjectIds: this.individualProjectIds$,
