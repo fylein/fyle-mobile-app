@@ -167,6 +167,7 @@ describe('AddEditMileagePage', () => {
       'hideMoreClicked',
       'showMoreClicked',
       'newExpenseCreatedFromPersonalCard',
+      'clickDeleteExpense',
     ]);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [

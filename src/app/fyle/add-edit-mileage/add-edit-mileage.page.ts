@@ -2602,6 +2602,45 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  getDeleteReportParams(config: {
+    header: string;
+    body: string;
+    ctaText: string;
+    ctaLoadingText: string;
+    reportId?: string;
+    id?: string;
+    removeMileageFromReport?: boolean;
+  }): {
+    component: typeof FyDeleteDialogComponent;
+    cssClass: string;
+    backdropDismiss: boolean;
+    componentProps: {
+      header: string;
+      body: string;
+      ctaText: string;
+      ctaLoadingText: string;
+      deleteMethod: () => Observable<Expense | void>;
+    };
+  } {
+    return {
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: config.header,
+        body: config.body,
+        ctaText: config.ctaText,
+        ctaLoadingText: config.ctaLoadingText,
+        deleteMethod: (): Observable<Expense | void> => {
+          if (config.removeMileageFromReport) {
+            return this.reportService.removeTransaction(config.reportId, config.id);
+          }
+          return this.transactionService.delete(config.id);
+        },
+      },
+    };
+  }
+
   async deleteExpense(reportId?: string): Promise<void> {
     const id = this.activatedRoute.snapshot.params.id as string;
     const removeMileageFromReport = reportId && this.isRedirectedFromReport;
@@ -2613,23 +2652,17 @@ export class AddEditMileagePage implements OnInit {
     const ctaText = removeMileageFromReport ? 'Remove' : 'Delete';
     const ctaLoadingText = removeMileageFromReport ? 'Removing' : 'Deleting';
 
-    const deletePopover = await this.popoverController.create({
-      component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
-      backdropDismiss: false,
-      componentProps: {
-        header,
-        body,
-        ctaText,
-        ctaLoadingText,
-        deleteMethod: () => {
-          if (removeMileageFromReport) {
-            return this.reportService.removeTransaction(reportId, id);
-          }
-          return this.transactionService.delete(id);
-        },
-      },
-    });
+    const config = {
+      header,
+      body,
+      ctaText,
+      ctaLoadingText,
+      reportId,
+      removeMileageFromReport,
+      id,
+    };
+
+    const deletePopover = await this.popoverController.create(this.getDeleteReportParams(config));
 
     await deletePopover.present();
     const { data } = (await deletePopover.onDidDismiss()) as {

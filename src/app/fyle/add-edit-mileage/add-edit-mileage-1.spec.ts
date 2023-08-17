@@ -5,8 +5,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { of } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
+import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
+import { policyExpense2 } from 'src/app/core/mock-data/expense.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock-data/org-category.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
+import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
+import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -44,20 +51,11 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { AddEditMileagePage } from './add-edit-mileage.page';
-import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import {
-  expectedAutoFillCategory3,
-  mileageCategories,
-  transformedOrgCategoryById,
-} from 'src/app/core/mock-data/org-category.data';
-import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
-import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
-import { txnData2 } from 'src/app/core/mock-data/transaction.data';
-import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
+import { AddEditMileagePage } from './add-edit-mileage.page';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -187,6 +185,9 @@ export function TestCases1(getTestBed) {
         cost_center_dependent_fields: formBuilder.array([]),
       });
 
+      component.hardwareBackButtonAction = new Subscription();
+      component.onPageExit$ = new Subject();
+      component.selectedProject$ = new BehaviorSubject(null);
       fixture.detectChanges();
     });
 
@@ -270,7 +271,7 @@ export function TestCases1(getTestBed) {
           ...properties,
         });
         expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(trackingService.addComment).toHaveBeenCalledOnceWith();
+        expect(trackingService.addComment).toHaveBeenCalledTimes(1);
       }));
 
       it('should view comment in the expense and track the event', fakeAsync(() => {
@@ -294,7 +295,7 @@ export function TestCases1(getTestBed) {
           ...properties,
         });
         expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(trackingService.viewComment).toHaveBeenCalledOnceWith();
+        expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
       }));
     });
 
@@ -355,7 +356,7 @@ export function TestCases1(getTestBed) {
 
         component.getProjectCategoryIds().subscribe((res) => {
           expect(res).toEqual(['141295', '141300']);
-          expect(categoriesService.getAll).toHaveBeenCalledOnceWith();
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -365,7 +366,7 @@ export function TestCases1(getTestBed) {
 
         component.getProjectCategoryIds().subscribe((res) => {
           expect(res).toEqual([]);
-          expect(categoriesService.getAll).toHaveBeenCalledOnceWith();
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -385,7 +386,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
-        expect(component.close).toHaveBeenCalledOnceWith();
+        expect(component.close).toHaveBeenCalledTimes(1);
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
@@ -477,6 +478,319 @@ export function TestCases1(getTestBed) {
         ...properties,
       });
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    });
+
+    describe('ionViewWillLeave(): ', () => {
+      it('should unsubscribe and complete observable as component leaves', () => {
+        const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnDestroy']);
+
+        component.projectDependentFieldsRef = dependentFieldSpy;
+        component.costCenterDependentFieldsRef = dependentFieldSpy;
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+        fixture.detectChanges();
+
+        component.ionViewWillLeave();
+
+        expect(dependentFieldSpy.ngOnDestroy).toHaveBeenCalledTimes(2);
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+      });
+
+      it('should unsubscribe remaining observables as dependent fields are not present', () => {
+        component.projectDependentFieldsRef = null;
+        component.costCenterDependentFieldsRef = null;
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+
+        fixture.detectChanges();
+
+        component.ionViewWillLeave();
+
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('getDeleteReportParams():', () => {
+      it('should get config params for delete report modal and call method to remove txn from report', () => {
+        reportService.removeTransaction.and.returnValue(of());
+        const header = 'Header';
+        const body = 'Body';
+        const ctaText = 'cta';
+        const ctaLoadingText = 'loading';
+
+        const result = component.getDeleteReportParams({
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
+          removeMileageFromReport: true,
+          reportId: 'rp123',
+          id: 'txn123',
+        });
+
+        result.componentProps.deleteMethod();
+        expect(reportService.removeTransaction).toHaveBeenCalledWith('rp123', 'txn123');
+      });
+
+      it('should get config params for delete report modal and call method to delete expense', () => {
+        transactionService.delete.and.returnValue(of(policyExpense2));
+        const header = 'Header';
+        const body = 'Body';
+        const ctaText = 'cta';
+        const ctaLoadingText = 'loading';
+
+        const result = component.getDeleteReportParams({
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
+          removeMileageFromReport: false,
+          id: 'txn123',
+        });
+
+        result.componentProps.deleteMethod();
+        expect(transactionService.delete).toHaveBeenCalledOnceWith('txn123');
+      });
+    });
+
+    describe('deleteExpense():', () => {
+      it('should delete mileage from report and navigate back to the report', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        component.isRedirectedFromReport = true;
+        fixture.detectChanges();
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+
+        const header = 'Remove Mileage';
+        const body = 'Are you sure you want to remove this mileage expense from this report?';
+        const ctaText = 'Remove';
+        const ctaLoadingText = 'Removing';
+
+        component.deleteExpense('rpFE5X1Pqi9P');
+        tick(500);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_report', { id: 'rpFE5X1Pqi9P' }]);
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith({
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
+          removeMileageFromReport: true,
+          id: 'txyeiYbLDSOy',
+          reportId: 'rpFE5X1Pqi9P',
+        });
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({
+            header,
+            body,
+            ctaText,
+            ctaLoadingText,
+            removeMileageFromReport: true,
+            id: 'txyeiYbLDSOy',
+            reportId: 'rpFE5X1Pqi9P',
+          })
+        );
+      }));
+
+      it('should delete mileage and go to the next transaction', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        spyOn(component, 'goToTransaction');
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+        component.activeIndex = 0;
+        component.isRedirectedFromReport = true;
+        activatedRoute.snapshot.params.id = JSON.stringify('txfCdl3TEZ7K');
+        fixture.detectChanges();
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        fixture.detectChanges();
+
+        const header = 'Delete Mileage';
+        const body = 'Are you sure you want to delete this mileage expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(500);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith({
+          header: 'Delete Mileage',
+          body: 'Are you sure you want to delete this mileage expense?',
+          ctaText: 'Delete',
+          ctaLoadingText: 'Deleting',
+          id: '"txfCdl3TEZ7K"',
+          reportId: undefined,
+          removeMileageFromReport: undefined,
+        });
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText })
+        );
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
+          component.reviewList[+component.activeIndex]
+        );
+        expect(component.goToTransaction).toHaveBeenCalledOnceWith(
+          unflattenedTxnData,
+          component.reviewList,
+          +component.activeIndex
+        );
+      }));
+
+      it('should delete mileage and go to my expenses page if not redirected from report', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        component.isRedirectedFromReport = false;
+        activatedRoute.snapshot.params.id = JSON.stringify('txfCdl3TEZ7K');
+        fixture.detectChanges();
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        fixture.detectChanges();
+
+        const header = 'Delete Mileage';
+        const body = 'Are you sure you want to delete this mileage expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(500);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith({
+          header: 'Delete Mileage',
+          body: 'Are you sure you want to delete this mileage expense?',
+          ctaText: 'Delete',
+          ctaLoadingText: 'Deleting',
+          id: '"txfCdl3TEZ7K"',
+          reportId: undefined,
+          removeMileageFromReport: undefined,
+        });
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({
+            header,
+            body,
+            ctaText,
+            ctaLoadingText,
+            reportId: undefined,
+            removeMileageFromReport: false,
+          })
+        );
+      }));
+
+      it('should track event in case the delete operation fails', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        component.isRedirectedFromReport = false;
+        activatedRoute.snapshot.params.id = JSON.stringify('txfCdl3TEZ7K');
+        fixture.detectChanges();
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: null,
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        fixture.detectChanges();
+
+        const header = 'Delete Mileage';
+        const body = 'Are you sure you want to delete this mileage expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(500);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith({
+          header: 'Delete Mileage',
+          body: 'Are you sure you want to delete this mileage expense?',
+          ctaText: 'Delete',
+          ctaLoadingText: 'Deleting',
+          id: '"txfCdl3TEZ7K"',
+          reportId: undefined,
+          removeMileageFromReport: undefined,
+        });
+        expect(trackingService.clickDeleteExpense).toHaveBeenCalledOnceWith({ Type: 'Mileage' });
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({
+            header,
+            body,
+            ctaText,
+            ctaLoadingText,
+            reportId: undefined,
+            removeMileageFromReport: false,
+          })
+        );
+      }));
+    });
+
+    it('continueWithCriticalPolicyViolation(): should show critical policy violation modal', async () => {
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+        'present',
+        'onWillDismiss',
+      ]);
+      fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'primary',
+        },
+      });
+
+      modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+
+      const result = await component.continueWithCriticalPolicyViolation(criticalPolicyViolation2);
+
+      expect(result).toBeTrue();
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyCriticalPolicyViolationComponent,
+        componentProps: {
+          criticalViolationMessages: criticalPolicyViolation2,
+        },
+        mode: 'ios',
+        presentingElement: await modalController.getTop(),
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    });
+
+    it('trackPolicyCorrections(): should track policy corrections', () => {
+      component.isCriticalPolicyViolated$ = of(true);
+      component.comments$ = of(estatusData1);
+      component.fg.markAsDirty();
+
+      fixture.detectChanges();
+
+      component.trackPolicyCorrections();
+      expect(trackingService.policyCorrection).toHaveBeenCalledWith({ Violation: 'Critical', Mode: 'Edit Expense' });
+      expect(trackingService.policyCorrection).toHaveBeenCalledWith({ Violation: 'Regular', Mode: 'Edit Expense' });
     });
   });
 }
