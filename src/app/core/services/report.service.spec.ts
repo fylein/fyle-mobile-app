@@ -712,7 +712,7 @@ describe('ReportService', () => {
 
   it('approverUpdateReportPurpose(): should update the report purpose for approver', (done) => {
     approverPlatformApiService.post.and.returnValue(of(platformReportData));
-    reportService.updateReportPurpose(reportData1).subscribe((res) => {
+    reportService.approverUpdateReportPurpose(reportData1).subscribe((res) => {
       expect(res).toEqual(platformReportData);
       expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports', {
         data: {
