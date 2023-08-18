@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable, Subject, from, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CardAggregateStats } from '../models/card-aggregate-stats.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
@@ -15,7 +15,7 @@ import { DataTransformService } from './data-transform.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
-import { Cacheable } from 'ts-cacheable';
+import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { CardDetails } from '../models/card-details.model';
 import { DataFeedSource } from '../enums/data-feed-source.enum';
 import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
@@ -26,6 +26,8 @@ type Config = Partial<{
   limit: number;
   order?: string;
 }>;
+
+const cacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root',
@@ -39,7 +41,16 @@ export class CorporateCreditCardExpenseService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  @Cacheable()
+  @CacheBuster({
+    cacheBusterNotifier: cacheBuster$,
+  })
+  clearCache(): Observable<void> {
+    return of(null);
+  }
+
+  @Cacheable({
+    cacheBusterObserver: cacheBuster$,
+  })
   getCorporateCards(): Observable<PlatformCorporateCard[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformCorporateCard>>('/corporate_cards')
