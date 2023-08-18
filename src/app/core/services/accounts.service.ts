@@ -79,7 +79,7 @@ export class AccountsService {
     return paymentMode.acc.type;
   }
 
-  getEtxnSelectedPaymentMode(etxn: UnflattenedTransaction, paymentModes: AccountOption[]): ExtendedAccount {
+  getEtxnSelectedPaymentMode(etxn: Partial<UnflattenedTransaction>, paymentModes: AccountOption[]): ExtendedAccount {
     if (etxn.tx.source_account_id) {
       return paymentModes
         .map((res) => res.value)
@@ -183,7 +183,7 @@ export class AccountsService {
   }
 
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
-  checkIfEtxnHasSamePaymentMode(etxn: UnflattenedTransaction, paymentMode: ExtendedAccount): boolean {
+  checkIfEtxnHasSamePaymentMode(etxn: Partial<UnflattenedTransaction>, paymentMode: ExtendedAccount): boolean {
     if (etxn.source.account_type === AccountType.PERSONAL) {
       return (
         paymentMode.acc.id === etxn.tx.source_account_id &&
