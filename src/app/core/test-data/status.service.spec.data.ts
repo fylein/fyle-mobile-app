@@ -698,6 +698,9 @@ export const apiCommentsResponse: ExtendedStatus[] = [
     st_advance_request_id: null,
     us_full_name: null,
     us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
   },
 ];
 
