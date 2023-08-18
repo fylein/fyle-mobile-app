@@ -100,11 +100,7 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import {
-  multiplePaymentModesData,
-  orgSettingsData,
-  orgSettingsWithoutAutofill,
-} from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgSettingsData, orgSettingsWithoutAutofill } from 'src/app/core/test-data/accounts.service.spec.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
@@ -1154,7 +1150,6 @@ export function TestCases3(getTestBed) {
     describe('getNewExpenseObservable():', () => {
       it('should get new expense observable', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
@@ -1172,7 +1167,6 @@ export function TestCases3(getTestBed) {
           expect(component.instaFyleCancelled).toBeFalse();
           expect(component.presetCurrency).toEqual('ARS');
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
@@ -1184,7 +1178,6 @@ export function TestCases3(getTestBed) {
 
       it('should get expense observables if preferred currency is enabled and image data is not found', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsWithCurrency);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
@@ -1202,7 +1195,6 @@ export function TestCases3(getTestBed) {
           expect(component.isExpenseBankTxn).toBeFalse();
           expect(component.instaFyleCancelled).toBeFalse();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
@@ -1212,7 +1204,7 @@ export function TestCases3(getTestBed) {
 
       it('should get new expense observable without autofill and currency settings enabled', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
