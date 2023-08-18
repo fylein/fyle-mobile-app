@@ -21,7 +21,6 @@ const config: CapacitorConfig = {
     accessOrigins: ['https://app.fylehq.com'],
   },
   server: {
-    hostname: 'https://app.fylehq.com',
     androidScheme: 'http',
   },
 };
