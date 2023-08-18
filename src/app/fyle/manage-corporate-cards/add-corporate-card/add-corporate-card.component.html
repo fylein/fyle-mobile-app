@@ -3,7 +3,7 @@
     <ion-toolbar mode="md" class="fy-modal-toolbar add-corporate-card__toolbar">
       <ion-title class="text-center add-corporate-card__toolbar-title">Add Corporate Card</ion-title>
       <ion-buttons slot="start">
-        <ion-button class="add-corporate-card__toolbar-close-btn" (click)="closePopover()">
+        <ion-button class="add-corporate-card__toolbar-close-btn" (click)="closePopover()" data-testid="close-btn">
           <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
         </ion-button>
       </ion-buttons>
@@ -27,6 +27,7 @@
           [formControl]="cardForm"
           mask="0000 0000 0000 0000"
           autocomplete="cc-number"
+          data-testid="card-number-input"
           required
         />
 
@@ -36,25 +37,32 @@
             *ngIf="!cardType || cardType === cardNetworkTypes.OTHERS"
             src="../../../../assets/svg/card.svg"
             class="add-corporate-card__input-default-icon"
+            data-testid="default-icon"
           ></ion-icon>
 
           <ion-icon
             *ngIf="cardType === cardNetworkTypes.VISA"
             src="../../../../assets/svg/visa-logo.svg"
             class="add-corporate-card__input-visa-icon"
+            data-testid="visa-icon"
           ></ion-icon>
 
           <ion-icon
             *ngIf="cardType === cardNetworkTypes.MASTERCARD"
             src="../../../../assets/svg/mastercard-logo.svg"
             class="add-corporate-card__input-mastercard-icon"
+            data-testid="mastercard-icon"
           ></ion-icon>
         </ng-container>
       </div>
 
       <div class="add-corporate-card__input-error-space"></div>
 
-      <div *ngIf="cardForm.touched && cardForm.invalid" class="add-corporate-card__input-errors">
+      <div
+        *ngIf="cardForm.touched && cardForm.invalid"
+        class="add-corporate-card__input-errors"
+        data-testid="error-message"
+      >
         <span *ngIf="cardForm.errors.invalidCardNumber">Please enter a valid card number.</span>
 
         <ng-container *ngIf="cardForm.errors.invalidCardNetwork">
@@ -107,10 +115,12 @@
             <ul class="add-corporate-card__tnc-list">
               <li>
                 Allow your employer,
-                <ng-container *ngIf="cardNetworks.length === 1">{{ cardNetworks[0] }}</ng-container>
-                <ng-container *ngIf="cardNetworks.length > 1"
-                  >card network ({{ cardNetworks | arrayToCommaList }})</ng-container
-                >
+                <span data-testid="tnc-card-networks">
+                  <ng-container *ngIf="cardNetworks.length === 1">{{ cardNetworks[0] }}</ng-container>
+                  <ng-container *ngIf="cardNetworks.length > 1"
+                    >card network ({{ cardNetworks | arrayToCommaList }})</ng-container
+                  >
+                </span>
                 and Fyle Inc to access details of all transactions made using the enrolled card. This includes the
                 transaction amount, the name of the merchant, the date and time of the transaction, and any other
                 relevant information deemed necessary to provide services.
@@ -159,6 +169,7 @@
       (click)="enrollCard()"
       [disabled]="isAddingNonRTFCard && isYodleeEnabled"
       class="fy-footer-cta fy-footer-cta--primary"
+      data-testid="add-btn"
       >Add</ion-button
     >
   </div>
