@@ -3,6 +3,7 @@ import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
 import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
+import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 
 @Component({
@@ -17,9 +18,11 @@ export class AddCorporateCardComponent implements OnInit {
 
   @Input() isYodleeEnabled: boolean;
 
-  cardForm: FormControl;
+  @Input() card: PlatformCorporateCard;
 
-  cardType: CardNetworkType;
+  @Input() cardType: CardNetworkType;
+
+  cardForm: FormControl;
 
   cardNetworks: CardNetworkType[];
 
@@ -39,7 +42,7 @@ export class AddCorporateCardComponent implements OnInit {
     this.cardNetworks = this.getCardNetworks();
 
     this.cardForm.valueChanges.pipe(distinctUntilChanged()).subscribe((value: string) => {
-      this.cardType = this.realTimeFeedService.getCardType(value);
+      this.cardType = this.realTimeFeedService.getCardTypeFromNumber(value);
       this.cardNetworks = this.getCardNetworks();
 
       this.isAddingNonRTFCard = this.cardType === CardNetworkType.OTHERS && this.cardForm.valid;
@@ -56,11 +59,12 @@ export class AddCorporateCardComponent implements OnInit {
     }
 
     const cardNumber = this.cardForm.value as string;
+    const existingCardId = this.card ? this.card.id : null;
 
     this.isEnrollingCard = true;
 
     this.realTimeFeedService
-      .enroll(cardNumber)
+      .enroll(cardNumber, existingCardId)
       .pipe(
         catchError((error: Error) => {
           this.handleEnrollmentFailures(error);
@@ -111,7 +115,7 @@ export class AddCorporateCardComponent implements OnInit {
     const cardNumber = control.value as string;
 
     const isValid = this.realTimeFeedService.isCardNumberValid(cardNumber);
-    const cardType = this.realTimeFeedService.getCardType(cardNumber);
+    const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
     if (cardType === CardNetworkType.VISA || cardType === CardNetworkType.MASTERCARD) {
       return isValid && cardNumber.length === 16 ? null : { invalidCardNumber: true };
@@ -122,7 +126,7 @@ export class AddCorporateCardComponent implements OnInit {
 
   private cardNetworkValidator(control: AbstractControl): ValidationErrors {
     const cardNumber = control.value as string;
-    const cardType = this.realTimeFeedService.getCardType(cardNumber);
+    const cardType = this.realTimeFeedService.getCardTypeFromNumber(cardNumber);
 
     if (
       (!this.isYodleeEnabled && cardType === CardNetworkType.OTHERS) ||

@@ -13,6 +13,11 @@
   border-radius: 16px;
   background-color: $translucent-white-2;
 
+  &__img {
+    width: 106px;
+    height: 106px;
+  }
+
   &__cta {
     display: flex;
     align-items: center;

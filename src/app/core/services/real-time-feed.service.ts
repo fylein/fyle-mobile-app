@@ -7,6 +7,7 @@ import { EnrollCardResponse } from '../models/platform/enroll-card-response.mode
 import { HttpErrorResponse } from '@angular/common/http';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiError } from '../models/platform/platform-api-error.model';
+import { UnenrollCardPayload } from '../models/platform/unenroll-card-payload.model';
 import { CardNetworkType } from '../enums/card-network-type';
 
 @Injectable({
@@ -51,6 +52,31 @@ export class RealTimeFeedService {
     return checksum % 10 === 0;
   }
 
+  unenroll(cardType: CardNetworkType, cardId: string): Observable<void> {
+    const card: PlatformApiPayload<UnenrollCardPayload> = {
+      data: {
+        id: cardId,
+      },
+    };
+
+    let endpoint: string;
+
+    switch (cardType) {
+      case CardNetworkType.VISA:
+        endpoint = '/corporate_cards/visa_unenroll';
+        break;
+
+      case CardNetworkType.MASTERCARD:
+        endpoint = '/corporate_cards/mastercard_unenroll';
+        break;
+
+      default:
+        throw new Error(`Invalid card type ${cardType}`);
+    }
+
+    return this.spenderPlatformV1ApiService.post<void>(endpoint, card);
+  }
+
   enroll(cardNumber: string, cardId?: string): Observable<PlatformCorporateCard> {
     const card: PlatformApiPayload<EnrollCardPayload> = {
       data: {
@@ -62,7 +88,7 @@ export class RealTimeFeedService {
       card.data.id = cardId;
     }
 
-    const cardType = this.getCardType(cardNumber);
+    const cardType = this.getCardTypeFromNumber(cardNumber);
     let endpoint: string;
 
     switch (cardType) {
@@ -87,7 +113,7 @@ export class RealTimeFeedService {
     );
   }
 
-  getCardType(cardNumber: string): CardNetworkType {
+  getCardTypeFromNumber(cardNumber: string): CardNetworkType {
     if (!cardNumber) {
       return null;
     }
@@ -102,5 +128,17 @@ export class RealTimeFeedService {
       default:
         return CardNetworkType.OTHERS;
     }
+  }
+
+  getCardType(card: PlatformCorporateCard): CardNetworkType {
+    if (card.is_mastercard_enrolled) {
+      return CardNetworkType.MASTERCARD;
+    }
+
+    if (card.is_visa_enrolled) {
+      return CardNetworkType.VISA;
+    }
+
+    return CardNetworkType.OTHERS;
   }
 }

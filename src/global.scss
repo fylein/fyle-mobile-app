@@ -368,6 +368,10 @@ ion-popover.camera-options-popover {
   margin-bottom: 0 !important;
 }
 
+.mb-16 {
+  margin-bottom: 16px !important;
+}
+
 .pb-0 {
   padding-bottom: 0 !important;
 }
@@ -753,6 +757,14 @@ ref - https://stackoverflow.com/a/31162426
     --color: #{$grey-light};
     color: $grey-light;
     font-weight: 500;
+  }
+
+  .danger {
+    color: $red;
+
+    .action-sheet-icon {
+      color: $red;
+    }
   }
 
   .action-sheet-button-inner {
