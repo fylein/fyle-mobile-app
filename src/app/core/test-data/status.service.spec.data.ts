@@ -685,6 +685,23 @@ export const apiCommentsResponse: ExtendedStatus[] = [
     isSelfComment: false,
     isOthersComment: true,
   },
+  {
+    st_id: 'st3xjYhJBfIu',
+    st_created_at: new Date('2023-08-17T18:00:32.414Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment:
+      'Expense report name was changed from "#5:  Aug 2023" to "#5:  Aug 2023 - Office supply" by Abhishek Jain (ajain@fyle.in)',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp39MrwyOm9n',
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+  },
 ];
 
 export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
@@ -1326,6 +1343,27 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     st: {
       category: 'Expense Rule Applied',
       icon: 'expense-rule',
+    },
+  },
+  {
+    st_id: 'st3xjYhJBfIu',
+    st_created_at: new Date('2023-08-17T18:00:32.414Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment:
+      'Expense report name was changed from "#5:  Aug 2023" to "#5:  Aug 2023 - Office supply" by Abhishek Jain (ajain@fyle.in)',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp39MrwyOm9n',
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    st: {
+      category: 'Report Name Changed',
+      icon: 'edit',
     },
   },
 ];
