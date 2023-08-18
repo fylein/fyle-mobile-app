@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
-import { catchError, distinctUntilChanged, finalize, of, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 
