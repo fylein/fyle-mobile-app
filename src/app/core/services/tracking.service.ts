@@ -24,7 +24,6 @@ import {
   AppLaunchTimeProperties,
   CaptureSingleReceiptTimeProperties,
   SwitchOrgLaunchTimeProperties,
-  ReportNameChangeProperties,
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
@@ -221,11 +220,6 @@ export class TrackingService {
   // create report event
   createReport(properties: CreateReportProperties): void {
     this.eventTrack('Create Report', properties);
-  }
-
-  // Report name change event
-  reportNameChange(properties: ReportNameChangeProperties): void {
-    this.eventTrack('Report Name Change', properties);
   }
 
   /*** Events related to help page ***/
