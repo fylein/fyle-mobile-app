@@ -73,7 +73,7 @@ import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/depende
 import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
 import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response';
 import { expenseInfoWithoutDefaultExpense, expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
-import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
+import { customInputData1, customInputsData4 } from 'src/app/core/mock-data/custom-input.data';
 
 export function TestCases3(getTestBed) {
   return describe('test cases set 3', () => {
@@ -293,7 +293,7 @@ export function TestCases3(getTestBed) {
     describe('generateCustomInputOptions(): ', () => {
       beforeEach(() => {
         component.expenses = expenseList2;
-        mergeExpensesService.getCustomInputValues.and.returnValue(cloneDeep([customInputData1]));
+        mergeExpensesService.getCustomInputValues.and.returnValue(cloneDeep([customInputsData4]));
         mergeExpensesService.formatCustomInputOptions.and.returnValue({
           'select all 2': optionsData32[7],
         });

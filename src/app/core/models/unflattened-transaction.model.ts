@@ -23,5 +23,5 @@ export interface UnflattenedTransaction {
   is: {
     test_call: boolean;
   };
-  dataUrls?: Partial<FileObject[]>;
+  dataUrls?: Partial<FileObject[]> | { url: string; type: string }[];
 }

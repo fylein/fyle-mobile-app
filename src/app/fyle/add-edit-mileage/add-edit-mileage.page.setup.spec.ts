@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -51,13 +51,12 @@ import { DependentFieldComponent } from 'src/app/shared/components/dependent-fie
 import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { TestCases1 } from './add-edit-expense-1.spec';
-import { TestCases2 } from './add-edit-expense-2.spec';
-import { TestCases3 } from './add-edit-expense-3.spec';
-import { TestCases4 } from './add-edit-expense-4.spec';
-import { TestCases5 } from './add-edit-expense-5.spec';
-import { TestCases6 } from './add-edit-expense-6.spec';
-import { AddEditExpensePage } from './add-edit-expense.page';
+import { AddEditMileagePage } from './add-edit-mileage.page';
+import { TestCases1 } from './add-edit-mileage-1.spec';
+import { MileageService } from 'src/app/core/services/mileage.service';
+import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
+import { LocationService } from 'src/app/core/services/location.service';
+import { FyLocationComponent } from 'src/app/shared/components/fy-location/fy-location.component';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -65,7 +64,7 @@ export function setFormValid(component) {
   });
 }
 
-describe('AddEditExpensePage', () => {
+describe('AddEditMileagePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getEMyAccounts',
@@ -186,7 +185,7 @@ describe('AddEditExpensePage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const sanitizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl']);
+    const sanitizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl', 'sanitize']);
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', ['matchExpense']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -206,9 +205,27 @@ describe('AddEditExpensePage', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
+    const mileageServiceSpy = jasmine.createSpyObj('MileageService', ['getDistance', 'getOrgUserMileageSettings']);
+    const mileageRateServiceSpy = jasmine.createSpyObj('MileageRatesService', [
+      'filterEnabledMileageRates',
+      'getReadableRate',
+      'formatMileageRateName',
+    ]);
+    const locationServiceSpy = jasmine.createSpyObj('LocationService', [
+      'getCurrentLocation',
+      'getAutocompletePredictions',
+      'getGeocode',
+    ]);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
+      declarations: [
+        AddEditMileagePage,
+        MaskNumber,
+        FySelectComponent,
+        EllipsisPipe,
+        DependentFieldComponent,
+        FyLocationComponent,
+      ],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         FormBuilder,
@@ -396,6 +413,18 @@ describe('AddEditExpensePage', () => {
           provide: PlatformHandlerService,
           useValue: platformHandlerServiceSpy,
         },
+        {
+          provide: MileageService,
+          useValue: mileageServiceSpy,
+        },
+        {
+          provide: MileageRatesService,
+          useValue: mileageRateServiceSpy,
+        },
+        {
+          provide: LocationService,
+          useValue: locationServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     });
@@ -404,9 +433,4 @@ describe('AddEditExpensePage', () => {
   };
 
   TestCases1(getTestBed);
-  TestCases2(getTestBed);
-  TestCases3(getTestBed);
-  TestCases4(getTestBed);
-  TestCases5(getTestBed);
-  TestCases6(getTestBed);
 });
