@@ -1,5 +1,6 @@
 import { FormBuilder } from '@angular/forms';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { PerDiemCustomInputs } from '../models/per-diem-custom-inputs.model';
 const formBuilder = new FormBuilder();
 
 export const perDiemCustomInputsData1 = [
@@ -102,7 +103,7 @@ export const expectedControlValues = perDiemCustomInputsData1.map(
   ({ control }: { control: { value: string | string[] } }) => control.value
 );
 
-export const perDiemCustomInputsData2 = [
+export const perDiemCustomInputsData2: PerDiemCustomInputs[] = [
   {
     id: 318297,
     mandatory: true,
