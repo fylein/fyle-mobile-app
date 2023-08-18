@@ -47,6 +47,14 @@ describe('EditReportNamePopoverComponent', () => {
       expect(saveButton.disabled).toBeTrue();
     });
 
+    it('should have Save button disabled when report name maximum character limit is reached', () => {
+      const saveButton = getElementBySelector(fixture, '.edit-report-name--toolbar__btn-save') as HTMLButtonElement;
+      component.reportName =
+        "#1: 30-Jul 2021, claiming the expenses as per actual expense not as per day training remuneration because it was an extended training, also attached the ola bill paid on 29th july, because don't have the bill for 30th july, and spent the same amount.";
+      fixture.detectChanges();
+      expect(saveButton.disabled).toBeTrue();
+    });
+
     it('should have Save button enabled when report name is not empty', () => {
       const saveButton = getElementBySelector(fixture, '.edit-report-name--toolbar__btn-save') as HTMLButtonElement;
       fixture.detectChanges();
