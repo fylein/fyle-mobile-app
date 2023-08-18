@@ -14,7 +14,7 @@
           <div>
             {{ eou.us.email }}
           </div>
-          <ng-container *ngIf="eou.ou.employee_id?.length">
+          <ng-container *ngIf="eou.ou.employee_id">
             <div class="employee-details-card__employee-id">Employee ID - {{ eou.ou.employee_id }}</div>
           </ng-container>
         </ion-col>
