@@ -140,6 +140,7 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
 import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup-with-bullets.component';
 import { AddCardComponent } from './components/add-card/add-card.component';
 import { CardNumberComponent } from './components/card-number/card-number.component';
+import { ArrayToCommaListPipe } from './pipes/array-to-comma-list.pipe';
 
 @NgModule({
   declarations: [
@@ -259,6 +260,7 @@ import { CardNumberComponent } from './components/card-number/card-number.compon
     PopupWithBulletsComponent,
     AddCardComponent,
     CardNumberComponent,
+    ArrayToCommaListPipe,
   ],
   imports: [
     CommonModule,
@@ -383,6 +385,7 @@ import { CardNumberComponent } from './components/card-number/card-number.compon
     PopupWithBulletsComponent,
     AddCardComponent,
     CardNumberComponent,
+    ArrayToCommaListPipe,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })
