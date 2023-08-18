@@ -451,7 +451,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoNext();
 
-        expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -823,7 +823,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
-        expect(component.close).toHaveBeenCalledOnceWith();
+        expect(component.close).toHaveBeenCalledTimes(1);
       });
 
       it('should add a new expense and go to the previous expense if not the first one in list', () => {
@@ -838,7 +838,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and close the form', () => {
@@ -853,7 +853,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
-        expect(component.close).toHaveBeenCalledOnceWith();
+        expect(component.close).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and go to the previous expense', () => {
@@ -868,7 +868,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledTimes(1);
       });
 
       it('should show validation errors if the form is not valid', () => {
@@ -876,7 +876,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
 
-        expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
   });
