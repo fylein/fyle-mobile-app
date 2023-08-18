@@ -102,6 +102,7 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
+import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -129,7 +130,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   canCreatePerDiem$: Observable<boolean>;
 
-  allowedPerDiemRateOptions$: Observable<{ label: string; value: PerDiemRates }[]>;
+  allowedPerDiemRateOptions$: Observable<AllowedPerDiemRateOptions[]>;
 
   paymentModes$: Observable<AccountOption[]>;
 
