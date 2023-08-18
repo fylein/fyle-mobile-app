@@ -6,8 +6,18 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { of } from 'rxjs';
+import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock-data/org-category.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
+import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
+import { txnData2 } from 'src/app/core/mock-data/transaction.data';
+import {
+  mileageCategoryUnflattenedExpense,
+  perDiemCategoryUnflattenedExpense,
+  unflattenedTxnData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -44,9 +54,9 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { AddEditMileagePage } from './add-edit-mileage.page';
-import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
+import { AddEditMileagePage } from './add-edit-mileage.page';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -285,6 +295,185 @@ export function TestCases1(getTestBed) {
         expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
         expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
       }));
+    });
+
+    describe('goToTransaction():', () => {
+      const txnIds = ['txfCdl3TEZ7K'];
+      it('should navigate to add-edit mileage if category is mileage', () => {
+        component.goToTransaction(mileageCategoryUnflattenedExpense, txnIds, 0);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_mileage',
+          {
+            id: mileageCategoryUnflattenedExpense.tx.id,
+            txnIds: JSON.stringify(txnIds),
+            activeIndex: 0,
+          },
+        ]);
+      });
+
+      it('should navigate to per diem expense form if the category is per diem', () => {
+        component.goToTransaction(perDiemCategoryUnflattenedExpense, txnIds, 0);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_per_diem',
+          {
+            id: perDiemCategoryUnflattenedExpense.tx.id,
+            txnIds: JSON.stringify(txnIds),
+            activeIndex: 0,
+          },
+        ]);
+      });
+
+      it('should navigate to expense form', () => {
+        component.goToTransaction(unflattenedTxnData, txnIds, 0);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          {
+            id: unflattenedTxnData.tx.id,
+            txnIds: JSON.stringify(txnIds),
+            activeIndex: 0,
+          },
+        ]);
+      });
+    });
+
+    describe('getProjectCategoryIds():', () => {
+      it('should return MILEAGE category IDs', (done) => {
+        categoriesService.getAll.and.returnValue(of(mileageCategories));
+
+        component.getProjectCategoryIds().subscribe((res) => {
+          expect(res).toEqual(['141295', '141300']);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return an empty array if there are no MILEAGE categories', (done) => {
+        categoriesService.getAll.and.returnValue(of(transformedOrgCategoryById));
+
+        component.getProjectCategoryIds().subscribe((res) => {
+          expect(res).toEqual([]);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+    });
+
+    describe('saveExpenseAndGotoNext():', () => {
+      it('should add a new expense and close the form', () => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'close');
+        component.activeIndex = 0;
+        component.reviewList = ['id1'];
+        component.mode = 'add';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoNext();
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
+        expect(component.close).toHaveBeenCalledTimes(1);
+      });
+
+      it('should add a new expense and go to the next expense if not the first one in list', () => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'goToNext');
+        component.activeIndex = 0;
+        component.mode = 'add';
+        component.reviewList = ['id1', 'id2'];
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoNext();
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
+        expect(component.goToNext).toHaveBeenCalledTimes(1);
+      });
+
+      it('should save an edited expense and close the form', () => {
+        spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'close');
+        component.activeIndex = 0;
+        component.mode = 'edit';
+        component.reviewList = ['id1'];
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoNext();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
+        expect(component.close).toHaveBeenCalledTimes(1);
+      });
+
+      it('should save an edited expense and go to the next expense', () => {
+        spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'goToNext');
+        component.activeIndex = 0;
+        component.mode = 'edit';
+        component.reviewList = ['id1', 'id2'];
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoNext();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
+        expect(component.goToNext).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('getTimeSpentOnPage(): should get time spent on page', () => {
+      component.expenseStartTime = 164577000;
+      fixture.detectChanges();
+
+      const result = component.getTimeSpentOnPage();
+      const time = (new Date().getTime() - component.expenseStartTime) / 1000;
+      expect(result).toEqual(time);
+    });
+
+    it('reloadCurrentRoute(): should reload the current load', fakeAsync(() => {
+      component.reloadCurrentRoute();
+      tick(500);
+
+      expect(router.navigateByUrl).toHaveBeenCalledOnceWith('/enterprise/my_expenses', { skipLocationChange: true });
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'add_edit_mileage']);
+    }));
+
+    it('continueWithPolicyViolations(): should display violations and relevant CTA in a modal', async () => {
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+      currencyModalSpy.onWillDismiss.and.resolveTo({
+        data: { comment: 'primary' },
+      });
+      modalController.create.and.resolveTo(currencyModalSpy);
+
+      const result = await component.continueWithPolicyViolations(
+        criticalPolicyViolation2,
+        splitPolicyExp4.data.final_desired_state
+      );
+
+      expect(result).toEqual({ comment: 'primary' });
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyPolicyViolationComponent,
+        componentProps: {
+          policyViolationMessages: criticalPolicyViolation2,
+          policyAction: splitPolicyExp4.data.final_desired_state,
+        },
+        mode: 'ios',
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     });
   });
 }
