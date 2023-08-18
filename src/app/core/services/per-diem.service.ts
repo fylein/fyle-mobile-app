@@ -3,12 +3,12 @@ import { Observable, Subject, range } from 'rxjs';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Cacheable } from 'ts-cacheable';
+import { OrgUserSettings } from '../models/org_user_settings.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformPerDiemRates } from '../models/platform/platform-per-diem-rates.model';
 import { PerDiemRates } from '../models/v1/per-diem-rates.model';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { OrgUserSettings } from '../models/org_user_settings.model';
 
 const perDiemsCacheBuster$ = new Subject<void>();
 
@@ -40,20 +40,20 @@ export class PerDiemService {
   getAllowedPerDiems(allPerDiemRates: PerDiemRates[]): Observable<PerDiemRates[]> {
     return this.orgUserSettingsService.get().pipe(
       map((settings: OrgUserSettings) => {
-        let allowedPerDiems = [];
+        let allowedPerDiems: PerDiemRates[] = [];
 
         if (
           settings.per_diem_rate_settings.allowed_per_diem_ids &&
           settings.per_diem_rate_settings.allowed_per_diem_ids.length > 0
         ) {
-          const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids;
+          const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids as number[];
 
           if (allPerDiemRates?.length > 0) {
-            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.includes(perDiem.id as never));
+            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.includes(perDiem.id));
           }
         }
 
-        return allowedPerDiems as PerDiemRates[];
+        return allowedPerDiems;
       })
     );
   }
