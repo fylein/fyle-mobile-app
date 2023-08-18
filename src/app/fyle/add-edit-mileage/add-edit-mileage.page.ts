@@ -2474,6 +2474,9 @@ export class AddEditMileagePage implements OnInit {
     return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
       switchMap((continueWithTransaction: { comment: string }) => {
         if (continueWithTransaction) {
+          if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
+            continueWithTransaction.comment = 'No policy violation explaination provided';
+          }
           return from(this.loaderService.showLoader()).pipe(
             switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
           );
