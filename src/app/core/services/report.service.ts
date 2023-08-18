@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { Inject, Injectable } from '@angular/core';
 import { Observable, Subject, from, of, range } from 'rxjs';
 import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
@@ -7,6 +8,7 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { Expense } from '../models/expense.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { PdfExport } from '../models/pdf-exports.model';
+import { PlatformReport } from '../models/platform/platform-report.model';
 import { ReportActions } from '../models/report-actions.model';
 import { ReportQueryParams } from '../models/report-api-params.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
@@ -31,7 +33,6 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
-import { Injectable, Inject } from '@angular/core';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -233,6 +234,20 @@ export class ReportService {
     return this.apiService
       .post<ReportV1>('/reports', reportData.rp)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  updateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {
+    const params = {
+      data: {
+        id: erpt.rp_id,
+        source: erpt.rp_source,
+        purpose: erpt.rp_purpose,
+      },
+    };
+    return this.spenderPlatformV1ApiService.post('/reports', params);
   }
 
   @Cacheable({

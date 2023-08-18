@@ -16,17 +16,18 @@ import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/
 import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import {
-  instaFyleData1,
-  instaFyleData2,
+  expectedInstaFyleData1,
+  expectedInstaFyleData2,
   instaFyleData3,
   instaFyleData4,
+  parsedInfo1,
+  parsedInfo2,
   parsedReceiptData1,
   parsedReceiptData2,
   parsedReceiptDataWoDate,
 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { editExpTxn, txnData2 } from 'src/app/core/mock-data/transaction.data';
-import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
   expectedUnflattendedTxnData1,
   unflattenedTxnData,
@@ -330,7 +331,7 @@ export function TestCases2(getTestBed) {
         transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData1);
 
         component.getInstaFyleImageData().subscribe((res) => {
-          expect(res).toEqual(instaFyleData1);
+          expect(res).toEqual(expectedInstaFyleData1);
           expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('data-url');
           expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
@@ -351,7 +352,7 @@ export function TestCases2(getTestBed) {
         component.getInstaFyleImageData().subscribe((res) => {
           expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('data-url');
           expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-          expect(res).toEqual(instaFyleData2);
+          expect(res).toEqual(expectedInstaFyleData2);
           done();
         });
       });
@@ -458,7 +459,7 @@ export function TestCases2(getTestBed) {
         });
       });
 
-      it('shuld return txn without category', (done) => {
+      it('should return txn when the expense or the extracted data does not contain any category', (done) => {
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnWithExtractedData2));
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
 
@@ -853,7 +854,7 @@ export function TestCases2(getTestBed) {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
       currencyModalSpy.onWillDismiss.and.resolveTo({
-        data: { comment: 'comment' },
+        data: { comment: 'primary' },
       });
       modalController.create.and.resolveTo(currencyModalSpy);
 
@@ -862,7 +863,7 @@ export function TestCases2(getTestBed) {
         splitPolicyExp4.data.final_desired_state
       );
 
-      expect(result).toEqual({ comment: 'comment' });
+      expect(result).toEqual({ comment: 'primary' });
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyPolicyViolationComponent,
         componentProps: {
@@ -911,17 +912,7 @@ export function TestCases2(getTestBed) {
         tick(500);
 
         result.then((res) => {
-          expect(res).toEqual({
-            data: {
-              category: 'SYSTEM',
-              currency: 'USD',
-              amount: 100,
-              date: new Date('2023-02-15T06:30:00.000Z'),
-              invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
-              vendor_name: 'vendor',
-            },
-            exchangeRate: 82,
-          });
+          expect(res).toEqual(parsedInfo1);
           expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('base64encoded', 'jpeg');
           expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
@@ -941,17 +932,7 @@ export function TestCases2(getTestBed) {
         tick(500);
 
         result.then((res) => {
-          expect(res).toEqual({
-            data: {
-              category: 'SYSTEM',
-              currency: 'USD',
-              amount: 100,
-              date: null,
-              invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
-              vendor_name: 'vendor',
-            },
-            exchangeRate: 82,
-          });
+          expect(res).toEqual(parsedInfo2);
           expect(transactionOutboxService.parseReceipt).toHaveBeenCalledOnceWith('base64encoded', 'jpeg');
           expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith('USD', 'INR', jasmine.any(Date));

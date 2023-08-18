@@ -1,7 +1,7 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
-import { Component, DebugElement, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -48,18 +48,20 @@ import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { CCCExpUnflattened, CCCExpense } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 import { CostCenterOptions } from 'src/app/core/models/cost-centers-options.model';
+import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { Currency } from 'src/app/core/models/currency.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
-import { CustomField } from 'src/app/core/models/custom_field.model';
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { InstaFyleResponse } from 'src/app/core/models/insta-fyle-data.model';
 import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
 import { OrgSettings, TaxSettings } from 'src/app/core/models/org-settings.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { ParsedReceipt } from 'src/app/core/models/parsed_receipt.model';
 import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
@@ -70,17 +72,15 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/tracking-properties.model';
-import { CustomInputsOption, TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UndoMerge } from 'src/app/core/models/undo-merge.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -128,9 +128,7 @@ import { CorporateCreditCardExpenseService } from '../../core/services/corporate
 import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
+import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
 
 type FormValue = {
   currencyObj: {
@@ -165,8 +163,8 @@ type FormValue = {
   billable: boolean;
   costCenter: CostCenter;
   hotel_is_breakfast_provided: boolean;
-  project_dependent_fields: ExpenseField[];
-  cost_center_dependent_fields: ExpenseField[];
+  project_dependent_fields: TxnCustomProperties[];
+  cost_center_dependent_fields: TxnCustomProperties[];
 };
 
 @Component({
@@ -175,13 +173,9 @@ type FormValue = {
   styleUrls: ['./add-edit-expense.page.scss'],
 })
 export class AddEditExpensePage implements OnInit {
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;
 
-  @ViewChild('formContainer') formContainer: ElementRef;
-
-  @ViewChild('comments') commentsContainer: ElementRef;
-
-  @ViewChild('fileUpload', { static: false }) fileUpload: DebugElement;
+  @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
 
   @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
 
@@ -229,13 +223,13 @@ export class AddEditExpensePage implements OnInit {
 
   isCostCentersEnabled$: Observable<boolean>;
 
-  flightJourneyTravelClassOptions$: Observable<{ label: string; value: string }[] | string[]>;
+  flightJourneyTravelClassOptions$: Observable<{ label: string; value: string }[]>;
 
-  customInputs$: Observable<CustomInputsOption[] | ExpenseField[]>;
+  customInputs$: Observable<TxnCustomProperties[]>;
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
-  selectedCCCTransaction: CCCExpense | CorporateCardExpense;
+  selectedCCCTransaction: CCCExpense;
 
   canChangeMatchingCCCTransaction = true;
 
@@ -338,7 +332,7 @@ export class AddEditExpensePage implements OnInit {
 
   recentCurrencies: Currency[];
 
-  presetProjectId: number;
+  presetProjectId: number | string;
 
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
 
@@ -370,7 +364,7 @@ export class AddEditExpensePage implements OnInit {
 
   isSplitExpense: boolean;
 
-  isCccExpense: boolean | string;
+  isCccExpense: string;
 
   cardNumber: string;
 
@@ -563,7 +557,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   currencyObjValidator(c: AbstractControl): ValidationErrors {
-    const controlValue = c.value as { currency: string; amount: number; orig_amount: number; orig_currency: string };
+    const controlValue = c.value as CurrencyObj;
     if (
       controlValue &&
       ((controlValue.amount && controlValue.currency) || (controlValue.orig_amount && controlValue.orig_currency))
@@ -700,7 +694,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  markCCCAsPersonal(txnId: string): Observable<unknown | null> {
+  markCCCAsPersonal(txnId: string): Observable<null> {
     return this.transactionService.delete(txnId).pipe(
       switchMap((res) => {
         if (res) {
@@ -713,7 +707,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  dismissCCC(txnId: string, corporateCreditCardExpenseId: string): Observable<unknown | null> {
+  dismissCCC(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
     return this.transactionService.delete(txnId).pipe(
       switchMap((res) => {
         if (res) {
@@ -740,7 +734,7 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<UndoMerge | null>;
+      deleteMethod: () => Observable<UndoMerge>;
     };
   } {
     return {
@@ -814,7 +808,7 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<unknown | null>;
+      deleteMethod: () => Observable<null>;
     };
   } {
     const id = this.activatedRoute.snapshot.params.id as string;
@@ -827,7 +821,7 @@ export class AddEditExpensePage implements OnInit {
         body: componentPropsParam.body,
         ctaText: componentPropsParam.ctaText,
         ctaLoadingText: componentPropsParam.ctaLoadingText,
-        deleteMethod: (): Observable<unknown | null> => {
+        deleteMethod: (): Observable<null> => {
           if (isMarkPersonal) {
             return this.transactionService
               .unmatchCCCExpense(id, this.corporateCreditCardExpenseGroupId)
@@ -1115,7 +1109,7 @@ export class AddEditExpensePage implements OnInit {
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
-  getInstaFyleImageData(): Observable<InstaFyleResponse | { thumbnail: string; type: string; url: string }> {
+  getInstaFyleImageData(): Observable<Partial<InstaFyleImageData>> {
     if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl as string;
       const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
@@ -1199,7 +1193,6 @@ export class AddEditExpensePage implements OnInit {
           categories: OrgCategory[];
           homeCurrency: string;
           eou: ExtendedOrgUser;
-
           imageData: InstaFyleResponse;
           recentCurrency: Currency[];
           recentValue: RecentlyUsed;
@@ -1210,7 +1203,6 @@ export class AddEditExpensePage implements OnInit {
             categories,
             homeCurrency,
             eou,
-
             imageData,
             recentCurrency,
             recentValue,
@@ -1525,7 +1517,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedCostCenters(): Observable<CostCenter | null> {
+  getSelectedCostCenters(): Observable<CostCenter> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.cost_center_id) {
@@ -2037,7 +2029,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getCategoryOnAdd(category: OrgCategory): Observable<OrgCategory | null> {
+  getCategoryOnAdd(category: OrgCategory): Observable<OrgCategory> {
     if (category) {
       return of(category);
     } else {
@@ -2084,7 +2076,7 @@ export class AddEditExpensePage implements OnInit {
 
     const categoryControl = this.getFormControl('category');
 
-    const customInputsFeilds$ = categoryControl.valueChanges.pipe(
+    const customInputsFeilds$: Observable<TxnCustomProperties[]> = categoryControl.valueChanges.pipe(
       filter((category) => !!category),
       startWith({}),
       distinctUntilChanged(),
@@ -2098,7 +2090,6 @@ export class AddEditExpensePage implements OnInit {
       switchMap((category: OrgCategory) => {
         const formValue = this.fg.value as {
           custom_inputs: CustomInput[];
-          customInputs: CustomInput;
         };
         return customExpenseFields$.pipe(
           map((customFields: ExpenseField[]) =>
@@ -2124,7 +2115,7 @@ export class AddEditExpensePage implements OnInit {
           return customField;
         })
       ),
-      switchMap((customFields: CustomField[]) =>
+      switchMap((customFields: TxnCustomProperties[]) =>
         this.isConnected$.pipe(
           take(1),
           map((isConnected: boolean) => {
@@ -2152,14 +2143,14 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.customInputs$ = customInputsFeilds$ as unknown as Observable<CustomInputsOption[]>;
+    this.customInputs$ = customInputsFeilds$;
 
     this.dependentFields$ = customExpenseFields$.pipe(
       map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
     );
   }
 
-  generateTxnFieldsMap(): Observable<Partial<ExpenseFieldsMap | ExpenseFieldsObj>> {
+  generateTxnFieldsMap(): Observable<Partial<ExpenseFieldsObj>> {
     return this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue: FormValue) =>
@@ -2192,7 +2183,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  updateFormForExpenseFields(txnFieldsMap$: Observable<Partial<ExpenseFieldsObj | ExpenseFieldsMap>>): void {
+  updateFormForExpenseFields(txnFieldsMap$: Observable<Partial<ExpenseFieldsObj>>): void {
     this.etxn$
       .pipe(
         switchMap(() => txnFieldsMap$),
@@ -2634,8 +2625,8 @@ export class AddEditExpensePage implements OnInit {
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject<ExtendedProject | null>(null);
-    this.selectedCostCenter$ = new BehaviorSubject<CostCenter | null>(null);
+    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
     };
@@ -2835,10 +2826,6 @@ export class AddEditExpensePage implements OnInit {
 
     this.setupSelectedCostCenterObservable();
 
-    if (this.activatedRoute.snapshot.params.bankTxn) {
-      this.initCCCTxn();
-    }
-
     this.getCCCpaymentMode();
 
     this.isCreatedFromCCC = (!this.activatedRoute.snapshot.params.id &&
@@ -3004,7 +2991,7 @@ export class AddEditExpensePage implements OnInit {
               })
             )
           ),
-          reduce((acc, curr) => acc.concat(curr) as unknown as FileObject, [])
+          reduce((acc: FileObject[], curr) => acc.concat(curr), [])
         )
       )
     );
@@ -3102,7 +3089,7 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  getExpenseAttachments(mode: string, txnId?: string): Observable<FileObject[] | unknown> {
+  getExpenseAttachments(mode: string, txnId?: string): Observable<FileObject[]> {
     if (mode === 'add') {
       return of(
         this.newExpenseDataUrls.map((fileObj: FileObject) => {
@@ -3315,11 +3302,7 @@ export class AddEditExpensePage implements OnInit {
             purpose: this.getPurpose(),
             locations: locations || [],
             custom_properties: customProperties || [],
-            num_files: isPolicyEtxn
-              ? (res.attachments as Array<FileObject>)?.length
-              : this.activatedRoute.snapshot.params?.dataUrl
-              ? 1
-              : 0,
+            num_files: isPolicyEtxn ? res.attachments?.length : this.activatedRoute.snapshot.params?.dataUrl ? 1 : 0,
             ...policyProps,
             org_user_id: etxn.tx.org_user_id,
             from_dt: this.getFromDt(),
@@ -3384,16 +3367,16 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  getProjectDependentFields(): ExpenseField[] | CustomInputsOption[] {
+  getProjectDependentFields(): TxnCustomProperties[] {
     const projectDependentFieldsControl = this.fg.value as {
-      project_dependent_fields: ExpenseField[];
+      project_dependent_fields: TxnCustomProperties[];
     };
     return projectDependentFieldsControl.project_dependent_fields;
   }
 
-  getCostCenterDependentFields(): ExpenseField[] | CustomInputsOption[] {
+  getCostCenterDependentFields(): TxnCustomProperties[] {
     const CCDependentFieldsControl = this.fg.value as {
-      cost_center_dependent_fields: ExpenseField[];
+      cost_center_dependent_fields: TxnCustomProperties[];
     };
     return CCDependentFieldsControl.cost_center_dependent_fields;
   }
@@ -3401,10 +3384,7 @@ export class AddEditExpensePage implements OnInit {
   getCustomFields(): Observable<TxnCustomProperties[]> {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
-        const allDependentFields = [
-          ...this.getProjectDependentFields(),
-          ...this.getCostCenterDependentFields(),
-        ] as CustomInputsOption[];
+        const allDependentFields = [...this.getProjectDependentFields(), ...this.getCostCenterDependentFields()];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
@@ -3422,22 +3402,20 @@ export class AddEditExpensePage implements OnInit {
           customInputs,
           dependentFieldsWithValue,
         }: {
-          customInputs: CustomInputsOption[];
+          customInputs: TxnCustomProperties[];
           dependentFieldsWithValue: TxnCustomProperties[];
         }) => {
-          const customInpustWithValue: CustomProperty<
-            string | number | boolean | Date | string[] | { display: string }
-          >[] = customInputs.map((customInput, i: number) => ({
+          const customInpustWithValue: TxnCustomProperties[] = customInputs.map((customInput, i: number) => ({
             id: customInput.id,
             mandatory: customInput.mandatory,
             name: customInput.name,
-            options: customInput.options,
-            placeholder: customInput.placeholder,
-            prefix: customInput.prefix,
+            options: customInput?.options,
+            placeholder: customInput?.placeholder,
+            prefix: customInput?.prefix,
             type: customInput.type,
-            value: this.getFormValues().custom_inputs[i].value,
+            value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
-          customInpustWithValue.concat(dependentFieldsWithValue as unknown as CustomProperty<string>);
+          customInpustWithValue.concat(dependentFieldsWithValue);
           return customInpustWithValue;
         }
       )
@@ -3911,8 +3889,8 @@ export class AddEditExpensePage implements OnInit {
       policyAction?: FinalExpensePolicyState;
       etxn?: Partial<UnflattenedTransaction>;
     },
-    customFields$: Observable<CustomField[] | TxnCustomProperties[]>
-  ): Observable<UnflattenedTransaction | unknown> {
+    customFields$: Observable<TxnCustomProperties[]>
+  ): Observable<{ etxn: Partial<UnflattenedTransaction> }> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
       switchMap((continueWithTransaction) => {
@@ -3939,8 +3917,8 @@ export class AddEditExpensePage implements OnInit {
       policyAction?: FinalExpensePolicyState;
       etxn?: Partial<UnflattenedTransaction>;
     },
-    customFields$: Observable<CustomField[] | TxnCustomProperties[]>
-  ): Observable<UnflattenedTransaction | unknown> {
+    customFields$: Observable<TxnCustomProperties[]>
+  ): Observable<{ etxn: Partial<UnflattenedTransaction>; comment: string }> {
     return from(this.loaderService.hideLoader()).pipe(
       switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
       switchMap((continueWithTransaction: { comment: string }) => {
@@ -4388,7 +4366,7 @@ export class AddEditExpensePage implements OnInit {
     event.stopPropagation();
 
     if (this.platform.is('ios')) {
-      const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
+      const nativeElement = this.fileUpload.nativeElement;
       // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
       nativeElement.onchange = async () => {
         this.onChangeCallback(nativeElement);
@@ -4551,7 +4529,7 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<Expense | unknown>;
+      deleteMethod: () => Observable<Expense | void>;
     };
   } {
     return {
@@ -4563,7 +4541,7 @@ export class AddEditExpensePage implements OnInit {
         body: config.body,
         ctaText: config.ctaText,
         ctaLoadingText: config.ctaLoadingText,
-        deleteMethod: (): Observable<Expense | unknown> => {
+        deleteMethod: (): Observable<Expense | void> => {
           if (removeExpenseFromReport) {
             return this.reportService.removeTransaction(reportId, this.activatedRoute.snapshot.params.id as string);
           }
@@ -4869,7 +4847,7 @@ export class AddEditExpensePage implements OnInit {
     toastMessageData: { message: string; redirectionText?: string },
     type: 'success' | 'information' | 'failure',
     panelClass: string[]
-  ): MatSnackBarRef<ToastMessageComponent> | unknown {
+  ): MatSnackBarRef<ToastMessageComponent> {
     return this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties(type, toastMessageData),
       panelClass,

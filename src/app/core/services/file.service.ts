@@ -122,16 +122,16 @@ export class FileService {
     return new Blob([uintArray], { type: mimeType });
   }
 
-  getDataUrlFromBlob(blob: Blob): Promise<string | ArrayBuffer> {
+  getDataUrlFromBlob(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(blob);
-      reader.onloadend = (): void => resolve(reader.result);
+      reader.onloadend = (): void => resolve(reader.result.toString());
       reader.onerror = (error): void => reject(error);
     });
   }
 
-  readFile(file: Blob): Promise<string | ArrayBuffer> {
+  readFile(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.onload = async (): Promise<void> => {
@@ -144,7 +144,7 @@ export class FileService {
           const dataUrl = await this.getDataUrlFromBlob(result as Blob);
           return resolve(dataUrl);
         }
-        return resolve(fileReader.result);
+        return resolve(fileReader.result.toString());
       };
       fileReader.readAsDataURL(file);
       fileReader.onerror = (error): void => reject(error);

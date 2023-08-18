@@ -10,16 +10,21 @@ import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { eCCCData1, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
-import { customInputsData3 } from 'src/app/core/mock-data/custom-input.data';
-import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
-import { costCenterDependentFields, projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
+import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expenseData1, splitExpData } from 'src/app/core/mock-data/expense.data';
 
+import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
-import { orgCategoryData, sortedCategory, transformedOrgCategories } from 'src/app/core/mock-data/org-category.data';
+
+import {
+  filteredCategoriesData,
+  orgCategoryData,
+  sortedCategory,
+  transformedOrgCategories,
+} from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsWithProjectAndAutofill,
   orgSettingsWoTax,
@@ -40,8 +45,7 @@ import {
 import { reportOptionsData, reportOptionsData2, reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { expectedTaxGroupData, taxGroupData } from 'src/app/core/mock-data/tax-group.data';
-import { TxnCustomProperties3 } from 'src/app/core/mock-data/txn-custom-properties.data';
-import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
+import { TxnCustomProperties3, txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import {
   expectedExpenseObservable,
   expectedUnflattendedTxnData1,
@@ -96,12 +100,12 @@ import {
   orgSettingsData,
   unflattenedAccount1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { customInput2, customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
+import { txnFieldsData2 } from 'src/app/core/mock-data/expense-fields-map.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -253,7 +257,7 @@ export function TestCases5(getTestBed) {
     describe('getMarkDismissModalParams():', () => {
       it('should get modal params with method to mark as personal', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'markCCCAsPersonal').and.returnValue(of(expenseData1));
+        spyOn(component, 'markCCCAsPersonal').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.corporateCreditCardExpenseGroupId = 'cccet1B17R8gWZ';
         fixture.detectChanges();
@@ -269,8 +273,7 @@ export function TestCases5(getTestBed) {
             true
           )
           .componentProps.deleteMethod()
-          .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+          .subscribe(() => {
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'cccet1B17R8gWZ');
             expect(component.markCCCAsPersonal).toHaveBeenCalledOnceWith('txfCdl3TEZ7K');
             done();
@@ -279,7 +282,7 @@ export function TestCases5(getTestBed) {
 
       it('should get modal params with method to dismiss expense', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'dismissCCC').and.returnValue(of(expenseData1));
+        spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.matchedCCCTransaction = expectedECccResponse[0].ccce;
         fixture.detectChanges();
@@ -295,8 +298,7 @@ export function TestCases5(getTestBed) {
             false
           )
           .componentProps.deleteMethod()
-          .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+          .subscribe(() => {
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
             done();
@@ -305,7 +307,7 @@ export function TestCases5(getTestBed) {
 
       it('should get modal params with method to dismiss expense if matched expense does not exist', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
-        spyOn(component, 'dismissCCC').and.returnValue(of(expenseData1));
+        spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.matchedCCCTransaction = null;
         fixture.detectChanges();
@@ -321,8 +323,32 @@ export function TestCases5(getTestBed) {
             false
           )
           .componentProps.deleteMethod()
-          .subscribe((res) => {
-            expect(res).toEqual(expenseData1);
+          .subscribe(() => {
+            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
+            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
+            done();
+          });
+      });
+
+      it('should get modal params with method to dismiss expense if matched expense does not exist', (done) => {
+        transactionService.unmatchCCCExpense.and.returnValue(of(null));
+        spyOn(component, 'dismissCCC').and.returnValue(of(null));
+        activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
+        component.matchedCCCTransaction = null;
+        fixture.detectChanges();
+
+        component
+          .getMarkDismissModalParams(
+            {
+              header: 'Header',
+              body: 'body',
+              ctaText: 'Done',
+              ctaLoadingText: 'Loading',
+            },
+            false
+          )
+          .componentProps.deleteMethod()
+          .subscribe(() => {
             expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             done();
@@ -361,7 +387,7 @@ export function TestCases5(getTestBed) {
         tick(500);
       }));
 
-      it('should return false account type changes to null', fakeAsync(() => {
+      it('should return false when account type changes to null', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(null));
         component.setupBalanceFlag();
         tick(500);
@@ -1086,10 +1112,10 @@ export function TestCases5(getTestBed) {
         project_dependent_fields: [],
       });
 
-      component.fg.controls.project_dependent_fields.setValue(dependentCustomFields2);
+      component.fg.controls.project_dependent_fields.setValue(txnCustomPropertiesData);
 
       const result = component.getProjectDependentFields();
-      expect(result).toEqual(dependentCustomFields2);
+      expect(result).toEqual(txnCustomPropertiesData);
     });
 
     it('getCostCenterDependentFields(): should get cost center dependent fields', () => {
@@ -1097,10 +1123,10 @@ export function TestCases5(getTestBed) {
         cost_center_dependent_fields: [],
       });
 
-      component.fg.controls.cost_center_dependent_fields.setValue(dependentCustomFields2);
+      component.fg.controls.cost_center_dependent_fields.setValue(txnCustomPropertiesData);
 
       const result = component.getCostCenterDependentFields();
-      expect(result).toEqual(dependentCustomFields2);
+      expect(result).toEqual(txnCustomPropertiesData);
     });
 
     it('getCustomFields(): should get custom fields data', () => {
@@ -1109,7 +1135,7 @@ export function TestCases5(getTestBed) {
       spyOn(component, 'getProjectDependentFields').and.returnValue([]);
       spyOn(component, 'getCostCenterDependentFields').and.returnValue([]);
 
-      component.customInputs$ = of(customInputData);
+      component.customInputs$ = of(txnCustomPropertiesData);
       component.fg = formBuilder.group({
         project_dependent_fields: [],
         custom_inputs: [],
@@ -1125,20 +1151,11 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    it('initCCCTxn(): should initialize ccc details', () => {
-      activatedRoute.snapshot.params.bankTxn = JSON.stringify(eCCCData1);
-      fixture.detectChanges();
-
-      component.initCCCTxn();
-      expect(component.showSelectedTransaction).toBeTrue();
-      expect(component.isCreatedFromCCC).toBeTrue();
-    });
-
     describe('ionViewWillEnter():', () => {
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
-        component.txnFields$ = of(expenseFieldObjData);
-        component.filteredCategories$ = of(categorieListRes);
+        component.txnFields$ = of(txnFieldsData2);
+        component.filteredCategories$ = of();
 
         spyOn(component, 'initClassObservables').and.returnValue(null);
         tokenService.getClusterDomain.and.resolveTo('domain');
@@ -1149,7 +1166,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupSelectedCostCenterObservable');
         spyOn(component, 'getCCCpaymentMode');
         spyOn(component, 'setUpTaxCalculations');
-        spyOn(component, 'initCCCTxn').and.returnValue(null);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
@@ -1204,7 +1220,6 @@ export function TestCases5(getTestBed) {
 
         expect(component.setupSelectedProjectObservable).toHaveBeenCalledTimes(1);
         expect(component.setupSelectedCostCenterObservable).toHaveBeenCalledTimes(1);
-        expect(component.initCCCTxn).toHaveBeenCalledTimes(1);
         expect(component.getCCCpaymentMode).toHaveBeenCalledTimes(1);
         expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
 
@@ -1327,7 +1342,6 @@ export function TestCases5(getTestBed) {
         expect(taxGroupService.get).toHaveBeenCalledTimes(2);
 
         expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
-        expect(recentlyUsedItemsService.getRecentCategories).toHaveBeenCalledTimes(1);
         expect(component.setupFormInit).toHaveBeenCalledTimes(1);
         expect(component.setupCustomFields).toHaveBeenCalledTimes(1);
         expect(component.clearCategoryOnValueChange).toHaveBeenCalledTimes(1);
@@ -1344,7 +1358,6 @@ export function TestCases5(getTestBed) {
         component.etxn$ = of(unflattenedExpenseWithCCCGroupId2);
         activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse[0]);
         activatedRoute.snapshot.params.id = null;
-        spyOn(component, 'initCCCTxn').and.returnValue(null);
 
         spyOn(component, 'initClassObservables').and.returnValue(null);
         tokenService.getClusterDomain.and.resolveTo('domain');
@@ -1411,7 +1424,6 @@ export function TestCases5(getTestBed) {
 
         expect(component.setupSelectedProjectObservable).toHaveBeenCalledTimes(1);
         expect(component.setupSelectedCostCenterObservable).toHaveBeenCalledTimes(1);
-        expect(component.initCCCTxn).toHaveBeenCalledTimes(1);
         expect(component.getCCCpaymentMode).toHaveBeenCalledTimes(1);
         expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
 

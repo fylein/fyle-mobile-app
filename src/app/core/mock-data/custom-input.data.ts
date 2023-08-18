@@ -193,3 +193,34 @@ export const customInputsData4: Partial<CustomInput>[] = [
     value: '2023-02-13T17:00:00.000Z',
   },
 ];
+
+export const expectedCustomInputs: Partial<CustomInput>[] = [
+  {
+    id: 211326,
+    options: [],
+    placeholder: 'helo date',
+    type: 'DATE',
+    value: null,
+    mandatory: undefined,
+    name: undefined,
+    prefix: undefined,
+  },
+  {
+    id: 218265,
+    options: [],
+    placeholder: 'Boolean value',
+    type: 'BOOLEAN',
+    value: null,
+    mandatory: undefined,
+    name: undefined,
+    prefix: undefined,
+  },
+  {
+    name: 'CUSTOM FIELD',
+    value: 'custom field',
+  },
+  {
+    name: 'Cost Code',
+    value: 'Wow this Works',
+  },
+];

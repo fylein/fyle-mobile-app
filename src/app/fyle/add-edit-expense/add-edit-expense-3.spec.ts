@@ -22,12 +22,12 @@ import {
   fileObjectData1,
 } from 'src/app/core/mock-data/file-object.data';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
-import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
 import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
   expectedAutoFillCategory3,
+  filteredCategoriesData,
   orgCategoryData,
   orgCategoryData1,
   orgCategoryPaginated1,
@@ -103,6 +103,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { orgSettingsData, orgSettingsWithoutAutofill } from 'src/app/core/test-data/accounts.service.spec.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -649,7 +650,7 @@ export function TestCases3(getTestBed) {
           });
       });
 
-      it('should generate expense from form without cost center and location data and not a policy expense in edit mode', (done) => {
+      it('should generate expense from form without cost center and location data in edit mode and is not a policy violation', (done) => {
         spyOn(component, 'getSourceAccID').and.returnValue('id');
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
@@ -820,7 +821,7 @@ export function TestCases3(getTestBed) {
 
     describe('trackCreateExpense(): ', () => {
       it('should track create expense event', () => {
-        component.presetCategoryId = trackCreateExpData.tx.project_id;
+        component.presetCategoryId = trackCreateExpData.tx.org_category_id;
         component.presetCostCenterId = trackCreateExpData.tx.cost_center_id;
         component.presetCurrency = trackCreateExpData.tx.orig_currency;
         component.presetProjectId = trackCreateExpData.tx.project_id;
@@ -834,7 +835,7 @@ export function TestCases3(getTestBed) {
           Currency: trackCreateExpData.tx.currency,
           Category: trackCreateExpData.tx.org_category,
           Time_Spent: '30 secs',
-          Used_Autofilled_Category: false,
+          Used_Autofilled_Category: true,
           Used_Autofilled_Project: true,
           Used_Autofilled_CostCenter: true,
           Used_Autofilled_Currency: true,
@@ -842,8 +843,8 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should track create expense event for an expense without currency', () => {
-        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.project_id;
+      it('should track create expense event for an expense with only original currency', () => {
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
         component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
         component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
@@ -857,35 +858,12 @@ export function TestCases3(getTestBed) {
           Currency: trackCreateExpDataWoCurrency.tx.currency,
           Category: trackCreateExpDataWoCurrency.tx.org_category,
           Time_Spent: '30 secs',
-          Used_Autofilled_Category: false,
+          Used_Autofilled_Category: true,
           Used_Autofilled_Project: true,
           Used_Autofilled_CostCenter: true,
           Used_Autofilled_Currency: true,
           Instafyle: true,
         });
-      });
-    });
-
-    it('should track create expense event', () => {
-      component.presetCategoryId = trackCreateExpData.tx.project_id;
-      component.presetCostCenterId = trackCreateExpData.tx.cost_center_id;
-      component.presetCurrency = trackCreateExpData.tx.orig_currency;
-      component.presetProjectId = trackCreateExpData.tx.project_id;
-      spyOn(component, 'getTimeSpentOnPage').and.returnValue(30);
-      fixture.detectChanges();
-
-      component.trackCreateExpense(trackCreateExpData, true);
-      expect(trackingService.createExpense).toHaveBeenCalledOnceWith({
-        Type: 'Receipt',
-        Amount: trackCreateExpData.tx.amount,
-        Currency: trackCreateExpData.tx.currency,
-        Category: trackCreateExpData.tx.org_category,
-        Time_Spent: '30 secs',
-        Used_Autofilled_Category: false,
-        Used_Autofilled_Project: true,
-        Used_Autofilled_CostCenter: true,
-        Used_Autofilled_Currency: true,
-        Instafyle: true,
       });
     });
 
@@ -1151,7 +1129,7 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should return null if not category could be found', (done) => {
+      it('should return null in case the expense does not have an expense and auto-fill category is not found', (done) => {
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
@@ -1312,9 +1290,8 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should get new expense observable without complete data url', (done) => {
+      it('should get new expense observable without insta fyle image data URL?', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         component.homeCurrency$ = of('USD');
@@ -1327,7 +1304,6 @@ export function TestCases3(getTestBed) {
 
         component.getNewExpenseObservable().subscribe(() => {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
