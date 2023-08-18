@@ -604,7 +604,7 @@ export class ViewTeamReportPage implements OnInit {
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
         switchMap(
-          (editReportNamePopover) => editReportNamePopover?.onWillDismiss() as Promise<{ data: { reportName: string } }>
+          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>
         )
       )
       .subscribe((editReportNamePopoverDetails) => {

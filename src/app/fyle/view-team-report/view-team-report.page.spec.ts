@@ -1033,7 +1033,7 @@ describe('ViewTeamReportPage', () => {
 
   describe('editReportName(): ', () => {
     it('should edit report name', fakeAsync(() => {
-      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT' }));
+      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0] }));
       component.canEdit$ = of(true);
       fixture.detectChanges();
 
@@ -1044,7 +1044,7 @@ describe('ViewTeamReportPage', () => {
 
       popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
 
-      const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
+      const editReportButton = getElementBySelector(fixture, '.view-reports--card ion-icon') as HTMLElement;
       click(editReportButton);
       tick(2000);
 
@@ -1056,6 +1056,32 @@ describe('ViewTeamReportPage', () => {
         cssClass: 'fy-dialog-popover',
       });
       expect(component.updateReportName).toHaveBeenCalledOnceWith('new name');
+    }));
+
+    it('should not edit report name if data does not contain name', fakeAsync(() => {
+      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0] }));
+      component.canEdit$ = of(true);
+      fixture.detectChanges();
+
+      spyOn(component, 'updateReportName').and.returnValue(null);
+
+      const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
+      editReportNamePopoverSpy.onWillDismiss.and.resolveTo();
+
+      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+
+      const editReportButton = getElementBySelector(fixture, '.view-reports--card ion-icon') as HTMLElement;
+      click(editReportButton);
+      tick(2000);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: EditReportNamePopoverComponent,
+        componentProps: {
+          reportName: expectedAllReports[0].rp_purpose,
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(component.updateReportName).not.toHaveBeenCalled();
     }));
   });
 });
