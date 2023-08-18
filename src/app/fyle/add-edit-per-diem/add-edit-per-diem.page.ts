@@ -1897,6 +1897,44 @@ export class AddEditPerDiemPage implements OnInit {
       });
   }
 
+  editExpenseCriticalPolicyViolationHandler(err: {
+    status?: number;
+    type?: string;
+    policyViolations?: string[];
+    policyAction?: FinalExpensePolicyState;
+    etxn?: Partial<UnflattenedTransaction>;
+  }): Observable<{ etxn: Partial<UnflattenedTransaction> }> {
+    return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  editExpensePolicyViolationHandler(err: {
+    status?: number;
+    type?: string;
+    policyViolations?: string[];
+    policyAction?: FinalExpensePolicyState;
+    etxn?: Partial<UnflattenedTransaction>;
+  }): Observable<{ etxn: Partial<UnflattenedTransaction>; comment: string }> {
+    return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
   editExpense(redirectedFrom: string): Observable<Partial<Transaction>> {
     this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
     this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
@@ -1952,27 +1990,9 @@ export class AddEditPerDiemPage implements OnInit {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
           }
           if (err.type === 'criticalPolicyViolations') {
-            return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
-              switchMap((continueWithTransaction) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.editExpenseCriticalPolicyViolationHandler(err);
           } else if (err.type === 'policyViolations') {
-            return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
-              switchMap((continueWithTransaction) => {
-                if (continueWithTransaction) {
-                  return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
-                  );
-                } else {
-                  return throwError('unhandledError');
-                }
-              })
-            );
+            return this.editExpensePolicyViolationHandler(err);
           } else {
             return throwError(err);
           }
