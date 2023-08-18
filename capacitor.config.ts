@@ -22,7 +22,7 @@ const config: CapacitorConfig = {
   },
   server: {
     hostname: 'https://app.fylehq.com',
-    androidScheme: 'https',
+    androidScheme: 'http',
   },
 };
 
