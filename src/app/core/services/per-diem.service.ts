@@ -49,7 +49,7 @@ export class PerDiemService {
           const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids as number[];
 
           if (allPerDiemRates?.length > 0) {
-            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.includes(perDiem.id as never));
+            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.includes(perDiem.id));
           }
         }
 
