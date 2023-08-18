@@ -64,7 +64,7 @@ export function setFormValid(component) {
   });
 }
 
-describe('AddEditExpensePage', () => {
+describe('AddEditMileagePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getEMyAccounts',

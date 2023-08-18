@@ -1,10 +1,13 @@
 import { TitleCasePipe } from '@angular/common';
-import { ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { of } from 'rxjs';
+import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -18,6 +21,9 @@ import { FileService } from 'src/app/core/services/file.service';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { LocationService } from 'src/app/core/services/location.service';
+import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
+import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
@@ -39,9 +45,8 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditMileagePage } from './add-edit-mileage.page';
-import { MileageService } from 'src/app/core/services/mileage.service';
-import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
-import { LocationService } from 'src/app/core/services/location.service';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -176,6 +181,110 @@ export function TestCases1(getTestBed) {
 
     it('should create', () => {
       expect(component).toBeTruthy();
+    });
+
+    it('goToPrev(): should go to the previous txn', () => {
+      spyOn(component, 'goToTransaction');
+      activatedRoute.snapshot.params.activeIndex = 1;
+      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      fixture.detectChanges();
+
+      component.goToPrev();
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txSEM4DtjyKR');
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(unflattenedTxnData, component.reviewList, 0);
+    });
+
+    it('goToNext(): should got to the next txn', () => {
+      const etxn = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, id: 'txNyI8ot5CuJ' } };
+      spyOn(component, 'goToTransaction');
+      activatedRoute.snapshot.params.activeIndex = 0;
+      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
+      transactionService.getETxnUnflattened.and.returnValue(of(etxn));
+      fixture.detectChanges();
+
+      component.goToNext();
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txNyI8ot5CuJ');
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(etxn, component.reviewList, 1);
+    });
+
+    it('getPolicyDetails(): should get policy details', () => {
+      policyService.getSpenderExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData2));
+
+      component.getPolicyDetails();
+
+      expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
+      expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
+        activatedRoute.snapshot.params.id
+      );
+    });
+
+    it('showFields(): should show expanded view', () => {
+      component.showFields();
+
+      expect(trackingService.showMoreClicked).toHaveBeenCalledOnceWith({
+        source: 'Add Mileage page',
+      });
+      expect(component.isExpandedView).toBeTrue();
+    });
+
+    it('hideFields(): should disable expanded view', () => {
+      component.hideFields();
+
+      expect(trackingService.hideMoreClicked).toHaveBeenCalledOnceWith({
+        source: 'Add Mileage page',
+      });
+      expect(component.isExpandedView).toBeFalse();
+    });
+
+    describe('openCommentsModal():', () => {
+      it('should add comment to the expense and track the event', fakeAsync(() => {
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        component.etxn$ = of(unflattenedTxnData);
+        fixture.detectChanges();
+
+        const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+        modalSpy.onDidDismiss.and.resolveTo({ data: { updated: 'comment' } });
+        modalController.create.and.resolveTo(modalSpy);
+
+        component.openCommentsModal();
+        tick(500);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: ViewCommentComponent,
+          componentProps: {
+            objectType: 'transactions',
+            objectId: unflattenedTxnData.tx.id,
+          },
+          ...properties,
+        });
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.addComment).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should view comment in the expense and track the event', fakeAsync(() => {
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        component.etxn$ = of(unflattenedTxnData);
+        fixture.detectChanges();
+
+        const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+        modalSpy.onDidDismiss.and.resolveTo({ data: null });
+        modalController.create.and.resolveTo(modalSpy);
+
+        component.openCommentsModal();
+        tick(500);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: ViewCommentComponent,
+          componentProps: {
+            objectType: 'transactions',
+            objectId: unflattenedTxnData.tx.id,
+          },
+          ...properties,
+        });
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
+      }));
     });
   });
 }
