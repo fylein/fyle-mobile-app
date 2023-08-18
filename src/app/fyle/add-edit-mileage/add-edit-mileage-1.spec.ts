@@ -6,7 +6,13 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { of } from 'rxjs';
+import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock-data/org-category.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
+import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
+import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import {
   mileageCategoryUnflattenedExpense,
   perDiemCategoryUnflattenedExpense,
@@ -48,20 +54,9 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { AddEditMileagePage } from './add-edit-mileage.page';
-import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import {
-  expectedAutoFillCategory3,
-  mileageCategories,
-  transformedOrgCategoryById,
-} from 'src/app/core/mock-data/org-category.data';
-import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
-import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
-import { txnData2 } from 'src/app/core/mock-data/transaction.data';
-import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
+import { AddEditMileagePage } from './add-edit-mileage.page';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
