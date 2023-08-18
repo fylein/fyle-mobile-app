@@ -14,7 +14,11 @@ import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  mileageCategoryUnflattenedExpense,
+  perDiemCategoryUnflattenedExpense,
+  unflattenedTxnData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -300,50 +304,47 @@ export function TestCases1(getTestBed) {
     });
 
     describe('goToTransaction():', () => {
-      const txn_ids = ['txfCdl3TEZ7K'];
+      const txnIds = ['txfCdl3TEZ7K'];
       it('should navigate to add-edit mileage if category is mileage', () => {
-        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' } };
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(mileageCategoryUnflattenedExpense, txnIds, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_mileage',
           {
-            id: expense.tx.id,
-            txnIds: JSON.stringify(txn_ids),
+            id: mileageCategoryUnflattenedExpense.tx.id,
+            txnIds: JSON.stringify(txnIds),
             activeIndex: 0,
           },
         ]);
       });
 
       it('should navigate to per diem expense form if the category is per diem', () => {
-        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' } };
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(perDiemCategoryUnflattenedExpense, txnIds, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_per_diem',
           {
-            id: expense.tx.id,
-            txnIds: JSON.stringify(txn_ids),
+            id: perDiemCategoryUnflattenedExpense.tx.id,
+            txnIds: JSON.stringify(txnIds),
             activeIndex: 0,
           },
         ]);
       });
 
       it('should navigate to expense form', () => {
-        const expense = unflattenedTxnData;
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(unflattenedTxnData, txnIds, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_expense',
           {
-            id: expense.tx.id,
-            txnIds: JSON.stringify(txn_ids),
+            id: unflattenedTxnData.tx.id,
+            txnIds: JSON.stringify(txnIds),
             activeIndex: 0,
           },
         ]);
@@ -443,7 +444,8 @@ export function TestCases1(getTestBed) {
       fixture.detectChanges();
 
       const result = component.getTimeSpentOnPage();
-      expect(result).toEqual((new Date().getTime() - component.expenseStartTime) / 1000);
+      const time = (new Date().getTime() - component.expenseStartTime) / 1000;
+      expect(result).toEqual(time);
     });
 
     it('reloadCurrentRoute(): should reload the current load', fakeAsync(() => {

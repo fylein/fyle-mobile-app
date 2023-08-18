@@ -781,7 +781,7 @@ export class AddEditMileagePage implements OnInit {
           // if any employee assigned mileage rate is present
           // -> the recently used mileage rate should be part of the allowed mileage rates.
           const mileageRateLabel = orgUserMileageSettings?.mileage_rate_labels;
-          if (mileageRateLabel.length > 0 && !mileageRateLabel.some((label) => vehicleType === label)) {
+          if (mileageRateLabel?.length > 0 && !mileageRateLabel.some((label) => vehicleType === label)) {
             vehicleType = orgUserMileageSettings.mileage_rate_labels[0];
           }
 
@@ -1123,6 +1123,7 @@ export class AddEditMileagePage implements OnInit {
 
   checkAvailableAdvance(): void {
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
+      takeUntil(this.onPageExit$),
       switchMap((paymentMode: ExtendedAccount) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return this.accountsService
@@ -2175,7 +2176,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   trackEditExpense(etxn: UnflattenedTransaction): void {
-    const location = etxn.tx.locations[0] as Destination;
+    const location = etxn.tx.locations[0] as unknown as Destination;
     this.trackingService.editExpense({
       Type: 'Mileage',
       Amount: etxn.tx.amount,
@@ -2426,7 +2427,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   trackCreateExpense(etxn: UnflattenedTransaction): void {
-    const location = etxn.tx.locations[0] as Destination;
+    const location = etxn.tx.locations[0] as unknown as Destination;
     this.trackingService.createExpense({
       Type: 'Mileage',
       Amount: etxn.tx.amount,
