@@ -326,7 +326,7 @@ export class MyViewReportPage {
         const message = 'Report name changed successfully.';
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-          panelClass: ['msb-success'],
+          panelClass: ['msb-success-with-camera-icon'],
         });
         this.trackingService.showToastMessage({ ToastContent: message });
         this.reportNameChangeEndTime = new Date().getTime();
