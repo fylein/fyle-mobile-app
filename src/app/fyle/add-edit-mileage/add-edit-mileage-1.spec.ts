@@ -7,7 +7,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { of } from 'rxjs';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  mileageCategoryUnflattenedExpense,
+  perDiemCategoryUnflattenedExpense,
+  unflattenedTxnData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -270,7 +274,7 @@ export function TestCases1(getTestBed) {
           ...properties,
         });
         expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(trackingService.addComment).toHaveBeenCalledOnceWith();
+        expect(trackingService.addComment).toHaveBeenCalledTimes(1);
       }));
 
       it('should view comment in the expense and track the event', fakeAsync(() => {
@@ -294,55 +298,52 @@ export function TestCases1(getTestBed) {
           ...properties,
         });
         expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(trackingService.viewComment).toHaveBeenCalledOnceWith();
+        expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
       }));
     });
 
     describe('goToTransaction():', () => {
-      const txn_ids = ['txfCdl3TEZ7K'];
+      const txnIds = ['txfCdl3TEZ7K'];
       it('should navigate to add-edit mileage if category is mileage', () => {
-        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' } };
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(mileageCategoryUnflattenedExpense, txnIds, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_mileage',
           {
-            id: expense.tx.id,
-            txnIds: JSON.stringify(txn_ids),
+            id: mileageCategoryUnflattenedExpense.tx.id,
+            txnIds: JSON.stringify(txnIds),
             activeIndex: 0,
           },
         ]);
       });
 
       it('should navigate to per diem expense form if the category is per diem', () => {
-        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' } };
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(perDiemCategoryUnflattenedExpense, txnIds, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_per_diem',
           {
-            id: expense.tx.id,
-            txnIds: JSON.stringify(txn_ids),
+            id: perDiemCategoryUnflattenedExpense.tx.id,
+            txnIds: JSON.stringify(txnIds),
             activeIndex: 0,
           },
         ]);
       });
 
       it('should navigate to expense form', () => {
-        const expense = unflattenedTxnData;
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(unflattenedTxnData, txnIds, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_expense',
           {
-            id: expense.tx.id,
-            txnIds: JSON.stringify(txn_ids),
+            id: unflattenedTxnData.tx.id,
+            txnIds: JSON.stringify(txnIds),
             activeIndex: 0,
           },
         ]);
@@ -355,7 +356,7 @@ export function TestCases1(getTestBed) {
 
         component.getProjectCategoryIds().subscribe((res) => {
           expect(res).toEqual(['141295', '141300']);
-          expect(categoriesService.getAll).toHaveBeenCalledOnceWith();
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -365,7 +366,7 @@ export function TestCases1(getTestBed) {
 
         component.getProjectCategoryIds().subscribe((res) => {
           expect(res).toEqual([]);
-          expect(categoriesService.getAll).toHaveBeenCalledOnceWith();
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -385,7 +386,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
-        expect(component.close).toHaveBeenCalledOnceWith();
+        expect(component.close).toHaveBeenCalledTimes(1);
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
@@ -442,7 +443,8 @@ export function TestCases1(getTestBed) {
       fixture.detectChanges();
 
       const result = component.getTimeSpentOnPage();
-      expect(result).toEqual((new Date().getTime() - component.expenseStartTime) / 1000);
+      const time = (new Date().getTime() - component.expenseStartTime) / 1000;
+      expect(result).toEqual(time);
     });
 
     it('reloadCurrentRoute(): should reload the current load', fakeAsync(() => {
