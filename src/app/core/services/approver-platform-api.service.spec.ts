@@ -40,36 +40,6 @@ fdescribe('ApproverPlatformApiService', () => {
     expect(approverPlatformApiService.ROOT_ENDPOINT).toBe(rootUrl);
   });
 
-  describe('get():', () => {
-    it('should get data from the API without config', (done) => {
-      const url = '/expense_policy_states';
-      approverPlatformApiService.get(url).subscribe((res) => {
-        expect(res).toEqual(ApproverExpensePolicyStatesData);
-        done();
-      });
-      const req = httpTestingController.expectOne(`${rootUrl}/platform/v1/approver${url}`);
-      expect(req.request.method).toEqual('GET');
-      req.flush(ApproverExpensePolicyStatesData);
-    });
-
-    it('should get data from the API with config', (done) => {
-      const url = '/expense_policy_states';
-      const exp_id = {
-        expense_id: 'eq.txRNWeQRXhso',
-      };
-      approverPlatformApiService.get(url, { params: exp_id }).subscribe((res) => {
-        expect(res).toEqual(ApproverExpensePolicyStatesData);
-        done();
-      });
-      const req = httpTestingController.expectOne(
-        `${rootUrl}/platform/v1/approver${url}?expense_id=${exp_id.expense_id}`
-      );
-      expect(req.request.method).toEqual('GET');
-      expect(req.request.params.get('expense_id')).toEqual(exp_id.expense_id);
-      req.flush(ApproverExpensePolicyStatesData);
-    });
-  });
-
   describe('post():', () => {
     it('should make POST request without body', (done) => {
       httpClient.post.and.returnValue(of(platformReportData));
@@ -97,6 +67,36 @@ fdescribe('ApproverPlatformApiService', () => {
         expect(httpClient.post).toHaveBeenCalledOnceWith(`${rootUrl}/platform/v1/approver/reports`, params);
         done();
       });
+    });
+  });
+
+  describe('get():', () => {
+    it('should get data from the API without config', (done) => {
+      const url = '/expense_policy_states';
+      approverPlatformApiService.get(url).subscribe((res) => {
+        expect(res).toEqual(ApproverExpensePolicyStatesData);
+        done();
+      });
+      const req = httpTestingController.expectOne(`${rootUrl}/platform/v1/approver${url}`);
+      expect(req.request.method).toEqual('GET');
+      req.flush(ApproverExpensePolicyStatesData);
+    });
+
+    it('should get data from the API with config', (done) => {
+      const url = '/expense_policy_states';
+      const exp_id = {
+        expense_id: 'eq.txRNWeQRXhso',
+      };
+      approverPlatformApiService.get(url, { params: exp_id }).subscribe((res) => {
+        expect(res).toEqual(ApproverExpensePolicyStatesData);
+        done();
+      });
+      const req = httpTestingController.expectOne(
+        `${rootUrl}/platform/v1/approver${url}?expense_id=${exp_id.expense_id}`
+      );
+      expect(req.request.method).toEqual('GET');
+      expect(req.request.params.get('expense_id')).toEqual(exp_id.expense_id);
+      req.flush(ApproverExpensePolicyStatesData);
     });
   });
 
