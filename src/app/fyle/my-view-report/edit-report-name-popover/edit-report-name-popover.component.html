@@ -10,7 +10,7 @@
     </ion-buttons>
     <ion-buttons slot="end">
       <ion-button
-        [disabled]="!reportName?.trim().length || reportName?.trim().length >= 250"
+        [disabled]="!reportName?.trim().length"
         class="edit-report-name--toolbar__btn-save"
         (click)="saveReportName()"
       >
@@ -30,9 +30,5 @@
     [(ngModel)]="reportName"
     [maxLength]="250"
     class="edit-report-name--input-container__input smartlook-show"
-    [ngClass]="{ 'edit-report-name--input-container__input--error': reportName?.trim().length >= 250 }"
   />
-  <span *ngIf="reportName?.trim().length >= 250" class="edit-report-name--input-container__error"
-    >Maximum character limit reached.</span
-  >
 </div>
