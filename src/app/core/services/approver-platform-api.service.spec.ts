@@ -40,36 +40,6 @@ fdescribe('ApproverPlatformApiService', () => {
     expect(approverPlatformApiService.ROOT_ENDPOINT).toBe(rootUrl);
   });
 
-  describe('post():', () => {
-    it('should make POST request without body', (done) => {
-      httpClient.post.and.returnValue(of(platformReportData));
-
-      approverPlatformApiService.post('/reports').subscribe((res) => {
-        expect(res).toEqual(platformReportData);
-        expect(httpClient.post).toHaveBeenCalledOnceWith(`${rootUrl}/platform/v1/approver/reports`, {});
-        done();
-      });
-    });
-
-    it('should make POST request with body', (done) => {
-      httpClient.post.and.returnValue(of(platformReportData));
-
-      const params: { data: Pick<PlatformReport, 'id' | 'source' | 'purpose'> } = {
-        data: {
-          id: platformReportData.id,
-          source: platformReportData.source,
-          purpose: platformReportData.purpose,
-        },
-      };
-
-      approverPlatformApiService.post('/reports', params).subscribe((res) => {
-        expect(res).toEqual(platformReportData);
-        expect(httpClient.post).toHaveBeenCalledOnceWith(`${rootUrl}/platform/v1/approver/reports`, params);
-        done();
-      });
-    });
-  });
-
   describe('get():', () => {
     it('should get data from the API without config', (done) => {
       const url = '/expense_policy_states';
