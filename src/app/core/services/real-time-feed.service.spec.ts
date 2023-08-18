@@ -54,7 +54,7 @@ describe('RealTimeFeedService', () => {
 
   describe('enroll()', () => {
     it('should handle enrollment of visa rtf cards', waitForAsync(() => {
-      spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.VISA);
+      spyOn(realTimeFeedService, 'getCardTypeFromNumber').and.returnValue(CardNetworkType.VISA);
       spenderPlatformV1ApiService.post.and.returnValue(of({ data: visaRTFCard }));
 
       realTimeFeedService.enroll('4111111111111111').subscribe((res) => {
@@ -71,7 +71,7 @@ describe('RealTimeFeedService', () => {
     }));
 
     it('should handle enrollment of mastercard rtf cards', waitForAsync(() => {
-      spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.MASTERCARD);
+      spyOn(realTimeFeedService, 'getCardTypeFromNumber').and.returnValue(CardNetworkType.MASTERCARD);
       spenderPlatformV1ApiService.post.and.returnValue(of({ data: mastercardRTFCard }));
 
       realTimeFeedService.enroll('5555555555555555').subscribe((res) => {
@@ -98,7 +98,7 @@ describe('RealTimeFeedService', () => {
     }));
 
     it('should rethrow enroll api errors as a generic error', waitForAsync(() => {
-      spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.VISA);
+      spyOn(realTimeFeedService, 'getCardTypeFromNumber').and.returnValue(CardNetworkType.VISA);
       spenderPlatformV1ApiService.post.and.returnValue(
         throwError(
           () =>

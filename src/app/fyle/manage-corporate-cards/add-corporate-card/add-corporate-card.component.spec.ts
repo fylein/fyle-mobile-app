@@ -90,7 +90,7 @@ describe('AddCorporateCardComponent', () => {
     });
 
     it('should show a visa icon when entering a card number starting with 4', () => {
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -106,7 +106,7 @@ describe('AddCorporateCardComponent', () => {
     });
 
     it('should show a mastercard icon when entering a card number starting with 5', () => {
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.MASTERCARD);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.MASTERCARD);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -122,7 +122,7 @@ describe('AddCorporateCardComponent', () => {
     });
 
     it('should show the default card icon when entering entering non visa/mastercard card number', () => {
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.OTHERS);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -141,7 +141,7 @@ describe('AddCorporateCardComponent', () => {
   describe('card number validation errors', () => {
     it('should show an error message when the user has entered an invalid card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.OTHERS);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -163,7 +163,7 @@ describe('AddCorporateCardComponent', () => {
       component.isYodleeEnabled = false;
 
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -187,7 +187,7 @@ describe('AddCorporateCardComponent', () => {
       component.isYodleeEnabled = false;
 
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.MASTERCARD);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.MASTERCARD);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -211,7 +211,7 @@ describe('AddCorporateCardComponent', () => {
       component.isYodleeEnabled = false;
 
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.OTHERS);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -233,7 +233,7 @@ describe('AddCorporateCardComponent', () => {
   describe('card enrollment flow', () => {
     it('should successfully enroll the card and close the popover if the user clicks on add corporate card button with a valid card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
 
       component.ngOnInit();
@@ -250,13 +250,13 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
 
-      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555');
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
     });
 
     it('should show the error message received from backend when we face api errors while enrolling the card', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error('This card already exists in the system')));
 
       component.ngOnInit();
@@ -274,7 +274,7 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
 
-      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555');
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe('This card already exists in the system');
@@ -282,7 +282,7 @@ describe('AddCorporateCardComponent', () => {
 
     it('should show a default error message when we face api errors from backend but we dont have the error message', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
 
       component.ngOnInit();
@@ -300,7 +300,7 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
 
-      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555');
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe('Something went wrong. Please try after some time.');
@@ -308,7 +308,7 @@ describe('AddCorporateCardComponent', () => {
 
     it('should disallow card enrollment if the user clicks on add corporate card button but the card number is invalid', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -331,7 +331,7 @@ describe('AddCorporateCardComponent', () => {
       component.isYodleeEnabled = true;
 
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.OTHERS);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -367,7 +367,7 @@ describe('AddCorporateCardComponent', () => {
 
     it('should show visa in card networks if the user is entering a visa card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
 
       component.ngOnInit();
       fixture.detectChanges();
@@ -384,7 +384,7 @@ describe('AddCorporateCardComponent', () => {
 
     it('should show mastercard in card networks if the user is entering a mastercard card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.MASTERCARD);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.MASTERCARD);
 
       component.ngOnInit();
       fixture.detectChanges();

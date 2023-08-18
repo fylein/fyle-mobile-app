@@ -59,11 +59,12 @@ export class AddCorporateCardComponent implements OnInit {
     }
 
     const cardNumber = this.cardForm.value as string;
+    const existingCardId = this.card ? this.card.id : null;
 
     this.isEnrollingCard = true;
 
     this.realTimeFeedService
-      .enroll(cardNumber, this.card?.id)
+      .enroll(cardNumber, existingCardId)
       .pipe(
         catchError((error: Error) => {
           this.handleEnrollmentFailures(error);
