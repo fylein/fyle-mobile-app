@@ -250,7 +250,7 @@ xdescribe('MyProfilePage', () => {
       expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith(
         'success',
         { message },
-        'tick-circle-outline'
+        'tick-circle-outline-white'
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,

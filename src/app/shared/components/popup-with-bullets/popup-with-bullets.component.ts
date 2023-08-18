@@ -32,18 +32,18 @@ export class PopupWithBulletsComponent {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  dismissPopover() {
+  dismissPopover(): void {
     this.popoverController.dismiss();
   }
 
-  async copyToClipboard(textToCopy: string) {
+  async copyToClipboard(textToCopy: string): Promise<void> {
     this.clipboardService.writeString(textToCopy);
     this.showToastMessage('Phone Number Copied Successfully');
   }
 
-  showToastMessage(message: string) {
+  showToastMessage(message: string): void {
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', { message }, 'tick-circle-outline'),
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }, 'tick-circle-outline-white'),
       panelClass: 'msb-success',
     });
   }

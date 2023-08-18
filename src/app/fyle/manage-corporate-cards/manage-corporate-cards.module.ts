@@ -11,6 +11,7 @@ import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { CorporateCardComponent } from './corporate-card/corporate-card.component';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
+import { CardAddedComponent } from './card-added/card-added.component';
 
 @NgModule({
   imports: [
@@ -22,6 +23,6 @@ import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-ca
     ManageCorporateCardsPageRoutingModule,
     NgxMaskModule.forRoot(),
   ],
-  declarations: [ManageCorporateCardsPage, CorporateCardComponent, AddCorporateCardComponent],
+  declarations: [ManageCorporateCardsPage, CorporateCardComponent, AddCorporateCardComponent, CardAddedComponent],
 })
 export class ManageCorporateCardsPageModule {}
