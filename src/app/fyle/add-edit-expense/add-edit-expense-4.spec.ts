@@ -14,6 +14,10 @@ import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import {
+  createExpenseProperties,
+  createExpenseProperties2,
+} from 'src/app/core/mock-data/track-expense-properties.data';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import {
   editExpTxn2,
@@ -74,10 +78,6 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import {
-  createExpenseProperties,
-  createExpenseProperties2,
-} from 'src/app/core/mock-data/track-expense-properties.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -281,7 +281,7 @@ export function TestCases4(getTestBed) {
 
         component.fileUpload = {
           nativeElement: dummyNativeElement,
-        };
+        } as DebugElement;
 
         const nativeElement = component.fileUpload.nativeElement as HTMLInputElement;
         spyOn(nativeElement, 'click').and.callThrough();
