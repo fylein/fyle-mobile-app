@@ -2747,3 +2747,13 @@ export const expectedPersonalTxn: UnflattenedTransaction = {
   us: undefined,
   rp: undefined,
 };
+
+export const mileageCategoryUnflattenedExpense: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' },
+};
+
+export const perDiemCategoryUnflattenedExpense: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' },
+};
