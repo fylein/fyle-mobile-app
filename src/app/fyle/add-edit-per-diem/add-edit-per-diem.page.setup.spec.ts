@@ -36,6 +36,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { DateService } from 'src/app/core/services/date.service';
+import { TestCases2 } from './add-edit-per-diem-2.page.spec';
 
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
@@ -279,4 +280,5 @@ describe('AddEditPerDiemPage', () => {
   };
 
   TestCases1(getTestBed);
+  TestCases2(getTestBed);
 });

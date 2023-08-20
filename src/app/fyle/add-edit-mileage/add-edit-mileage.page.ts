@@ -781,7 +781,7 @@ export class AddEditMileagePage implements OnInit {
           // if any employee assigned mileage rate is present
           // -> the recently used mileage rate should be part of the allowed mileage rates.
           const mileageRateLabel = orgUserMileageSettings?.mileage_rate_labels;
-          if (mileageRateLabel.length > 0 && !mileageRateLabel.some((label) => vehicleType === label)) {
+          if (mileageRateLabel?.length > 0 && !mileageRateLabel.some((label) => vehicleType === label)) {
             vehicleType = orgUserMileageSettings.mileage_rate_labels[0];
           }
 
