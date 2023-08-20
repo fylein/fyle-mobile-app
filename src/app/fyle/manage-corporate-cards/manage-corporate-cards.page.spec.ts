@@ -25,7 +25,6 @@ import {
 import { Component, Input } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { By } from '@angular/platform-browser';
-import { rtfCardOptions, statementUploadedCardOptions1 } from 'src/app/core/mock-data/card-options-action-sheet.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
@@ -315,7 +314,14 @@ describe('ManageCorporateCardsPage', () => {
     card.triggerEventHandler('cardOptionsClick', visaRTFCard);
 
     expect(actionSheetController.create).toHaveBeenCalledWith({
-      buttons: rtfCardOptions,
+      buttons: [
+        {
+          text: 'Disconnect',
+          icon: 'assets/svg/fy-delete.svg',
+          cssClass: 'danger',
+          handler: jasmine.any(Function),
+        },
+      ],
       cssClass: 'fy-action-sheet',
       mode: 'md',
     });
@@ -485,7 +491,16 @@ describe('ManageCorporateCardsPage', () => {
     card.triggerEventHandler('cardOptionsClick', statementUploadedCard);
 
     expect(actionSheetController.create).toHaveBeenCalledWith({
-      buttons: statementUploadedCardOptions1,
+      buttons: [
+        {
+          text: 'Connect to Visa Real-time Feed',
+          handler: jasmine.any(Function),
+        },
+        {
+          text: 'Connect to Mastercard Real-time Feed',
+          handler: jasmine.any(Function),
+        },
+      ],
       cssClass: 'fy-action-sheet',
       mode: 'md',
     });
