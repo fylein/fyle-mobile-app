@@ -1,13 +1,11 @@
+import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, waitForAsync } from '@angular/core/testing';
 import {
-  ComponentFixture,
-  TestBed,
-  fakeAsync,
-  flush,
-  flushMicrotasks,
-  tick,
-  waitForAsync,
-} from '@angular/core/testing';
-import { ActionSheetController, IonicModule, PopoverController } from '@ionic/angular';
+  ActionSheetController,
+  IonRefresher,
+  IonicModule,
+  PopoverController,
+  RefresherCustomEvent,
+} from '@ionic/angular';
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
@@ -32,6 +30,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from './card-added/card-added.component';
+import { noop } from 'lodash';
 
 @Component({
   selector: 'app-corporate-card',
@@ -491,4 +490,103 @@ fdescribe('ManageCorporateCardsPage', () => {
       mode: 'md',
     });
   });
+
+  it('should handle enrollment of existing statement uploaded cards to visa rtf', waitForAsync(() => {
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+
+    component.ionViewWillEnter();
+    fixture.detectChanges();
+
+    component.setActionSheetButtons(statementUploadedCard).subscribe(
+      fakeAsync((actionSheetButtons) => {
+        const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
+          'present',
+          'onDidDismiss',
+        ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
+        popoverSpy.onDidDismiss.and.resolveTo({});
+        popoverController.create.and.resolveTo(popoverSpy);
+
+        const connectToVisaRTFHandler = actionSheetButtons[0].handler;
+        connectToVisaRTFHandler();
+
+        expect(popoverController.create).toHaveBeenCalledWith({
+          component: AddCorporateCardComponent,
+          cssClass: 'fy-dialog-popover',
+          componentProps: {
+            isVisaRTFEnabled: true,
+            isMastercardRTFEnabled: true,
+            isYodleeEnabled: true,
+            card: statementUploadedCard,
+            cardType: CardNetworkType.VISA,
+          },
+        });
+
+        flushMicrotasks();
+
+        expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      })
+    );
+  }));
+
+  it('should handle enrollment of existing statement uploaded cards to mastercard rtf', waitForAsync(() => {
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+
+    component.ionViewWillEnter();
+    fixture.detectChanges();
+
+    component.setActionSheetButtons(statementUploadedCard).subscribe(
+      fakeAsync((actionSheetButtons) => {
+        const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
+          'present',
+          'onDidDismiss',
+        ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
+        popoverSpy.onDidDismiss.and.resolveTo({});
+        popoverController.create.and.resolveTo(popoverSpy);
+
+        const connectToMastercardRTFHandler = actionSheetButtons[1].handler;
+        connectToMastercardRTFHandler();
+
+        expect(popoverController.create).toHaveBeenCalledWith({
+          component: AddCorporateCardComponent,
+          cssClass: 'fy-dialog-popover',
+          componentProps: {
+            isVisaRTFEnabled: true,
+            isMastercardRTFEnabled: true,
+            isYodleeEnabled: true,
+            card: statementUploadedCard,
+            cardType: CardNetworkType.MASTERCARD,
+          },
+        });
+
+        flushMicrotasks();
+
+        expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      })
+    );
+  }));
+
+  it('should refresh the corporate cards when pull to refresh is triggered', fakeAsync(() => {
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
+    corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+
+    spyOn(component.loadCorporateCards$, 'next').and.callThrough();
+
+    const refresher = fixture.debugElement.query(By.directive(IonRefresher));
+
+    const refresherCustomEvent = {
+      target: {
+        complete: noop,
+      },
+    } as RefresherCustomEvent;
+
+    spyOn(refresherCustomEvent.target, 'complete');
+
+    refresher.triggerEventHandler('ionRefresh', refresherCustomEvent);
+
+    flushMicrotasks();
+
+    expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
+    expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
+    expect(refresherCustomEvent.target.complete).toHaveBeenCalledTimes(1);
+  }));
 });
