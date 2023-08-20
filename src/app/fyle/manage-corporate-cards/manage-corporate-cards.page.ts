@@ -175,11 +175,7 @@ export class ManageCorporateCardsPage {
       cssClass: 'pop-up-in-center',
       componentProps: {
         title: 'Disconnect Card',
-        message: `
-          <div class="text-left">
-            <div class="mb-16">You are disconnecting your VISA card from real-time feed.</div>
-            <div>Do you wish to continue?</div>
-          </div>`,
+        message: `<div class="text-left"><div class="mb-16">You are disconnecting your VISA card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
         primaryCta: {
           text: 'Yes, Disconnect',
           action: 'disconnect',
@@ -195,7 +191,7 @@ export class ManageCorporateCardsPage {
 
     const popoverResponse = (await deletePopup.onDidDismiss()) as OverlayResponse<{ action: string }>;
 
-    if (popoverResponse.data?.action === 'disconnect') {
+    if (popoverResponse.data.action === 'disconnect') {
       const cardType = this.realTimeFeedService.getCardType(card);
 
       forkJoin([
