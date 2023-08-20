@@ -13,6 +13,7 @@ dependencies {
     implementation project(':capacitor-app')
     implementation project(':capacitor-browser')
     implementation project(':capacitor-camera')
+    implementation project(':capacitor-clipboard')
     implementation project(':capacitor-device')
     implementation project(':capacitor-geolocation')
     implementation project(':capacitor-haptics')
@@ -25,6 +26,7 @@ dependencies {
     implementation project(':capacitor-text-zoom')
     implementation project(':capacitor-native-settings')
     implementation project(':capacitor-secure-storage-plugin')
+    implementation project(':send-intent')
     implementation "com.google.android.gms:play-services-auth:15.0.1"
     implementation "com.google.android.gms:play-services-identity:15.0.1"
     implementation "com.android.support:appcompat-v7:27.+"
