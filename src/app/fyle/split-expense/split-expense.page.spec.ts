@@ -316,7 +316,7 @@ describe('SplitExpensePage', () => {
     it('should get the new amount and percentage value after amount is changed for first split', fakeAsync(() => {
       spyOn(component, 'getTotalSplitAmount');
       component.amount = 2000;
-      const splitExpenseForm1 = new FormGroup({
+      const splitExpenseForm1: FormGroup = new FormGroup({
         amount: new FormControl(120),
         currency: new FormControl('INR'),
         percentage: new FormControl(60),
@@ -353,7 +353,7 @@ describe('SplitExpensePage', () => {
         category: new FormControl(''),
       });
 
-      const otherSplitExpenseForm = new FormGroup({
+      const otherSplitExpenseForm: FormGroup = new FormGroup({
         amount: new FormControl(80),
         currency: new FormControl('INR'),
         percentage: new FormControl(40),
@@ -373,7 +373,7 @@ describe('SplitExpensePage', () => {
 
     it('should return void immediately if amount is null', () => {
       spyOn(component, 'getTotalSplitAmount');
-      const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
+      const splitExpenseForm1: FormGroup = cloneDeep(splitExpenseFormData1);
 
       Object.defineProperty(splitExpenseForm1.controls.amount, '_pendingChange', { value: true });
 
@@ -387,7 +387,7 @@ describe('SplitExpensePage', () => {
     it('should return void immediately if splitExpenseForm.amount is not a number', () => {
       spyOn(component, 'getTotalSplitAmount');
       component.amount = 2000;
-      const splitExpenseForm1 = cloneDeep(splitExpenseFormData2);
+      const splitExpenseForm1: FormGroup = cloneDeep(splitExpenseFormData2);
 
       Object.defineProperty(splitExpenseForm1.controls.amount, '_pendingChange', { value: true });
 
@@ -402,7 +402,7 @@ describe('SplitExpensePage', () => {
   describe('onChangePercentage():', () => {
     it('should return void immediately if amount is null', () => {
       spyOn(component, 'getTotalSplitAmount');
-      const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
+      const splitExpenseForm1: FormGroup = cloneDeep(splitExpenseFormData1);
 
       Object.defineProperty(splitExpenseForm1.controls.percentage, '_pendingChange', { value: true });
 
@@ -416,7 +416,7 @@ describe('SplitExpensePage', () => {
     it('should return void immediately if splitExpenseForm.percentage is not a number', () => {
       spyOn(component, 'getTotalSplitAmount');
       component.amount = 2000;
-      const splitExpenseForm1 = cloneDeep(splitExpenseFormData3);
+      const splitExpenseForm1: FormGroup = cloneDeep(splitExpenseFormData3);
 
       Object.defineProperty(splitExpenseForm1.controls.percentage, '_pendingChange', { value: true });
 
@@ -430,7 +430,7 @@ describe('SplitExpensePage', () => {
     it('should get the new amount and percentage value after percentage is changed for first split', fakeAsync(() => {
       spyOn(component, 'getTotalSplitAmount');
       component.amount = 2000;
-      const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
+      const splitExpenseForm1: FormGroup = cloneDeep(splitExpenseFormData1);
       const otherSplitExpenseForm = cloneDeep(splitExpenseFormData5);
       Object.defineProperty(splitExpenseForm1.controls.percentage, '_pendingChange', { value: true });
       component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
@@ -447,7 +447,7 @@ describe('SplitExpensePage', () => {
       spyOn(component, 'getTotalSplitAmount');
       component.amount = 2000;
       const splitExpenseForm1 = cloneDeep(splitExpenseFormData1);
-      const otherSplitExpenseForm = cloneDeep(splitExpenseFormData6);
+      const otherSplitExpenseForm: FormGroup = cloneDeep(splitExpenseFormData6);
       Object.defineProperty(otherSplitExpenseForm.controls.percentage, '_pendingChange', { value: true });
       component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
 
