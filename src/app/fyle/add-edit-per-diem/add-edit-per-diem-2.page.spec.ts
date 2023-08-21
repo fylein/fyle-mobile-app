@@ -423,10 +423,10 @@ export function TestCases2(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsWoTax));
         component.ionViewWillEnter();
         component.isAdvancesEnabled$.subscribe((res) => {
-          expect(res).toEqual(true);
+          expect(res).toBeTrue();
         });
         component.individualPerDiemRatesEnabled$.subscribe((res) => {
-          expect(res).toEqual(false);
+          expect(res).toBeFalse();
         });
         component.recentlyUsedValues$.subscribe((res) => {
           expect(res).toEqual(recentlyUsedRes);
@@ -440,10 +440,10 @@ export function TestCases2(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.ionViewWillEnter();
         component.isAdvancesEnabled$.subscribe((res) => {
-          expect(res).toEqual(true);
+          expect(res).toBeTrue();
         });
         component.recentlyUsedValues$.subscribe((res) => {
-          expect(res).toEqual(null);
+          expect(res).toBeNull();
         });
         expect(recentlyUsedItemsService.getRecentlyUsed).not.toHaveBeenCalled();
       });
@@ -582,7 +582,7 @@ export function TestCases2(getTestBed) {
       it('should update isProjectsEnabled$, customInputs$, isCostCentersEnabled$ and paymentModes$', (done) => {
         component.ionViewWillEnter();
         component.isProjectsEnabled$.subscribe((res) => {
-          expect(res).toEqual(true);
+          expect(res).toBeTrue();
         });
 
         component.customInputs$.subscribe((res) => {
@@ -590,7 +590,7 @@ export function TestCases2(getTestBed) {
         });
 
         component.isCostCentersEnabled$.subscribe((res) => {
-          expect(res).toEqual(true);
+          expect(res).toBeTrue();
         });
 
         component.paymentModes$.subscribe((res) => {
@@ -639,15 +639,15 @@ export function TestCases2(getTestBed) {
       it('should set isAmountCapped$, isAmountDisabled$ and isCriticalPolicyViolated$ correctly', (done) => {
         component.ionViewWillEnter();
         component.isAmountCapped$.subscribe((res) => {
-          expect(res).toEqual(false);
+          expect(res).toBeFalse();
         });
 
         component.isAmountDisabled$.subscribe((res) => {
-          expect(res).toEqual(false);
+          expect(res).toBeFalse();
         });
 
         component.isCriticalPolicyViolated$.subscribe((res) => {
-          expect(res).toEqual(false);
+          expect(res).toBeFalse();
         });
         expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
         done();
@@ -659,7 +659,7 @@ export function TestCases2(getTestBed) {
         component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxn));
         component.ionViewWillEnter();
         component.isCriticalPolicyViolated$.subscribe((res) => {
-          expect(res).toEqual(true);
+          expect(res).toBeTrue();
         });
         done();
       });
