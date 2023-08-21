@@ -1,5 +1,7 @@
 /* eslint-disable id-blacklist */
 import { AccountType } from '../enums/account-type.enum';
+import { ExpenseType } from '../enums/expense-type.enum';
+import { unflattenedTxn } from '../mock-data/unflattened-expense.data';
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { OrgSettings } from '../models/org-settings.model';
@@ -2941,4 +2943,18 @@ export const orgSettingsWithoutAutofill: OrgSettings = {
     allowed: false,
     enabled: false,
   },
+};
+
+export const paymentModesConfig = {
+  etxn: unflattenedTxn,
+  orgSettings: {
+    ...orgSettingsData,
+    corporate_credit_card_settings: {
+      ...orgSettingsData.corporate_credit_card_settings,
+      allowed: false,
+      enabled: false,
+    },
+  },
+  expenseType: ExpenseType.MILEAGE,
+  isPaymentModeConfigurationsEnabled: true,
 };

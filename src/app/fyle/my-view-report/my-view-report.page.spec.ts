@@ -106,6 +106,7 @@ describe('MyViewReportPage', () => {
       'clickShareReport',
       'clickViewReportInfo',
       'addToExistingReport',
+      'reportNameChange',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -377,6 +378,8 @@ describe('MyViewReportPage', () => {
       component.totalCommentsCount$.subscribe((res) => {
         expect(res).toEqual(3);
       });
+
+      expect(component.eou).toEqual(apiEouRes);
 
       expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
 

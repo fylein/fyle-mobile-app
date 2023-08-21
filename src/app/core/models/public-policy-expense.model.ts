@@ -18,7 +18,7 @@ export interface PublicPolicyExpense {
     placeholder?: string;
     prefix?: string;
     type?: string;
-    value: any | any[];
+    value: string[] | string | number | boolean | Date | { display: string };
   }[];
   distance: number;
   distance_unit: string;
@@ -81,7 +81,7 @@ export interface PublicPolicyExpense {
   split_group_user_amount: number;
   state: string;
   status_id: string;
-  tax: string;
+  tax: number | string;
   tax_amount: number;
   tax_group_id: string;
   taxi_travel_class: string;
@@ -109,7 +109,7 @@ export interface PublicPolicyExpense {
   org_category_code?: string;
   corporate_credit_card_expense_group_id?: string;
   transcribed_data?: string;
-  user_review_needed?: string;
+  user_review_needed?: boolean;
   is_implicit_merge_blocked?: boolean;
   categoryDisplayName?: string;
 }
