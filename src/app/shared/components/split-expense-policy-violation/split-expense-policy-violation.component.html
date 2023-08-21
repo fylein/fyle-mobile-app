@@ -41,7 +41,7 @@
               <div class="split-expense-policy-violation--value text-right">
                 {{
                   policyViolations[transaction].amount
-                    | currency: policyViolations[transaction].currency:'symbol-narrow'
+                    | currency: policyViolations[transaction].currency : 'symbol-narrow'
                 }}
               </div>
             </div>
@@ -66,7 +66,7 @@
                           <p class="split-expense-policy-violation--additional-details-header">
                             Please provide additional details for approval
                             <span class="split-expense-policy-violation--additional-details-comment-length">
-                              {{ form.value.comments[i].comment.length }}
+                              {{ (form.value.comments[i] as CommentData)?.comment?.length }}
                             </span>
                           </p>
                         </div>
