@@ -25,5 +25,10 @@
     <span> Report Name </span>
     <span class="edit-report-name--input-container__mandatory"> * </span>
   </div>
-  <input matInput [(ngModel)]="reportName" class="edit-report-name--input-container__input smartlook-show" />
+  <input
+    matInput
+    [(ngModel)]="reportName"
+    [maxLength]="250"
+    class="edit-report-name--input-container__input smartlook-show"
+  />
 </div>

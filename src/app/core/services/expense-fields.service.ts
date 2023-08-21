@@ -40,7 +40,7 @@ export class ExpenseFieldsService {
     );
   }
 
-  getColumnName(columnName: string, seq?: number) {
+  getColumnName(columnName: string, seq?: number): string {
     //Mapping of platform to legacy column name
     const columnNameMapping = {
       spent_at: 'txn_dt',
@@ -54,7 +54,11 @@ export class ExpenseFieldsService {
     };
 
     //For travel class, column name depends on seq which is the key of nested object
-    const travelClassMapping = {
+    const travelClassMapping: {
+      [key: string]: {
+        [item: number]: string;
+      };
+    } = {
       'travel_classes[0]': {
         1: 'flight_journey_travel_class',
         2: 'bus_travel_class',
@@ -67,7 +71,7 @@ export class ExpenseFieldsService {
 
     //Return the column name
     if (columnNameMapping[columnName]) {
-      return columnNameMapping[columnName];
+      return columnNameMapping[columnName] as string;
     } else if (travelClassMapping[columnName] && seq !== undefined) {
       return travelClassMapping[columnName][seq];
     } else {
@@ -120,7 +124,7 @@ export class ExpenseFieldsService {
           let expenseFieldsList = [];
 
           if (expenseFieldMap[expenseField.column_name]) {
-            expenseFieldsList = expenseFieldMap[expenseField.column_name];
+            expenseFieldsList = expenseFieldMap[expenseField.column_name] as ExpenseField[];
           }
 
           expenseFieldsList.push(expenseField);
@@ -135,14 +139,14 @@ export class ExpenseFieldsService {
     tfcMap: Partial<ExpenseFieldsMap>,
     fields: string[],
     orgCategory: OrgCategory
-  ): Observable<Partial<ExpenseFieldsMap | ExpenseFieldsObj>> {
+  ): Observable<Partial<ExpenseFieldsObj>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
       map((fields) =>
         fields
           .map((field) => {
-            const configurations = tfcMap[field];
-            let filteredField;
+            const configurations = tfcMap[field] as ExpenseField[];
+            let filteredField: ExpenseField;
 
             const fieldsIndependentOfCategory = ['project_id', 'billable', 'tax_group_id', 'org_category_id'];
             const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'];
@@ -195,8 +199,9 @@ export class ExpenseFieldsService {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {
       if (txnFields.hasOwnProperty(configurationColumn)) {
-        if (txnFields[configurationColumn].default_value) {
-          defaultValues[configurationColumn] = txnFields[configurationColumn].default_value;
+        const expenseField = txnFields[configurationColumn] as ExpenseField;
+        if (expenseField.default_value) {
+          defaultValues[configurationColumn] = expenseField.default_value as string;
         }
       }
     }

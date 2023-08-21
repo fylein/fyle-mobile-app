@@ -87,7 +87,6 @@ export const orgUserSettingsData: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -265,7 +264,6 @@ export const orgUserSettingsData2: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -425,7 +423,6 @@ export const orgUserSettingsData3: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -585,7 +582,6 @@ export const orgUserSettingsDataWoCCIDs: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
