@@ -107,8 +107,13 @@
     margin-top: calc(env(safe-area-inset-top));
     mat-form-field {
       ::ng-deep .mat-mdc-text-field-wrapper {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 6px;
+        padding-right: 6px;
+      }
+
+      ::ng-deep .mat-icon {
+        display: flex;
+        align-items: center;
       }
 
       ::ng-deep .mdc-notched-outline > * {

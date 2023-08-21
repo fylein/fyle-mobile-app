@@ -47,6 +47,11 @@ $password-icon: #b9beba;
       padding-left: 24px;
     }
 
+    ::ng-deep .mat-icon {
+      display: flex;
+      align-items: center;
+    }
+
     ::ng-deep .mdc-notched-outline > * {
       border-color: $transparent-black !important;
     }
