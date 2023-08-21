@@ -99,6 +99,7 @@ describe('ViewTeamReportPage', () => {
       'viewExpenseClicked',
       'showToastMessage',
       'clickViewReportInfo',
+      'reportNameChange',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -344,6 +345,8 @@ describe('ViewTeamReportPage', () => {
       component.erpt$.subscribe((res) => {
         expect(res).toEqual(expectedAllReports[0]);
       });
+
+      expect(component.eou).toEqual(apiEouRes);
 
       expect(component.systemComments).toEqual(systemComments1);
 
