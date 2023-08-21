@@ -355,7 +355,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getFormValues(): FormValue {
+  getFormValues(): Partial<FormValue> {
     return this.fg.value as FormValue;
   }
 
@@ -939,17 +939,6 @@ export class AddEditMileagePage implements OnInit {
         ? null
         : {
             invalidDateSelection: true,
-          };
-    }
-  }
-
-  customDistanceValidator(control: AbstractControl): null | { invalidDistance: boolean } {
-    const passedInDistance = control.value && +control.value;
-    if (passedInDistance !== null) {
-      return passedInDistance > 0
-        ? null
-        : {
-            invalidDistance: true,
           };
     }
   }
@@ -2190,7 +2179,7 @@ export class AddEditMileagePage implements OnInit {
         )
       ),
       map((finalDistance) => {
-        if (this.getFormValues().route.roundTrip) {
+        if (this.getFormValues()?.route?.roundTrip) {
           return (finalDistance * 2).toFixed(2);
         } else {
           return finalDistance.toFixed(2);
