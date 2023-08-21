@@ -355,7 +355,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getFormValues(): FormValue {
+  getFormValues(): Partial<FormValue> {
     return this.fg.value as FormValue;
   }
 
@@ -939,17 +939,6 @@ export class AddEditMileagePage implements OnInit {
         ? null
         : {
             invalidDateSelection: true,
-          };
-    }
-  }
-
-  customDistanceValidator(control: AbstractControl): null | { invalidDistance: boolean } {
-    const passedInDistance = control.value && +control.value;
-    if (passedInDistance !== null) {
-      return passedInDistance > 0
-        ? null
-        : {
-            invalidDistance: true,
           };
     }
   }
@@ -1804,6 +1793,19 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
+  showFormValidationErrors(): void {
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
+    }
+  }
+
   saveExpense(): void {
     const that = this;
 
@@ -1819,16 +1821,7 @@ export class AddEditMileagePage implements OnInit {
             that.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -1864,16 +1857,7 @@ export class AddEditMileagePage implements OnInit {
             });
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -1906,16 +1890,7 @@ export class AddEditMileagePage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -1941,16 +1916,7 @@ export class AddEditMileagePage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -2214,7 +2180,7 @@ export class AddEditMileagePage implements OnInit {
         ),
       ),
       map((finalDistance) => {
-        if (this.getFormValues().route.roundTrip) {
+        if (this.getFormValues()?.route?.roundTrip) {
           return (finalDistance * 2).toFixed(2);
         } else {
           return finalDistance.toFixed(2);
@@ -2603,6 +2569,45 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  getDeleteReportParams(config: {
+    header: string;
+    body: string;
+    ctaText: string;
+    ctaLoadingText: string;
+    reportId?: string;
+    id?: string;
+    removeMileageFromReport?: boolean;
+  }): {
+    component: typeof FyDeleteDialogComponent;
+    cssClass: string;
+    backdropDismiss: boolean;
+    componentProps: {
+      header: string;
+      body: string;
+      ctaText: string;
+      ctaLoadingText: string;
+      deleteMethod: () => Observable<Expense | void>;
+    };
+  } {
+    return {
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: config.header,
+        body: config.body,
+        ctaText: config.ctaText,
+        ctaLoadingText: config.ctaLoadingText,
+        deleteMethod: (): Observable<Expense | void> => {
+          if (config.removeMileageFromReport) {
+            return this.reportService.removeTransaction(config.reportId, config.id);
+          }
+          return this.transactionService.delete(config.id);
+        },
+      },
+    };
+  }
+
   async deleteExpense(reportId?: string): Promise<void> {
     const id = this.activatedRoute.snapshot.params.id as string;
     const removeMileageFromReport = reportId && this.isRedirectedFromReport;
@@ -2614,23 +2619,17 @@ export class AddEditMileagePage implements OnInit {
     const ctaText = removeMileageFromReport ? 'Remove' : 'Delete';
     const ctaLoadingText = removeMileageFromReport ? 'Removing' : 'Deleting';
 
-    const deletePopover = await this.popoverController.create({
-      component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
-      backdropDismiss: false,
-      componentProps: {
-        header,
-        body,
-        ctaText,
-        ctaLoadingText,
-        deleteMethod: () => {
-          if (removeMileageFromReport) {
-            return this.reportService.removeTransaction(reportId, id);
-          }
-          return this.transactionService.delete(id);
-        },
-      },
-    });
+    const config = {
+      header,
+      body,
+      ctaText,
+      ctaLoadingText,
+      reportId,
+      removeMileageFromReport,
+      id,
+    };
+
+    const deletePopover = await this.popoverController.create(this.getDeleteReportParams(config));
 
     await deletePopover.present();
     const { data } = (await deletePopover.onDidDismiss()) as {

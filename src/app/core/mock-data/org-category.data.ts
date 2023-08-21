@@ -1038,3 +1038,42 @@ export const mileageCategories: OrgCategory[] = [
     updated_at: new Date('2023-01-09T16:54:09.929Z'),
   },
 ];
+
+export const mileageCategories2: OrgCategory[] = [
+  {
+    code: '93',
+    created_at: new Date('2021-05-18T11:40:38.576Z'),
+    displayName: 'mileage',
+    enabled: true,
+    fyle_category: 'Food',
+    id: 141295,
+    name: 'mileage',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Business',
+    updated_at: new Date('2022-07-01T05:51:31.800Z'),
+  },
+  {
+    code: '98',
+    created_at: new Date('2021-05-18T11:40:38.576Z'),
+    displayName: 'Pager',
+    enabled: true,
+    fyle_category: 'Mileage',
+    id: 141300,
+    name: 'Pager',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Pager',
+    updated_at: new Date('2022-05-05T17:47:06.951Z'),
+  },
+  {
+    code: '42',
+    created_at: new Date('2023-01-09T16:54:09.929Z'),
+    displayName: 'Marketing outreach',
+    enabled: true,
+    fyle_category: null,
+    id: 226659,
+    name: 'Marketing outreach',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Marketing outreach',
+    updated_at: new Date('2023-01-09T16:54:09.929Z'),
+  },
+];

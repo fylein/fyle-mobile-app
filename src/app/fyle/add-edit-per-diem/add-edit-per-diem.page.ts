@@ -99,9 +99,10 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { OrgUser } from 'src/app/core/models/org-user.model';
 import { PerDiemCustomInputs } from 'src/app/core/models/per-diem-custom-inputs.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
+import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
+import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -129,7 +130,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   canCreatePerDiem$: Observable<boolean>;
 
-  allowedPerDiemRateOptions$: Observable<{ label: string; value: PerDiemRates }[]>;
+  allowedPerDiemRateOptions$: Observable<AllowedPerDiemRateOptions[]>;
 
   paymentModes$: Observable<AccountOption[]>;
 
@@ -161,7 +162,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   costCenters$: Observable<CostCenters[]>;
 
-  reports$: Observable<{ label: string; value: UnflattenedReport }[]>;
+  reports$: Observable<PerDiemReports[]>;
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
@@ -1027,8 +1028,9 @@ export class AddEditPerDiemPage implements OnInit {
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,
-        })),
+        }))
       ),
+      shareReplay(1)
     );
 
     this.recentlyUsedCostCenters$ = forkJoin({
