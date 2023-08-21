@@ -1228,7 +1228,8 @@ ion-toggle::before {
   font-size: 12px;
   font-weight: 500;
   z-index: 1;
-  top: 1px;
+  top: 50%;
+  transform: translateY(-50%);
   right: 12px;
 }
 
@@ -1239,7 +1240,8 @@ ion-toggle.toggle-checked::before {
   font-size: 12px;
   font-weight: 500;
   z-index: 1;
-  top: 1px;
+  top: 50%;
+  transform: translateY(-50%);
   left: 10px;
 }
 
