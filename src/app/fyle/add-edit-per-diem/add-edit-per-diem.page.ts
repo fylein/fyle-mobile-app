@@ -1661,7 +1661,50 @@ export class AddEditPerDiemPage implements OnInit {
     return data;
   }
 
-  addExpense(redirectedFrom) {
+  criticalPolicyViolationErrorHandler(err: {
+    status?: number;
+    type?: string;
+    policyViolations?: string[];
+    policyAction?: FinalExpensePolicyState;
+    etxn?: Partial<UnflattenedTransaction>;
+  }): Observable<{ etxn: Partial<UnflattenedTransaction> }> {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  policyViolationErrorHandler(err: {
+    status?: number;
+    type?: string;
+    policyViolations?: string[];
+    policyAction?: FinalExpensePolicyState;
+    etxn?: Partial<UnflattenedTransaction>;
+  }): Observable<{ etxn: Partial<UnflattenedTransaction>; comment: string }> {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
+            continueWithTransaction.comment = 'No policy violation explaination provided';
+          }
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      })
+    );
+  }
+
+  addExpense(redirectedFrom: string): Observable<OutboxQueue> {
     this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
     this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
     this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
