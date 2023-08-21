@@ -892,7 +892,7 @@ export function TestCases1(getTestBed) {
       it('should return an error object when the date is after the upper bound of the valid range', () => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 2);
-        const control = new FormControl(tomorrow.toISOString().substring(0, 10));
+        const control = new FormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toEqual({ invalidDateSelection: true });
       });
@@ -900,7 +900,7 @@ export function TestCases1(getTestBed) {
 
     it('getEditExpense(): should return an unflattened expense to edit', (done) => {
       transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
-      activatedRoute.snapshot.params.id = JSON.parse(JSON.stringify(unflattenedTxnData.tx.id));
+      activatedRoute.snapshot.params.id = unflattenedTxnData.tx.id;
       component.getEditExpense().subscribe((res) => {
         expect(res).toEqual(unflattenedTxnData);
         done();
