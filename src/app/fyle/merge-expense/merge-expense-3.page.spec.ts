@@ -73,7 +73,7 @@ import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/depende
 import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
 import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response';
 import { expenseInfoWithoutDefaultExpense, expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
-import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
+import { customInputData1, customInputsData4 } from 'src/app/core/mock-data/custom-input.data';
 
 export function TestCases3(getTestBed) {
   return describe('test cases set 3', () => {
@@ -127,7 +127,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'patchCustomInputsValues');
         spyOn(component, 'getDependentFieldsMapping').and.returnValues(
           of(projectDependentFieldsMappingData1),
-          of(CostCenterDependentFieldsMappingData1)
+          of(CostCenterDependentFieldsMappingData1),
         );
       });
 
@@ -161,7 +161,7 @@ export function TestCases3(getTestBed) {
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(2);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledWith(
             mergeExpenseFormData1.custom_inputs.fields,
-            responseAfterAppliedFilter
+            responseAfterAppliedFilter,
           );
           expect(customInputsService.filterByCategory).toHaveBeenCalledTimes(2);
           const firstFilterByCategoryCall = customInputsService.filterByCategory.calls.argsFor(0);
@@ -252,7 +252,7 @@ export function TestCases3(getTestBed) {
           expect(mergeExpensesService.getDependentFieldsMapping).toHaveBeenCalledOnceWith(
             expenseList2,
             expectedTxnCustomProperties,
-            'PROJECT'
+            'PROJECT',
           );
         });
       });
@@ -263,7 +263,7 @@ export function TestCases3(getTestBed) {
           expect(mergeExpensesService.getDependentFieldsMapping).toHaveBeenCalledOnceWith(
             expenseList2,
             expectedTxnCustomProperties,
-            'COST_CENTER'
+            'COST_CENTER',
           );
         });
       });
@@ -293,7 +293,7 @@ export function TestCases3(getTestBed) {
     describe('generateCustomInputOptions(): ', () => {
       beforeEach(() => {
         component.expenses = expenseList2;
-        mergeExpensesService.getCustomInputValues.and.returnValue(cloneDeep([customInputData1]));
+        mergeExpensesService.getCustomInputValues.and.returnValue(cloneDeep([customInputsData4]));
         mergeExpensesService.formatCustomInputOptions.and.returnValue({
           'select all 2': optionsData32[7],
         });
@@ -412,7 +412,7 @@ export function TestCases3(getTestBed) {
         expect(component.setIsReported).toHaveBeenCalledOnceWith(expensesInfo);
         expect(component.disableExpenseToKeep).toEqual(true);
         expect(component.expenseToKeepInfoText).toEqual(
-          'You are required to keep the expense that has already been submitted.'
+          'You are required to keep the expense that has already been submitted.',
         );
         expect(component.fg.controls.target_txn_id.value).toEqual('txB1rVZJ4Pxl');
       });
@@ -431,7 +431,7 @@ export function TestCases3(getTestBed) {
         expect(component.disableExpenseToKeep).toEqual(false);
         expect(component.showReceiptSelection).toEqual(true);
         expect(component.expenseToKeepInfoText).toEqual(
-          'You cannot make changes to an expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
+          'You cannot make changes to an expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.',
         );
         expect(component.fg.controls.target_txn_id.value).not.toEqual('txB1rVZJ4Pxl');
       });
@@ -450,7 +450,7 @@ export function TestCases3(getTestBed) {
         expect(component.disableExpenseToKeep).toEqual(true);
         expect(component.showReceiptSelection).toEqual(false);
         expect(component.expenseToKeepInfoText).toEqual(
-          'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
+          'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.',
         );
         expect(component.fg.controls.target_txn_id.value).toEqual('txB1rVZJ4Pxl');
       });
@@ -494,7 +494,7 @@ export function TestCases3(getTestBed) {
           'SLEEPER',
           'AC',
           23,
-          'KM'
+          'KM',
         );
       });
 

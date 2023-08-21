@@ -288,7 +288,7 @@ export interface AccountingSettings {
   export_type?: string;
   entries_generator_info?: LineEntriesGeneratorInfo;
   entries_exporter_info?: LineEntriesExporterInfo;
-  custom_fields?: Map<string, Record<string, any>>;
+  custom_fields?: Map<string, Record<string, string | boolean | Date>>;
   separate_org_user_advance_ledger?: boolean;
   collapse_expenses?: boolean;
 }

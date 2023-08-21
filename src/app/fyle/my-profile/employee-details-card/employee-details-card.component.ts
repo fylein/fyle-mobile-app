@@ -13,13 +13,14 @@ export class EmployeeDetailsCardComponent {
 
   @Output() verifyMobileNumber = new EventEmitter();
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
-  onUpdateMobileNumber(eou: ExtendedOrgUser) {
+  onUpdateMobileNumber(eou: ExtendedOrgUser): void {
     this.updateMobileNumber.emit(eou);
   }
 
-  onVerifyMobileNumber(eou: ExtendedOrgUser) {
+  onVerifyMobileNumber(eou: ExtendedOrgUser): void {
     this.verifyMobileNumber.emit(eou);
   }
 }

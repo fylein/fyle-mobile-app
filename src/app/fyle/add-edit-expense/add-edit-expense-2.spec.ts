@@ -9,11 +9,12 @@ import { Subscription, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { expenseData1, expenseData2, expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import {
   expectedInstaFyleData1,
   expectedInstaFyleData2,
@@ -27,7 +28,6 @@ import {
 } from 'src/app/core/mock-data/parsed-receipt.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { editExpTxn, txnData2 } from 'src/app/core/mock-data/transaction.data';
-import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
 import {
   expectedUnflattendedTxnData1,
   unflattenedTxnData,
@@ -77,8 +77,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
-import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -171,11 +169,11 @@ export function TestCases2(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -238,17 +236,14 @@ export function TestCases2(getTestBed) {
 
     describe('getPaymentModes():', () => {
       it('should get payment modes', (done) => {
-        component.etxn$ = of({
-          ...unflattenExp1,
-          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: false },
-        });
+        component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed),
         );
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
         fixture.detectChanges();
@@ -265,17 +260,14 @@ export function TestCases2(getTestBed) {
       });
 
       it('should get payment modes in case org settings are not present', (done) => {
-        component.etxn$ = of({
-          ...unflattenExp1,
-          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: null },
-        });
+        component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(null));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed),
         );
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
         spyOn(component, 'getCCCSettings').and.returnValue(false);
@@ -293,17 +285,14 @@ export function TestCases2(getTestBed) {
       });
 
       it('should get payment modes if CCC expense is enabled', (done) => {
-        component.etxn$ = of({
-          ...unflattenExp1,
-          tx: { ...unflattenExp1.tx, corporate_credit_card_expense_group_id: null },
-        });
+        component.etxn$ = of(unflattenedTxnData);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed),
         );
         spyOn(component, 'getCCCSettings').and.returnValue(true);
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
@@ -348,7 +337,7 @@ export function TestCases2(getTestBed) {
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
             'USD',
             'INR',
-            new Date('2023-02-15T06:30:00.000Z')
+            new Date('2023-02-15T06:30:00.000Z'),
           );
           done();
         });
@@ -450,10 +439,10 @@ export function TestCases2(getTestBed) {
           expect(res).toEqual(expectedUnflattendedTxnData1);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
           expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(
-            unflattenedTxnWithExtractedData.tx.extracted_data.category
+            unflattenedTxnWithExtractedData.tx.extracted_data.category,
           );
           expect(dateService.getUTCDate).toHaveBeenCalledWith(
-            new Date(unflattenedTxnWithExtractedData.tx.extracted_data.date)
+            new Date(unflattenedTxnWithExtractedData.tx.extracted_data.date),
           );
           expect(component.isIncompleteExpense).toBeTrue();
           done();
@@ -511,7 +500,7 @@ export function TestCases2(getTestBed) {
     describe('goToTransaction():', () => {
       const txn_ids = ['txfCdl3TEZ7K'];
       it('should navigate to add-edit mileage if category is mileage', () => {
-        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'MILEAGE' } };
+        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' } };
         component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -527,7 +516,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should navigate to per diem expense form if the category is per diem', () => {
-        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'PER DIEM' } };
+        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' } };
         component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -543,7 +532,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should navigate to expense form', () => {
-        const expense = unflattenExp1;
+        const expense = unflattenedTxnData;
         component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -641,7 +630,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveAndNewExpense():', () => {
       it('should save and create expense if the form is valid and is in add mode', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'reloadCurrentRoute');
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'add';
@@ -690,7 +679,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveExpenseAndGotoPrev():', () => {
       it('should add a new expense and close the form', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -705,7 +694,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should add a new expense and go to the previous expense if not the first one in list', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
         component.mode = 'add';
@@ -760,7 +749,7 @@ export function TestCases2(getTestBed) {
 
     describe('saveExpenseAndGotoNext():', () => {
       it('should add a new expense and close the form', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.reviewList = ['id1'];
@@ -776,7 +765,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
-        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'goToNext');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -865,16 +854,16 @@ export function TestCases2(getTestBed) {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
       currencyModalSpy.onWillDismiss.and.resolveTo({
-        data: { action: 'primary' },
+        data: { comment: 'primary' },
       });
       modalController.create.and.resolveTo(currencyModalSpy);
 
       const result = await component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state
+        splitPolicyExp4.data.final_desired_state,
       );
 
-      expect(result).toEqual({ action: 'primary' });
+      expect(result).toEqual({ comment: 'primary' });
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyPolicyViolationComponent,
         componentProps: {
@@ -929,7 +918,7 @@ export function TestCases2(getTestBed) {
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
             'USD',
             'INR',
-            new Date('2023-02-15T06:30:00.000Z')
+            new Date('2023-02-15T06:30:00.000Z'),
           );
         });
       }));
@@ -988,7 +977,7 @@ export function TestCases2(getTestBed) {
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             true,
-            'rpId'
+            'rpId',
           )
           .componentProps.deleteMethod();
         expect(reportService.removeTransaction).toHaveBeenCalledTimes(1);
@@ -999,7 +988,7 @@ export function TestCases2(getTestBed) {
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
-            false
+            false,
           )
           .componentProps.deleteMethod();
         expect(transactionService.delete).toHaveBeenCalledTimes(1);
@@ -1033,10 +1022,10 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           true,
-          'rpFE5X1Pqi9P'
+          'rpFE5X1Pqi9P',
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, true, 'rpFE5X1Pqi9P')
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, true, 'rpFE5X1Pqi9P'),
         );
       }));
 
@@ -1066,10 +1055,10 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           undefined,
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined),
         );
       }));
 
@@ -1103,25 +1092,25 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           undefined,
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined),
         );
         expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
-          component.reviewList[+component.activeIndex]
+          component.reviewList[+component.activeIndex],
         );
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           unflattenedTxnData,
           component.reviewList,
-          +component.activeIndex
+          +component.activeIndex,
         );
       }));
     });
 
     describe('openCommentsModal():', () => {
       it('should add comment', fakeAsync(() => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(unflattenedTxnData);
         modalProperties.getModalDefaultProperties.and.returnValue(properties);
         const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
 
@@ -1136,7 +1125,7 @@ export function TestCases2(getTestBed) {
           component: ViewCommentComponent,
           componentProps: {
             objectType: 'transactions',
-            objectId: unflattenExp1.tx.id,
+            objectId: unflattenedTxnData.tx.id,
           },
           ...properties,
         });
@@ -1145,7 +1134,7 @@ export function TestCases2(getTestBed) {
       }));
 
       it('should view comment', fakeAsync(() => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(unflattenedTxnData);
         modalProperties.getModalDefaultProperties.and.returnValue(properties);
         const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
 
@@ -1160,7 +1149,7 @@ export function TestCases2(getTestBed) {
           component: ViewCommentComponent,
           componentProps: {
             objectType: 'transactions',
-            objectId: unflattenExp1.tx.id,
+            objectId: unflattenedTxnData.tx.id,
           },
           ...properties,
         });
@@ -1194,7 +1183,7 @@ export function TestCases2(getTestBed) {
 
       expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
-        activatedRoute.snapshot.params.id
+        activatedRoute.snapshot.params.id,
       );
     });
 

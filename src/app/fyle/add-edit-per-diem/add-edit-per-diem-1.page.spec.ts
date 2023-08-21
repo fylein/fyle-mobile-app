@@ -35,12 +35,23 @@ import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { popoverControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
 import { of } from 'rxjs';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import { unflattenExp1 } from 'src/app/core/mock-data/unflattened-expense.data';
+import { expectedUnflattendedTxnData3, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { unflattenExp1, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
 import { EventEmitter } from '@angular/core';
-import { unflattenedAccount1Data } from 'src/app/core/test-data/accounts.service.spec.data';
+import {
+  accountsData,
+  paymentModesConfig,
+  paymentModesData,
+  unflattenedAccount1Data,
+} from 'src/app/core/test-data/accounts.service.spec.data';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { cloneDeep } from 'lodash';
+import { expenseFieldsMapResponse } from 'src/app/core/mock-data/expense-fields-map.data';
+import { expectedAllOrgCategories, perDiemCategory } from 'src/app/core/mock-data/org-category.data';
+import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
+import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
+import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 export function TestCases1(getTestBed) {
   return describe('add-edit-per-diem test cases set 1', () => {
@@ -335,7 +346,10 @@ export function TestCases1(getTestBed) {
     describe('goToTransaction():', () => {
       const txn_ids = ['txfCdl3TEZ7K'];
       it('should navigate to add-edit-mileage if category is mileage', () => {
-        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'MILEAGE' } };
+        const expense = {
+          ...expectedUnflattendedTxnData3,
+          tx: { ...expectedUnflattendedTxnData3.tx, org_category: 'MILEAGE' },
+        };
         component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -351,7 +365,10 @@ export function TestCases1(getTestBed) {
       });
 
       it('should navigate to add-edit-per-diem if the category is per diem', () => {
-        const expense = { ...unflattenExp1, tx: { ...unflattenExp1.tx, org_category: 'PER DIEM' } };
+        const expense = {
+          ...expectedUnflattendedTxnData3,
+          tx: { ...expectedUnflattendedTxnData3.tx, org_category: 'PER DIEM' },
+        };
         component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -367,7 +384,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should navigate to add-edit-expense page if category is not amongst mileage and per diem', () => {
-        const expense = unflattenExp1;
+        const expense = expectedUnflattendedTxnData3;
         component.goToTransaction(expense, txn_ids, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -398,7 +415,7 @@ export function TestCases1(getTestBed) {
 
     describe('checkIfInvalidPaymentMode():', () => {
       it('should check for invalid payment mode if payment account type is not advance account', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(expectedUnflattendedTxnData3);
         component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
@@ -414,7 +431,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should check for invalid payment in case of Advance accounts if source account ID does not match with account type', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(expectedUnflattendedTxnData3);
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE },
@@ -433,7 +450,9 @@ export function TestCases1(getTestBed) {
       });
 
       it('should check for invalid payment mode if the source account ID matches with the account type', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        const mockUnflattedData = cloneDeep(expectedUnflattendedTxnData3);
+        mockUnflattedData.tx.source_account_id = 'acc5APeygFjRd';
+        component.etxn$ = of(mockUnflattedData);
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
           acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'acc5APeygFjRd' },
@@ -452,7 +471,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount.acc is undefined', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(expectedUnflattendedTxnData3);
         const mockPaymentAccount = cloneDeep(unflattenedAccount1Data);
         mockPaymentAccount.acc = undefined;
         component.fg.controls.paymentMode.setValue(mockPaymentAccount);
@@ -466,7 +485,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount is undefined', (done) => {
-        component.etxn$ = of(unflattenExp1);
+        component.etxn$ = of(expectedUnflattendedTxnData3);
         component.fg.controls.paymentMode.setValue(undefined);
         fixture.detectChanges();
 
@@ -475,6 +494,160 @@ export function TestCases1(getTestBed) {
           expect(res).toBeFalse();
           done();
         });
+      });
+    });
+
+    it('getTransactionFields(): should return all the transaction fields', (done) => {
+      const fields = ['purpose', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
+      spyOn(component, 'getPerDiemCategories').and.returnValue(
+        of({
+          defaultPerDiemCategory: perDiemCategory,
+          perDiemCategories: [perDiemCategory],
+        }),
+      );
+      const mockTxnFieldData = cloneDeep(txnFieldsData2);
+      expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
+      component.getTransactionFields().subscribe((res) => {
+        expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
+        expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
+        expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
+          expenseFieldsMapResponse,
+          fields,
+          perDiemCategory,
+        );
+        expect(res).toEqual(mockTxnFieldData);
+        done();
+      });
+    });
+
+    it('setupTfcDefaultValues(): should update the form with default expense field values if some fields are empty', () => {
+      const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
+      const mockTxnFieldData = cloneDeep(txnFieldsData2);
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
+      spyOn(component, 'getPerDiemCategories').and.returnValue(
+        of({
+          defaultPerDiemCategory: perDiemCategory,
+          perDiemCategories: [perDiemCategory],
+        }),
+      );
+      expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
+      expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData2);
+      component.fg.controls.purpose.setValue('');
+      component.fg.controls.costCenter.setValue(null);
+      component.fg.controls.from_dt.setValue('2023-01-01');
+      component.fg.controls.num_days.setValue(32);
+      component.fg.controls.to_dt.setValue('2023-02-02');
+      component.fg.controls.billable.setValue(true);
+
+      component.setupTfcDefaultValues();
+
+      expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
+      expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
+      expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
+        expenseFieldsMapResponse,
+        fields,
+        perDiemCategory,
+      );
+      expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
+      expect(component.fg.controls.costCenter.value).toEqual(15818);
+      expect(component.fg.controls.purpose.value).toEqual('test_term');
+    });
+
+    it('getPaymentModes(): should get payment modes', (done) => {
+      component.etxn$ = of(unflattenedTxn);
+      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+      orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
+      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
+      );
+      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
+      accountsService.getPaymentModes.and.returnValue(paymentModesData);
+      fixture.detectChanges();
+
+      component.getPaymentModes().subscribe((res) => {
+        expect(res).toEqual(paymentModesData);
+        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+
+        expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
+          accountsData,
+          [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
+          paymentModesConfig,
+        );
+        done();
+      });
+    });
+
+    describe('getSubCategories(): ', () => {
+      it('should return all categories having category name as per diem', (done) => {
+        const mockPerDiemCategory = cloneDeep(perDiemCategory);
+        mockPerDiemCategory.sub_category = '';
+        categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, mockPerDiemCategory]));
+        component.getSubCategories().subscribe((res) => {
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(res).toEqual([mockPerDiemCategory]);
+          done();
+        });
+      });
+
+      it('should return empty array if category name is undefined', (done) => {
+        const mockPerDiemCategory = cloneDeep(perDiemCategory);
+        mockPerDiemCategory.name = undefined;
+        categoriesService.getAll.and.returnValue(of([mockPerDiemCategory]));
+        component.getSubCategories().subscribe((res) => {
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(res).toEqual([]);
+          done();
+        });
+      });
+
+      it('should return all categories having name as per diem if sub category is undefined', (done) => {
+        const mockPerDiemCategory = cloneDeep(perDiemCategory);
+        mockPerDiemCategory.sub_category = undefined;
+        categoriesService.getAll.and.returnValue(of([mockPerDiemCategory]));
+        component.getSubCategories().subscribe((res) => {
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(res).toEqual([mockPerDiemCategory]);
+          done();
+        });
+      });
+    });
+
+    describe('getProjectCategoryIds():', () => {
+      it('should return project category ids', (done) => {
+        categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, perDiemCategory]));
+        component.getProjectCategoryIds().subscribe((res) => {
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(['38912']);
+          done();
+        });
+      });
+
+      it('should return undefined if category id is undefined', (done) => {
+        const mockPerDiemCategory = cloneDeep(perDiemCategory);
+        mockPerDiemCategory.id = undefined;
+        categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, mockPerDiemCategory]));
+        component.getProjectCategoryIds().subscribe((res) => {
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          // If category id is undefined, it will return undefined due to default behaviour of map function
+          expect(res).toEqual([undefined]);
+          done();
+        });
+      });
+    });
+
+    it('getPerDiemCategories(): should return defaultPerDiemCategory and perDiemCategories', (done) => {
+      categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, perDiemCategory]));
+      component.getPerDiemCategories().subscribe((res) => {
+        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+        expect(res).toEqual({
+          defaultPerDiemCategory: perDiemCategory,
+          perDiemCategories: [perDiemCategory],
+        });
+        done();
       });
     });
   });

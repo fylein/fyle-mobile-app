@@ -1,4 +1,4 @@
-import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
+import { OrgCategory } from '../models/v1/org-category.model';
 
 export const orgCategoryData: OrgCategory = {
   code: null,
@@ -986,3 +986,55 @@ export const expectedAutoFillCategory3: OrgCategory = {
   sub_category: 'Food',
   updated_at: new Date('2022-05-05T17:45:42.092Z'),
 };
+
+export const perDiemCategory: OrgCategory = {
+  code: null,
+  created_at: new Date('2018-07-27T08:52:38.938006+00:00'),
+  displayName: 'Per Diem',
+  enabled: true,
+  fyle_category: 'Per Diem',
+  id: 38912,
+  name: 'Per Diem',
+  org_id: 'orrb8EW1zZsy',
+  sub_category: 'Per Diem',
+  updated_at: new Date('2022-09-13T17:16:56.232081+00:00'),
+};
+
+export const mileageCategories: OrgCategory[] = [
+  {
+    code: '93',
+    created_at: new Date('2021-05-18T11:40:38.576Z'),
+    displayName: 'Business',
+    enabled: true,
+    fyle_category: 'Mileage',
+    id: 141295,
+    name: 'Business',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Business',
+    updated_at: new Date('2022-07-01T05:51:31.800Z'),
+  },
+  {
+    code: '98',
+    created_at: new Date('2021-05-18T11:40:38.576Z'),
+    displayName: 'Pager',
+    enabled: true,
+    fyle_category: 'Mileage',
+    id: 141300,
+    name: 'Pager',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Pager',
+    updated_at: new Date('2022-05-05T17:47:06.951Z'),
+  },
+  {
+    code: '42',
+    created_at: new Date('2023-01-09T16:54:09.929Z'),
+    displayName: 'Marketing outreach',
+    enabled: true,
+    fyle_category: null,
+    id: 226659,
+    name: 'Marketing outreach',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Marketing outreach',
+    updated_at: new Date('2023-01-09T16:54:09.929Z'),
+  },
+];

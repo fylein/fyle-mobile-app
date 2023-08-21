@@ -17,6 +17,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { Cacheable } from 'ts-cacheable';
 import { CardDetails } from '../models/card-details.model';
+import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
 
 type Config = Partial<{
   offset: number;
@@ -34,7 +35,7 @@ export class CorporateCreditCardExpenseService {
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
     private authService: AuthService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
   ) {}
 
   @Cacheable()
@@ -59,24 +60,24 @@ export class CorporateCreditCardExpenseService {
           (res) =>
             res as {
               count: number;
-              data: any[];
+              data: CorporateCardExpense[];
               limit: number;
               offset: number;
               url: string;
-            }
-        )
+            },
+        ),
       );
   }
 
-  markPersonal(corporateCreditCardExpenseGroupId: string) {
+  markPersonal(corporateCreditCardExpenseGroupId: string): Observable<null> {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/personal');
   }
 
-  dismissCreditTransaction(corporateCreditCardExpenseId: string) {
+  dismissCreditTransaction(corporateCreditCardExpenseId: string): Observable<null> {
     return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/ignore');
   }
 
-  getEccceByGroupId(groupId: string) {
+  getEccceByGroupId(groupId: string): Observable<CCCExpUnflattened[]> {
     const data = {
       params: {
         group_id: groupId,
@@ -137,8 +138,8 @@ export class CorporateCreditCardExpenseService {
             this.constructInQueryParamStringForV2(['COMPLETE', 'DRAFT']) +
             '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
             eou.ou.id,
-          {}
-        )
+          {},
+        ),
       ),
       map((statsResponse: StatsResponse) => {
         const stats = {
@@ -155,7 +156,7 @@ export class CorporateCreditCardExpenseService {
           }
         });
         return stats;
-      })
+      }),
     );
   }
 }

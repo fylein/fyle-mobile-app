@@ -24,6 +24,7 @@ import {
   AppLaunchTimeProperties,
   CaptureSingleReceiptTimeProperties,
   SwitchOrgLaunchTimeProperties,
+  ReportNameChangeProperties,
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
@@ -39,7 +40,10 @@ import { forkJoin, from } from 'rxjs';
 export class TrackingService {
   identityEmail = null;
 
-  constructor(private authService: AuthService, private deviceService: DeviceService) {}
+  constructor(
+    private authService: AuthService,
+    private deviceService: DeviceService,
+  ) {}
 
   get tracking(): TrackingMethods {
     return (window as typeof window & { analytics: TrackingMethods }).analytics;
@@ -220,6 +224,11 @@ export class TrackingService {
   // create report event
   createReport(properties: CreateReportProperties): void {
     this.eventTrack('Create Report', properties);
+  }
+
+  // Report name change event
+  reportNameChange(properties: ReportNameChangeProperties): void {
+    this.eventTrack('Report Name Change', properties);
   }
 
   /*** Events related to help page ***/

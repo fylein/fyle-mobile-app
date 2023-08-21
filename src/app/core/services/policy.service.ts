@@ -9,6 +9,7 @@ import { PolicyViolation } from '../models/policy-violation.model';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { Transaction } from '../models/v1/transaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +17,10 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 export class PolicyService {
   constructor(
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private approverPlatformApiService: ApproverPlatformApiService
+    private approverPlatformApiService: ApproverPlatformApiService,
   ) {}
 
-  transformTo(transaction: PublicPolicyExpense): PlatformPolicyExpense {
+  transformTo(transaction: PublicPolicyExpense | Partial<Transaction>): PlatformPolicyExpense {
     const platformPolicyExpense: PlatformPolicyExpense = {
       id: transaction.id,
       spent_at: transaction.txn_dt,

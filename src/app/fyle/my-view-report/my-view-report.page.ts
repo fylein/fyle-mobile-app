@@ -31,6 +31,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { Approver } from 'src/app/core/models/v1/approver.model';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -96,6 +97,14 @@ export class MyViewReportPage {
   segmentValue = ReportPageSegment.EXPENSES;
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
+
+  eou: ExtendedOrgUser;
+
+  reportNameChangeStartTime: number;
+
+  reportNameChangeEndTime: number;
+
+  timeSpentOnEditingReportName: number;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -181,6 +190,8 @@ export class MyViewReportPage {
       shareReplay(1),
     );
     const eou$ = from(this.authService.getEou());
+
+    eou$.subscribe((eou) => (this.eou = eou));
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
       startWith(0),
@@ -301,6 +312,24 @@ export class MyViewReportPage {
     );
   }
 
+  trackReportNameChange(): void {
+    this.reportNameChangeEndTime = new Date().getTime();
+    this.timeSpentOnEditingReportName = (this.reportNameChangeEndTime - this.reportNameChangeStartTime) / 1000;
+    this.trackingService.reportNameChange({
+      Time_spent: this.timeSpentOnEditingReportName,
+      Roles: this.eou?.ou.roles,
+    });
+  }
+
+  showReportNameChangeSuccessToast(): void {
+    const message = 'Report name changed successfully.';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+      panelClass: ['msb-success'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
   updateReportName(reportName: string): void {
     this.erpt$
       .pipe(
@@ -308,12 +337,17 @@ export class MyViewReportPage {
         switchMap((erpt) => {
           erpt.rp_purpose = reportName;
           return this.reportService.updateReportPurpose(erpt);
-        })
+        }),
       )
-      .subscribe(() => this.loadReportDetails$.next());
+      .subscribe(() => {
+        this.loadReportDetails$.next();
+        this.showReportNameChangeSuccessToast();
+        this.trackReportNameChange();
+      });
   }
 
   editReportName(): void {
+    this.reportNameChangeStartTime = new Date().getTime();
     this.erpt$
       .pipe(take(1))
       .pipe(

@@ -5,7 +5,7 @@ import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { CurrencyPipe } from '@angular/common';
-import { switchMap, concatMap, tap, map, reduce } from 'rxjs/operators';
+import { switchMap, concatMap, map, reduce } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
 
 const mileageRateCacheBuster$ = new Subject<void>();
@@ -17,7 +17,7 @@ export class MileageRatesService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private currencyPipe: CurrencyPipe
+    private currencyPipe: CurrencyPipe,
   ) {}
 
   @Cacheable({
@@ -30,7 +30,7 @@ export class MileageRatesService {
         return range(0, count);
       }),
       concatMap((page) => this.getMileageRates({ offset: this.paginationSize * page, limit: this.paginationSize })),
-      reduce((acc, curr) => acc.concat(curr), [] as PlatformMileageRates[])
+      reduce((acc, curr) => acc.concat(curr), [] as PlatformMileageRates[]),
     );
   }
 
@@ -77,7 +77,7 @@ export class MileageRatesService {
     return rateName && names[rateName] ? names[rateName] : rateName;
   }
 
-  getReadableRate(rate: number, currency: string, unit: string) {
+  getReadableRate(rate: number, currency: string, unit: string): string {
     unit = unit && unit.toLowerCase() === 'miles' ? 'mile' : 'km';
 
     return this.currencyPipe.transform(rate, currency, 'symbol', '1.2-2') + '/' + unit;
