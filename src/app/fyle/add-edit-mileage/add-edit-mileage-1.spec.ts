@@ -826,7 +826,7 @@ export function TestCases1(getTestBed) {
         expect(component.close).toHaveBeenCalledTimes(1);
       });
 
-      it('should add a new expense and go to the previous expense if not the first one in list', () => {
+      it('should add a new expense and go to the previous expense in the report', () => {
         spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
