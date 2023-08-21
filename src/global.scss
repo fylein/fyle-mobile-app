@@ -101,7 +101,6 @@ ion-popover.error-popover {
   background-color: $green;
   border-radius: 8px !important;
   margin: 0 16px 30px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-failure {
@@ -109,7 +108,6 @@ ion-popover.error-popover {
   background-color: $red;
   border-radius: 8px !important;
   margin: 0 16px 30px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-info {
@@ -143,7 +141,6 @@ ion-popover.error-popover {
   background-color: $green;
   border-radius: 8px !important;
   margin: 0 16px 133px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-failure-with-camera-icon {
@@ -151,7 +148,6 @@ ion-popover.error-popover {
   background-color: $red;
   border-radius: 8px !important;
   margin: 0 16px 133px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-success-with-report-btn {
@@ -159,7 +155,6 @@ ion-popover.error-popover {
   background-color: $green;
   border-radius: 8px !important;
   margin: 0 16px 84px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-failure-with-report-btn {
@@ -167,7 +162,14 @@ ion-popover.error-popover {
   background-color: $red;
   border-radius: 8px !important;
   margin: 0 16px 96px !important;
-  padding: 12px 8px !important;
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: none;
+
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-shape: 8px;
+  }
 }
 
 .icon--toast-danger {
