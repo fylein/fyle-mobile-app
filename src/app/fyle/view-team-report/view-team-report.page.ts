@@ -586,6 +586,24 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
+  trackReportNameChange(): void {
+    this.reportNameChangeEndTime = new Date().getTime();
+    this.timeSpentOnEditingReportName = (this.reportNameChangeEndTime - this.reportNameChangeStartTime) / 1000;
+    this.trackingService.reportNameChange({
+      Time_spent: this.timeSpentOnEditingReportName,
+      Roles: this.eou?.ou.roles,
+    });
+  }
+
+  showReportNameChangeSuccessToast(): void {
+    const message = 'Report name changed successfully.';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+      panelClass: ['msb-success'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
   updateReportName(reportName: string): void {
     this.erpt$
       .pipe(
@@ -597,18 +615,8 @@ export class ViewTeamReportPage implements OnInit {
       )
       .subscribe(() => {
         this.loadReportDetails$.next();
-        const message = 'Report name changed successfully.';
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-          panelClass: ['msb-success-with-camera-icon'],
-        });
-        this.trackingService.showToastMessage({ ToastContent: message });
-        this.reportNameChangeEndTime = new Date().getTime();
-        this.timeSpentOnEditingReportName = (this.reportNameChangeEndTime - this.reportNameChangeStartTime) / 1000;
-        this.trackingService.reportNameChange({
-          Time_spent: this.timeSpentOnEditingReportName,
-          Roles: this.eou?.ou.roles,
-        });
+        this.showReportNameChangeSuccessToast();
+        this.trackReportNameChange();
       });
   }
 
