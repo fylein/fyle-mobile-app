@@ -1,10 +1,10 @@
-<ion-header mode="md">
+<ion-header class="ion-no-border" mode="md">
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
       <button *ngIf="!navigateBack" mat-icon-button [routerLink]="['/','enterprise','my_reports']">
         <mat-icon> keyboard_backspace </mat-icon>
       </button>
-      <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
+      <ion-back-button defaultHref="#" mode="md" *ngIf="navigateBack"></ion-back-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title"> View Report </ion-title>
     <ion-buttons mode="md" slot="end">

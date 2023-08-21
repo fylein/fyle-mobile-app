@@ -527,9 +527,29 @@ mat-tab-group {
   }
 }
 
+div {
+  font-size: 14px;
+}
+
 textarea,
-input {
+input,
+form {
   background-color: transparent;
+  font-size: 14px;
+}
+
+.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-text-field__input {
+  font-size: 14px;
+}
+
+.dense-1 {
+  .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+  }
 }
 
 .signin-signup-fields {
@@ -648,7 +668,7 @@ input {
 
 .other-details--container {
   mat-tab-group {
-    .mat-tab-body-content {
+    .mat-mdc-tab-body-content {
       overflow-x: hidden;
     }
   }
@@ -786,7 +806,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .dashboard {
   &--tabs {
-    .mat-tab-header {
+    .mat-mdc-tab-header {
       display: none;
     }
   }
@@ -1135,7 +1155,7 @@ ion-popover.delete-button-class {
 }
 
 .ios .fy-footer--icon-pill {
-  margin-left: 7px !important;
+  margin-left: 14px !important;
 }
 
 .filter-pills-container {
@@ -1182,11 +1202,16 @@ ion-modal.personal-cards-range-modal {
   padding: 12px 0 24px 0 !important;
 }
 
+ion-toggle::part(track) {
+  height: 22px;
+  width: 52px;
+}
+
 ion-toggle {
   height: 22px;
   width: 52px;
-  --background: #{$grey-light};
-  --background-checked: #{$brand-primary};
+  --track-background: #{$grey-light};
+  --track-background-checked: #{$brand-primary};
   --handle-spacing: 4px;
   --handle-border-radius: 50%;
   --handle-width: 14px;
@@ -1241,7 +1266,7 @@ ion-toggle.toggle-checked::before {
   }
 }
 
-.mat-snack-bar-handset .mat-snack-bar-container {
+.mat-mdc-snack-bar-handset .mat-mdc-snack-bar-container {
   margin-bottom: 133px;
 }
 
