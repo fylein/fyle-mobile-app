@@ -98,5 +98,5 @@ export const expectedExpenseFieldWithoutControl = perDiemCustomInputsData1.map((
 }));
 
 export const expectedControlValues = perDiemCustomInputsData1.map(
-  ({ control }: { control: { value: string | string[] } }) => control.value
+  ({ control }) => control.value as string | string[] | null,
 );
