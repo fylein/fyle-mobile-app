@@ -19,7 +19,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { ErrorComponent } from './error/error.component';
-import { authResData1, authResData2 } from 'src/app/core/mock-data/auth-reponse.data';
+import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-reponse.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { MatButton, MatButtonModule } from '@angular/material/button';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
@@ -173,9 +173,7 @@ describe('SignInPage', () => {
   it('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
     const browserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'executeScript', 'close']);
     browserSpy.on.and.returnValue(of(new Event('event')));
-    browserSpy.executeScript.and.returnValue(
-      Promise.resolve([JSON.stringify({ error: false, response_status_code: '200' })])
-    );
+    browserSpy.executeScript.and.returnValue(Promise.resolve([JSON.stringify(samlResData1)]));
     browserSpy.close.and.returnValue(null);
     spyOn(component, 'checkSAMLResponseAndSignInUser');
     inAppBrowserService.create.and.returnValue(browserSpy);
@@ -186,10 +184,7 @@ describe('SignInPage', () => {
     tick(1000);
 
     expect(inAppBrowserService.create).toHaveBeenCalledOnceWith('url' + '&RelayState=MOBILE', '_blank', 'location=yes');
-    expect(component.checkSAMLResponseAndSignInUser).toHaveBeenCalledOnceWith({
-      error: false,
-      response_status_code: '200',
-    });
+    expect(component.checkSAMLResponseAndSignInUser).toHaveBeenCalledOnceWith(samlResData1);
   }));
 
   describe('checkSAMLResponseAndSignInUser():', () => {
@@ -203,12 +198,9 @@ describe('SignInPage', () => {
       component.fg.controls.email.setValue('ajain@fyle.in');
       fixture.detectChanges();
 
-      await component.checkSAMLResponseAndSignInUser({ error: false, response_status_code: '200' });
+      await component.checkSAMLResponseAndSignInUser(samlResData1);
 
-      expect(routerAuthService.handleSignInResponse).toHaveBeenCalledOnceWith({
-        error: false,
-        response_status_code: '200',
-      });
+      expect(routerAuthService.handleSignInResponse).toHaveBeenCalledOnceWith(samlResData1);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
       expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
@@ -218,7 +210,7 @@ describe('SignInPage', () => {
     it('should show error if saml response has an error', () => {
       spyOn(component, 'handleError');
 
-      component.checkSAMLResponseAndSignInUser({ error: true, response_status_code: '500' });
+      component.checkSAMLResponseAndSignInUser(samlResData2);
       expect(component.handleError).toHaveBeenCalledOnceWith({ status: 500 } as HttpErrorResponse);
     });
   });
