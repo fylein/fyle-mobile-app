@@ -1,3 +1,6 @@
+import { Destination } from '../destination.model';
+import { TxnCustomProperties } from '../txn-custom-properties.model';
+
 export interface PlatformPolicyExpense {
   id?: string;
   spent_at: Date;
@@ -16,25 +19,8 @@ export interface PlatformPolicyExpense {
   is_reimbursable?: boolean;
   distance?: number;
   distance_unit?: string;
-  locations?: {
-    city?: string;
-    state?: string;
-    display_name?: string;
-    country?: string;
-    formatted_address?: string;
-    latitude?: number;
-    longitude?: number;
-  }[];
-  custom_fields?: {
-    id?: number;
-    mandatory?: boolean;
-    name: string;
-    options?: { label: string; value: string }[] | [];
-    placeholder?: string;
-    prefix?: string;
-    type?: string;
-    value: any | any[];
-  }[];
+  locations?: Destination[];
+  custom_fields?: TxnCustomProperties[];
   started_at?: Date;
   ended_at?: Date;
   per_diem_rate_id?: number;

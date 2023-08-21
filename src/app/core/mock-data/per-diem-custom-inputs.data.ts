@@ -1,4 +1,6 @@
 import { FormBuilder } from '@angular/forms';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { PerDiemCustomInputs } from '../models/per-diem-custom-inputs.model';
 const formBuilder = new FormBuilder();
 
 export const perDiemCustomInputsData1 = [
@@ -95,8 +97,39 @@ export const perDiemCustomInputsData1 = [
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const expectedExpenseFieldWithoutControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
   ...otherProps,
-}));
+})) as TxnCustomProperties[];
 
 export const expectedControlValues = perDiemCustomInputsData1.map(
   ({ control }) => control.value as string | string[] | null,
 );
+
+export const perDiemCustomInputsData2: PerDiemCustomInputs[] = [
+  {
+    id: 318297,
+    mandatory: true,
+    name: 'userlist',
+    options: [],
+    placeholder: 'userlist_custom_field',
+    prefix: '',
+    type: 'USER_LIST',
+    value: [],
+    control: formBuilder.group({
+      name: 'userlist',
+      value: [[]],
+    }),
+  },
+  {
+    id: 921391,
+    mandatory: false,
+    name: 'test2',
+    options: [],
+    placeholder: 'test2',
+    prefix: '',
+    type: 'MULTI_SELECT',
+    value: '',
+    control: formBuilder.group({
+      name: 'test2',
+      value: '',
+    }),
+  },
+];
