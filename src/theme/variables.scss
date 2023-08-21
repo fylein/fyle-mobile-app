@@ -51,6 +51,10 @@ $fy-theme-primary: mat.define-palette(mat.$pink-palette);
 $fy-theme-accent: mat.define-palette(mat.$gray-palette, 200);
 $fy-theme-warn: mat.define-palette($fy-warning);
 
+.dense-1 {
+  @include mat.all-component-densities(-3);
+}
+
 // create theme (use mat-dark-theme for themes with dark backgrounds)
 $fy-theme: mat.define-light-theme(
   (
@@ -58,6 +62,7 @@ $fy-theme: mat.define-light-theme(
       primary: $fy-theme-primary,
       accent: $fy-theme-accent,
       warn: $fy-theme-warn,
+      density: -3,
     ),
     typography: $custom-typography,
   )

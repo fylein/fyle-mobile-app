@@ -1,7 +1,7 @@
-<ion-header mode="md">
+<ion-header class="ion-no-border" mode="md">
   <ion-toolbar mode="md">
     <ion-buttons *ngIf="navigateBack" slot="start">
-      <ion-back-button mode="md"></ion-back-button>
+      <ion-back-button defaultHref="#" mode="md"></ion-back-button>
     </ion-buttons>
     <div class="switch-org__toolbar__header-container">
       <ion-icon
@@ -56,8 +56,9 @@
       </div>
     </div>
     <div #search class="switch-org__content-container__block switch-org__content-container__search-block">
-      <div class="expense-report-search switch-org__searchbar-container">
+      <div class="expense-report-search switch-org__searchbar-container dense-1">
         <mat-form-field
+          subscriptSizing="dynamic"
           appearance="outline"
           class="mat-form-field-no-padding switch-org__searchbar-container__searchbar"
         >
