@@ -1,6 +1,6 @@
 import { TitleCasePipe } from '@angular/common';
-import { ComponentFixture } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
+import { AbstractControl, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -42,7 +42,14 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditMileagePage } from './add-edit-mileage.page';
-import { Subscription, Subject, BehaviorSubject } from 'rxjs';
+import { Subscription, Subject, BehaviorSubject, of } from 'rxjs';
+import { EventEmitter } from '@angular/core';
+import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { mileageCategories2 } from 'src/app/core/mock-data/org-category.data';
+import { unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
+import { setFormValid } from './add-edit-mileage.page.setup.spec';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 
 export function TestCases2(getTestBed) {
   return describe('AddEditMileage-2', () => {
@@ -180,6 +187,148 @@ export function TestCases2(getTestBed) {
 
     it('should create', () => {
       expect(component).toBeTruthy();
+    });
+
+    it('setupNetworkWatcher(): should setup a network watcher', (done) => {
+      networkService.connectivityWatcher.and.returnValue(new EventEmitter<boolean>());
+      networkService.isOnline.and.returnValue(of(true));
+      fixture.detectChanges();
+
+      component.setupNetworkWatcher();
+
+      component.connectionStatus$.subscribe((res) => {
+        expect(res).toEqual({
+          connected: true,
+        });
+      });
+      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      done();
+    });
+
+    it('getMileageCategories(): should get all mileage categories', (done) => {
+      categoriesService.getAll.and.returnValue(of(mileageCategories2));
+
+      component.getMileageCategories().subscribe((res) => {
+        expect(res).toEqual({
+          defaultMileageCategory: mileageCategories2[0],
+          mileageCategories: [mileageCategories2[1]],
+        });
+        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('getSubCategories(): should get sub categories', (done) => {
+      categoriesService.getAll.and.returnValue(of(mileageCategories2));
+
+      component.getSubCategories().subscribe((res) => {
+        expect(res).toEqual([mileageCategories2[0]]);
+        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('getRateByVehicleType(): should get rate by vehicle type', () => {
+      const result = component.getRateByVehicleType(unfilteredMileageRatesData, 'bicycle');
+
+      expect(result).toEqual(10);
+    });
+
+    it('getMileageByVehicleType(): should get mileage by vehicle type', () => {
+      const result = component.getMileageByVehicleType(unfilteredMileageRatesData, 'bicycle');
+
+      expect(result).toEqual(unfilteredMileageRatesData[0]);
+    });
+
+    describe('saveAndNewExpense():', () => {
+      it('should add an expense in add mode if the payment mode is valid', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        setFormValid(component);
+        component.mode = 'add';
+        spyOn(component, 'addExpense').and.returnValue(of(true));
+        spyOn(component, 'reloadCurrentRoute');
+        fixture.detectChanges();
+
+        component.saveAndNewExpense();
+
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.addExpense).toHaveBeenCalledTimes(1);
+        expect(component.reloadCurrentRoute).toHaveBeenCalledTimes(1);
+        expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
+      });
+
+      it('should edit an expense in edit mode if the payment mode is valid', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        setFormValid(component);
+        component.mode = 'edit';
+        spyOn(component, 'editExpense').and.returnValue(of(null));
+        spyOn(component, 'close');
+        fixture.detectChanges();
+
+        component.saveAndNewExpense();
+
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.editExpense).toHaveBeenCalledTimes(1);
+        expect(component.close).toHaveBeenCalledTimes(1);
+      });
+
+      it('should show an error if payment mode is invalid', fakeAsync(() => {
+        spyOn(component, 'showFormValidationErrors');
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        fixture.detectChanges();
+
+        component.saveAndNewExpense();
+        tick(4000);
+
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      }));
+    });
+
+    describe('saveExpense():', () => {
+      it('should add an expense in add mode if the payment mode is valid', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        setFormValid(component);
+        component.mode = 'add';
+        spyOn(component, 'addExpense').and.returnValue(of(true));
+
+        spyOn(component, 'close');
+        fixture.detectChanges();
+
+        component.saveExpense();
+
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.addExpense).toHaveBeenCalledTimes(1);
+        expect(component.close).toHaveBeenCalledTimes(1);
+      });
+
+      it('should edit an expense in edit mode if the payment mode is valid', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        setFormValid(component);
+        component.mode = 'edit';
+        spyOn(component, 'editExpense').and.returnValue(of(null));
+        spyOn(component, 'close');
+        fixture.detectChanges();
+
+        component.saveExpense();
+
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.editExpense).toHaveBeenCalledTimes(1);
+        expect(component.close).toHaveBeenCalledTimes(1);
+      });
+
+      it('should show an error if payment mode is invalid', fakeAsync(() => {
+        spyOn(component, 'showFormValidationErrors');
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        fixture.detectChanges();
+
+        component.saveExpense();
+        tick(4000);
+
+        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      }));
     });
   });
 }
