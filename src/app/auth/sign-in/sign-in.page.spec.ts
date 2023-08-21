@@ -341,6 +341,17 @@ describe('SignInPage', () => {
         { email: component.fg.controls.email.value },
       ]);
     });
+
+    it('should navigate to disabled page if error status is 422', async () => {
+      const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
+      popoverController.create.and.returnValue(errorPopoverSpy);
+
+      const error = { status: 422 };
+
+      await component.handleError(error);
+
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'disabled']);
+    });
   });
 
   describe('signInUser(): ', () => {
