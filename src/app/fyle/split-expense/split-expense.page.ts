@@ -652,7 +652,7 @@ export class SplitExpensePage {
       txnDt = dateOfTxn ? new Date(dateOfTxn) : today;
       txnDt = dayjs(txnDt).format('YYYY-MM-DD');
     }
-    const fg = this.formBuilder.group({
+    const fg: FormGroup<any> = this.formBuilder.group({
       amount: [amount, Validators.required],
       currency: [currency],
       percentage: [percentage],

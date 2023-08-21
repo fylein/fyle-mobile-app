@@ -155,7 +155,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     this.dependentFields = this.dependentFields.slice(0, updatedFieldIndex + 1);
   }
 
-  onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
+  onDependentFieldChanged(data: Partial<{ id: number; label: string; parent_field_id: number; value: string }>): void {
     const updatedFieldIndex = this.dependentFieldsFormArray.value.findIndex(
       (depField) => depField.label === data.label
     );

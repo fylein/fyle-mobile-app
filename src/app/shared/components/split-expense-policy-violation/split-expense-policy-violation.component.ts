@@ -4,6 +4,10 @@ import { ModalController } from '@ionic/angular';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 
+interface CommentData {
+  comment: string;
+}
+
 @Component({
   selector: 'app-split-expense-policy-violation',
   templateUrl: './split-expense-policy-violation.component.html',
@@ -55,7 +59,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
   continue() {
     const comments = {};
     this.transactionIDs.map((transaction, index) => {
-      comments[transaction] = this.form.value.comments[index].comment;
+      comments[transaction] = (this.form.value.comments[index] as CommentData)?.comment;
     });
     this.splitExpenseService.postCommentsFromUsers(this.transactionIDs, comments).subscribe((res) => {
       this.modalController.dismiss();

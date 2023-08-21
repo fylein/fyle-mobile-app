@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
