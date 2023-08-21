@@ -139,3 +139,8 @@ export interface SwitchOrgLaunchTimeProperties {
   'Switch org launch time': string;
   'Login method': string;
 }
+
+export interface ReportNameChangeProperties {
+  Time_spent: number;
+  Roles: string[];
+}

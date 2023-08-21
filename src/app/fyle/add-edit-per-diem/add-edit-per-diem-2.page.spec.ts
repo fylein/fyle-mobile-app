@@ -548,7 +548,7 @@ export function TestCases2(getTestBed) {
           expect(projectsService.getProjectCount).toHaveBeenCalledOnceWith({
             categoryIds: ['129140', '129112', '16582', '201952'],
           });
-          expect(res).toEqual(true);
+          expect(res).toBeTrue();
         });
 
         component.comments$.subscribe((res) => {
@@ -565,7 +565,7 @@ export function TestCases2(getTestBed) {
         });
 
         component.isIndividualProjectsEnabled$.subscribe((res) => {
-          expect(res).toEqual(false);
+          expect(res).toBeFalse();
         });
 
         component.individualProjectIds$.subscribe((res) => {
