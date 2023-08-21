@@ -4,8 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-
+import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { TestCases1 } from './add-edit-per-diem-1.page.spec';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
@@ -117,7 +116,6 @@ describe('AddEditPerDiemPage', () => {
       'getAllowedCostCenters',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['addDaysToDate', 'getUTCDate']);
@@ -232,10 +230,6 @@ describe('AddEditPerDiemPage', () => {
         {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
-        },
-        {
-          provide: Platform,
-          useValue: platformSpy,
         },
         {
           provide: StorageService,

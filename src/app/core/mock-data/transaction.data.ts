@@ -3718,7 +3718,7 @@ export const personalCardTxn: Transaction = {
   org_category_id: undefined,
   activity_policy_pending: null,
   activity_details: null,
-  locations: ['loc1'],
+  locations: [optionsData15.options[0].value],
   custom_properties: [
     {
       id: 111,

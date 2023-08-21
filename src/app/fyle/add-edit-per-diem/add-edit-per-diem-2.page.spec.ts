@@ -1,4 +1,4 @@
-import { ComponentFixture, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -44,8 +44,32 @@ import {
   expectedControlValues,
   expectedExpenseFieldWithoutControl,
   perDiemCustomInputsData1,
+  perDiemCustomInputsData2,
 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { projects } from 'src/app/core/mock-data/extended-projects.data';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
+import {
+  multiplePaymentModesData,
+  orgSettingsData,
+  paymentModeDataCCC,
+  paymentModesData,
+} from 'src/app/core/test-data/accounts.service.spec.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { expectedAddedApproverERpts } from 'src/app/core/mock-data/report-unflattened.data';
+import { txnFieldsData2, txnFieldsData3 } from 'src/app/core/mock-data/expense-field-obj.data';
+import { allowedPerDiem } from 'src/app/core/test-data/per-diem.service.spec.data';
+import { costCentersData, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
+import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
+import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
+import {
+  orgSettingsParamsWithSimplifiedReport,
+  orgSettingsRes,
+  orgSettingsWoTax,
+} from 'src/app/core/mock-data/org-settings.data';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
@@ -125,7 +149,6 @@ export function TestCases2(getTestBed) {
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
-
       component.fg = formBuilder.group({
         currencyObj: [
           {
@@ -245,7 +268,7 @@ export function TestCases2(getTestBed) {
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
           const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
             ...otherProps,
-          }));
+          })) as TxnCustomProperties[];
           expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithControl);
           // We just want to check the value and not the methods like pendingChange etc
           const controlValues = res.map(({ control }) => control.value);
@@ -270,6 +293,154 @@ export function TestCases2(getTestBed) {
           const controlValues = res.map(({ control }) => control.value);
           expect(controlValues).toEqual(expectedControlValues);
         });
+      });
+    });
+
+    describe('ionViewWillEnter():', () => {
+      beforeEach(() => {
+        activatedRoute.snapshot.params = {
+          txnIds: '["tx3qwe4ty","tx6sd7gh"]',
+          id: 'tx5n59fvxk4z',
+          activeIndex: 2,
+        };
+        spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
+        tokenService.getClusterDomain.and.resolveTo(authResData1.cluster_domain);
+        storageService.get.and.resolveTo(true);
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        reportService.getFilteredPendingReports.and.returnValue(of(expectedAddedApproverERpts));
+        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+        customFieldsService.standardizeCustomFields.and.returnValue(cloneDeep(expectedTxnCustomProperties));
+        customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(paymentModeDataCCC);
+        const mockPerDiem = allowedPerDiem.map((mockPerDiem) => ({
+          ...mockPerDiem,
+          created_at: new Date(),
+          updated_at: new Date(),
+        }));
+        perDiemService.getAllowedPerDiems.and.returnValue(of(mockPerDiem));
+        component.isConnected$ = of(true);
+        orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCentersData));
+        reportService.getAutoSubmissionReportName.and.returnValue(of('#1: Aug 2023'));
+        accountsService.getAccountTypeFromPaymentMode.and.returnValue(AccountType.CCC);
+        recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
+        authService.getEou.and.resolveTo(apiEouRes);
+        recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(projects));
+        recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(expectedCCdata2));
+        currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        component.filteredCategories$ = of(categorieListRes);
+        projectsService.getProjectCount.and.returnValue(of(4));
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        currencyService.getAmountWithCurrencyFraction.and.returnValue(23);
+        currencyService.getExchangeRate.and.returnValue(of(12));
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        projectsService.getbyId.and.returnValue(of(projects[0]));
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(multiplePaymentModesData[0]);
+        spyOn(component, 'getSubCategories').and.returnValue(of(orgCategoryData1));
+        spyOn(component, 'setupFilteredCategories');
+        spyOn(component, 'getProjectCategoryIds').and.returnValue(of(['129140', '129112', '16582', '201952']));
+        spyOn(component, 'getPerDiemCategories').and.returnValue(
+          of({
+            defaultPerDiemCategory: perDiemCategory,
+            perDiemCategories: [perDiemCategory],
+          })
+        );
+        spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'getNewExpense').and.returnValue(of(unflattenedTxnDataPerDiem));
+        spyOn(component, 'getCustomInputs').and.returnValue(of(perDiemCustomInputsData2));
+        spyOn(component, 'getPolicyDetails');
+        spyOn(component, 'getTransactionFields').and.returnValue(of(txnFieldsData3));
+        spyOn(component, 'getPaymentModes').and.returnValue(of(paymentModesData));
+        spyOn(component, 'customDateValidator');
+        spyOn(component, 'setupNetworkWatcher');
+        spyOn(component, 'setupTfcDefaultValues');
+        fixture.detectChanges();
+      });
+
+      it('should initialize all the variables correctly', fakeAsync(() => {
+        const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnInit']);
+        component.projectDependentFieldsRef = dependentFieldSpy;
+        component.costCenterDependentFieldsRef = dependentFieldSpy;
+        const tomorrow = new Date('2023-08-18');
+        const today = new Date();
+        dateService.addDaysToDate.and.returnValue(tomorrow);
+        component.ionViewWillEnter();
+        // tick(1000) is required as we are resolving promises (getClusterDomain) and there is a setTimeout in ionViewWillEnter
+        tick(1000);
+        expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
+        expect(component.minDate).toEqual('2001-01-1');
+        expect(component.maxDate).toEqual('2023-08-18');
+        expect(dateService.addDaysToDate).toHaveBeenCalledOnceWith(today, 1);
+        expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
+          BackButtonActionPriority.MEDIUM,
+          jasmine.any(Function)
+        );
+        expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+        expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
+        expect(component.title).toEqual('Edit');
+        expect(component.activeIndex).toEqual(2);
+        expect(component.reviewList).toEqual(['tx3qwe4ty', 'tx6sd7gh']);
+        expect(component.mode).toEqual('edit');
+        expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedViewPerDiem');
+        expect(component.isExpandedView).toBeTrue();
+      }));
+
+      it('should set mode as add if txnId is not defined', fakeAsync(() => {
+        activatedRoute.snapshot.params = {
+          txnIds: '["tx3qwe4ty","tx6sd7gh", "tx9qwu47v"]',
+          activeIndex: 0,
+        };
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.mode).toEqual('add');
+        expect(component.reviewList).toEqual(['tx3qwe4ty', 'tx6sd7gh', 'tx9qwu47v']);
+        expect(component.title).toEqual('Review');
+        expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedViewPerDiem');
+        expect(component.isExpandedView).toBeTrue();
+      }));
+
+      it('should call orgSettingsService.get, orgUserSettingsService.get, perDiemService.getRates and reportService.getAutoSubmissionReportName once and update isNewReportsFlowEnabled', () => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+        component.ionViewWillEnter();
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(perDiemService.getRates).toHaveBeenCalledTimes(1);
+        expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
+        component.autoSubmissionReportName$.subscribe((res) => {
+          expect(res).toEqual('#1: Aug 2023');
+        });
+        expect(component.isNewReportsFlowEnabled).toBeTrue();
+      });
+
+      it('should set isAdvancesEnabled$, individualPerDiemRatesEnabled$ and recentlyUsedValues$', () => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsWoTax));
+        component.ionViewWillEnter();
+        component.isAdvancesEnabled$.subscribe((res) => {
+          expect(res).toEqual(true);
+        });
+        component.individualPerDiemRatesEnabled$.subscribe((res) => {
+          expect(res).toEqual(false);
+        });
+        component.recentlyUsedValues$.subscribe((res) => {
+          expect(res).toEqual(recentlyUsedRes);
+        });
+        expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+        expect(recentlyUsedItemsService.getRecentlyUsed).toHaveBeenCalledTimes(1);
+      });
+
+      it('should set isAdvancesEnabled$ to true and recentlyUsedValues$ to null if orgSettings.advances.enabled is true and device is offline', () => {
+        component.isConnected$ = of(false);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        component.ionViewWillEnter();
+        component.isAdvancesEnabled$.subscribe((res) => {
+          expect(res).toEqual(true);
+        });
+        component.recentlyUsedValues$.subscribe((res) => {
+          expect(res).toEqual(null);
+        });
+        expect(recentlyUsedItemsService.getRecentlyUsed).not.toHaveBeenCalled();
       });
     });
   });
