@@ -1285,3 +1285,11 @@ export const orgSettingsWithProjectAndAutofill: OrgSettings = {
     enabled: true,
   },
 };
+
+export const orgSettingsWithExpenseFormAutofill: OrgSettings = {
+  ...orgSettingsRes,
+  org_expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+};

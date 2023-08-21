@@ -1,10 +1,20 @@
 import { TitleCasePipe } from '@angular/common';
+import { EventEmitter } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { AbstractControl, FormArray, FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController, NavController, ActionSheetController, Platform } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { coordinatesData1, locationData1, predictedLocation1 } from 'src/app/core/mock-data/location.data';
+import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
+import { mileageCategories2 } from 'src/app/core/mock-data/org-category.data';
+import { orgSettingsRes, orgSettingsWithExpenseFormAutofill } from 'src/app/core/mock-data/org-settings.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
+import { newExpenseMileageData1, newExpenseMileageData2 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -42,14 +52,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditMileagePage } from './add-edit-mileage.page';
-import { Subscription, Subject, BehaviorSubject, of } from 'rxjs';
-import { EventEmitter } from '@angular/core';
-import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import { mileageCategories2 } from 'src/app/core/mock-data/org-category.data';
-import { unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
 import { setFormValid } from './add-edit-mileage.page.setup.spec';
-import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 
 export function TestCases2(getTestBed) {
   return describe('AddEditMileage-2', () => {
@@ -329,6 +332,97 @@ export function TestCases2(getTestBed) {
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       }));
+    });
+
+    describe('getNewExpense():', () => {
+      beforeEach(function () {
+        jasmine.clock().install();
+      });
+
+      it('should get a new expense object', (done) => {
+        const date = new Date('2023-08-21T07:43:15.592Z');
+        jasmine.clock().mockDate(date);
+        transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.mileageRates$ = of(unfilteredMileageRatesData);
+        spyOn(component, 'getMileageByVehicleType').and.returnValue(filterEnabledMileageRatesData[0]);
+        authService.getEou.and.resolveTo(apiEouRes);
+        locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
+        spyOn(component, 'getMileageCategories').and.returnValue(
+          of({
+            defaultMileageCategory: mileageCategories2[0],
+            mileageCategories: [mileageCategories2[1]],
+          })
+        );
+        component.homeCurrency$ = of('USD');
+        fixture.detectChanges();
+
+        component.getNewExpense().subscribe((res) => {
+          expect(res).toEqual(newExpenseMileageData1);
+          expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
+          expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(2);
+          expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
+          expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should get a new expense with autofill enabled and populating the location fields', (done) => {
+        const date = new Date('2023-08-21T07:43:15.592Z');
+        jasmine.clock().mockDate(date);
+        transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
+        orgSettingsService.get.and.returnValue(of(orgSettingsWithExpenseFormAutofill));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
+        locationService.getGeocode.and.returnValue(of(locationData1));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.mileageRates$ = of(unfilteredMileageRatesData);
+        spyOn(component, 'getMileageByVehicleType').and.returnValue(filterEnabledMileageRatesData[0]);
+        authService.getEou.and.resolveTo(apiEouRes);
+        locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
+        spyOn(component, 'getMileageCategories').and.returnValue(
+          of({
+            defaultMileageCategory: mileageCategories2[0],
+            mileageCategories: [mileageCategories2[1]],
+          })
+        );
+        component.homeCurrency$ = of('USD');
+        fixture.detectChanges();
+
+        component.getNewExpense().subscribe((res) => {
+          expect(res).toEqual(newExpenseMileageData2);
+          expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
+          expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(2);
+          expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
+          expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
+          expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
+            'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
+            'usvKA4X8Ugcr',
+            '10.12,89.67'
+          );
+          expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
+            'ChIJbU60yXAWrjsR4E9-UejD3_g',
+            'Bengaluru, Karnataka, India'
+          );
+          done();
+        });
+      });
+
+      afterEach(function () {
+        jasmine.clock().uninstall();
+      });
     });
   });
 }
