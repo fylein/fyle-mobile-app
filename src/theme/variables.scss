@@ -10,7 +10,7 @@
 $custom-typography: mat.define-typography-config(
   $font-family: '"aktiv-grotesk", "Lato", sans-serif',
 );
-@include mat.core($custom-typography);
+@include mat.core();
 
 /// warning color palette
 $fy-warning: (
@@ -51,8 +51,22 @@ $fy-theme-primary: mat.define-palette(mat.$pink-palette);
 $fy-theme-accent: mat.define-palette(mat.$gray-palette, 200);
 $fy-theme-warn: mat.define-palette($fy-warning);
 
+.dense-1 {
+  @include mat.all-component-densities(-3);
+}
+
 // create theme (use mat-dark-theme for themes with dark backgrounds)
-$fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme-warn);
+$fy-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $fy-theme-primary,
+      accent: $fy-theme-accent,
+      warn: $fy-theme-warn,
+      density: -3,
+    ),
+    typography: $custom-typography,
+  )
+);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component

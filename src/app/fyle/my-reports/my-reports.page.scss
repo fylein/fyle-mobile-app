@@ -36,8 +36,13 @@
     height: 62px;
     padding-left: 12px;
     mat-form-field {
-      ::ng-deep .mat-form-field-outline {
-        color: $black-light !important;
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      ::ng-deep .mdc-notched-outline > * {
+        border-color: $black-light !important;
       }
     }
   }
