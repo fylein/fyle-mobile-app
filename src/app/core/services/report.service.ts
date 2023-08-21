@@ -18,6 +18,7 @@ import { ReportPurpose } from '../models/report-purpose.model';
 import { ReportStateMap } from '../models/report-state-map.model';
 import { UnflattenedReport } from '../models/report-unflattened.model';
 import { ReportV1 } from '../models/report-v1.model';
+import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { ExtendedReport } from '../models/report.model';
 import { Approver } from '../models/v1/approver.model';
 import { Datum, StatsResponse } from '../models/v2/stats-response.model';
@@ -52,6 +53,7 @@ export class ReportService {
     private transactionService: TransactionService,
     private userEventService: UserEventService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private approverPlatformApiService: ApproverPlatformApiService,
     private datePipe: DatePipe,
     private launchDarklyService: LaunchDarklyService,
     private permissionsService: PermissionsService
@@ -637,5 +639,16 @@ export class ReportService {
       ),
       map((rawStatsResponse: StatsResponse) => new StatsResponse(rawStatsResponse))
     );
+  }
+
+  approverUpdateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {
+    const params: { data: Pick<PlatformReport, 'id' | 'source' | 'purpose'> } = {
+      data: {
+        id: erpt.rp_id,
+        source: erpt.rp_source,
+        purpose: erpt.rp_purpose,
+      },
+    };
+    return this.approverPlatformApiService.post('/reports', params);
   }
 }
