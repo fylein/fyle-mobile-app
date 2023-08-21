@@ -355,7 +355,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getFormValues(): FormValue {
+  getFormValues(): Partial<FormValue> {
     return this.fg.value as FormValue;
   }
 
@@ -939,17 +939,6 @@ export class AddEditMileagePage implements OnInit {
         ? null
         : {
             invalidDateSelection: true,
-          };
-    }
-  }
-
-  customDistanceValidator(control: AbstractControl): null | { invalidDistance: boolean } {
-    const passedInDistance = control.value && +control.value;
-    if (passedInDistance !== null) {
-      return passedInDistance > 0
-        ? null
-        : {
-            invalidDistance: true,
           };
     }
   }
@@ -1804,6 +1793,19 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
+  showFormValidationErrors(): void {
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
+    }
+  }
+
   saveExpense(): void {
     const that = this;
 
@@ -1819,16 +1821,7 @@ export class AddEditMileagePage implements OnInit {
             that.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -1864,16 +1857,7 @@ export class AddEditMileagePage implements OnInit {
             });
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -1906,16 +1890,7 @@ export class AddEditMileagePage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -1941,16 +1916,7 @@ export class AddEditMileagePage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -2214,7 +2180,7 @@ export class AddEditMileagePage implements OnInit {
         )
       ),
       map((finalDistance) => {
-        if (this.getFormValues().route.roundTrip) {
+        if (this.getFormValues()?.route?.roundTrip) {
           return (finalDistance * 2).toFixed(2);
         } else {
           return finalDistance.toFixed(2);
