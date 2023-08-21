@@ -1751,6 +1751,9 @@ export class AddEditPerDiemPage implements OnInit {
       switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
       switchMap((continueWithTransaction) => {
         if (continueWithTransaction) {
+          if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
+            continueWithTransaction.comment = 'No policy violation explaination provided';
+          }
           return from(this.loaderService.showLoader()).pipe(
             switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
           );
