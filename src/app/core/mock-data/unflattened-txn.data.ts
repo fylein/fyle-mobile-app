@@ -2818,3 +2818,19 @@ export const perDiemCategoryUnflattenedExpense: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' },
 };
+
+export const unflattenedTxnWithSourceID: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    source_account_id: 'acc6mK6CEesGL',
+  },
+};
+
+export const unflattenedTxnWithSourceID2: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    source_account_id: 'acc6mK6CEesXL',
+  },
+};

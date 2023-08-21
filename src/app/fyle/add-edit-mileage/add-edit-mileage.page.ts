@@ -107,7 +107,7 @@ type FormValue = {
   route: {
     roundTrip: boolean;
     mileageLocations: Location[];
-    distance: number;
+    distance?: number;
   };
   category: OrgCategory;
   sub_category: OrgCategory;
