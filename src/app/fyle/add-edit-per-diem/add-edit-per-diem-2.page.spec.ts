@@ -74,6 +74,7 @@ import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { allowedPerDiemRateOptionsData1 } from 'src/app/core/mock-data/allowed-per-diem-rate-options.data';
 import { perDiemReportsData1 } from 'src/app/core/mock-data/per-diem-reports.data';
 import { perDiemRatesData1, perDiemRatesData2 } from 'src/app/core/mock-data/per-diem-rates.data';
+import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
@@ -704,12 +705,7 @@ export function TestCases2(getTestBed) {
           num_days: 3,
           homeCurrency: 'USD',
         });
-        expect(component.fg.controls.currencyObj.value).toEqual({
-          currency: 'USD',
-          amount: 90,
-          orig_currency: null,
-          orig_amount: null,
-        });
+        expect(component.fg.controls.currencyObj.value).toEqual(currencyObjData5);
         expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledOnceWith(90, 'USD');
         done();
       });
@@ -722,12 +718,7 @@ export function TestCases2(getTestBed) {
           num_days: 3,
           homeCurrency: 'USD',
         });
-        expect(component.fg.controls.currencyObj.value).toEqual({
-          currency: 'USD',
-          amount: 10800,
-          orig_currency: 'INR',
-          orig_amount: 900,
-        });
+        expect(component.fg.controls.currencyObj.value).toEqual(currencyObjData6);
         expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledTimes(2);
         expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(10800, 'USD');
         expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(900, 'INR');
