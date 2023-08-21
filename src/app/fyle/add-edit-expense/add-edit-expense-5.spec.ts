@@ -1342,7 +1342,6 @@ export function TestCases5(getTestBed) {
         expect(taxGroupService.get).toHaveBeenCalledTimes(2);
 
         expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
-
         expect(component.setupFormInit).toHaveBeenCalledTimes(1);
         expect(component.setupCustomFields).toHaveBeenCalledTimes(1);
         expect(component.clearCategoryOnValueChange).toHaveBeenCalledTimes(1);

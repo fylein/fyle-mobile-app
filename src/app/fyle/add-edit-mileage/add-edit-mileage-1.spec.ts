@@ -6,15 +6,23 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { policyExpense2 } from 'src/app/core/mock-data/expense.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { locationData1, locationData2, locationData3 } from 'src/app/core/mock-data/location.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock-data/org-category.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  mileageCategoryUnflattenedExpense,
+  perDiemCategoryUnflattenedExpense,
+  unflattenedTxnData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -51,22 +59,16 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
-import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
-import { AddEditMileagePage } from './add-edit-mileage.page';
 import {
   multiplePaymentModesData,
   multiplePaymentModesWithoutAdvData,
   orgSettingsData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
-import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { locationData1, locationData2, locationData3 } from 'src/app/core/mock-data/location.data';
+import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
+import { AddEditMileagePage } from './add-edit-mileage.page';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -311,50 +313,47 @@ export function TestCases1(getTestBed) {
     });
 
     describe('goToTransaction():', () => {
-      const txn_ids = ['txfCdl3TEZ7K'];
+      const txnIds = ['txfCdl3TEZ7K'];
       it('should navigate to add-edit mileage if category is mileage', () => {
-        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' } };
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(mileageCategoryUnflattenedExpense, txnIds, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_mileage',
           {
-            id: expense.tx.id,
-            txnIds: JSON.stringify(txn_ids),
+            id: mileageCategoryUnflattenedExpense.tx.id,
+            txnIds: JSON.stringify(txnIds),
             activeIndex: 0,
           },
         ]);
       });
 
       it('should navigate to per diem expense form if the category is per diem', () => {
-        const expense = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' } };
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(perDiemCategoryUnflattenedExpense, txnIds, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_per_diem',
           {
-            id: expense.tx.id,
-            txnIds: JSON.stringify(txn_ids),
+            id: perDiemCategoryUnflattenedExpense.tx.id,
+            txnIds: JSON.stringify(txnIds),
             activeIndex: 0,
           },
         ]);
       });
 
       it('should navigate to expense form', () => {
-        const expense = unflattenedTxnData;
-        component.goToTransaction(expense, txn_ids, 0);
+        component.goToTransaction(unflattenedTxnData, txnIds, 0);
 
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_expense',
           {
-            id: expense.tx.id,
-            txnIds: JSON.stringify(txn_ids),
+            id: unflattenedTxnData.tx.id,
+            txnIds: JSON.stringify(txnIds),
             activeIndex: 0,
           },
         ]);
@@ -453,7 +452,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoNext();
 
-        expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -462,7 +461,8 @@ export function TestCases1(getTestBed) {
       fixture.detectChanges();
 
       const result = component.getTimeSpentOnPage();
-      expect(result).toEqual((new Date().getTime() - component.expenseStartTime) / 1000);
+      const time = (new Date().getTime() - component.expenseStartTime) / 1000;
+      expect(result).toEqual(time);
     });
 
     it('reloadCurrentRoute(): should reload the current load', fakeAsync(() => {
@@ -536,12 +536,13 @@ export function TestCases1(getTestBed) {
     });
 
     describe('getDeleteReportParams():', () => {
+      let header = 'Header';
+      let body = 'Body';
+      let ctaText = 'cta';
+      let ctaLoadingText = 'loading';
+
       it('should get config params for delete report modal and call method to remove txn from report', () => {
         reportService.removeTransaction.and.returnValue(of());
-        const header = 'Header';
-        const body = 'Body';
-        const ctaText = 'cta';
-        const ctaLoadingText = 'loading';
 
         const result = component.getDeleteReportParams({
           header,
@@ -554,15 +555,11 @@ export function TestCases1(getTestBed) {
         });
 
         result.componentProps.deleteMethod();
-        expect(reportService.removeTransaction).toHaveBeenCalledWith('rp123', 'txn123');
+        expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rp123', 'txn123');
       });
 
       it('should get config params for delete report modal and call method to delete expense', () => {
         transactionService.delete.and.returnValue(of(policyExpense2));
-        const header = 'Header';
-        const body = 'Body';
-        const ctaText = 'cta';
-        const ctaLoadingText = 'loading';
 
         const result = component.getDeleteReportParams({
           header,
@@ -579,6 +576,11 @@ export function TestCases1(getTestBed) {
     });
 
     describe('deleteExpense():', () => {
+      let header = 'Delete Mileage';
+      let body = 'Are you sure you want to delete this mileage expense?';
+      let ctaText = 'Delete';
+      let ctaLoadingText = 'Deleting';
+
       it('should delete mileage from report and navigate back to the report', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
         component.isRedirectedFromReport = true;
@@ -594,10 +596,10 @@ export function TestCases1(getTestBed) {
 
         popoverController.create.and.resolveTo(deletePopoverSpy);
 
-        const header = 'Remove Mileage';
-        const body = 'Are you sure you want to remove this mileage expense from this report?';
-        const ctaText = 'Remove';
-        const ctaLoadingText = 'Removing';
+        header = 'Remove Mileage';
+        body = 'Are you sure you want to remove this mileage expense from this report?';
+        ctaText = 'Remove';
+        ctaLoadingText = 'Removing';
 
         component.deleteExpense('rpFE5X1Pqi9P');
         tick(500);
@@ -646,11 +648,6 @@ export function TestCases1(getTestBed) {
         popoverController.create.and.resolveTo(deletePopoverSpy);
         fixture.detectChanges();
 
-        const header = 'Delete Mileage';
-        const body = 'Are you sure you want to delete this mileage expense?';
-        const ctaText = 'Delete';
-        const ctaLoadingText = 'Deleting';
-
         component.deleteExpense();
         tick(500);
 
@@ -693,11 +690,6 @@ export function TestCases1(getTestBed) {
         popoverController.create.and.resolveTo(deletePopoverSpy);
         fixture.detectChanges();
 
-        const header = 'Delete Mileage';
-        const body = 'Are you sure you want to delete this mileage expense?';
-        const ctaText = 'Delete';
-        const ctaLoadingText = 'Deleting';
-
         component.deleteExpense();
         tick(500);
 
@@ -739,11 +731,6 @@ export function TestCases1(getTestBed) {
 
         popoverController.create.and.resolveTo(deletePopoverSpy);
         fixture.detectChanges();
-
-        const header = 'Delete Mileage';
-        const body = 'Are you sure you want to delete this mileage expense?';
-        const ctaText = 'Delete';
-        const ctaLoadingText = 'Deleting';
 
         component.deleteExpense();
         tick(500);
@@ -825,10 +812,10 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
-        expect(component.close).toHaveBeenCalledOnceWith();
+        expect(component.close).toHaveBeenCalledTimes(1);
       });
 
-      it('should add a new expense and go to the previous expense if not the first one in list', () => {
+      it('should add a new expense and go to the previous expense in the report', () => {
         spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
@@ -840,7 +827,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and close the form', () => {
@@ -855,7 +842,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
-        expect(component.close).toHaveBeenCalledOnceWith();
+        expect(component.close).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and go to the previous expense', () => {
@@ -870,7 +857,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
-        expect(component.goToPrev).toHaveBeenCalledOnceWith();
+        expect(component.goToPrev).toHaveBeenCalledTimes(1);
       });
 
       it('should show validation errors if the form is not valid', () => {
@@ -878,7 +865,7 @@ export function TestCases1(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
 
-        expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -892,7 +879,7 @@ export function TestCases1(getTestBed) {
       it('should return an error object when the date is after the upper bound of the valid range', () => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 2);
-        const control = new FormControl(tomorrow.toISOString().substring(0, 10));
+        const control = new FormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toEqual({ invalidDateSelection: true });
       });
@@ -900,7 +887,7 @@ export function TestCases1(getTestBed) {
 
     it('getEditExpense(): should return an unflattened expense to edit', (done) => {
       transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
-      activatedRoute.snapshot.params.id = JSON.parse(JSON.stringify(unflattenedTxnData.tx.id));
+      activatedRoute.snapshot.params.id = unflattenedTxnData.tx.id;
       component.getEditExpense().subscribe((res) => {
         expect(res).toEqual(unflattenedTxnData);
         done();

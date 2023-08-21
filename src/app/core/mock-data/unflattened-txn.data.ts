@@ -2809,3 +2809,12 @@ export const newExpenseMileageData2: Partial<UnflattenedTransaction> = {
     custom_properties: [],
   },
 };
+export const mileageCategoryUnflattenedExpense: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' },
+};
+
+export const perDiemCategoryUnflattenedExpense: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' },
+};

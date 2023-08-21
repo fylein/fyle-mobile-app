@@ -17,7 +17,7 @@ import {
 } from 'src/app/core/mock-data/expense.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
-import { expectedAllReports, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
+import { expectedAllReports, expectedReportSingleResponse, newReportParam } from 'src/app/core/mock-data/report.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -48,6 +48,9 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { ViewTeamReportPage } from './view-team-report.page';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-export.data';
+import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
+import { cloneDeep } from 'lodash';
+import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
 
 describe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
@@ -82,6 +85,7 @@ describe('ViewTeamReportPage', () => {
       'approve',
       'downloadSummaryPdfUrl',
       'inquire',
+      'approverUpdateReportPurpose',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -1014,5 +1018,70 @@ describe('ViewTeamReportPage', () => {
     click(openButton);
 
     expect(component.openViewReportInfoModal).toHaveBeenCalledTimes(1);
+  });
+
+  it('updateReportName(): should update report name', () => {
+    component.erpt$ = of(newReportParam);
+    fixture.detectChanges();
+    reportService.approverUpdateReportPurpose.and.returnValue(of(platformReportData));
+    spyOn(component.loadReportDetails$, 'next');
+
+    component.updateReportName('#3:  Jul 2023 - Office expense');
+    expect(reportService.approverUpdateReportPurpose).toHaveBeenCalledOnceWith(newReportParam);
+    expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
+  });
+
+  describe('editReportName(): ', () => {
+    it('should edit report name', fakeAsync(() => {
+      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0] }));
+      component.canEdit$ = of(true);
+      fixture.detectChanges();
+
+      spyOn(component, 'updateReportName').and.returnValue(null);
+
+      const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
+      editReportNamePopoverSpy.onWillDismiss.and.resolveTo({ data: { reportName: 'new name' } });
+
+      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+
+      const editReportButton = getElementBySelector(fixture, '.view-reports--card ion-icon') as HTMLElement;
+      click(editReportButton);
+      tick(2000);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: EditReportNamePopoverComponent,
+        componentProps: {
+          reportName: expectedAllReports[0].rp_purpose,
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(component.updateReportName).toHaveBeenCalledOnceWith('new name');
+    }));
+
+    it('should not edit report name if data does not contain name', fakeAsync(() => {
+      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0] }));
+      component.canEdit$ = of(true);
+      fixture.detectChanges();
+
+      spyOn(component, 'updateReportName').and.returnValue(null);
+
+      const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
+      editReportNamePopoverSpy.onWillDismiss.and.resolveTo();
+
+      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+
+      const editReportButton = getElementBySelector(fixture, '.view-reports--card ion-icon') as HTMLElement;
+      click(editReportButton);
+      tick(2000);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: EditReportNamePopoverComponent,
+        componentProps: {
+          reportName: expectedAllReports[0].rp_purpose,
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(component.updateReportName).not.toHaveBeenCalled();
+    }));
   });
 });

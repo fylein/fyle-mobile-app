@@ -1,3 +1,5 @@
+import { ExpenseSource } from '../models/expense-source.enum';
+import { ExpenseState } from '../models/expense-state.enum';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 
@@ -556,5 +558,27 @@ export const draftUnflattendedTxn3 = {
     state: 'DRAFT',
     org_category_id: null,
     fyle_category: 'UNSPECIFIED',
+  },
+};
+
+export const unflattenedTxnDataPerDiem = {
+  tx: {
+    // TODO: Enum for state and source
+    skip_reimbursement: false,
+    source: ExpenseSource.MOBILE,
+    org_category_id: 38912,
+    org_category: 'Per Diem',
+    sub_category: 'Per Diem',
+    amount: 0,
+    currency: 'USD',
+    state: ExpenseState.COMPLETE,
+    txn_dt: new Date(),
+    from_dt: null,
+    to_dt: null,
+    per_diem_rate_id: null,
+    num_days: null,
+    policy_amount: null,
+    custom_properties: [],
+    org_user_id: 'ouX8dwsbLCLv',
   },
 };
