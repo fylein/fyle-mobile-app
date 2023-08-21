@@ -519,12 +519,13 @@ export function TestCases1(getTestBed) {
     });
 
     describe('getDeleteReportParams():', () => {
+      let header = 'Header';
+      let body = 'Body';
+      let ctaText = 'cta';
+      let ctaLoadingText = 'loading';
+
       it('should get config params for delete report modal and call method to remove txn from report', () => {
         reportService.removeTransaction.and.returnValue(of());
-        const header = 'Header';
-        const body = 'Body';
-        const ctaText = 'cta';
-        const ctaLoadingText = 'loading';
 
         const result = component.getDeleteReportParams({
           header,
@@ -537,15 +538,11 @@ export function TestCases1(getTestBed) {
         });
 
         result.componentProps.deleteMethod();
-        expect(reportService.removeTransaction).toHaveBeenCalledWith('rp123', 'txn123');
+        expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rp123', 'txn123');
       });
 
       it('should get config params for delete report modal and call method to delete expense', () => {
         transactionService.delete.and.returnValue(of(policyExpense2));
-        const header = 'Header';
-        const body = 'Body';
-        const ctaText = 'cta';
-        const ctaLoadingText = 'loading';
 
         const result = component.getDeleteReportParams({
           header,
@@ -562,6 +559,11 @@ export function TestCases1(getTestBed) {
     });
 
     describe('deleteExpense():', () => {
+      let header = 'Delete Mileage';
+      let body = 'Are you sure you want to delete this mileage expense?';
+      let ctaText = 'Delete';
+      let ctaLoadingText = 'Deleting';
+
       it('should delete mileage from report and navigate back to the report', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
         component.isRedirectedFromReport = true;
@@ -577,10 +579,10 @@ export function TestCases1(getTestBed) {
 
         popoverController.create.and.resolveTo(deletePopoverSpy);
 
-        const header = 'Remove Mileage';
-        const body = 'Are you sure you want to remove this mileage expense from this report?';
-        const ctaText = 'Remove';
-        const ctaLoadingText = 'Removing';
+        header = 'Remove Mileage';
+        body = 'Are you sure you want to remove this mileage expense from this report?';
+        ctaText = 'Remove';
+        ctaLoadingText = 'Removing';
 
         component.deleteExpense('rpFE5X1Pqi9P');
         tick(500);
@@ -629,11 +631,6 @@ export function TestCases1(getTestBed) {
         popoverController.create.and.resolveTo(deletePopoverSpy);
         fixture.detectChanges();
 
-        const header = 'Delete Mileage';
-        const body = 'Are you sure you want to delete this mileage expense?';
-        const ctaText = 'Delete';
-        const ctaLoadingText = 'Deleting';
-
         component.deleteExpense();
         tick(500);
 
@@ -676,11 +673,6 @@ export function TestCases1(getTestBed) {
         popoverController.create.and.resolveTo(deletePopoverSpy);
         fixture.detectChanges();
 
-        const header = 'Delete Mileage';
-        const body = 'Are you sure you want to delete this mileage expense?';
-        const ctaText = 'Delete';
-        const ctaLoadingText = 'Deleting';
-
         component.deleteExpense();
         tick(500);
 
@@ -722,11 +714,6 @@ export function TestCases1(getTestBed) {
 
         popoverController.create.and.resolveTo(deletePopoverSpy);
         fixture.detectChanges();
-
-        const header = 'Delete Mileage';
-        const body = 'Are you sure you want to delete this mileage expense?';
-        const ctaText = 'Delete';
-        const ctaLoadingText = 'Deleting';
 
         component.deleteExpense();
         tick(500);
