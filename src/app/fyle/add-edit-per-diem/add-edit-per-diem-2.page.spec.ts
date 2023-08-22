@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { ActivatedRoute, Router } from '@angular/router';
