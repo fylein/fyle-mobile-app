@@ -151,7 +151,7 @@ export const platformPolicyExpenseData2: PlatformPolicyExpense = {
         'Shop No:8, Sahar Cargo, Andheri Victor Mati Lane, Sahar Rd, Tank View, Sahar Village, Andheri East, Mumbai, Maharashtra 400099, India',
       latitude: 19.098039,
       longitude: 72.867626,
-      display_name:
+      display:
         'Bangalore Airport Terminal Services Private Limited, Sahar Road, Tank View, Sahar Village, Andheri East, Mumbai, Maharashtra, India',
     },
   ],
