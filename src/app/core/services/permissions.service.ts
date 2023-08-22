@@ -4,6 +4,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { throwError, of, iif, Observable } from 'rxjs';
 import { OrgSettings } from '../models/org-settings.model';
 import { ReportAllowedActions } from '../models/allowed-actions.model';
+import { SidemenuAllowedActions } from '../models/sidemenu-allowed-actions.model';
 
 @Injectable({
   providedIn: 'root',
@@ -1595,7 +1596,7 @@ export class PermissionsService {
     };
 
     const filteredRoles$ = roles$.pipe(
-      map((roles) => {
+      map((roles: string[]) => {
         if (roles.indexOf('SUPER_ADMIN') > -1) {
           roles.splice(roles.indexOf('SUPER_ADMIN'), 1);
         }
