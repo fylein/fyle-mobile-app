@@ -18,7 +18,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
   transactionIDs: string[];
 
-  form: FormGroup = this.fb.group({
+  form = this.fb.group({
     comments: this.fb.array([]),
   });
 
