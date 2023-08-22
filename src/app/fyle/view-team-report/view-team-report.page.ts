@@ -1,43 +1,45 @@
+import { getCurrencySymbol } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ReportService } from 'src/app/core/services/report.service';
+import { IonContent, ModalController, PopoverController } from '@ionic/angular';
+import * as dayjs from 'dayjs';
+import { BehaviorSubject, Observable, Subject, concat, forkJoin, from } from 'rxjs';
+import { filter, finalize, map, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { Expense } from 'src/app/core/models/expense.model';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { PdfExport } from 'src/app/core/models/pdf-exports.model';
+import { ReportActions } from 'src/app/core/models/report-actions.model';
+import { ExtendedReport } from 'src/app/core/models/report.model';
+import { Approver } from 'src/app/core/models/v1/approver.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, filter } from 'rxjs/operators';
-import { ShareReportComponent } from './share-report/share-report.component';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { NetworkService } from '../../core/services/network.service';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
-import { TrackingService } from '../../core/services/tracking.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { RefinerService } from 'src/app/core/services/refiner.service';
-import { Expense } from 'src/app/core/models/expense.model';
-import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { getCurrencySymbol } from '@angular/common';
-import * as dayjs from 'dayjs';
-import { StatusService } from 'src/app/core/services/status.service';
-import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PdfExport } from 'src/app/core/models/pdf-exports.model';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { StatusService } from 'src/app/core/services/status.service';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { NetworkService } from '../../core/services/network.service';
+import { TrackingService } from '../../core/services/tracking.service';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
+import { ShareReportComponent } from './share-report/share-report.component';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
   styleUrls: ['./view-team-report.page.scss'],
 })
 export class ViewTeamReportPage implements OnInit {
-  @ViewChild('commentInput') commentInput: ElementRef;
+  @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
@@ -45,13 +47,13 @@ export class ViewTeamReportPage implements OnInit {
 
   etxns$: Observable<Expense[]>;
 
-  sharedWith$: Observable<any[]>;
+  sharedWith$: Observable<string[]>;
 
-  reportApprovals$: Observable<any>;
+  reportApprovals$: Observable<Approver[]>;
 
   refreshApprovals$ = new Subject();
 
-  actions$: Observable<any>;
+  actions$: Observable<ReportActions>;
 
   hideAllExpenses = true;
 
@@ -91,7 +93,7 @@ export class ViewTeamReportPage implements OnInit {
 
   systemEstatuses: ExtendedStatus[];
 
-  userComments: any;
+  userComments: ExtendedStatus[];
 
   totalCommentsCount$: Observable<number>;
 
@@ -99,11 +101,11 @@ export class ViewTeamReportPage implements OnInit {
 
   objectType = 'reports';
 
-  objectId = this.activatedRoute.snapshot.params.id;
+  objectId = this.activatedRoute.snapshot.params.id as string;
 
   isCommentAdded: boolean;
 
-  etxnAmountSum$: Observable<any>;
+  etxnAmountSum$: Observable<number>;
 
   reportEtxnIds: string[];
 
@@ -149,13 +151,15 @@ export class ViewTeamReportPage implements OnInit {
     private orgSettingsService: OrgSettingsService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    return;
+  }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -170,26 +174,26 @@ export class ViewTeamReportPage implements OnInit {
     });
   }
 
-  getVendorName(etxn) {
+  getVendorName(etxn: Expense): string {
     const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
     let vendorName = etxn.tx_vendor || 'Expense';
 
     if (category === 'mileage') {
-      vendorName = etxn.tx_distance;
+      vendorName = etxn.tx_distance.toString();
       vendorName += ' ' + etxn.tx_distance_unit;
     } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days;
+      vendorName = etxn.tx_num_days.toString();
       vendorName += ' Days';
     }
 
     return vendorName;
   }
 
-  getApproverEmails(reportApprovals) {
+  getApproverEmails(reportApprovals: Approver[]): string[] {
     return reportApprovals.map((approver) => approver.approver_email);
   }
 
-  getShowViolation(etxn) {
+  getShowViolation(etxn: Expense): boolean {
     return (
       etxn.tx_id &&
       (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
@@ -202,26 +206,26 @@ export class ViewTeamReportPage implements OnInit {
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
         this.reportService
-          .getReport(this.activatedRoute.snapshot.params.id)
+          .getReport(this.activatedRoute.snapshot.params.id as string)
           .pipe(finalize(() => this.loaderService.hideLoader()))
       ),
       shareReplay(1)
     );
   }
 
-  getApprovalSettings(orgSettings) {
+  getApprovalSettings(orgSettings: OrgSettings): boolean {
     return orgSettings?.approval_settings?.enable_sequential_approvers;
   }
 
-  getReportClosureSettings(orgSettings) {
+  getReportClosureSettings(orgSettings: OrgSettings): boolean {
     return orgSettings?.simplified_report_closure_settings?.enabled;
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
-    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
 
     this.erpt$ = this.loadReports();
     this.eou$ = from(this.authService.getEou());
@@ -252,10 +256,6 @@ export class ViewTeamReportPage implements OnInit {
     );
 
     this.estatuses$.subscribe((estatuses) => {
-      const reversalStatus = estatuses.filter(
-        (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
-      );
-
       this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
 
       this.type =
@@ -285,7 +285,7 @@ export class ViewTeamReportPage implements OnInit {
     this.erpt$ = this.refreshApprovals$.pipe(
       switchMap(() =>
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id))
+          switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id as string))
         )
       ),
       shareReplay(1),
@@ -305,7 +305,7 @@ export class ViewTeamReportPage implements OnInit {
       }
     });
 
-    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
+    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id as string).pipe(
       map((pdfExports: { results: PdfExport[] }) =>
         pdfExports.results
           .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
@@ -316,7 +316,7 @@ export class ViewTeamReportPage implements OnInit {
 
     this.reportApprovals$ = this.refreshApprovals$.pipe(
       startWith(true),
-      switchMap(() => this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id)),
+      switchMap(() => this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id as string)),
       map((reportApprovals) =>
         reportApprovals
           .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
@@ -325,7 +325,9 @@ export class ViewTeamReportPage implements OnInit {
     );
 
     this.etxns$ = from(this.authService.getEou()).pipe(
-      switchMap((eou) => this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id)),
+      switchMap((eou) =>
+        this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id as string, eou.ou.id)
+      ),
       map((etxns) =>
         etxns.map((etxn) => {
           etxn.vendor = this.getVendorName(etxn);
@@ -339,7 +341,7 @@ export class ViewTeamReportPage implements OnInit {
 
     this.etxnAmountSum$ = this.etxns$.pipe(map((etxns) => etxns.reduce((acc, curr) => acc + curr.tx_amount, 0)));
 
-    this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
+    this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id as string).pipe(shareReplay(1));
 
     this.canEdit$ = this.actions$.pipe(map((actions) => actions.can_edit));
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
@@ -362,7 +364,7 @@ export class ViewTeamReportPage implements OnInit {
     this.refreshApprovals$.next(null);
   }
 
-  toggleTooltip() {
+  toggleTooltip(): void {
     this.canShowTooltip = !this.canShowTooltip;
   }
 
@@ -381,7 +383,7 @@ export class ViewTeamReportPage implements OnInit {
     return false;
   }
 
-  async deleteReport() {
+  async deleteReport(): Promise<void> {
     const popupResult = await this.popupService.showPopup({
       header: 'Delete Report',
       message: `
@@ -400,7 +402,7 @@ export class ViewTeamReportPage implements OnInit {
     if (popupResult === 'primary') {
       from(this.loaderService.showLoader())
         .pipe(
-          switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
+          switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id as string)),
           finalize(() => from(this.loaderService.hideLoader()))
         )
         .subscribe(() => {
@@ -409,7 +411,7 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  async approveReport() {
+  async approveReport(): Promise<void> {
     if (!this.canApprove) {
       this.toggleTooltip();
     } else {
@@ -437,7 +439,11 @@ export class ViewTeamReportPage implements OnInit {
 
       await popover.present();
 
-      const { data } = await popover.onWillDismiss();
+      const { data } = (await popover.onWillDismiss()) as {
+        data: {
+          action: string;
+        };
+      };
 
       if (data && data.action === 'approve') {
         this.reportService.approve(erpt.rp_id).subscribe(() => {
@@ -448,13 +454,13 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  onUpdateApprover(message: boolean) {
+  onUpdateApprover(message: boolean): void {
     if (message) {
       this.refreshApprovals$.next(null);
     }
   }
 
-  goToTransaction({ etxn, etxnIndex }) {
+  goToTransaction({ etxn, etxnIndex }: { etxn: Expense; etxnIndex: number }): void {
     const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
 
     let route: string;
@@ -472,7 +478,7 @@ export class ViewTeamReportPage implements OnInit {
     ]);
   }
 
-  async shareReport(event) {
+  async shareReport(): Promise<void> {
     const popover = await this.popoverController.create({
       component: ShareReportComponent,
       cssClass: 'dialog-popover',
@@ -480,7 +486,11 @@ export class ViewTeamReportPage implements OnInit {
 
     await popover.present();
 
-    const { data } = await popover.onWillDismiss();
+    const { data } = (await popover.onWillDismiss()) as {
+      data: {
+        email: string;
+      };
+    };
 
     if (data.email) {
       const params = {
@@ -494,7 +504,7 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  async sendBack() {
+  async sendBack(): Promise<void> {
     const popover = await this.popoverController.create({
       component: FyPopoverComponent,
       componentProps: {
@@ -505,7 +515,11 @@ export class ViewTeamReportPage implements OnInit {
     });
 
     await popover.present();
-    const { data } = await popover.onWillDismiss();
+    const { data } = (await popover.onWillDismiss()) as {
+      data: {
+        comment: string;
+      };
+    };
 
     if (data && data.comment) {
       const status = {
@@ -516,7 +530,7 @@ export class ViewTeamReportPage implements OnInit {
         notify: false,
       };
 
-      this.reportService.inquire(this.activatedRoute.snapshot.params.id, statusPayload).subscribe(() => {
+      this.reportService.inquire(this.activatedRoute.snapshot.params.id as string, statusPayload).subscribe(() => {
         const message = 'Report Sent Back successfully';
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
@@ -529,7 +543,7 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  async openViewReportInfoModal() {
+  async openViewReportInfoModal(): Promise<void> {
     const viewInfoModal = await this.modalController.create({
       component: FyViewReportInfoComponent,
       componentProps: {
@@ -546,7 +560,7 @@ export class ViewTeamReportPage implements OnInit {
     this.trackingService.clickViewReportInfo({ view: ExpenseView.team });
   }
 
-  segmentChanged(event) {
+  segmentChanged(event: { detail: { value: unknown } }): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'expenses') {
         this.isExpensesView = true;
@@ -567,7 +581,7 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  addComment() {
+  addComment(): void {
     if (this.newComment) {
       const data = {
         comment: this.newComment,
@@ -577,7 +591,7 @@ export class ViewTeamReportPage implements OnInit {
       this.commentInput.nativeElement.focus();
       this.isCommentAdded = true;
 
-      this.statusService.post(this.objectType, this.objectId, data).subscribe((res) => {
+      this.statusService.post(this.objectType, this.objectId, data).subscribe(() => {
         this.refreshEstatuses$.next(null);
         setTimeout(() => {
           this.content.scrollToBottom(500);
@@ -608,9 +622,10 @@ export class ViewTeamReportPage implements OnInit {
     this.erpt$
       .pipe(
         take(1),
-        switchMap((erpt) => {
+        switchMap((erpt: ExtendedReport) => {
           erpt.rp_purpose = reportName;
-          return this.reportService.approverUpdateReportPurpose(erpt);
+          const report$ = this.reportService.approverUpdateReportPurpose(erpt);
+          return report$;
         })
       )
       .subscribe(() => {

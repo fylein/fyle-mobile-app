@@ -649,6 +649,6 @@ export class ReportService {
         purpose: erpt.rp_purpose,
       },
     };
-    return this.approverPlatformApiService.post('/reports', params);
+    return this.approverPlatformApiService.post<PlatformReport>('/reports', params);
   }
 }
