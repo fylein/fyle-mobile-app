@@ -121,6 +121,14 @@ export class ViewTeamReportPage implements OnInit {
 
   loadReportDetails$ = new BehaviorSubject<void>(null);
 
+  eou: ExtendedOrgUser;
+
+  reportNameChangeStartTime: number;
+
+  reportNameChangeEndTime: number;
+
+  timeSpentOnEditingReportName: number;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -217,6 +225,8 @@ export class ViewTeamReportPage implements OnInit {
 
     this.erpt$ = this.loadReports();
     this.eou$ = from(this.authService.getEou());
+
+    this.eou$.subscribe((eou) => (this.eou = eou));
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
       startWith(0),
@@ -576,6 +586,24 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
+  trackReportNameChange(): void {
+    this.reportNameChangeEndTime = new Date().getTime();
+    this.timeSpentOnEditingReportName = (this.reportNameChangeEndTime - this.reportNameChangeStartTime) / 1000;
+    this.trackingService.reportNameChange({
+      Time_spent: this.timeSpentOnEditingReportName,
+      Roles: this.eou?.ou.roles,
+    });
+  }
+
+  showReportNameChangeSuccessToast(): void {
+    const message = 'Report name changed successfully.';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+      panelClass: ['msb-success'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
   updateReportName(reportName: string): void {
     this.erpt$
       .pipe(
@@ -585,10 +613,15 @@ export class ViewTeamReportPage implements OnInit {
           return this.reportService.approverUpdateReportPurpose(erpt);
         })
       )
-      .subscribe(() => this.loadReportDetails$.next());
+      .subscribe(() => {
+        this.loadReportDetails$.next();
+        this.showReportNameChangeSuccessToast();
+        this.trackReportNameChange();
+      });
   }
 
   editReportName(): void {
+    this.reportNameChangeStartTime = new Date().getTime();
     this.erpt$
       .pipe(take(1))
       .pipe(
