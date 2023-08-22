@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -35,7 +35,7 @@ import { orgCategoryData, orgCategoryData1, perDiemCategory } from 'src/app/core
 import { BehaviorSubject, finalize, of, take, tap } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { unflattenedTxnDataPerDiem } from 'src/app/core/mock-data/unflattened-expense.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { unflattenedExpWoCostCenter, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expectedTxnCustomProperties } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
@@ -50,13 +50,16 @@ import { projects } from 'src/app/core/mock-data/extended-projects.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
 import {
+  accountsData,
+  multipleAdvAccountsData,
   multiplePaymentModesData,
   orgSettingsData,
   paymentModeDataCCC,
   paymentModesData,
+  unflattenedAccount2Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { expectedAddedApproverERpts } from 'src/app/core/mock-data/report-unflattened.data';
+import { draftReportPerDiemData, expectedAddedApproverERpts } from 'src/app/core/mock-data/report-unflattened.data';
 import { txnFieldsData2, txnFieldsData3 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { allowedPerDiem, expectedPerDiems } from 'src/app/core/test-data/per-diem.service.spec.data';
 import { costCentersData, expectedCCdata2, expectedCCdata3 } from 'src/app/core/mock-data/cost-centers.data';
@@ -75,6 +78,15 @@ import { allowedPerDiemRateOptionsData1 } from 'src/app/core/mock-data/allowed-p
 import { perDiemReportsData1 } from 'src/app/core/mock-data/per-diem-reports.data';
 import { perDiemRatesData1, perDiemRatesData2 } from 'src/app/core/mock-data/per-diem-rates.data';
 import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
+import {
+  perDiemFormValuesData1,
+  perDiemFormValuesData2,
+  perDiemFormValuesData3,
+  perDiemFormValuesData4,
+  perDiemFormValuesData5,
+  perDiemFormValuesData6,
+  perDiemFormValuesData7,
+} from 'src/app/core/mock-data/per-diem-form-value.data';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
@@ -724,6 +736,140 @@ export function TestCases2(getTestBed) {
         expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(900, 'INR');
         done();
       });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ correctly if paymentMode changed and paymentMode.acc.type equals PERSONAL account', (done) => {
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
+        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(res).toBeTrue();
+        });
+        done();
+      });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ to false if paymentMode changed and paymentMode.acc is undefined', (done) => {
+        const mockAccountsData = cloneDeep(accountsData[0]);
+        mockAccountsData.acc = undefined;
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(mockAccountsData);
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+        });
+        done();
+      });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ to false if paymentMode changed and paymentMode is undefined', (done) => {
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(undefined);
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+        });
+        done();
+      });
+
+      it('should autofill the per diem form', fakeAsync(() => {
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData1);
+        component.selectedProject$.subscribe((res) => {
+          expect(res).toEqual(projects[0]);
+        });
+      }));
+
+      it('should set project to null in form if orgUserSettings.preferences is undefined', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.project_id = undefined;
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+        mockOrgUserSettings.preferences = undefined;
+        orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettings));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData2);
+      }));
+
+      it('should set per_diem_rate if etxn.tx.per_diem_rate_id is defined', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.per_diem_rate_id = 4213;
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData3);
+      }));
+
+      it('should set report if etxn.tx.report_id is defined', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.report_id = 'rp35DK02IvMP';
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData4);
+      }));
+
+      it('should set report if etxn.tx.report_id is undefined and autoSubmission report name is empty with report state as DRAFT', fakeAsync(() => {
+        reportService.getAutoSubmissionReportName.and.returnValue(of(''));
+        reportService.getFilteredPendingReports.and.returnValue(of(draftReportPerDiemData));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData5);
+      }));
+
+      it('should set costCenter if costCenter length is 1 and mode is add', fakeAsync(() => {
+        component.getNewExpense = jasmine.createSpy().and.returnValue(of(unflattenedExpWoCostCenter));
+        orgUserSettingsService.getAllowedCostCenters.and.returnValue(of([costCentersData[0]]));
+        activatedRoute.snapshot.params.id = undefined;
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData6);
+        component.selectedCostCenter$.subscribe((res) => {
+          expect(res).toEqual(costCentersData[0]);
+        });
+      }));
+
+      it('should set from_dt and to_dt if etxn.tx.to_dt and etxn.tx.from_dt are defined', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        dateService.getUTCDate.and.returnValue(new Date('2023-08-01'));
+        mockTxnData.tx.to_dt = new Date('2023-08-03');
+        mockTxnData.tx.from_dt = new Date('2023-08-01');
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData7);
+      }));
+
+      it('should autofill project and costCenter if autofill is enabled and recentProjects and recentCostCenters are available', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.project_id = null;
+        mockTxnData.tx.cost_center_id = null;
+        mockTxnData.tx.state = 'DRAFT';
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(projects));
+        recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(expectedCCdata2));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.recentProjects).toEqual([
+          { label: 'Customer Mapped Project', value: projects[0] },
+          { label: 'Abercrombie International Group', value: projects[1] },
+        ]);
+        expect(component.fg.controls.project.value).toEqual(projects[0]);
+        expect(component.presetProjectId).toEqual(257528);
+        expect(component.recentCostCenters).toEqual(expectedCCdata2);
+        expect(component.fg.controls.costCenter.value).toEqual(expectedCCdata2[0].value);
+        expect(component.presetCostCenterId).toEqual(2411);
+      }));
+
+      it('should set paymentModeInvalid$', fakeAsync(() => {
+        spyOn(component, 'isPaymentModeValid').and.returnValue(of(false));
+        component.ionViewWillEnter();
+        tick(1000);
+        component.paymentModeInvalid$.subscribe((res) => {
+          expect(component.isPaymentModeValid).toHaveBeenCalledTimes(1);
+          expect(res).toBeFalse();
+        });
+      }));
     });
   });
 }

@@ -799,6 +799,28 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
+  isPaymentModeValid(): Observable<boolean> {
+    return iif(() => !!(this.activatedRoute.snapshot.params.id as string), this.etxn$, of(null)).pipe(
+      map((etxn) => {
+        const formValue = this.getFormValues();
+        if (formValue.paymentMode.acc.type === AccountType.ADVANCE) {
+          if (
+            etxn &&
+            etxn.tx.id &&
+            formValue.paymentMode?.acc?.id === etxn.tx.source_account_id &&
+            etxn.tx.state !== 'DRAFT'
+          ) {
+            return formValue.paymentMode?.acc?.tentative_balance_amount + etxn.tx.amount < formValue.currencyObj.amount;
+          } else {
+            return formValue.paymentMode?.acc?.tentative_balance_amount < formValue.currencyObj.amount;
+          }
+        } else {
+          return false;
+        }
+      })
+    );
+  }
+
   ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
@@ -1546,29 +1568,7 @@ export class AddEditPerDiemPage implements OnInit {
         }
       );
 
-    this.paymentModeInvalid$ = iif(
-      () => !!(this.activatedRoute.snapshot.params.id as string),
-      this.etxn$,
-      of(null)
-    ).pipe(
-      map((etxn) => {
-        const formValue = this.getFormValues();
-        if (formValue.paymentMode.acc.type === AccountType.ADVANCE) {
-          if (
-            etxn &&
-            etxn.tx.id &&
-            formValue.paymentMode?.acc?.id === etxn.tx.source_account_id &&
-            etxn.tx.state !== 'DRAFT'
-          ) {
-            return formValue.paymentMode?.acc?.tentative_balance_amount + etxn.tx.amount < formValue.currencyObj.amount;
-          } else {
-            return formValue.paymentMode?.acc?.tentative_balance_amount < formValue.currencyObj.amount;
-          }
-        } else {
-          return false;
-        }
-      })
-    );
+    this.paymentModeInvalid$ = this.isPaymentModeValid();
   }
 
   generateEtxnFromFg(
