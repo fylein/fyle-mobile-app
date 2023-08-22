@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -378,6 +378,7 @@ import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup
     ViewDependentFieldsComponent,
     PopupWithBulletsComponent,
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })
 export class SharedModule {}
