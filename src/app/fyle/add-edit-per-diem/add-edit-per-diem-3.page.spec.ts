@@ -34,8 +34,27 @@ import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { multiplePaymentModesData, unflattenedAccount2Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { of } from 'rxjs';
-import { currencyObjData5 } from 'src/app/core/mock-data/currency-obj.data';
-import { cloneDeep } from 'lodash';
+import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
+import { before, cloneDeep } from 'lodash';
+import {
+  perDiemFormValuesData10,
+  perDiemFormValuesData8,
+  perDiemFormValuesData9,
+} from 'src/app/core/mock-data/per-diem-form-value.data';
+import { expectedTxnCustomProperties, txnCustomProperties4 } from 'src/app/core/mock-data/txn-custom-properties.data';
+import { perDiemTransaction } from 'src/app/core/mock-data/transaction.data';
+import { perDiemCustomInputsData2 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
+import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
+import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
+import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
+import { orgCategoryData } from 'src/app/core/mock-data/org-category.data';
+import { publicPolicyExpenseData1 } from 'src/app/core/mock-data/public-policy-expense.data';
+import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 
 export function TestCases3(getTestBed) {
   return describe('add-edit-per-diem test cases set 3', () => {
@@ -197,6 +216,151 @@ export function TestCases3(getTestBed) {
           done();
         });
       });
+    });
+
+    describe('generateEtxnFromFg():', () => {
+      beforeEach(() => {
+        spyOn(component, 'getFormValues').and.returnValue(perDiemFormValuesData8);
+        component.fg.controls.currencyObj.setValue(currencyObjData6);
+      });
+
+      it('should return etxn object from form data', (done) => {
+        const etxn = of(unflattenedTxnData);
+        const customProperties = of(cloneDeep(expectedTxnCustomProperties));
+        dateService.getUTCDate.and.returnValues(
+          new Date('2023-02-13T17:00:00.000Z'),
+          new Date('2023-08-01T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
+        );
+
+        const expectedEtxn = component.generateEtxnFromFg(etxn, customProperties);
+
+        expectedEtxn.subscribe((res) => {
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
+          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction });
+          expect(res.ou).toEqual(unflattenedTxnData.ou);
+          expect(res.dataUrls).toEqual([]);
+          done();
+        });
+      });
+
+      it('should return etxn object from form data', (done) => {
+        component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesData9);
+        const etxn = of(unflattenedTxnData);
+        const customProperties = of(cloneDeep(expectedTxnCustomProperties));
+        dateService.getUTCDate.and.returnValues(
+          new Date('2023-02-13T17:00:00.000Z'),
+          new Date('2023-08-01T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
+        );
+
+        const expectedEtxn = component.generateEtxnFromFg(etxn, customProperties);
+
+        expectedEtxn.subscribe((res) => {
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
+          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
+          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction, org_category_id: 16577 });
+          expect(res.ou).toEqual(unflattenedTxnData.ou);
+          expect(res.dataUrls).toEqual([]);
+          done();
+        });
+      });
+    });
+
+    it('getCustomFields(): should return custom fields', (done) => {
+      spyOn(component, 'getFormValues').and.returnValue(perDiemFormValuesData10);
+      customFieldsService.standardizeCustomFields.and.returnValue(expectedTxnCustomProperties);
+      component.customInputs$ = of(perDiemCustomInputsData2);
+      component.dependentFields$ = of(expenseFieldResponse);
+      const expectedCustomFields = component.getCustomFields();
+      expectedCustomFields.subscribe((res) => {
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
+          [
+            {
+              name: 'location1',
+              value: null,
+            },
+          ],
+          expenseFieldResponse
+        );
+        expect(res).toEqual(txnCustomProperties4);
+        done();
+      });
+    });
+
+    it('checkPolicyViolation(): should call transactionService.checkPolicy to check policy violation', (done) => {
+      policyService.transformTo.and.returnValue(platformPolicyExpenseData1);
+      transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
+
+      component
+        .checkPolicyViolation({ tx: unflattenedTxnData.tx, dataUrls: fileObject4, ou: unflattenedTxnData.ou })
+        .subscribe((res) => {
+          expect(policyService.transformTo).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+          expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
+          expect(res).toEqual(expensePolicyData);
+          done();
+        });
+    });
+
+    it('continueWithCriticalPolicyViolation(): should show critical policy violation modal', async () => {
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+        'present',
+        'onWillDismiss',
+      ]);
+      fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'primary',
+        },
+      });
+
+      modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+
+      const result = await component.continueWithCriticalPolicyViolation(criticalPolicyViolation2);
+
+      expect(result).toBeTrue();
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyCriticalPolicyViolationComponent,
+        componentProps: {
+          criticalViolationMessages: criticalPolicyViolation2,
+        },
+        mode: 'ios',
+        presentingElement: await modalController.getTop(),
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    });
+
+    it('continueWithPolicyViolations(): should display violations and relevant CTA in a modal', async () => {
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+
+      currencyModalSpy.onWillDismiss.and.resolveTo({
+        data: { comment: 'primary' },
+      });
+      modalController.create.and.resolveTo(currencyModalSpy);
+
+      const result = await component.continueWithPolicyViolations(
+        criticalPolicyViolation2,
+        splitPolicyExp4.data.final_desired_state
+      );
+
+      expect(result).toEqual({ comment: 'primary' });
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyPolicyViolationComponent,
+        componentProps: {
+          policyViolationMessages: criticalPolicyViolation2,
+          policyAction: splitPolicyExp4.data.final_desired_state,
+        },
+        mode: 'ios',
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     });
   });
 }

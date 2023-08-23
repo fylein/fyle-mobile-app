@@ -83,7 +83,7 @@ describe('AddEditPerDiemPage', () => {
     ]);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
-    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'findLatestComment', 'post']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
