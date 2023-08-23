@@ -5,7 +5,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Observable, forkJoin, map } from 'rxjs';
 import { getCurrencySymbol } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { PlatformCorporateCardDetails } from 'src/app/core/models/platform-corporate-card-details.model';
+import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 
 @Component({
   selector: 'app-card-stats',
@@ -13,7 +13,7 @@ import { PlatformCorporateCardDetails } from 'src/app/core/models/platform-corpo
   styleUrls: ['./card-stats.component.scss'],
 })
 export class CardStatsComponent {
-  cardDetails$: Observable<PlatformCorporateCardDetails[]>;
+  cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
   homeCurrency$: Observable<string>;
 

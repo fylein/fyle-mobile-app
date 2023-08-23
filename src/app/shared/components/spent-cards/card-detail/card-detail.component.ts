@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { PlatformCorporateCardDetails } from 'src/app/core/models/platform-corporate-card-details.model';
+import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
@@ -10,7 +10,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   styleUrls: ['./card-detail.component.scss'],
 })
 export class CardDetailComponent {
-  @Input() cardDetail: PlatformCorporateCardDetails;
+  @Input() cardDetail: PlatformCorporateCardDetail;
 
   @Input() homeCurrency: Observable<string>;
 
@@ -18,7 +18,7 @@ export class CardDetailComponent {
 
   constructor(private router: Router, private trackingService: TrackingService) {}
 
-  goToExpensesPage(state: string, cardDetail: PlatformCorporateCardDetails): void {
+  goToExpensesPage(state: string, cardDetail: PlatformCorporateCardDetail): void {
     if (state === 'incompleteExpenses' && cardDetail.stats.totalDraftTxns && cardDetail.stats.totalDraftTxns > 0) {
       const queryParams: Params = {
         filters: JSON.stringify({ state: ['DRAFT'], cardNumbers: [this.cardDetail?.card.card_number] }),

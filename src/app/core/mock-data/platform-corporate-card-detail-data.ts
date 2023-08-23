@@ -1,7 +1,7 @@
-import { PlatformCorporateCardDetails } from '../models/platform-corporate-card-details.model';
+import { PlatformCorporateCardDetail } from '../models/platform-corporate-card-detail.model';
 import { mastercardRTFCard, statementUploadedCard, visaRTFCard } from './platform-corporate-card.data';
 
-export const cardDetailsRes: PlatformCorporateCardDetails[] = [
+export const cardDetailsRes: PlatformCorporateCardDetail[] = [
   {
     card: visaRTFCard,
     stats: {

@@ -19,7 +19,7 @@ import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { CardDetails } from '../models/card-details.model';
 import { DataFeedSource } from '../enums/data-feed-source.enum';
 import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
-import { PlatformCorporateCardDetails } from '../models/platform-corporate-card-details.model';
+import { PlatformCorporateCardDetail } from '../models/platform-corporate-card-detail.model';
 
 type Config = Partial<{
   offset: number;
@@ -126,9 +126,9 @@ export class CorporateCreditCardExpenseService {
   getExpenseDetailsInCardsPlatform(
     cards: PlatformCorporateCard[],
     statsResponse: CardAggregateStats[]
-  ): PlatformCorporateCardDetails[] {
+  ): PlatformCorporateCardDetail[] {
     return cards.map((card: PlatformCorporateCard) => {
-      const formattedCard: PlatformCorporateCardDetails = {
+      const formattedCard: PlatformCorporateCardDetail = {
         card,
         stats: {
           totalDraftTxns: 0,
