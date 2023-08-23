@@ -804,15 +804,15 @@ export class AddEditPerDiemPage implements OnInit {
     return iif(() => !!(this.activatedRoute.snapshot.params.id as string), this.etxn$, of(null)).pipe(
       map((etxn) => {
         const formValue = this.getFormValues();
-        if (formValue.paymentMode.acc.type === AccountType.ADVANCE) {
+        if (formValue.paymentMode?.acc?.type === AccountType.ADVANCE) {
           if (
             etxn?.tx.id &&
             formValue.paymentMode?.acc?.id === etxn.tx.source_account_id &&
             etxn.tx.state !== TransactionState.DRAFT
           ) {
-            return formValue.paymentMode?.acc?.tentative_balance_amount + etxn.tx.amount < formValue.currencyObj.amount;
+            return formValue.paymentMode.acc.tentative_balance_amount + etxn.tx.amount < formValue.currencyObj.amount;
           } else {
-            return formValue.paymentMode?.acc?.tentative_balance_amount < formValue.currencyObj.amount;
+            return formValue.paymentMode.acc.tentative_balance_amount < formValue.currencyObj.amount;
           }
         } else {
           return false;
