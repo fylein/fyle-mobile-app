@@ -1,7 +1,7 @@
-import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, ViewChild } from '@angular/core';
 import { concat, Observable, of, Subject, Subscription } from 'rxjs';
-import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
-import { ActionSheetController, NavController, Platform } from '@ionic/angular';
+import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
+import { ActionSheetButton, ActionSheetController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
@@ -16,6 +16,9 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
+import { CardStatsComponent } from './card-stats/card-stats.component';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 
 enum DashboardState {
   home,
@@ -27,16 +30,18 @@ enum DashboardState {
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
 })
-export class DashboardPage implements OnInit {
+export class DashboardPage {
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
 
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
   orgUserSettings$: Observable<OrgUserSettings>;
 
-  orgSettings$: Observable<any>;
+  orgSettings$: Observable<OrgSettings>;
 
-  homeCurrency$: Observable<any>;
+  homeCurrency$: Observable<string>;
+
+  isCCCEnabled$: Observable<boolean>;
 
   isConnected$: Observable<boolean>;
 
@@ -44,7 +49,7 @@ export class DashboardPage implements OnInit {
 
   currentStateIndex = 0;
 
-  actionSheetButtons = [];
+  actionSheetButtons: ActionSheetButton[] = [];
 
   taskCount = 0;
 
@@ -66,7 +71,7 @@ export class DashboardPage implements OnInit {
     private navController: NavController
   ) {}
 
-  get displayedTaskCount() {
+  get displayedTaskCount(): number {
     if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
       return this.tasksComponent?.taskCount;
     } else {
@@ -74,20 +79,20 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  get FooterState() {
+  get FooterState(): typeof FooterState {
     return FooterState;
   }
 
-  get filterPills() {
+  get filterPills(): FilterPill[] {
     return this.tasksComponent?.filterPills;
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.onPageExit$.next(null);
     this.hardwareBackButtonAction?.unsubscribe();
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -96,7 +101,7 @@ export class DashboardPage implements OnInit {
     );
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
@@ -112,6 +117,13 @@ export class DashboardPage implements OnInit {
     this.orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
+
+    this.isCCCEnabled$ = this.orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled
+      )
+    );
 
     this.orgSettings$.subscribe((orgSettings) => {
       this.setupActionSheet(orgSettings);
@@ -140,7 +152,7 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  registerBackButtonAction() {
+  registerBackButtonAction(): void {
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
       //If the user is on home page, show app close popup
       if (!this.router.url.includes('tasks')) {
@@ -160,9 +172,7 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  ngOnInit() {}
-
-  onTaskClicked() {
+  onTaskClicked(): void {
     this.currentStateIndex = 1;
     const queryParams: Params = { state: 'tasks' };
     this.router.navigate([], {
@@ -175,11 +185,11 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  openFilters() {
+  openFilters(): void {
     this.tasksComponent.openFilters();
   }
 
-  onCameraClicked() {
+  onCameraClicked(): void {
     this.router.navigate([
       '/',
       'enterprise',
@@ -190,7 +200,7 @@ export class DashboardPage implements OnInit {
     ]);
   }
 
-  onHomeClicked() {
+  onHomeClicked(): void {
     this.currentStateIndex = 0;
     const queryParams: Params = { state: 'home' };
     this.router.navigate([], {
@@ -203,7 +213,7 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  setupActionSheet(orgSettings) {
+  setupActionSheet(orgSettings: OrgSettings): void {
     const that = this;
     const mileageEnabled = orgSettings.mileage.enabled;
     const isPerDiemEnabled = orgSettings.per_diem.enabled;
@@ -212,7 +222,7 @@ export class DashboardPage implements OnInit {
         text: 'Capture Receipt',
         icon: 'assets/svg/fy-camera.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
+        handler: (): void => {
           that.trackingService.dashboardActionSheetButtonClicked({
             Action: 'Capture Receipt',
           });
@@ -230,7 +240,7 @@ export class DashboardPage implements OnInit {
         text: 'Add Manually',
         icon: 'assets/svg/fy-expense.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
+        handler: (): void => {
           that.trackingService.dashboardActionSheetButtonClicked({
             Action: 'Add Manually',
           });
@@ -289,7 +299,7 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  async openAddExpenseActionSheet() {
+  async openAddExpenseActionSheet(): Promise<void> {
     const that = this;
     that.trackingService.dashboardActionSheetOpened();
     const actionSheet = await this.actionSheetController.create({

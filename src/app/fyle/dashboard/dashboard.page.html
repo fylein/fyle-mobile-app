@@ -37,6 +37,7 @@
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
       <app-stats #stats></app-stats>
+      <app-card-stats *ngIf="isCCCEnabled$ | async"></app-card-stats>
     </mat-tab>
     <mat-tab label="tasks">
       <app-tasks #tasks></app-tasks>
