@@ -20,8 +20,8 @@ export interface PerDiemFormValue {
   purpose: string;
   num_days: number;
   report: UnflattenedReport;
-  from_dt: Date;
-  to_dt: Date;
+  from_dt: string;
+  to_dt: string;
   custom_inputs: CustomInput[];
   duplicate_detection_reason: string;
   billable: boolean;

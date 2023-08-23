@@ -32,10 +32,10 @@ import { ModalController, NavController, Platform, PopoverController } from '@io
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { orgCategoryData, orgCategoryData1, perDiemCategory } from 'src/app/core/mock-data/org-category.data';
-import { of } from 'rxjs';
+import { BehaviorSubject, finalize, of, take, tap } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { unflattenedTxnDataPerDiem } from 'src/app/core/mock-data/unflattened-expense.data';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { unflattenedExpWoCostCenter, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expectedTxnCustomProperties } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
@@ -50,16 +50,19 @@ import { projects } from 'src/app/core/mock-data/extended-projects.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { authResData1 } from 'src/app/core/mock-data/auth-reponse.data';
 import {
+  accountsData,
+  multipleAdvAccountsData,
   multiplePaymentModesData,
   orgSettingsData,
   paymentModeDataCCC,
   paymentModesData,
+  unflattenedAccount2Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { expectedAddedApproverERpts } from 'src/app/core/mock-data/report-unflattened.data';
+import { draftReportPerDiemData, expectedAddedApproverERpts } from 'src/app/core/mock-data/report-unflattened.data';
 import { txnFieldsData2, txnFieldsData3 } from 'src/app/core/mock-data/expense-field-obj.data';
-import { allowedPerDiem } from 'src/app/core/test-data/per-diem.service.spec.data';
-import { costCentersData, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
+import { allowedPerDiem, expectedPerDiems } from 'src/app/core/test-data/per-diem.service.spec.data';
+import { costCentersData, expectedCCdata2, expectedCCdata3 } from 'src/app/core/mock-data/cost-centers.data';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
@@ -70,6 +73,20 @@ import {
   orgSettingsWoTax,
 } from 'src/app/core/mock-data/org-settings.data';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { allowedPerDiemRateOptionsData1 } from 'src/app/core/mock-data/allowed-per-diem-rate-options.data';
+import { perDiemReportsData1 } from 'src/app/core/mock-data/per-diem-reports.data';
+import { perDiemRatesData1, perDiemRatesData2 } from 'src/app/core/mock-data/per-diem-rates.data';
+import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
+import {
+  perDiemFormValuesData1,
+  perDiemFormValuesData2,
+  perDiemFormValuesData3,
+  perDiemFormValuesData4,
+  perDiemFormValuesData5,
+  perDiemFormValuesData6,
+  perDiemFormValuesData7,
+} from 'src/app/core/mock-data/per-diem-form-value.data';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
@@ -317,8 +334,8 @@ export function TestCases2(getTestBed) {
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(paymentModeDataCCC);
         const mockPerDiem = allowedPerDiem.map((mockPerDiem) => ({
           ...mockPerDiem,
-          created_at: new Date(),
-          updated_at: new Date(),
+          created_at: new Date('2020-08-12T16:09:14.551Z'),
+          updated_at: new Date('2022-09-20T11:48:38.901Z'),
         }));
         perDiemService.getAllowedPerDiems.and.returnValue(of(mockPerDiem));
         component.isConnected$ = of(true);
@@ -338,6 +355,7 @@ export function TestCases2(getTestBed) {
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(multiplePaymentModesData[0]);
+        perDiemService.getRates.and.returnValue(of(expectedPerDiems));
         spyOn(component, 'getSubCategories').and.returnValue(of(orgCategoryData1));
         spyOn(component, 'setupFilteredCategories');
         spyOn(component, 'getProjectCategoryIds').and.returnValue(of(['129140', '129112', '16582', '201952']));
@@ -418,10 +436,10 @@ export function TestCases2(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsWoTax));
         component.ionViewWillEnter();
         component.isAdvancesEnabled$.subscribe((res) => {
-          expect(res).toEqual(true);
+          expect(res).toBeTrue();
         });
         component.individualPerDiemRatesEnabled$.subscribe((res) => {
-          expect(res).toEqual(false);
+          expect(res).toBeFalse();
         });
         component.recentlyUsedValues$.subscribe((res) => {
           expect(res).toEqual(recentlyUsedRes);
@@ -435,13 +453,423 @@ export function TestCases2(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.ionViewWillEnter();
         component.isAdvancesEnabled$.subscribe((res) => {
-          expect(res).toEqual(true);
+          expect(res).toBeTrue();
         });
         component.recentlyUsedValues$.subscribe((res) => {
-          expect(res).toEqual(null);
+          expect(res).toBeNull();
         });
         expect(recentlyUsedItemsService.getRecentlyUsed).not.toHaveBeenCalled();
       });
+
+      it('should update canCreatePerDiem$ to true if perDiemRates is not empty array', (done) => {
+        component.ionViewWillEnter();
+        component.canCreatePerDiem$
+          .pipe(
+            finalize(() => {
+              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
+            })
+          )
+          .subscribe((res) => {
+            // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
+            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
+            expect(res).toBeTrue();
+            done();
+          });
+      });
+
+      it('should update canCreatePerDiem$ to false if perDiemRates is empty array', (done) => {
+        perDiemService.getAllowedPerDiems.and.returnValue(of([]));
+        perDiemService.getRates.and.returnValue(of([]));
+        component.ionViewWillEnter();
+        component.canCreatePerDiem$
+          .pipe(
+            finalize(() => {
+              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
+            })
+          )
+          .subscribe((res) => {
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
+            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
+            expect(res).toBeFalse();
+            done();
+          });
+      });
+
+      it('should update canCreatePerDiem$ to true if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are not empty', (done) => {
+        const mockOrgSettings = cloneDeep(orgSettingsRes);
+        mockOrgSettings.per_diem.enable_individual_per_diem_rates = true;
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        component.ionViewWillEnter();
+        component.canCreatePerDiem$
+          .pipe(
+            finalize(() => {
+              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
+            })
+          )
+          .subscribe((res) => {
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
+            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
+            expect(res).toBeTrue();
+            done();
+          });
+      });
+
+      it('should update canCreatePerDiem$ to false if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are empty', (done) => {
+        perDiemService.getAllowedPerDiems.and.returnValue(of([]));
+        perDiemService.getRates.and.returnValue(of([]));
+        const mockOrgSettings = cloneDeep(orgSettingsRes);
+        mockOrgSettings.per_diem.enable_individual_per_diem_rates = true;
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        component.ionViewWillEnter();
+        component.canCreatePerDiem$
+          .pipe(
+            finalize(() => {
+              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
+            })
+          )
+          .subscribe((res) => {
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
+            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
+            expect(res).toBeFalse();
+            done();
+          });
+      });
+
+      it('should update txnFields$, homeCurrency$, subCategories$, projectCategoryIds$, isProjectVisible$ and comments$ correctly', (done) => {
+        component.ionViewWillEnter();
+        component.txnFields$.subscribe((res) => {
+          expect(component.getTransactionFields).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(txnFieldsData3);
+        });
+        component.homeCurrency$.subscribe((res) => {
+          expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+          expect(res).toEqual('USD');
+        });
+
+        component.subCategories$.subscribe((res) => {
+          expect(component.getSubCategories).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(orgCategoryData1);
+        });
+
+        component.projectCategoryIds$.subscribe((res) => {
+          expect(component.getProjectCategoryIds).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(['129140', '129112', '16582', '201952']);
+        });
+
+        component.isProjectVisible$.subscribe((res) => {
+          expect(projectsService.getProjectCount).toHaveBeenCalledOnceWith({
+            categoryIds: ['129140', '129112', '16582', '201952'],
+          });
+          expect(res).toBeTrue();
+        });
+
+        component.comments$.subscribe((res) => {
+          expect(statusService.find).toHaveBeenCalledOnceWith('transactions', 'tx5n59fvxk4z');
+          expect(res).toEqual(getEstatusApiResponse);
+        });
+        done();
+      });
+
+      it('should update allowedPerDiemRateOptions$, isIndividualProjectsEnabled$, individualProjectIds$ and etxn$ correctly', (done) => {
+        component.ionViewWillEnter();
+        component.allowedPerDiemRateOptions$.subscribe((res) => {
+          expect(res).toEqual(allowedPerDiemRateOptionsData1);
+        });
+
+        component.isIndividualProjectsEnabled$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.individualProjectIds$.subscribe((res) => {
+          expect(res).toEqual([290054, 316444, 316446, 149230, 316442, 316443]);
+        });
+
+        component.etxn$.subscribe((res) => {
+          expect(component.getEditExpense).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(unflattenedTxnData);
+        });
+        done();
+      });
+
+      it('should update isProjectsEnabled$, customInputs$, isCostCentersEnabled$ and paymentModes$', (done) => {
+        component.ionViewWillEnter();
+        component.isProjectsEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.customInputs$.subscribe((res) => {
+          expect(res).toEqual(perDiemCustomInputsData2);
+        });
+
+        component.isCostCentersEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.paymentModes$.subscribe((res) => {
+          expect(component.getPaymentModes).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(paymentModesData);
+        });
+        done();
+      });
+
+      it('should update the costCenters$, recentlyUsedCostCenters$ and reports$ correctly', (done) => {
+        component.ionViewWillEnter();
+        component.costCenters$.subscribe((res) => {
+          expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+          expect(res).toEqual(expectedCCdata3);
+        });
+
+        component.recentlyUsedCostCenters$.subscribe((res) => {
+          expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledOnceWith(
+            expectedCCdata3,
+            recentlyUsedRes
+          );
+          expect(res).toEqual(expectedCCdata2);
+        });
+
+        component.reports$.subscribe((res) => {
+          expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+          expect(res).toEqual(perDiemReportsData1);
+        });
+
+        expect(component.setupTfcDefaultValues).toHaveBeenCalledTimes(1);
+        done();
+      });
+
+      it('should set costCenters to empty array if cost centers are not enabled in orgSettings', (done) => {
+        const mockOrgSettings = cloneDeep(orgSettingsRes);
+        mockOrgSettings.cost_centers.enabled = false;
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        component.ionViewWillEnter();
+        component.costCenters$.subscribe((res) => {
+          expect(orgUserSettingsService.getAllowedCostCenters).not.toHaveBeenCalled();
+          expect(res).toEqual([]);
+        });
+        done();
+      });
+
+      it('should set isAmountCapped$, isAmountDisabled$ and isCriticalPolicyViolated$ correctly', (done) => {
+        component.ionViewWillEnter();
+        component.isAmountCapped$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isAmountDisabled$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isCriticalPolicyViolated$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+        expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
+        done();
+      });
+
+      it('should set isCriticalPolicyViolated$ to true if policy_amount is lesser than 0.0001', (done) => {
+        const mockTxn = cloneDeep(unflattenedTxnData);
+        mockTxn.tx.policy_amount = 0.00009;
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxn));
+        component.ionViewWillEnter();
+        component.isCriticalPolicyViolated$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+        done();
+      });
+
+      it('should set num_days if from_dt and to_dt values changes in form', (done) => {
+        component.ionViewWillEnter();
+        component.fg.patchValue({
+          from_dt: '2023-08-01',
+          to_dt: '2023-08-03',
+        });
+        expect(component.fg.controls.num_days.value).toEqual(3);
+        done();
+      });
+
+      it('should set num_days as 1 if from_dt and to_dt values are same', (done) => {
+        component.ionViewWillEnter();
+        component.fg.patchValue({
+          from_dt: '2023-08-01',
+          to_dt: '2023-08-01',
+        });
+        expect(component.fg.controls.num_days.value).toEqual(1);
+        done();
+      });
+
+      it('should set to_dt if from_dt and num_days values changes in form', (done) => {
+        component.ionViewWillEnter();
+        dateService.getUTCDate.and.returnValue(new Date('2023-08-01'));
+        component.fg.patchValue({
+          from_dt: '2023-08-01',
+          num_days: 3,
+        });
+        expect(component.fg.controls.to_dt.value).toEqual('2023-08-03');
+        expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-08-01'));
+        done();
+      });
+
+      it('should set currencyObj if per_diem_rate, num_days and homeCurrency changes', (done) => {
+        currencyService.getAmountWithCurrencyFraction.and.returnValue(90);
+        component.ionViewWillEnter();
+        component.fg.patchValue({
+          per_diem_rate: perDiemRatesData1,
+          num_days: 3,
+          homeCurrency: 'USD',
+        });
+        expect(component.fg.controls.currencyObj.value).toEqual(currencyObjData5);
+        expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledOnceWith(90, 'USD');
+        done();
+      });
+
+      it('should set currencyObj if per_diem_rate, num_days and homeCurrency changes and if perDiemRate currency does not match with homeCurrency', (done) => {
+        currencyService.getAmountWithCurrencyFraction.and.returnValues(10800, 900);
+        component.ionViewWillEnter();
+        component.fg.patchValue({
+          per_diem_rate: perDiemRatesData2,
+          num_days: 3,
+          homeCurrency: 'USD',
+        });
+        expect(component.fg.controls.currencyObj.value).toEqual(currencyObjData6);
+        expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledTimes(2);
+        expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(10800, 'USD');
+        expect(currencyService.getAmountWithCurrencyFraction).toHaveBeenCalledWith(900, 'INR');
+        done();
+      });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ correctly if paymentMode changed and paymentMode.acc.type equals PERSONAL account', (done) => {
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
+        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ to false if paymentMode changed and paymentMode.acc is undefined', (done) => {
+        const mockAccountsData = cloneDeep(accountsData[0]);
+        mockAccountsData.acc = undefined;
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(mockAccountsData);
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+          done();
+        });
+      });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ to false if paymentMode changed and paymentMode is undefined', (done) => {
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(undefined);
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).not.toHaveBeenCalled();
+          expect(res).toBeFalse();
+          done();
+        });
+      });
+
+      it('should autofill the per diem form', fakeAsync(() => {
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData1);
+        component.selectedProject$.subscribe((res) => {
+          expect(res).toEqual(projects[0]);
+        });
+      }));
+
+      it('should set project to null in form if orgUserSettings.preferences is undefined', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.project_id = undefined;
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+        mockOrgUserSettings.preferences = undefined;
+        orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettings));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData2);
+      }));
+
+      it('should set per_diem_rate if etxn.tx.per_diem_rate_id is defined', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.per_diem_rate_id = 4213;
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData3);
+      }));
+
+      it('should set report if etxn.tx.report_id is defined', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.report_id = 'rp35DK02IvMP';
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData4);
+      }));
+
+      it('should set report if etxn.tx.report_id is undefined and autoSubmission report name is empty with report state as DRAFT', fakeAsync(() => {
+        reportService.getAutoSubmissionReportName.and.returnValue(of(''));
+        reportService.getFilteredPendingReports.and.returnValue(of(draftReportPerDiemData));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData5);
+      }));
+
+      it('should set costCenter if costCenter length is 1 and mode is add', fakeAsync(() => {
+        component.getNewExpense = jasmine.createSpy().and.returnValue(of(unflattenedExpWoCostCenter));
+        orgUserSettingsService.getAllowedCostCenters.and.returnValue(of([costCentersData[0]]));
+        activatedRoute.snapshot.params.id = undefined;
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData6);
+        component.selectedCostCenter$.subscribe((res) => {
+          expect(res).toEqual(costCentersData[0]);
+        });
+      }));
+
+      it('should set from_dt and to_dt if etxn.tx.to_dt and etxn.tx.from_dt are defined', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        dateService.getUTCDate.and.returnValue(new Date('2023-08-01'));
+        mockTxnData.tx.to_dt = new Date('2023-08-03');
+        mockTxnData.tx.from_dt = new Date('2023-08-01');
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.fg.value).toEqual(perDiemFormValuesData7);
+      }));
+
+      it('should autofill project and costCenter if autofill is enabled and recentProjects and recentCostCenters are available', fakeAsync(() => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.project_id = null;
+        mockTxnData.tx.cost_center_id = null;
+        mockTxnData.tx.state = 'DRAFT';
+        component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
+        recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(projects));
+        recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(expectedCCdata2));
+        component.ionViewWillEnter();
+        tick(1000);
+        expect(component.recentProjects).toEqual([
+          { label: 'Customer Mapped Project', value: projects[0] },
+          { label: 'Abercrombie International Group', value: projects[1] },
+        ]);
+        expect(component.fg.controls.project.value).toEqual(projects[0]);
+        expect(component.presetProjectId).toEqual(257528);
+        expect(component.recentCostCenters).toEqual(expectedCCdata2);
+        expect(component.fg.controls.costCenter.value).toEqual(expectedCCdata2[0].value);
+        expect(component.presetCostCenterId).toEqual(2411);
+      }));
+
+      it('should set paymentModeInvalid$', fakeAsync(() => {
+        spyOn(component, 'isPaymentModeValid').and.returnValue(of(false));
+        component.ionViewWillEnter();
+        tick(1000);
+        component.paymentModeInvalid$.subscribe((res) => {
+          expect(component.isPaymentModeValid).toHaveBeenCalledTimes(1);
+          expect(res).toBeFalse();
+        });
+      }));
     });
   });
 }
