@@ -1,7 +1,7 @@
-import { Component, forwardRef, Input } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { noop } from 'rxjs';
+import { ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
+import { noop } from 'rxjs';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
 
@@ -36,11 +36,15 @@ export class DependentFieldComponent implements ControlValueAccessor {
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (_: unknown) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
+  constructor(
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  async openModal() {
+  async openModal(): Promise<void> {
     const selectionModal = await this.modalController.create({
       component: DependentFieldModalComponent,
       componentProps: {
@@ -57,15 +61,20 @@ export class DependentFieldComponent implements ControlValueAccessor {
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
+    const { data } = (await selectionModal.onWillDismiss()) as {
+      data: {
+        value: string;
+      };
+    };
 
     if (data) {
       this.displayValue = data.value;
       this.onChangeCallback(this.displayValue);
+      this.cdr.detectChanges();
     }
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
@@ -73,11 +82,11 @@ export class DependentFieldComponent implements ControlValueAccessor {
     this.displayValue = val;
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: (_: unknown) => void): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: () => void): void {
     this.onTouchedCallback = fn;
   }
 }

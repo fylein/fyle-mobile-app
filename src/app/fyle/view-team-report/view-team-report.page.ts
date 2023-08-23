@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { Observable, from, noop, Subject, concat, forkJoin } from 'rxjs';
+import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -30,6 +30,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PdfExport } from 'src/app/core/models/pdf-exports.model';
+import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -118,6 +119,16 @@ export class ViewTeamReportPage implements OnInit {
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
+  loadReportDetails$ = new BehaviorSubject<void>(null);
+
+  eou: ExtendedOrgUser;
+
+  reportNameChangeStartTime: number;
+
+  reportNameChangeEndTime: number;
+
+  timeSpentOnEditingReportName: number;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -186,10 +197,15 @@ export class ViewTeamReportPage implements OnInit {
     );
   }
 
-  loadReports() {
-    return from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
-      finalize(() => from(this.loaderService.hideLoader()))
+  loadReports(): Observable<ExtendedReport> {
+    return this.loadReportDetails$.pipe(
+      tap(() => this.loaderService.showLoader()),
+      switchMap(() =>
+        this.reportService
+          .getReport(this.activatedRoute.snapshot.params.id)
+          .pipe(finalize(() => this.loaderService.hideLoader()))
+      ),
+      shareReplay(1)
     );
   }
 
@@ -209,6 +225,8 @@ export class ViewTeamReportPage implements OnInit {
 
     this.erpt$ = this.loadReports();
     this.eou$ = from(this.authService.getEou());
+
+    this.eou$.subscribe((eou) => (this.eou = eou));
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
       startWith(0),
@@ -566,5 +584,67 @@ export class ViewTeamReportPage implements OnInit {
         }, 500);
       });
     }
+  }
+
+  trackReportNameChange(): void {
+    this.reportNameChangeEndTime = new Date().getTime();
+    this.timeSpentOnEditingReportName = (this.reportNameChangeEndTime - this.reportNameChangeStartTime) / 1000;
+    this.trackingService.reportNameChange({
+      Time_spent: this.timeSpentOnEditingReportName,
+      Roles: this.eou?.ou.roles,
+    });
+  }
+
+  showReportNameChangeSuccessToast(): void {
+    const message = 'Report name changed successfully.';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+      panelClass: ['msb-success'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  updateReportName(reportName: string): void {
+    this.erpt$
+      .pipe(
+        take(1),
+        switchMap((erpt) => {
+          erpt.rp_purpose = reportName;
+          return this.reportService.approverUpdateReportPurpose(erpt);
+        })
+      )
+      .subscribe(() => {
+        this.loadReportDetails$.next();
+        this.showReportNameChangeSuccessToast();
+        this.trackReportNameChange();
+      });
+  }
+
+  editReportName(): void {
+    this.reportNameChangeStartTime = new Date().getTime();
+    this.erpt$
+      .pipe(take(1))
+      .pipe(
+        switchMap((erpt) => {
+          const editReportNamePopover = this.popoverController.create({
+            component: EditReportNamePopoverComponent,
+            componentProps: {
+              reportName: erpt.rp_purpose,
+            },
+            cssClass: 'fy-dialog-popover',
+          });
+          return editReportNamePopover;
+        }),
+        tap((editReportNamePopover) => editReportNamePopover.present()),
+        switchMap(
+          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>
+        )
+      )
+      .subscribe((editReportNamePopoverDetails) => {
+        const newReportName = editReportNamePopoverDetails?.data?.reportName;
+        if (newReportName) {
+          this.updateReportName(newReportName);
+        }
+      });
   }
 }

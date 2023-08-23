@@ -4,8 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { IonicModule, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-
+import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { TestCases1 } from './add-edit-per-diem-1.page.spec';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
@@ -36,6 +35,8 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { DateService } from 'src/app/core/services/date.service';
+import { TestCases2 } from './add-edit-per-diem-2.page.spec';
+import { TestCases3 } from './add-edit-per-diem-3.page.spec';
 
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
@@ -116,7 +117,6 @@ describe('AddEditPerDiemPage', () => {
       'getAllowedCostCenters',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['addDaysToDate', 'getUTCDate']);
@@ -233,10 +233,6 @@ describe('AddEditPerDiemPage', () => {
           useValue: orgSettingsServiceSpy,
         },
         {
-          provide: Platform,
-          useValue: platformSpy,
-        },
-        {
           provide: StorageService,
           useValue: storageServiceSpy,
         },
@@ -279,4 +275,6 @@ describe('AddEditPerDiemPage', () => {
   };
 
   TestCases1(getTestBed);
+  TestCases2(getTestBed);
+  TestCases3(getTestBed);
 });
