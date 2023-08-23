@@ -1,6 +1,6 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
 import { concat, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
+import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
@@ -18,6 +18,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import { CardStatsComponent } from './card-stats/card-stats.component';
 
 enum DashboardState {
   home,
@@ -32,6 +33,8 @@ enum DashboardState {
 export class DashboardPage {
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
 
+  @ViewChild(CardStatsComponent) cardStatsComponent: CardStatsComponent;
+
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
   orgUserSettings$: Observable<OrgUserSettings>;
@@ -39,8 +42,6 @@ export class DashboardPage {
   orgSettings$: Observable<OrgSettings>;
 
   homeCurrency$: Observable<string>;
-
-  isCCCEnabled$: Observable<boolean>;
 
   isConnected$: Observable<boolean>;
 
@@ -117,18 +118,13 @@ export class DashboardPage {
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
-    this.isCCCEnabled$ = this.orgSettings$.pipe(
-      map(
-        (orgSettings) =>
-          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled
-      )
-    );
-
     this.orgSettings$.subscribe((orgSettings) => {
       this.setupActionSheet(orgSettings);
     });
 
     this.statsComponent.init();
+    this.cardStatsComponent.init();
+
     this.tasksComponent.init();
     /**
      * What does the _ mean in the subscribe block?

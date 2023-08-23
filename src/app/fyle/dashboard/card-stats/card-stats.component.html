@@ -1,36 +1,34 @@
-<div *ngIf="cardTransactionsAndDetails$ | async as cardTransactionsAndDetails" class="stats--ccc-cards-section">
-  <ng-container *ngIf="cardTransactionsAndDetails.length > 0">
-    <div class="stats--header stats--ccc-stats-header">CARD SPEND</div>
+<ng-container *ngIf="isCCCEnabled$ | async">
+  <div *ngIf="cardTransactionsAndDetails$ | async as cardTransactionsAndDetails" class="stats--ccc-cards-section">
+    <ng-container *ngIf="cardTransactionsAndDetails?.length > 0">
+      <div class="stats--header stats--ccc-stats-header">CARD SPEND</div>
 
-    <ng-container *ngIf="cardTransactionsAndDetails.length > 1; else singleCard">
-      <app-spent-cards
-        [spentCards]="cardTransactionsAndDetails"
-        [homeCurrency]="homeCurrency$"
-        [currencySymbol]="currencySymbol$"
-      ></app-spent-cards>
-    </ng-container>
-
-    <ng-template #singleCard>
-      <div class="stats--single-ccc">
-        <app-card-detail
-          [cardDetail]="cardTransactionsAndDetails[0]"
+      <ng-container *ngIf="cardTransactionsAndDetails.length > 1; else singleCard">
+        <app-spent-cards
+          [spentCards]="cardTransactionsAndDetails"
           [homeCurrency]="homeCurrency$"
           [currencySymbol]="currencySymbol$"
-        >
-        </app-card-detail>
-      </div>
-    </ng-template>
-  </ng-container>
-
-  <!-- Show add card empty state when the user doesn't have any cards, and has yodlee / personal cards enabled to allow adding cards -->
-  <ng-container *ngIf="isVisaRTFEnabled$ | async as isVisaRTFEnabled">
-    <ng-container *ngIf="isMastercardRTFEnabled$ | async as isMastercardRTFEnabled">
-      <ng-container *ngIf="cardTransactionsAndDetails.length === 0 && (isVisaRTFEnabled || isMastercardRTFEnabled)">
-        <div class="stats--header stats--ccc-stats-header">CARD SPEND</div>
-        <div class="stats--ccc-zero-state">
-          <app-add-card [showZeroStateMessage]="true"></app-add-card>
-        </div>
+        ></app-spent-cards>
       </ng-container>
+
+      <ng-template #singleCard>
+        <div class="stats--single-ccc">
+          <app-card-detail
+            [cardDetail]="cardTransactionsAndDetails[0]"
+            [homeCurrency]="homeCurrency$"
+            [currencySymbol]="currencySymbol$"
+          >
+          </app-card-detail>
+        </div>
+      </ng-template>
     </ng-container>
-  </ng-container>
-</div>
+
+    <!-- Show add card empty state when the user doesn't have any cards, and has visa / mastercard rtf enabled to allow adding cards -->
+    <ng-container *ngIf="cardTransactionsAndDetails?.length === 0 && (canAddCorporateCards$ | async)">
+      <div class="stats--header stats--ccc-stats-header">CARD SPEND</div>
+      <div class="stats--ccc-zero-state">
+        <app-add-card [showZeroStateMessage]="true"></app-add-card>
+      </div>
+    </ng-container>
+  </div>
+</ng-container>
