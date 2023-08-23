@@ -16,7 +16,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
-import { CardStatsComponent } from './card-stats/card-stats.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 
