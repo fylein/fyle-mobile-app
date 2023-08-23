@@ -19,7 +19,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { ErrorComponent } from './error/error.component';
-import { authResData1, authResData2 } from 'src/app/core/mock-data/auth-reponse.data';
+import { authResData1, authResData2, samlResData1, samlResData2 } from 'src/app/core/mock-data/auth-reponse.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { MatButton, MatButtonModule } from '@angular/material/button';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
@@ -27,6 +27,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
+import { HttpErrorResponse } from '@angular/common/http';
 
 describe('SignInPage', () => {
   let component: SignInPage;
@@ -172,7 +173,7 @@ describe('SignInPage', () => {
   it('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
     const browserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'executeScript', 'close']);
     browserSpy.on.and.returnValue(of(new Event('event')));
-    browserSpy.executeScript.and.returnValue(Promise.resolve([JSON.stringify({ SAMLResponse: 'samlResponse' })]));
+    browserSpy.executeScript.and.returnValue(Promise.resolve([JSON.stringify(samlResData1)]));
     browserSpy.close.and.returnValue(null);
     spyOn(component, 'checkSAMLResponseAndSignInUser');
     inAppBrowserService.create.and.returnValue(browserSpy);
@@ -183,7 +184,7 @@ describe('SignInPage', () => {
     tick(1000);
 
     expect(inAppBrowserService.create).toHaveBeenCalledOnceWith('url' + '&RelayState=MOBILE', '_blank', 'location=yes');
-    expect(component.checkSAMLResponseAndSignInUser).toHaveBeenCalledOnceWith({ SAMLResponse: 'samlResponse' });
+    expect(component.checkSAMLResponseAndSignInUser).toHaveBeenCalledOnceWith(samlResData1);
   }));
 
   describe('checkSAMLResponseAndSignInUser():', () => {
@@ -197,9 +198,9 @@ describe('SignInPage', () => {
       component.fg.controls.email.setValue('ajain@fyle.in');
       fixture.detectChanges();
 
-      await component.checkSAMLResponseAndSignInUser({});
+      await component.checkSAMLResponseAndSignInUser(samlResData1);
 
-      expect(routerAuthService.handleSignInResponse).toHaveBeenCalledOnceWith({});
+      expect(routerAuthService.handleSignInResponse).toHaveBeenCalledOnceWith(samlResData1);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
       expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
@@ -209,8 +210,8 @@ describe('SignInPage', () => {
     it('should show error if saml response has an error', () => {
       spyOn(component, 'handleError');
 
-      component.checkSAMLResponseAndSignInUser({ response_status_code: '500', error: 'error' });
-      expect(component.handleError).toHaveBeenCalledOnceWith({ status: 500 });
+      component.checkSAMLResponseAndSignInUser(samlResData2);
+      expect(component.handleError).toHaveBeenCalledOnceWith({ status: 500 } as HttpErrorResponse);
     });
   });
 
@@ -249,13 +250,13 @@ describe('SignInPage', () => {
 
     it('should throw error if email does not exist', () => {
       component.fg.controls.email.setValue('email@gmail.com');
-      routerAuthService.checkEmailExists.and.returnValue(throwError(() => new Error('error')));
+      routerAuthService.checkEmailExists.and.returnValue(throwError(() => new HttpErrorResponse({ error: 'error' })));
       spyOn(component, 'handleError');
 
       component.checkIfEmailExists();
 
       expect(component.handleError).toHaveBeenCalledTimes(2);
-      expect(component.handleError).toHaveBeenCalledWith(new Error('error'));
+      expect(component.handleError).toHaveBeenCalledWith(new HttpErrorResponse({ error: 'error' }));
     });
 
     it('should mark form as touched if email field is not valid', () => {
@@ -275,7 +276,7 @@ describe('SignInPage', () => {
       popoverController.create.and.returnValue(errorPopoverSpy);
 
       const header = 'Sorry... Something went wrong!';
-      const error = { status: 500 };
+      const error = { status: 500 } as HttpErrorResponse;
 
       await component.handleError(error);
 
@@ -294,7 +295,7 @@ describe('SignInPage', () => {
       popoverController.create.and.returnValue(errorPopoverSpy);
 
       const header = 'Temporary Lockout';
-      const error = { status: 433 };
+      const error = { status: 433 } as HttpErrorResponse;
 
       await component.handleError(error);
 
@@ -330,7 +331,7 @@ describe('SignInPage', () => {
       const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
       popoverController.create.and.returnValue(errorPopoverSpy);
 
-      const error = { status: 400 };
+      const error = { status: 400 } as HttpErrorResponse;
 
       await component.handleError(error);
 
@@ -340,6 +341,17 @@ describe('SignInPage', () => {
         'pending_verification',
         { email: component.fg.controls.email.value },
       ]);
+    });
+
+    it('should navigate to disabled page if error status is 422', async () => {
+      const errorPopoverSpy = jasmine.createSpyObj('errorPopover', ['present']);
+      popoverController.create.and.returnValue(errorPopoverSpy);
+
+      const error = { status: 422 } as HttpErrorResponse;
+
+      await component.handleError(error);
+
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'disabled']);
     });
   });
 
@@ -369,7 +381,7 @@ describe('SignInPage', () => {
     it('show error if sign in fails', async () => {
       component.fg.controls.password.setValue('password');
       component.fg.controls.email.setValue('email');
-      routerAuthService.basicSignin.and.returnValue(throwError(() => new Error('error')));
+      routerAuthService.basicSignin.and.returnValue(throwError(() => new HttpErrorResponse({ error: 'error' })));
       authService.refreshEou.and.returnValue(of(apiEouRes));
       trackingService.onSignin.and.callThrough();
       pushNotificationService.initPush.and.callThrough();
@@ -380,7 +392,7 @@ describe('SignInPage', () => {
       await component.signInUser();
 
       expect(routerAuthService.basicSignin).toHaveBeenCalledOnceWith('email', 'password');
-      expect(component.handleError).toHaveBeenCalledOnceWith(new Error('error'));
+      expect(component.handleError).toHaveBeenCalledOnceWith(new HttpErrorResponse({ error: 'error' }));
 
       const errorPopup = fixture.debugElement.query(By.css('.dialog-popover'));
       expect(errorPopup).toBeDefined();

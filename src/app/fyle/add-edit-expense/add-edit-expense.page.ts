@@ -3415,8 +3415,7 @@ export class AddEditExpensePage implements OnInit {
             type: customInput.type,
             value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
-          customInpustWithValue.concat(dependentFieldsWithValue);
-          return customInpustWithValue;
+          return [...customInpustWithValue, ...dependentFieldsWithValue];
         }
       )
     );
@@ -3923,7 +3922,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
       switchMap((continueWithTransaction: { comment: string }) => {
         if (continueWithTransaction) {
-          if (continueWithTransaction.comment === '') {
+          if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
             continueWithTransaction.comment = 'No policy violation explaination provided';
           }
           return from(this.loaderService.showLoader()).pipe(

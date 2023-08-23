@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { distinctUntilKeyChanged, finalize, map, Observable, of, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject, distinctUntilKeyChanged, finalize, map, of, takeUntil } from 'rxjs';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
@@ -29,9 +29,11 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
   constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: FormBuilder) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    return;
+  }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes?.parentFieldId?.firstChange) {
       this.onPageExit$ = new Subject();
     }
@@ -49,7 +51,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.onPageExit$?.next(null);
     this.onPageExit$?.complete();
   }
@@ -59,7 +61,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     txCustomProperties: CustomProperty<string>[],
     dependentFields: ExpenseField[],
     parentField: { id: number; value: string }
-  ) {
+  ): void {
     //Get dependent field for the field whose id is parentFieldId
     const dependentField = dependentFields.find((dependentField) => dependentField.parent_field_id === parentField.id);
 
@@ -128,7 +130,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
     dependentFieldControl.valueChanges
       .pipe(takeUntil(this.onPageExit$), distinctUntilKeyChanged('value'))
-      .subscribe((value) => {
+      .subscribe((value: { id: number; label: string; parent_field_id: number; value: string }) => {
         this.onDependentFieldChanged(value);
       });
 
@@ -145,7 +147,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     this.dependentFieldsFormArray.push(dependentFieldControl, { emitEvent: false });
   }
 
-  removeAllDependentFields(updatedFieldIndex: number) {
+  removeAllDependentFields(updatedFieldIndex: number): void {
     //Remove all dependent field controls after the changed one
     for (let i = this.dependentFields.length - 1; i > updatedFieldIndex; i--) {
       this.dependentFieldsFormArray.removeAt(i);
@@ -156,9 +158,11 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   onDependentFieldChanged(data: { id: number; label: string; parent_field_id: number; value: string }): void {
+    //TODO: Fix Types Here
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     const updatedFieldIndex = this.dependentFieldsFormArray.value.findIndex(
-      (depField) => depField.label === data.label
-    );
+      (depField: { label: string }) => depField.label === data.label
+    ) as number;
 
     //If this is not the last dependent field then remove all fields after this one and create new field based on this field.
     if (updatedFieldIndex !== this.dependentFieldsFormArray.length - 1) {
