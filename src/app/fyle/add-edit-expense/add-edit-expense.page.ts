@@ -460,6 +460,10 @@ export class AddEditExpensePage implements OnInit {
     private platformHandlerService: PlatformHandlerService
   ) {}
 
+  get selectedCostCenter(): Observable<CostCenter | null> {
+    return this.selectedCostCenter$.asObservable();
+  }
+
   get isExpandedView(): boolean {
     return this._isExpandedView;
   }
@@ -2641,9 +2645,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupSelectedCostCenterObservable(): void {
-    this.fg.controls.costCenter.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
+    this.fg.controls.costCenter.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((costCenter: CostCenter) => {
+      if (!this.initialFetch) {
+        this.selectedCostCenter$.next(costCenter);
+      }
+    });
   }
 
   getCCCpaymentMode(): void {
