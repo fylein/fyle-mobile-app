@@ -10,13 +10,15 @@
       ></app-spent-cards>
     </ng-container>
 
-    <ng-template #singleCard class="stats--single-ccc">
-      <app-card-detail
-        [cardDetail]="cardTransactionsAndDetails[0]"
-        [homeCurrency]="homeCurrency$"
-        [currencySymbol]="currencySymbol$"
-      >
-      </app-card-detail>
+    <ng-template #singleCard>
+      <div class="stats--single-ccc">
+        <app-card-detail
+          [cardDetail]="cardTransactionsAndDetails[0]"
+          [homeCurrency]="homeCurrency$"
+          [currencySymbol]="currencySymbol$"
+        >
+        </app-card-detail>
+      </div>
     </ng-template>
   </ng-container>
 
