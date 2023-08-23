@@ -19,6 +19,7 @@ import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { CardDetails } from '../models/card-details.model';
 import { DataFeedSource } from '../enums/data-feed-source.enum';
 import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
+import { PlatformCorporateCardDetails } from '../models/platform-corporate-card-details.model';
 
 type Config = Partial<{
   offset: number;
@@ -120,6 +121,41 @@ export class CorporateCreditCardExpenseService {
     queryString = queryString.slice(0, -1);
     queryString += ')';
     return queryString;
+  }
+
+  getExpenseDetailsInCardsPlatform(
+    cards: PlatformCorporateCard[],
+    statsResponse: CardAggregateStats[]
+  ): PlatformCorporateCardDetails[] {
+    return cards.map((card: PlatformCorporateCard) => {
+      const formattedCard: PlatformCorporateCardDetails = {
+        card,
+        stats: {
+          totalDraftTxns: 0,
+          totalDraftValue: 0,
+          totalCompleteTxns: 0,
+          totalCompleteExpensesValue: 0,
+          totalTxnsCount: 0,
+          totalAmountValue: 0,
+        },
+      };
+
+      statsResponse.forEach((stats) => {
+        if (stats.key[1].column_value === card.card_number && stats.key[2].column_value === 'DRAFT') {
+          formattedCard.stats.totalDraftTxns = stats.aggregates[0].function_value;
+          formattedCard.stats.totalDraftValue = stats.aggregates[1].function_value;
+        } else if (stats.key[1].column_value === card.card_number && stats.key[2].column_value === 'COMPLETE') {
+          formattedCard.stats.totalCompleteTxns = stats.aggregates[0].function_value;
+          formattedCard.stats.totalCompleteExpensesValue = stats.aggregates[1].function_value;
+        }
+
+        formattedCard.stats.totalTxnsCount = formattedCard.stats.totalDraftTxns + formattedCard.stats.totalCompleteTxns;
+        formattedCard.stats.totalAmountValue =
+          formattedCard.stats.totalDraftValue + formattedCard.stats.totalCompleteExpensesValue;
+      });
+
+      return formattedCard;
+    });
   }
 
   getExpenseDetailsInCards(uniqueCards: CardDetails[], statsResponse: CardAggregateStats[]): UniqueCardStats[] {

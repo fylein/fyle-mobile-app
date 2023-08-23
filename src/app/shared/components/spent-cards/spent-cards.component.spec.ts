@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
-import { cardDetailRes } from 'src/app/core/mock-data/card-detail-data';
+import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail-data';
 import { SpentCardsComponent } from './spent-cards.component';
 import { SwiperModule } from 'swiper/angular';
 import { getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
@@ -27,7 +27,7 @@ describe('SpentCardsComponent', () => {
   });
 
   it('should render cards in swiper component', () => {
-    component.spentCards = cardDetailRes;
+    component.spentCards = cardDetailsRes;
     fixture.detectChanges();
     const swiper = getElementBySelector(fixture, 'swiper');
     expect(swiper).toBeTruthy();
@@ -45,7 +45,7 @@ describe('SpentCardsComponent', () => {
   });
 
   it('should render single card if only one card is present', () => {
-    component.spentCards = [cardDetailRes[0]];
+    component.spentCards = [cardDetailsRes[0]];
     fixture.detectChanges();
     const swiper = getElementBySelector(fixture, 'swiper');
     expect(swiper).toBeTruthy();
@@ -57,7 +57,7 @@ describe('SpentCardsComponent', () => {
   });
 
   it('should have add new card swiper slide at the end', () => {
-    component.spentCards = cardDetailRes;
+    component.spentCards = cardDetailsRes;
     fixture.detectChanges();
 
     const swiperSlides = getAllElementsBySelector(fixture, '.swiper-slide');

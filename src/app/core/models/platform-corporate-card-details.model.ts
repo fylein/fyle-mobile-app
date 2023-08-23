@@ -1,6 +1,6 @@
 import { PlatformCorporateCard } from './platform/platform-corporate-card.model';
 
-export interface NewCardDetail {
+export interface PlatformCorporateCardDetails {
   card: PlatformCorporateCard;
   stats: {
     totalTxnsCount: number;
