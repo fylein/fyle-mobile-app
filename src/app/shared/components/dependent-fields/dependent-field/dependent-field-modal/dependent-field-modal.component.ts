@@ -40,7 +40,7 @@ export class DependentFieldModalComponent implements AfterViewInit {
 
   getDependentFieldOptions(searchQuery: string): Observable<DependentFieldOption[]> {
     this.isLoading = true;
-
+    this.cdr.detectChanges();
     return this.dependentFieldsService
       .getOptionsForDependentField({
         fieldId: this.fieldId,
@@ -57,7 +57,10 @@ export class DependentFieldModalComponent implements AfterViewInit {
           }))
         ),
         map((dependentFieldOptions) => this.getFinalDependentFieldValues(dependentFieldOptions, this.currentSelection)),
-        finalize(() => (this.isLoading = false))
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
       );
   }
 
