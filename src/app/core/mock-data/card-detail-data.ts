@@ -1,34 +1,38 @@
-import { CardDetail } from '../models/card-detail.model';
+import { NewCardDetail } from '../models/card-detail.model';
+import { bankFeedCard, statementUploadedCard, visaRTFCard } from './platform-corporate-card.data';
 
-export const cardDetailRes: CardDetail[] = [
+export const cardDetailRes: NewCardDetail[] = [
   {
-    cardNumber: '8698',
-    cardName: 'DAMNA',
-    totalDraftTxns: 960,
-    totalDraftValue: 565633,
-    totalCompleteTxns: 0,
-    totalCompleteExpensesValue: 0,
-    totalTxnsCount: 960,
-    totalAmountValue: 565633,
+    card: visaRTFCard,
+    stats: {
+      totalDraftTxns: 960,
+      totalDraftValue: 565633,
+      totalCompleteTxns: 0,
+      totalCompleteExpensesValue: 0,
+      totalTxnsCount: 960,
+      totalAmountValue: 565633,
+    },
   },
   {
-    cardNumber: '869',
-    cardName: 'PEX BANK',
-    totalDraftTxns: 109,
-    totalDraftValue: 6598.172,
-    totalCompleteTxns: 0,
-    totalCompleteExpensesValue: 0,
-    totalTxnsCount: 109,
-    totalAmountValue: 6598.172,
+    card: statementUploadedCard,
+    stats: {
+      totalDraftTxns: 109,
+      totalDraftValue: 6598.172,
+      totalCompleteTxns: 0,
+      totalCompleteExpensesValue: 0,
+      totalTxnsCount: 109,
+      totalAmountValue: 6598.172,
+    },
   },
   {
-    cardNumber: '6975',
-    cardName: 'TEST-999',
-    totalDraftTxns: 9,
-    totalDraftValue: 2624.27,
-    totalCompleteTxns: 0,
-    totalCompleteExpensesValue: 0,
-    totalTxnsCount: 9,
-    totalAmountValue: 2624.27,
+    card: bankFeedCard,
+    stats: {
+      totalDraftTxns: 9,
+      totalDraftValue: 2624.27,
+      totalCompleteTxns: 0,
+      totalCompleteExpensesValue: 0,
+      totalTxnsCount: 9,
+      totalAmountValue: 2624.27,
+    },
   },
 ];

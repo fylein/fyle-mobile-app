@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { concat, Observable, of, Subject, Subscription } from 'rxjs';
+import { concat, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
-import { ActionSheetController, NavController, Platform } from '@ionic/angular';
+import { ActionSheetController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
@@ -16,6 +16,12 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
+import { CardStatsComponent } from './card-stats/card-stats.component';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { AddCorporateCardComponent } from '../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { CardAddedComponent } from '../manage-corporate-cards/card-added/card-added.component';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 
 enum DashboardState {
   home,
@@ -30,13 +36,15 @@ enum DashboardState {
 export class DashboardPage implements OnInit {
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
 
+  @ViewChild(CardStatsComponent) cardStatsComponent: CardStatsComponent;
+
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
   orgUserSettings$: Observable<OrgUserSettings>;
 
-  orgSettings$: Observable<any>;
+  orgSettings$: Observable<OrgSettings>;
 
-  homeCurrency$: Observable<any>;
+  homeCurrency$: Observable<string>;
 
   isConnected$: Observable<boolean>;
 
@@ -63,7 +71,9 @@ export class DashboardPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
     private backButtonService: BackButtonService,
-    private navController: NavController
+    private navController: NavController,
+    private popoverController: PopoverController,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
 
   get displayedTaskCount() {
@@ -118,6 +128,8 @@ export class DashboardPage implements OnInit {
     });
 
     this.statsComponent.init();
+    this.cardStatsComponent.init();
+
     this.tasksComponent.init();
     /**
      * What does the _ mean in the subscribe block?
@@ -289,7 +301,7 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  async openAddExpenseActionSheet() {
+  async openAddExpenseActionSheet(): Promise<void> {
     const that = this;
     that.trackingService.dashboardActionSheetOpened();
     const actionSheet = await this.actionSheetController.create({
@@ -299,5 +311,50 @@ export class DashboardPage implements OnInit {
       buttons: that.actionSheetButtons,
     });
     await actionSheet.present();
+  }
+
+  openAddCorporateCardPopover(): void {
+    forkJoin([this.orgSettings$, this.orgUserSettings$]).subscribe(async ([orgSettings, orgUserSettings]) => {
+      const isVisaRTFEnabled =
+        orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled;
+
+      const isMastercardRTFEnabled =
+        orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled;
+
+      const isYodleeEnabled =
+        orgSettings.bank_data_aggregation_settings.allowed &&
+        orgSettings.bank_data_aggregation_settings.enabled &&
+        orgUserSettings.bank_data_aggregation_settings.enabled;
+
+      const popover = await this.popoverController.create({
+        component: AddCorporateCardComponent,
+        cssClass: 'fy-dialog-popover',
+        componentProps: {
+          isVisaRTFEnabled,
+          isMastercardRTFEnabled,
+          isYodleeEnabled,
+        },
+      });
+
+      await popover.present();
+      const popoverResponse = (await popover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
+
+      if (popoverResponse.data?.success) {
+        this.handleEnrollmentSuccess();
+      }
+    });
+  }
+
+  private handleEnrollmentSuccess(): void {
+    this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
+      this.cardStatsComponent.init();
+
+      const cardAddedModal = await this.popoverController.create({
+        component: CardAddedComponent,
+        cssClass: 'pop-up-in-center',
+      });
+
+      await cardAddedModal.present();
+    });
   }
 }

@@ -1,5 +1,14 @@
 @import '../../../../../theme/colors';
 
+.corporate-card-detail {
+  width: calc(100% - 32px);
+  min-height: 85px;
+  position: relative;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 999;
+}
+
 .stats {
   &--menu-button {
     padding: 8px;

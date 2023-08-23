@@ -3,13 +3,25 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';
-import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { CardDetailComponent } from './card-detail.component';
+import { cardDetailRes } from 'src/app/core/mock-data/card-detail-data';
+import { By } from '@angular/platform-browser';
+import { Component, Input } from '@angular/core';
+import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
+
+@Component({
+  selector: 'app-corporate-card',
+  template: '<div></div>',
+})
+class MockCorporateCardComponent {
+  @Input() card: PlatformCorporateCard;
+
+  @Input() hideOptionsMenu: boolean;
+}
 
 describe('CardDetailComponent', () => {
   let component: CardDetailComponent;
@@ -24,7 +36,7 @@ describe('CardDetailComponent', () => {
       'dashboardOnTotalCardExpensesClick',
     ]);
     TestBed.configureTestingModule({
-      declarations: [CardDetailComponent, HumanizeCurrencyPipe, MaskNumber],
+      declarations: [CardDetailComponent, HumanizeCurrencyPipe, MaskNumber, MockCorporateCardComponent],
       imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule],
       providers: [
         FyCurrencyPipe,
@@ -44,7 +56,7 @@ describe('CardDetailComponent', () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    component.cardDetail = expectedUniqueCardStats[0];
+    component.cardDetail = cardDetailRes[0];
     fixture.detectChanges();
   }));
 
@@ -52,13 +64,12 @@ describe('CardDetailComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should check if information is displayed correctly', () => {
-    expect(getTextContent(getElementBySelector(fixture, '.stats--ccc-bank-name'))).toEqual('DAMNA');
-    expect(getTextContent(getElementBySelector(fixture, '.stats--ccc-account-info__mask'))).toEqual('****8698');
-    expect(getTextContent(getElementBySelector(fixture, '.stats--ccc-classified-count'))).toEqual('964');
-    expect(getTextContent(getElementBySelector(fixture, '.stats--ccc-stats-title'))).toEqual(
-      'Incomplete Card Expenses'
-    );
+  it('should display the card correctly', () => {
+    const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
+    expect(card).toBeTruthy();
+
+    expect(card.componentInstance.card).toEqual(component.cardDetail.card);
+    expect(card.componentInstance.hideOptionsMenu).toBeTrue();
   });
 
   describe('goToExpensesPage():', () => {
@@ -66,7 +77,7 @@ describe('CardDetailComponent', () => {
       trackingService.dashboardOnIncompleteCardExpensesClick.and.callThrough();
 
       const queryParams = {
-        filters: JSON.stringify({ state: ['DRAFT'], cardNumbers: [component.cardDetail.cardNumber] }),
+        filters: JSON.stringify({ state: ['DRAFT'], cardNumbers: [component.cardDetail.card.card_number] }),
       };
 
       component.goToExpensesPage('incompleteExpenses', component.cardDetail);
@@ -80,7 +91,10 @@ describe('CardDetailComponent', () => {
       trackingService.dashboardOnTotalCardExpensesClick.and.callThrough();
 
       const queryParams = {
-        filters: JSON.stringify({ state: ['DRAFT,READY_TO_REPORT'], cardNumbers: [component.cardDetail.cardNumber] }),
+        filters: JSON.stringify({
+          state: ['DRAFT,READY_TO_REPORT'],
+          cardNumbers: [component.cardDetail.card.card_number],
+        }),
       };
 
       component.goToExpensesPage('totalExpenses', component.cardDetail);

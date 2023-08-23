@@ -8,5 +8,5 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class AddCardComponent {
   @Input() showZeroStateMessage: boolean;
 
-  @Output() addCardClick: EventEmitter<Event> = new EventEmitter<Event>();
+  @Output() addCardClick = new EventEmitter<void>();
 }
