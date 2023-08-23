@@ -447,7 +447,7 @@ export function TestCases2(getTestBed) {
         });
       });
 
-      it('should return true if source ID is difference and if tentative amount less than expense amount', (done) => {
+      it('should return true if source ID is different and if tentative amount less than expense amount', (done) => {
         spyOn(component, 'getFormValues').and.returnValue({ paymentMode: accountsData[2] });
         component.etxn$ = of(unflattenedTxnWithSourceID2);
         component.amount$ = of(600);
@@ -483,7 +483,7 @@ export function TestCases2(getTestBed) {
         });
       });
 
-      it('should calculate distance for a singe trip in Miles', (done) => {
+      it('should calculate distance for a single trip in Miles', (done) => {
         const control = component.fg.controls.route;
         spyOn(component, 'getFormControl').and.returnValue(control);
         control.setValue({ mileageLocations: mileageLocationData1 });
@@ -581,7 +581,7 @@ export function TestCases2(getTestBed) {
         expect(navController.back).toHaveBeenCalledTimes(1);
       }));
 
-      it('should not show popup and track the view event, navigate back to my expenses page', fakeAsync(() => {
+      it('should not show popup and track the view event, navigate back to my expenses page', () => {
         component.presetLocation = locationData1[0];
         activatedRoute.snapshot.params.id = '123';
 
@@ -590,13 +590,13 @@ export function TestCases2(getTestBed) {
         fixture.detectChanges();
 
         component.showClosePopup();
-        tick(500);
 
         expect(component.close).toHaveBeenCalledTimes(1);
         expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Mileage' });
-      }));
+        expect(popoverController.create).not.toHaveBeenCalled();
+      });
 
-      it('should not show popup and track the view event, navigate back to previous page', fakeAsync(() => {
+      it('should not show popup and track the view event, navigate back to previous page', () => {
         component.presetLocation = locationData1[0];
         activatedRoute.snapshot.params.id = '123';
 
@@ -604,11 +604,11 @@ export function TestCases2(getTestBed) {
         fixture.detectChanges();
 
         component.showClosePopup();
-        tick(500);
 
         expect(navController.back).toHaveBeenCalledTimes(1);
         expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Mileage' });
-      }));
+        expect(popoverController.create).not.toHaveBeenCalled();
+      });
     });
   });
 }
