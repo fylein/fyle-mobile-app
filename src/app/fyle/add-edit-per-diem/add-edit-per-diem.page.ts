@@ -91,7 +91,7 @@ import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { PerDiemFormValue } from 'src/app/core/models/per-diem-form-values.model';
+import { PerDiemFormValue } from 'src/app/core/models/per-diem-form-value.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
@@ -103,6 +103,7 @@ import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
 import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
+import { TransactionState } from 'src/app/core/models/transaction-state.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -805,10 +806,9 @@ export class AddEditPerDiemPage implements OnInit {
         const formValue = this.getFormValues();
         if (formValue.paymentMode?.acc?.type === AccountType.ADVANCE) {
           if (
-            etxn &&
-            etxn.tx.id &&
-            formValue.paymentMode.acc.id === etxn.tx.source_account_id &&
-            etxn.tx.state !== 'DRAFT'
+            etxn?.tx.id &&
+            formValue.paymentMode?.acc?.id === etxn.tx.source_account_id &&
+            etxn.tx.state !== TransactionState.DRAFT
           ) {
             return formValue.paymentMode.acc.tentative_balance_amount + etxn.tx.amount < formValue.currencyObj.amount;
           } else {
@@ -1501,7 +1501,7 @@ export class AddEditPerDiemPage implements OnInit {
            */
           if (
             doRecentProjectIdsExist &&
-            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))
+            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === TransactionState.DRAFT && !etxn.tx.project_id))
           ) {
             const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
 
@@ -1533,7 +1533,7 @@ export class AddEditPerDiemPage implements OnInit {
            */
           if (
             doRecentCostCenterIdsExist &&
-            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))
+            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === TransactionState.DRAFT && !etxn.tx.cost_center_id))
           ) {
             const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
 

@@ -744,8 +744,8 @@ export function TestCases2(getTestBed) {
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
           expect(res).toBeTrue();
+          done();
         });
-        done();
       });
 
       it('should set isBalanceAvailableInAnyAdvanceAccount$ to false if paymentMode changed and paymentMode.acc is undefined', (done) => {
@@ -756,8 +756,8 @@ export function TestCases2(getTestBed) {
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(accountsService.getEMyAccounts).not.toHaveBeenCalled();
           expect(res).toBeFalse();
+          done();
         });
-        done();
       });
 
       it('should set isBalanceAvailableInAnyAdvanceAccount$ to false if paymentMode changed and paymentMode is undefined', (done) => {
@@ -766,8 +766,8 @@ export function TestCases2(getTestBed) {
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(accountsService.getEMyAccounts).not.toHaveBeenCalled();
           expect(res).toBeFalse();
+          done();
         });
-        done();
       });
 
       it('should autofill the per diem form', fakeAsync(() => {
