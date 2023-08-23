@@ -1,28 +1,19 @@
 @import '../../../../theme/colors.scss';
 
-.stats {
-  &--ccc-cards-section {
-    position: relative;
-    top: -104px;
-    margin-bottom: 30%;
-  }
+.card-stats {
+  position: relative;
+  top: -104px;
+  margin-bottom: 30%;
 
-  &--header {
+  &__header {
     font-size: 14px;
     line-height: 18px;
     color: $grey-light;
     font-weight: 500;
-  }
-
-  &--ccc-stats-header {
     margin: 18px 16px 0 16px;
   }
 
-  &--single-ccc {
-    margin: 20px 10px 0px 10px;
-  }
-
-  &--ccc-zero-state {
+  &__zero-state {
     height: 350px;
     margin: 18px 16px 16px 16px;
   }
