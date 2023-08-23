@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { Params, Router } from '@angular/router';
-import { Observable } from 'rxjs';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
@@ -12,9 +11,9 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 export class CardDetailComponent {
   @Input() cardDetail: PlatformCorporateCardDetail;
 
-  @Input() homeCurrency: Observable<string>;
+  @Input() homeCurrency: string;
 
-  @Input() currencySymbol: Observable<string>;
+  @Input() currencySymbol: string;
 
   constructor(private router: Router, private trackingService: TrackingService) {}
 

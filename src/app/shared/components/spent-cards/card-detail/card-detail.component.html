@@ -1,5 +1,5 @@
 <div class="stats--ccc-card-details">
-  <app-corporate-card [card]="cardDetail.card" [hideOptionsMenu]=""></app-corporate-card>
+  <app-corporate-card [card]="cardDetail.card" [hideOptionsMenu]="true"></app-corporate-card>
 </div>
 
 <div class="stats--ccc-stats">
@@ -11,9 +11,9 @@
         </div>
         <div class="stats--ccc-classified-amount">
           <span class="stats--expenses-amount-currency">
-            {{ currencySymbol | async }}
+            {{ currencySymbol }}
           </span>
-          {{ cardDetail.stats.totalDraftValue | humanizeCurrency : (homeCurrency | async) : true }}
+          {{ cardDetail.stats.totalDraftValue | humanizeCurrency : homeCurrency : true }}
         </div>
       </div>
       <div class="stats--ccc-stats-title">
@@ -29,9 +29,9 @@
         </div>
         <div class="stats--ccc-classified-amount">
           <span class="stats--expenses-amount-currency">
-            {{ currencySymbol | async }}
+            {{ currencySymbol }}
           </span>
-          {{ cardDetail.stats.totalAmountValue | humanizeCurrency : (homeCurrency | async) : true }}
+          {{ cardDetail.stats.totalAmountValue | humanizeCurrency : homeCurrency : true }}
         </div>
       </div>
       <div class="stats--ccc-stats-title">

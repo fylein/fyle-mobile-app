@@ -1,14 +1,14 @@
-<div [ngClass]="{ 'spent-cards': spentCards?.length > 1, 'spent-card': spentCards?.length === 1 }">
+<div [ngClass]="{ 'spent-cards': cardDetails?.length > 1, 'spent-card': cardDetails?.length === 1 }">
   <swiper
     #swiper
     class="spent-cards--swiper"
-    *ngIf="spentCards"
+    *ngIf="cardDetails"
     [slidesPerView]="1.2"
     [spaceBetween]="1"
     [centeredSlides]="true"
     [pagination]="pagination"
   >
-    <ng-template *ngFor="let cardDetail of spentCards" swiperSlide>
+    <ng-template *ngFor="let cardDetail of cardDetails" swiperSlide>
       <app-card-detail [cardDetail]="cardDetail" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
       </app-card-detail>
     </ng-template>
