@@ -1,51 +1,23 @@
 <div class="stats--ccc-card-details">
-  <div class="stats--ccc-bank-detail">
-    <ion-grid class="stats--ccc-container">
-      <ion-row class="stats--ccc-block">
-        <ion-col class="stats--ccc-bank-name" size="8">
-          <div>
-            {{
-              cardDetail.cardName
-                ? cardDetail.cardName
-                : 'Card ending with ' + cardDetail?.cardNumber?.slice(cardDetail?.cardNumber?.length - 4)
-            }}
-          </div>
-        </ion-col>
-        <ion-col size="4">
-          <div class="stats--ccc-card-info">Corporate Card</div>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col class="stats--ccc-account-info">
-          <span class="stats--ccc-account-info__type"> CREDIT </span>
-          <span class="stats--ccc-account-info__mask">{{ ' xxxx ' + cardDetail.cardNumber | maskNumber }}</span>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
-
-  <!-- TODO: while revamping dashboard -->
-
-  <!-- <div class="stats--ccc-sync-detail" *ngIf="cardDetail.ba_last_synced_at">
-      Last synced: {{ cardDetail.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
-    </div> -->
+  <app-corporate-card [card]="cardDetail.card" [hideOptionsMenu]="true"></app-corporate-card>
 </div>
+
 <div class="stats--ccc-stats">
   <div>
     <div (click)="goToExpensesPage('incompleteExpenses', cardDetail)">
       <div class="stats--ccc-classified-stats">
         <div class="stats--ccc-classified-count">
-          {{ cardDetail.totalDraftTxns }}
+          {{ cardDetail.stats.totalDraftTxns }}
         </div>
         <div class="stats--ccc-classified-amount">
           <span class="stats--expenses-amount-currency">
             {{ currencySymbol | async }}
           </span>
-          {{ cardDetail.totalDraftValue | humanizeCurrency: (homeCurrency | async):true }}
+          {{ cardDetail.stats.totalDraftValue | humanizeCurrency : (homeCurrency | async) : true }}
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        Incomplete Card {{ cardDetail.totalDraftTxns === 1 ? 'Expense' : 'Expenses' }}
+        Incomplete Card {{ cardDetail.stats.totalDraftTxns === 1 ? 'Expense' : 'Expenses' }}
       </div>
     </div>
 
@@ -53,16 +25,18 @@
     <div (click)="goToExpensesPage('totalExpenses', cardDetail)">
       <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
         <div class="stats--ccc-classified-count">
-          {{ cardDetail.totalTxnsCount }}
+          {{ cardDetail.stats.totalTxnsCount }}
         </div>
         <div class="stats--ccc-classified-amount">
           <span class="stats--expenses-amount-currency">
             {{ currencySymbol | async }}
           </span>
-          {{ cardDetail.totalAmountValue | humanizeCurrency: (homeCurrency | async):true }}
+          {{ cardDetail.stats.totalAmountValue | humanizeCurrency : (homeCurrency | async) : true }}
         </div>
       </div>
-      <div class="stats--ccc-stats-title">Total {{ cardDetail.totalTxnsCount === 1 ? 'Expense' : 'Expenses' }}</div>
+      <div class="stats--ccc-stats-title">
+        Total {{ cardDetail.stats.totalTxnsCount === 1 ? 'Expense' : 'Expenses' }}
+      </div>
     </div>
   </div>
 </div>

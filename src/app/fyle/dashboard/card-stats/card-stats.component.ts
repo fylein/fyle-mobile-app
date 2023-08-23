@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { Observable, forkJoin, map } from 'rxjs';
 import { getCurrencySymbol } from '@angular/common';
 import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { CardDetails } from 'src/app/core/models/card-details.model';
 import { cloneDeep } from 'lodash';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { NewCardDetail } from 'src/app/core/models/new-card-detail.model';
 
 @Component({
   selector: 'app-card-stats',
@@ -16,7 +17,7 @@ import { cloneDeep } from 'lodash';
   styleUrls: ['./card-stats.component.scss'],
 })
 export class CardStatsComponent {
-  cardTransactionsAndDetails$: Observable<CardDetail[]>;
+  cardTransactionsAndDetails$: Observable<NewCardDetail[]>;
 
   homeCurrency$: Observable<string>;
 
@@ -29,7 +30,8 @@ export class CardStatsComponent {
   constructor(
     private currencyService: CurrencyService,
     private dashboardService: DashboardService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
 
   init(): void {
@@ -61,9 +63,45 @@ export class CardStatsComponent {
       )
     );
 
-    this.cardTransactionsAndDetails$ = this.dashboardService
-      .getCCCDetails()
-      .pipe(map((details) => this.getCardDetail(details.cardDetails)));
+    this.cardTransactionsAndDetails$ = forkJoin([
+      this.corporateCreditCardExpenseService.getCorporateCards(),
+      this.dashboardService.getCCCDetails().pipe(map((details) => this.getCardDetail(details.cardDetails))),
+    ]).pipe(
+      map(([corporateCards, corporateCardStats]) => {
+        const formattedCorporateCards = corporateCards.map((card) => {
+          const cardDetail: NewCardDetail = {
+            card,
+            stats: {
+              totalDraftTxns: 0,
+              totalDraftValue: 0,
+              totalCompleteTxns: 0,
+              totalCompleteExpensesValue: 0,
+              totalTxnsCount: 0,
+              totalAmountValue: 0,
+            },
+          };
+
+          const currentCardStats = corporateCardStats.find(
+            (stats) => stats.cardNumber === card.card_number && stats.cardName && card.bank_name
+          );
+
+          if (currentCardStats) {
+            cardDetail.stats = {
+              totalDraftTxns: currentCardStats.totalDraftTxns,
+              totalDraftValue: currentCardStats.totalDraftValue,
+              totalCompleteTxns: currentCardStats.totalCompleteTxns,
+              totalCompleteExpensesValue: currentCardStats.totalCompleteExpensesValue,
+              totalTxnsCount: currentCardStats.totalTxnsCount,
+              totalAmountValue: currentCardStats.totalAmountValue,
+            };
+          }
+
+          return cardDetail;
+        });
+
+        return formattedCorporateCards;
+      })
+    );
   }
 
   getCardDetail(statsResponses: CardAggregateStats[]): UniqueCardStats[] {

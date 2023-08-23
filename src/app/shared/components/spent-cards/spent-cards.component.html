@@ -8,8 +8,8 @@
     [centeredSlides]="true"
     [pagination]="pagination"
   >
-    <ng-template *ngFor="let card of spentCards" swiperSlide>
-      <app-card-detail [cardDetail]="card" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
+    <ng-template *ngFor="let cardDetail of spentCards" swiperSlide>
+      <app-card-detail [cardDetail]="cardDetail" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
       </app-card-detail>
     </ng-template>
     <ng-template swiperSlide>

@@ -9,7 +9,6 @@ import { ManageCorporateCardsPageRoutingModule } from './manage-corporate-cards-
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { CorporateCardComponent } from './corporate-card/corporate-card.component';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from './card-added/card-added.component';
 
@@ -23,6 +22,6 @@ import { CardAddedComponent } from './card-added/card-added.component';
     ManageCorporateCardsPageRoutingModule,
     NgxMaskModule.forRoot(),
   ],
-  declarations: [ManageCorporateCardsPage, CorporateCardComponent, AddCorporateCardComponent, CardAddedComponent],
+  declarations: [ManageCorporateCardsPage, AddCorporateCardComponent, CardAddedComponent],
 })
 export class ManageCorporateCardsPageModule {}

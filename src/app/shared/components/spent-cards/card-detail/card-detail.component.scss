@@ -112,27 +112,15 @@
     position: relative;
     left: 50%;
     transform: translate(-50%, 0);
-    min-height: 85px;
+    height: 145px;
     width: calc(100% - 36px);
-    background: url('../../../../../assets/images/card-bg.png') no-repeat bottom;
-    background-size: 100% 100%;
+    border-radius: 16px;
     box-shadow: 0px 2px 8px $transparent-pearl-grey;
-    border-radius: 8px;
     z-index: 999;
   }
 
-  &--ccc-bank-name {
-    font-weight: bold;
-    font-size: 18px;
-    line-height: 20px;
-    color: $pure-white;
-    padding-bottom: 0;
-    flex-flow: wrap;
-  }
-
   &--ccc-stats {
-    min-height: 280px;
-    padding: 66px 32px 32px 32px;
+    padding: 64px 32px 32px 32px;
     background: $pure-white;
     border-radius: 16px;
     width: calc(100% - 12px);
@@ -141,57 +129,6 @@
     transform: translate(-50%, 0px);
     bottom: 54px;
     box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
-  }
-
-  &--ccc-account-info {
-    font-size: 12px;
-    color: $pure-white;
-    padding-top: 0;
-
-    &__type {
-      background: $transparent-grey;
-      height: 20px;
-      line-height: 16px;
-      border-radius: 4px;
-      padding: 4px;
-    }
-
-    &__mask {
-      margin-left: 8px;
-      line-height: 14px;
-    }
-  }
-
-  &--ccc-card-info {
-    background: $transparent-grey;
-    width: 95px;
-    height: 20px;
-    font-size: 12px;
-    border-radius: 4px;
-    padding: 0 4px;
-    float: right;
-    color: $ccc-bank-name;
-  }
-
-  &--ccc-container {
-    padding: 8px 12px 6px;
-  }
-
-  &--ccc-block {
-    margin-bottom: 6px;
-  }
-
-  &--ccc-sync-detail {
-    color: $pure-white;
-    font-size: 12px;
-    letter-spacing: -0.005em;
-    line-height: 14px;
-    padding: 0 16px 12px;
-  }
-
-  &--ccc-created_dt {
-    color: $grey-light;
-    font-size: 12px;
   }
 
   &--ccc-classified-stats {
