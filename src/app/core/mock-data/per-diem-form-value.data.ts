@@ -1,4 +1,4 @@
-import { PerDiemFormValue } from '../models/per-diem-form-values.model';
+import { PerDiemFormValue } from '../models/per-diem-form-value.model';
 import { multiplePaymentModesData } from '../test-data/accounts.service.spec.data';
 import { expectedCCdata3 } from './cost-centers.data';
 import { projects } from './extended-projects.data';
