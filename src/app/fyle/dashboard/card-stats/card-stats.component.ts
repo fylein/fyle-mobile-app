@@ -2,10 +2,15 @@ import { Component } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { Observable, forkJoin, map } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, map, switchMap } from 'rxjs';
 import { getCurrencySymbol } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PopoverController } from '@ionic/angular';
+import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 
 @Component({
   selector: 'app-card-stats',
@@ -21,13 +26,23 @@ export class CardStatsComponent {
 
   isCCCEnabled$: Observable<boolean>;
 
+  isVisaRTFEnabled$: Observable<boolean>;
+
+  isMastercardRTFEnabled$: Observable<boolean>;
+
+  isYodleeEnabled$: Observable<boolean>;
+
   canAddCorporateCards$: Observable<boolean>;
+
+  loadCardDetails$ = new BehaviorSubject<void>(null);
 
   constructor(
     private currencyService: CurrencyService,
     private dashboardService: DashboardService,
     private orgSettingsService: OrgSettingsService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private popoverController: PopoverController
   ) {}
 
   init(): void {
@@ -36,21 +51,7 @@ export class CardStatsComponent {
     this.currencySymbol$ = this.homeCurrency$.pipe(map((homeCurrency) => getCurrencySymbol(homeCurrency, 'wide')));
 
     const orgSettings$ = this.orgSettingsService.get();
-
-    const isVisaRTFEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
-    );
-
-    const isMastercardRTFEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
-      )
-    );
-
-    this.canAddCorporateCards$ = forkJoin([isVisaRTFEnabled$, isMastercardRTFEnabled$]).pipe(
-      map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled)
-    );
+    const orgUserSettings$ = this.orgUserSettingsService.get();
 
     this.isCCCEnabled$ = orgSettings$.pipe(
       map(
@@ -59,13 +60,76 @@ export class CardStatsComponent {
       )
     );
 
-    this.cardDetails$ = forkJoin([
-      this.corporateCreditCardExpenseService.getCorporateCards(),
-      this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
-    ]).pipe(
-      map(([corporateCards, corporateCardStats]) =>
-        this.corporateCreditCardExpenseService.getExpenseDetailsInCardsPlatform(corporateCards, corporateCardStats)
+    this.isVisaRTFEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+    );
+
+    this.isMastercardRTFEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
       )
     );
+
+    this.isYodleeEnabled$ = forkJoin([orgSettings$, orgUserSettings$]).pipe(
+      map(
+        ([orgSettings, orgUserSettings]) =>
+          orgSettings.bank_data_aggregation_settings.allowed &&
+          orgSettings.bank_data_aggregation_settings.enabled &&
+          orgUserSettings.bank_data_aggregation_settings.enabled
+      )
+    );
+
+    this.canAddCorporateCards$ = forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
+      map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled)
+    );
+
+    this.cardDetails$ = this.loadCardDetails$.pipe(
+      switchMap(() =>
+        forkJoin([
+          this.corporateCreditCardExpenseService.getCorporateCards(),
+          this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
+        ]).pipe(
+          map(([corporateCards, corporateCardStats]) =>
+            this.corporateCreditCardExpenseService.getExpenseDetailsInCardsPlatform(corporateCards, corporateCardStats)
+          )
+        )
+      )
+    );
+  }
+
+  openAddCorporateCardPopover(): void {
+    forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
+      async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
+        const addCorporateCardPopover = await this.popoverController.create({
+          component: AddCorporateCardComponent,
+          cssClass: 'fy-dialog-popover',
+          componentProps: {
+            isVisaRTFEnabled,
+            isMastercardRTFEnabled,
+            isYodleeEnabled,
+          },
+        });
+
+        await addCorporateCardPopover.present();
+        const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
+
+        if (popoverResponse.data?.success) {
+          this.handleEnrollmentSuccess();
+        }
+      }
+    );
+  }
+
+  private handleEnrollmentSuccess(): void {
+    this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
+      this.loadCardDetails$.next();
+
+      const cardAddedModal = await this.popoverController.create({
+        component: CardAddedComponent,
+        cssClass: 'pop-up-in-center',
+      });
+      await cardAddedModal.present();
+    });
   }
 }
