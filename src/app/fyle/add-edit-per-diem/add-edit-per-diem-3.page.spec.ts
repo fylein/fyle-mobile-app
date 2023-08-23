@@ -247,7 +247,7 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should return etxn object from form data', (done) => {
+      it('should return etxn object from form data if sub_category.id is undefined in form', (done) => {
         component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesData9);
         const etxn = of(unflattenedTxnData);
         const customProperties = of(cloneDeep(expectedTxnCustomProperties));
@@ -307,7 +307,7 @@ export function TestCases3(getTestBed) {
         });
     });
 
-    it('continueWithCriticalPolicyViolation(): should show critical policy violation modal', async () => {
+    it('continueWithCriticalPolicyViolation(): should show critical policy violation modal', fakeAsync(() => {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
         'present',
@@ -320,23 +320,30 @@ export function TestCases3(getTestBed) {
       });
 
       modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+      const mockHtmlIonModalElement = document.createElement('ion-modal');
+      modalController.getTop.and.resolveTo(mockHtmlIonModalElement);
 
-      const result = await component.continueWithCriticalPolicyViolation(criticalPolicyViolation2);
+      const result = component.continueWithCriticalPolicyViolation(criticalPolicyViolation2);
+      tick(100);
 
-      expect(result).toBeTrue();
+      result.then((res) => {
+        expect(res).toBeTrue();
+      });
+
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyCriticalPolicyViolationComponent,
         componentProps: {
           criticalViolationMessages: criticalPolicyViolation2,
         },
         mode: 'ios',
-        presentingElement: await modalController.getTop(),
+        presentingElement: mockHtmlIonModalElement,
         ...properties,
       });
+      expect(modalController.getTop).toHaveBeenCalledTimes(1);
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-    });
+    }));
 
-    it('continueWithPolicyViolations(): should display violations and relevant CTA in a modal', async () => {
+    it('continueWithPolicyViolations(): should display violations and relevant CTA in a modal', fakeAsync(() => {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
 
@@ -345,12 +352,15 @@ export function TestCases3(getTestBed) {
       });
       modalController.create.and.resolveTo(currencyModalSpy);
 
-      const result = await component.continueWithPolicyViolations(
+      const result = component.continueWithPolicyViolations(
         criticalPolicyViolation2,
         splitPolicyExp4.data.final_desired_state
       );
+      tick(100);
 
-      expect(result).toEqual({ comment: 'primary' });
+      result.then((res) => {
+        expect(res).toEqual({ comment: 'primary' });
+      });
       expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyPolicyViolationComponent,
         componentProps: {
@@ -361,6 +371,6 @@ export function TestCases3(getTestBed) {
         ...properties,
       });
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-    });
+    }));
   });
 }
