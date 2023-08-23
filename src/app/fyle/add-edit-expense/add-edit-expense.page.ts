@@ -3415,8 +3415,7 @@ export class AddEditExpensePage implements OnInit {
             type: customInput.type,
             value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
-          customInpustWithValue.concat(dependentFieldsWithValue);
-          return customInpustWithValue;
+          return [...customInpustWithValue, ...dependentFieldsWithValue];
         }
       )
     );

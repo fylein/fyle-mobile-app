@@ -36,6 +36,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TokenService } from 'src/app/core/services/token.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { TestCases2 } from './add-edit-per-diem-2.page.spec';
+import { TestCases3 } from './add-edit-per-diem-3.page.spec';
 
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
@@ -275,4 +276,5 @@ describe('AddEditPerDiemPage', () => {
 
   TestCases1(getTestBed);
   TestCases2(getTestBed);
+  TestCases3(getTestBed);
 });
