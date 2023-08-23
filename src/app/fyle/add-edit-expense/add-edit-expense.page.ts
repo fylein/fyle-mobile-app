@@ -460,10 +460,6 @@ export class AddEditExpensePage implements OnInit {
     private platformHandlerService: PlatformHandlerService
   ) {}
 
-  get selectedCostCenter(): Observable<CostCenter | null> {
-    return this.selectedCostCenter$.asObservable();
-  }
-
   get isExpandedView(): boolean {
     return this._isExpandedView;
   }
