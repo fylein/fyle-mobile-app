@@ -53,6 +53,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { setFormValid } from './add-edit-mileage.page.setup.spec';
+import { cloneDeep } from 'lodash';
 
 export function TestCases2(getTestBed) {
   return describe('AddEditMileage-2', () => {
@@ -344,7 +345,7 @@ export function TestCases2(getTestBed) {
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsRes)));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.mileageRates$ = of(unfilteredMileageRatesData);
