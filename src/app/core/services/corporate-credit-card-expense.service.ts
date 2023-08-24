@@ -16,10 +16,10 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
-import { CardDetails } from '../models/card-details.model';
 import { DataFeedSource } from '../enums/data-feed-source.enum';
 import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
 import { PlatformCorporateCardDetail } from '../models/platform-corporate-card-detail.model';
+import { UniqueCards } from '../models/unique-cards.model';
 
 type Config = Partial<{
   offset: number;
@@ -158,13 +158,11 @@ export class CorporateCreditCardExpenseService {
     });
   }
 
-  getExpenseDetailsInCards(uniqueCards: CardDetails[], statsResponse: CardAggregateStats[]): UniqueCardStats[] {
-    const cardsCopy = JSON.parse(JSON.stringify(uniqueCards)) as CardDetails[];
+  getExpenseDetailsInCards(uniqueCards: UniqueCards[], statsResponse: CardAggregateStats[]): UniqueCardStats[] {
+    const cardsCopy = JSON.parse(JSON.stringify(uniqueCards)) as UniqueCards[];
     const uniqueCardsCopy = [];
-    cardsCopy?.forEach((card: CardDetails) => {
-      if (
-        uniqueCardsCopy.filter((uniqueCard: UniqueCardStats) => uniqueCard.cardNumber === card.cardNumber).length === 0
-      ) {
+    cardsCopy?.forEach((card: UniqueCards) => {
+      if (uniqueCardsCopy.filter((uniqueCard: UniqueCards) => uniqueCard.cardNumber === card.cardNumber).length === 0) {
         uniqueCardsCopy.push(card);
       }
     });
