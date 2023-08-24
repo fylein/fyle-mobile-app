@@ -1,20 +1,22 @@
-<div *ngIf="isCCCEnabled$ | async" class="card-stats">
-  <ng-container *ngIf="cardTransactionsAndDetails$ | async as cardTransactionsAndDetails">
-    <ng-container *ngIf="cardTransactionsAndDetails?.length > 0">
-      <div class="card-stats__header">CARD SPEND</div>
-      <app-spent-cards
-        [spentCards]="cardTransactionsAndDetails"
-        [homeCurrency]="homeCurrency$"
-        [currencySymbol]="currencySymbol$"
-      ></app-spent-cards>
-    </ng-container>
+<ng-container *ngIf="isConnected$ | async">
+  <div *ngIf="isCCCEnabled$ | async" class="card-stats">
+    <ng-container *ngIf="cardTransactionsAndDetails$ | async as cardTransactionsAndDetails">
+      <ng-container *ngIf="cardTransactionsAndDetails?.length > 0">
+        <div class="card-stats__header">CARD SPEND</div>
+        <app-spent-cards
+          [spentCards]="cardTransactionsAndDetails"
+          [homeCurrency]="homeCurrency$"
+          [currencySymbol]="currencySymbol$"
+        ></app-spent-cards>
+      </ng-container>
 
-    <!-- Show add card empty state when the user doesn't have any cards, and has visa / mastercard rtf enabled to allow adding cards -->
-    <ng-container *ngIf="cardTransactionsAndDetails?.length === 0 && (canAddCorporateCards$ | async)">
-      <div class="card-stats__header">CARD SPEND</div>
-      <div class="card-stats__zero-state">
-        <app-add-card [showZeroStateMessage]="true"></app-add-card>
-      </div>
+      <!-- Show add card empty state when the user doesn't have any cards, and has visa / mastercard rtf enabled to allow adding cards -->
+      <ng-container *ngIf="cardTransactionsAndDetails?.length === 0 && (canAddCorporateCards$ | async)">
+        <div class="card-stats__header">CARD SPEND</div>
+        <div class="card-stats__zero-state">
+          <app-add-card [showZeroStateMessage]="true"></app-add-card>
+        </div>
+      </ng-container>
     </ng-container>
-  </ng-container>
-</div>
+  </div>
+</ng-container>

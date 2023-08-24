@@ -1,21 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CardDetail } from 'src/app/core/models/card-detail.model';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, concat, forkJoin, map, shareReplay } from 'rxjs';
 import { getCurrencySymbol } from '@angular/common';
 import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { CardDetails } from 'src/app/core/models/card-details.model';
 import { cloneDeep } from 'lodash';
+import { NetworkService } from 'src/app/core/services/network.service';
 
 @Component({
   selector: 'app-card-stats',
   templateUrl: './card-stats.component.html',
   styleUrls: ['./card-stats.component.scss'],
 })
-export class CardStatsComponent {
+export class CardStatsComponent implements OnInit {
   cardTransactionsAndDetails$: Observable<CardDetail[]>;
 
   homeCurrency$: Observable<string>;
@@ -26,11 +27,26 @@ export class CardStatsComponent {
 
   canAddCorporateCards$: Observable<boolean>;
 
+  isConnected$: Observable<boolean>;
+
   constructor(
     private currencyService: CurrencyService,
     private dashboardService: DashboardService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private networkService: NetworkService
   ) {}
+
+  ngOnInit(): void {
+    this.setupNetworkWatcher();
+  }
+
+  setupNetworkWatcher(): void {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      shareReplay(1)
+    );
+  }
 
   init(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
