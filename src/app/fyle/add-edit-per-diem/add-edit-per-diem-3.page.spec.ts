@@ -233,9 +233,9 @@ export function TestCases3(getTestBed) {
           new Date('2023-08-03T17:00:00.000Z')
         );
 
-        const expectedEtxn = component.generateEtxnFromFg(etxn, customProperties);
+        const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
 
-        expectedEtxn.subscribe((res) => {
+        expectedEtxn$.subscribe((res) => {
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
@@ -257,9 +257,9 @@ export function TestCases3(getTestBed) {
           new Date('2023-08-03T17:00:00.000Z')
         );
 
-        const expectedEtxn = component.generateEtxnFromFg(etxn, customProperties);
+        const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
 
-        expectedEtxn.subscribe((res) => {
+        expectedEtxn$.subscribe((res) => {
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
@@ -277,8 +277,8 @@ export function TestCases3(getTestBed) {
       customFieldsService.standardizeCustomFields.and.returnValue(expectedTxnCustomProperties);
       component.customInputs$ = of(perDiemCustomInputsData2);
       component.dependentFields$ = of(expenseFieldResponse);
-      const expectedCustomFields = component.getCustomFields();
-      expectedCustomFields.subscribe((res) => {
+      const expectedCustomFields$ = component.getCustomFields();
+      expectedCustomFields$.subscribe((res) => {
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
           [
             {
@@ -309,10 +309,10 @@ export function TestCases3(getTestBed) {
 
     it('continueWithCriticalPolicyViolation(): should show critical policy violation modal', fakeAsync(() => {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
-      const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
-        'present',
-        'onWillDismiss',
-      ]);
+      const fyCriticalPolicyViolationPopOverSpy: jasmine.SpyObj<HTMLIonModalElement> = jasmine.createSpyObj(
+        'fyCriticalPolicyViolationPopOver',
+        ['present', 'onWillDismiss']
+      );
       fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
         data: {
           action: 'primary',
@@ -345,7 +345,10 @@ export function TestCases3(getTestBed) {
 
     it('continueWithPolicyViolations(): should display violations and relevant CTA in a modal', fakeAsync(() => {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
-      const currencyModalSpy = jasmine.createSpyObj('currencyModal', ['present', 'onWillDismiss']);
+      const currencyModalSpy: jasmine.SpyObj<HTMLIonModalElement> = jasmine.createSpyObj('currencyModal', [
+        'present',
+        'onWillDismiss',
+      ]);
 
       currencyModalSpy.onWillDismiss.and.resolveTo({
         data: { comment: 'primary' },
