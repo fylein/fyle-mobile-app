@@ -107,7 +107,7 @@ export class CardStatsComponent implements OnInit {
           this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
         ]).pipe(
           map(([corporateCards, corporateCardStats]) =>
-            this.corporateCreditCardExpenseService.getExpenseDetailsInCardsPlatform(corporateCards, corporateCardStats)
+            this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats)
           )
         )
       )

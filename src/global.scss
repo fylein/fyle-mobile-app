@@ -1127,7 +1127,7 @@ ion-popover.delete-button-class {
   opacity: 0.3;
 }
 
-.spent-cards--swiper .swiper-pagination {
+.spent-cards__swiper .swiper-pagination {
   position: absolute;
   text-align: center;
   transition: 300ms opacity;
@@ -1136,7 +1136,7 @@ ion-popover.delete-button-class {
   margin-left: 40%;
 }
 
-.spent-cards--swiper .swiper-wrapper {
+.spent-cards__swiper .swiper-wrapper {
   margin-top: 6%;
 }
 

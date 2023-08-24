@@ -1,7 +1,7 @@
-<div [ngClass]="{ 'spent-cards': cardDetails?.length > 1, 'spent-card': cardDetails?.length === 1 }">
+<div class="spent-cards">
   <swiper
     #swiper
-    class="spent-cards--swiper"
+    class="spent-cards__swiper"
     *ngIf="cardDetails"
     [slidesPerView]="1.2"
     [spaceBetween]="1"
@@ -13,8 +13,8 @@
       </app-card-detail>
     </ng-template>
     <ng-template swiperSlide>
-      <div class="spent-cards--add-card" data-testid="add-card">
-        <app-add-card [showZeroStateMessage]="false" (addCardClick)="addCardClick.emit()"></app-add-card>
+      <div class="spent-cards__add-card" data-testid="add-card">
+        <app-add-card [showZeroStateMessage]="false"></app-add-card>
       </div>
     </ng-template>
   </swiper>
