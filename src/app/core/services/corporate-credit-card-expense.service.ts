@@ -123,7 +123,7 @@ export class CorporateCreditCardExpenseService {
     return queryString;
   }
 
-  getExpenseDetailsInCardsPlatform(
+  getPlatformCorporateCardDetails(
     cards: PlatformCorporateCard[],
     statsResponse: CardAggregateStats[]
   ): PlatformCorporateCardDetail[] {
