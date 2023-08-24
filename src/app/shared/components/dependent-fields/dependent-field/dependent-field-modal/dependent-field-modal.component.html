@@ -42,7 +42,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="dependent-field-modal__container">
+  <div class="dependent-field-modal__container" *ngIf="filteredOptions$">
     <ng-container *ngIf="filteredOptions$ | async as filteredOptions">
       <div *ngIf="filteredOptions.length === 0">
         <app-fy-zero-state
