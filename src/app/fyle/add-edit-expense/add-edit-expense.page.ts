@@ -2641,9 +2641,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupSelectedCostCenterObservable(): void {
-    this.fg.controls.costCenter.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
+    this.fg.controls.costCenter.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((costCenter: CostCenter) => {
+      if (!this.initialFetch) {
+        this.selectedCostCenter$.next(costCenter);
+      }
+    });
   }
 
   getCCCpaymentMode(): void {

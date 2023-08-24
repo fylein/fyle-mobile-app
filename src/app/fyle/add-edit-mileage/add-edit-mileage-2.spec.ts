@@ -16,7 +16,11 @@ import {
   unfilteredMileageRatesData,
 } from 'src/app/core/mock-data/mileage-rate.data';
 import { mileageCategories2 } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsRes, orgSettingsWithExpenseFormAutofill } from 'src/app/core/mock-data/org-settings.data';
+import {
+  orgSettingsParams2,
+  orgSettingsRes,
+  orgSettingsWithExpenseFormAutofill,
+} from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
@@ -74,6 +78,7 @@ import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.d
 import { dependentCustomFields2 } from 'src/app/core/mock-data/expense-field.data';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import { cloneDeep } from 'lodash';
 
 export function TestCases2(getTestBed) {
   return describe('AddEditMileage-2', () => {
@@ -365,7 +370,7 @@ export function TestCases2(getTestBed) {
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.mileageRates$ = of(unfilteredMileageRatesData);
