@@ -112,6 +112,16 @@ describe('CorporateCardComponent', () => {
       expect(component.cardOptionsClick.emit).toHaveBeenCalled();
     });
 
+    it('should be hidden if hideOptionsMenu is true', () => {
+      component.hideOptionsMenu = true;
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const optionsBtn = getElementBySelector(fixture, '[data-testid="more-options-btn"]');
+      expect(optionsBtn).toBeFalsy();
+    });
+
     it('should be visible for visa rtf cards', () => {
       component.card = visaRTFCard;
       component.isVisaRTFEnabled = true;

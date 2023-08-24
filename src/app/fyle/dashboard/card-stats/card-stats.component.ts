@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { BehaviorSubject, Observable, forkJoin, map, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, concat, forkJoin, map, shareReplay, switchMap } from 'rxjs';
 import { getCurrencySymbol } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
@@ -11,13 +11,14 @@ import { PopoverController } from '@ionic/angular';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
+import { NetworkService } from 'src/app/core/services/network.service';
 
 @Component({
   selector: 'app-card-stats',
   templateUrl: './card-stats.component.html',
   styleUrls: ['./card-stats.component.scss'],
 })
-export class CardStatsComponent {
+export class CardStatsComponent implements OnInit {
   cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
   homeCurrency$: Observable<string>;
@@ -34,16 +35,31 @@ export class CardStatsComponent {
 
   canAddCorporateCards$: Observable<boolean>;
 
+  isConnected$: Observable<boolean>;
+
   loadCardDetails$ = new BehaviorSubject<void>(null);
 
   constructor(
     private currencyService: CurrencyService,
     private dashboardService: DashboardService,
     private orgSettingsService: OrgSettingsService,
+    private networkService: NetworkService,
     private orgUserSettingsService: OrgUserSettingsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private popoverController: PopoverController
   ) {}
+
+  ngOnInit(): void {
+    this.setupNetworkWatcher();
+  }
+
+  setupNetworkWatcher(): void {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      shareReplay(1)
+    );
+  }
 
   init(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
