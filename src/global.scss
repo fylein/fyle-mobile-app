@@ -889,6 +889,10 @@ ref - https://stackoverflow.com/a/31162426
   }
 }
 
+ion-footer {
+  display: inline;
+}
+
 .footer-ios ion-toolbar:first-of-type {
   --border-width: 0 !important;
 }
