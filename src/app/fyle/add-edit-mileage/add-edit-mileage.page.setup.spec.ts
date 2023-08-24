@@ -108,6 +108,7 @@ describe('AddEditMileagePage', () => {
       'review',
       'matchCCCExpense',
       'getETxnc',
+      'getDefaultVehicleType',
     ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
