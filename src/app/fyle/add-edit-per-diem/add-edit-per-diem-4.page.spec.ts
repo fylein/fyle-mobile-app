@@ -39,7 +39,7 @@ import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
 import { unflattenedExpData } from 'src/app/core/mock-data/unflattened-expense.data';
 
 export function TestCases4(getTestBed) {
-  return fdescribe('add-edit-per-diem test cases set 4', () => {
+  return describe('add-edit-per-diem test cases set 4', () => {
     let component: AddEditPerDiemPage;
     let fixture: ComponentFixture<AddEditPerDiemPage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
