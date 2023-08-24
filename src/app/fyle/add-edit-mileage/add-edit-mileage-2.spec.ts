@@ -9,12 +9,23 @@ import { ActionSheetController, ModalController, NavController, Platform, Popove
 import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { coordinatesData1, locationData1, predictedLocation1 } from 'src/app/core/mock-data/location.data';
+import { mileageLocationData1 } from 'src/app/core/mock-data/mileage-location.data';
 import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
 import { mileageCategories2 } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsRes, orgSettingsWithExpenseFormAutofill } from 'src/app/core/mock-data/org-settings.data';
+import {
+  orgSettingsParams2,
+  orgSettingsRes,
+  orgSettingsWithExpenseFormAutofill,
+} from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
-import { newExpenseMileageData1, newExpenseMileageData2 } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  newExpenseMileageData1,
+  newExpenseMileageData2,
+  unflattenedTxnData,
+  unflattenedTxnWithSourceID,
+  unflattenedTxnWithSourceID2,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -51,6 +62,8 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { accountsData, multiplePaymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { setFormValid } from './add-edit-mileage.page.setup.spec';
 import { cloneDeep } from 'lodash';
@@ -345,7 +358,7 @@ export function TestCases2(getTestBed) {
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
-        orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsRes)));
+        orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.mileageRates$ = of(unfilteredMileageRatesData);
@@ -423,6 +436,183 @@ export function TestCases2(getTestBed) {
 
       afterEach(function () {
         jasmine.clock().uninstall();
+      });
+    });
+
+    describe('checkIfInvalidPaymentMode():', () => {
+      it('should return false if source ID is same and if txn amount and tentative amount is less than the current amount', (done) => {
+        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: multiplePaymentModesData[2] });
+        component.etxn$ = of(unflattenedTxnWithSourceID);
+        component.amount$ = of(101);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeFalse();
+          done();
+        });
+      });
+
+      it('should return true if source ID is different and if tentative amount less than expense amount', (done) => {
+        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: accountsData[2] });
+        component.etxn$ = of(unflattenedTxnWithSourceID2);
+        component.amount$ = of(600);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+    });
+
+    describe('getCalculateDistance():', () => {
+      it('should calculate distance for a round trip in KMs', (done) => {
+        const control = component.fg.controls.route;
+        spyOn(component, 'getFormControl').and.returnValue(control);
+        control.setValue({ mileageLocations: mileageLocationData1 });
+        component.etxn$ = of(unflattenedTxnData);
+        mileageService.getDistance.and.returnValue(of(5));
+        spyOn(component, 'getFormValues').and.returnValue({
+          route: {
+            mileageLocations: mileageLocationData1,
+            roundTrip: true,
+          },
+        });
+        fixture.detectChanges();
+
+        component.getCalculateDistance().subscribe((res) => {
+          expect(res).toEqual('0.01');
+          expect(mileageService.getDistance).toHaveBeenCalledOnceWith(mileageLocationData1);
+          done();
+        });
+      });
+
+      it('should calculate distance for a single trip in Miles', (done) => {
+        const control = component.fg.controls.route;
+        spyOn(component, 'getFormControl').and.returnValue(control);
+        control.setValue({ mileageLocations: mileageLocationData1 });
+        component.etxn$ = of(newExpenseMileageData2);
+        mileageService.getDistance.and.returnValue(of(10));
+        spyOn(component, 'getFormValues').and.returnValue({
+          route: {
+            mileageLocations: mileageLocationData1,
+            roundTrip: false,
+          },
+        });
+        fixture.detectChanges();
+
+        component.getCalculateDistance().subscribe((res) => {
+          expect(res).toEqual('0.01');
+          expect(mileageService.getDistance).toHaveBeenCalledOnceWith(mileageLocationData1);
+          done();
+        });
+      });
+    });
+
+    describe('showClosePopup():', () => {
+      it('should show popup and if the user continues navigate to my expenses page', fakeAsync(() => {
+        Object.defineProperty(component.fg, 'touched', {
+          get: () => true,
+        });
+
+        const unsavedChangesPopOverSpy = jasmine.createSpyObj('unsavedChangesPopOver', ['present', 'onWillDismiss']);
+        unsavedChangesPopOverSpy.onWillDismiss.and.resolveTo({
+          data: {
+            action: 'continue',
+          },
+        });
+        popoverController.create.and.resolveTo(unsavedChangesPopOverSpy);
+        spyOn(component, 'close');
+        component.navigateBack = false;
+        fixture.detectChanges();
+
+        component.showClosePopup();
+        tick(500);
+
+        expect(popoverController.create).toHaveBeenCalledOnceWith({
+          component: PopupAlertComponent,
+          componentProps: {
+            title: 'Unsaved Changes',
+            message: 'You have unsaved information that will be lost if you discard this expense.',
+            primaryCta: {
+              text: 'Discard',
+              action: 'continue',
+            },
+            secondaryCta: {
+              text: 'Cancel',
+              action: 'cancel',
+            },
+          },
+          cssClass: 'pop-up-in-center',
+        });
+        expect(component.close).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should show popup and if the user continues, go back to previous page', fakeAsync(() => {
+        Object.defineProperty(component.fg, 'touched', {
+          get: () => true,
+        });
+
+        const unsavedChangesPopOverSpy = jasmine.createSpyObj('unsavedChangesPopOver', ['present', 'onWillDismiss']);
+        unsavedChangesPopOverSpy.onWillDismiss.and.resolveTo({
+          data: {
+            action: 'continue',
+          },
+        });
+        popoverController.create.and.resolveTo(unsavedChangesPopOverSpy);
+        component.navigateBack = true;
+        fixture.detectChanges();
+
+        component.showClosePopup();
+        tick(500);
+
+        expect(popoverController.create).toHaveBeenCalledOnceWith({
+          component: PopupAlertComponent,
+          componentProps: {
+            title: 'Unsaved Changes',
+            message: 'You have unsaved information that will be lost if you discard this expense.',
+            primaryCta: {
+              text: 'Discard',
+              action: 'continue',
+            },
+            secondaryCta: {
+              text: 'Cancel',
+              action: 'cancel',
+            },
+          },
+          cssClass: 'pop-up-in-center',
+        });
+        expect(navController.back).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should not show popup and track the view event, navigate back to my expenses page', () => {
+        component.presetLocation = locationData1[0];
+        activatedRoute.snapshot.params.id = '123';
+
+        spyOn(component, 'close');
+        component.navigateBack = false;
+        fixture.detectChanges();
+
+        component.showClosePopup();
+
+        expect(component.close).toHaveBeenCalledTimes(1);
+        expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Mileage' });
+        expect(popoverController.create).not.toHaveBeenCalled();
+      });
+
+      it('should not show popup and track the view event, navigate back to previous page', () => {
+        component.presetLocation = locationData1[0];
+        activatedRoute.snapshot.params.id = '123';
+
+        component.navigateBack = true;
+        fixture.detectChanges();
+
+        component.showClosePopup();
+
+        expect(navController.back).toHaveBeenCalledTimes(1);
+        expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Mileage' });
+        expect(popoverController.create).not.toHaveBeenCalled();
       });
     });
   });
