@@ -49,7 +49,7 @@ describe('SpentCardsComponent', () => {
     fixture.detectChanges();
     const swiper = getElementBySelector(fixture, 'swiper');
     expect(swiper).toBeTruthy();
-    const cardDetail = getElementBySelector(fixture, '.spent-card app-card-detail');
+    const cardDetail = getElementBySelector(fixture, '.spent-cards app-card-detail');
     expect(cardDetail).toBeTruthy();
     const swiperSlides = getAllElementsBySelector(fixture, '.swiper-slide');
     // Adding + 1 for add new card swiper slide
