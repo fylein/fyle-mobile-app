@@ -12,7 +12,11 @@ import { coordinatesData1, locationData1, predictedLocation1 } from 'src/app/cor
 import { mileageLocationData1 } from 'src/app/core/mock-data/mileage-location.data';
 import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
 import { mileageCategories2 } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsRes, orgSettingsWithExpenseFormAutofill } from 'src/app/core/mock-data/org-settings.data';
+import {
+  orgSettingsParams2,
+  orgSettingsRes,
+  orgSettingsWithExpenseFormAutofill,
+} from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
@@ -354,7 +358,7 @@ export function TestCases2(getTestBed) {
         jasmine.clock().mockDate(date);
         transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
-        orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsRes)));
+        orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.mileageRates$ = of(unfilteredMileageRatesData);
