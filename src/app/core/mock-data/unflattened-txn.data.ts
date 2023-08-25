@@ -2834,3 +2834,11 @@ export const unflattenedTxnWithSourceID2: UnflattenedTransaction = {
     source_account_id: 'acc6mK6CEesXL',
   },
 };
+
+export const unflattendedTxnWithPolicyAmount: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    policy_amount: 100,
+  },
+};
