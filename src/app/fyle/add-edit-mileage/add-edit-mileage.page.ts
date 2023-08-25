@@ -40,8 +40,8 @@ import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-import { CustomField } from 'src/app/core/models/custom_field.model';
+
+import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -56,7 +56,7 @@ import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-f
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
-import { CustomInputsOption, TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
@@ -101,13 +101,12 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from '../../core/services/tracking.service';
-import { Destination } from 'src/app/core/models/destination.model';
 
 type FormValue = {
   route: {
     roundTrip: boolean;
     mileageLocations: Location[];
-    distance: number;
+    distance?: number;
   };
   category: OrgCategory;
   sub_category: OrgCategory;
@@ -122,6 +121,8 @@ type FormValue = {
   costCenter: CostCenter;
   billable: boolean;
   purpose: string;
+  project_dependent_fields: TxnCustomProperties[];
+  cost_center_dependent_fields: TxnCustomProperties[];
 };
 
 @Component({
@@ -176,7 +177,7 @@ export class AddEditMileagePage implements OnInit {
 
   isCostCentersEnabled$: Observable<boolean>;
 
-  customInputs$: Observable<CustomField[]>;
+  customInputs$: Observable<TxnCustomProperties[]>;
 
   costCenters$: Observable<CostCenterOptions[]>;
 
@@ -1920,27 +1921,27 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getProjectDependentFields(): ExpenseField[] | CustomInputsOption[] {
+  getProjectDependentFields(): TxnCustomProperties[] {
     const projectDependentFieldsControl = this.fg.value as {
-      project_dependent_fields: ExpenseField[];
+      project_dependent_fields: TxnCustomProperties[];
     };
     return projectDependentFieldsControl.project_dependent_fields;
   }
 
-  getCostCenterDependentFields(): ExpenseField[] | CustomInputsOption[] {
+  getCostCenterDependentFields(): TxnCustomProperties[] {
     const CCDependentFieldsControl = this.fg.value as {
-      cost_center_dependent_fields: ExpenseField[];
+      cost_center_dependent_fields: TxnCustomProperties[];
     };
     return CCDependentFieldsControl.cost_center_dependent_fields;
   }
 
-  getCustomFields(): Observable<CustomProperty<string | number | boolean | Date | string[] | { display: string }>[]> {
+  getCustomFields(): Observable<TxnCustomProperties[]> {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
         const allDependentFields = [
           ...this.getProjectDependentFields(),
           ...this.getCostCenterDependentFields(),
-        ] as CustomInputsOption[];
+        ] as TxnCustomProperties[];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
@@ -1958,12 +1959,10 @@ export class AddEditMileagePage implements OnInit {
           customInputs,
           dependentFieldsWithValue,
         }: {
-          customInputs: CustomInput[];
+          customInputs: TxnCustomProperties[];
           dependentFieldsWithValue: TxnCustomProperties[];
         }) => {
-          const customInpustWithValue: CustomProperty<
-            string | number | boolean | Date | string[] | { display: string }
-          >[] = customInputs.map((customInput, i: number) => ({
+          const customInpustWithValue: TxnCustomProperties[] = customInputs.map((customInput, i: number) => ({
             id: customInput.id,
             mandatory: customInput.mandatory,
             name: customInput.name,
@@ -1971,10 +1970,9 @@ export class AddEditMileagePage implements OnInit {
             placeholder: customInput.placeholder,
             prefix: customInput.prefix,
             type: customInput.type,
-            value: this.getFormValues().custom_inputs[i].value,
+            value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
-          customInpustWithValue.concat(dependentFieldsWithValue as unknown as CustomProperty<string>);
-          return customInpustWithValue;
+          return [...customInpustWithValue, ...dependentFieldsWithValue];
         }
       )
     );
