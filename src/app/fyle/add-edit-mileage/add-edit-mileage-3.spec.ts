@@ -1,5 +1,5 @@
 import { TitleCasePipe } from '@angular/common';
-import { ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -11,7 +11,11 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
-import { unflattendedTxnWithPolicyAmount, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  unflattendedTxnWithPolicyAmount,
+  unflattenedTxnData,
+  unflattenedTxnWithTrackData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -49,6 +53,20 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditMileagePage } from './add-edit-mileage.page';
+import {
+  mileageCategories2,
+  orgCategoryData,
+  sortedCategory,
+  transformedOrgCategories,
+} from 'src/app/core/mock-data/org-category.data';
+import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
+import { orgCategoryListItemData1 } from 'src/app/core/mock-data/org-category-list-item.data';
+import { expenseFieldsMapResponse, txnFieldsData } from 'src/app/core/mock-data/expense-fields-map.data';
+import {
+  defaultTxnFieldValuesData2,
+  defaultTxnFieldValuesData4,
+} from 'src/app/core/mock-data/default-txn-field-values.data';
+import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditMileage-3', () => {
@@ -389,6 +407,118 @@ export function TestCases3(getTestBed) {
           },
         });
         done();
+      });
+    });
+
+    describe('setupFilteredCategories():', () => {
+      it('should set up filtered categories', fakeAsync(() => {
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+        spyOn(component, 'getFormValues').and.returnValue({
+          sub_category: orgCategoryData,
+        });
+
+        component.setupFilteredCategories(of(sortedCategory));
+        tick(500);
+
+        component.fg.controls.project.setValue(expectedProjectsResponse[0]);
+        fixture.detectChanges();
+
+        tick(500);
+
+        component.filteredCategories$.subscribe((res) => {
+          expect(res).toEqual(orgCategoryListItemData1);
+        });
+
+        expect(component.getFormValues).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should set up filtered categories and set default billable value if project is removed', fakeAsync(() => {
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+        spyOn(component, 'getFormValues').and.returnValue({
+          sub_category: orgCategoryData,
+        });
+
+        component.setupFilteredCategories(of(sortedCategory));
+        tick(500);
+
+        component.fg.controls.project.setValue(null);
+        fixture.detectChanges();
+
+        tick(500);
+
+        component.filteredCategories$.subscribe((res) => {
+          expect(res).toEqual(orgCategoryListItemData1);
+        });
+
+        expect(component.getFormValues).toHaveBeenCalledTimes(1);
+      }));
+    });
+
+    it('getTransactionFields(): should get transaction fields', (done) => {
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
+      spyOn(component, 'getMileageCategories').and.returnValue(
+        of({
+          defaultMileageCategory: mileageCategories2[0],
+          mileageCategories: [mileageCategories2[1]],
+        })
+      );
+      expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(txnFieldsData));
+
+      component.getTransactionFields().subscribe((res) => {
+        expect(res).toEqual(txnFieldsData);
+        expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
+        expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
+        expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
+          expenseFieldsMapResponse,
+          ['purpose', 'txn_dt', 'cost_center_id', 'project_id', 'distance', 'billable'],
+          mileageCategories2[0]
+        );
+        done();
+      });
+    });
+
+    it('setupTfcDefaultValues(): should setup default txn fields ', () => {
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
+      spyOn(component, 'getMileageCategories').and.returnValue(
+        of({
+          defaultMileageCategory: mileageCategories2[0],
+          mileageCategories: [mileageCategories2[1]],
+        })
+      );
+      expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(txnFieldsData));
+      expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData4);
+      component.fg.controls.project.setValue(expectedProjectsResponse[0]);
+
+      component.setupTfcDefaultValues();
+      expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
+      expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
+      expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
+        expenseFieldsMapResponse,
+        ['purpose', 'txn_dt', 'cost_center_id', 'distance', 'billable'],
+        mileageCategories2[0]
+      );
+      expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(txnFieldsData);
+    });
+
+    it('trackEditExpense(): should track edit expense event', () => {
+      spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
+      component.presetProjectId = expectedProjectsResponse[0].project_id;
+      component.presetCostCenterId = costCentersData[0].id;
+      component.presetVehicleType = 'car';
+      component.presetLocation = 'Kolkata';
+      fixture.detectChanges();
+
+      component.trackEditExpense(unflattenedTxnWithTrackData);
+      expect(trackingService.editExpense).toHaveBeenCalledOnceWith({
+        Type: 'Mileage',
+        Amount: unflattenedTxnWithTrackData.tx.amount,
+        Currency: unflattenedTxnWithTrackData.tx.currency,
+        Category: unflattenedTxnWithTrackData.tx.org_category,
+        Time_Spent: '300 secs',
+        Used_Autofilled_Project: true,
+        Used_Autofilled_CostCenter: true,
+        Used_Autofilled_VehicleType: true,
+        Used_Autofilled_StartLocation: true,
       });
     });
   });
