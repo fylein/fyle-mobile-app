@@ -104,6 +104,7 @@ import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
 import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
 import { TransactionState } from 'src/app/core/models/transaction-state.enum';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -2103,7 +2104,7 @@ export class AddEditPerDiemPage implements OnInit {
       redirectionText: 'View Report',
     };
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      ...this.snackbarProperties.setSnackbarProperties(ToastType.SUCCESS, toastMessageData),
       panelClass: ['msb-success-with-camera-icon'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
@@ -2111,6 +2112,19 @@ export class AddEditPerDiemPage implements OnInit {
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
     });
+  }
+
+  showFormValidationErrors(): void {
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
+    }
   }
 
   savePerDiem(): void {
@@ -2127,16 +2141,7 @@ export class AddEditPerDiemPage implements OnInit {
             that.editExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
 
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
@@ -2172,16 +2177,7 @@ export class AddEditPerDiemPage implements OnInit {
             });
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -2214,17 +2210,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -2250,17 +2236,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 

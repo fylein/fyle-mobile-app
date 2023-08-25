@@ -46,6 +46,10 @@ import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { createExpenseProperties3, editExpenseProperties } from 'src/app/core/mock-data/track-expense-properties.data';
 import { cloneDeep } from 'lodash';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 
 export function TestCases4(getTestBed) {
   return describe('add-edit-per-diem test cases set 4', () => {
@@ -691,6 +695,92 @@ export function TestCases4(getTestBed) {
             },
           });
       });
+    });
+
+    it('showAddToReportSuccessToast(): should show success message on adding expense to report', () => {
+      const modalSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
+      modalSpy.onAction.and.returnValue(of(true));
+      matSnackBar.openFromComponent.and.returnValue(modalSpy);
+      snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
+
+      component.showAddToReportSuccessToast('rpFE5X1Pqi9P');
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesRes2,
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(ToastType.SUCCESS, {
+        message: 'Per diem expense added to report successfully',
+        redirectionText: 'View Report',
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Per diem expense added to report successfully',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: 'rpFE5X1Pqi9P', navigateBack: true },
+      ]);
+    });
+
+    it('showFormValidationErrors(): should show form validation errors', () => {
+      component.fg = formBuilder.group({
+        ...perDiemFormValuesData10,
+      });
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => false,
+      });
+      spyOn(component.fg, 'markAllAsTouched');
+
+      fixture.detectChanges();
+
+      component.showFormValidationErrors();
+      expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
+    });
+
+    describe('savePerDiem():', () => {
+      beforeEach(() => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'editExpense').and.returnValue(of(unflattenedTxnData.tx));
+        component.fg = formBuilder.group({
+          ...perDiemFormValuesData10,
+        });
+        spyOn(component, 'goBack');
+      });
+
+      it('should add expense and go back if form and payment mode is valid', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        component.savePerDiem();
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_PER_DIEM');
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.goBack).toHaveBeenCalledTimes(1);
+      });
+
+      it('should add expense and go back if form and payment mode is valid and user is in edit mode', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        component.mode = 'edit';
+        component.savePerDiem();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_PER_DIEM');
+        expect(component.goBack).toHaveBeenCalledTimes(1);
+      });
+
+      it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => false,
+        });
+        spyOn(component, 'showFormValidationErrors');
+        spyOn(component.fg, 'markAllAsTouched');
+        component.savePerDiem();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+        expect(component.invalidPaymentMode).toBeTrue();
+        tick(3000);
+        expect(component.invalidPaymentMode).toBeFalse();
+      }));
     });
   });
 }
