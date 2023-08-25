@@ -1,7 +1,10 @@
 import { PerDiemFormValue } from '../models/per-diem-form-value.model';
 import { multiplePaymentModesData } from '../test-data/accounts.service.spec.data';
-import { expectedCCdata3 } from './cost-centers.data';
+import { costCentersData2, expectedCCdata3 } from './cost-centers.data';
+import { currencyObjData6 } from './currency-obj.data';
 import { projects } from './extended-projects.data';
+import { orgCategoryData1 } from './org-category.data';
+import { perDiemRatesData1 } from './per-diem-rates.data';
 import { draftReportPerDiemData, expectedAddedApproverERpts } from './report-unflattened.data';
 
 export const perDiemFormValuesData1: Partial<PerDiemFormValue> = {
@@ -63,4 +66,84 @@ export const perDiemFormValuesData7: Partial<PerDiemFormValue> = {
   to_dt: '2023-08-03',
   from_dt: '2023-08-01',
   num_days: 3,
+};
+
+export const perDiemFormValuesData8: PerDiemFormValue = {
+  currencyObj: currencyObjData6,
+  paymentMode: multiplePaymentModesData[0],
+  sub_category: orgCategoryData1[0],
+  per_diem_rate: perDiemRatesData1,
+  purpose: 'test_term',
+  num_days: 3,
+  report: null,
+  from_dt: '2023-08-01',
+  to_dt: '2023-08-03',
+  billable: true,
+  duplicate_detection_reason: null,
+  costCenter: costCentersData2[0],
+  project: projects[0],
+  custom_inputs: [],
+  project_dependent_fields: [
+    {
+      id: 206206,
+      mandatory: false,
+      name: 'pub create hola 1',
+      options: [],
+      placeholder: 'pub create hola 1',
+      prefix: '',
+      type: 'LOCATION',
+      value: null,
+      label: 'location1',
+    },
+  ],
+  cost_center_dependent_fields: [],
+};
+
+export const perDiemFormValuesData9: PerDiemFormValue = {
+  currencyObj: currencyObjData6,
+  paymentMode: multiplePaymentModesData[0],
+  sub_category: undefined,
+  per_diem_rate: perDiemRatesData1,
+  purpose: 'test_term',
+  num_days: 3,
+  report: null,
+  from_dt: '2023-08-01',
+  to_dt: '2023-08-03',
+  billable: true,
+  duplicate_detection_reason: null,
+  costCenter: costCentersData2[0],
+  project: projects[0],
+  custom_inputs: [],
+  project_dependent_fields: [],
+  cost_center_dependent_fields: [],
+};
+
+export const perDiemFormValuesData10: PerDiemFormValue = {
+  ...perDiemFormValuesData8,
+  custom_inputs: [
+    {
+      id: 218266,
+      options: [],
+      placeholder: 'Enter Date',
+      type: 'DATE',
+      value: null,
+      mandatory: undefined,
+      name: undefined,
+      prefix: undefined,
+      parent_field_id: null,
+      displayValue: null,
+    },
+    {
+      id: 218266,
+      options: [],
+      placeholder: 'Enter Date',
+      type: 'DATE',
+      value: null,
+      mandatory: undefined,
+      name: undefined,
+      prefix: undefined,
+      parent_field_id: null,
+      displayValue: null,
+    },
+  ],
 };
