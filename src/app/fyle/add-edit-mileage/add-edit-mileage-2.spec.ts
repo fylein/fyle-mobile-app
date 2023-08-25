@@ -10,7 +10,11 @@ import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { coordinatesData1, locationData1, predictedLocation1 } from 'src/app/core/mock-data/location.data';
 import { mileageLocationData1 } from 'src/app/core/mock-data/mileage-location.data';
-import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
+import {
+  filterEnabledMileageRatesData,
+  mileageRateApiRes1,
+  unfilteredMileageRatesData,
+} from 'src/app/core/mock-data/mileage-rate.data';
 import { mileageCategories2 } from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsParams2,
@@ -66,6 +70,14 @@ import { accountsData, multiplePaymentModesData } from 'src/app/core/test-data/a
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { setFormValid } from './add-edit-mileage.page.setup.spec';
+import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
+import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
+import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
+import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
+import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
+import { dependentCustomFields2 } from 'src/app/core/mock-data/expense-field.data';
+import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
+import { txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { cloneDeep } from 'lodash';
 
 export function TestCases2(getTestBed) {
@@ -613,6 +625,162 @@ export function TestCases2(getTestBed) {
         expect(navController.back).toHaveBeenCalledTimes(1);
         expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Mileage' });
         expect(popoverController.create).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('criticalPolicyViolationHandler():', () => {
+      it('should return expense with permission from user to continue with critical policy violation', (done) => {
+        spyOn(component, 'continueWithCriticalPolicyViolation').and.resolveTo(true);
+        loaderService.showLoader.and.resolveTo();
+
+        component
+          .criticalPolicyViolationHandler({
+            policyViolations: criticalPolicyViolation1,
+            etxn: unflattenedTxnData,
+          })
+          .subscribe((res) => {
+            expect(res).toEqual({ etxn: unflattenedTxnData });
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+            expect(component.continueWithCriticalPolicyViolation).toHaveBeenCalledOnceWith(criticalPolicyViolation1);
+            done();
+          });
+      });
+
+      it('should throw error if user denies permission', (done) => {
+        spyOn(component, 'continueWithCriticalPolicyViolation').and.resolveTo(false);
+
+        component
+          .criticalPolicyViolationHandler({
+            policyViolations: criticalPolicyViolation1,
+            etxn: unflattenedTxnData,
+          })
+          .subscribe({
+            next: () => {
+              expect(component.continueWithCriticalPolicyViolation).toHaveBeenCalledOnceWith(criticalPolicyViolation1);
+            },
+            error: (err) => {
+              expect(err).toBeTruthy();
+              done();
+            },
+          });
+      });
+    });
+
+    describe('policyViolationHandler():', () => {
+      it('should return expense if user continues with a comment', (done) => {
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo({
+          comment: 'A comment',
+        });
+        loaderService.showLoader.and.resolveTo();
+
+        component
+          .policyViolationHandler({
+            policyViolations: criticalPolicyViolation1,
+            policyAction: policyViolation1.data.final_desired_state,
+            etxn: unflattenedTxnData,
+          })
+          .subscribe((res) => {
+            expect(res).toEqual({
+              etxn: unflattenedTxnData,
+              comment: 'A comment',
+            });
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+            expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
+              criticalPolicyViolation1,
+              policyViolation1.data.final_desired_state
+            );
+            done();
+          });
+      });
+
+      it('should return expense with default comment if user continues without a comment', (done) => {
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo({
+          comment: '',
+        });
+        loaderService.showLoader.and.resolveTo();
+
+        component
+          .policyViolationHandler({
+            policyViolations: criticalPolicyViolation1,
+            policyAction: policyViolation1.data.final_desired_state,
+            etxn: unflattenedTxnData,
+          })
+          .subscribe((res) => {
+            expect(res).toEqual({
+              etxn: unflattenedTxnData,
+              comment: 'No policy violation explaination provided',
+            });
+            expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+            expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
+              criticalPolicyViolation1,
+              policyViolation1.data.final_desired_state
+            );
+            done();
+          });
+      });
+
+      it('should throw an error if user denies permission', (done) => {
+        spyOn(component, 'continueWithPolicyViolations').and.resolveTo(null);
+
+        component
+          .policyViolationHandler({
+            policyViolations: criticalPolicyViolation1,
+            policyAction: policyViolation1.data.final_desired_state,
+            etxn: unflattenedTxnData,
+          })
+          .subscribe({
+            next: () => {
+              expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
+                criticalPolicyViolation1,
+                policyViolation1.data.final_desired_state
+              );
+            },
+            error: (err) => {
+              expect(err).toBeTruthy();
+              done();
+            },
+          });
+      });
+    });
+
+    it('checkPolicyViolation(): should check for policy violation', (done) => {
+      component.mileageRates$ = of(mileageRateApiRes1);
+      spyOn(component, 'getMileageByVehicleType').and.returnValue(mileageRateApiRes1[0]);
+      policyService.transformTo.and.returnValue(platformPolicyExpenseData1);
+      transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
+
+      component.checkPolicyViolation(unflattenedTxnData).subscribe((res) => {
+        expect(res).toEqual(expensePolicyData);
+        expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(
+          mileageRateApiRes1,
+          unflattenedTxnData.tx.mileage_vehicle_type
+        );
+        expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
+        expect(policyService.transformTo).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('getCustomFields(): should get custom fields data', () => {
+      component.dependentFields$ = of(dependentCustomFields2);
+      customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties2);
+      spyOn(component, 'getProjectDependentFields').and.returnValue([]);
+      spyOn(component, 'getCostCenterDependentFields').and.returnValue([]);
+      spyOn(component, 'getFormValues').and.returnValue(null);
+
+      component.customInputs$ = of(txnCustomPropertiesData);
+      component.fg = formBuilder.group({
+        project_dependent_fields: [],
+        custom_inputs: [],
+        cost_center_dependent_fields: [],
+      });
+      component.fg.controls.custom_inputs.setValue(projectDependentFields);
+      fixture.detectChanges();
+
+      component.getCustomFields().subscribe(() => {
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields2);
+        expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
+        expect(component.getCostCenterDependentFields).toHaveBeenCalledTimes(1);
       });
     });
   });
