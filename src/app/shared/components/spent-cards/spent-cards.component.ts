@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
@@ -17,6 +17,8 @@ export class SpentCardsComponent {
   @Input() homeCurrency: string;
 
   @Input() currencySymbol: string;
+
+  @Output() addCardClick = new EventEmitter<void>();
 
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 

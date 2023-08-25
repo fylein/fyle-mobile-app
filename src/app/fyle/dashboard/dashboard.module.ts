@@ -18,6 +18,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SwiperModule } from 'swiper/angular';
 import { CardStatsComponent } from './card-stats/card-stats.component';
+import { NgxMaskModule } from 'ngx-mask';
 
 @NgModule({
   imports: [
@@ -33,6 +34,7 @@ import { CardStatsComponent } from './card-stats/card-stats.component';
     MatBottomSheetModule,
     MatSnackBarModule,
     SwiperModule,
+    NgxMaskModule.forRoot(),
   ],
   declarations: [
     DashboardPage,

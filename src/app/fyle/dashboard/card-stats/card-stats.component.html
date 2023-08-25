@@ -7,6 +7,7 @@
           [cardDetails]="cardDetails"
           [homeCurrency]="homeCurrency$ | async"
           [currencySymbol]="currencySymbol$ | async"
+          (addCardClick)="openAddCorporateCardPopover()"
         ></app-spent-cards>
       </ng-container>
 
@@ -14,7 +15,7 @@
       <ng-container *ngIf="cardDetails?.length === 0 && (canAddCorporateCards$ | async)">
         <div class="card-stats__header">CARD SPEND</div>
         <div class="card-stats__zero-state">
-          <app-add-card [showZeroStateMessage]="true"></app-add-card>
+          <app-add-card [showZeroStateMessage]="true" (addCardClick)="openAddCorporateCardPopover()"></app-add-card>
         </div>
       </ng-container>
     </ng-container>
