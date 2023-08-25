@@ -69,7 +69,6 @@ import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data
 import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
 import { cloneDeep } from 'lodash';
 import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
-import { cardDetailsData1 } from 'src/app/core/mock-data/card-details.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
@@ -104,6 +103,7 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
+import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -1175,7 +1175,7 @@ describe('MyExpensesPage', () => {
 
     expect(getCardDetailRes).toEqual(expectedUniqueCardStats);
     expect(corporateCreditCardService.getExpenseDetailsInCards).toHaveBeenCalledOnceWith(
-      cardDetailsData1,
+      uniqueCardsParam,
       cardAggregateStatParam
     );
   });

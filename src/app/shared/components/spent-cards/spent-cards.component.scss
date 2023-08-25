@@ -1,14 +1,11 @@
 @import '../../../../theme/colors.scss';
 
-.spent-card .spent-cards {
-  padding: 12px 0;
-  height: 140px;
-}
-
-.spent-cards--add-card {
-  height: 316px;
-  width: calc(100% - 12px);
-  position: relative;
-  left: 50%;
-  transform: translate(-50%, 0);
+.spent-cards {
+  &__add-card {
+    height: 350px;
+    width: calc(100% - 12px);
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
 }

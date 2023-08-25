@@ -2,13 +2,10 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { Observable, concat, forkJoin, map, shareReplay } from 'rxjs';
 import { getCurrencySymbol } from '@angular/common';
-import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
-import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
-import { CardDetails } from 'src/app/core/models/card-details.model';
-import { cloneDeep } from 'lodash';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 
 @Component({
@@ -17,7 +14,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
   styleUrls: ['./card-stats.component.scss'],
 })
 export class CardStatsComponent implements OnInit {
-  cardTransactionsAndDetails$: Observable<CardDetail[]>;
+  cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
   homeCurrency$: Observable<string>;
 
@@ -33,7 +30,8 @@ export class CardStatsComponent implements OnInit {
     private currencyService: CurrencyService,
     private dashboardService: DashboardService,
     private orgSettingsService: OrgSettingsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
 
   ngOnInit(): void {
@@ -77,24 +75,13 @@ export class CardStatsComponent implements OnInit {
       )
     );
 
-    this.cardTransactionsAndDetails$ = this.dashboardService
-      .getCCCDetails()
-      .pipe(map((details) => this.getCardDetail(details.cardDetails)));
-  }
-
-  getCardDetail(statsResponses: CardAggregateStats[]): UniqueCardStats[] {
-    const cardNames: CardDetails[] = [];
-
-    statsResponses.forEach((response) => {
-      const cardDetail = {
-        cardNumber: response.key[1].column_value,
-        cardName: response.key[0].column_value,
-      };
-
-      cardNames.push(cardDetail);
-    });
-
-    const uniqueCards = cloneDeep(cardNames);
-    return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
+    this.cardDetails$ = forkJoin([
+      this.corporateCreditCardExpenseService.getCorporateCards(),
+      this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
+    ]).pipe(
+      map(([corporateCards, corporateCardStats]) =>
+        this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats)
+      )
+    );
   }
 }
