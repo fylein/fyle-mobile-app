@@ -1,7 +1,7 @@
 <ng-container *ngIf="isConnected$ | async">
   <div *ngIf="isCCCEnabled$ | async" class="card-stats">
     <ng-container *ngIf="cardDetails$ | async as cardDetails">
-      <ng-container *ngIf="cardDetails?.length > 0">
+      <ng-container *ngIf="cardDetails?.length">
         <div class="card-stats__header">CARD SPEND</div>
         <app-spent-cards
           [cardDetails]="cardDetails"
