@@ -15,6 +15,7 @@
   </ion-toolbar>
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': selectedApproversList?.length > 0 }">
     <mat-form-field
+      appearance="outline"
       subscriptSizing="dynamic"
       class="selection-modal--form-container mat-form-field-no-padding"
       [ngClass]="{ 'selection-modal--form-container__chips': selectedApproversList?.length > 0 }"

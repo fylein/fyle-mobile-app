@@ -133,7 +133,7 @@
           </ion-item>
           <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === 'custom'">
             <div class="fy-filters--custom-date-filters">
-              <mat-form-field subscriptSizing="dynamic">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Start date</mat-label>
                 <input
                   class="smartlook-show"
@@ -146,7 +146,7 @@
                 <mat-datepicker #picker1></mat-datepicker>
               </mat-form-field>
 
-              <mat-form-field subscriptSizing="dynamic">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>End date</mat-label>
                 <input
                   class="smartlook-show"
