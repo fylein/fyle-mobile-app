@@ -115,7 +115,7 @@
     height: 145px;
     width: calc(100% - 36px);
     border-radius: 16px;
-    box-shadow: 0px 2px 8px $transparent-pearl-grey;
+    box-shadow: 0px 12px 20px -10px rgb($dark-grey, 0.239);
     z-index: 999;
   }
 
@@ -128,7 +128,6 @@
     left: 50%;
     transform: translate(-50%, 0px);
     bottom: 54px;
-    box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
   }
 
   &--ccc-classified-stats {
