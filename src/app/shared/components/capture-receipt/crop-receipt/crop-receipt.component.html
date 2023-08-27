@@ -15,6 +15,7 @@
   <div class="crop-receipt__content">
     <image-cropper
       #imageCropper
+      output="base64"
       [imageBase64]="base64ImageWithSource.base64Image"
       [maintainAspectRatio]="false"
       (imageLoaded)="imageLoaded()"
