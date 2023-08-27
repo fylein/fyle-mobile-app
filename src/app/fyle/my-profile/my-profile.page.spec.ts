@@ -148,14 +148,12 @@ xdescribe('MyProfilePage', () => {
 
   it('setCCCFlags(): should set ccc flags as per the org and org user settings', () => {
     component.orgSettings = orgSettingsRes;
-    component.orgUserSettings = orgUserSettingsData;
 
     component.setCCCFlags();
 
     expect(component.isCCCEnabled).toBeTrue();
     expect(component.isVisaRTFEnabled).toBeTrue();
     expect(component.isMastercardRTFEnabled).toBeTrue();
-    expect(component.isYodleeEnabled).toBeTrue();
   });
 
   describe('setInfoCardsData(): ', () => {

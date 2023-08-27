@@ -159,13 +159,15 @@ export class ManageCorporateCardsPage {
 
   private handleEnrollmentSuccess(): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
-      this.loadCorporateCards$.next();
-
       const cardAddedModal = await this.popoverController.create({
         component: CardAddedComponent,
         cssClass: 'pop-up-in-center',
       });
+
       await cardAddedModal.present();
+      await cardAddedModal.onDidDismiss();
+
+      this.loadCorporateCards$.next();
     });
   }
 
