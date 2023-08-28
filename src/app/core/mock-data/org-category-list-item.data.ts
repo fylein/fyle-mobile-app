@@ -67,3 +67,66 @@ export const recentUsedCategoriesRes: OrgCategoryListItem[] = [
     },
   },
 ];
+
+export const orgCategoryListItemData1 = [
+  {
+    label: 'Business',
+    value: {
+      code: '93',
+      created_at: new Date('2021-05-18T11:40:38.576Z'),
+      displayName: 'Business',
+      enabled: true,
+      fyle_category: null,
+      id: 141295,
+      name: 'Business',
+      org_id: 'orrjqbDbeP9p',
+      sub_category: 'Business',
+      updated_at: new Date('2022-07-01T05:51:31.800Z'),
+    },
+  },
+  {
+    label: 'Marketing outreach',
+    value: {
+      code: '42',
+      created_at: new Date('2023-01-09T16:54:09.929Z'),
+      displayName: 'Marketing outreach',
+      enabled: true,
+      fyle_category: null,
+      id: 226659,
+      name: 'Marketing outreach',
+      org_id: 'orrjqbDbeP9p',
+      sub_category: 'Marketing outreach',
+      updated_at: new Date('2023-01-09T16:54:09.929Z'),
+    },
+  },
+  {
+    label: 'Pager',
+    value: {
+      code: '98',
+      created_at: new Date('2021-05-18T11:40:38.576Z'),
+      displayName: 'Pager',
+      enabled: true,
+      fyle_category: null,
+      id: 141300,
+      name: 'Pager',
+      org_id: 'orrjqbDbeP9p',
+      sub_category: 'Pager',
+      updated_at: new Date('2022-05-05T17:47:06.951Z'),
+    },
+  },
+  {
+    label: 'samp category',
+    value: {
+      code: '43',
+      created_at: new Date('2023-01-09T16:54:09.929Z'),
+      displayName: 'samp category',
+      enabled: true,
+      fyle_category: null,
+      id: 226646,
+      name: 'samp category',
+      org_id: 'orrjqbDbeP9p',
+      sub_category: 'samp category',
+      updated_at: new Date('2023-01-09T16:54:09.929Z'),
+    },
+  },
+];
