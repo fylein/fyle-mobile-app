@@ -21,6 +21,7 @@ export class PolicyService {
   ) {}
 
   transformTo(transaction: PublicPolicyExpense | Partial<Transaction>): PlatformPolicyExpense {
+    const txnLocations = transaction.locations as string[];
     const platformPolicyExpense: PlatformPolicyExpense = {
       id: transaction.id,
       spent_at: transaction.txn_dt,
@@ -39,7 +40,7 @@ export class PolicyService {
       is_reimbursable: transaction.skip_reimbursement === null ? null : !transaction.skip_reimbursement,
       distance: transaction.distance,
       distance_unit: transaction.distance_unit,
-      locations: transaction.locations?.filter((location) => !!location),
+      locations: txnLocations?.filter((location) => !!location),
       custom_fields: transaction.custom_properties,
       started_at: transaction.from_dt,
       ended_at: transaction.to_dt,
