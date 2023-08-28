@@ -406,6 +406,17 @@ ion-popover.camera-options-popover {
   }
 }
 
+.dense-1,
+ion-toolbar {
+  .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+  }
+}
+
 .highlight-info {
   background-color: rgba(255, 153, 0, 0.25);
   color: #ff9900;
