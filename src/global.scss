@@ -168,6 +168,14 @@ ion-popover.error-popover {
   padding: 12px 8px !important;
 }
 
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: none;
+
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-shape: 8px;
+  }
+}
+
 .icon--toast-danger {
   color: $white !important;
 }
