@@ -12,7 +12,7 @@
       <app-card-detail [cardDetail]="cardDetail" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
       </app-card-detail>
     </ng-template>
-    <ng-template swiperSlide>
+    <ng-template *ngIf="showAddCardSlide" swiperSlide>
       <div class="spent-cards__add-card" data-testid="add-card">
         <app-add-card [showZeroStateMessage]="false" (addCardClick)="addCardClick.emit()"></app-add-card>
       </div>

@@ -18,6 +18,8 @@ export class SpentCardsComponent {
 
   @Input() currencySymbol: string;
 
+  @Input() showAddCardSlide: boolean;
+
   @Output() addCardClick = new EventEmitter<void>();
 
   pagination: PaginationOptions = {

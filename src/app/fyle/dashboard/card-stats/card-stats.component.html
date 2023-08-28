@@ -7,6 +7,7 @@
           [cardDetails]="cardDetails"
           [homeCurrency]="homeCurrency$ | async"
           [currencySymbol]="currencySymbol$ | async"
+          [showAddCardSlide]="canAddCorporateCards$ | async"
           (addCardClick)="openAddCorporateCardPopover()"
         ></app-spent-cards>
       </ng-container>
