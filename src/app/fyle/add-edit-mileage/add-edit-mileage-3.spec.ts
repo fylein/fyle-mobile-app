@@ -1,6 +1,6 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,8 +12,10 @@ import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import {
+  newExpFromFg,
   unflattendedTxnWithPolicyAmount,
   unflattenedTxnData,
+  unflattenedTxnDataWithReportID,
   unflattenedTxnWithTrackData,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -68,6 +70,8 @@ import {
 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';
 import { editExpenseProperties1 } from 'src/app/core/mock-data/track-expense-properties.data';
+import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
+import { editTransaction2, editUnflattenedTransaction } from 'src/app/core/mock-data/transaction.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditMileage-3', () => {
@@ -511,6 +515,129 @@ export function TestCases3(getTestBed) {
 
       component.trackEditExpense(unflattenedTxnWithTrackData);
       expect(trackingService.editExpense).toHaveBeenCalledOnceWith(editExpenseProperties1);
+    });
+
+    describe('editExpense():', () => {
+      it('should edit an expense', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
+        const mileageControl = new FormControl();
+        mileageControl.setValue({
+          mileageLocations: [locationData1, locationData2],
+        });
+        spyOn(component, 'trackPolicyCorrections');
+        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
+        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(newExpFromFg));
+        component.isConnected$ = of(true);
+        component.etxn$ = of(newExpFromFg);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        authService.getEou.and.resolveTo(apiEouRes);
+        transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'getFormValues').and.returnValue({
+          report: expectedErpt[0],
+        });
+        spyOn(component, 'trackEditExpense');
+        spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
+        reportService.addTransactions.and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.editExpense('SAVE_MILEAGE').subscribe((res) => {
+          expect(res).toEqual(editUnflattenedTransaction);
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
+          expect(component.getFormControl).toHaveBeenCalledOnceWith('route');
+          expect(component.getEditCalculatedDistance).toHaveBeenCalledOnceWith(mileageControl);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
+            component.etxn$,
+            jasmine.any(Observable),
+            jasmine.any(Observable)
+          );
+          expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith(newExpFromFg);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(component.trackEditExpense).toHaveBeenCalledTimes(1);
+          expect(transactionService.upsert).toHaveBeenCalledOnceWith(newExpFromFg.tx);
+          expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(newExpFromFg.tx.id);
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(2);
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedErpt[0].rp.id, [
+            unflattenedTxnData.tx.id,
+          ]);
+          expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should edit an expense and add it to the report', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
+        spyOn(component, 'trackPolicyCorrections');
+        const mileageControl = new FormControl();
+        mileageControl.setValue({
+          mileageLocations: [locationData1, locationData2],
+        });
+        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
+        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnDataWithReportID));
+        component.isConnected$ = of(true);
+        component.etxn$ = of(unflattenedTxnDataWithReportID);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        authService.getEou.and.resolveTo(apiEouRes);
+      });
+
+      xit('should edit an expense with critical policy violations', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
+        const mileageControl = new FormControl();
+        mileageControl.setValue({
+          mileageLocations: [locationData1, locationData2],
+        });
+        spyOn(component, 'trackPolicyCorrections');
+        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
+        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(newExpFromFg));
+        component.isConnected$ = of(true);
+        component.etxn$ = of(unflattenedTxnDataWithReportID);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
+        policyService.getCriticalPolicyRules.and.returnValue([
+          'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
+        ]);
+        spyOn(component, 'criticalPolicyViolationHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
+        authService.getEou.and.resolveTo(apiEouRes);
+        transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'getFormValues').and.returnValue({
+          report: expectedErpt[0],
+        });
+        spyOn(component, 'trackEditExpense');
+        spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
+        reportService.addTransactions.and.returnValue(of(null));
+        reportService.removeTransaction.and.returnValue(of(null));
+        transactionService.review.and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.editExpense('SAVE_MILEAGE').subscribe((res) => {
+          expect(res).toEqual(editTransaction2);
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
+          expect(component.getFormControl).toHaveBeenCalledOnceWith('route');
+          expect(component.getEditCalculatedDistance).toHaveBeenCalledOnceWith(mileageControl);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
+            component.etxn$,
+            jasmine.any(Observable),
+            jasmine.any(Observable)
+          );
+          expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith(newExpFromFg);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(component.criticalPolicyViolationHandler).toHaveBeenCalledTimes(1);
+          expect(component.trackEditExpense).toHaveBeenCalledTimes(1);
+
+          done();
+        });
+      });
     });
   });
 }
