@@ -129,23 +129,23 @@
           <ion-segment
             class="segment-block view-reports--segment-block-container__segment"
             (ionChange)="segmentChanged($event)"
-            [value]="segmentValue"
+            value="{{segmentValue}}"
           >
             <ion-segment-button
-              [value]="Segment.EXPENSES"
+              value="{{Segment.EXPENSES}}"
               class="view-reports--segment-block-container__btn text-capitalize"
             >
               Expenses
             </ion-segment-button>
             <ion-segment-button
-              [value]="Segment.COMMENTS"
+              value="{{Segment.COMMENTS}}"
               class="view-reports--segment-block-container__btn text-capitalize"
             >
               Comments
             </ion-segment-button>
             <ion-segment-button
               *ngIf="systemEstatuses?.length > 0"
-              [value]="Segment.HISTORY"
+              value="{{Segment.HISTORY}}"
               class="view-reports--segment-block-container__btn text-capitalize"
             >
               History
