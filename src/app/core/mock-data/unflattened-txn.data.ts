@@ -2748,6 +2748,67 @@ export const expectedPersonalTxn: UnflattenedTransaction = {
   rp: undefined,
 };
 
+export const newExpenseMileageData1: Partial<UnflattenedTransaction> = {
+  tx: {
+    skip_reimbursement: false,
+    source: 'MOBILE',
+    state: 'COMPLETE',
+    txn_dt: new Date('2023-08-21T07:43:15.592Z'),
+    org_category_id: 141295,
+    org_category: 'mileage',
+    sub_category: 'Business',
+    currency: 'USD',
+    amount: 0,
+    distance: null,
+    mileage_calculated_amount: null,
+    mileage_calculated_distance: null,
+    policy_amount: null,
+    mileage_vehicle_type: 'bicycle',
+    mileage_rate: 10,
+    distance_unit: 'MILES',
+    mileage_is_round_trip: false,
+    fyle_category: 'Mileage',
+    org_user_id: 'ouX8dwsbLCLv',
+    locations: [],
+    custom_properties: [],
+  },
+};
+
+export const newExpenseMileageData2: Partial<UnflattenedTransaction> = {
+  tx: {
+    skip_reimbursement: false,
+    source: 'MOBILE',
+    state: 'COMPLETE',
+    txn_dt: new Date('2023-08-21T07:43:15.592Z'),
+    org_category_id: 141295,
+    org_category: 'mileage',
+    sub_category: 'Business',
+    currency: 'USD',
+    amount: 0,
+    distance: null,
+    mileage_calculated_amount: null,
+    mileage_calculated_distance: null,
+    policy_amount: null,
+    mileage_vehicle_type: 'bicycle',
+    mileage_rate: 10,
+    distance_unit: 'MILES',
+    mileage_is_round_trip: false,
+    fyle_category: 'Mileage',
+    org_user_id: 'ouX8dwsbLCLv',
+    locations: [
+      {
+        city: 'Kolkata',
+        state: 'West Bengal',
+        country: 'India',
+        formatted_address: 'Tollygunge, Kolkata, West Bengal, India',
+        latitude: 22.4986357,
+        longitude: 88.3453906,
+        display: 'Tollygunge, Kolkata, West Bengal, India',
+      },
+    ],
+    custom_properties: [],
+  },
+};
 export const mileageCategoryUnflattenedExpense: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' },
@@ -2756,4 +2817,43 @@ export const mileageCategoryUnflattenedExpense: UnflattenedTransaction = {
 export const perDiemCategoryUnflattenedExpense: UnflattenedTransaction = {
   ...unflattenedTxnData,
   tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' },
+};
+
+export const unflattenedTxnWithSourceID: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    source_account_id: 'acc6mK6CEesGL',
+  },
+};
+
+export const unflattenedTxnWithSourceID2: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    source_account_id: 'acc6mK6CEesXL',
+  },
+};
+
+export const unflattendedTxnWithPolicyAmount: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    policy_amount: 100,
+  },
+};
+
+export const unflattenedTxnWithTrackData: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    project_id: 257528,
+    cost_center_id: 2411,
+    mileage_vehicle_type: 'car',
+    locations: [
+      {
+        display: 'Kolkata',
+      },
+    ],
+  },
 };
