@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { FyNumberComponent } from './fy-number.component';
-import { FormsModule, ReactiveFormsModule, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { of } from 'rxjs';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,20 +11,27 @@ import { DebugElement, Injector } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { getAllElementsBySelector, getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 
-describe('FyNumberComponent', () => {
+fdescribe('FyNumberComponent', () => {
   let component: FyNumberComponent;
   let fixture: ComponentFixture<FyNumberComponent>;
   let platform: jasmine.SpyObj<Platform>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let inputEl: DebugElement;
+  let injector: jasmine.SpyObj<Injector>;
 
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
       'checkIfKeyboardPluginIsEnabled',
       'checkIfNegativeExpensePluginIsEnabled',
+      'checkIfAndroidNegativeExpensePluginIsEnabled',
     ]);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
+    const mockInjector = {
+      get: () => ({
+        control: new FormControl(),
+      }),
+    };
 
     TestBed.configureTestingModule({
       declarations: [FyNumberComponent],
@@ -36,15 +43,24 @@ describe('FyNumberComponent', () => {
           provide: Injector,
           useValue: injectorSpy,
         },
+        {
+          provide: NgControl,
+          useValue: {
+            control: new FormControl(),
+          },
+        },
       ],
     }).compileComponents();
 
     platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    injector = TestBed.inject(Injector) as jasmine.SpyObj<Injector>;
 
     platform.is.withArgs('ios').and.returnValue(true);
+    platform.is.withArgs('android').and.returnValue(false);
     launchDarklyService.checkIfKeyboardPluginIsEnabled.and.returnValue(of(true));
     launchDarklyService.checkIfNegativeExpensePluginIsEnabled.and.returnValue(of(true));
+    launchDarklyService.checkIfAndroidNegativeExpensePluginIsEnabled.and.returnValue(of(true));
     fixture = TestBed.createComponent(FyNumberComponent);
     component = fixture.componentInstance;
     inputEl = fixture.debugElement.query(By.css('input'));
