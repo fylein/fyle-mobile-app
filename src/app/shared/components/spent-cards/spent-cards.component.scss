@@ -3,7 +3,7 @@
 .spent-cards {
   &__add-card {
     height: 350px;
-    width: calc(100% - 12px);
+    width: 100%;
     position: relative;
     left: 50%;
     transform: translate(-50%, 0);

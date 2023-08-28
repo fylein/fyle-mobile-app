@@ -3,9 +3,8 @@
     #swiper
     class="spent-cards__swiper"
     *ngIf="cardDetails"
-    [slidesPerView]="1.2"
-    [spaceBetween]="1"
-    [centeredSlides]="true"
+    [slidesPerView]="1.075"
+    [spaceBetween]="16"
     [pagination]="pagination"
   >
     <ng-template *ngFor="let cardDetail of cardDetails" swiperSlide>

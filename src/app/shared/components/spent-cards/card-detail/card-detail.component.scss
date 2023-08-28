@@ -113,9 +113,9 @@
     left: 50%;
     transform: translate(-50%, 0);
     height: 145px;
-    width: calc(100% - 36px);
+    width: calc(100% - 24px);
     border-radius: 16px;
-    box-shadow: 0px 12px 20px -10px rgb($dark-grey, 0.239);
+    box-shadow: 0px 12px 20px -10px rgba($dark-grey, 0.24);
     z-index: 999;
   }
 
@@ -123,11 +123,12 @@
     padding: 64px 32px 32px 32px;
     background: $pure-white;
     border-radius: 16px;
-    width: calc(100% - 12px);
+    width: 100%;
     position: relative;
     left: 50%;
     transform: translate(-50%, 0px);
     bottom: 54px;
+    box-shadow: 0px -2px 40px 0px $transparent-pearl-grey;
   }
 
   &--ccc-classified-stats {

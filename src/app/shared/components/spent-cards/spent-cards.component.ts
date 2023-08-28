@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { SwiperComponent } from 'swiper/angular';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import SwiperCore, { Pagination } from 'swiper';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
+import { PaginationOptions } from 'swiper/types';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -20,9 +20,7 @@ export class SpentCardsComponent {
 
   @Output() addCardClick = new EventEmitter<void>();
 
-  @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
-
-  pagination = {
+  pagination: PaginationOptions = {
     dynamicBullets: true,
     renderBullet(index, className): string {
       return '<span class="spent-cards ' + className + '"> </span>';
