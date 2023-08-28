@@ -546,7 +546,8 @@ form {
   font-size: 14px;
 }
 
-.dense-1 {
+.dense-1,
+ion-toolbar {
   .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
     padding-top: 0px;
     padding-bottom: 0px;
@@ -554,14 +555,6 @@ form {
     align-items: center;
     min-height: 38px;
   }
-}
-
-.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
-  padding-top: 0px;
-  padding-bottom: 0px;
-  display: flex;
-  align-items: center;
-  min-height: 38px;
 }
 
 .signin-signup-fields {
