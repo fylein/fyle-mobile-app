@@ -55,6 +55,14 @@ $password-icon: #b9beba;
     ::ng-deep .mdc-notched-outline > * {
       border-color: $transparent-black !important;
     }
+
+    ::ng-deep .mdc-text-field--focused .mdc-notched-outline > * {
+      border-color: $red !important;
+    }
+
+    ::ng-deep .mdc-text-field--invalid .mdc-notched-outline > * {
+      border-color: $red !important;
+    }
   }
 
   &--form-header {
