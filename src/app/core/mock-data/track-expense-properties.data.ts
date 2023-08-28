@@ -1,3 +1,4 @@
+import { ExpenseProperties } from '../models/tracking-properties.model';
 import {
   expectedUnflattendedTxnData4,
   trackAddExpenseWoCurrency,
@@ -40,4 +41,13 @@ export const editExpenseProperties1 = {
   Used_Autofilled_CostCenter: true,
   Used_Autofilled_VehicleType: true,
   Used_Autofilled_StartLocation: true,
+};
+export const createExpenseProperties3: ExpenseProperties = {
+  Type: 'Receipt',
+  Amount: 344,
+  Currency: 'INR',
+  Category: 'Software',
+  Time_Spent: '180 secs',
+  Used_Autofilled_Project: true,
+  Used_Autofilled_CostCenter: true,
 };
