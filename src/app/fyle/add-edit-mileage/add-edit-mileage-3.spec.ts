@@ -16,6 +16,8 @@ import {
   unflattendedTxnWithPolicyAmount,
   unflattenedTxnData,
   unflattenedTxnDataWithReportID,
+  unflattenedTxnDataWithReportID2,
+  unflattenedTxnDataWithReportID2UserReview,
   unflattenedTxnWithTrackData,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -71,7 +73,12 @@ import {
 import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';
 import { editExpenseProperties1 } from 'src/app/core/mock-data/track-expense-properties.data';
 import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
-import { editTransaction2, editUnflattenedTransaction } from 'src/app/core/mock-data/transaction.data';
+import {
+  editTransaction2,
+  editTransaction3,
+  editTransaction4,
+  editUnflattenedTransaction,
+} from 'src/app/core/mock-data/transaction.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditMileage-3', () => {
@@ -587,9 +594,102 @@ export function TestCases3(getTestBed) {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
         authService.getEou.and.resolveTo(apiEouRes);
+        spyOn(component, 'getFormValues').and.returnValue({
+          report: expectedErpt[0],
+        });
+        spyOn(component, 'trackEditExpense');
+        spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
+        transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithReportID.tx));
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnDataWithReportID));
+        reportService.removeTransaction.and.returnValue(of(null));
+        reportService.addTransactions.and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.editExpense('SAVE_MILEAGE').subscribe((res) => {
+          expect(res).toEqual(editTransaction3);
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
+          expect(component.getFormControl).toHaveBeenCalledOnceWith('route');
+          expect(component.getEditCalculatedDistance).toHaveBeenCalledOnceWith(mileageControl);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
+            component.etxn$,
+            jasmine.any(Observable),
+            jasmine.any(Observable)
+          );
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(component.trackEditExpense).toHaveBeenCalledTimes(1);
+          expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnDataWithReportID.tx);
+          expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnDataWithReportID.tx.id);
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(
+            unflattenedTxnDataWithReportID.tx.report_id,
+            unflattenedTxnDataWithReportID.tx.id
+          );
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txbO4Xaj4N53']);
+          expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
 
-      xit('should edit an expense with critical policy violations', (done) => {
+      it('should edit an expense to remove transaction from report', (done) => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
+        spyOn(component, 'trackPolicyCorrections');
+        const mileageControl = new FormControl();
+        mileageControl.setValue({
+          mileageLocations: [locationData1, locationData2],
+        });
+        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
+        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnDataWithReportID2UserReview));
+        component.isConnected$ = of(true);
+        component.etxn$ = of(unflattenedTxnDataWithReportID2UserReview);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        authService.getEou.and.resolveTo(apiEouRes);
+        spyOn(component, 'getFormValues').and.returnValue({
+          report: null,
+        });
+        spyOn(component, 'trackEditExpense');
+        transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithReportID2UserReview.tx));
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnDataWithReportID2UserReview));
+        reportService.removeTransaction.and.returnValue(of(null));
+        transactionService.review.and.returnValue(of(null));
+        fixture.detectChanges();
+
+        component.editExpense('SAVE_MILEAGE').subscribe((res) => {
+          expect(res).toEqual(editTransaction4);
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
+          expect(component.getFormControl).toHaveBeenCalledOnceWith('route');
+          expect(component.getEditCalculatedDistance).toHaveBeenCalledOnceWith(mileageControl);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
+            component.etxn$,
+            jasmine.any(Observable),
+            jasmine.any(Observable)
+          );
+          expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
+          expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+          expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+          expect(component.trackEditExpense).toHaveBeenCalledTimes(1);
+          expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnDataWithReportID2UserReview.tx);
+          expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
+            unflattenedTxnDataWithReportID2UserReview.tx.id
+          );
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(
+            unflattenedTxnDataWithReportID2UserReview.tx.report_id,
+            unflattenedTxnDataWithReportID2UserReview.tx.id
+          );
+          expect(trackingService.removeFromExistingReportEditExpense).toHaveBeenCalledTimes(1);
+          expect(transactionService.review).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should edit an expense with critical policy violations', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
         const mileageControl = new FormControl();
         mileageControl.setValue({
@@ -614,9 +714,6 @@ export function TestCases3(getTestBed) {
         });
         spyOn(component, 'trackEditExpense');
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
-        reportService.addTransactions.and.returnValue(of(null));
-        reportService.removeTransaction.and.returnValue(of(null));
-        transactionService.review.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_MILEAGE').subscribe((res) => {
@@ -634,7 +731,6 @@ export function TestCases3(getTestBed) {
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
           expect(component.criticalPolicyViolationHandler).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledTimes(1);
-
           done();
         });
       });

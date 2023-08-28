@@ -2857,3 +2857,11 @@ export const unflattenedTxnWithTrackData: UnflattenedTransaction = {
     ],
   },
 };
+
+export const unflattenedTxnDataWithReportID2UserReview: UnflattenedTransaction = {
+  ...unflattenedTxnDataWithReportID2,
+  tx: {
+    ...unflattenedTxnDataWithReportID2.tx,
+    user_review_needed: true,
+  },
+};
