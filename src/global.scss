@@ -406,6 +406,16 @@ ion-popover.camera-options-popover {
   }
 }
 
+.dense-1 {
+  .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+  }
+}
+
 .highlight-info {
   background-color: rgba(255, 153, 0, 0.25);
   color: #ff9900;
@@ -863,6 +873,11 @@ ref - https://stackoverflow.com/a/31162426
     --background: transparent;
     --color: #{$black-light};
   }
+}
+
+ion-toolbar {
+  padding-right: 0px !important;
+  padding-left: 0px !important;
 }
 
 .footer-ios ion-toolbar:first-of-type {
