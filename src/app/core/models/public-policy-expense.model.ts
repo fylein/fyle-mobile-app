@@ -38,7 +38,7 @@ export interface PublicPolicyExpense {
   is_matching_ccc_expense: boolean;
   mileage_rate_id: number;
   invoice_number: number;
-  locations?: Destination[];
+  locations?: Destination[] | string[];
   mandatory_fields_present: boolean;
   manual_flag: boolean;
   mileage_calculated_amount: number;
