@@ -1,18 +1,19 @@
 @import '../../../../theme/colors.scss';
 
 .card-stats {
-  margin-bottom: 40%;
+  margin-bottom: 30%;
 
   &__header {
     font-size: 14px;
     line-height: 18px;
     color: $grey-light;
     font-weight: 500;
-    margin: 18px 16px 0 16px;
+    margin: 16px 16px 0 16px;
   }
 
   &__zero-state {
-    height: 350px;
-    margin: 18px 16px 16px 16px;
+    height: 382px;
+    margin-top: 18px;
+    padding: 0 16px 16px 16px;
   }
 }
