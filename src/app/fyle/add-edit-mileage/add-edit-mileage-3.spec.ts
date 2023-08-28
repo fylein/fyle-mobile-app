@@ -67,6 +67,7 @@ import {
   defaultTxnFieldValuesData4,
 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';
+import { editExpenseProperties1 } from 'src/app/core/mock-data/track-expense-properties.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditMileage-3', () => {
@@ -509,17 +510,7 @@ export function TestCases3(getTestBed) {
       fixture.detectChanges();
 
       component.trackEditExpense(unflattenedTxnWithTrackData);
-      expect(trackingService.editExpense).toHaveBeenCalledOnceWith({
-        Type: 'Mileage',
-        Amount: unflattenedTxnWithTrackData.tx.amount,
-        Currency: unflattenedTxnWithTrackData.tx.currency,
-        Category: unflattenedTxnWithTrackData.tx.org_category,
-        Time_Spent: '300 secs',
-        Used_Autofilled_Project: true,
-        Used_Autofilled_CostCenter: true,
-        Used_Autofilled_VehicleType: true,
-        Used_Autofilled_StartLocation: true,
-      });
+      expect(trackingService.editExpense).toHaveBeenCalledOnceWith(editExpenseProperties1);
     });
   });
 }
