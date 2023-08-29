@@ -19,7 +19,7 @@ export interface PlatformPolicyExpense {
   is_reimbursable?: boolean;
   distance?: number;
   distance_unit?: string;
-  locations?: Destination[];
+  locations?: Destination[] | string[];
   custom_fields?: TxnCustomProperties[];
   started_at?: Date;
   ended_at?: Date;
