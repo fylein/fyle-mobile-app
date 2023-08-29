@@ -37,6 +37,9 @@ import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data'
 import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { getElementRef } from 'src/app/core/dom-helpers';
 
 export function TestCases5(getTestBed) {
   return describe('add-edit-per-diem test cases set 5', () => {
@@ -553,6 +556,76 @@ export function TestCases5(getTestBed) {
         );
         expect(trackingService.clickDeleteExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
       }));
+    });
+
+    describe('openCommentsModal():', () => {
+      it('should add comment', fakeAsync(() => {
+        component.etxn$ = of(unflattenedTxnData);
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+
+        modalSpy.onDidDismiss.and.resolveTo({ data: { updated: 'comment' } });
+
+        modalController.create.and.resolveTo(modalSpy);
+
+        component.openCommentsModal();
+        tick(100);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: ViewCommentComponent,
+          componentProps: {
+            objectType: 'transactions',
+            objectId: unflattenedTxnData.tx.id,
+          },
+          ...properties,
+        });
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.addComment).toHaveBeenCalledTimes(1);
+        expect(trackingService.viewComment).not.toHaveBeenCalled();
+      }));
+
+      it('should view comment', fakeAsync(() => {
+        component.etxn$ = of(unflattenedTxnData);
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+
+        modalSpy.onDidDismiss.and.resolveTo({ data: {} });
+
+        modalController.create.and.resolveTo(modalSpy);
+
+        component.openCommentsModal();
+        tick(100);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: ViewCommentComponent,
+          componentProps: {
+            objectType: 'transactions',
+            objectId: unflattenedTxnData.tx.id,
+          },
+          ...properties,
+        });
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
+        expect(trackingService.addComment).not.toHaveBeenCalled();
+      }));
+    });
+
+    it('hideFields(): should track hideMoreClicked and set isExpandedView to false', () => {
+      component.isExpandedView = true;
+      component.hideFields();
+      expect(component.isExpandedView).toBeFalse();
+      expect(trackingService.hideMoreClicked).toHaveBeenCalledOnceWith({
+        source: 'Add Edit Per Diem page',
+      });
+    });
+
+    it('showFields(): should track showMoreClicked and set isExpandedView to true', () => {
+      component.isExpandedView = false;
+      component.showFields();
+      expect(component.isExpandedView).toBeTrue();
+      expect(trackingService.showMoreClicked).toHaveBeenCalledOnceWith({
+        source: 'Add Edit Per Diem page',
+      });
     });
   });
 }
