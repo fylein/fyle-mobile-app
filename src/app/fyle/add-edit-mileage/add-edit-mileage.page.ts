@@ -441,30 +441,6 @@ export class AddEditMileagePage implements OnInit {
     this.connectionStatus$ = this.isConnected$.pipe(map((isConnected) => ({ connected: isConnected })));
   }
 
-  getCalculateDistance(): Observable<string> {
-    const routeControl = this.getFormControl('route') as { value: { mileageLocations: Location[] } };
-    return this.mileageService.getDistance(routeControl.value?.mileageLocations).pipe(
-      switchMap((distance) =>
-        this.etxn$.pipe(
-          map((etxn) => {
-            const distanceInKm = distance / 1000;
-            const finalDistance = etxn.tx.distance_unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
-            return finalDistance;
-          })
-        )
-      ),
-      map((finalDistance) => {
-        const formValue = this.getFormValues();
-        if (formValue.route.roundTrip) {
-          return (finalDistance * 2).toFixed(2);
-        } else {
-          return finalDistance.toFixed(2);
-        }
-      }),
-      shareReplay(1)
-    );
-  }
-
   setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
     const formValue = this.getFormValues();
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
@@ -2417,9 +2393,9 @@ export class AddEditMileagePage implements OnInit {
 
   criticalPolicyViolationHandler(err: {
     policyViolations: string[];
-    etxn: UnflattenedTransaction;
+    etxn: Partial<UnflattenedTransaction>;
     type?: string;
-  }): Observable<{ etxn: UnflattenedTransaction }> {
+  }): Observable<{ etxn: Partial<UnflattenedTransaction> }> {
     return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
       switchMap((continueWithTransaction) => {
         if (continueWithTransaction) {
@@ -2433,10 +2409,10 @@ export class AddEditMileagePage implements OnInit {
 
   policyViolationHandler(err: {
     policyViolations: string[];
-    etxn: UnflattenedTransaction;
+    etxn: Partial<UnflattenedTransaction>;
     policyAction: FinalExpensePolicyState;
     type?: string;
-  }): Observable<{ etxn: UnflattenedTransaction; comment: string }> {
+  }): Observable<{ etxn: Partial<UnflattenedTransaction>; comment: string }> {
     return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
       switchMap((continueWithTransaction: { comment: string }) => {
         if (continueWithTransaction) {

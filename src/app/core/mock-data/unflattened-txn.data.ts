@@ -2865,3 +2865,18 @@ export const unflattenedTxnDataWithReportID2UserReview: UnflattenedTransaction =
     user_review_needed: true,
   },
 };
+
+export const expenseTrackCreate: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    project_id: 3943,
+    cost_center_id: 16744,
+    mileage_vehicle_type: 'CAR',
+    locations: [
+      {
+        display: 'kolkata',
+      },
+    ],
+  },
+};
