@@ -28,3 +28,9 @@ export const defaultTxnFieldValuesData2: Partial<DefaultTxnFieldValues> = {
   num_days: 32,
   billable: true,
 };
+
+export const defaultTxnFieldValuesData4: Partial<DefaultTxnFieldValues> = {
+  purpose: 'test_term',
+  cost_center_id: 15818,
+  billable: true,
+};
