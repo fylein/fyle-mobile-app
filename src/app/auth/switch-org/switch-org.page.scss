@@ -101,6 +101,10 @@
     padding-top: 8px;
 
     mat-form-field {
+      ::ng-deep .d-flex {
+        flex: 1;
+      }
+
       ::ng-deep .mat-form-field-outline {
         color: $black-light !important;
       }
@@ -118,7 +122,6 @@
       }
 
       &__clear-icon {
-        margin: -10px;
         font-size: 18px;
         background-color: transparent;
         color: $black;
