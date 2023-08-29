@@ -292,10 +292,6 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  get showSaveAndNext(): boolean {
-    return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
-  }
-
   get isExpandedView(): boolean {
     return this._isExpandedView;
   }
@@ -549,14 +545,6 @@ export class AddEditPerDiemPage implements OnInit {
           const control = keyToControlMap[defaultValueColumn];
           if (!control.value && defaultValueColumn !== 'billable') {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (
-            control.value === null &&
-            control.value === undefined &&
-            this.fg.controls.project.value &&
-            defaultValueColumn !== 'billable' &&
-            !control.touched
-          ) {
-            control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
       }
@@ -603,7 +591,7 @@ export class AddEditPerDiemPage implements OnInit {
       map((categories) => {
         const perDiemCategories = categories
           .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
-          .map((category) => category?.id?.toString());
+          .map((category) => category.id?.toString());
 
         return perDiemCategories;
       })
@@ -809,7 +797,7 @@ export class AddEditPerDiemPage implements OnInit {
         if (formValue.paymentMode?.acc?.type === AccountType.ADVANCE) {
           if (
             etxn?.tx.id &&
-            formValue.paymentMode?.acc?.id === etxn.tx.source_account_id &&
+            formValue.paymentMode.acc.id === etxn.tx.source_account_id &&
             etxn.tx.state !== TransactionState.DRAFT
           ) {
             return formValue.paymentMode.acc.tentative_balance_amount + etxn.tx.amount < formValue.currencyObj.amount;
@@ -1256,8 +1244,7 @@ export class AddEditPerDiemPage implements OnInit {
               map(
                 (accounts) =>
                   accounts.filter(
-                    (account) =>
-                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
+                    (account) => account?.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0
                   ).length > 0
               )
             );
@@ -2323,19 +2310,6 @@ export class AddEditPerDiemPage implements OnInit {
     } else {
       if (this.mode === 'add') {
         this.trackingService.clickDeleteExpense({ Type: 'Per Diem' });
-      }
-    }
-  }
-
-  scrollCommentsIntoView(): void {
-    if (this.commentsContainer) {
-      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
-      if (commentsContainer) {
-        commentsContainer.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'start',
-        });
       }
     }
   }

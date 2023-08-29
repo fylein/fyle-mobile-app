@@ -592,6 +592,19 @@ export function TestCases2(getTestBed) {
         done();
       });
 
+      it('should set individualProjectIds$ to empty array if orgUserSettings.project_ids are undefined', (done) => {
+        const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+        mockOrgUserSettings.project_ids = undefined;
+        orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettings));
+        component.ionViewWillEnter();
+
+        component.individualProjectIds$.subscribe((res) => {
+          expect(res).toEqual([]);
+        });
+
+        done();
+      });
+
       it('should update isProjectsEnabled$, customInputs$, isCostCentersEnabled$ and paymentModes$', (done) => {
         component.ionViewWillEnter();
         component.isProjectsEnabled$.subscribe((res) => {
@@ -740,6 +753,32 @@ export function TestCases2(getTestBed) {
       it('should set isBalanceAvailableInAnyAdvanceAccount$ correctly if paymentMode changed and paymentMode.acc.type equals PERSONAL account', (done) => {
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ correctly if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account.acc is undefined', (done) => {
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
+        const mockAccountsData = cloneDeep(accountsData);
+        mockAccountsData[0].acc = undefined;
+        accountsService.getEMyAccounts.and.returnValue(of(mockAccountsData));
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ correctly if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account is undefined', (done) => {
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
+        const mockAccountsData = cloneDeep(accountsData);
+        mockAccountsData[0] = undefined;
+        accountsService.getEMyAccounts.and.returnValue(of(mockAccountsData));
         component.ionViewWillEnter();
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);

@@ -190,6 +190,18 @@ export function TestCases3(getTestBed) {
         });
       });
 
+      it('should return true if tentative_balance_amount is lesser than currencyObj.amount if etxn is undefined', (done) => {
+        component.etxn$ = of(undefined);
+        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
+        mockPaymentMode.acc.tentative_balance_amount = 0;
+        component.fg.value.paymentMode = mockPaymentMode;
+        component.fg.value.currencyObj = currencyObjData5;
+        component.isPaymentModeValid().subscribe((res) => {
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+
       it('should return true if acc_id equals to source_account_id and tentative_balance_amount + tx_amount is lesser than currencyObj.amount', (done) => {
         const mockTxnData = cloneDeep(unflattenedTxnData);
         mockTxnData.tx.source_account_id = unflattenedAccount2Data.acc.id;
