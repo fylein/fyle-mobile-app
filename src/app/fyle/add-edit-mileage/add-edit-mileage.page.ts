@@ -2418,6 +2418,7 @@ export class AddEditMileagePage implements OnInit {
   criticalPolicyViolationHandler(err: {
     policyViolations: string[];
     etxn: UnflattenedTransaction;
+    type?: string;
   }): Observable<{ etxn: UnflattenedTransaction }> {
     return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
       switchMap((continueWithTransaction) => {
@@ -2434,6 +2435,7 @@ export class AddEditMileagePage implements OnInit {
     policyViolations: string[];
     etxn: UnflattenedTransaction;
     policyAction: FinalExpensePolicyState;
+    type?: string;
   }): Observable<{ etxn: UnflattenedTransaction; comment: string }> {
     return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
       switchMap((continueWithTransaction: { comment: string }) => {
@@ -2541,10 +2543,10 @@ export class AddEditMileagePage implements OnInit {
 
             let reportId: string;
             if (
-              reportValue.report &&
+              reportValue?.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = reportValue.report.rp.id;
+              reportId = reportValue?.report?.rp?.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(

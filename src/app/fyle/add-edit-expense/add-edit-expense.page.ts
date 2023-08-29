@@ -1852,7 +1852,7 @@ export class AddEditExpensePage implements OnInit {
               duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
               billable: etxn.tx.billable,
               custom_inputs: customInputValues,
-              costCenter,
+
               hotel_is_breakfast_provided: etxn.tx.hotel_is_breakfast_provided,
             },
             {
@@ -1860,6 +1860,9 @@ export class AddEditExpensePage implements OnInit {
             },
           );
 
+          this.fg.patchValue({
+            costCenter,
+          });
           this.initialFetch = false;
 
           setTimeout(() => {
@@ -2642,9 +2645,7 @@ export class AddEditExpensePage implements OnInit {
 
   setupSelectedCostCenterObservable(): void {
     this.fg.controls.costCenter.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((costCenter: CostCenter) => {
-      if (!this.initialFetch) {
-        this.selectedCostCenter$.next(costCenter);
-      }
+      this.selectedCostCenter$.next(costCenter);
     });
   }
 
