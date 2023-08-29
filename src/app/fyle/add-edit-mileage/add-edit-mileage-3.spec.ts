@@ -80,6 +80,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditMileagePage } from './add-edit-mileage.page';
+import { cloneDeep } from 'lodash';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditMileage-3', () => {
@@ -543,7 +544,7 @@ export function TestCases3(getTestBed) {
         policyService.getPolicyRules.and.returnValue([]);
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        transactionService.getETxnUnflattened.and.returnValue(of(cloneDeep(unflattenedTxnData)));
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
@@ -706,10 +707,10 @@ export function TestCases3(getTestBed) {
         policyService.getCriticalPolicyRules.and.returnValue([
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
         ]);
-        spyOn(component, 'criticalPolicyViolationHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
+        spyOn(component, 'criticalPolicyViolationHandler').and.returnValue(of({ etxn: cloneDeep(unflattenedTxnData) }));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        transactionService.getETxnUnflattened.and.returnValue(of(cloneDeep(unflattenedTxnData)));
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
@@ -761,7 +762,7 @@ export function TestCases3(getTestBed) {
         );
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        transactionService.getETxnUnflattened.and.returnValue(of(cloneDeep(unflattenedTxnData)));
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
@@ -830,7 +831,7 @@ export function TestCases3(getTestBed) {
         );
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        transactionService.getETxnUnflattened.and.returnValue(of(cloneDeep(unflattenedTxnData)));
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
