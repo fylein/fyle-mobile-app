@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController, NavController, ActionSheetController, Platform } from '@ionic/angular';
-import { Subscription, Subject, BehaviorSubject } from 'rxjs';
+import { Subscription, Subject, BehaviorSubject, of, Observable } from 'rxjs';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -43,6 +43,18 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditMileagePage } from './add-edit-mileage.page';
+import {
+  dependentCustomFields2,
+  expenseFieldResponse,
+  expenseFieldWithBillable,
+  mileageDependentFields,
+  transformedResponse,
+} from 'src/app/core/mock-data/expense-field.data';
+import { mileageCategories, mileageCategories2, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
+import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import { txnCustomPropertiesData, txnCustomPropertiesData3 } from 'src/app/core/mock-data/txn-custom-properties.data';
+import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
+import { customInput2 } from 'src/app/core/test-data/custom-inputs.spec.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditMileage-4', () => {
@@ -180,6 +192,87 @@ export function TestCases4(getTestBed) {
 
     it('should create', () => {
       expect(component).toBeTruthy();
+    });
+
+    it('setupDependentFields(): should setup dependent fields', (done) => {
+      component.setupDependentFields(of(dependentCustomFields2));
+
+      component.dependentFields$.subscribe((res) => {
+        expect(res).toEqual(dependentCustomFields2);
+        done();
+      });
+    });
+
+    describe('checkMileageCategories():', () => {
+      it('should get default mileage category if a category is not set', (done) => {
+        spyOn(component, 'getMileageCategories').and.returnValue(
+          of({
+            defaultMileageCategory: mileageCategories2[0],
+            mileageCategories: [mileageCategories2[1]],
+          })
+        );
+
+        component.checkMileageCategories(null).subscribe((res) => {
+          expect(res).toEqual(mileageCategories2[0]);
+          expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return the category set by the user', (done) => {
+        component.checkMileageCategories(orgCategoryData).subscribe((res) => {
+          expect(res).toEqual(orgCategoryData);
+          done();
+        });
+      });
+    });
+
+    describe('getCustomInputs():', () => {
+      it('should get custom inputs', (done) => {
+        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+        component.isConnected$ = of(true);
+        spyOn(component, 'setupDependentFields');
+        spyOn(component, 'getFormValues').and.returnValue({
+          custom_inputs: customInputData1 as any,
+        });
+        spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
+        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData);
+        customInputsService.filterByCategory.and.returnValue(expenseFieldWithBillable);
+        fixture.detectChanges();
+
+        component.getCustomInputs().subscribe((res) => {
+          expect(res.length).toEqual(8);
+        });
+        expect(component.setupDependentFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
+          customInputData1 as any,
+          expenseFieldWithBillable
+        );
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
+        done();
+      });
+
+      it('should get custom inputs if no previous custom inputs are assigned', (done) => {
+        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+        component.isConnected$ = of(true);
+        spyOn(component, 'setupDependentFields');
+        spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
+        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData3);
+        customInputsService.filterByCategory.and.returnValue(expenseFieldWithBillable);
+        spyOn(component, 'getFormValues').and.returnValue({
+          custom_inputs: null,
+        });
+        fixture.detectChanges();
+
+        component.getCustomInputs().subscribe((res) => {
+          expect(res.length).toEqual(6);
+        });
+        expect(component.setupDependentFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], expenseFieldWithBillable);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
+        expect(component.getFormValues).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
   });
 }

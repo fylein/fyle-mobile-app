@@ -632,24 +632,30 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  setupDependentFields(customExpenseFields$: Observable<ExpenseField[]>): void {
+    this.dependentFields$ = customExpenseFields$.pipe(
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
+    );
+  }
+
+  checkMileageCategories(category: OrgCategory): Observable<OrgCategory> {
+    if (category && !isEmpty(category)) {
+      return of(category);
+    } else {
+      return this.getMileageCategories().pipe(map((mileageContainer) => mileageContainer.defaultMileageCategory));
+    }
+  }
+
   getCustomInputs(): Observable<TxnCustomProperties[]> {
     this.initialFetch = true;
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
-    this.dependentFields$ = customExpenseFields$.pipe(
-      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
-    );
+    this.setupDependentFields(customExpenseFields$);
 
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
-      switchMap((category) => {
-        if (category && !isEmpty(category)) {
-          return of(category);
-        } else {
-          return this.getMileageCategories().pipe(map((mileageContainer) => mileageContainer.defaultMileageCategory));
-        }
-      }),
+      switchMap((category: OrgCategory) => this.checkMileageCategories(category)),
       switchMap((category: OrgCategory) => {
         const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
