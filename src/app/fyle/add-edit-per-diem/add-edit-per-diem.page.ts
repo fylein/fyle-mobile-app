@@ -2009,7 +2009,7 @@ export class AddEditPerDiemPage implements OnInit {
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         this.etxn$.pipe(
           switchMap((txnCopy) => {
-            if (!isEqual(etxn.tx, txnCopy)) {
+            if (!isEqual(etxn.tx, txnCopy.tx)) {
               // only if the form is edited
               this.trackingService.editExpense({
                 Type: 'Per Diem',

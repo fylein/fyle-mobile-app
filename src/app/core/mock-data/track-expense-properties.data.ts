@@ -51,3 +51,8 @@ export const createExpenseProperties3: ExpenseProperties = {
   Used_Autofilled_Project: true,
   Used_Autofilled_CostCenter: true,
 };
+
+export const editExpenseProperties: ExpenseProperties = {
+  ...createExpenseProperties3,
+  Type: 'Per Diem',
+};
