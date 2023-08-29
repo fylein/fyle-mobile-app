@@ -495,6 +495,122 @@ export function TestCases4(getTestBed) {
           });
       });
 
+      it('should throw policyViolations error and save the edited expense if policyViolations.data is undefined', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        const mockExpensePolicyData = cloneDeep(expensePolicyData);
+        mockExpensePolicyData.data = undefined;
+        component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(mockExpensePolicyData));
+        component
+          .editExpense('SAVE_PER_DIEM')
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            })
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+            expect(component.editExpenseCriticalPolicyViolationHandler).not.toHaveBeenCalled();
+            expect(component.editExpensePolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: undefined,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(trackingService.editExpense).not.toHaveBeenCalled();
+            expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx.id,
+              'transactions',
+              unflattenedTxnData.tx.org_user_id
+            );
+            expect(statusService.post).toHaveBeenCalledOnceWith(
+              'transactions',
+              unflattenedTxnData.tx.id,
+              { comment: 'comment' },
+              true
+            );
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the edited expense if policyViolations is undefined', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(undefined));
+        component
+          .editExpense('SAVE_PER_DIEM')
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            })
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+            expect(component.editExpenseCriticalPolicyViolationHandler).not.toHaveBeenCalled();
+            expect(component.editExpensePolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: undefined,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(trackingService.editExpense).not.toHaveBeenCalled();
+            expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx.id,
+              'transactions',
+              unflattenedTxnData.tx.org_user_id
+            );
+            expect(statusService.post).toHaveBeenCalledOnceWith(
+              'transactions',
+              unflattenedTxnData.tx.id,
+              { comment: 'comment' },
+              true
+            );
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
       it('should throw policyViolations error and save the edited expense and should not call statusService.post if err.comment is equal to latest comment', (done) => {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         statusService.findLatestComment.and.returnValue(of('comment'));
