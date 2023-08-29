@@ -3984,7 +3984,7 @@ export const editUnflattenedTransaction: Partial<Transaction> = {
   platform_vendor: null,
   platform_vendor_id: null,
   org_category: 'Software',
-  sub_category: 'Software',
+  sub_category: 'Subscriptions',
   fyle_category: null,
   org_category_code: '117',
   org_category_id: 16577,
@@ -4001,7 +4001,7 @@ export const editUnflattenedTransaction: Partial<Transaction> = {
     invoice_dt: null,
   },
   transcribed_data: null,
-  user_review_needed: true,
+  user_review_needed: null,
   mandatory_fields_present: true,
   distance: null,
   distance_unit: null,
@@ -4034,7 +4034,7 @@ export const editUnflattenedTransaction: Partial<Transaction> = {
     },
   ],
   is_implicit_merge_blocked: false,
-  categoryDisplayName: 'Software',
+  categoryDisplayName: 'Software / Subscriptions',
 };
 
 export const editTransaction2: Partial<Transaction> = {
@@ -4089,7 +4089,7 @@ export const editTransaction2: Partial<Transaction> = {
   platform_vendor: null,
   platform_vendor_id: null,
   org_category: 'Software',
-  sub_category: 'Software',
+  sub_category: 'Subscriptions',
   fyle_category: null,
   org_category_code: '117',
   org_category_id: 16577,
@@ -4106,7 +4106,7 @@ export const editTransaction2: Partial<Transaction> = {
     invoice_dt: null,
   },
   transcribed_data: null,
-  user_review_needed: true,
+  user_review_needed: null,
   mandatory_fields_present: true,
   distance: null,
   distance_unit: null,
@@ -4139,7 +4139,7 @@ export const editTransaction2: Partial<Transaction> = {
     },
   ],
   is_implicit_merge_blocked: false,
-  categoryDisplayName: 'Software',
+  categoryDisplayName: 'Software / Subscriptions',
 };
 
 export const editTransaction3: Partial<Transaction> = {
@@ -4456,7 +4456,7 @@ export const editTransaction5: Partial<Transaction> = {
   platform_vendor: null,
   platform_vendor_id: null,
   org_category: 'Software',
-  sub_category: 'Software',
+  sub_category: 'Subscriptions',
   fyle_category: null,
   org_category_code: '117',
   org_category_id: 16577,
@@ -4473,7 +4473,7 @@ export const editTransaction5: Partial<Transaction> = {
     invoice_dt: null,
   },
   transcribed_data: null,
-  user_review_needed: true,
+  user_review_needed: null,
   mandatory_fields_present: true,
   distance: null,
   distance_unit: null,
@@ -4506,7 +4506,7 @@ export const editTransaction5: Partial<Transaction> = {
     },
   ],
   is_implicit_merge_blocked: false,
-  categoryDisplayName: 'Software',
+  categoryDisplayName: 'Software / Subscriptions',
 };
 
 export const editTransaction6: Partial<Transaction> = {
