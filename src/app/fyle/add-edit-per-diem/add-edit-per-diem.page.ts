@@ -105,6 +105,7 @@ import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-
 import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
 import { TransactionState } from 'src/app/core/models/transaction-state.enum';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -2244,34 +2245,66 @@ export class AddEditPerDiemPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  async deleteExpense(reportId?: string): Promise<void> {
-    const id = this.activatedRoute.snapshot.params.id as string;
-    const removePerDiemFromReport = reportId && this.isRedirectedFromReport;
-
-    const header = removePerDiemFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
-    const body = removePerDiemFromReport
-      ? 'Are you sure you want to remove this Per Diem expense from this report?'
-      : 'Are you sure you want to delete this Per Diem expense?';
-    const ctaText = removePerDiemFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = removePerDiemFromReport ? 'Removing' : 'Deleting';
-
-    const deletePopover = await this.popoverController.create({
+  getDeleteReportParams(
+    config: { header: string; body: string; ctaText: string; ctaLoadingText: string },
+    removePerDiemFromReport: boolean = false,
+    id: string,
+    reportId?: string
+  ): {
+    component: typeof FyDeleteDialogComponent;
+    cssClass: string;
+    backdropDismiss: boolean;
+    componentProps: {
+      header: string;
+      body: string;
+      ctaText: string;
+      ctaLoadingText: string;
+      deleteMethod: () => Observable<Expense | void>;
+    };
+  } {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
-        header,
-        body,
-        ctaText,
-        ctaLoadingText,
-        deleteMethod: () => {
+        header: config.header,
+        body: config.body,
+        ctaText: config.ctaText,
+        ctaLoadingText: config.ctaLoadingText,
+        deleteMethod: (): Observable<Expense | void> => {
           if (removePerDiemFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
         },
       },
-    });
+    };
+  }
+
+  async deleteExpense(reportId?: string): Promise<void> {
+    const id = this.activatedRoute.snapshot.params.id as string;
+    const removePerDiemFromReport = reportId && this.isRedirectedFromReport;
+
+    const header = removePerDiemFromReport ? 'Remove Per Diem' : 'Delete Per Diem';
+    const body = removePerDiemFromReport
+      ? 'Are you sure you want to remove this Per Diem expense from this report?'
+      : 'Are you sure you want to delete this Per Diem expense?';
+    const ctaText = removePerDiemFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = removePerDiemFromReport ? 'Removing' : 'Deleting';
+
+    const deletePopover = await this.popoverController.create(
+      this.getDeleteReportParams(
+        {
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
+        },
+        removePerDiemFromReport,
+        id,
+        reportId
+      )
+    );
 
     await deletePopover.present();
     const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };

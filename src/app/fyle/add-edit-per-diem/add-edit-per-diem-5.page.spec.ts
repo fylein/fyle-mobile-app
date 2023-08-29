@@ -35,6 +35,8 @@ import { Observable, finalize, of } from 'rxjs';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 
 export function TestCases5(getTestBed) {
   return describe('add-edit-per-diem test cases set 5', () => {
@@ -345,6 +347,212 @@ export function TestCases5(getTestBed) {
         expect(component.goToNext).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
+    });
+
+    it('close(): should navigate to my expenses page', () => {
+      component.close();
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+    });
+
+    describe('getDeleteReportParams():', () => {
+      it('should return modal params and method to remove expense from report', () => {
+        reportService.removeTransaction.and.returnValue(of());
+
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            true,
+            'tx5n59fvxk4z',
+            'rpFE5X1Pqi9P'
+          )
+          .componentProps.deleteMethod();
+        expect(reportService.removeTransaction).toHaveBeenCalledTimes(1);
+      });
+
+      it('should  return modal params and method to delete expense', () => {
+        transactionService.delete.and.returnValue(of(expenseData1));
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            false,
+            'tx5n59fvxk4z'
+          )
+          .componentProps.deleteMethod();
+        expect(transactionService.delete).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('deleteExpense():', () => {
+      beforeEach(() => {
+        activatedRoute.snapshot.params = {
+          id: 'tx5n59fvxk4z',
+        };
+      });
+
+      it('should delete expense and navigate back to report if deleting directly from report', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = true;
+
+        const header = 'Remove Per Diem';
+        const body = 'Are you sure you want to remove this Per Diem expense from this report?';
+        const ctaText = 'Remove';
+        const ctaLoadingText = 'Removing';
+
+        component.deleteExpense('rpFE5X1Pqi9P');
+        tick(100);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_report', { id: 'rpFE5X1Pqi9P' }]);
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          true,
+          'tx5n59fvxk4z',
+          'rpFE5X1Pqi9P'
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams(
+            { header, body, ctaText, ctaLoadingText },
+            true,
+            'tx5n59fvxk4z',
+            'rpFE5X1Pqi9P'
+          )
+        );
+      }));
+
+      it('should delete expense and go back to my expenses page if not redirected from report', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = false;
+
+        const header = 'Delete Per Diem';
+        const body = 'Are you sure you want to delete this Per Diem expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(100);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          undefined,
+          'tx5n59fvxk4z',
+          undefined
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams(
+            { header, body, ctaText, ctaLoadingText },
+            undefined,
+            'tx5n59fvxk4z',
+            undefined
+          )
+        );
+      }));
+
+      it('should go to next expense if delete successful', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        spyOn(component, 'goToTransaction');
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+        component.activeIndex = 0;
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = true;
+
+        const header = 'Delete Per Diem';
+        const body = 'Are you sure you want to delete this Per Diem expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(100);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          undefined,
+          'tx5n59fvxk4z',
+          undefined
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams(
+            { header, body, ctaText, ctaLoadingText },
+            undefined,
+            'tx5n59fvxk4z',
+            undefined
+          )
+        );
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
+          component.reviewList[+component.activeIndex]
+        );
+        expect(component.goToTransaction).toHaveBeenCalledOnceWith(
+          unflattenedTxnData,
+          component.reviewList,
+          +component.activeIndex
+        );
+      }));
+
+      it('should track clickDeleteExpense if popover fails and user is in add mode', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'failure',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = true;
+
+        const header = 'Remove Per Diem';
+        const body = 'Are you sure you want to remove this Per Diem expense from this report?';
+        const ctaText = 'Remove';
+        const ctaLoadingText = 'Removing';
+
+        component.deleteExpense('rpFE5X1Pqi9P');
+        tick(100);
+
+        expect(router.navigate).not.toHaveBeenCalled();
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          true,
+          'tx5n59fvxk4z',
+          'rpFE5X1Pqi9P'
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams(
+            { header, body, ctaText, ctaLoadingText },
+            true,
+            'tx5n59fvxk4z',
+            'rpFE5X1Pqi9P'
+          )
+        );
+        expect(trackingService.clickDeleteExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+      }));
     });
   });
 }
