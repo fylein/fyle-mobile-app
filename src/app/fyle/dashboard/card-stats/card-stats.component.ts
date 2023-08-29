@@ -139,13 +139,15 @@ export class CardStatsComponent implements OnInit {
 
   private handleEnrollmentSuccess(): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
-      this.loadCardDetails$.next();
-
       const cardAddedModal = await this.popoverController.create({
         component: CardAddedComponent,
         cssClass: 'pop-up-in-center',
       });
+
       await cardAddedModal.present();
+      await cardAddedModal.onDidDismiss();
+
+      this.loadCardDetails$.next();
     });
   }
 }

@@ -19,6 +19,9 @@ describe('SpentCardsComponent', () => {
 
     fixture = TestBed.createComponent(SpentCardsComponent);
     component = fixture.componentInstance;
+
+    component.showAddCardSlide = true;
+
     fixture.detectChanges();
   }));
 
@@ -56,7 +59,7 @@ describe('SpentCardsComponent', () => {
     expect(swiperSlides.length).toBe(component.cardDetails.length + 1);
   });
 
-  it('should have add new card swiper slide at the end', () => {
+  it('should have add card slide at the end', () => {
     component.cardDetails = cardDetailsRes;
     fixture.detectChanges();
 
@@ -67,5 +70,15 @@ describe('SpentCardsComponent', () => {
     expect(addCardComponent).toBeTruthy();
 
     expect(lastSlide.contains(addCardComponent)).toBeTrue();
+  });
+
+  it('should not have add card slide if showAddCardSlide is false', () => {
+    component.cardDetails = cardDetailsRes;
+    component.showAddCardSlide = false;
+
+    fixture.detectChanges();
+
+    const addCardComponent = getElementBySelector(fixture, '[data-testid="add-card"]');
+    expect(addCardComponent).toBeFalsy();
   });
 });

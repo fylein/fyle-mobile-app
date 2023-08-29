@@ -74,8 +74,10 @@ export class AddCorporateCardComponent implements OnInit {
           this.isEnrollingCard = false;
         })
       )
-      .subscribe(() => {
-        this.handleEnrollmentSuccess();
+      .subscribe((res) => {
+        if (res) {
+          this.handleEnrollmentSuccess();
+        }
       });
   }
 

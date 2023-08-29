@@ -1,154 +1,140 @@
 <div class="stats">
-  <div class="stats--background">
-    <ion-grid class="stats--body">
-      <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
-        <ion-col class="stats--report-stats-col">
-          <div class="stats--header">EXPENSE REPORTS</div>
-        </ion-col>
-      </ion-row>
-      <ng-container *ngIf="isConnected$ | async">
-        <ng-container *ngIf="reportStatsData$ | async as reportStatsData; else reportStatsLoading">
-          <ion-row>
-            <ion-col
-              class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top"
-              size="6"
-            >
+  <ion-grid class="stats--body">
+    <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
+      <ion-col class="stats--report-stats-col">
+        <div class="stats--header">EXPENSE REPORTS</div>
+      </ion-col>
+    </ion-row>
+    <ng-container *ngIf="isConnected$ | async">
+      <ng-container *ngIf="reportStatsData$ | async as reportStatsData; else reportStatsLoading">
+        <ion-row>
+          <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
+            <app-stat-badge
+              [currency]="reportStatsData.homeCurrency"
+              [currencySymbol]="reportStatsData.currencySymbol"
+              [name]="'Draft'"
+              [reportState]="ReportStates.DRAFT"
+              [count]="reportStatsData.reportStats?.draft?.count"
+              [value]="reportStatsData.reportStats?.draft?.sum"
+              (badgeClicked)="goToReportsPage($event)"
+            ></app-stat-badge>
+          </ion-col>
+          <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
+            <app-stat-badge
+              [currency]="reportStatsData.homeCurrency"
+              [currencySymbol]="reportStatsData.currencySymbol"
+              [name]="reportStatsData.simplifyReportsSettings.enabled ? 'Submitted' : 'Reported'"
+              [reportState]="ReportStates.APPROVER_PENDING"
+              [count]="reportStatsData.reportStats?.report?.count"
+              [value]="reportStatsData.reportStats?.report?.sum"
+              (badgeClicked)="goToReportsPage($event)"
+            ></app-stat-badge>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngIf="!reportStatsData.isNonReimbursableOrg">
+          <ion-col
+            class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__bottom"
+            size="6"
+          >
+            <app-stat-badge
+              [currency]="reportStatsData.homeCurrency"
+              [currencySymbol]="reportStatsData.currencySymbol"
+              [name]="'Approved'"
+              [reportState]="ReportStates.APPROVED"
+              [count]="reportStatsData.reportStats?.approved?.count"
+              [value]="reportStatsData.reportStats?.approved?.sum"
+              (badgeClicked)="goToReportsPage($event)"
+            ></app-stat-badge>
+          </ion-col>
+          <ion-col
+            class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__bottom"
+            size="6"
+          >
+            <ng-container *ngIf="reportStatsData.simplifyReportsSettings.enabled; else simplifyReportsDisabled">
               <app-stat-badge
                 [currency]="reportStatsData.homeCurrency"
                 [currencySymbol]="reportStatsData.currencySymbol"
-                [name]="'Draft'"
-                [reportState]="ReportStates.DRAFT"
-                [count]="reportStatsData.reportStats?.draft?.count"
-                [value]="reportStatsData.reportStats?.draft?.sum"
+                [name]="'Processing'"
+                [reportState]="ReportStates.PAYMENT_PROCESSING"
+                [count]="reportStatsData.reportStats?.processing?.count"
+                [value]="reportStatsData.reportStats?.processing?.sum"
                 (badgeClicked)="goToReportsPage($event)"
               ></app-stat-badge>
-            </ion-col>
-            <ion-col
-              class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top"
-              size="6"
-            >
+            </ng-container>
+            <ng-template #simplifyReportsDisabled>
               <app-stat-badge
                 [currency]="reportStatsData.homeCurrency"
                 [currencySymbol]="reportStatsData.currencySymbol"
-                [name]="reportStatsData.simplifyReportsSettings.enabled ? 'Submitted' : 'Reported'"
-                [reportState]="ReportStates.APPROVER_PENDING"
-                [count]="reportStatsData.reportStats?.report?.count"
-                [value]="reportStatsData.reportStats?.report?.sum"
+                [name]="'Payment Pending'"
+                [reportState]="ReportStates.PAYMENT_PENDING"
+                [count]="reportStatsData.reportStats?.paymentPending?.count"
+                [value]="reportStatsData.reportStats?.paymentPending?.sum"
                 (badgeClicked)="goToReportsPage($event)"
               ></app-stat-badge>
-            </ion-col>
-          </ion-row>
-          <ion-row *ngIf="!reportStatsData.isNonReimbursableOrg">
-            <ion-col
-              class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__bottom"
-              size="6"
-            >
-              <app-stat-badge
-                [currency]="reportStatsData.homeCurrency"
-                [currencySymbol]="reportStatsData.currencySymbol"
-                [name]="'Approved'"
-                [reportState]="ReportStates.APPROVED"
-                [count]="reportStatsData.reportStats?.approved?.count"
-                [value]="reportStatsData.reportStats?.approved?.sum"
-                (badgeClicked)="goToReportsPage($event)"
-              ></app-stat-badge>
-            </ion-col>
-            <ion-col
-              class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__bottom"
-              size="6"
-            >
-              <ng-container *ngIf="reportStatsData.simplifyReportsSettings.enabled; else simplifyReportsDisabled">
-                <app-stat-badge
-                  [currency]="reportStatsData.homeCurrency"
-                  [currencySymbol]="reportStatsData.currencySymbol"
-                  [name]="'Processing'"
-                  [reportState]="ReportStates.PAYMENT_PROCESSING"
-                  [count]="reportStatsData.reportStats?.processing?.count"
-                  [value]="reportStatsData.reportStats?.processing?.sum"
-                  (badgeClicked)="goToReportsPage($event)"
-                ></app-stat-badge>
-              </ng-container>
-              <ng-template #simplifyReportsDisabled>
-                <app-stat-badge
-                  [currency]="reportStatsData.homeCurrency"
-                  [currencySymbol]="reportStatsData.currencySymbol"
-                  [name]="'Payment Pending'"
-                  [reportState]="ReportStates.PAYMENT_PENDING"
-                  [count]="reportStatsData.reportStats?.paymentPending?.count"
-                  [value]="reportStatsData.reportStats?.paymentPending?.sum"
-                  (badgeClicked)="goToReportsPage($event)"
-                ></app-stat-badge>
-              </ng-template>
-            </ion-col>
-          </ion-row>
-        </ng-container>
-
-        <ng-template #reportStatsLoading>
-          <ion-row>
-            <ion-col
-              class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top"
-              size="6"
-            >
-              <app-stat-badge [loading]="true"></app-stat-badge>
-            </ion-col>
-            <ion-col
-              class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top"
-              size="6"
-            >
-              <app-stat-badge [loading]="true"></app-stat-badge>
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col
-              class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__bottom"
-              size="6"
-            >
-              <app-stat-badge [loading]="true"></app-stat-badge>
-            </ion-col>
-            <ion-col
-              class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__bottom"
-              size="6"
-              d
-            >
-              <app-stat-badge [loading]="true"></app-stat-badge>
-            </ion-col>
-          </ion-row>
-        </ng-template>
+            </ng-template>
+          </ion-col>
+        </ion-row>
       </ng-container>
 
-      <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$ | async">
-        <ion-col class="stats--expenses-stats-col">
-          <div class="stats--header">ALL EXPENSES</div>
-        </ion-col>
-      </ion-row>
-      <ion-row *ngIf="isConnected$ | async">
-        <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
-          <app-stat-badge
-            [currency]="homeCurrency$ | async"
-            [currencySymbol]="currencySymbol$ | async"
-            [name]="'Incomplete'"
-            [expenseState]="'DRAFT'"
-            [count]="(incompleteExpensesStats$ | async)?.count"
-            [value]="(incompleteExpensesStats$ | async)?.sum"
-            [loading]="isIncompleteExpensesStatsLoading"
-            (badgeClicked)="goToExpensesPage($event)"
-          ></app-stat-badge>
-        </ion-col>
-        <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
-          <app-stat-badge
-            [currency]="homeCurrency$ | async"
-            [currencySymbol]="currencySymbol$ | async"
-            [name]="'Complete'"
-            [expenseState]="'COMPLETE'"
-            [count]="(unreportedExpensesStats$ | async)?.count"
-            [value]="(unreportedExpensesStats$ | async)?.sum"
-            [loading]="isUnreportedExpensesStatsLoading"
-            (badgeClicked)="goToExpensesPage($event)"
-          ></app-stat-badge>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
+      <ng-template #reportStatsLoading>
+        <ion-row>
+          <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
+            <app-stat-badge [loading]="true"></app-stat-badge>
+          </ion-col>
+          <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
+            <app-stat-badge [loading]="true"></app-stat-badge>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col
+            class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__bottom"
+            size="6"
+          >
+            <app-stat-badge [loading]="true"></app-stat-badge>
+          </ion-col>
+          <ion-col
+            class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__bottom"
+            size="6"
+            d
+          >
+            <app-stat-badge [loading]="true"></app-stat-badge>
+          </ion-col>
+        </ion-row>
+      </ng-template>
+    </ng-container>
+
+    <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$ | async">
+      <ion-col class="stats--expenses-stats-col">
+        <div class="stats--header">ALL EXPENSES</div>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="isConnected$ | async">
+      <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
+        <app-stat-badge
+          [currency]="homeCurrency$ | async"
+          [currencySymbol]="currencySymbol$ | async"
+          [name]="'Incomplete'"
+          [expenseState]="'DRAFT'"
+          [count]="(incompleteExpensesStats$ | async)?.count"
+          [value]="(incompleteExpensesStats$ | async)?.sum"
+          [loading]="isIncompleteExpensesStatsLoading"
+          (badgeClicked)="goToExpensesPage($event)"
+        ></app-stat-badge>
+      </ion-col>
+      <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
+        <app-stat-badge
+          [currency]="homeCurrency$ | async"
+          [currencySymbol]="currencySymbol$ | async"
+          [name]="'Complete'"
+          [expenseState]="'COMPLETE'"
+          [count]="(unreportedExpensesStats$ | async)?.count"
+          [value]="(unreportedExpensesStats$ | async)?.sum"
+          [loading]="isUnreportedExpensesStatsLoading"
+          (badgeClicked)="goToExpensesPage($event)"
+        ></app-stat-badge>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
   <ng-container *ngIf="!(isConnected$ | async)">
     <div class="stats--zero-state">

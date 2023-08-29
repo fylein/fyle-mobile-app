@@ -1,21 +1,34 @@
 @import '../../../theme/colors';
 
 .dashboard {
+  background: $white;
+  height: 100%;
+
   &--title {
     padding: 18px 0 18px 12px;
     color: $black;
-  }
-
-  &--header {
-    background: linear-gradient(27.66deg, #e1eeff 12.53%, #ffe4fb 83.29%);
   }
 
   &--toolbar {
     border-bottom: 1px solid $grey-lightest;
   }
 
+  &--background {
+    background: url('../../../assets/images/dashboard-bg.png') no-repeat center;
+    background-size: cover;
+    width: 100%;
+    height: 170px;
+  }
+
+  &--page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+  }
+
   &--body {
-    --background: #{$white};
+    --background: none;
   }
 
   &--tabs {

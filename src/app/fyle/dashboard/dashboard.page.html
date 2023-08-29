@@ -1,56 +1,62 @@
-<ion-header class="tasks--header" mode="md" translucent="true" *ngIf="currentStateIndex===1">
-  <ion-toolbar class="dashboard--toolbar">
-    <ion-buttons slot="start">
-      <app-fy-menu-icon></app-fy-menu-icon>
-    </ion-buttons>
-    <ion-title class="dashboard--title" mode="md"> Tasks </ion-title>
-    <ion-buttons slot="end">
-      <ion-button>
-        <ion-button class="tasks--header-btn" (click)="openFilters()">
-          <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
-            <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
-          </ng-container>
-          <ng-template #noFilterAppliedIcon>
-            <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
-          </ng-template>
-        </ion-button>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<div class="dashboard">
+  <div class="dashboard--background"></div>
 
-<ion-header mode="md" class="dashboard--header" *ngIf="!(currentStateIndex === 1)">
-  <ion-toolbar class="stats--toolbar">
-    <ion-buttons slot="start">
-      <app-fy-menu-icon></app-fy-menu-icon>
-    </ion-buttons>
-    <ion-title class="stats--title" mode="md"> Home </ion-title>
-    <ion-buttons slot="end" *ngIf="isConnected$ | async">
-      <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
-        <mat-icon svgIcon="fy-plus"></mat-icon>
-      </div>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+  <div class="dashboard--page">
+    <ion-header class="tasks--header" mode="md" translucent="true" *ngIf="currentStateIndex===1">
+      <ion-toolbar class="dashboard--toolbar">
+        <ion-buttons slot="start">
+          <app-fy-menu-icon></app-fy-menu-icon>
+        </ion-buttons>
+        <ion-title class="dashboard--title" mode="md"> Tasks </ion-title>
+        <ion-buttons slot="end">
+          <ion-button>
+            <ion-button class="tasks--header-btn" (click)="openFilters()">
+              <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+                <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+              </ng-container>
+              <ng-template #noFilterAppliedIcon>
+                <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+              </ng-template>
+            </ion-button>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
 
-<ion-content class="dashboard--body">
-  <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
-    <mat-tab label="stats">
-      <app-stats></app-stats>
-      <app-card-stats></app-card-stats>
-    </mat-tab>
-    <mat-tab label="tasks">
-      <app-tasks></app-tasks>
-    </mat-tab>
-  </mat-tab-group>
-</ion-content>
+    <ion-header mode="md" class="dashboard--header" *ngIf="!(currentStateIndex === 1)">
+      <ion-toolbar class="stats--toolbar">
+        <ion-buttons slot="start">
+          <app-fy-menu-icon></app-fy-menu-icon>
+        </ion-buttons>
+        <ion-title class="stats--title" mode="md"> Home </ion-title>
+        <ion-buttons slot="end" *ngIf="isConnected$ | async">
+          <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
+            <mat-icon svgIcon="fy-plus"></mat-icon>
+          </div>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
 
-<ion-footer>
-  <app-fy-footer
-    (homeClicked)="onHomeClicked()"
-    (taskClicked)="onTaskClicked()"
-    (cameraClicked)="onCameraClicked()"
-    [taskCount]="displayedTaskCount"
-    [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"
-  ></app-fy-footer>
-</ion-footer>
+    <ion-content class="dashboard--body">
+      <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
+        <mat-tab label="stats">
+          <app-stats></app-stats>
+          <app-card-stats></app-card-stats>
+        </mat-tab>
+        <mat-tab label="tasks">
+          <app-tasks></app-tasks>
+        </mat-tab>
+      </mat-tab-group>
+    </ion-content>
+
+    <ion-footer>
+      <app-fy-footer
+        (homeClicked)="onHomeClicked()"
+        (taskClicked)="onTaskClicked()"
+        (cameraClicked)="onCameraClicked()"
+        [taskCount]="displayedTaskCount"
+        [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"
+      ></app-fy-footer>
+    </ion-footer>
+  </div>
+</div>

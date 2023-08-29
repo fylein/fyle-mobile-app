@@ -418,10 +418,6 @@ ion-popover.camera-options-popover {
   border-radius: 4px;
 }
 
-.ios .stats--background {
-  min-height: calc(360px + constant(safe-area-inset-top)) !important;
-}
-
 .ios .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
 .ios .timeline--timeline-item__last > .timeline--timeline-item-internal::before,
 .md .timeline--timeline-item__first > .timeline--timeline-item-internal::before,

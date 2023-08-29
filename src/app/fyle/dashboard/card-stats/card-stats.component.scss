@@ -1,20 +1,20 @@
 @import '../../../../theme/colors.scss';
 
 .card-stats {
-  position: relative;
-  top: -104px;
-  margin-bottom: 30%;
+  margin-bottom: 138px;
 
   &__header {
     font-size: 14px;
     line-height: 18px;
     color: $grey-light;
     font-weight: 500;
-    margin: 18px 16px 0 16px;
+    margin: 16px 16px 0 16px;
   }
 
   &__zero-state {
-    height: 350px;
-    margin: 18px 16px 16px 16px;
+    height: 358px;
+    margin-top: 18px;
+    padding-inline: 16px;
+    padding-bottom: 8px;
   }
 }
