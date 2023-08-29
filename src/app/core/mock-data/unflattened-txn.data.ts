@@ -2834,3 +2834,26 @@ export const unflattenedTxnWithSourceID2: UnflattenedTransaction = {
     source_account_id: 'acc6mK6CEesXL',
   },
 };
+
+export const unflattendedTxnWithPolicyAmount: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    policy_amount: 100,
+  },
+};
+
+export const unflattenedTxnWithTrackData: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    project_id: 257528,
+    cost_center_id: 2411,
+    mileage_vehicle_type: 'car',
+    locations: [
+      {
+        display: 'Kolkata',
+      },
+    ],
+  },
+};
