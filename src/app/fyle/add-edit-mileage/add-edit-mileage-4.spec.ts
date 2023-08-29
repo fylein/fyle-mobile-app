@@ -1,5 +1,5 @@
 import { TitleCasePipe } from '@angular/common';
-import { ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormBuilder, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -55,6 +55,14 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { txnCustomPropertiesData, txnCustomPropertiesData3 } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { customInput2 } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { expenseFieldObjData, txnFieldData, txnFieldData2 } from 'src/app/core/mock-data/expense-field-obj.data';
+import {
+  orgSettingsParamsWithSimplifiedReport,
+  orgSettingsProjectDisabled,
+  orgSettingsRes,
+} from 'src/app/core/mock-data/org-settings.data';
+import { costCentersData, costCentersOptions } from 'src/app/core/mock-data/cost-centers.data';
+import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditMileage-4', () => {
@@ -187,6 +195,7 @@ export function TestCases4(getTestBed) {
       component.hardwareBackButtonAction = new Subscription();
       component.onPageExit$ = new Subject();
       component.selectedProject$ = new BehaviorSubject(null);
+      component.selectedCostCenter$ = new BehaviorSubject(null);
       fixture.detectChanges();
     });
 
@@ -272,6 +281,101 @@ export function TestCases4(getTestBed) {
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
         expect(component.getFormValues).toHaveBeenCalledTimes(1);
         done();
+      });
+    });
+
+    describe('setupTxnFields():', () => {
+      it('should setup transaction fields', () => {
+        component.txnFields$ = of(txnFieldData2);
+        component.isConnected$ = of(true);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        component.costCenters$ = of(costCentersOptions);
+        component.isIndividualProjectsEnabled$ = of(true);
+        component.individualProjectIds$ = of([316992, 316908]);
+        component.fg.controls.purpose.setValue('Purpose');
+        component.fg.controls.costCenter.setValue(costCentersData[0]);
+        component.fg.controls.dateOfSpend.setValue(new Date('2021-07-29T06:30:00.000Z'));
+        component.fg.controls.billable.setValue(true);
+        component.fg.controls.project.setValue(expectedProjectsResponse[0]);
+        fixture.detectChanges();
+
+        component.setupTxnFields();
+
+        expect(component.fg.controls.project.hasValidator(Validators.required)).toBeTrue();
+        expect(component.fg.controls.costCenter.hasValidator(Validators.required)).toBeTrue();
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      });
+
+      it('should set control validators to null', () => {
+        component.txnFields$ = of(txnFieldData2);
+        component.isConnected$ = of(false);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        component.costCenters$ = of([]);
+        component.isIndividualProjectsEnabled$ = of(true);
+        component.individualProjectIds$ = of([]);
+        component.fg.controls.purpose.setValue('Purpose');
+        component.fg.controls.costCenter.setValue(costCentersData[0]);
+        component.fg.controls.dateOfSpend.setValue(new Date('2021-07-29T06:30:00.000Z'));
+        component.fg.controls.billable.setValue(true);
+        component.fg.controls.project.setValue(expectedProjectsResponse[0]);
+        fixture.detectChanges();
+
+        component.setupTxnFields();
+
+        expect(component.fg.controls.project.hasValidator(null)).toBeTrue();
+        expect(component.fg.controls.costCenter.hasValidator(null)).toBeTrue();
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('setupSelectedProjects(): should setup selected projects', fakeAsync(() => {
+      spyOn(component.selectedProject$, 'next');
+
+      component.setupSelectedProjects();
+      tick(500);
+
+      component.fg.controls.project.setValue(expectedProjectsResponse[0]);
+      tick(500);
+      fixture.detectChanges();
+
+      expect(component.selectedProject$.next).toHaveBeenCalledOnceWith(expectedProjectsResponse[0]);
+    }));
+
+    it('setupSelectedCostCenters(): should setup selected cost centers', fakeAsync(() => {
+      spyOn(component.selectedCostCenter$, 'next');
+
+      component.setupSelectedCostCenters();
+      tick(500);
+
+      component.fg.controls.costCenter.setValue(costCentersData[0]);
+      tick(500);
+      fixture.detectChanges();
+
+      expect(component.selectedCostCenter$.next).toHaveBeenCalledOnceWith(costCentersData[0]);
+    }));
+
+    describe('checkNewReportsFlow():', () => {
+      it('should check if user is on new reports flow', () => {
+        component.checkNewReportsFlow(of(orgSettingsParamsWithSimplifiedReport));
+
+        expect(component.isNewReportsFlowEnabled).toBeTrue();
+      });
+
+      it('should return null if settings are not present', () => {
+        component.checkNewReportsFlow(of(null));
+
+        expect(component.isNewReportsFlowEnabled).toBeFalse();
+      });
+    });
+
+    describe('checkIndividualMileageEnabled():', () => {
+      it('should check if indvidual mileage is enabled', (done) => {
+        component.checkIndividualMileageEnabled(of(orgSettingsRes));
+
+        component.individualMileageRatesEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+          done();
+        });
       });
     });
   });

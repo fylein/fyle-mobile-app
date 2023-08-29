@@ -1,3 +1,4 @@
+import { CostCenterOptions } from '../models/cost-centers-options.model';
 import { CostCenter, CostCenters } from '../models/v1/cost-center.model';
 
 export const costCentersData: CostCenter[] = [
@@ -272,5 +273,12 @@ export const expectedCCdata3: CostCenters[] = [
       org_id: 'orNVthTo2Zyo',
       updated_at: new Date('2022-05-19T11:58:29.364759+00:00'),
     },
+  },
+];
+
+export const costCentersOptions: CostCenterOptions[] = [
+  {
+    label: 'cc 1',
+    value: costCentersData[0],
   },
 ];

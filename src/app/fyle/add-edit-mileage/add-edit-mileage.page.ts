@@ -1049,7 +1049,7 @@ export class AddEditMileagePage implements OnInit {
 
   checkNewReportsFlow(orgSettings$: Observable<OrgSettings>): void {
     orgSettings$.subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings.enabled || false;
     });
   }
 
