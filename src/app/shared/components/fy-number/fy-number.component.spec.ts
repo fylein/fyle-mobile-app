@@ -17,7 +17,6 @@ describe('FyNumberComponent', () => {
   let platform: jasmine.SpyObj<Platform>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let inputEl: DebugElement;
-  let injector: jasmine.SpyObj<Injector>;
 
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
@@ -27,11 +26,6 @@ describe('FyNumberComponent', () => {
       'checkIfAndroidNegativeExpensePluginIsEnabled',
     ]);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
-    const mockInjector = {
-      get: () => ({
-        control: new FormControl(),
-      }),
-    };
 
     TestBed.configureTestingModule({
       declarations: [FyNumberComponent],
@@ -54,7 +48,6 @@ describe('FyNumberComponent', () => {
 
     platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
-    injector = TestBed.inject(Injector) as jasmine.SpyObj<Injector>;
 
     platform.is.withArgs('ios').and.returnValue(true);
     platform.is.withArgs('android').and.returnValue(false);
