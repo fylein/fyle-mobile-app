@@ -1301,3 +1301,8 @@ export const orgSettingsProjectDisabled: OrgSettings = {
     enabled: false,
   },
 };
+
+export const orgSettingsWoAdvance: OrgSettings = {
+  ...orgSettingsRes,
+  advances: null,
+};

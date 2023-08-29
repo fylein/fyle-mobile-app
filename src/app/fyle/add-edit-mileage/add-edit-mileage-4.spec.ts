@@ -60,9 +60,14 @@ import {
   orgSettingsParamsWithSimplifiedReport,
   orgSettingsProjectDisabled,
   orgSettingsRes,
+  orgSettingsWoAdvance,
 } from 'src/app/core/mock-data/org-settings.data';
 import { costCentersData, costCentersOptions } from 'src/app/core/mock-data/cost-centers.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
+import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
+import { newUnflattenedTxn, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditMileage-4', () => {
@@ -378,5 +383,143 @@ export function TestCases4(getTestBed) {
         });
       });
     });
+
+    describe('checkAdvanceEnabled():', () => {
+      it('should check if advance is enabled', (done) => {
+        component.checkAdvanceEnabled(of(orgSettingsRes)).subscribe((res) => {
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+
+      it('should check for advance request', (done) => {
+        component.checkAdvanceEnabled(of(orgSettingsWoAdvance)).subscribe((res) => {
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+    });
+
+    describe('getRecentlyUsedValues():', () => {
+      it('should recently used values', (done) => {
+        component.isConnected$ = of(true);
+        recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
+
+        component.getRecentlyUsedValues().subscribe((res) => {
+          expect(res).toEqual(recentlyUsedRes);
+          expect(recentlyUsedItemsService.getRecentlyUsed).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return null if offline', (done) => {
+        component.isConnected$ = of(false);
+
+        component.getRecentlyUsedValues().subscribe((res) => {
+          expect(res).toBeNull();
+          expect(recentlyUsedItemsService.getRecentlyUsed).not.toHaveBeenCalled();
+          done();
+        });
+      });
+    });
+
+    describe('getExpenseAmount():', () => {
+      it('should get expense amount', fakeAsync(() => {
+        component.rate$ = of(10);
+
+        component.getExpenseAmount().subscribe((res) => {
+          expect(res).toEqual(100);
+        });
+        tick(500);
+
+        component.fg.patchValue({
+          route: {
+            distance: 10,
+          },
+        });
+
+        tick(500);
+        fixture.detectChanges();
+      }));
+
+      it('should get 0 if distance cannot be obtained', fakeAsync(() => {
+        component.rate$ = of(10);
+
+        component.getExpenseAmount().subscribe((res) => {
+          expect(res).toEqual(0);
+        });
+        tick(500);
+
+        component.fg.patchValue({
+          route: null,
+        });
+
+        tick(500);
+        fixture.detectChanges();
+      }));
+    });
+
+    describe('getProjects():', () => {
+      it('should return project from ID specified in the expense', (done) => {
+        component.etxn$ = of(unflattenedTxnData);
+        projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
+        fixture.detectChanges();
+
+        component.getProjects().subscribe((res) => {
+          expect(res).toEqual(expectedProjectsResponse[0]);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id);
+          done();
+        });
+      });
+
+      it('should get default project ID and return the project if not provided in the expense', (done) => {
+        component.etxn$ = of(newUnflattenedTxn);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
+        fixture.detectChanges();
+
+        component.getProjects().subscribe((res) => {
+          expect(res).toEqual(expectedProjectsResponse[0]);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(orgUserSettingsData.preferences.default_project_id);
+          done();
+        });
+      });
+
+      it('should return null if no project could be found', (done) => {
+        component.etxn$ = of(newUnflattenedTxn);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        orgUserSettingsService.get.and.returnValue(of(null));
+
+        component.getProjects().subscribe((res) => {
+          expect(res).toBeNull();
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getbyId).not.toHaveBeenCalled();
+          done();
+        });
+      });
+    });
+
+    it('getAddRates(): should get mileage rate', fakeAsync(() => {
+      component.mileageRates$ = of(unfilteredMileageRatesData);
+      spyOn(component, 'getRateByVehicleType').and.returnValue(10);
+      fixture.detectChanges();
+
+      component.getAddRates().subscribe((res) => {
+        expect(res).toEqual(10);
+      });
+      tick(500);
+
+      component.fg.patchValue({
+        mileage_rate_name: filterEnabledMileageRatesData[0],
+      });
+      tick(500);
+      fixture.detectChanges();
+
+      expect(component.getRateByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
+    }));
   });
 }
