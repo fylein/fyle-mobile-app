@@ -1,5 +1,9 @@
 import { ExpenseProperties } from '../models/tracking-properties.model';
-import { expectedUnflattendedTxnData4, trackAddExpenseWoCurrency } from './unflattened-txn.data';
+import {
+  expectedUnflattendedTxnData4,
+  trackAddExpenseWoCurrency,
+  unflattenedTxnWithTrackData,
+} from './unflattened-txn.data';
 
 export const createExpenseProperties = {
   Type: 'Receipt',
@@ -25,6 +29,18 @@ export const createExpenseProperties2 = {
   Used_Autofilled_CostCenter: true,
   Used_Autofilled_Currency: true,
   Instafyle: false,
+};
+
+export const editExpenseProperties1 = {
+  Type: 'Mileage',
+  Amount: unflattenedTxnWithTrackData.tx.amount,
+  Currency: unflattenedTxnWithTrackData.tx.currency,
+  Category: unflattenedTxnWithTrackData.tx.org_category,
+  Time_Spent: '300 secs',
+  Used_Autofilled_Project: true,
+  Used_Autofilled_CostCenter: true,
+  Used_Autofilled_VehicleType: true,
+  Used_Autofilled_StartLocation: true,
 };
 
 export const createExpenseProperties3: ExpenseProperties = {
