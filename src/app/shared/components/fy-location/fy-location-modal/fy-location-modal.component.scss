@@ -115,6 +115,8 @@
     margin-bottom: 0;
     border-bottom: 1px solid $border-grey;
     margin-top: calc(env(safe-area-inset-top));
+    padding-left: 0px;
+    padding-right: 0px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
         color: $black-light !important;
