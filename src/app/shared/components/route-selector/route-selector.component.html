@@ -160,7 +160,7 @@
     </div>
     <div
       *ngIf="
-        (form.controls.distance.touched && !form.controls.distance.valid) || form.controls.distance.hasError('invalid')
+        form.controls.distance.touched && (!form.controls.distance.valid || form.controls.distance.hasError('invalid'))
       "
       class="route-selector--error route-selector--text-error"
     >

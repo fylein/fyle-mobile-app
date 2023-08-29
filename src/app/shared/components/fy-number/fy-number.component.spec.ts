@@ -11,7 +11,7 @@ import { DebugElement, Injector } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { getAllElementsBySelector, getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 
-fdescribe('FyNumberComponent', () => {
+describe('FyNumberComponent', () => {
   let component: FyNumberComponent;
   let fixture: ComponentFixture<FyNumberComponent>;
   let platform: jasmine.SpyObj<Platform>;

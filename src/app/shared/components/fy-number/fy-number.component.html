@@ -21,7 +21,8 @@
       [formControl]="fc"
       [placeholder]="placeholder || ''"
       (blur)="(onBlur)"
-      type="number"
+      type="text"
+      inputmode="numeric"
       [(ngModel)]="negativeExpense"
       (keydown)="handleNegativeExpenseChange($event)"
     />
