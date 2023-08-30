@@ -282,3 +282,58 @@ export const costCentersOptions: CostCenterOptions[] = [
     value: costCentersData[0],
   },
 ];
+
+export const costCenterOptions2: CostCenterOptions[] = [
+  {
+    label: 'SMS1',
+    value: {
+      active: true,
+      code: null,
+      created_at: new Date('2019-06-24T15:12:04.002Z'),
+      description: null,
+      id: 2411,
+      name: 'SMS1',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2019-06-24T15:12:05.002Z'),
+    },
+  },
+  {
+    label: 'test cost',
+    value: {
+      active: true,
+      code: 'cost center code 2',
+      created_at: new Date('2019-08-13T14:18:54.500Z'),
+      description: 'cost centers data',
+      id: 2428,
+      name: 'test cost',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2019-08-13T14:18:55.500Z'),
+    },
+  },
+  {
+    label: 'cost centers mock data 1',
+    value: {
+      active: true,
+      code: null,
+      created_at: new Date('2019-10-30T07:16:37.975Z'),
+      description: null,
+      id: 3247,
+      name: 'cost centers mock data 1',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2019-10-30T07:16:38.975Z'),
+    },
+  },
+  {
+    label: 'cost center service 2',
+    value: {
+      active: true,
+      code: 'cost center code 2',
+      created_at: new Date('2019-10-30T08:25:54.040Z'),
+      description: 'this is the test description',
+      id: 3260,
+      name: 'cost center service 2',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2022-05-19T11:58:29.364Z'),
+    },
+  },
+];

@@ -52,22 +52,39 @@ import {
 } from 'src/app/core/mock-data/expense-field.data';
 import { mileageCategories, mileageCategories2, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { txnCustomPropertiesData, txnCustomPropertiesData3 } from 'src/app/core/mock-data/txn-custom-properties.data';
+import {
+  txnCustomProperties4,
+  txnCustomPropertiesData,
+  txnCustomPropertiesData3,
+} from 'src/app/core/mock-data/txn-custom-properties.data';
 import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { customInput2 } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { expenseFieldObjData, txnFieldData, txnFieldData2 } from 'src/app/core/mock-data/expense-field-obj.data';
 import {
+  orgSettingsCCCDisabled2,
+  orgSettingsCCDisabled,
   orgSettingsParamsWithSimplifiedReport,
   orgSettingsProjectDisabled,
   orgSettingsRes,
   orgSettingsWoAdvance,
 } from 'src/app/core/mock-data/org-settings.data';
-import { costCentersData, costCentersOptions } from 'src/app/core/mock-data/cost-centers.data';
+import { costCenterOptions2, costCentersData, costCentersOptions } from 'src/app/core/mock-data/cost-centers.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
-import { newUnflattenedTxn, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  newExpenseMileageData2,
+  newMileageExpFromForm,
+  newUnflattenedTxn,
+  unflattenedTxnData,
+  unflattenedTxnDataWithReportID2,
+  unflattenedTxnWithReportID3,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
+import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
+import { draftReportPerDiemData, expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import { orgSettingsData, paymentModeDataPersonal } from 'src/app/core/test-data/accounts.service.spec.data';
+import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditMileage-4', () => {
@@ -521,5 +538,163 @@ export function TestCases4(getTestBed) {
 
       expect(component.getRateByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
     }));
+
+    describe('getReports():', () => {
+      it('should get reports', (done) => {
+        component.autoSubmissionReportName$ = of('report');
+        component.etxn$ = of(unflattenedTxnWithReportID3);
+        component.reports$ = of([
+          {
+            label: 'report 1',
+            value: expectedErpt[0],
+          },
+        ]);
+
+        component.getReports().subscribe((res) => {
+          expect(res).toEqual(expectedErpt[0]);
+          done();
+        });
+      });
+
+      it("should return the first report if there's only one option in DRAFT state", (done) => {
+        component.autoSubmissionReportName$ = of(null);
+        component.etxn$ = of(unflattenedTxnData);
+        component.reports$ = of([
+          {
+            label: 'report 1',
+            value: draftReportPerDiemData[0],
+          },
+        ]);
+
+        component.getReports().subscribe((res) => {
+          expect(res).toEqual(draftReportPerDiemData[0]);
+          done();
+        });
+      });
+
+      it('should return null if there are no report options', (done) => {
+        component.autoSubmissionReportName$ = of(null);
+        component.etxn$ = of(unflattenedTxnData);
+        component.reports$ = of([]);
+
+        component.getReports().subscribe((res) => {
+          expect(res).toBeNull();
+          done();
+        });
+      });
+    });
+
+    describe('getCostCenters():', () => {
+      it('should get cost center if enabled', (done) => {
+        orgUserSettingsService.getAllowedCostCenters.and.returnValue(of(costCentersData));
+        component.getCostCenters(of(orgSettingsData), of(orgUserSettingsData)).subscribe((res) => {
+          expect(res).toEqual(costCenterOptions2);
+          expect(orgUserSettingsService.getAllowedCostCenters).toHaveBeenCalledOnceWith(orgUserSettingsData);
+          done();
+        });
+      });
+
+      it('should return empty array if cost centers are disabled', (done) => {
+        component.getCostCenters(of(orgSettingsCCDisabled), of(orgUserSettingsData)).subscribe((res) => {
+          expect(res).toEqual([]);
+          done();
+        });
+      });
+    });
+
+    describe('getEditRates():', () => {
+      it('should return mileage rate from expense', fakeAsync(() => {
+        component.etxn$ = of(newExpenseMileageData2);
+        component.mileageRates$ = of(unfilteredMileageRatesData);
+        fixture.detectChanges();
+
+        component.getEditRates().subscribe((res) => {
+          expect(res).toEqual(10);
+        });
+        tick(500);
+
+        component.fg.patchValue({
+          vehicle_type: 'bicycle',
+          mileage_rate_name: unfilteredMileageRatesData[0],
+        });
+        tick(500);
+        fixture.detectChanges();
+      }));
+
+      it('should get rate from vehicle type provided in the form', fakeAsync(() => {
+        spyOn(component, 'getRateByVehicleType').and.returnValue(10);
+        component.etxn$ = of(unflattenedTxnData);
+        component.mileageRates$ = of(unfilteredMileageRatesData);
+        fixture.detectChanges();
+
+        component.getEditRates().subscribe((res) => {
+          expect(res).toEqual(10);
+        });
+        tick(500);
+
+        component.fg.patchValue({
+          vehicle_type: 'bicycle',
+          mileage_rate_name: unfilteredMileageRatesData[0],
+        });
+
+        tick(500);
+        fixture.detectChanges();
+
+        expect(component.getRateByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
+      }));
+    });
+
+    it('getProjectDependentFields(): get project dependent fields from the form', () => {
+      component.fg.patchValue({
+        project_dependent_fields: [],
+      });
+      fixture.detectChanges();
+
+      const result = component.getProjectDependentFields();
+      expect(result).toEqual([]);
+    });
+
+    it('getCostCenterDependentFields(): get cost center dependent fields from the form', () => {
+      component.fg.patchValue({
+        project_dependent_fields: [],
+      });
+      fixture.detectChanges();
+
+      const result = component.getCostCenterDependentFields();
+      expect(result).toEqual([]);
+    });
+
+    describe('generateEtxnFromFg():', () => {
+      it('should generate an expense from form', (done) => {
+        dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
+        spyOn(component, 'getFormValues').and.returnValue({
+          mileage_rate_name: unfilteredMileageRatesData[0],
+          route: {
+            mileageLocations: [locationData1, locationData2],
+            roundTrip: true,
+            distance: 10,
+          },
+          paymentMode: paymentModeDataPersonal,
+          sub_category: orgCategoryData,
+          dateOfSpend: new Date('2022-08-12T00:00:00'),
+          project: expectedProjectsResponse[0],
+          purpose: 'travel',
+          costCenter: costCentersData[0],
+        });
+        spyOn(component, 'getRateByVehicleType').and.returnValue(10);
+        component.amount$ = of(100);
+        component.homeCurrency$ = of('USD');
+        component.mileageRates$ = of(unfilteredMileageRatesData);
+        component.rate$ = of(null);
+        fixture.detectChanges();
+
+        component.generateEtxnFromFg(of(unflattenedTxnData), of(txnCustomProperties4), of(10)).subscribe((res) => {
+          expect(res).toEqual(newMileageExpFromForm);
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+          done();
+        });
+      });
+    });
   });
 }
