@@ -106,6 +106,7 @@ import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
 import { TransactionState } from 'src/app/core/models/transaction-state.enum';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Expense } from 'src/app/core/models/expense.model';
+import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -1768,10 +1769,10 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  addExpense(redirectedFrom: string): Observable<OutboxQueue> {
-    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
-    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
-    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
+  addExpense(redirectedFrom: PerDiemRedirectedFrom): Observable<OutboxQueue> {
+    this.savePerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_PER_DIEM;
+    this.saveAndNextPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM;
+    this.saveAndPrevPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM;
 
     const customFields$ = this.getCustomFields();
 
@@ -1945,10 +1946,10 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  editExpense(redirectedFrom: string): Observable<Partial<Transaction>> {
-    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
-    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
-    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
+  editExpense(redirectedFrom: PerDiemRedirectedFrom): Observable<Partial<Transaction>> {
+    this.savePerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_PER_DIEM;
+    this.saveAndNextPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM;
+    this.saveAndPrevPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM;
 
     this.trackPolicyCorrections();
 
@@ -2137,9 +2138,9 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
+            that.addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe(() => this.goBack());
           } else {
-            that.editExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
+            that.editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe(() => this.goBack());
           }
         } else {
           this.showFormValidationErrors();
@@ -2168,12 +2169,12 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
+            that.addExpense(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM).subscribe(() => {
               this.reloadCurrentRoute();
             });
           } else {
             // to do edit
-            that.editExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
+            that.editExpense(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM).subscribe(() => {
               that.goBack();
             });
           }
@@ -2193,7 +2194,7 @@ export class AddEditPerDiemPage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+        that.addExpense(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === 0) {
             that.close();
           } else {
@@ -2202,7 +2203,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+        that.editExpense(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === 0) {
             that.close();
           } else {
@@ -2219,7 +2220,7 @@ export class AddEditPerDiemPage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
+        that.addExpense(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -2228,7 +2229,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
+        that.editExpense(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
