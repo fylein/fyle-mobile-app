@@ -86,6 +86,9 @@ import { draftReportPerDiemData, expectedErpt } from 'src/app/core/mock-data/rep
 import { orgSettingsData, paymentModeDataPersonal } from 'src/app/core/test-data/accounts.service.spec.data';
 import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
 import { formValue1 } from 'src/app/core/mock-data/form-value.data';
+import { customPropertiesData } from 'src/app/core/mock-data/custom-property.data';
+import { CustomProperty } from 'src/app/core/models/custom-properties.model';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditMileage-4', () => {
@@ -260,16 +263,19 @@ export function TestCases4(getTestBed) {
     });
 
     describe('getCustomInputs():', () => {
-      it('should get custom inputs', (done) => {
+      beforeEach(() => {
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         component.isConnected$ = of(true);
         spyOn(component, 'setupDependentFields');
+        customInputsService.filterByCategory.and.returnValue(expenseFieldWithBillable);
+      });
+
+      it('should get custom inputs', (done) => {
         spyOn(component, 'getFormValues').and.returnValue({
-          custom_inputs: customInputData1 as any,
+          custom_inputs: customPropertiesData as CustomInput[],
         });
         spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData);
-        customInputsService.filterByCategory.and.returnValue(expenseFieldWithBillable);
         fixture.detectChanges();
 
         component.getCustomInputs().subscribe((res) => {
@@ -277,7 +283,7 @@ export function TestCases4(getTestBed) {
         });
         expect(component.setupDependentFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
-          customInputData1 as any,
+          customPropertiesData,
           expenseFieldWithBillable
         );
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
@@ -285,12 +291,8 @@ export function TestCases4(getTestBed) {
       });
 
       it('should get custom inputs if no previous custom inputs are assigned', (done) => {
-        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        component.isConnected$ = of(true);
-        spyOn(component, 'setupDependentFields');
         spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData3);
-        customInputsService.filterByCategory.and.returnValue(expenseFieldWithBillable);
         spyOn(component, 'getFormValues').and.returnValue({
           custom_inputs: null,
         });

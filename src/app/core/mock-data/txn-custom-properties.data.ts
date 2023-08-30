@@ -534,6 +534,111 @@ export const txnCustomProperties4: TxnCustomProperties[] = [
   },
 ];
 
+export const txnCustomPropertiesData6: TxnCustomProperties[] = [
+  {
+    id: 200227,
+    mandatory: false,
+    name: 'userlist',
+    options: [],
+    placeholder: 'userlist_custom_field',
+    prefix: '',
+    type: 'USER_LIST',
+    value: [],
+  },
+  {
+    id: 210649,
+    mandatory: false,
+    name: 'User List',
+    options: [],
+    placeholder: 'User List',
+    prefix: '',
+    type: 'USER_LIST',
+    value: [],
+  },
+  {
+    id: 210281,
+    mandatory: false,
+    name: 'test',
+    options: [
+      {
+        label: 'asd',
+        value: 'asd',
+      },
+      {
+        label: 'asdf',
+        value: 'asdf',
+      },
+      {
+        label: 'asdff',
+        value: 'asdff',
+      },
+    ],
+    placeholder: '123test',
+    prefix: '',
+    type: 'MULTI_SELECT',
+    value: '',
+  },
+  {
+    id: 212819,
+    mandatory: false,
+    name: 'category2',
+    options: [
+      {
+        label: 'asdf',
+        value: 'asdf',
+      },
+      {
+        label: 'asdfa',
+        value: 'asdfa',
+      },
+    ],
+    placeholder: 'category2',
+    prefix: '',
+    type: 'MULTI_SELECT',
+    value: '',
+  },
+  {
+    id: 206206,
+    mandatory: false,
+    name: 'pub create hola 1',
+    options: [],
+    placeholder: 'pub create hola 1',
+    prefix: '',
+    type: 'LOCATION',
+    value: null,
+  },
+  {
+    id: 211321,
+    mandatory: false,
+    name: 'test 112',
+    options: [],
+    placeholder: 'placeholder',
+    prefix: '',
+    type: 'LOCATION',
+    value: null,
+  },
+  {
+    id: 206198,
+    mandatory: false,
+    name: '2232323',
+    options: [],
+    placeholder: 'adsf',
+    prefix: '',
+    type: 'DATE',
+    value: null,
+  },
+  {
+    id: 211326,
+    mandatory: false,
+    name: 'select all 2',
+    options: [],
+    placeholder: 'helo date',
+    prefix: '',
+    type: 'DATE',
+    value: '2023-02-13T17:00:00.000Z',
+  },
+];
+
 export const txnCustomPropertiesData5: TxnCustomProperties[] = [
   {
     id: 318297,
