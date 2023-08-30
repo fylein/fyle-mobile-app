@@ -688,12 +688,14 @@ export function TestCases4(getTestBed) {
         component.rate$ = of(null);
         fixture.detectChanges();
 
-        component.generateEtxnFromFg(of(unflattenedTxnData), of(txnCustomProperties4), of(10)).subscribe((res) => {
-          expect(res).toEqual(newMileageExpFromForm);
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
-          done();
-        });
+        component
+          .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(txnCustomProperties4), of(10))
+          .subscribe((res) => {
+            expect(res).toEqual(newMileageExpFromForm);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
+            expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+            done();
+          });
       });
     });
   });

@@ -3052,7 +3052,7 @@ export const newMileageExpFromForm: Partial<UnflattenedTransaction> = {
     tax_amount: 52.47,
     tax_group_id: 'tg3iWuqWhfzB',
     currency: 'USD',
-    report_id: null,
+    report_id: 'rprAfNrce73O',
     reported_at: null,
     state: 'COMPLETE',
     num_files: 1,
