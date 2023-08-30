@@ -140,6 +140,12 @@ export function TestCases5(getTestBed) {
       });
     }));
 
+    function setMockFormValidity(isValid: boolean) {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => isValid,
+      });
+    }
+
     it('reloadCurrentRoute(): should reload the current route', fakeAsync(() => {
       component.reloadCurrentRoute();
       tick(100);
@@ -180,9 +186,7 @@ export function TestCases5(getTestBed) {
 
       it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => false,
-        });
+
         spyOn(component, 'showFormValidationErrors');
         spyOn(component.fg, 'markAllAsTouched');
         component.saveAndNewExpense();
@@ -207,9 +211,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should close the current page if form is valid, user is in add mode and expense is the first one in list', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setMockFormValidity(true);
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
@@ -219,9 +221,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should go to previous page if form is valid, user is in add mode and expense is not the first one in list', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setMockFormValidity(true);
         component.activeIndex = 1;
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
@@ -232,9 +232,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should close the current page if form is valid, user is in edit mode and expense is the first one in list', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setMockFormValidity(true);
         component.mode = 'edit';
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).not.toHaveBeenCalled();
@@ -245,9 +243,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should go to previous page if form is valid, user is in edit mode and expense is not the first one in list', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setMockFormValidity(true);
         component.activeIndex = 1;
         component.mode = 'edit';
         component.saveExpenseAndGotoPrev();
@@ -259,9 +255,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should show validation errors if the form is not valid', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => false,
-        });
+        setMockFormValidity(false);
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).not.toHaveBeenCalled();
         expect(component.editExpense).not.toHaveBeenCalled();
@@ -284,9 +278,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should close the current page if form is valid, user is in add mode and expense is the first one in list', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setMockFormValidity(true);
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
@@ -296,9 +288,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should go to next page if form is valid, user is in add mode and expense is not the first one in list', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setMockFormValidity(true);
         component.activeIndex = 1;
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
@@ -309,9 +299,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should close the current page if form is valid, user is in edit mode and expense is the first one in list', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setMockFormValidity(true);
         component.mode = 'edit';
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).not.toHaveBeenCalled();
@@ -322,9 +310,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should go to next page if form is valid, user is in edit mode and expense is not the first one in list', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
+        setMockFormValidity(true);
         component.activeIndex = 1;
         component.mode = 'edit';
         component.saveExpenseAndGotoNext();
@@ -336,9 +322,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should show validation errors if the form is not valid', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => false,
-        });
+        setMockFormValidity(false);
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).not.toHaveBeenCalled();
         expect(component.editExpense).not.toHaveBeenCalled();
