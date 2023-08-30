@@ -1852,7 +1852,7 @@ export class AddEditExpensePage implements OnInit {
               duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
               billable: etxn.tx.billable,
               custom_inputs: customInputValues,
-              costCenter,
+
               hotel_is_breakfast_provided: etxn.tx.hotel_is_breakfast_provided,
             },
             {
@@ -1860,6 +1860,9 @@ export class AddEditExpensePage implements OnInit {
             }
           );
 
+          this.fg.patchValue({
+            costCenter,
+          });
           this.initialFetch = false;
 
           setTimeout(() => {
@@ -2641,9 +2644,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupSelectedCostCenterObservable(): void {
-    this.fg.controls.costCenter.valueChanges
-      .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
+    this.fg.controls.costCenter.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((costCenter: CostCenter) => {
+      this.selectedCostCenter$.next(costCenter);
+    });
   }
 
   getCCCpaymentMode(): void {
@@ -3415,8 +3418,7 @@ export class AddEditExpensePage implements OnInit {
             type: customInput.type,
             value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
-          customInpustWithValue.concat(dependentFieldsWithValue);
-          return customInpustWithValue;
+          return [...customInpustWithValue, ...dependentFieldsWithValue];
         }
       )
     );
@@ -3923,7 +3925,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
       switchMap((continueWithTransaction: { comment: string }) => {
         if (continueWithTransaction) {
-          if (continueWithTransaction.comment === '') {
+          if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
             continueWithTransaction.comment = 'No policy violation explaination provided';
           }
           return from(this.loaderService.showLoader()).pipe(

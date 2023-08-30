@@ -159,23 +159,27 @@ export class ManageCorporateCardsPage {
 
   private handleEnrollmentSuccess(): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(async () => {
-      this.loadCorporateCards$.next();
-
       const cardAddedModal = await this.popoverController.create({
         component: CardAddedComponent,
         cssClass: 'pop-up-in-center',
       });
+
       await cardAddedModal.present();
+      await cardAddedModal.onDidDismiss();
+
+      this.loadCorporateCards$.next();
     });
   }
 
   private async unenrollCard(card: PlatformCorporateCard): Promise<void> {
+    const cardType = this.realTimeFeedService.getCardType(card);
+
     const deletePopup = await this.popoverController.create({
       component: PopupAlertComponent,
       cssClass: 'pop-up-in-center',
       componentProps: {
         title: 'Disconnect Card',
-        message: `<div class="text-left"><div class="mb-16">You are disconnecting your VISA card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
+        message: `<div class="text-left"><div class="mb-16">You are disconnecting your ${cardType} card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
         primaryCta: {
           text: 'Yes, Disconnect',
           action: 'disconnect',
@@ -191,9 +195,7 @@ export class ManageCorporateCardsPage {
 
     const popoverResponse = (await deletePopup.onDidDismiss()) as OverlayResponse<{ action: string }>;
 
-    if (popoverResponse.data.action === 'disconnect') {
-      const cardType = this.realTimeFeedService.getCardType(card);
-
+    if (popoverResponse.data?.action === 'disconnect') {
       forkJoin([
         this.realTimeFeedService.unenroll(cardType, card.id),
         this.corporateCreditCardExpenseService.clearCache(),

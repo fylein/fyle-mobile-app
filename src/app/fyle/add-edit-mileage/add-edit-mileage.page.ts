@@ -40,8 +40,8 @@ import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
-import { CustomField } from 'src/app/core/models/custom_field.model';
+
+import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -56,7 +56,7 @@ import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-f
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
-import { CustomInputsOption, TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
@@ -101,13 +101,12 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from '../../core/services/tracking.service';
-import { Destination } from 'src/app/core/models/destination.model';
 
 type FormValue = {
   route: {
     roundTrip: boolean;
     mileageLocations: Location[];
-    distance: number;
+    distance?: number;
   };
   category: OrgCategory;
   sub_category: OrgCategory;
@@ -122,6 +121,8 @@ type FormValue = {
   costCenter: CostCenter;
   billable: boolean;
   purpose: string;
+  project_dependent_fields: TxnCustomProperties[];
+  cost_center_dependent_fields: TxnCustomProperties[];
 };
 
 @Component({
@@ -176,7 +177,7 @@ export class AddEditMileagePage implements OnInit {
 
   isCostCentersEnabled$: Observable<boolean>;
 
-  customInputs$: Observable<CustomField[]>;
+  customInputs$: Observable<TxnCustomProperties[]>;
 
   costCenters$: Observable<CostCenterOptions[]>;
 
@@ -355,7 +356,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getFormValues(): FormValue {
+  getFormValues(): Partial<FormValue> {
     return this.fg.value as FormValue;
   }
 
@@ -939,17 +940,6 @@ export class AddEditMileagePage implements OnInit {
         ? null
         : {
             invalidDateSelection: true,
-          };
-    }
-  }
-
-  customDistanceValidator(control: AbstractControl): null | { invalidDistance: boolean } {
-    const passedInDistance = control.value && +control.value;
-    if (passedInDistance !== null) {
-      return passedInDistance > 0
-        ? null
-        : {
-            invalidDistance: true,
           };
     }
   }
@@ -1804,6 +1794,19 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
+  showFormValidationErrors(): void {
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
+    }
+  }
+
   saveExpense(): void {
     const that = this;
 
@@ -1819,16 +1822,7 @@ export class AddEditMileagePage implements OnInit {
             that.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -1864,16 +1858,7 @@ export class AddEditMileagePage implements OnInit {
             });
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -1906,16 +1891,7 @@ export class AddEditMileagePage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -1941,40 +1917,31 @@ export class AddEditMileagePage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
-  getProjectDependentFields(): ExpenseField[] | CustomInputsOption[] {
+  getProjectDependentFields(): TxnCustomProperties[] {
     const projectDependentFieldsControl = this.fg.value as {
-      project_dependent_fields: ExpenseField[];
+      project_dependent_fields: TxnCustomProperties[];
     };
     return projectDependentFieldsControl.project_dependent_fields;
   }
 
-  getCostCenterDependentFields(): ExpenseField[] | CustomInputsOption[] {
+  getCostCenterDependentFields(): TxnCustomProperties[] {
     const CCDependentFieldsControl = this.fg.value as {
-      cost_center_dependent_fields: ExpenseField[];
+      cost_center_dependent_fields: TxnCustomProperties[];
     };
     return CCDependentFieldsControl.cost_center_dependent_fields;
   }
 
-  getCustomFields(): Observable<CustomProperty<string | number | boolean | Date | string[] | { display: string }>[]> {
+  getCustomFields(): Observable<TxnCustomProperties[]> {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
         const allDependentFields = [
           ...this.getProjectDependentFields(),
           ...this.getCostCenterDependentFields(),
-        ] as CustomInputsOption[];
+        ] as TxnCustomProperties[];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
@@ -1992,12 +1959,10 @@ export class AddEditMileagePage implements OnInit {
           customInputs,
           dependentFieldsWithValue,
         }: {
-          customInputs: CustomInput[];
+          customInputs: TxnCustomProperties[];
           dependentFieldsWithValue: TxnCustomProperties[];
         }) => {
-          const customInpustWithValue: CustomProperty<
-            string | number | boolean | Date | string[] | { display: string }
-          >[] = customInputs.map((customInput, i: number) => ({
+          const customInpustWithValue: TxnCustomProperties[] = customInputs.map((customInput, i: number) => ({
             id: customInput.id,
             mandatory: customInput.mandatory,
             name: customInput.name,
@@ -2005,10 +1970,9 @@ export class AddEditMileagePage implements OnInit {
             placeholder: customInput.placeholder,
             prefix: customInput.prefix,
             type: customInput.type,
-            value: this.getFormValues().custom_inputs[i].value,
+            value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
-          customInpustWithValue.concat(dependentFieldsWithValue as unknown as CustomProperty<string>);
-          return customInpustWithValue;
+          return [...customInpustWithValue, ...dependentFieldsWithValue];
         }
       )
     );
@@ -2214,7 +2178,7 @@ export class AddEditMileagePage implements OnInit {
         )
       ),
       map((finalDistance) => {
-        if (this.getFormValues().route.roundTrip) {
+        if (this.getFormValues()?.route?.roundTrip) {
           return (finalDistance * 2).toFixed(2);
         } else {
           return finalDistance.toFixed(2);
@@ -2454,6 +2418,7 @@ export class AddEditMileagePage implements OnInit {
   criticalPolicyViolationHandler(err: {
     policyViolations: string[];
     etxn: UnflattenedTransaction;
+    type?: string;
   }): Observable<{ etxn: UnflattenedTransaction }> {
     return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
       switchMap((continueWithTransaction) => {
@@ -2470,10 +2435,14 @@ export class AddEditMileagePage implements OnInit {
     policyViolations: string[];
     etxn: UnflattenedTransaction;
     policyAction: FinalExpensePolicyState;
+    type?: string;
   }): Observable<{ etxn: UnflattenedTransaction; comment: string }> {
     return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
       switchMap((continueWithTransaction: { comment: string }) => {
         if (continueWithTransaction) {
+          if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
+            continueWithTransaction.comment = 'No policy violation explaination provided';
+          }
           return from(this.loaderService.showLoader()).pipe(
             switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
           );
@@ -2574,10 +2543,10 @@ export class AddEditMileagePage implements OnInit {
 
             let reportId: string;
             if (
-              reportValue.report &&
+              reportValue?.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = reportValue.report.rp.id;
+              reportId = reportValue?.report?.rp?.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
@@ -2603,6 +2572,45 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  getDeleteReportParams(config: {
+    header: string;
+    body: string;
+    ctaText: string;
+    ctaLoadingText: string;
+    reportId?: string;
+    id?: string;
+    removeMileageFromReport?: boolean;
+  }): {
+    component: typeof FyDeleteDialogComponent;
+    cssClass: string;
+    backdropDismiss: boolean;
+    componentProps: {
+      header: string;
+      body: string;
+      ctaText: string;
+      ctaLoadingText: string;
+      deleteMethod: () => Observable<Expense | void>;
+    };
+  } {
+    return {
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: config.header,
+        body: config.body,
+        ctaText: config.ctaText,
+        ctaLoadingText: config.ctaLoadingText,
+        deleteMethod: (): Observable<Expense | void> => {
+          if (config.removeMileageFromReport) {
+            return this.reportService.removeTransaction(config.reportId, config.id);
+          }
+          return this.transactionService.delete(config.id);
+        },
+      },
+    };
+  }
+
   async deleteExpense(reportId?: string): Promise<void> {
     const id = this.activatedRoute.snapshot.params.id as string;
     const removeMileageFromReport = reportId && this.isRedirectedFromReport;
@@ -2614,23 +2622,17 @@ export class AddEditMileagePage implements OnInit {
     const ctaText = removeMileageFromReport ? 'Remove' : 'Delete';
     const ctaLoadingText = removeMileageFromReport ? 'Removing' : 'Deleting';
 
-    const deletePopover = await this.popoverController.create({
-      component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
-      backdropDismiss: false,
-      componentProps: {
-        header,
-        body,
-        ctaText,
-        ctaLoadingText,
-        deleteMethod: () => {
-          if (removeMileageFromReport) {
-            return this.reportService.removeTransaction(reportId, id);
-          }
-          return this.transactionService.delete(id);
-        },
-      },
-    });
+    const config = {
+      header,
+      body,
+      ctaText,
+      ctaLoadingText,
+      reportId,
+      removeMileageFromReport,
+      id,
+    };
+
+    const deletePopover = await this.popoverController.create(this.getDeleteReportParams(config));
 
     await deletePopover.present();
     const { data } = (await deletePopover.onDidDismiss()) as {

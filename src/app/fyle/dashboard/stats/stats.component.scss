@@ -17,34 +17,11 @@ $ccc-bank-name: #c4cae8;
     --ion-grid-padding: 16px;
   }
 
-  &--single-ccc {
-    margin: 20px 10px 0px 10px;
-  }
-
-  &--background {
-    top: 0;
-    box-shadow: 0px -2px 8px rgb(215 215 215 / 25%);
-    min-height: 420px;
-    background: url('../../../../assets/images/new-background.png') no-repeat bottom;
-    background-size: 105% 105%;
-  }
-
   &--header {
     font-size: 14px;
     line-height: 18px;
     color: $grey-light;
     font-weight: 500;
-  }
-
-  &--wave-path-container {
-    height: 0;
-    position: absolute;
-  }
-
-  &--wave-path {
-    transform-origin: center;
-    transform-box: fill-box;
-    transform: scale(1, -1);
   }
 
   &--expenses-card {
@@ -88,30 +65,6 @@ $ccc-bank-name: #c4cae8;
     color: $blue-black;
   }
 
-  &--expenses-skeleton-text {
-    height: 18px;
-    &__width-small {
-      width: 33%;
-    }
-
-    &__width-medium {
-      width: 66%;
-    }
-
-    &__width-large {
-      width: 80%;
-    }
-
-    &__align-right {
-      margin-left: auto;
-    }
-  }
-
-  &--zero-state {
-    position: relative;
-    top: -96px;
-  }
-
   &--report-badge-col {
     padding-top: 0;
     &__left {
@@ -143,158 +96,5 @@ $ccc-bank-name: #c4cae8;
     padding-bottom: 18px;
     padding-top: 18px;
     --ion-grid-column-padding: 0;
-  }
-
-  &--ccc-cards-section {
-    position: relative;
-    top: -104px;
-    margin-bottom: 30%;
-  }
-
-  &--ccc-stats-header {
-    margin: 18px 16px 0 16px;
-  }
-
-  &--ccc-zero-state {
-    height: 350px;
-    margin: 18px 16px 16px 16px;
-  }
-
-  &--ccc-card-details {
-    position: relative;
-    left: 50%;
-    transform: translate(-50%, 0);
-    min-height: 85px;
-    width: calc(100% - 64px);
-    background: url('../../../../assets/images/card-bg.png') no-repeat bottom;
-    background-size: 100% 100%;
-    box-shadow: 0px 2px 8px $transparent-pearl-grey;
-    border-radius: 8px;
-    z-index: 999;
-  }
-
-  &--ccc-bank-name {
-    font-weight: bold;
-    font-size: 18px;
-    line-height: 20px;
-    color: $pure-white;
-    padding-bottom: 0;
-    flex-flow: wrap;
-  }
-
-  &--ccc-stats {
-    min-height: 280px;
-    padding: 66px 32px 32px 32px;
-    background: $pure-white;
-    border-radius: 16px;
-    width: calc(100% - 32px);
-    position: relative;
-    left: 50%;
-    transform: translate(-50%, 0px);
-    bottom: 54px;
-    box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
-  }
-
-  &--ccc-account-info {
-    font-size: 12px;
-    color: $pure-white;
-    padding-top: 0;
-
-    &__type {
-      background: $transparent-grey;
-      height: 20px;
-      line-height: 16px;
-      border-radius: 4px;
-      padding: 4px;
-    }
-
-    &__mask {
-      margin-left: 8px;
-      line-height: 14px;
-    }
-  }
-
-  &--ccc-card-info {
-    background: $transparent-grey;
-    width: 95px;
-    height: 20px;
-    font-size: 12px;
-    border-radius: 4px;
-    padding: 0 4px;
-    float: right;
-    color: $ccc-bank-name;
-  }
-
-  &--ccc-container {
-    padding: 8px 12px 6px;
-  }
-
-  &--ccc-block {
-    margin-bottom: 6px;
-  }
-
-  &--ccc-sync-detail {
-    color: $pure-white;
-    font-size: 12px;
-    letter-spacing: -0.005em;
-    line-height: 14px;
-    padding: 0 16px 12px;
-  }
-
-  &--ccc-created_dt {
-    color: $grey-light;
-    font-size: 12px;
-  }
-
-  &--ccc-classified-stats {
-    margin-top: 16px;
-    display: flex;
-    justify-content: space-between;
-
-    &__margin-top {
-      margin-top: 24px;
-    }
-  }
-
-  &--ccc-classified-count,
-  &--ccc-classified-amount {
-    font-weight: 500;
-    font-size: 18px;
-    line-height: 28px;
-    color: $black;
-  }
-
-  &--ccc-stats-title {
-    font-size: 16px;
-    line-height: 20px;
-    color: $black-2;
-  }
-
-  &--ccc-stats-divider {
-    border-bottom: 1px solid $grey-lighter;
-    margin-top: 24px;
-  }
-
-  &--ccc-skeleton-text {
-    height: 18px;
-    background-color: $grey-light;
-    &__height-small {
-      height: 12px;
-    }
-    &__width-small {
-      width: 33%;
-    }
-
-    &__width-medium {
-      width: 66%;
-    }
-
-    &__width-large {
-      width: 80%;
-    }
-
-    &__align-right {
-      margin-left: auto;
-    }
   }
 }

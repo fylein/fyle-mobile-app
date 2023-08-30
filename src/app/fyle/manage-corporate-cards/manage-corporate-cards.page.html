@@ -17,13 +17,14 @@
   <div class="manage-corporate-cards__cards">
     <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
       <div *ngIf="corporateCards.length > 0; else zeroState" class="manage-corporate-cards__cards-list">
-        <app-corporate-card
-          *ngFor="let corporateCard of corporateCards"
-          [card]="corporateCard"
-          [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
-          [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
-          (cardOptionsClick)="openCardOptions($event)"
-        ></app-corporate-card>
+        <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
+          <app-corporate-card
+            [card]="corporateCard"
+            [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
+            [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
+            (cardOptionsClick)="openCardOptions($event)"
+          ></app-corporate-card>
+        </div>
       </div>
       <ng-template #zeroState>
         <div class="manage-corporate-cards__zero-state-container" data-testid="zero-state">

@@ -141,6 +141,8 @@ import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup
 import { AddCardComponent } from './components/add-card/add-card.component';
 import { CardNumberComponent } from './components/card-number/card-number.component';
 import { ArrayToCommaListPipe } from './pipes/array-to-comma-list.pipe';
+import { CorporateCardComponent } from './components/corporate-card/corporate-card.component';
+import { AutofocusDirective } from './directive/autofocus.directive';
 
 @NgModule({
   declarations: [
@@ -261,6 +263,8 @@ import { ArrayToCommaListPipe } from './pipes/array-to-comma-list.pipe';
     AddCardComponent,
     CardNumberComponent,
     ArrayToCommaListPipe,
+    CorporateCardComponent,
+    AutofocusDirective,
   ],
   imports: [
     CommonModule,
@@ -386,6 +390,8 @@ import { ArrayToCommaListPipe } from './pipes/array-to-comma-list.pipe';
     AddCardComponent,
     CardNumberComponent,
     ArrayToCommaListPipe,
+    CorporateCardComponent,
+    AutofocusDirective,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

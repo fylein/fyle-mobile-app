@@ -418,10 +418,6 @@ ion-popover.camera-options-popover {
   border-radius: 4px;
 }
 
-.ios .stats--background {
-  min-height: calc(360px + constant(safe-area-inset-top)) !important;
-}
-
 .ios .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
 .ios .timeline--timeline-item__last > .timeline--timeline-item-internal::before,
 .md .timeline--timeline-item__first > .timeline--timeline-item-internal::before,
@@ -1127,7 +1123,7 @@ ion-popover.delete-button-class {
   opacity: 0.3;
 }
 
-.spent-cards--swiper .swiper-pagination {
+.spent-cards__swiper .swiper-pagination {
   position: absolute;
   text-align: center;
   transition: 300ms opacity;
@@ -1136,7 +1132,7 @@ ion-popover.delete-button-class {
   margin-left: 40%;
 }
 
-.spent-cards--swiper .swiper-wrapper {
+.spent-cards__swiper .swiper-wrapper {
   margin-top: 6%;
 }
 

@@ -1,3 +1,5 @@
+import { Destination } from './destination.model';
+
 export interface PublicPolicyExpense {
   activity_details?: string;
   activity_policy_pending: boolean;
@@ -36,17 +38,7 @@ export interface PublicPolicyExpense {
   is_matching_ccc_expense: boolean;
   mileage_rate_id: number;
   invoice_number: number;
-  locations?: [
-    {
-      city?: string;
-      state?: string;
-      display_name?: string;
-      country?: string;
-      formatted_address?: string;
-      latitude?: number;
-      longitude?: number;
-    }?
-  ];
+  locations?: Destination[] | string[];
   mandatory_fields_present: boolean;
   manual_flag: boolean;
   mileage_calculated_amount: number;

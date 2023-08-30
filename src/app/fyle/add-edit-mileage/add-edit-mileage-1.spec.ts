@@ -1,15 +1,20 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { of } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
+import { policyExpense2 } from 'src/app/core/mock-data/expense.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { locationData1, locationData2, locationData3 } from 'src/app/core/mock-data/location.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock-data/org-category.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
@@ -54,7 +59,14 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import {
+  multiplePaymentModesData,
+  multiplePaymentModesWithoutAdvData,
+  orgSettingsData,
+} from 'src/app/core/test-data/accounts.service.spec.data';
+import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 
@@ -186,6 +198,9 @@ export function TestCases1(getTestBed) {
         cost_center_dependent_fields: formBuilder.array([]),
       });
 
+      component.hardwareBackButtonAction = new Subscription();
+      component.onPageExit$ = new Subject();
+      component.selectedProject$ = new BehaviorSubject(null);
       fixture.detectChanges();
     });
 
@@ -431,6 +446,14 @@ export function TestCases1(getTestBed) {
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_MILEAGE');
         expect(component.goToNext).toHaveBeenCalledTimes(1);
       });
+
+      it('should show validation errors if the form is not valid', () => {
+        spyOn(component, 'showFormValidationErrors');
+
+        component.saveExpenseAndGotoNext();
+
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      });
     });
 
     it('getTimeSpentOnPage(): should get time spent on page', () => {
@@ -474,6 +497,545 @@ export function TestCases1(getTestBed) {
         ...properties,
       });
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    });
+
+    describe('ionViewWillLeave(): ', () => {
+      it('should unsubscribe and complete observable as component leaves', () => {
+        const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnDestroy']);
+
+        component.projectDependentFieldsRef = dependentFieldSpy;
+        component.costCenterDependentFieldsRef = dependentFieldSpy;
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+        fixture.detectChanges();
+
+        component.ionViewWillLeave();
+
+        expect(dependentFieldSpy.ngOnDestroy).toHaveBeenCalledTimes(2);
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+      });
+
+      it('should unsubscribe remaining observables as dependent fields are not present', () => {
+        component.projectDependentFieldsRef = null;
+        component.costCenterDependentFieldsRef = null;
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+
+        fixture.detectChanges();
+
+        component.ionViewWillLeave();
+
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('getDeleteReportParams():', () => {
+      let header = 'Header';
+      let body = 'Body';
+      let ctaText = 'cta';
+      let ctaLoadingText = 'loading';
+
+      it('should get config params for delete report modal and call method to remove txn from report', () => {
+        reportService.removeTransaction.and.returnValue(of());
+
+        const result = component.getDeleteReportParams({
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
+          removeMileageFromReport: true,
+          reportId: 'rp123',
+          id: 'txn123',
+        });
+
+        result.componentProps.deleteMethod();
+        expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rp123', 'txn123');
+      });
+
+      it('should get config params for delete report modal and call method to delete expense', () => {
+        transactionService.delete.and.returnValue(of(policyExpense2));
+
+        const result = component.getDeleteReportParams({
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
+          removeMileageFromReport: false,
+          id: 'txn123',
+        });
+
+        result.componentProps.deleteMethod();
+        expect(transactionService.delete).toHaveBeenCalledOnceWith('txn123');
+      });
+    });
+
+    describe('deleteExpense():', () => {
+      let header = 'Delete Mileage';
+      let body = 'Are you sure you want to delete this mileage expense?';
+      let ctaText = 'Delete';
+      let ctaLoadingText = 'Deleting';
+
+      it('should delete mileage from report and navigate back to the report', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        component.isRedirectedFromReport = true;
+        fixture.detectChanges();
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+
+        header = 'Remove Mileage';
+        body = 'Are you sure you want to remove this mileage expense from this report?';
+        ctaText = 'Remove';
+        ctaLoadingText = 'Removing';
+
+        component.deleteExpense('rpFE5X1Pqi9P');
+        tick(500);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_report', { id: 'rpFE5X1Pqi9P' }]);
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith({
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
+          removeMileageFromReport: true,
+          id: 'txyeiYbLDSOy',
+          reportId: 'rpFE5X1Pqi9P',
+        });
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({
+            header,
+            body,
+            ctaText,
+            ctaLoadingText,
+            removeMileageFromReport: true,
+            id: 'txyeiYbLDSOy',
+            reportId: 'rpFE5X1Pqi9P',
+          })
+        );
+      }));
+
+      it('should delete mileage and go to the next transaction', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        spyOn(component, 'goToTransaction');
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+        component.activeIndex = 0;
+        component.isRedirectedFromReport = true;
+        activatedRoute.snapshot.params.id = JSON.stringify('txfCdl3TEZ7K');
+        fixture.detectChanges();
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        fixture.detectChanges();
+
+        component.deleteExpense();
+        tick(500);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith({
+          header: 'Delete Mileage',
+          body: 'Are you sure you want to delete this mileage expense?',
+          ctaText: 'Delete',
+          ctaLoadingText: 'Deleting',
+          id: '"txfCdl3TEZ7K"',
+          reportId: undefined,
+          removeMileageFromReport: undefined,
+        });
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText })
+        );
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
+          component.reviewList[+component.activeIndex]
+        );
+        expect(component.goToTransaction).toHaveBeenCalledOnceWith(
+          unflattenedTxnData,
+          component.reviewList,
+          +component.activeIndex
+        );
+      }));
+
+      it('should delete mileage and go to my expenses page if not redirected from report', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        component.isRedirectedFromReport = false;
+        activatedRoute.snapshot.params.id = JSON.stringify('txfCdl3TEZ7K');
+        fixture.detectChanges();
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        fixture.detectChanges();
+
+        component.deleteExpense();
+        tick(500);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith({
+          header: 'Delete Mileage',
+          body: 'Are you sure you want to delete this mileage expense?',
+          ctaText: 'Delete',
+          ctaLoadingText: 'Deleting',
+          id: '"txfCdl3TEZ7K"',
+          reportId: undefined,
+          removeMileageFromReport: undefined,
+        });
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({
+            header,
+            body,
+            ctaText,
+            ctaLoadingText,
+            reportId: undefined,
+            removeMileageFromReport: false,
+          })
+        );
+      }));
+
+      it('should track event in case the delete operation fails', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        component.isRedirectedFromReport = false;
+        activatedRoute.snapshot.params.id = JSON.stringify('txfCdl3TEZ7K');
+        fixture.detectChanges();
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: null,
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        fixture.detectChanges();
+
+        component.deleteExpense();
+        tick(500);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith({
+          header: 'Delete Mileage',
+          body: 'Are you sure you want to delete this mileage expense?',
+          ctaText: 'Delete',
+          ctaLoadingText: 'Deleting',
+          id: '"txfCdl3TEZ7K"',
+          reportId: undefined,
+          removeMileageFromReport: undefined,
+        });
+        expect(trackingService.clickDeleteExpense).toHaveBeenCalledOnceWith({ Type: 'Mileage' });
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams({
+            header,
+            body,
+            ctaText,
+            ctaLoadingText,
+            reportId: undefined,
+            removeMileageFromReport: false,
+          })
+        );
+      }));
+    });
+
+    it('continueWithCriticalPolicyViolation(): should show critical policy violation modal', async () => {
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+        'present',
+        'onWillDismiss',
+      ]);
+      fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'primary',
+        },
+      });
+
+      modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+
+      const result = await component.continueWithCriticalPolicyViolation(criticalPolicyViolation2);
+
+      expect(result).toBeTrue();
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyCriticalPolicyViolationComponent,
+        componentProps: {
+          criticalViolationMessages: criticalPolicyViolation2,
+        },
+        mode: 'ios',
+        presentingElement: await modalController.getTop(),
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+    });
+
+    it('trackPolicyCorrections(): should track policy corrections', () => {
+      component.isCriticalPolicyViolated$ = of(true);
+      component.comments$ = of(estatusData1);
+      component.fg.markAsDirty();
+
+      fixture.detectChanges();
+
+      component.trackPolicyCorrections();
+      expect(trackingService.policyCorrection).toHaveBeenCalledWith({ Violation: 'Critical', Mode: 'Edit Expense' });
+      expect(trackingService.policyCorrection).toHaveBeenCalledWith({ Violation: 'Regular', Mode: 'Edit Expense' });
+    });
+
+    describe('saveExpenseAndGotoPrev():', () => {
+      it('should add a new expense and close the form', () => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'close');
+        component.activeIndex = 0;
+        component.mode = 'add';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoPrev();
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
+        expect(component.close).toHaveBeenCalledTimes(1);
+      });
+
+      it('should add a new expense and go to the previous expense in the report', () => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'goToPrev');
+        component.activeIndex = 1;
+        component.mode = 'add';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoPrev();
+        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
+        expect(component.goToPrev).toHaveBeenCalledTimes(1);
+      });
+
+      it('should save an edited expense and close the form', () => {
+        spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'close');
+        component.activeIndex = 0;
+        component.mode = 'edit';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoPrev();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
+        expect(component.close).toHaveBeenCalledTimes(1);
+      });
+
+      it('should save an edited expense and go to the previous expense', () => {
+        spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'goToPrev');
+        component.activeIndex = 1;
+        component.mode = 'edit';
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => true,
+        });
+        fixture.detectChanges();
+
+        component.saveExpenseAndGotoPrev();
+        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_MILEAGE');
+        expect(component.goToPrev).toHaveBeenCalledTimes(1);
+      });
+
+      it('should show validation errors if the form is not valid', () => {
+        spyOn(component, 'showFormValidationErrors');
+
+        component.saveExpenseAndGotoPrev();
+
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('customDateValidator():', () => {
+      it('should return null when the date is within the valid range', () => {
+        const control = new FormControl('2023-06-15');
+        const result = component.customDateValidator(control);
+        expect(result).toBeNull();
+      });
+
+      it('should return an error object when the date is after the upper bound of the valid range', () => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 2);
+        const control = new FormControl(tomorrow.toDateString());
+        const result = component.customDateValidator(control);
+        expect(result).toEqual({ invalidDateSelection: true });
+      });
+    });
+
+    it('getEditExpense(): should return an unflattened expense to edit', (done) => {
+      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      activatedRoute.snapshot.params.id = unflattenedTxnData.tx.id;
+      component.getEditExpense().subscribe((res) => {
+        expect(res).toEqual(unflattenedTxnData);
+        done();
+      });
+    });
+
+    describe('checkAvailableAdvance():', () => {
+      it('should setup balance available flag', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        component.checkAvailableAdvance();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeTrue();
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        component.checkAvailableAdvance();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(accountsService.getEMyAccounts).not.toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[1]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+
+      it('should return false when account type changes to null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(null));
+        component.checkAvailableAdvance();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(accountsService.getEMyAccounts).not.toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(null);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
+    });
+
+    it('getPaymentModes(): should get payment modes', (done) => {
+      accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
+        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
+      );
+      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
+      accountsService.getPaymentModes.and.returnValue(accountOptionData1);
+      component.etxn$ = of(unflattenedTxnData);
+      fixture.detectChanges();
+
+      const config = {
+        etxn: unflattenedTxnData,
+        orgSettings: orgSettingsData,
+        expenseType: ExpenseType.MILEAGE,
+        isPaymentModeConfigurationsEnabled: true,
+      };
+
+      component.getPaymentModes().subscribe((res) => {
+        expect(res).toEqual(accountOptionData1);
+        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
+        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
+        expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
+          multiplePaymentModesData,
+          orgUserSettingsData.payment_mode_settings.allowed_payment_modes,
+          config
+        );
+        done();
+      });
+    });
+
+    describe('close():', () => {
+      it('should navigate back to the previous page if redirected from report', () => {
+        component.isRedirectedFromReport = true;
+        fixture.detectChanges();
+
+        component.close();
+
+        expect(navController.back).toHaveBeenCalledTimes(1);
+      });
+
+      it('should navigate to my expense page if the user was not redirected from report', () => {
+        component.isRedirectedFromReport = false;
+        fixture.detectChanges();
+
+        component.close();
+
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      });
+    });
+
+    describe('getEditCalculatedDistance():', () => {
+      it('should get distance in edit mode for a single trip', (done) => {
+        mileageService.getDistance.and.returnValue(of(5));
+        component.etxn$ = of(unflattenedTxnData);
+        spyOn(component, 'getFormValues').and.returnValue({
+          route: null,
+        });
+        fixture.detectChanges();
+
+        component
+          .getEditCalculatedDistance({
+            value: { mileageLocations: [locationData1, locationData2] },
+          })
+          .subscribe((res) => {
+            expect(res).toEqual('0.01');
+            expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData2]);
+            done();
+          });
+      });
+
+      it('should get distance in edit mode for a round trip', (done) => {
+        mileageService.getDistance.and.returnValue(of(10));
+        component.etxn$ = of(unflattenedTxnData);
+        spyOn(component, 'getFormValues').and.returnValue({
+          route: {
+            roundTrip: true,
+            mileageLocations: [],
+            distance: 0,
+          },
+        });
+        fixture.detectChanges();
+
+        component
+          .getEditCalculatedDistance({
+            value: { mileageLocations: [locationData1, locationData3] },
+          })
+          .subscribe((res) => {
+            expect(res).toEqual('0.02');
+            expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData3]);
+            done();
+          });
+      });
     });
   });
 }

@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { finalize, map, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
@@ -10,17 +10,11 @@ import { concat, forkJoin, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ReportStats } from 'src/app/core/models/report-stats.model';
-import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
-import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
-import { cloneDeep } from 'lodash';
-import { CardDetails } from 'src/app/core/models/card-details.model';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-stats',
@@ -56,10 +50,6 @@ export class StatsComponent implements OnInit {
 
   loadData$ = new Subject();
 
-  isCCCStatsLoading: boolean;
-
-  cardTransactionsAndDetails: CardDetail[];
-
   reportStatsData$: Observable<{
     reportStats: ReportStats;
     simplifyReportsSettings: { enabled: boolean };
@@ -67,12 +57,6 @@ export class StatsComponent implements OnInit {
     currencySymbol: string;
     isNonReimbursableOrg: boolean;
   }>;
-
-  isCCCEnabled: boolean;
-
-  isYodleeEnabled: boolean;
-
-  isPersonalCardsEnabled: boolean;
 
   constructor(
     private dashboardService: DashboardService,
@@ -82,8 +66,7 @@ export class StatsComponent implements OnInit {
     private trackingService: TrackingService,
     private orgSettingsService: OrgSettingsService,
     private orgService: OrgService,
-    private paymentModeService: PaymentModesService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private paymentModeService: PaymentModesService
   ) {}
 
   get ReportStates(): typeof ReportStates {
@@ -149,29 +132,6 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  getCardDetail(statsResponses: CardAggregateStats[]): UniqueCardStats[] {
-    const cardNames: CardDetails[] = [];
-    statsResponses.forEach((response) => {
-      const cardDetail = {
-        cardNumber: response.key[1].column_value,
-        cardName: response.key[0].column_value,
-      };
-      cardNames.push(cardDetail);
-    });
-    const uniqueCards = cloneDeep(cardNames);
-
-    return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
-  }
-
-  initializeCCCStats(): void {
-    this.dashboardService
-      .getCCCDetails()
-      .pipe(finalize(() => (this.isCCCStatsLoading = false)))
-      .subscribe((details) => {
-        this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-      });
-  }
-
   /*
    * This is required because ionic dosnt reload the page every time we enter, it initializes via ngOnInit only on first entry.
    * The ionViewWillEnter is an alternative for this but not present in child pages.
@@ -179,7 +139,6 @@ export class StatsComponent implements OnInit {
    * **/
   init(): void {
     const that = this;
-    that.cardTransactionsAndDetails = [];
 
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
@@ -188,28 +147,6 @@ export class StatsComponent implements OnInit {
 
     that.initializeReportStats();
     that.initializeExpensesStats();
-    forkJoin({
-      orgSettings: that.orgSettingsService.get(),
-      orgUserSettings: that.orgUserSettingsService.get(),
-    }).subscribe(({ orgSettings, orgUserSettings }) => {
-      this.isCCCEnabled =
-        orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
-
-      this.isYodleeEnabled =
-        orgSettings.bank_data_aggregation_settings.allowed &&
-        orgSettings.bank_data_aggregation_settings.enabled &&
-        orgUserSettings.bank_data_aggregation_settings.enabled;
-
-      this.isPersonalCardsEnabled =
-        orgSettings.org_personal_cards_settings.allowed &&
-        orgSettings.org_personal_cards_settings.enabled &&
-        orgUserSettings.personal_cards_settings.enabled;
-
-      if (this.isCCCEnabled) {
-        that.isCCCStatsLoading = true;
-        that.initializeCCCStats();
-      }
-    });
 
     this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;

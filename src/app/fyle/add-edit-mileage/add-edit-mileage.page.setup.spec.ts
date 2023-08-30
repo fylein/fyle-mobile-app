@@ -57,6 +57,8 @@ import { MileageService } from 'src/app/core/services/mileage.service';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { FyLocationComponent } from 'src/app/shared/components/fy-location/fy-location.component';
+import { TestCases2 } from '../add-edit-mileage/add-edit-mileage-2.spec';
+import { TestCases3 } from '../add-edit-mileage/add-edit-mileage-3.spec';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -107,6 +109,7 @@ describe('AddEditMileagePage', () => {
       'review',
       'matchCCCExpense',
       'getETxnc',
+      'getDefaultVehicleType',
     ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -167,6 +170,7 @@ describe('AddEditMileagePage', () => {
       'hideMoreClicked',
       'showMoreClicked',
       'newExpenseCreatedFromPersonalCard',
+      'clickDeleteExpense',
     ]);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
@@ -433,4 +437,6 @@ describe('AddEditMileagePage', () => {
   };
 
   TestCases1(getTestBed);
+  TestCases2(getTestBed);
+  TestCases3(getTestBed);
 });

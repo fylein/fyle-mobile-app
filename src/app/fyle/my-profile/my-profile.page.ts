@@ -231,11 +231,6 @@ export class MyProfilePage {
     this.isMastercardRTFEnabled =
       this.orgSettings.mastercard_enrollment_settings.allowed &&
       this.orgSettings.mastercard_enrollment_settings.enabled;
-
-    this.isYodleeEnabled =
-      this.orgSettings.bank_data_aggregation_settings.allowed &&
-      this.orgSettings.bank_data_aggregation_settings.enabled &&
-      this.orgUserSettings.bank_data_aggregation_settings.enabled;
   }
 
   setPreferenceSettings(): void {

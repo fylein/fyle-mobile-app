@@ -1,5 +1,6 @@
 import { Transaction } from '../models/v1/transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
+import { expectedTxnCustomProperties } from './txn-custom-properties.data';
 
 export const txnList: Transaction[] = [
   {
@@ -3718,7 +3719,7 @@ export const personalCardTxn: Transaction = {
   org_category_id: undefined,
   activity_policy_pending: null,
   activity_details: null,
-  locations: ['loc1'],
+  locations: [optionsData15.options[0].value],
   custom_properties: [
     {
       id: 111,
@@ -3904,4 +3905,29 @@ export const txnData6: Transaction = {
   proposed_exchange_rate: 0,
   status_id: '',
   updated_at: undefined,
+};
+
+export const perDiemTransaction: Partial<Transaction> = {
+  source_account_id: 'accWUsrRlinFb',
+  billable: true,
+  org_category_id: 129140,
+  skip_reimbursement: true,
+  per_diem_rate_id: 440,
+  source: 'MOBILE',
+  currency: 'USD',
+  amount: 10800,
+  orig_currency: 'INR',
+  orig_amount: 900,
+  project_id: 257528,
+  purpose: 'test_term',
+  custom_properties: expectedTxnCustomProperties,
+  org_user_id: 'ouX8dwsbLCLv',
+  from_dt: new Date('2023-08-01T17:00:00.000Z'),
+  to_dt: new Date('2023-08-03T17:00:00.000Z'),
+  category: null,
+  num_days: 3,
+  cost_center_id: 13792,
+  cost_center_name: 'Test3',
+  cost_center_code: 'code3',
+  user_reason_for_duplicate_expenses: null,
 };

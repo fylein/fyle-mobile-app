@@ -39,7 +39,7 @@ export interface Transaction {
   hotel_is_breakfast_provided?: boolean;
   id?: string;
   invoice_number?: number;
-  locations?: string[] | Destination[];
+  locations?: Destination[] | string[] | { display: string }[];
   mandatory_fields_present?: boolean;
   manual_flag?: boolean;
   mileage_calculated_amount?: number;
@@ -54,7 +54,7 @@ export interface Transaction {
   orig_amount?: number;
   orig_currency?: string;
   payment_id?: string;
-  per_diem_rate_id?: string;
+  per_diem_rate_id?: number;
   physical_bill?: boolean;
   physical_bill_at?: Date;
   platform_vendor?: string;
@@ -62,7 +62,7 @@ export interface Transaction {
   policy_amount: number;
   policy_flag?: boolean;
   policy_state?: string;
-  project_id?: number | string;
+  project_id?: number;
   proposed_exchange_rate?: number;
   purpose?: string;
   report_id?: string;
