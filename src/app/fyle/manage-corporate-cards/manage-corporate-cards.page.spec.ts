@@ -575,6 +575,7 @@ describe('ManageCorporateCardsPage', () => {
       },
     } as RefresherCustomEvent;
     spyOn(refresherCustomEvent.target, 'complete');
+
     refresher.triggerEventHandler('ionRefresh', refresherCustomEvent);
 
     expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
