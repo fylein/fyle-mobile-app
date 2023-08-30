@@ -50,6 +50,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
+import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 export function TestCases4(getTestBed) {
   return describe('add-edit-per-diem test cases set 4', () => {
@@ -308,7 +309,7 @@ export function TestCases4(getTestBed) {
 
       it('should throw criticalPolicyViolations error and save the edited expense', (done) => {
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -353,7 +354,7 @@ export function TestCases4(getTestBed) {
         mockTxnData.tx.report_id = 'rp8eUleN29dc';
         component.etxn$ = of(mockTxnData);
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -399,7 +400,7 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(mockTxnData);
         component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesData10);
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -442,7 +443,7 @@ export function TestCases4(getTestBed) {
       it('should throw policyViolations error and save the edited expense', (done) => {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -499,7 +500,7 @@ export function TestCases4(getTestBed) {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         statusService.findLatestComment.and.returnValue(of('comment'));
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -554,7 +555,7 @@ export function TestCases4(getTestBed) {
           .createSpy()
           .and.returnValue(of({ etxn: mockTxnData, comment: 'comment' }));
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -610,7 +611,7 @@ export function TestCases4(getTestBed) {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -650,7 +651,7 @@ export function TestCases4(getTestBed) {
         const error = new Error('unhandledError');
         policyService.getCriticalPolicyRules.and.throwError(error);
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -752,7 +753,7 @@ export function TestCases4(getTestBed) {
       it('should add expense and go back if form and payment mode is valid', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.savePerDiem();
-        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_PER_DIEM');
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.goBack).toHaveBeenCalledTimes(1);
       });
@@ -762,7 +763,7 @@ export function TestCases4(getTestBed) {
         component.mode = 'edit';
         component.savePerDiem();
         expect(component.addExpense).not.toHaveBeenCalled();
-        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_PER_DIEM');
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_PER_DIEM);
         expect(component.goBack).toHaveBeenCalledTimes(1);
       });
 
