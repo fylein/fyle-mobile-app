@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { PopoverController } from '@ionic/angular';
-import { catchError, distinctUntilChanged, finalize, throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
@@ -34,7 +34,10 @@ export class AddCorporateCardComponent implements OnInit {
 
   cardNetworkTypes: typeof CardNetworkType = CardNetworkType;
 
-  constructor(private popoverController: PopoverController, private realTimeFeedService: RealTimeFeedService) {}
+  constructor(
+    private popoverController: PopoverController,
+    private realTimeFeedService: RealTimeFeedService,
+  ) {}
 
   ngOnInit(): void {
     this.cardForm = new FormControl('', [this.cardNumberValidator.bind(this), this.cardNetworkValidator.bind(this)]);
@@ -68,11 +71,11 @@ export class AddCorporateCardComponent implements OnInit {
       .pipe(
         catchError((error: Error) => {
           this.handleEnrollmentFailures(error);
-          return throwError(() => error);
+          return of(null);
         }),
         finalize(() => {
           this.isEnrollingCard = false;
-        })
+        }),
       )
       .subscribe((res) => {
         if (res) {
