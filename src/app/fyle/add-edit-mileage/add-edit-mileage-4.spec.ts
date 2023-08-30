@@ -1,11 +1,49 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormBuilder, Validators, FormArray, AbstractControl } from '@angular/forms';
+import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController, NavController, ActionSheetController, Platform } from '@ionic/angular';
-import { Subscription, Subject, BehaviorSubject, of, Observable } from 'rxjs';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
+import { costCenterOptions2, costCentersData, costCentersOptions } from 'src/app/core/mock-data/cost-centers.data';
+import { customPropertiesData } from 'src/app/core/mock-data/custom-property.data';
+import { txnFieldData2 } from 'src/app/core/mock-data/expense-field-obj.data';
+import {
+  dependentCustomFields2,
+  expenseFieldResponse,
+  expenseFieldWithBillable,
+} from 'src/app/core/mock-data/expense-field.data';
+import { formValue1, formValue2 } from 'src/app/core/mock-data/form-value.data';
+import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
+import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
+import { mileageCategories2, orgCategoryData, unsortedCategories1 } from 'src/app/core/mock-data/org-category.data';
+import {
+  orgSettingsCCDisabled,
+  orgSettingsParamsWithSimplifiedReport,
+  orgSettingsRes,
+  orgSettingsWoAdvance,
+} from 'src/app/core/mock-data/org-settings.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
+import { draftReportPerDiemData, expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import {
+  txnCustomProperties4,
+  txnCustomPropertiesData,
+  txnCustomPropertiesData3,
+} from 'src/app/core/mock-data/txn-custom-properties.data';
+import {
+  expectedUnflattendedTxnData5,
+  newExpenseMileageData2,
+  newMileageExpFromForm,
+  newMileageExpFromForm2,
+  newUnflattenedTxn,
+  unflattenedTxnData,
+  unflattenedTxnWithCC,
+  unflattenedTxnWithCategory,
+  unflattenedTxnWithReportID3,
+} from 'src/app/core/mock-data/unflattened-txn.data';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -42,60 +80,9 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { AddEditMileagePage } from './add-edit-mileage.page';
-import {
-  dependentCustomFields2,
-  expenseFieldResponse,
-  expenseFieldWithBillable,
-  mileageDependentFields,
-  transformedResponse,
-} from 'src/app/core/mock-data/expense-field.data';
-import {
-  mileageCategories,
-  mileageCategories2,
-  orgCategoryData,
-  transformedOrgCategories,
-  unsortedCategories1,
-} from 'src/app/core/mock-data/org-category.data';
-import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import {
-  txnCustomProperties4,
-  txnCustomPropertiesData,
-  txnCustomPropertiesData3,
-} from 'src/app/core/mock-data/txn-custom-properties.data';
-import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
-import { customInput2 } from 'src/app/core/test-data/custom-inputs.spec.data';
-import { expenseFieldObjData, txnFieldData, txnFieldData2 } from 'src/app/core/mock-data/expense-field-obj.data';
-import {
-  orgSettingsCCCDisabled2,
-  orgSettingsCCDisabled,
-  orgSettingsParamsWithSimplifiedReport,
-  orgSettingsProjectDisabled,
-  orgSettingsRes,
-  orgSettingsWoAdvance,
-} from 'src/app/core/mock-data/org-settings.data';
-import { costCenterOptions2, costCentersData, costCentersOptions } from 'src/app/core/mock-data/cost-centers.data';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
-import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
-import {
-  expectedUnflattendedTxnData5,
-  newExpenseMileageData2,
-  newMileageExpFromForm,
-  newMileageExpFromForm2,
-  newUnflattenedTxn,
-  unflattenedTxnData,
-  unflattenedTxnDataWithReportID2,
-  unflattenedTxnWithCC,
-  unflattenedTxnWithCategory,
-  unflattenedTxnWithReportID3,
-} from 'src/app/core/mock-data/unflattened-txn.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
-import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
-import { draftReportPerDiemData, expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
-import { orgSettingsData, paymentModeDataPersonal } from 'src/app/core/test-data/accounts.service.spec.data';
-import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
-import { formValue1, formValue2 } from 'src/app/core/mock-data/form-value.data';
+import { AddEditMileagePage } from './add-edit-mileage.page';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditMileage-4', () => {
@@ -270,16 +257,19 @@ export function TestCases4(getTestBed) {
     });
 
     describe('getCustomInputs():', () => {
-      it('should get custom inputs', (done) => {
+      beforeEach(() => {
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         component.isConnected$ = of(true);
         spyOn(component, 'setupDependentFields');
+        customInputsService.filterByCategory.and.returnValue(expenseFieldWithBillable);
+      });
+
+      it('should get custom inputs', (done) => {
         spyOn(component, 'getFormValues').and.returnValue({
-          custom_inputs: customInputData1 as any,
+          custom_inputs: customPropertiesData as CustomInput[],
         });
         spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData);
-        customInputsService.filterByCategory.and.returnValue(expenseFieldWithBillable);
         fixture.detectChanges();
 
         component.getCustomInputs().subscribe((res) => {
@@ -287,7 +277,7 @@ export function TestCases4(getTestBed) {
         });
         expect(component.setupDependentFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
-          customInputData1 as any,
+          customPropertiesData,
           expenseFieldWithBillable
         );
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
@@ -295,12 +285,8 @@ export function TestCases4(getTestBed) {
       });
 
       it('should get custom inputs if no previous custom inputs are assigned', (done) => {
-        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        component.isConnected$ = of(true);
-        spyOn(component, 'setupDependentFields');
         spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData3);
-        customInputsService.filterByCategory.and.returnValue(expenseFieldWithBillable);
         spyOn(component, 'getFormValues').and.returnValue({
           custom_inputs: null,
         });
