@@ -83,6 +83,7 @@
     "lodash": "^4.17.21",
     "ng2-pdf-viewer": "^9.1.5",
     "ngx-image-cropper": "^7.0.2",
+    "ngx-mask": "^13.1.15",
     "ngx-pinch-zoom-16": "^3.0.3",
     "rxjs": "^7.8.1",
     "swiper": "^8.4.7",
