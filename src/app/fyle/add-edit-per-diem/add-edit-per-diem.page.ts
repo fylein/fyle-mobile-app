@@ -2248,7 +2248,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   getDeleteReportParams(
     config: { header: string; body: string; ctaText: string; ctaLoadingText: string },
-    removePerDiemFromReport: boolean = false,
+    removePerDiemFromReport: boolean,
     id: string,
     reportId?: string
   ): {
