@@ -211,20 +211,20 @@ export function TestCases5(getTestBed) {
           get: () => true,
         });
         component.saveExpenseAndGotoPrev();
-        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_PERDIEM');
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.close).toHaveBeenCalledTimes(1);
         expect(component.goToPrev).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).not.toHaveBeenCalled();
       });
 
-      it('should go to previous page if form is valid, user is in edit mode and expense is not the first one in list', () => {
+      it('should go to previous page if form is valid, user is in add mode and expense is not the first one in list', () => {
         Object.defineProperty(component.fg, 'valid', {
           get: () => true,
         });
         component.activeIndex = 1;
         component.saveExpenseAndGotoPrev();
-        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_PERDIEM');
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.close).not.toHaveBeenCalled();
         expect(component.goToPrev).toHaveBeenCalledTimes(1);
@@ -238,7 +238,7 @@ export function TestCases5(getTestBed) {
         component.mode = 'edit';
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).not.toHaveBeenCalled();
-        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_PERDIEM');
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
         expect(component.close).toHaveBeenCalledTimes(1);
         expect(component.goToPrev).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).not.toHaveBeenCalled();
@@ -252,7 +252,7 @@ export function TestCases5(getTestBed) {
         component.mode = 'edit';
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).not.toHaveBeenCalled();
-        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_PERDIEM');
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
         expect(component.close).not.toHaveBeenCalled();
         expect(component.goToPrev).toHaveBeenCalledTimes(1);
         expect(component.showFormValidationErrors).not.toHaveBeenCalled();
@@ -288,20 +288,20 @@ export function TestCases5(getTestBed) {
           get: () => true,
         });
         component.saveExpenseAndGotoNext();
-        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_PERDIEM');
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.close).toHaveBeenCalledTimes(1);
         expect(component.goToNext).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).not.toHaveBeenCalled();
       });
 
-      it('should go to previous page if form is valid, user is in edit mode and expense is not the first one in list', () => {
+      it('should go to next page if form is valid, user is in add mode and expense is not the first one in list', () => {
         Object.defineProperty(component.fg, 'valid', {
           get: () => true,
         });
         component.activeIndex = 1;
         component.saveExpenseAndGotoNext();
-        expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_PERDIEM');
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.close).not.toHaveBeenCalled();
         expect(component.goToNext).toHaveBeenCalledTimes(1);
@@ -315,13 +315,13 @@ export function TestCases5(getTestBed) {
         component.mode = 'edit';
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).not.toHaveBeenCalled();
-        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_PERDIEM');
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
         expect(component.close).toHaveBeenCalledTimes(1);
         expect(component.goToNext).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).not.toHaveBeenCalled();
       });
 
-      it('should go to previous page if form is valid, user is in edit mode and expense is not the first one in list', () => {
+      it('should go to next page if form is valid, user is in edit mode and expense is not the first one in list', () => {
         Object.defineProperty(component.fg, 'valid', {
           get: () => true,
         });
@@ -329,7 +329,7 @@ export function TestCases5(getTestBed) {
         component.mode = 'edit';
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).not.toHaveBeenCalled();
-        expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_PERDIEM');
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
         expect(component.close).not.toHaveBeenCalled();
         expect(component.goToNext).toHaveBeenCalledTimes(1);
         expect(component.showFormValidationErrors).not.toHaveBeenCalled();
