@@ -1,6 +1,6 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormBuilder, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, Validators, FormArray, AbstractControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -50,7 +50,13 @@ import {
   mileageDependentFields,
   transformedResponse,
 } from 'src/app/core/mock-data/expense-field.data';
-import { mileageCategories, mileageCategories2, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
+import {
+  mileageCategories,
+  mileageCategories2,
+  orgCategoryData,
+  transformedOrgCategories,
+  unsortedCategories1,
+} from 'src/app/core/mock-data/org-category.data';
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import {
   txnCustomProperties4,
@@ -72,11 +78,15 @@ import { costCenterOptions2, costCentersData, costCentersOptions } from 'src/app
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 import {
+  expectedUnflattendedTxnData5,
   newExpenseMileageData2,
   newMileageExpFromForm,
+  newMileageExpFromForm2,
   newUnflattenedTxn,
   unflattenedTxnData,
   unflattenedTxnDataWithReportID2,
+  unflattenedTxnWithCC,
+  unflattenedTxnWithCategory,
   unflattenedTxnWithReportID3,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -665,6 +675,13 @@ export function TestCases4(getTestBed) {
     });
 
     describe('generateEtxnFromFg():', () => {
+      beforeEach(() => {
+        component.amount$ = of(100);
+        component.homeCurrency$ = of('USD');
+        component.mileageRates$ = of(unfilteredMileageRatesData);
+        component.rate$ = of(null);
+      });
+
       it('should generate an expense from form', (done) => {
         dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
         spyOn(component, 'getFormValues').and.returnValue({
@@ -682,10 +699,6 @@ export function TestCases4(getTestBed) {
           costCenter: costCentersData[0],
         });
         spyOn(component, 'getRateByVehicleType').and.returnValue(10);
-        component.amount$ = of(100);
-        component.homeCurrency$ = of('USD');
-        component.mileageRates$ = of(unfilteredMileageRatesData);
-        component.rate$ = of(null);
         fixture.detectChanges();
 
         component
@@ -696,6 +709,136 @@ export function TestCases4(getTestBed) {
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
+      });
+
+      it('should generate txn from form if properties are not specified', (done) => {
+        dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
+        spyOn(component, 'getFormValues').and.returnValue(null);
+
+        component.generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(null), of(10)).subscribe((res) => {
+          expect(res).toEqual(newMileageExpFromForm2);
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+    });
+
+    it('showAddToReportSuccessToast(): should show success message on adding expense to report', () => {
+      const modalSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
+      modalSpy.onAction.and.returnValue(of(true));
+      matSnackBar.openFromComponent.and.returnValue(modalSpy);
+
+      component.showAddToReportSuccessToast('rpFE5X1Pqi9P');
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Mileage expense added to report successfully',
+      });
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: 'Mileage expense added to report successfully',
+        redirectionText: 'View Report',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: 'rpFE5X1Pqi9P', navigateBack: true },
+      ]);
+    });
+
+    it('showSaveAndNext(): should save and show next expense', () => {
+      component.activeIndex = 0;
+      component.reviewList = [];
+      expect(component.showSaveAndNext).toBeFalse();
+    });
+
+    it('route(): should get route control', () => {
+      const result = component.route;
+
+      expect(result).toEqual(component.fg.controls.route);
+    });
+
+    it('getFormValues(): should get values in form', () => {
+      component.fg.patchValue({
+        route: {
+          roundTrip: true,
+          mileageLocations: [locationData1, locationData2],
+          distance: 10,
+        },
+      });
+
+      expect(component.getFormValues()).toEqual({
+        route: {
+          roundTrip: true,
+          mileageLocations: [locationData1, locationData2],
+          distance: 10,
+        },
+        dateOfSpend: null,
+        mileage_rate_name: null,
+        paymentMode: null,
+        purpose: null,
+        project: null,
+        billable: null,
+        sub_category: null,
+        custom_inputs: [],
+        costCenter: null,
+        report: null,
+        duplicate_detection_reason: null,
+        project_dependent_fields: [],
+        cost_center_dependent_fields: [],
+      });
+    });
+
+    it('getFormControl(): should get form control as per name provided', () => {
+      expect(component.getFormControl('route')).toEqual(component.fg.controls.route);
+    });
+
+    describe('getCategories():', () => {
+      it('should get categories according to category id in expense', (done) => {
+        categoriesService.getAll.and.returnValue(of(unsortedCategories1));
+
+        component.getCategories(unflattenedTxnWithCategory).subscribe((res) => {
+          expect(res).toEqual(unsortedCategories1[2]);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+    });
+
+    describe('getSelectedCostCenters():', () => {
+      it('should get selected cost center', (done) => {
+        component.etxn$ = of(unflattenedTxnWithCC);
+        component.costCenters$ = of(costCenterOptions2);
+        fixture.detectChanges();
+
+        component.getSelectedCostCenters().subscribe((res) => {
+          expect(res).toEqual(costCenterOptions2[0].value);
+          done();
+        });
+      });
+
+      it('should get ID from first cost center if not provided in expense', (done) => {
+        component.etxn$ = of(expectedUnflattendedTxnData5);
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.mode = 'add';
+        component.costCenters$ = of(costCentersOptions);
+
+        component.getSelectedCostCenters().subscribe((res) => {
+          expect(res).toEqual(costCentersOptions[0].value);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return null if no cost centers are available', (done) => {
+        component.etxn$ = of(expectedUnflattendedTxnData5);
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.costCenters$ = of([]);
+
+        component.getSelectedCostCenters().subscribe((res) => {
+          expect(res).toBeNull();
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
     });
   });

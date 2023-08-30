@@ -357,7 +357,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getFormValues(): Partial<FormValue> {
-    return this.fg.value as FormValue;
+    return this.fg.value as Partial<FormValue>;
   }
 
   getFormControl(name: string): AbstractControl {
@@ -2039,7 +2039,7 @@ export class AddEditMileagePage implements OnInit {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
         const formValue = this.getFormValues();
         let customProperties = res.customProperties;
-        customProperties = customProperties.map((customProperty) => {
+        customProperties = customProperties?.map((customProperty) => {
           if (customProperty.type === 'DATE') {
             customProperty.value =
               customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value as string));
@@ -2047,25 +2047,26 @@ export class AddEditMileagePage implements OnInit {
           return customProperty;
         });
         const calculatedDistance = +res.calculatedDistance;
+
         const amount = res.amount;
         const skipReimbursement =
-          formValue.paymentMode.acc.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable;
+          formValue?.paymentMode?.acc.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable;
         const rate = res.rate;
         return {
           tx: {
             ...etxn.tx,
-            mileage_vehicle_type: formValue.mileage_rate_name?.vehicle_type,
-            mileage_is_round_trip: formValue?.route.roundTrip,
+            mileage_vehicle_type: formValue?.mileage_rate_name?.vehicle_type,
+            mileage_is_round_trip: formValue?.route?.roundTrip,
             mileage_rate: rate || etxn.tx.mileage_rate,
-            source_account_id: formValue.paymentMode.acc.id,
+            source_account_id: formValue?.paymentMode?.acc.id,
             billable: formValue?.billable,
-            distance: +formValue?.route.distance,
-            org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
-            txn_dt: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
+            distance: +formValue?.route?.distance || null,
+            org_category_id: (formValue?.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
+            txn_dt: this.dateService.getUTCDate(new Date(formValue?.dateOfSpend)),
             skip_reimbursement: skipReimbursement,
             source: 'MOBILE',
             currency: res.homeCurrency,
-            locations: formValue.route?.mileageLocations,
+            locations: formValue?.route?.mileageLocations,
             amount,
             orig_currency: null,
             orig_amount: null,
@@ -2073,7 +2074,7 @@ export class AddEditMileagePage implements OnInit {
             mileage_calculated_amount:
               (rate ||
                 etxn.tx.mileage_rate ||
-                this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name?.vehicle_type)) *
+                this.getRateByVehicleType(res.mileageRates, formValue?.mileage_rate_name?.vehicle_type)) *
               calculatedDistance,
             project_id: formValue?.project && formValue.project.project_id,
             purpose: formValue?.purpose,
