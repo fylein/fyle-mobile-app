@@ -153,11 +153,11 @@ export function TestCases1(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -240,7 +240,7 @@ export function TestCases1(getTestBed) {
 
       expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
-        activatedRoute.snapshot.params.id
+        activatedRoute.snapshot.params.id,
       );
     });
 
@@ -483,7 +483,7 @@ export function TestCases1(getTestBed) {
 
       const result = await component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state
+        splitPolicyExp4.data.final_desired_state,
       );
 
       expect(result).toEqual({ comment: 'primary' });
@@ -623,7 +623,7 @@ export function TestCases1(getTestBed) {
             removeMileageFromReport: true,
             id: 'txyeiYbLDSOy',
             reportId: 'rpFE5X1Pqi9P',
-          })
+          }),
         );
       }));
 
@@ -661,15 +661,15 @@ export function TestCases1(getTestBed) {
           removeMileageFromReport: undefined,
         });
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText })
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }),
         );
         expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
-          component.reviewList[+component.activeIndex]
+          component.reviewList[+component.activeIndex],
         );
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           unflattenedTxnData,
           component.reviewList,
-          +component.activeIndex
+          +component.activeIndex,
         );
       }));
 
@@ -711,7 +711,7 @@ export function TestCases1(getTestBed) {
             ctaLoadingText,
             reportId: undefined,
             removeMileageFromReport: false,
-          })
+          }),
         );
       }));
 
@@ -753,7 +753,7 @@ export function TestCases1(getTestBed) {
             ctaLoadingText,
             reportId: undefined,
             removeMileageFromReport: false,
-          })
+          }),
         );
       }));
     });
@@ -945,7 +945,7 @@ export function TestCases1(getTestBed) {
       accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
+        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
@@ -968,7 +968,7 @@ export function TestCases1(getTestBed) {
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           multiplePaymentModesData,
           orgUserSettingsData.payment_mode_settings.allowed_payment_modes,
-          config
+          config,
         );
         done();
       });

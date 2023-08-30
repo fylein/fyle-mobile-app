@@ -27,7 +27,10 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
   onPageExit$: Subject<void>;
 
-  constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: FormBuilder) {}
+  constructor(
+    private dependentFieldsService: DependentFieldsService,
+    private formBuilder: FormBuilder,
+  ) {}
 
   ngOnInit(): void {
     return;
@@ -60,7 +63,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   addDependentFieldWithValue(
     txCustomProperties: CustomProperty<string>[],
     dependentFields: ExpenseField[],
-    parentField: { id: number; value: string }
+    parentField: { id: number; value: string },
   ): void {
     //Get dependent field for the field whose id is parentFieldId
     const dependentField = dependentFields.find((dependentField) => dependentField.parent_field_id === parentField.id);
@@ -68,7 +71,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     if (dependentField) {
       //Get selected value for dependent field
       const dependentFieldValue = txCustomProperties.find(
-        (customProp) => customProp.name === dependentField.field_name
+        (customProp) => customProp.name === dependentField.field_name,
       );
 
       if (dependentFieldValue?.value) {
@@ -98,10 +101,10 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
   getDependentField(
     parentFieldId: number,
-    parentFieldValue: string
+    parentFieldValue: string,
   ): Observable<{ dependentField: ExpenseField; parentFieldValue: string }> {
     const dependentField = this.dependentCustomFields.find(
-      (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId
+      (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId,
     );
     if (dependentField && parentFieldValue) {
       return this.dependentFieldsService
@@ -113,8 +116,8 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
         })
         .pipe(
           map((dependentFieldOptions) =>
-            dependentFieldOptions?.length > 0 ? { dependentField, parentFieldValue } : null
-          )
+            dependentFieldOptions?.length > 0 ? { dependentField, parentFieldValue } : null,
+          ),
         );
     }
     return of(null);

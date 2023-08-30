@@ -13,7 +13,10 @@ import { Currency, CurrencyName } from '../models/currency.model';
   providedIn: 'root',
 })
 export class RecentlyUsedItemsService {
-  constructor(private apiService: ApiService, private projectService: ProjectsService) {}
+  constructor(
+    private apiService: ApiService,
+    private projectService: ProjectsService,
+  ) {}
 
   getRecentlyUsed(): Observable<RecentlyUsed> {
     return this.apiService.get('/recently_used');
@@ -48,7 +51,7 @@ export class RecentlyUsedItemsService {
               projectsMap[item.project_id] = item;
             });
             return config.recentValues.recent_project_ids.map((id) => projectsMap[id]).filter((id) => id);
-          })
+          }),
         );
     } else {
       return of(null);
@@ -57,7 +60,7 @@ export class RecentlyUsedItemsService {
 
   getRecentCostCenters(
     costCenters: CostCenters[],
-    recentValue: RecentlyUsed
+    recentValue: RecentlyUsed,
   ): Observable<{ label: string; value: CostCenter; selected?: boolean }[]> {
     if (
       costCenters &&
@@ -75,7 +78,7 @@ export class RecentlyUsedItemsService {
         .filter((id) => id);
       if (recentCostCenterList.length > 0) {
         return of(
-          recentCostCenterList.map((costCenter) => ({ label: costCenter.value.name, value: costCenter.value }))
+          recentCostCenterList.map((costCenter) => ({ label: costCenter.value.name, value: costCenter.value })),
         );
       } else {
         return of(null);
@@ -87,7 +90,7 @@ export class RecentlyUsedItemsService {
 
   getRecentCategories(
     filteredCategories: OrgCategoryListItem[],
-    recentValues: RecentlyUsed
+    recentValues: RecentlyUsed,
   ): Observable<OrgCategoryListItem[]> {
     if (
       filteredCategories &&

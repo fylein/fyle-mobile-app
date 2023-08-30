@@ -12,7 +12,10 @@ import { DateService } from './date.service';
   providedIn: 'root',
 })
 export class FileService {
-  constructor(private apiService: ApiService, private dateService: DateService) {}
+  constructor(
+    private apiService: ApiService,
+    private dateService: DateService,
+  ) {}
 
   downloadUrl(fileId: string): Observable<string> {
     return this.apiService.post<File>('/files/' + fileId + '/download_url').pipe(map((res) => res.url));
@@ -48,7 +51,7 @@ export class FileService {
           advance_request_id: advanceRequestId,
           skip_html: 'true',
         },
-      })
+      }),
     ).pipe(
       map((files) => {
         files.map((file) => {
@@ -56,7 +59,7 @@ export class FileService {
           this.setFileType(file as FileObject);
         });
         return files as unknown as FileObject[];
-      })
+      }),
     );
   }
 
