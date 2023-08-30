@@ -95,6 +95,7 @@ import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { draftReportPerDiemData, expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 import { orgSettingsData, paymentModeDataPersonal } from 'src/app/core/test-data/accounts.service.spec.data';
 import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
+import { formValue1, formValue2 } from 'src/app/core/mock-data/form-value.data';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditMileage-4', () => {
@@ -566,7 +567,7 @@ export function TestCases4(getTestBed) {
         });
       });
 
-      it("should return the first report if there's only one option in DRAFT state", (done) => {
+      it('should return the first report if only one option in DRAFT state is available', (done) => {
         component.autoSubmissionReportName$ = of(null);
         component.etxn$ = of(unflattenedTxnData);
         component.reports$ = of([
@@ -684,20 +685,7 @@ export function TestCases4(getTestBed) {
 
       it('should generate an expense from form', (done) => {
         dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
-        spyOn(component, 'getFormValues').and.returnValue({
-          mileage_rate_name: unfilteredMileageRatesData[0],
-          route: {
-            mileageLocations: [locationData1, locationData2],
-            roundTrip: true,
-            distance: 10,
-          },
-          paymentMode: paymentModeDataPersonal,
-          sub_category: orgCategoryData,
-          dateOfSpend: new Date('2022-08-12T00:00:00'),
-          project: expectedProjectsResponse[0],
-          purpose: 'travel',
-          costCenter: costCentersData[0],
-        });
+        spyOn(component, 'getFormValues').and.returnValue(formValue1);
         spyOn(component, 'getRateByVehicleType').and.returnValue(10);
         fixture.detectChanges();
 
@@ -713,7 +701,7 @@ export function TestCases4(getTestBed) {
 
       it('should generate txn from form if properties are not specified', (done) => {
         dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
-        spyOn(component, 'getFormValues').and.returnValue(null);
+        spyOn(component, 'getFormValues').and.returnValue(formValue2);
 
         component.generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(null), of(10)).subscribe((res) => {
           expect(res).toEqual(newMileageExpFromForm2);
