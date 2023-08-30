@@ -39,7 +39,7 @@ export class CorporateCreditCardExpenseService {
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
     private authService: AuthService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
   ) {}
 
   @CacheBuster({
@@ -87,8 +87,8 @@ export class CorporateCreditCardExpenseService {
               limit: number;
               offset: number;
               url: string;
-            }
-        )
+            },
+        ),
       );
   }
 
@@ -194,8 +194,8 @@ export class CorporateCreditCardExpenseService {
             this.constructInQueryParamStringForV2(['COMPLETE', 'DRAFT']) +
             '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
             eou.ou.id,
-          {}
-        )
+          {},
+        ),
       ),
       map((statsResponse: StatsResponse) => {
         const stats = {
@@ -212,7 +212,7 @@ export class CorporateCreditCardExpenseService {
           }
         });
         return stats;
-      })
+      }),
     );
   }
 }

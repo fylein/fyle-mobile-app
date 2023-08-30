@@ -87,8 +87,11 @@ ion-popover.error-popover {
 }
 
 .mat-bottom-sheet-1 {
-  padding: 24px 16px !important;
   border-radius: 16px 16px 0px 0px !important;
+
+  .mat-bottom-sheet-container {
+    border-radius: 16px 16px 0px 0px !important;
+  }
 }
 
 .mat-bottom-sheet-2 {
@@ -101,7 +104,6 @@ ion-popover.error-popover {
   background-color: $green;
   border-radius: 8px !important;
   margin: 0 16px 30px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-failure {
@@ -109,7 +111,6 @@ ion-popover.error-popover {
   background-color: $red;
   border-radius: 8px !important;
   margin: 0 16px 30px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-info {
@@ -143,7 +144,6 @@ ion-popover.error-popover {
   background-color: $green;
   border-radius: 8px !important;
   margin: 0 16px 133px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-failure-with-camera-icon {
@@ -151,7 +151,6 @@ ion-popover.error-popover {
   background-color: $red;
   border-radius: 8px !important;
   margin: 0 16px 133px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-success-with-report-btn {
@@ -159,7 +158,6 @@ ion-popover.error-popover {
   background-color: $green;
   border-radius: 8px !important;
   margin: 0 16px 84px !important;
-  padding: 12px 8px !important;
 }
 
 .msb-failure-with-report-btn {
@@ -167,7 +165,14 @@ ion-popover.error-popover {
   background-color: $red;
   border-radius: 8px !important;
   margin: 0 16px 96px !important;
-  padding: 12px 8px !important;
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: none;
+
+  .mdc-snackbar__surface {
+    --mdc-snackbar-container-shape: 8px;
+  }
 }
 
 .icon--toast-danger {
@@ -474,28 +479,32 @@ ion-popover.camera-options-popover {
   line-height: 1.3;
   color: #161528;
   font-weight: 500;
+  font-size: 20px;
   padding: 18px 0 18px 12px;
 }
 
-.mat-checkbox-checked.mat-accent {
-  .mat-checkbox-background {
+.mat-mdc-checkbox-checked.mat-accent {
+  .mdc-checkbox__background {
     background-color: $blue-black !important;
   }
 }
 
-.mat-checkbox-checkmark {
+.mdc-checkbox__checkmark {
   padding: 2px;
+  color: #fafafa !important;
 }
 
 mat-checkbox {
-  .mat-checkbox-background,
-  .mat-checkbox-frame {
+  .mdc-checkbox__background,
+  .mdc-checkbox {
     border-radius: 4px !important;
     border-color: $black-2 !important;
     border-width: 1.5px !important;
   }
 
-  .mat-checkbox-layout {
+  .mdc-form-field {
+    height: 20px;
+    margin-left: -10px;
     .mat-checkbox-inner-container {
       padding: 8px !important;
     }
@@ -503,17 +512,14 @@ mat-checkbox {
 }
 
 .custom-mat-checkbox {
-  .mat-checkbox-inner-container {
-    height: 20px;
-    width: 20px;
-    .mat-checkbox-background,
-    .mat-checkbox-frame {
+  .mdc-checkbox {
+    .mdc-checkbox__background,
+    .mat-mdc-checkbox-frame {
       border-radius: 6px !important;
     }
   }
 
-  .mat-checkbox-label {
-    margin-left: 10px !important;
+  .mdc-label {
     font-size: 14px;
     color: $black;
   }
@@ -528,8 +534,25 @@ mat-tab-group {
 }
 
 textarea,
-input {
+input,
+form {
   background-color: transparent;
+  font-size: 14px;
+}
+
+.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-text-field__input {
+  font-size: 14px;
+}
+
+.mat-form-field-container,
+ion-toolbar {
+  .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+    padding-top: 0;
+    padding-bottom: 0;
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+  }
 }
 
 .signin-signup-fields {
@@ -648,7 +671,7 @@ input {
 
 .other-details--container {
   mat-tab-group {
-    .mat-tab-body-content {
+    .mat-mdc-tab-body-content {
       overflow-x: hidden;
     }
   }
@@ -794,7 +817,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .dashboard {
   &--tabs {
-    .mat-tab-header {
+    .mat-mdc-tab-header {
       display: none;
     }
   }
@@ -871,6 +894,10 @@ ref - https://stackoverflow.com/a/31162426
     --background: transparent;
     --color: #{$black-light};
   }
+}
+
+ion-footer {
+  display: inline;
 }
 
 .footer-ios ion-toolbar:first-of-type {
@@ -1137,7 +1164,7 @@ ion-popover.delete-button-class {
 }
 
 .ios .fy-footer--icon-pill {
-  margin-left: 7px !important;
+  margin-left: 14px !important;
 }
 
 .filter-pills-container {
@@ -1184,11 +1211,16 @@ ion-modal.personal-cards-range-modal {
   padding: 12px 0 24px 0 !important;
 }
 
+ion-toggle::part(track) {
+  height: 22px;
+  width: 52px;
+}
+
 ion-toggle {
   height: 22px;
   width: 52px;
-  --background: #{$grey-light};
-  --background-checked: #{$brand-primary};
+  --track-background: #{$grey-light};
+  --track-background-checked: #{$brand-primary};
   --handle-spacing: 4px;
   --handle-border-radius: 50%;
   --handle-width: 14px;
@@ -1201,7 +1233,8 @@ ion-toggle::before {
   font-size: 12px;
   font-weight: 500;
   z-index: 1;
-  top: 1px;
+  top: 50%;
+  transform: translateY(-50%);
   right: 12px;
 }
 
@@ -1212,7 +1245,8 @@ ion-toggle.toggle-checked::before {
   font-size: 12px;
   font-weight: 500;
   z-index: 1;
-  top: 1px;
+  top: 50%;
+  transform: translateY(-50%);
   left: 10px;
 }
 
@@ -1243,7 +1277,7 @@ ion-toggle.toggle-checked::before {
   }
 }
 
-.mat-snack-bar-handset .mat-snack-bar-container {
+.mat-mdc-snack-bar-handset .mat-mdc-snack-bar-container {
   margin-bottom: 133px;
 }
 
