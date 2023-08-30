@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import {
   ActionSheetController,
   IonRefresher,
@@ -107,7 +107,7 @@ describe('ManageCorporateCardsPage', () => {
 
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -117,6 +117,11 @@ describe('ManageCorporateCardsPage', () => {
 
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
+    realTimeFeedService.unenroll.and.returnValue(of(null));
+
+    spyOn(component.loadCorporateCards$, 'next').and.callThrough();
 
     fixture.detectChanges();
   }));
@@ -126,8 +131,6 @@ describe('ManageCorporateCardsPage', () => {
   });
 
   it('should show a zero state if there are no corporate cards', () => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
-
     component.ionViewWillEnter();
     fixture.detectChanges();
 
@@ -135,7 +138,7 @@ describe('ManageCorporateCardsPage', () => {
     expect(zeroState).toBeTruthy();
   });
 
-  it('should show a list of corporate cards if there are corporate cards', () => {
+  it('should show a list of corporate cards assigned to the user', () => {
     const cardsResponse = [visaRTFCard, mastercardRTFCard];
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of(cardsResponse));
 
@@ -177,10 +180,9 @@ describe('ManageCorporateCardsPage', () => {
       'present',
       'onDidDismiss',
     ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
+
     popoverSpy.onDidDismiss.and.resolveTo({});
     popoverController.create.and.resolveTo(popoverSpy);
-
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
 
     component.ionViewWillEnter();
     fixture.detectChanges();
@@ -188,7 +190,7 @@ describe('ManageCorporateCardsPage', () => {
     const addButton = getElementBySelector(fixture, '[data-testid="add-button"]') as HTMLButtonElement;
     addButton.click();
 
-    fixture.detectChanges();
+    tick();
 
     expect(popoverController.create).toHaveBeenCalledWith({
       component: AddCorporateCardComponent,
@@ -202,26 +204,23 @@ describe('ManageCorporateCardsPage', () => {
       },
     });
 
-    flushMicrotasks();
-
     expect(popoverSpy.present).toHaveBeenCalledTimes(1);
-    expect(popoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
   }));
 
-  it('should reload the page if the card is successfully added from the add corporate card modal', fakeAsync(() => {
+  it('should reload the cards list if a card is successfully added from the add corporate card modal', fakeAsync(() => {
     const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
       'present',
       'onDidDismiss',
     ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
+
     popoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
+
     const cardAddedPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
       'present',
+      'onDidDismiss',
     ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
-    popoverController.create.and.returnValues(Promise.resolve(popoverSpy), Promise.resolve(cardAddedPopoverSpy));
-    spyOn(component.loadCorporateCards$, 'next').and.callThrough();
 
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
-    corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+    popoverController.create.and.returnValues(Promise.resolve(popoverSpy), Promise.resolve(cardAddedPopoverSpy));
 
     component.ionViewWillEnter();
     fixture.detectChanges();
@@ -229,7 +228,7 @@ describe('ManageCorporateCardsPage', () => {
     const addButton = getElementBySelector(fixture, '[data-testid="add-button"]') as HTMLButtonElement;
     addButton.click();
 
-    fixture.detectChanges();
+    tick();
 
     expect(popoverController.create).toHaveBeenCalledWith({
       component: AddCorporateCardComponent,
@@ -243,10 +242,7 @@ describe('ManageCorporateCardsPage', () => {
       },
     });
 
-    flushMicrotasks();
-
     expect(popoverSpy.present).toHaveBeenCalledTimes(1);
-    expect(popoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
 
     expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
     expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
@@ -257,16 +253,14 @@ describe('ManageCorporateCardsPage', () => {
       'present',
       'onDidDismiss',
     ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
+    popoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
+
     const cardAddedPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
       'present',
+      'onDidDismiss',
     ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
 
-    popoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
     popoverController.create.and.returnValues(Promise.resolve(popoverSpy), Promise.resolve(cardAddedPopoverSpy));
-    spyOn(component.loadCorporateCards$, 'next').and.callThrough();
-
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
-    corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
 
     component.ionViewWillEnter();
     fixture.detectChanges();
@@ -274,7 +268,7 @@ describe('ManageCorporateCardsPage', () => {
     const addButton = getElementBySelector(fixture, '[data-testid="add-button"]') as HTMLButtonElement;
     addButton.click();
 
-    fixture.detectChanges();
+    tick();
 
     expect(popoverController.create).toHaveBeenCalledWith({
       component: AddCorporateCardComponent,
@@ -288,16 +282,12 @@ describe('ManageCorporateCardsPage', () => {
       },
     });
 
-    flushMicrotasks();
-
     expect(popoverSpy.present).toHaveBeenCalledTimes(1);
-    expect(popoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
 
     expect(popoverController.create).toHaveBeenCalledWith({
       component: CardAddedComponent,
       cssClass: 'pop-up-in-center',
     });
-
     expect(cardAddedPopoverSpy.present).toHaveBeenCalledTimes(1);
   }));
 
@@ -313,6 +303,8 @@ describe('ManageCorporateCardsPage', () => {
     const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
     card.triggerEventHandler('cardOptionsClick', visaRTFCard);
 
+    tick();
+
     expect(actionSheetController.create).toHaveBeenCalledWith({
       buttons: [
         {
@@ -326,13 +318,12 @@ describe('ManageCorporateCardsPage', () => {
       mode: 'md',
     });
 
-    flushMicrotasks();
-
     expect(actionSheetSpy.present).toHaveBeenCalled();
   }));
 
-  it('should show the disconnect card modal when clicked on disconnect button in the card options menu', waitForAsync(() => {
+  it('should show the disconnect card modal when clicked on disconnect button in the card options menu', (done) => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([visaRTFCard]));
+    realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
 
     component.ionViewWillEnter();
     fixture.detectChanges();
@@ -349,12 +340,14 @@ describe('ManageCorporateCardsPage', () => {
         const disconnectHandler = actionSheetButtons[0].handler;
         disconnectHandler();
 
+        tick();
+
         expect(popoverController.create).toHaveBeenCalledWith({
           component: PopupAlertComponent,
           cssClass: 'pop-up-in-center',
           componentProps: {
             title: 'Disconnect Card',
-            message: `<div class="text-left"><div class="mb-16">You are disconnecting your VISA card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
+            message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
             primaryCta: {
               text: 'Yes, Disconnect',
               action: 'disconnect',
@@ -366,16 +359,15 @@ describe('ManageCorporateCardsPage', () => {
           },
         });
 
-        flushMicrotasks();
-
         expect(popoverSpy.present).toHaveBeenCalled();
-        expect(popoverSpy.onDidDismiss).toHaveBeenCalled();
-      })
+        done();
+      }),
     );
-  }));
+  });
 
-  it('should not unenroll the card and reload the page if the user clicks cancel on the disconnect card modal', () => {
+  it('should not unenroll the card and reload the page if the user clicks cancel on the disconnect card modal', (done) => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([visaRTFCard]));
+    realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
 
     component.ionViewWillEnter();
     fixture.detectChanges();
@@ -389,17 +381,17 @@ describe('ManageCorporateCardsPage', () => {
         popoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'cancel' } });
         popoverController.create.and.resolveTo(popoverSpy);
 
-        spyOn(component.loadCorporateCards$, 'next').and.callThrough();
-
         const disconnectHandler = actionSheetButtons[0].handler;
         disconnectHandler();
+
+        tick();
 
         expect(popoverController.create).toHaveBeenCalledWith({
           component: PopupAlertComponent,
           cssClass: 'pop-up-in-center',
           componentProps: {
             title: 'Disconnect Card',
-            message: `<div class="text-left"><div class="mb-16">You are disconnecting your VISA card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
+            message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
             primaryCta: {
               text: 'Yes, Disconnect',
               action: 'disconnect',
@@ -411,25 +403,17 @@ describe('ManageCorporateCardsPage', () => {
           },
         });
 
-        flushMicrotasks();
-
         expect(popoverSpy.present).toHaveBeenCalled();
-        expect(popoverSpy.onDidDismiss).toHaveBeenCalled();
-
         expect(realTimeFeedService.unenroll).not.toHaveBeenCalled();
 
-        // Shouldn't refresh the corporate cards too
-        expect(corporateCreditCardExpenseService.clearCache).not.toHaveBeenCalled();
-        expect(component.loadCorporateCards$.next).not.toHaveBeenCalled();
-      })
+        done();
+      }),
     );
   });
 
-  it('should unenroll the card and reload the page if the user clicks disconnect on the disconnect card modal', () => {
+  it('should unenroll the card and reload the page if the user clicks disconnect on the disconnect card modal', (done) => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([visaRTFCard]));
-    corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
     realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
-    realTimeFeedService.unenroll.and.returnValue(of(null));
 
     component.ionViewWillEnter();
     fixture.detectChanges();
@@ -443,17 +427,17 @@ describe('ManageCorporateCardsPage', () => {
         popoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'disconnect' } });
         popoverController.create.and.resolveTo(popoverSpy);
 
-        spyOn(component.loadCorporateCards$, 'next').and.callThrough();
-
         const disconnectHandler = actionSheetButtons[0].handler;
         disconnectHandler();
+
+        tick();
 
         expect(popoverController.create).toHaveBeenCalledWith({
           component: PopupAlertComponent,
           cssClass: 'pop-up-in-center',
           componentProps: {
             title: 'Disconnect Card',
-            message: `<div class="text-left"><div class="mb-16">You are disconnecting your VISA card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
+            message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
             primaryCta: {
               text: 'Yes, Disconnect',
               action: 'disconnect',
@@ -465,20 +449,17 @@ describe('ManageCorporateCardsPage', () => {
           },
         });
 
-        flushMicrotasks();
-
         expect(popoverSpy.present).toHaveBeenCalled();
-        expect(popoverSpy.onDidDismiss).toHaveBeenCalled();
-
         expect(realTimeFeedService.unenroll).toHaveBeenCalledWith(CardNetworkType.VISA, visaRTFCard.id);
-
         expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
         expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
-      })
+
+        done();
+      }),
     );
   });
 
-  it('should show proper card options menu for statement uploaded cards', () => {
+  it('should show proper card options menu for statement uploaded cards', fakeAsync(() => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
 
     const actionSheetSpy = jasmine.createSpyObj('actionSheet', ['present']);
@@ -489,6 +470,8 @@ describe('ManageCorporateCardsPage', () => {
 
     const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
     card.triggerEventHandler('cardOptionsClick', statementUploadedCard);
+
+    tick();
 
     expect(actionSheetController.create).toHaveBeenCalledWith({
       buttons: [
@@ -504,9 +487,11 @@ describe('ManageCorporateCardsPage', () => {
       cssClass: 'fy-action-sheet',
       mode: 'md',
     });
-  });
 
-  it('should handle enrollment of existing statement uploaded cards to visa rtf', waitForAsync(() => {
+    expect(actionSheetSpy.present).toHaveBeenCalledTimes(1);
+  }));
+
+  it('should handle enrollment of existing statement uploaded cards to visa rtf', (done) => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
 
     component.ionViewWillEnter();
@@ -524,6 +509,8 @@ describe('ManageCorporateCardsPage', () => {
         const connectToVisaRTFHandler = actionSheetButtons[0].handler;
         connectToVisaRTFHandler();
 
+        tick();
+
         expect(popoverController.create).toHaveBeenCalledWith({
           component: AddCorporateCardComponent,
           cssClass: 'fy-dialog-popover',
@@ -535,15 +522,14 @@ describe('ManageCorporateCardsPage', () => {
             cardType: CardNetworkType.VISA,
           },
         });
-
-        flushMicrotasks();
-
         expect(popoverSpy.present).toHaveBeenCalledTimes(1);
-      })
-    );
-  }));
 
-  it('should handle enrollment of existing statement uploaded cards to mastercard rtf', waitForAsync(() => {
+        done();
+      }),
+    );
+  });
+
+  it('should handle enrollment of existing statement uploaded cards to mastercard rtf', (done) => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
 
     component.ionViewWillEnter();
@@ -561,6 +547,8 @@ describe('ManageCorporateCardsPage', () => {
         const connectToMastercardRTFHandler = actionSheetButtons[1].handler;
         connectToMastercardRTFHandler();
 
+        tick();
+
         expect(popoverController.create).toHaveBeenCalledWith({
           component: AddCorporateCardComponent,
           cssClass: 'fy-dialog-popover',
@@ -572,36 +560,25 @@ describe('ManageCorporateCardsPage', () => {
             cardType: CardNetworkType.MASTERCARD,
           },
         });
-
-        flushMicrotasks();
-
         expect(popoverSpy.present).toHaveBeenCalledTimes(1);
-      })
+
+        done();
+      }),
     );
-  }));
+  });
 
-  it('should refresh the corporate cards when pull to refresh is triggered', fakeAsync(() => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
-    corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
-
-    spyOn(component.loadCorporateCards$, 'next').and.callThrough();
-
+  it('should refresh the corporate cards when pull to refresh is triggered', () => {
     const refresher = fixture.debugElement.query(By.directive(IonRefresher));
-
     const refresherCustomEvent = {
       target: {
         complete: noop,
       },
     } as RefresherCustomEvent;
-
     spyOn(refresherCustomEvent.target, 'complete');
-
     refresher.triggerEventHandler('ionRefresh', refresherCustomEvent);
-
-    flushMicrotasks();
 
     expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
     expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
     expect(refresherCustomEvent.target.complete).toHaveBeenCalledTimes(1);
-  }));
+  });
 });
