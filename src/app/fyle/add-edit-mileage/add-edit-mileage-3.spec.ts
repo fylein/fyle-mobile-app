@@ -81,7 +81,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditMileagePage } from './add-edit-mileage.page';
-import { cloneDeep } from 'lodash';
+import { before, cloneDeep } from 'lodash';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditMileage-3', () => {
@@ -527,31 +527,35 @@ export function TestCases3(getTestBed) {
       expect(trackingService.editExpense).toHaveBeenCalledOnceWith(editExpenseProperties1);
     });
 
+    const mileageControl = new FormControl();
     describe('editExpense():', () => {
-      it('should edit an expense', (done) => {
+      beforeEach(() => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
-        const mileageControl = new FormControl();
         mileageControl.setValue({
           mileageLocations: [locationData1, locationData2],
         });
         spyOn(component, 'trackPolicyCorrections');
         spyOn(component, 'getFormControl').and.returnValue(mileageControl);
         spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
+        spyOn(component, 'trackEditExpense');
+        authService.getEou.and.resolveTo(apiEouRes);
+        reportService.addTransactions.and.returnValue(of(null));
+        reportService.removeTransaction.and.returnValue(of(null));
+      });
+
+      it('should edit an expense', (done) => {
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(newExpFromFg));
         component.isConnected$ = of(true);
         component.etxn$ = of(newExpFromFg);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(cloneDeep(unflattenedTxnDataWithSubCategory)));
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
-        spyOn(component, 'trackEditExpense');
         spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
-        reportService.addTransactions.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_MILEAGE').subscribe((res) => {
@@ -582,30 +586,18 @@ export function TestCases3(getTestBed) {
       });
 
       it('should edit an expense and add it to the report', (done) => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
-        spyOn(component, 'trackPolicyCorrections');
-        const mileageControl = new FormControl();
-        mileageControl.setValue({
-          mileageLocations: [locationData1, locationData2],
-        });
-        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
-        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnDataWithReportID));
         component.isConnected$ = of(true);
         component.etxn$ = of(unflattenedTxnDataWithReportID);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
-        spyOn(component, 'trackEditExpense');
         spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
         transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithReportID.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnDataWithReportID));
-        reportService.removeTransaction.and.returnValue(of(null));
-        reportService.addTransactions.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_MILEAGE').subscribe((res) => {
@@ -637,28 +629,17 @@ export function TestCases3(getTestBed) {
       });
 
       it('should edit an expense to remove transaction from report', (done) => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
-        spyOn(component, 'trackPolicyCorrections');
-        const mileageControl = new FormControl();
-        mileageControl.setValue({
-          mileageLocations: [locationData1, locationData2],
-        });
-        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
-        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnDataWithReportID2UserReview));
         component.isConnected$ = of(true);
         component.etxn$ = of(unflattenedTxnDataWithReportID2UserReview);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(null));
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
           report: null,
         });
-        spyOn(component, 'trackEditExpense');
         transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithReportID2UserReview.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnDataWithReportID2UserReview));
-        reportService.removeTransaction.and.returnValue(of(null));
         transactionService.review.and.returnValue(of(null));
         fixture.detectChanges();
 
@@ -693,14 +674,6 @@ export function TestCases3(getTestBed) {
       });
 
       it('should edit an expense with critical policy violations', (done) => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
-        const mileageControl = new FormControl();
-        mileageControl.setValue({
-          mileageLocations: [locationData1, locationData2],
-        });
-        spyOn(component, 'trackPolicyCorrections');
-        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
-        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(newExpFromFg));
         component.isConnected$ = of(true);
         component.etxn$ = of(unflattenedTxnDataWithReportID);
@@ -711,13 +684,12 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'criticalPolicyViolationHandler').and.returnValue(
           of({ etxn: cloneDeep(unflattenedTxnDataWithSubCategory) })
         );
-        authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(cloneDeep(unflattenedTxnDataWithSubCategory)));
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
-        spyOn(component, 'trackEditExpense');
+
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
         fixture.detectChanges();
 
@@ -741,14 +713,6 @@ export function TestCases3(getTestBed) {
       });
 
       it('should edit an expense with policy violation adding a comment to the expense as well', (done) => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
-        const mileageControl = new FormControl();
-        mileageControl.setValue({
-          mileageLocations: [locationData1, locationData2],
-        });
-        spyOn(component, 'trackPolicyCorrections');
-        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
-        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(newExpFromFg));
         component.isConnected$ = of(true);
         component.etxn$ = of(unflattenedTxnDataWithReportID);
@@ -763,13 +727,11 @@ export function TestCases3(getTestBed) {
             comment: 'A comment',
           })
         );
-        authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(cloneDeep(unflattenedTxnDataWithSubCategory)));
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
-        spyOn(component, 'trackEditExpense');
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
         statusService.findLatestComment.and.returnValue(of('A comment'));
         fixture.detectChanges();
@@ -810,14 +772,6 @@ export function TestCases3(getTestBed) {
       });
 
       it('should edit an expense with policy violation adding a new comment', (done) => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
-        const mileageControl = new FormControl();
-        mileageControl.setValue({
-          mileageLocations: [locationData1, locationData2],
-        });
-        spyOn(component, 'trackPolicyCorrections');
-        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
-        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(newExpFromFg));
         component.isConnected$ = of(true);
         component.etxn$ = of(unflattenedTxnDataWithReportID);
@@ -832,13 +786,12 @@ export function TestCases3(getTestBed) {
             comment: 'A comment',
           })
         );
-        authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(newExpFromFg.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(cloneDeep(unflattenedTxnDataWithSubCategory)));
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
-        spyOn(component, 'trackEditExpense');
+
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
         statusService.findLatestComment.and.returnValue(of(null));
         statusService.post.and.returnValue(of(txnStatusData));
@@ -886,14 +839,6 @@ export function TestCases3(getTestBed) {
       });
 
       it('should throw an error if expense cannot be generated', (done) => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
-        const mileageControl = new FormControl();
-        mileageControl.setValue({
-          mileageLocations: [locationData1, locationData2],
-        });
-        spyOn(component, 'trackPolicyCorrections');
-        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
-        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(throwError(() => new Error('error')));
 
         component.editExpense('SAVE_MILEAGE').subscribe({
@@ -915,27 +860,16 @@ export function TestCases3(getTestBed) {
       });
 
       it('should edit an expense in offline mode', (done) => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData));
-        const mileageControl = new FormControl();
-        mileageControl.setValue({
-          mileageLocations: [locationData1, locationData2],
-        });
-        spyOn(component, 'trackPolicyCorrections');
-        spyOn(component, 'getFormControl').and.returnValue(mileageControl);
-        spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(newExpFromFg));
         component.isConnected$ = of(false);
         component.etxn$ = of(newExpFromFg);
-        authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
           report: expectedErpt[0],
         });
-        spyOn(component, 'trackEditExpense');
+
         spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
         transactionService.upsert.and.returnValue(of(unflattenedTxnDataWithReportID.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnDataWithReportID));
-        reportService.removeTransaction.and.returnValue(of(null));
-        reportService.addTransactions.and.returnValue(of(null));
         fixture.detectChanges();
 
         component.editExpense('SAVE_MILEAGE').subscribe((res) => {
