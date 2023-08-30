@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -53,7 +53,7 @@ import { FormButtonValidationDirective } from './directive/form-button-validatio
 import { FormatDateDirective } from './directive/format-date.directive';
 
 import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
-import { PinchZoomModule } from 'ngx13-pinch-zoom';
+import { PinchZoomModule } from 'ngx-pinch-zoom-16';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
@@ -378,6 +378,7 @@ import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup
     ViewDependentFieldsComponent,
     PopupWithBulletsComponent,
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })
 export class SharedModule {}
