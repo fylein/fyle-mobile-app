@@ -1,3 +1,5 @@
+import { Destination } from './destination.model';
+
 export interface PublicPolicyExpense {
   activity_details?: string;
   activity_policy_pending: boolean;
@@ -18,7 +20,7 @@ export interface PublicPolicyExpense {
     placeholder?: string;
     prefix?: string;
     type?: string;
-    value: any | any[];
+    value: string[] | string | number | boolean | Date | { display: string };
   }[];
   distance: number;
   distance_unit: string;
@@ -36,17 +38,7 @@ export interface PublicPolicyExpense {
   is_matching_ccc_expense: boolean;
   mileage_rate_id: number;
   invoice_number: number;
-  locations?: [
-    {
-      city?: string;
-      state?: string;
-      display_name?: string;
-      country?: string;
-      formatted_address?: string;
-      latitude?: number;
-      longitude?: number;
-    }?
-  ];
+  locations?: Destination[] | string[];
   mandatory_fields_present: boolean;
   manual_flag: boolean;
   mileage_calculated_amount: number;
@@ -81,7 +73,7 @@ export interface PublicPolicyExpense {
   split_group_user_amount: number;
   state: string;
   status_id: string;
-  tax: string;
+  tax: number | string;
   tax_amount: number;
   tax_group_id: string;
   taxi_travel_class: string;
@@ -109,7 +101,7 @@ export interface PublicPolicyExpense {
   org_category_code?: string;
   corporate_credit_card_expense_group_id?: string;
   transcribed_data?: string;
-  user_review_needed?: string;
+  user_review_needed?: boolean;
   is_implicit_merge_blocked?: boolean;
   categoryDisplayName?: string;
 }

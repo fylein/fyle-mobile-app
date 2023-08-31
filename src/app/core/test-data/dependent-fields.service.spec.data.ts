@@ -253,3 +253,14 @@ export const dependentFieldValues: CustomProperty<string>[] = [
     value: '-',
   },
 ];
+
+export const txnCustomProperties2: CustomProperty<string>[] = [
+  {
+    name: 'CUSTOM FIELD',
+    value: 'custom field',
+  },
+  {
+    name: 'Cost Code',
+    value: 'Wow this Works',
+  },
+];

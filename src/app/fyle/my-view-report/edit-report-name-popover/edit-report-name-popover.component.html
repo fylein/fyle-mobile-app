@@ -1,4 +1,4 @@
-<ion-header mode="md">
+<ion-header class="ion-no-border" mode="md">
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar edit-report-name--toolbar">
     <ion-title>
       <div class="edit-report-name--toolbar__title">Edit Name</div>
@@ -25,5 +25,10 @@
     <span> Report Name </span>
     <span class="edit-report-name--input-container__mandatory"> * </span>
   </div>
-  <input matInput [(ngModel)]="reportName" class="edit-report-name--input-container__input smartlook-show" />
+  <input
+    matInput
+    [(ngModel)]="reportName"
+    [maxLength]="250"
+    class="edit-report-name--input-container__input smartlook-show"
+  />
 </div>

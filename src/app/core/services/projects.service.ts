@@ -8,26 +8,30 @@ import { ExtendedProject } from '../models/v2/extended-project.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
+import { OrgCategory } from '../models/v1/org-category.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
+  constructor(
+    private apiService: ApiService,
+    private apiV2Service: ApiV2Service,
+  ) {}
 
   @Cacheable()
   getByParamsUnformatted(
     projectParams: Partial<{
-      orgId;
-      active;
-      orgCategoryIds;
-      searchNameText;
-      limit;
-      offset;
-      sortOrder;
-      sortDirection;
-      projectIds;
-    }>
+      orgId: string;
+      active: boolean;
+      orgCategoryIds: string[];
+      searchNameText: string;
+      limit: number;
+      offset: number;
+      sortOrder: string;
+      sortDirection: string;
+      projectIds: number[];
+    }>,
   ): Observable<ExtendedProject[]> {
     // eslint-disable-next-line prefer-const
     let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
@@ -35,7 +39,7 @@ export class ProjectsService {
     sortOrder = sortOrder || 'project_updated_at';
     sortDirection = sortDirection || 'desc';
 
-    const params: any = {
+    const params: ProjectParams = {
       project_org_id: 'eq.' + orgId,
       order: sortOrder + '.' + sortDirection,
       limit: limit || 200,
@@ -64,13 +68,13 @@ export class ProjectsService {
             ...datum,
             project_created_at: new Date(datum.project_created_at),
             project_updated_at: new Date(datum.project_updated_at),
-          }))
-        )
+          })),
+        ),
       );
   }
 
   @Cacheable()
-  getProjectCount(params: { categoryIds: string[] } = { categoryIds: [] }) {
+  getProjectCount(params: { categoryIds: string[] } = { categoryIds: [] }): Observable<number> {
     const categoryIds = params.categoryIds?.map((categoryId) => parseInt(categoryId, 10));
     return this.getAllActive().pipe(
       map((projects) => {
@@ -82,40 +86,41 @@ export class ProjectsService {
           }
         });
         return filterdProjects.length;
-      })
+      }),
     );
   }
 
-  addNameSearchFilter(searchNameText: string, params: ProjectParams) {
+  addNameSearchFilter(searchNameText: string, params: ProjectParams): void {
     if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
       params.project_name = 'ilike.%' + searchNameText + '%';
     }
   }
 
-  addProjectIdsFilter(projectIds: number[], params: ProjectParams) {
+  addProjectIdsFilter(projectIds: number[], params: ProjectParams): void {
     if (typeof projectIds !== 'undefined' && projectIds !== null) {
       params.project_id = 'in.(' + projectIds.join(',') + ')';
     }
   }
 
-  addOrgCategoryIdsFilter(orgCategoryIds: number[], params: ProjectParams) {
+  addOrgCategoryIdsFilter(orgCategoryIds: string[], params: ProjectParams): void {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
       params.project_org_category_ids = 'ov.{' + orgCategoryIds.join(',') + '}';
     }
   }
 
-  addActiveFilter(active: boolean, params: ProjectParams) {
+  addActiveFilter(active: boolean, params: ProjectParams): void {
     if (typeof active !== 'undefined' && active !== null) {
       params.project_active = 'eq.' + active;
     }
   }
 
-  getAllowedOrgCategoryIds(project, activeCategoryList) {
-    let categoryList = [];
+  getAllowedOrgCategoryIds(project: ProjectParams | ExtendedProject, activeCategoryList: OrgCategory[]): OrgCategory[] {
+    let categoryList: OrgCategory[] = [];
     if (project) {
-      categoryList = activeCategoryList.filter(
-        (category) => project.project_org_category_ids.indexOf(category.id) > -1
-      );
+      categoryList = activeCategoryList.filter((category: OrgCategory) => {
+        const catId = category.id;
+        return project.project_org_category_ids.indexOf(catId as never) > -1;
+      });
     } else {
       categoryList = activeCategoryList;
     }
@@ -137,8 +142,8 @@ export class ProjectsService {
           ...datum,
           created_at: new Date(datum.created_at),
           updated_at: new Date(datum.updated_at),
-        }))
-      )
+        })),
+      ),
     );
   }
 
@@ -156,8 +161,8 @@ export class ProjectsService {
               ...datum,
               project_created_at: new Date(datum.project_created_at),
               project_updated_at: new Date(datum.project_updated_at),
-            }))[0]
-        )
+            }))[0],
+        ),
       );
   }
 }

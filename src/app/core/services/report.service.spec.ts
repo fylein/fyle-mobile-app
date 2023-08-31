@@ -52,6 +52,7 @@ import {
   expectedReportSingleResponse,
   reportParam,
   expectedPaginatedReports,
+  reportData1,
 } from '../mock-data/report.data';
 import { getMyReportsParam1, getMyReportsParam2 } from '../mock-data/api-params.data';
 import { expectedReportRawStats } from '../mock-data/stats-dimension-response.data';
@@ -69,6 +70,9 @@ import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { dataErtpTransformed, apiErptReporDataParam } from '../mock-data/data-transform.data';
+import { platformReportData } from '../mock-data/platform-report.data';
+import { ApproverPlatformApiService } from './approver-platform-api.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -80,6 +84,7 @@ describe('ReportService', () => {
   let storageService: jasmine.SpyObj<StorageService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -112,9 +117,11 @@ describe('ReportService', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache', 'onLogout']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
+    const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['post']);
     const permissionsServiceSpy = jasmine.createSpyObj('PermissionsService', ['allowedActions']);
 
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [
         ReportService,
         DatePipe,
@@ -156,6 +163,10 @@ describe('ReportService', () => {
           useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
+          provide: ApproverPlatformApiService,
+          useValue: approverPlatformApiServiceSpy,
+        },
+        {
           provide: PermissionsService,
           useValue: permissionsServiceSpy,
         },
@@ -179,6 +190,9 @@ describe('ReportService', () => {
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    approverPlatformApiService = TestBed.inject(
+      ApproverPlatformApiService
+    ) as jasmine.SpyObj<ApproverPlatformApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
   });
@@ -677,6 +691,36 @@ describe('ReportService', () => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/reports', apiErptReporDataParam.rp);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(reportParam);
+      done();
+    });
+  });
+
+  it('updateReportPurpose(): should update the report purpose', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(platformReportData));
+    reportService.updateReportPurpose(reportData1).subscribe((res) => {
+      expect(res).toEqual(platformReportData);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', {
+        data: {
+          id: 'rpMvN0P10l6F',
+          source: 'WEBAPP',
+          purpose: '#3:  Jul 2023 - Office expense',
+        },
+      });
+      done();
+    });
+  });
+
+  it('approverUpdateReportPurpose(): should update the report purpose for approver', (done) => {
+    approverPlatformApiService.post.and.returnValue(of(platformReportData));
+    reportService.approverUpdateReportPurpose(reportData1).subscribe((res) => {
+      expect(res).toEqual(platformReportData);
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports', {
+        data: {
+          id: 'rpMvN0P10l6F',
+          source: 'WEBAPP',
+          purpose: '#3:  Jul 2023 - Office expense',
+        },
+      });
       done();
     });
   });

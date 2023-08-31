@@ -1,13 +1,13 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { Observable, from, noop, concat, Subject, forkJoin, BehaviorSubject } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, startWith, take, finalize } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent } from '@ionic/angular';
+import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { NetworkService } from '../../core/services/network.service';
@@ -23,20 +23,22 @@ import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { Approver } from 'src/app/core/models/v1/approver.model';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
   styleUrls: ['./my-view-report.page.scss'],
 })
 export class MyViewReportPage {
-  @ViewChild('commentInput') commentInput: ElementRef;
+  @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
@@ -44,7 +46,7 @@ export class MyViewReportPage {
 
   etxns$: Observable<Expense[]>;
 
-  reportApprovals$: Observable<any>;
+  reportApprovals$: Observable<Approver[]>;
 
   canEdit$: Observable<boolean>;
 
@@ -70,7 +72,7 @@ export class MyViewReportPage {
 
   systemEstatuses: ExtendedStatus[];
 
-  userComments: any;
+  userComments: ExtendedStatus[];
 
   totalCommentsCount$: Observable<number>;
 
@@ -96,6 +98,14 @@ export class MyViewReportPage {
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
+  eou: ExtendedOrgUser;
+
+  reportNameChangeStartTime: number;
+
+  reportNameChangeEndTime: number;
+
+  timeSpentOnEditingReportName: number;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -112,19 +122,19 @@ export class MyViewReportPage {
     private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
     private refinerService: RefinerService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
   ) {}
 
-  get Segment() {
+  get Segment(): typeof ReportPageSegment {
     return ReportPageSegment;
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -134,19 +144,19 @@ export class MyViewReportPage {
     });
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
 
-  getVendorName(etxn: Expense) {
+  getVendorName(etxn: Expense): string {
     const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
     let vendorName = etxn.tx_vendor || 'Expense';
 
     if (category === 'mileage') {
-      vendorName = etxn.tx_distance || 0;
+      vendorName = (etxn.tx_distance || 0).toString();
       vendorName += ' ' + etxn.tx_distance_unit;
     } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days || 0;
+      vendorName = (etxn.tx_num_days || 0).toString();
       vendorName += ' Days';
     }
 
@@ -161,13 +171,13 @@ export class MyViewReportPage {
     );
   }
 
-  getSimplifyReportSettings(orgSettings: OrgSettings) {
+  getSimplifyReportSettings(orgSettings: OrgSettings): boolean {
     return orgSettings?.simplified_report_closure_settings?.enabled;
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    this.reportId = this.activatedRoute.snapshot.params.id;
+    this.reportId = this.activatedRoute.snapshot.params.id as string;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.segmentValue = ReportPageSegment.EXPENSES;
@@ -175,11 +185,13 @@ export class MyViewReportPage {
     this.erpt$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
-        this.reportService.getReport(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
+        this.reportService.getReport(this.reportId).pipe(finalize(() => this.loaderService.hideLoader())),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
     const eou$ = from(this.authService.getEou());
+
+    eou$.subscribe((eou) => (this.eou = eou));
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
       startWith(0),
@@ -192,11 +204,11 @@ export class MyViewReportPage {
               status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
               status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
               return status;
-            })
+            }),
           ),
-          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
-        )
-      )
+          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf())),
+        ),
+      ),
     );
 
     this.estatuses$.subscribe((estatuses) => {
@@ -223,7 +235,7 @@ export class MyViewReportPage {
     });
 
     this.totalCommentsCount$ = this.estatuses$.pipe(
-      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
+      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length),
     );
 
     this.erpt$.pipe(take(1)).subscribe((erpt) => {
@@ -249,16 +261,16 @@ export class MyViewReportPage {
             tx_report_id: 'eq.' + this.reportId,
             order: 'tx_txn_dt.desc,tx_id.desc',
           })
-          .pipe(finalize(() => (this.isExpensesLoading = false)))
+          .pipe(finalize(() => (this.isExpensesLoading = false))),
       ),
       map((etxns) =>
         etxns.map((etxn) => {
           etxn.vendor = this.getVendorName(etxn);
           etxn.violation = this.getShowViolation(etxn);
           return etxn;
-        })
+        }),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const actions$ = this.reportService.actions(this.reportId).pipe(shareReplay(1));
@@ -290,29 +302,52 @@ export class MyViewReportPage {
             }
           });
           this.unReportedEtxns = etxns;
-        })
+        }),
       )
       .subscribe(noop);
 
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
+      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) })),
     );
   }
 
-  updateReportName(reportName: string) {
+  trackReportNameChange(): void {
+    this.reportNameChangeEndTime = new Date().getTime();
+    this.timeSpentOnEditingReportName = (this.reportNameChangeEndTime - this.reportNameChangeStartTime) / 1000;
+    this.trackingService.reportNameChange({
+      Time_spent: this.timeSpentOnEditingReportName,
+      Roles: this.eou?.ou.roles,
+    });
+  }
+
+  showReportNameChangeSuccessToast(): void {
+    const message = 'Report name changed successfully.';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+      panelClass: ['msb-success'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  updateReportName(reportName: string): void {
     this.erpt$
       .pipe(
         take(1),
         switchMap((erpt) => {
           erpt.rp_purpose = reportName;
-          return this.reportService.updateReportDetails(erpt);
-        })
+          return this.reportService.updateReportPurpose(erpt);
+        }),
       )
-      .subscribe(() => this.loadReportDetails$.next());
+      .subscribe(() => {
+        this.loadReportDetails$.next();
+        this.showReportNameChangeSuccessToast();
+        this.trackReportNameChange();
+      });
   }
 
-  editReportName() {
+  editReportName(): void {
+    this.reportNameChangeStartTime = new Date().getTime();
     this.erpt$
       .pipe(take(1))
       .pipe(
@@ -327,7 +362,10 @@ export class MyViewReportPage {
           return editReportNamePopover;
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
-        switchMap((editReportNamePopover) => editReportNamePopover?.onWillDismiss())
+        switchMap(
+          (editReportNamePopover) =>
+            editReportNamePopover?.onWillDismiss() as Promise<{ data: { reportName: string } }>,
+        ),
       )
       .subscribe((editReportNamePopoverDetails) => {
         const newReportName = editReportNamePopoverDetails?.data?.reportName;
@@ -337,11 +375,21 @@ export class MyViewReportPage {
       });
   }
 
-  deleteReport() {
+  deleteReport(): void {
     this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
-  getDeleteReportPopupParams(erpt: ExtendedReport) {
+  getDeleteReportPopupParams(erpt: ExtendedReport): {
+    component: typeof FyDeleteDialogComponent;
+    cssClass: string;
+    backdropDismiss: boolean;
+    componentProps: {
+      header: string;
+      body: string;
+      infoMessage: string;
+      deleteMethod: () => Observable<void>;
+    };
+  } {
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'pop-up-in-center',
@@ -353,25 +401,25 @@ export class MyViewReportPage {
           erpt.rp_state === 'DRAFT' && erpt.rp_num_transactions === 0
             ? null
             : 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: () =>
+        deleteMethod: (): Observable<void> =>
           this.reportService.delete(this.reportId).pipe(tap(() => this.trackingService.deleteReport())),
       },
     };
   }
 
-  async deleteReportPopup(erpt: ExtendedReport) {
+  async deleteReportPopup(erpt: ExtendedReport): Promise<void> {
     const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopupParams(erpt));
 
     await deleteReportPopover.present();
 
-    const { data } = await deleteReportPopover?.onDidDismiss();
+    const { data } = (await deleteReportPopover?.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
     }
   }
 
-  resubmitReport() {
+  resubmitReport(): void {
     this.reportService.resubmit(this.reportId).subscribe(() => {
       this.refinerService.startSurvey({ actionName: 'Resubmit Report ' });
       this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -384,7 +432,7 @@ export class MyViewReportPage {
     });
   }
 
-  submitReport() {
+  submitReport(): void {
     this.reportService.submit(this.reportId).subscribe(() => {
       this.refinerService.startSurvey({ actionName: 'Submit Report' });
       this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -397,9 +445,9 @@ export class MyViewReportPage {
     });
   }
 
-  goToTransaction({ etxn, etxnIndex }: { etxn: Expense; etxnIndex: number }) {
+  goToTransaction({ etxn, etxnIndex }: { etxn: Expense; etxnIndex: number }): void {
     const canEdit = this.canEditTxn(etxn.tx_state);
-    let category;
+    let category: string;
 
     if (etxn.tx_org_category) {
       category = etxn.tx_org_category.toLowerCase();
@@ -432,7 +480,7 @@ export class MyViewReportPage {
             navigate_back: true,
             remove_from_report: erpt.rp_num_transactions > 1,
           },
-        ])
+        ]),
       );
     } else {
       this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
@@ -448,7 +496,7 @@ export class MyViewReportPage {
     }
   }
 
-  async shareReport() {
+  async shareReport(): Promise<void> {
     this.trackingService.clickShareReport();
 
     const shareReportModal = await this.modalController.create({
@@ -460,7 +508,7 @@ export class MyViewReportPage {
 
     await shareReportModal.present();
 
-    const { data } = await shareReportModal?.onWillDismiss();
+    const { data } = (await shareReportModal?.onWillDismiss()) as { data: { email: string } };
 
     if (data && data.email) {
       const params = {
@@ -478,7 +526,7 @@ export class MyViewReportPage {
     }
   }
 
-  async openViewReportInfoModal() {
+  async openViewReportInfoModal(): Promise<void> {
     const viewInfoModal = await this.modalController.create({
       component: FyViewReportInfoComponent,
       componentProps: {
@@ -499,13 +547,13 @@ export class MyViewReportPage {
     return this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1;
   }
 
-  segmentChanged(event) {
+  segmentChanged(event: SegmentCustomEvent): void {
     if (event?.detail?.value) {
-      this.segmentValue = parseInt(event.detail.value, 10);
+      this.segmentValue = parseInt(String(event.detail.value), 10);
     }
   }
 
-  addComment() {
+  addComment(): void {
     if (this.newComment) {
       const data = {
         comment: this.newComment,
@@ -518,7 +566,7 @@ export class MyViewReportPage {
       this.statusService
         .post(this.objectType, this.reportId, data)
         .pipe()
-        .subscribe((res) => {
+        .subscribe(() => {
           this.refreshEstatuses$.next();
           setTimeout(() => {
             this.content.scrollToBottom(500);
@@ -527,11 +575,11 @@ export class MyViewReportPage {
     }
   }
 
-  addExpense() {
+  addExpense(): void {
     this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.reportId }]);
   }
 
-  showAddExpensesToReportModal() {
+  showAddExpensesToReportModal(): void {
     const addExpensesToReportModal = this.modalController.create({
       component: AddExpensesToReportComponent,
       componentProps: {
@@ -545,7 +593,10 @@ export class MyViewReportPage {
     from(addExpensesToReportModal)
       .pipe(
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
-        switchMap((addExpensesToReportModal) => addExpensesToReportModal?.onWillDismiss())
+        switchMap(
+          (addExpensesToReportModal) =>
+            addExpensesToReportModal?.onWillDismiss() as Promise<{ data: { selectedTxnIds: string[] } }>,
+        ),
       )
       .subscribe((addExpensesToReportModalDetails) => {
         const selectedTxnIds = addExpensesToReportModalDetails?.data?.selectedTxnIds;
@@ -555,14 +606,14 @@ export class MyViewReportPage {
       });
   }
 
-  addEtxnsToReport(selectedEtxnIds: string[]) {
+  addEtxnsToReport(selectedEtxnIds: string[]): void {
     this.isExpensesLoading = true;
     this.reportService.addTransactions(this.reportId, selectedEtxnIds).subscribe(() => {
       this.loadReportDetails$.next();
       this.loadReportTxns$.next();
       this.trackingService.addToExistingReport();
       this.unReportedEtxns = this.unReportedEtxns.filter(
-        (unReportedEtxn) => !selectedEtxnIds.includes(unReportedEtxn.tx_id)
+        (unReportedEtxn) => !selectedEtxnIds.includes(unReportedEtxn.tx_id),
       );
     });
   }

@@ -309,3 +309,20 @@ export const teamReportsModalControllerParams = {
   },
   cssClass: 'dialog-popover',
 };
+
+export const popoverControllerParams2 = {
+  component: PopupAlertComponent,
+  componentProps: {
+    title: 'Unsaved Changes',
+    message: 'You have unsaved information that will be lost if you discard this expense.',
+    primaryCta: {
+      text: 'Discard',
+      action: 'continue',
+    },
+    secondaryCta: {
+      text: 'Cancel',
+      action: 'cancel',
+    },
+  },
+  cssClass: 'pop-up-in-center',
+};

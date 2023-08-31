@@ -15,8 +15,9 @@ describe('CardTransactionPreviewComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [CardTransactionPreviewComponent, EllipsisPipe, DatePipe, CurrencyPipe],
+      declarations: [CardTransactionPreviewComponent, EllipsisPipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      providers: [DatePipe, CurrencyPipe],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CardTransactionPreviewComponent);
@@ -32,7 +33,7 @@ describe('CardTransactionPreviewComponent', () => {
     const mockTransactionDetails: Partial<MatchedCCCTransaction> = {
       vendor: 'Amazon',
       description: 'Amazon purchase',
-      txn_dt: new Date('2022-02-20'),
+      txn_dt: '2022-02-20',
       amount: 100,
       currency: 'USD',
     };

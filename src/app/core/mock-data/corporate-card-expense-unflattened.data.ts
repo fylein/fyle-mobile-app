@@ -4,9 +4,9 @@ export const expectedECccResponse: CCCExpUnflattened[] = [
   {
     ccce: {
       id: 'ccceYIJhT8Aj6U',
-      created_at: new Date('2021-03-26T09:29:14.586Z'),
-      updated_at: new Date('2022-01-07T11:53:53.588Z'),
-      txn_dt: new Date('2018-06-26T10:00:00.000Z'),
+      created_at: '2021-03-26T09:29:14.586Z',
+      updated_at: '2022-01-07T11:53:53.588Z',
+      txn_dt: '2018-06-26T10:00:00.000Z',
       creator_id: null,
       orig_currency: null,
       orig_amount: null,
@@ -49,3 +49,21 @@ export const expectedECccResponse: CCCExpUnflattened[] = [
     },
   },
 ];
+
+export const eCCCData1: CCCExpUnflattened = {
+  ...expectedECccResponse[0],
+  ccce: {
+    ...expectedECccResponse[0].ccce,
+    corporate_credit_card_account_number: '123456789',
+  },
+  flow: 'newCCCFlow',
+};
+
+export const eCCCData2: CCCExpUnflattened = {
+  ...expectedECccResponse[0],
+  ccce: {
+    ...expectedECccResponse[0].ccce,
+    corporate_credit_card_account_number: '123456789',
+    vendor: null,
+  },
+};

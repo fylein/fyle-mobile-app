@@ -6,7 +6,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { IonicModule, ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
@@ -56,6 +56,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { MyViewReportPage } from './my-view-report.page';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
+import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -83,6 +84,7 @@ describe('MyViewReportPage', () => {
       'getApproversByReportId',
       'actions',
       'updateReportDetails',
+      'updateReportPurpose',
       'delete',
       'submit',
       'resubmit',
@@ -104,6 +106,7 @@ describe('MyViewReportPage', () => {
       'clickShareReport',
       'clickViewReportInfo',
       'addToExistingReport',
+      'reportNameChange',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -112,14 +115,7 @@ describe('MyViewReportPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [
-        MyViewReportPage,
-        EllipsisPipe,
-        HumanizeCurrencyPipe,
-        ReportState,
-        SnakeCaseToSpaceCase,
-        AsyncPipe,
-      ],
+      declarations: [MyViewReportPage, EllipsisPipe, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [
         FyCurrencyPipe,
@@ -300,7 +296,7 @@ describe('MyViewReportPage', () => {
         ...expenseData2,
         tx_policy_flag: true,
         tx_manual_flag: false,
-        tx_policy_amount: '1000',
+        tx_policy_amount: 1000,
       });
 
       expect(result).toBeTrue();
@@ -382,6 +378,8 @@ describe('MyViewReportPage', () => {
       component.totalCommentsCount$.subscribe((res) => {
         expect(res).toEqual(3);
       });
+
+      expect(component.eou).toEqual(apiEouRes);
 
       expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
 
@@ -550,11 +548,11 @@ describe('MyViewReportPage', () => {
   it('updateReportName(): should update report name', () => {
     component.erpt$ = of(newReportParam);
     fixture.detectChanges();
-    reportService.updateReportDetails.and.returnValue(of(apiReportUpdatedDetails));
+    reportService.updateReportPurpose.and.returnValue(of(platformReportData));
     spyOn(component.loadReportDetails$, 'next');
 
-    component.updateReportName('new report');
-    expect(reportService.updateReportDetails).toHaveBeenCalledOnceWith(newReportParam);
+    component.updateReportName('#3:  Jul 2023 - Office expense');
+    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(newReportParam);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
@@ -624,7 +622,7 @@ describe('MyViewReportPage', () => {
 
   describe('getDeleteReportPopupParams(): ', () => {
     it('should get delete report popup props', (done) => {
-      reportService.delete.and.returnValue(of(true));
+      reportService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(expectedAllReports[0]);
       props.componentProps.deleteMethod().subscribe(() => {
         expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
@@ -634,9 +632,9 @@ describe('MyViewReportPage', () => {
     });
 
     it('should return null info message if number of txns is 0', (done) => {
-      reportService.delete.and.returnValue(of(true));
+      reportService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
-        cloneDeep({ ...expectedAllReports[0], rp_num_transactions: 0, rp_state: 'DRAFT' })
+        cloneDeep({ ...expectedAllReports[0], rp_num_transactions: 0, rp_state: 'DRAFT' }),
       );
       expect(props.componentProps.infoMessage).toBeNull();
       props.componentProps.deleteMethod().subscribe(() => {
@@ -660,7 +658,7 @@ describe('MyViewReportPage', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(component.getDeleteReportPopupParams).toHaveBeenCalledOnceWith(expectedAllReports[0]);
     expect(popoverController.create).toHaveBeenCalledOnceWith(
-      component.getDeleteReportPopupParams(expectedAllReports[0])
+      component.getDeleteReportPopupParams(expectedAllReports[0]),
     );
   }));
 
@@ -978,7 +976,7 @@ describe('MyViewReportPage', () => {
         detail: {
           value: '100',
         },
-      });
+      } as SegmentCustomEvent);
 
       expect(component.segmentValue).toEqual(parseInt('100', 10));
     });

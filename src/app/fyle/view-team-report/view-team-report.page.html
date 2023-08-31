@@ -1,4 +1,4 @@
-<ion-header mode="md">
+<ion-header class="ion-no-border" mode="md">
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-button *ngIf="navigateBack" mat-icon-button [routerLink]="['/','enterprise','team_reports']">
@@ -26,12 +26,21 @@
       <div class="view-reports--card">
         <ion-grid>
           <ion-row>
-            <ion-col size="7">
+            <ion-col size="8">
               <div class="view-reports--purpose-amount-block">
-                <div class="view-reports--purpose-amount-block__purpose">{{reportName | ellipsis: 20}}</div>
+                <div class="view-reports--purpose-amount-block__purpose">
+                  {{erpt.rp_purpose | ellipsis: 35}}
+                  <ion-icon
+                    *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'APPROVER_PENDING')"
+                    [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
+                    slot="icon-only"
+                    (click)="editReportName()"
+                    class="view-reports--card-header__icon"
+                  ></ion-icon>
+                </div>
               </div>
             </ion-col>
-            <ion-col size="5">
+            <ion-col size="4">
               <div class="view-reports--amount">
                 <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
                 <span class="view-reports--purpose-amount-block__amount">

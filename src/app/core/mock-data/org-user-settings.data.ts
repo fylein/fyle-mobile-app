@@ -87,7 +87,6 @@ export const orgUserSettingsData: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -265,7 +264,6 @@ export const orgUserSettingsData2: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -425,7 +423,6 @@ export const orgUserSettingsData3: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -585,7 +582,6 @@ export const orgUserSettingsDataWoCCIDs: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -664,5 +660,13 @@ export const orgUserSettingsWithCurrency: OrgUserSettings = {
   currency_settings: {
     enabled: true,
     preferred_currency: 'USD',
+  },
+};
+
+export const orgUserSettingsWoDefaultProject: OrgUserSettings = {
+  ...orgUserSettingsData,
+  preferences: {
+    ...orgUserSettingsData.preferences,
+    default_project_id: null,
   },
 };

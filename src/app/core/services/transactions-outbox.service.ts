@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
-import { from, noop } from 'rxjs';
+import { Observable, from, noop } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -15,19 +15,21 @@ import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
 import { CurrencyService } from './currency.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { File } from '../models/file.model';
+import { Transaction } from '../models/v1/transaction.model';
+import { FileObject } from '../models/file-obj.model';
+import { OutboxQueue } from '../models/outbox-queue.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TransactionsOutboxService {
-  queue = [];
+  queue: OutboxQueue[] = [];
 
-  syncDeferred: Promise<any> = null;
+  syncDeferred: Promise<void> = null;
 
   syncInProgress = false;
 
-  dataExtractionQueue = [];
+  dataExtractionQueue: OutboxQueue[] = [];
 
   tempQueue;
 
@@ -46,7 +48,7 @@ export class TransactionsOutboxService {
     private reportService: ReportService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -56,23 +58,26 @@ export class TransactionsOutboxService {
     return this.singleCaptureCountInSession;
   }
 
-  incrementSingleCaptureCount() {
+  incrementSingleCaptureCount(): void {
     this.singleCaptureCountInSession++;
   }
 
-  setRoot(rootUrl: string) {
+  setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
   }
 
-  async saveQueue() {
+  async saveQueue(): Promise<void> {
     await this.storageService.set('outbox', this.queue);
   }
 
-  async saveDataExtractionQueue() {
+  async saveDataExtractionQueue(): Promise<void> {
     await this.storageService.set('data_extraction_queue', this.dataExtractionQueue);
   }
 
-  async removeDataExtractionEntry(expense, dataUrls) {
+  async removeDataExtractionEntry(
+    expense: Partial<Transaction>,
+    dataUrls: { url: string; type: string }[],
+  ): Promise<void> {
     const entry = {
       transaction: expense,
       dataUrls,
@@ -83,7 +88,7 @@ export class TransactionsOutboxService {
     await this.saveDataExtractionQueue();
   }
 
-  async restoreQueue() {
+  async restoreQueue(): Promise<void> {
     this.queue = await this.storageService.get('outbox');
     this.dataExtractionQueue = await this.storageService.get('data_extraction_queue');
 
@@ -110,7 +115,10 @@ export class TransactionsOutboxService {
     }
   }
 
-  async addDataExtractionEntry(transaction, dataUrls) {
+  async addDataExtractionEntry(
+    transaction: Partial<Transaction>,
+    dataUrls: { url: string; type: string }[],
+  ): Promise<void> {
     this.dataExtractionQueue.push({
       transaction,
       dataUrls,
@@ -118,14 +126,14 @@ export class TransactionsOutboxService {
     await this.saveDataExtractionQueue();
   }
 
-  async processDataExtractionEntry() {
+  async processDataExtractionEntry(): Promise<void> {
     const that = this;
     const clonedQueue = cloneDeep(this.dataExtractionQueue);
 
     if (clonedQueue.length > 0) {
       // calling data_extraction serially for all expenses in queue.
       // https://gist.github.com/steve-taylor/5075717
-      const loop = (index) => {
+      const loop = (index: number): void => {
         const entry = clonedQueue[index];
 
         const base64Image = entry.dataUrls[0].url.replace('data:image/jpeg;base64,', '');
@@ -133,7 +141,7 @@ export class TransactionsOutboxService {
         that
           .parseReceipt(base64Image)
           .then(
-            (response: any) => {
+            (response) => {
               const parsedResponse = response.data;
 
               if (parsedResponse) {
@@ -162,7 +170,7 @@ export class TransactionsOutboxService {
                 that.transactionService
                   .upsert(entry.transaction)
                   .toPromise()
-                  .then(() => {})
+                  .then(() => null)
                   .finally(() => {
                     this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
                   });
@@ -170,9 +178,9 @@ export class TransactionsOutboxService {
                 this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
               }
             },
-            (err) => {
+            () => {
               this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
-            }
+            },
           )
           .finally(() => {
             // iterating to next item on list.
@@ -186,13 +194,13 @@ export class TransactionsOutboxService {
     }
   }
 
-  uploadData(uploadUrl, blob, contentType) {
-    return this.httpClient.put<any>(uploadUrl, blob, {
+  uploadData(uploadUrl: string, blob, contentType: string): Observable<null> {
+    return this.httpClient.put<null>(uploadUrl, blob, {
       headers: new HttpHeaders({ 'Content-Type': contentType }),
     });
   }
 
-  async fileUpload(dataUrl, fileType, receiptCoordinates?) {
+  async fileUpload(dataUrl: string, fileType: string, receiptCoordinates?: string): Promise<FileObject> {
     return new Promise((resolve, reject) => {
       let fileExtension = fileType;
       let contentType = 'application/pdf';
@@ -208,7 +216,7 @@ export class TransactionsOutboxService {
           receipt_coordinates: receiptCoordinates,
         })
         .toPromise()
-        .then((fileObj: File) =>
+        .then((fileObj: FileObject) =>
           this.fileService
             .uploadUrl(fileObj.id)
             .toPromise()
@@ -220,13 +228,13 @@ export class TransactionsOutboxService {
                 .then((blob) => {
                   this.uploadData(uploadUrl, blob, contentType)
                     .toPromise()
-                    .then((_) => this.fileService.uploadComplete(fileObj.id).toPromise())
+                    .then(() => this.fileService.uploadComplete(fileObj.id).toPromise())
                     .then(() => resolve(fileObj))
                     .catch((err) => {
                       reject(err);
                     });
                 });
-            })
+            }),
         )
         .catch((err) => {
           reject(err);
@@ -234,7 +242,7 @@ export class TransactionsOutboxService {
     });
   }
 
-  removeEntry(entry) {
+  removeEntry(entry: OutboxQueue): void {
     const idx = this.queue.indexOf(entry);
     this.queue.splice(idx, 1);
     this.saveQueue();
@@ -242,7 +250,13 @@ export class TransactionsOutboxService {
 
   // TODO: High impact area. Fix later
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  addEntry(transaction, dataUrls, comments?, reportId?, applyMagic = false) {
+  addEntry(
+    transaction: Partial<Transaction>,
+    dataUrls: { url: string; type: string }[],
+    comments?: string[],
+    reportId?: string,
+    applyMagic = false,
+  ): Promise<void> {
     this.queue.push({
       transaction,
       dataUrls,
@@ -256,22 +270,28 @@ export class TransactionsOutboxService {
 
   // TODO: High impact area. Fix later
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
-  addEntryAndSync(transaction, dataUrls, comments, reportId, applyMagic = false) {
+  addEntryAndSync(
+    transaction: Partial<Transaction>,
+    dataUrls: { url: string; type: string }[],
+    comments: string[],
+    reportId: string,
+    applyMagic = false,
+  ): Promise<OutboxQueue> {
     this.addEntry(transaction, dataUrls, comments, reportId, applyMagic);
     return this.syncEntry(this.queue.pop());
   }
 
-  getPendingTransactions() {
+  getPendingTransactions(): Partial<Transaction>[] {
     return this.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls }));
   }
 
-  deleteOfflineExpense(index: number) {
+  deleteOfflineExpense(index: number): null {
     this.queue.splice(index, 1);
     this.saveQueue();
     return null;
   }
 
-  deleteBulkOfflineExpenses(pendingTransactions: Partial<Expense>[], deleteExpenses: Partial<Expense>[]) {
+  deleteBulkOfflineExpenses(pendingTransactions: Partial<Expense>[], deleteExpenses: Partial<Expense>[]): void {
     const indexes = deleteExpenses.map((offlineExpense) => indexOf(pendingTransactions, offlineExpense));
     // We need to delete last element of this list first
     indexes.sort((a, b) => b - a);
@@ -280,8 +300,8 @@ export class TransactionsOutboxService {
     });
   }
 
-  matchIfRequired(transactionId: string, cccId: string) {
-    return new Promise((resolve, reject) => {
+  matchIfRequired(transactionId: string, cccId: string): Promise<null> {
+    return new Promise((resolve) => {
       if (cccId) {
         this.transactionService
           .matchCCCExpense(transactionId, cccId)
@@ -295,9 +315,9 @@ export class TransactionsOutboxService {
     });
   }
 
-  syncEntry(entry) {
+  syncEntry(entry: OutboxQueue): Promise<OutboxQueue> {
     const that = this;
-    const fileObjPromiseArray = [];
+    const fileObjPromiseArray: Promise<FileObject>[] = [];
     const reportId = entry.reportId;
 
     if (!entry.fileUploadCompleted) {
@@ -361,8 +381,8 @@ export class TransactionsOutboxService {
               .pipe(
                 map(
                   (orgUserSettings) =>
-                    orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
-                )
+                    orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled,
+                ),
               );
 
             isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
@@ -385,7 +405,7 @@ export class TransactionsOutboxService {
                     this.trackingService.addToExistingReportAddEditExpense();
                     resolve(entry);
                   })
-                  .catch((err) => {
+                  .catch((err: Error) => {
                     this.trackingService.syncError({ label: err });
                     reject(err);
                   });
@@ -393,19 +413,19 @@ export class TransactionsOutboxService {
                 resolve(entry);
               }
             })
-            .catch((err) => {
+            .catch((err: Error) => {
               this.trackingService.syncError({ label: err });
               reject(err);
             });
         })
-        .catch((err) => {
+        .catch((err: Error) => {
           this.trackingService.syncError({ label: err });
           reject(err);
         });
     });
   }
 
-  sync() {
+  sync(): Promise<void> {
     const that = this;
 
     if (that.syncDeferred) {
@@ -426,7 +446,7 @@ export class TransactionsOutboxService {
           //   TransactionService.deleteCache();
           // }
           that.processDataExtractionEntry();
-          resolve(true);
+          resolve();
         })
         .catch((err) => {
           reject(err);
@@ -437,16 +457,16 @@ export class TransactionsOutboxService {
         });
     });
 
-    return this.syncDeferred.then(() => {});
+    return this.syncDeferred.then(() => Promise.resolve());
   }
 
-  isSyncInProgress() {
+  isSyncInProgress(): boolean {
     return this.syncInProgress;
   }
 
-  parseReceipt(data, fileType?): Promise<ParsedReceipt> {
+  parseReceipt(data: string, fileType?: string): Promise<ParsedReceipt> {
     const url = this.ROOT_ENDPOINT + '/data_extractor/extract';
-    let suggestedCurrency = null;
+    let suggestedCurrency: string = null;
     const fileName = fileType && fileType === 'pdf' ? '000.pdf' : '000.jpeg';
 
     // send homeCurrency of the user's org as suggestedCurrency for data-extraction
@@ -468,7 +488,7 @@ export class TransactionsOutboxService {
           .toPromise()
           .then((res) => res as ParsedReceipt);
       })
-      .catch((err) =>
+      .catch(() =>
         this.httpClient
           .post(url, {
             files: [
@@ -480,7 +500,7 @@ export class TransactionsOutboxService {
             suggested_currency: suggestedCurrency,
           })
           .toPromise()
-          .then((res) => res as ParsedReceipt)
+          .then((res) => res as ParsedReceipt),
       );
   }
 

@@ -30,7 +30,15 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { DateService } from 'src/app/core/services/date.service';
 import * as dayjs from 'dayjs';
@@ -54,7 +62,7 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
+import { CostCenter, CostCenters } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
@@ -75,11 +83,29 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
-import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
+import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { PerDiemFormValue } from 'src/app/core/models/per-diem-form-value.model';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { OrgUser } from 'src/app/core/models/org-user.model';
+import { PerDiemCustomInputs } from 'src/app/core/models/per-diem-custom-inputs.model';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
+import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
+import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
+import { TransactionState } from 'src/app/core/models/transaction-state.enum';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -107,7 +133,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   canCreatePerDiem$: Observable<boolean>;
 
-  allowedPerDiemRateOptions$: Observable<any[]>;
+  allowedPerDiemRateOptions$: Observable<AllowedPerDiemRateOptions[]>;
 
   paymentModes$: Observable<AccountOption[]>;
 
@@ -119,27 +145,27 @@ export class AddEditPerDiemPage implements OnInit {
 
   maxDate: string;
 
-  txnFields$: Observable<any>;
+  txnFields$: Observable<Partial<ExpenseFieldsObj>>;
 
-  subCategories$: Observable<any[]>;
+  subCategories$: Observable<OrgCategory[]>;
 
   isAmountDisabled = false;
 
-  etxn$: Observable<any>;
+  etxn$: Observable<UnflattenedTransaction>;
 
   isIndividualProjectsEnabled$: Observable<boolean>;
 
-  individualProjectIds$: Observable<[]>;
+  individualProjectIds$: Observable<number[]>;
 
   isProjectsEnabled$: Observable<boolean>;
 
   isCostCentersEnabled$: Observable<boolean>;
 
-  customInputs$: Observable<any>;
+  customInputs$: Observable<PerDiemCustomInputs[]>;
 
-  costCenters$: Observable<any>;
+  costCenters$: Observable<CostCenters[]>;
 
-  reports$: Observable<any[]>;
+  reports$: Observable<PerDiemReports[]>;
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
@@ -153,7 +179,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   projectCategoryIds$: Observable<string[]>;
 
-  filteredCategories$: Observable<any>;
+  filteredCategories$: Observable<{ label: string; value: OrgCategory }[]>;
 
   isConnected$: Observable<boolean>;
 
@@ -161,7 +187,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   isAdvancesEnabled$: Observable<boolean>;
 
-  comments$: Observable<any>;
+  comments$: Observable<ExtendedStatus[]>;
 
   expenseStartTime;
 
@@ -254,20 +280,23 @@ export class AddEditPerDiemPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {}
 
-  get minPerDiemDate() {
+  get minPerDiemDate(): string {
     return (
-      this.fg.controls.from_dt.value && dayjs(this.fg.controls.from_dt.value).subtract(1, 'day').format('YYYY-MM-D')
+      this.fg.controls.from_dt.value &&
+      dayjs(this.fg.controls.from_dt.value as string)
+        .subtract(1, 'day')
+        .format('YYYY-MM-D')
     );
   }
 
-  get showSaveAndNext() {
+  get showSaveAndNext(): boolean {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
   }
 
-  get isExpandedView() {
+  get isExpandedView(): boolean {
     return this._isExpandedView;
   }
 
@@ -281,7 +310,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   @HostListener('keydown')
-  scrollInputIntoView() {
+  scrollInputIntoView(): void {
     const el = document.activeElement;
     if (el && el instanceof HTMLInputElement) {
       el.scrollIntoView({
@@ -290,12 +319,16 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  ngOnInit() {
+  getFormValues(): PerDiemFormValue {
+    return this.fg.value as PerDiemFormValue;
+  }
+
+  ngOnInit(): void {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
   }
 
-  async showClosePopup() {
+  async showClosePopup(): Promise<void> {
     const isAutofilled = this.presetProjectId || this.presetCostCenterId;
     if (this.fg.touched || isAutofilled) {
       const unsavedChangesPopOver = await this.popoverController.create({
@@ -317,7 +350,7 @@ export class AddEditPerDiemPage implements OnInit {
 
       await unsavedChangesPopOver.present();
 
-      const { data } = await unsavedChangesPopOver.onWillDismiss();
+      const { data } = (await unsavedChangesPopOver.onWillDismiss()) as { data: { action: string } };
 
       if (data && data.action === 'continue') {
         if (this.navigateBack) {
@@ -339,7 +372,7 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  goBack() {
+  goBack(): void {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
@@ -347,8 +380,8 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  goToPrev() {
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+  goToPrev(): void {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
 
     if (this.reviewList[+this.activeIndex - 1]) {
       this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
@@ -357,8 +390,8 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  goToNext() {
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+  goToNext(): void {
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
 
     if (this.reviewList[+this.activeIndex + 1]) {
       this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
@@ -367,8 +400,8 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  goToTransaction(expense, reviewList, activeIndex) {
-    let category;
+  goToTransaction(expense: UnflattenedTransaction, reviewList: string[], activeIndex: number): void {
+    let category: string;
 
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
@@ -410,43 +443,44 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
-  checkIfInvalidPaymentMode() {
+  checkIfInvalidPaymentMode(): Observable<boolean> {
+    const formValues = this.getFormValues();
     return this.etxn$.pipe(
       map((etxn) => {
-        const paymentAccount = this.fg.value.paymentMode;
+        const paymentAccount = formValues.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
         if (paymentAccount?.acc?.type === AccountType.ADVANCE) {
           if (paymentAccount.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
               paymentAccount.acc.tentative_balance_amount <
-              (this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount);
+              (this.fg.controls.currencyObj.value && (this.fg.controls.currencyObj.value as { amount: number }).amount);
           } else {
             isPaymentModeInvalid =
               paymentAccount.acc.tentative_balance_amount + etxn.tx.amount <
-              (this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount);
+              (this.fg.controls.currencyObj.value && (this.fg.controls.currencyObj.value as { amount: number }).amount);
           }
         }
         if (isPaymentModeInvalid) {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
-      })
+      }),
     );
   }
 
-  getTransactionFields() {
+  getTransactionFields(): Observable<Partial<ExpenseFieldsObj>> {
     return this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue) =>
+      switchMap((formValue: { sub_category: OrgCategory }) =>
         forkJoin({
           expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories(),
@@ -456,30 +490,32 @@ export class AddEditPerDiemPage implements OnInit {
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
               fields,
-              formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
+              formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory,
             );
-          })
-        )
+          }),
+        ),
       ),
-      map((expenseFieldsMap: any) => {
+      map((expenseFieldsMap) => {
         if (expenseFieldsMap) {
           for (const tfc of Object.keys(expenseFieldsMap)) {
-            if (expenseFieldsMap[tfc].options && expenseFieldsMap[tfc].options.length > 0) {
-              expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map((value) => ({ label: value, value }));
+            const expenseField = expenseFieldsMap[tfc] as ExpenseField;
+            const options = expenseField.options as string[];
+            if (expenseField.options && options.length > 0) {
+              expenseField.options = options.map((value) => ({ label: value, value }));
             }
           }
         }
 
         return expenseFieldsMap;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
-  setupTfcDefaultValues() {
+  setupTfcDefaultValues(): void {
     const tfcValues$ = this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue) =>
+      switchMap((formValue: { sub_category: OrgCategory }) =>
         forkJoin({
           expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories(),
@@ -489,12 +525,12 @@ export class AddEditPerDiemPage implements OnInit {
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
               fields,
-              formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
+              formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory,
             );
-          })
-        )
+          }),
+        ),
       ),
-      map((tfc) => this.expenseFieldsService.getDefaultTxnFieldValues(tfc))
+      map((tfc) => this.expenseFieldsService.getDefaultTxnFieldValues(tfc)),
     );
 
     tfcValues$.subscribe((defaultValues) => {
@@ -544,25 +580,25 @@ export class AddEditPerDiemPage implements OnInit {
         };
         return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
-  getSubCategories() {
+  getSubCategories(): Observable<OrgCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const parentCategoryName = 'per diem';
         return categories.filter(
           (orgCategory) =>
             parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase(),
         );
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
-  getProjectCategoryIds() {
+  getProjectCategoryIds(): Observable<string[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const perDiemCategories = categories
@@ -570,16 +606,19 @@ export class AddEditPerDiemPage implements OnInit {
           .map((category) => category?.id?.toString());
 
         return perDiemCategories;
-      })
+      }),
     );
   }
 
-  getPerDiemCategories() {
+  getPerDiemCategories(): Observable<{
+    defaultPerDiemCategory: OrgCategory;
+    perDiemCategories: OrgCategory[];
+  }> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const orgCategoryName = 'per diem';
         const defaultPerDiemCategory = categories.find(
-          (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase()
+          (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase(),
         );
 
         const perDiemCategories = categories.filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1);
@@ -588,11 +627,11 @@ export class AddEditPerDiemPage implements OnInit {
           defaultPerDiemCategory,
           perDiemCategories,
         };
-      })
+      }),
     );
   }
 
-  getNewExpense() {
+  getNewExpense(): Observable<Partial<UnflattenedTransaction>> {
     return forkJoin({
       categoryContainer: this.getPerDiemCategories(),
       homeCurrency: this.currencyService.getHomeCurrency(),
@@ -618,15 +657,17 @@ export class AddEditPerDiemPage implements OnInit {
           custom_properties: [],
           org_user_id: currentEou.ou.id,
         },
-      }))
+      })),
     );
   }
 
-  getEditExpense() {
-    return this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
+  getEditExpense(): Observable<UnflattenedTransaction> {
+    return this.transactionService
+      .getETxnUnflattened(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
   }
 
-  setupFilteredCategories(activeCategories$: Observable<any>) {
+  setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
         if (!this.fg.controls.project.value) {
@@ -636,56 +677,54 @@ export class AddEditPerDiemPage implements OnInit {
         }
       }),
       startWith(this.fg.controls.project.value),
-      concatMap((project) =>
+      concatMap((project: ExtendedProject) =>
         activeCategories$.pipe(
-          map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
-        )
+          map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)),
+        ),
       ),
-      map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
+      map((categories) => categories.map((category) => ({ label: category.sub_category, value: category }))),
     );
-
+    const formValue = this.getFormValues();
     this.filteredCategories$.subscribe((categories) => {
       if (
-        this.fg.value.sub_category &&
-        this.fg.value.sub_category.id &&
-        !categories.some(
-          (category) => this.fg.value.sub_category && this.fg.value.sub_category.id === category.value.id
-        )
+        formValue.sub_category &&
+        formValue.sub_category.id &&
+        !categories.some((category) => formValue.sub_category && formValue.sub_category.id === category.value.id)
       ) {
         this.fg.controls.sub_category.reset();
       }
     });
   }
 
-  getTimeSpentOnPage() {
+  getTimeSpentOnPage(): number {
     const expenseEndTime = new Date().getTime();
     // Get time spent on page in seconds
     return (expenseEndTime - this.expenseStartTime) / 1000;
   }
 
-  getCustomInputs() {
+  getCustomInputs(): Observable<PerDiemCustomInputs[]> {
     this.initialFetch = true;
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
     this.dependentFields$ = customExpenseFields$.pipe(
-      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
     );
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
       switchMap(() => {
-        const category = this.fg.controls.sub_category.value;
+        const category = this.fg.controls.sub_category.value as OrgCategory;
         if (this.initialFetch) {
           return this.etxn$.pipe(
             switchMap((etxn) =>
               iif(
-                () => etxn.tx.org_category_id,
+                () => !!etxn.tx.org_category_id,
                 this.categoriesService
                   .getAll()
                   .pipe(map((categories) => categories.find((category) => category.id === etxn.tx.org_category_id))),
-                this.getPerDiemCategories().pipe(map((perDiemContainer) => perDiemContainer.defaultPerDiemCategory))
-              )
-            )
+                this.getPerDiemCategories().pipe(map((perDiemContainer) => perDiemContainer.defaultPerDiemCategory)),
+              ),
+            ),
           );
         }
 
@@ -695,27 +734,28 @@ export class AddEditPerDiemPage implements OnInit {
           return this.getPerDiemCategories().pipe(map((perDiemContainer) => perDiemContainer.defaultPerDiemCategory));
         }
       }),
-      switchMap((category: any) => {
-        const formValue = this.fg.value;
+      switchMap((category) => {
+        const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
           map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
-          map((customFields: any) =>
+          map((customFields) =>
             this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category && category.id)
-            )
-          )
+              this.customInputsService.filterByCategory(customFields, category && category.id),
+            ),
+          ),
         );
       }),
       map((customFields) =>
         customFields.map((customField) => {
           if (customField.options) {
-            customField.options = customField.options.map((option) => ({ label: option, value: option }));
+            const customFieldsOptions = customField.options as string[];
+            customField.options = customFieldsOptions.map((option) => ({ label: option, value: option }));
           }
           return customField;
-        })
+        }),
       ),
-      switchMap((customFields: any[]) =>
+      switchMap((customFields) =>
         this.isConnected$.pipe(
           take(1),
           map((isConnected) => {
@@ -726,30 +766,33 @@ export class AddEditPerDiemPage implements OnInit {
                 this.fb.group({
                   name: [customField.name],
                   value: [
-                    customField.type !== 'DATE' ? customField.value : dayjs(customField.value).format('YYYY-MM-DD'),
+                    customField.type !== 'DATE'
+                      ? customField.value
+                      : dayjs(customField.value as string).format('YYYY-MM-DD'),
                     isConnected &&
                       customField.type !== 'BOOLEAN' &&
                       customField.type !== 'USER_LIST' &&
                       customField.mandatory &&
                       Validators.required,
                   ],
-                })
+                }),
               );
             }
             return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
-          })
-        )
+          }),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
-  customDateValidator(control: AbstractControl) {
+  customDateValidator(control: AbstractControl): ValidationErrors {
     if (!this.fg) {
       return;
     }
-    const fromDt = dayjs(new Date(this.fg.value.from_dt));
-    const passedInDate = control.value && dayjs(new Date(control.value));
+    const formValue = this.getFormValues();
+    const fromDt = dayjs(new Date(formValue.from_dt));
+    const passedInDate = control.value && dayjs(new Date(control.value as string));
     if (passedInDate) {
       return passedInDate.isSame(fromDt) || passedInDate.isAfter(fromDt)
         ? null
@@ -759,22 +802,43 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
+  isPaymentModeValid(): Observable<boolean> {
+    return iif(() => !!(this.activatedRoute.snapshot.params.id as string), this.etxn$, of(null)).pipe(
+      map((etxn) => {
+        const formValue = this.getFormValues();
+        if (formValue.paymentMode?.acc?.type === AccountType.ADVANCE) {
+          if (
+            etxn?.tx.id &&
+            formValue.paymentMode?.acc?.id === etxn.tx.source_account_id &&
+            etxn.tx.state !== TransactionState.DRAFT
+          ) {
+            return formValue.paymentMode.acc.tentative_balance_amount + etxn.tx.amount < formValue.currencyObj.amount;
+          } else {
+            return formValue.paymentMode.acc.tentative_balance_amount < formValue.currencyObj.amount;
+          }
+        } else {
+          return false;
+        }
+      })
+    );
+  }
+
+  ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject(null);
-    this.selectedCostCenter$ = new BehaviorSubject(null);
+    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
       () => {
         this.showClosePopup();
-      }
+      },
     );
 
-    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
     this.expenseStartTime = new Date().getTime();
     const today = new Date();
     this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
@@ -809,9 +873,10 @@ export class AddEditPerDiemPage implements OnInit {
     });
 
     this.title = 'Add Expense';
-    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex;
+    this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
     this.reviewList =
-      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+      this.activatedRoute.snapshot.params.txnIds &&
+      (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
     this.title =
       this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
     if (this.activatedRoute.snapshot.params.id) {
@@ -820,11 +885,11 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project) => this.selectedProject$.next(project));
+      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
 
     this.fg.controls.costCenter.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter) => this.selectedCostCenter$.next(costCenter));
+      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
 
     // If User has already clicked on See More he need not to click again and again
     from(this.storageService.get<boolean>('isExpandedViewPerDiem')).subscribe((expandedView) => {
@@ -840,12 +905,12 @@ export class AddEditPerDiemPage implements OnInit {
       map(
         (orgSettings) =>
           (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
-      )
+          (orgSettings.advance_requests && orgSettings.advance_requests.enabled),
+      ),
     );
 
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
+      map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates),
     );
 
     orgSettings$.subscribe((orgSettings) => {
@@ -862,7 +927,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     const allowedPerDiemRates$ = from(this.loaderService.showLoader())
@@ -871,27 +936,27 @@ export class AddEditPerDiemPage implements OnInit {
           forkJoin({
             orgSettings: orgSettings$,
             allowedPerDiemRates: perDiemRates$.pipe(
-              switchMap((perDiemRates) => this.perDiemService.getAllowedPerDiems(perDiemRates))
+              switchMap((perDiemRates) => this.perDiemService.getAllowedPerDiems(perDiemRates)),
             ),
-          })
+          }),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .pipe(
         switchMap(({ orgSettings, allowedPerDiemRates }) =>
           iif(
             () => allowedPerDiemRates.length > 0 || orgSettings.per_diem.enable_individual_per_diem_rates,
             of(allowedPerDiemRates),
-            perDiemRates$
-          )
+            perDiemRates$,
+          ),
         ),
         map((rates) => rates.filter((rate) => rate.active)),
         map((rates) =>
           rates.map((rate) => {
             rate.full_name = `${rate.name} (${rate.rate} ${rate.currency} per day)`;
             return rate;
-          })
-        )
+          }),
+        ),
       );
 
     this.canCreatePerDiem$ = from(this.loaderService.showLoader())
@@ -901,9 +966,9 @@ export class AddEditPerDiemPage implements OnInit {
             orgSettings: orgSettings$,
             perDiemRates: perDiemRates$,
             allowedPerDiemRates: allowedPerDiemRates$,
-          })
+          }),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .pipe(
         map(({ orgSettings, perDiemRates, allowedPerDiemRates }) => {
@@ -916,7 +981,7 @@ export class AddEditPerDiemPage implements OnInit {
           } else {
             return perDiemRates.length > 0;
           }
-        })
+        }),
       );
 
     this.txnFields$ = this.getTransactionFields();
@@ -927,9 +992,9 @@ export class AddEditPerDiemPage implements OnInit {
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
       switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
-      map((projectCount) => projectCount > 0)
+      map((projectCount) => projectCount > 0),
     );
-    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
+    this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
 
     combineLatest([this.isConnected$, this.filteredCategories$])
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
@@ -946,22 +1011,24 @@ export class AddEditPerDiemPage implements OnInit {
         allowedPerDiemRates.map((rate) => {
           rate.readableRate = this.fyCurrencyPipe.transform(rate.rate, rate.currency) + ' per day';
           return { label: rate.name, value: rate };
-        })
-      )
+        }),
+      ),
     );
 
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
+      map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects),
     );
 
-    this.individualProjectIds$ = orgUserSettings$.pipe(
-      map((orgUserSettings: any) => orgUserSettings.project_ids || [])
-    );
+    this.individualProjectIds$ = orgUserSettings$.pipe(map((orgUserSettings) => orgUserSettings.project_ids || []));
 
-    this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
+    this.etxn$ = iif(
+      () => this.mode === 'add',
+      this.getNewExpense(),
+      this.getEditExpense(),
+    ) as Observable<UnflattenedTransaction>;
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
+      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled),
     );
 
     this.customInputs$ = this.getCustomInputs();
@@ -981,12 +1048,13 @@ export class AddEditPerDiemPage implements OnInit {
           return of([]);
         }
       }),
-      map((costCenters) =>
+      map((costCenters: CostCenter[]) =>
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,
         }))
-      )
+      ),
+      shareReplay(1)
     );
 
     this.recentlyUsedCostCenters$ = forkJoin({
@@ -994,8 +1062,8 @@ export class AddEditPerDiemPage implements OnInit {
       recentValue: this.recentlyUsedValues$,
     }).pipe(
       concatMap(({ costCenters, recentValue }) =>
-        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
-      )
+        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue),
+      ),
     );
 
     this.reports$ = this.reportService
@@ -1008,7 +1076,7 @@ export class AddEditPerDiemPage implements OnInit {
         switchMap((txnFields) =>
           forkJoin({
             isConnected: this.isConnected$.pipe(take(1)),
-            orgSettings: this.orgSettingsService.get(),
+            orgSettings: orgSettings$,
             costCenters: this.costCenters$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
             individualProjectIds: this.individualProjectIds$,
@@ -1020,9 +1088,9 @@ export class AddEditPerDiemPage implements OnInit {
               costCenters,
               isIndividualProjectsEnabled,
               individualProjectIds,
-            }))
-          )
-        )
+            })),
+          ),
+        ),
       )
       .subscribe(
         ({ isConnected, txnFields, costCenters, orgSettings, individualProjectIds, isIndividualProjectsEnabled }) => {
@@ -1043,23 +1111,26 @@ export class AddEditPerDiemPage implements OnInit {
 
           for (const txnFieldKey of Object.keys(txnFields)) {
             const control = keyToControlMap[txnFieldKey];
+            const expenseField = txnFields[txnFieldKey] as ExpenseField;
 
-            if (txnFields[txnFieldKey].is_mandatory) {
+            if (expenseField.is_mandatory) {
               if (txnFieldKey === 'num_days') {
                 control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
               } else if (txnFieldKey === 'to_dt') {
                 control.setValidators(
-                  isConnected ? Validators.compose([this.customDateValidator.bind(this), Validators.required]) : null
+                  isConnected
+                    ? Validators.compose([this.customDateValidator.bind(this) as ValidatorFn, Validators.required])
+                    : null,
                 );
               } else if (txnFieldKey === 'cost_center_id') {
                 control.setValidators(
-                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null
+                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null,
                 );
               } else if (txnFieldKey === 'project_id') {
                 control.setValidators(
                   orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
                     ? null
-                    : Validators.required
+                    : Validators.required,
                 );
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
@@ -1069,26 +1140,26 @@ export class AddEditPerDiemPage implements OnInit {
                 control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
               }
               if (txnFieldKey === 'to_dt') {
-                control.setValidators(isConnected ? this.customDateValidator.bind(this) : null);
+                control.setValidators(isConnected ? (this.customDateValidator.bind(this) as ValidatorFn) : null);
               }
             }
             control.updateValueAndValidity();
           }
 
           this.fg.updateValueAndValidity();
-        }
+        },
       );
 
     this.setupTfcDefaultValues();
 
     this.isAmountCapped$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
+      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount)),
     );
 
     this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
 
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
+      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001),
     );
 
     this.getPolicyDetails();
@@ -1097,8 +1168,8 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
       .subscribe(([fromDt, toDt]) => {
         if (fromDt && toDt) {
-          const fromDate = dayjs(new Date(fromDt));
-          const toDate = dayjs(new Date(toDt));
+          const fromDate = dayjs(new Date(fromDt as string));
+          const toDate = dayjs(new Date(toDt as string));
           if (toDate.isSame(fromDate)) {
             this.fg.controls.num_days.setValue(1);
           } else if (toDate.isAfter(fromDate)) {
@@ -1111,7 +1182,7 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
       .subscribe(([fromDt, numDays]) => {
         if (fromDt && numDays && numDays > 0) {
-          const fromDate = dayjs(this.dateService.getUTCDate(new Date(fromDt)));
+          const fromDate = dayjs(this.dateService.getUTCDate(new Date(fromDt as string)));
           this.fg.controls.to_dt.setValue(fromDate.add(+numDays - 1, 'day').format('YYYY-MM-DD'), {
             emitEvent: false,
           });
@@ -1119,14 +1190,15 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
     combineLatest(
-      this.fg.controls.per_diem_rate.valueChanges,
+      this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
       this.fg.controls.num_days.valueChanges,
-      this.homeCurrency$
+      this.homeCurrency$,
     )
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         filter(([perDiemRate, numDays, homeCurrency]) => !!perDiemRate && !!numDays && !!homeCurrency),
-        filter(([perDiemRate, numDays, homeCurrency]) => perDiemRate.currency === homeCurrency)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        filter(([perDiemRate, numDays, homeCurrency]) => perDiemRate.currency === homeCurrency),
       )
       .subscribe(([perDiemRate, numDays, homeCurrency]) => {
         if (perDiemRate && numDays && homeCurrency) {
@@ -1135,7 +1207,7 @@ export class AddEditPerDiemPage implements OnInit {
               currency: perDiemRate.currency,
               amount: this.currencyService.getAmountWithCurrencyFraction(
                 perDiemRate.rate * numDays,
-                perDiemRate.currency
+                perDiemRate.currency,
               ),
               orig_currency: null,
               orig_amount: null,
@@ -1145,37 +1217,38 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
     combineLatest(
-      this.fg.controls.per_diem_rate.valueChanges,
-      this.fg.controls.num_days.valueChanges,
-      this.homeCurrency$
+      this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
+      this.fg.controls.num_days.valueChanges as Observable<number>,
+      this.homeCurrency$,
     )
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         filter(([perDiemRate, numDays, homeCurrency]) => !!perDiemRate && !!numDays && !!homeCurrency),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         filter(([perDiemRate, numDays, homeCurrency]) => perDiemRate.currency !== homeCurrency),
         switchMap(([perDiemRate, numDays, homeCurrency]) =>
           this.currencyService
             .getExchangeRate(perDiemRate.currency, homeCurrency)
-            .pipe(map((res) => [perDiemRate, numDays, homeCurrency, res]))
-        )
+            .pipe(map((res) => [perDiemRate, numDays, homeCurrency, res])),
+        ),
       )
-      .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]) => {
+      .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]: [PerDiemRates, number, string, number]) => {
         this.fg.controls.currencyObj.setValue({
           currency: homeCurrency,
           amount: this.currencyService.getAmountWithCurrencyFraction(
             perDiemRate.rate * numDays * exchangeRate,
-            homeCurrency
+            homeCurrency,
           ),
           orig_currency: perDiemRate.currency,
           orig_amount: this.currencyService.getAmountWithCurrencyFraction(
             perDiemRate.rate * numDays,
-            perDiemRate.currency
+            perDiemRate.currency,
           ),
         });
       });
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      switchMap((paymentMode) => {
+      switchMap((paymentMode: ExtendedAccount) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return this.accountsService
             .getEMyAccounts()
@@ -1184,13 +1257,13 @@ export class AddEditPerDiemPage implements OnInit {
                 (accounts) =>
                   accounts.filter(
                     (account) =>
-                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
-                  ).length > 0
-              )
+                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0,
+                  ).length > 0,
+              ),
             );
         }
         return of(false);
-      })
+      }),
     );
 
     const selectedProject$ = this.etxn$.pipe(
@@ -1206,7 +1279,7 @@ export class AddEditPerDiemPage implements OnInit {
               if (orgSettings.projects.enabled) {
                 return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
               }
-            })
+            }),
           );
         }
       }),
@@ -1216,7 +1289,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     const selectedPaymentMode$ = forkJoin({
@@ -1231,8 +1304,8 @@ export class AddEditPerDiemPage implements OnInit {
           .find((paymentMode) => {
             const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
             return accountType === AccountType.PERSONAL;
-          })
-      )
+          }),
+      ),
     );
 
     this.recentlyUsedProjects$ = forkJoin({
@@ -1245,36 +1318,36 @@ export class AddEditPerDiemPage implements OnInit {
           recentValues,
           eou,
           categoryIds: perDiemCategoryIds,
-        })
-      )
+        }),
+      ),
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap((etxn) =>
         iif(
-          () => etxn.tx.org_category_id,
+          () => !!etxn.tx.org_category_id,
           this.subCategories$.pipe(
-            map((subCategories) => subCategories.find((subCategory) => subCategory.id === etxn.tx.org_category_id))
+            map((subCategories) => subCategories.find((subCategory) => subCategory.id === etxn.tx.org_category_id)),
           ),
-          of(null)
-        )
-      )
+          of(null),
+        ),
+      ),
     );
 
     const selectedPerDiemOption$ = this.etxn$.pipe(
       switchMap((etxn) =>
         iif(
-          () => etxn.tx.per_diem_rate_id,
+          () => !!etxn.tx.per_diem_rate_id,
           this.allowedPerDiemRateOptions$.pipe(
             map((perDiemOptions) =>
               perDiemOptions
                 .map((res) => res.value)
-                .find((perDiemOption) => perDiemOption.id === etxn.tx.per_diem_rate_id)
-            )
+                .find((perDiemOption) => perDiemOption.id === etxn.tx.per_diem_rate_id),
+            ),
           ),
-          of(null)
-        )
-      )
+          of(null),
+        ),
+      ),
     );
 
     const selectedReport$ = forkJoin({
@@ -1294,7 +1367,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return null;
         }
-      })
+      }),
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
@@ -1312,7 +1385,7 @@ export class AddEditPerDiemPage implements OnInit {
                   return costCenters[0].value.id;
                 }
               }
-            })
+            }),
           );
         }
       }),
@@ -1320,13 +1393,13 @@ export class AddEditPerDiemPage implements OnInit {
         if (costCenterId) {
           return this.costCenters$.pipe(
             map((costCenters) =>
-              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId)
-            )
+              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId),
+            ),
           );
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
@@ -1340,7 +1413,6 @@ export class AddEditPerDiemPage implements OnInit {
             project: selectedProject$,
             subCategory: selectedSubCategory$,
             perDiemRate: selectedPerDiemOption$,
-            txnFields: this.txnFields$.pipe(take(1)),
             report: selectedReport$,
             costCenter: selectedCostCenter$,
             customExpenseFields: customExpenseFields$,
@@ -1350,10 +1422,10 @@ export class AddEditPerDiemPage implements OnInit {
             recentValue: this.recentlyUsedValues$,
             recentProjects: this.recentlyUsedProjects$,
             recentCostCenters: this.recentlyUsedCostCenters$,
-          })
+          }),
         ),
         take(1),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(
         ({
@@ -1362,7 +1434,6 @@ export class AddEditPerDiemPage implements OnInit {
           project,
           subCategory,
           perDiemRate,
-          txnFields,
           report,
           costCenter,
           customExpenseFields,
@@ -1383,7 +1454,7 @@ export class AddEditPerDiemPage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id),
           );
 
           const customInputValues = customInputs
@@ -1395,7 +1466,7 @@ export class AddEditPerDiemPage implements OnInit {
               if (customInput.type === 'DATE') {
                 return {
                   name: customInput.name,
-                  value: (cpor && cpor.value && dayjs(new Date(cpor.value)).format('YYYY-MM-DD')) || null,
+                  value: (cpor && cpor.value && dayjs(new Date(cpor.value as string)).format('YYYY-MM-DD')) || null,
                 };
               } else {
                 return {
@@ -1432,7 +1503,7 @@ export class AddEditPerDiemPage implements OnInit {
            */
           if (
             doRecentProjectIdsExist &&
-            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))
+            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === TransactionState.DRAFT && !etxn.tx.project_id))
           ) {
             const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
 
@@ -1464,7 +1535,7 @@ export class AddEditPerDiemPage implements OnInit {
            */
           if (
             doRecentCostCenterIdsExist &&
-            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))
+            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === TransactionState.DRAFT && !etxn.tx.cost_center_id))
           ) {
             const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
 
@@ -1496,51 +1567,36 @@ export class AddEditPerDiemPage implements OnInit {
           setTimeout(() => {
             this.fg.controls.custom_inputs.patchValue(customInputValues);
           }, 1000);
-        }
+        },
       );
 
-    this.paymentModeInvalid$ = iif(() => this.activatedRoute.snapshot.params.id, this.etxn$, of(null)).pipe(
-      map((etxn) => {
-        if (this.fg.value.paymentMode.acc.type === AccountType.ADVANCE) {
-          if (
-            etxn &&
-            etxn.id &&
-            this.fg.value.paymentMode?.acc?.id === etxn.source_account_id &&
-            etxn.state !== 'DRAFT'
-          ) {
-            return (
-              this.fg.value.paymentMode?.acc?.tentative_balance_amount + etxn.amount < this.fg.value.currencyObj.amount
-            );
-          } else {
-            return this.fg.value.paymentMode?.acc?.tentative_balance_amount < this.fg.value.currencyObj.amount;
-          }
-        } else {
-          return false;
-        }
-      })
-    );
+    this.paymentModeInvalid$ = this.isPaymentModeValid();
   }
 
-  generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
+  generateEtxnFromFg(
+    etxn$: Observable<UnflattenedTransaction>,
+    standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
+  ): Observable<{ tx: Partial<Transaction>; dataUrls: FileObject[]; ou: Partial<OrgUser> }> {
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,
     }).pipe(
       map((res) => {
-        const etxn: any = res.etxn;
-        let customProperties: any = res.customProperties;
+        const formValue = this.getFormValues();
+        const etxn = res.etxn;
+        let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
           if (customProperty.type === 'DATE') {
-            customProperty.value = customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value));
+            customProperty.value =
+              customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value as string));
           }
           return customProperty;
         });
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === AccountType.PERSONAL && !this.fg.value.paymentMode.acc.isReimbursable;
+          formValue.paymentMode.acc.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable;
 
-        const formValue = this.fg.value;
-        const currencyObj = this.fg.controls.currencyObj.value;
-        const amountData: any = {
+        const currencyObj = this.fg.controls.currencyObj.value as CurrencyObj;
+        const amountData = {
           currency: currencyObj.currency,
           amount: currencyObj.amount,
           orig_currency: currencyObj.orig_currency,
@@ -1557,7 +1613,7 @@ export class AddEditPerDiemPage implements OnInit {
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',
             currency: amountData.currency,
-            amount: parseFloat(amountData.amount),
+            amount: parseFloat(amountData.amount?.toString()),
             orig_currency: amountData.orig_currency,
             orig_amount: amountData.orig_amount,
             project_id: formValue.project && formValue.project.project_id,
@@ -1576,23 +1632,21 @@ export class AddEditPerDiemPage implements OnInit {
           dataUrls: [],
           ou: etxn.ou,
         };
-      })
+      }),
     );
   }
 
-  getCustomFields() {
+  getCustomFields(): Observable<TxnCustomProperties[]> {
     const dependentFieldsWithValue$ = this.dependentFields$.pipe(
       map((customFields) => {
-        const allDependentFields = [
-          ...this.fg.value.project_dependent_fields,
-          ...this.fg.value.cost_center_dependent_fields,
-        ];
+        const formValue = this.getFormValues();
+        const allDependentFields = [...formValue.project_dependent_fields, ...formValue.cost_center_dependent_fields];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
           name: dependentField.label,
           value: dependentField.value,
         }));
         return this.customFieldsService.standardizeCustomFields(mappedDependentFields || [], customFields);
-      })
+      }),
     );
 
     return forkJoin({
@@ -1600,7 +1654,8 @@ export class AddEditPerDiemPage implements OnInit {
       dependentFieldsWithValue: dependentFieldsWithValue$.pipe(take(1)),
     }).pipe(
       map(({ customInputs, dependentFieldsWithValue }) => {
-        const customInputsWithValue = customInputs.map((customInput, i) => ({
+        const formValue = this.getFormValues();
+        const customInputsWithValue: TxnCustomProperties[] = customInputs.map((customInput, i) => ({
           id: customInput.id,
           mandatory: customInput.mandatory,
           name: customInput.name,
@@ -1608,14 +1663,18 @@ export class AddEditPerDiemPage implements OnInit {
           placeholder: customInput.placeholder,
           prefix: customInput.prefix,
           type: customInput.type,
-          value: this.fg.value.custom_inputs[i].value,
+          value: formValue.custom_inputs[i].value,
         }));
         return customInputsWithValue.concat(dependentFieldsWithValue);
-      })
+      }),
     );
   }
 
-  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
+  checkPolicyViolation(etxn: {
+    tx: Partial<Transaction>;
+    dataUrls: FileObject[];
+    ou: Partial<OrgUser>;
+  }): Observable<ExpensePolicy> {
     const transactionCopy = cloneDeep(etxn.tx);
 
     /* Expense creation has not moved to platform yet and since policy is moved to platform,
@@ -1627,7 +1686,7 @@ export class AddEditPerDiemPage implements OnInit {
     return this.transactionService.checkPolicy(policyExpense);
   }
 
-  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
+  async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]): Promise<boolean> {
     const fyCriticalPolicyViolationPopOver = await this.modalController.create({
       component: FyCriticalPolicyViolationComponent,
       componentProps: {
@@ -1640,11 +1699,16 @@ export class AddEditPerDiemPage implements OnInit {
 
     await fyCriticalPolicyViolationPopOver.present();
 
-    const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
+    const { data } = (await fyCriticalPolicyViolationPopOver.onWillDismiss()) as { data: boolean };
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
+  async continueWithPolicyViolations(
+    policyViolations: string[],
+    policyAction: FinalExpensePolicyState,
+  ): Promise<{
+    comment: string;
+  }> {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
@@ -1657,14 +1721,57 @@ export class AddEditPerDiemPage implements OnInit {
 
     await currencyModal.present();
 
-    const { data } = await currencyModal.onWillDismiss();
+    const { data } = (await currencyModal.onWillDismiss()) as { data: { comment: string } };
     return data;
   }
 
-  addExpense(redirectedFrom) {
-    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
-    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
-    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
+  criticalPolicyViolationErrorHandler(err: {
+    status?: number;
+    type?: string;
+    policyViolations?: string[];
+    policyAction?: FinalExpensePolicyState;
+    etxn?: Partial<UnflattenedTransaction>;
+  }): Observable<{ etxn: Partial<UnflattenedTransaction> }> {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
+        } else {
+          return throwError('unhandledError');
+        }
+      }),
+    );
+  }
+
+  policyViolationErrorHandler(err: {
+    status?: number;
+    type?: string;
+    policyViolations?: string[];
+    policyAction?: FinalExpensePolicyState;
+    etxn?: Partial<UnflattenedTransaction>;
+  }): Observable<{ etxn: Partial<UnflattenedTransaction>; comment: string }> {
+    return from(this.loaderService.hideLoader()).pipe(
+      switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
+            continueWithTransaction.comment = 'No policy violation explaination provided';
+          }
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment })),
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      }),
+    );
+  }
+
+  addExpense(redirectedFrom: PerDiemRedirectedFrom): Observable<OutboxQueue> {
+    this.savePerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_PER_DIEM;
+    this.saveAndNextPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM;
+    this.saveAndPrevPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM;
 
     const customFields$ = this.getCustomFields();
 
@@ -1703,50 +1810,38 @@ export class AddEditPerDiemPage implements OnInit {
                   } else {
                     return of({ etxn, comment: null });
                   }
-                })
+                }),
               );
             } else {
               return of({ etxn, comment: null });
             }
-          })
-        )
+          }),
+        ),
       ),
-      catchError((err) => {
-        if (err.status === 500) {
-          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
-        }
-        if (err.type === 'criticalPolicyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
-        } else if (err.type === 'policyViolations') {
-          return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
-        } else {
-          return throwError(err);
-        }
-      }),
-      switchMap(({ etxn, comment }: any) =>
+      catchError(
+        (err: {
+          status?: number;
+          type: string;
+          policyViolations: string[];
+          policyAction: FinalExpensePolicyState;
+          etxn: Partial<UnflattenedTransaction>;
+        }) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          }
+          if (err.type === 'criticalPolicyViolations') {
+            return this.criticalPolicyViolationErrorHandler(err);
+          } else if (err.type === 'policyViolations') {
+            return this.policyViolationErrorHandler(err);
+          } else {
+            return throwError(err);
+          }
+        },
+      ),
+      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         from(this.authService.getEou()).pipe(
-          switchMap((eou) => {
-            const comments = [];
+          switchMap(() => {
+            const comments: string[] = [];
             this.trackingService.createExpense({
               Type: 'Receipt',
               Amount: etxn.tx.amount,
@@ -1763,28 +1858,34 @@ export class AddEditPerDiemPage implements OnInit {
               comments.push(comment);
             }
 
-            let reportId;
+            let reportId: string;
+            const formValue = this.getFormValues();
             if (
-              this.fg.value.report &&
+              formValue.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = this.fg.value.report.rp.id;
+              reportId = formValue.report.rp.id;
             }
-            return of(this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId)).pipe(
-              switchMap((txnData: Promise<any>) => from(txnData))
-            );
-          })
-        )
+            return of(
+              this.transactionsOutboxService.addEntryAndSync(
+                etxn.tx,
+                etxn.dataUrls as { url: string; type: string }[],
+                comments,
+                reportId,
+              ),
+            ).pipe(switchMap((txnData) => from(txnData)));
+          }),
+        ),
       ),
       finalize(() => {
         this.savePerDiemLoader = false;
         this.saveAndNextPerDiemLoader = false;
         this.saveAndPrevPerDiemLoader = false;
-      })
+      }),
     );
   }
 
-  trackPolicyCorrections() {
+  trackPolicyCorrections(): void {
     this.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
       if (isCriticalPolicyViolated && this.fg.dirty) {
         this.trackingService.policyCorrection({ Violation: 'Critical', Mode: 'Edit Expense' });
@@ -1794,7 +1895,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.comments$
       .pipe(
         map((estatuses) => estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY')),
-        map((policyViolationComments) => policyViolationComments.length > 0)
+        map((policyViolationComments) => policyViolationComments.length > 0),
       )
       .subscribe((policyViolated) => {
         if (policyViolated && this.fg.dirty) {
@@ -1803,10 +1904,51 @@ export class AddEditPerDiemPage implements OnInit {
       });
   }
 
-  editExpense(redirectedFrom) {
-    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
-    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
-    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
+  editExpenseCriticalPolicyViolationHandler(err: {
+    status?: number;
+    type?: string;
+    policyViolations?: string[];
+    policyAction?: FinalExpensePolicyState;
+    etxn?: Partial<UnflattenedTransaction>;
+  }): Observable<{ etxn: Partial<UnflattenedTransaction> }> {
+    return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
+        } else {
+          return throwError('unhandledError');
+        }
+      }),
+    );
+  }
+
+  editExpensePolicyViolationHandler(err: {
+    status?: number;
+    type?: string;
+    policyViolations?: string[];
+    policyAction?: FinalExpensePolicyState;
+    etxn?: Partial<UnflattenedTransaction>;
+  }): Observable<{ etxn: Partial<UnflattenedTransaction>; comment: string }> {
+    return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
+      switchMap((continueWithTransaction) => {
+        if (continueWithTransaction) {
+          if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
+            continueWithTransaction.comment = 'No policy violation explaination provided';
+          }
+          return from(this.loaderService.showLoader()).pipe(
+            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment })),
+          );
+        } else {
+          return throwError('unhandledError');
+        }
+      }),
+    );
+  }
+
+  editExpense(redirectedFrom: PerDiemRedirectedFrom): Observable<Partial<Transaction>> {
+    this.savePerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_PER_DIEM;
+    this.saveAndNextPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM;
+    this.saveAndPrevPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM;
 
     this.trackPolicyCorrections();
 
@@ -1843,43 +1985,33 @@ export class AddEditPerDiemPage implements OnInit {
             } else {
               return of({ etxn });
             }
-          })
+          }),
         );
       }),
-      catchError((err) => {
-        if (err.status === 500) {
-          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
-        }
-        if (err.type === 'criticalPolicyViolations') {
-          return from(this.continueWithCriticalPolicyViolation(err.policyViolations)).pipe(
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
-        } else if (err.type === 'policyViolations') {
-          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
-            switchMap((continueWithTransaction) => {
-              if (continueWithTransaction) {
-                return from(this.loaderService.showLoader()).pipe(
-                  switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
-                );
-              } else {
-                return throwError('unhandledError');
-              }
-            })
-          );
-        } else {
-          return throwError(err);
-        }
-      }),
-      switchMap(({ etxn, comment }: any) =>
+      catchError(
+        (err: {
+          status: number;
+          policyViolations: string[];
+          etxn: UnflattenedTransaction;
+          type: string;
+          policyAction: FinalExpensePolicyState;
+        }) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          }
+          if (err.type === 'criticalPolicyViolations') {
+            return this.editExpenseCriticalPolicyViolationHandler(err);
+          } else if (err.type === 'policyViolations') {
+            return this.editExpensePolicyViolationHandler(err);
+          } else {
+            return throwError(err);
+          }
+        },
+      ),
+      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         this.etxn$.pipe(
           switchMap((txnCopy) => {
-            if (!isEqual(etxn.tx, txnCopy)) {
+            if (!isEqual(etxn.tx, txnCopy.tx)) {
               // only if the form is edited
               this.trackingService.editExpense({
                 Type: 'Per Diem',
@@ -1903,13 +2035,14 @@ export class AddEditPerDiemPage implements OnInit {
               switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
-                const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
-                const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
+                const formValue = this.getFormValues();
+                const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;
+                const criticalPolicyViolated = isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
 
@@ -1917,14 +2050,14 @@ export class AddEditPerDiemPage implements OnInit {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
                 }
@@ -1932,13 +2065,13 @@ export class AddEditPerDiemPage implements OnInit {
                 return of(null).pipe(map(() => tx));
               }),
               switchMap((tx) => {
-                const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
+                const criticalPolicyViolated = isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
                 if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
                   return this.transactionService.review(tx.id).pipe(map(() => tx));
                 }
 
                 return of(null).pipe(map(() => tx));
-              })
+              }),
             );
           }),
           switchMap((txn) => {
@@ -1950,29 +2083,29 @@ export class AddEditPerDiemPage implements OnInit {
                   } else {
                     return of(txn);
                   }
-                })
+                }),
               );
             } else {
               return of(txn);
             }
-          })
-        )
+          }),
+        ),
       ),
       finalize(() => {
         this.savePerDiemLoader = false;
         this.saveAndNextPerDiemLoader = false;
         this.saveAndPrevPerDiemLoader = false;
-      })
+      }),
     );
   }
 
-  showAddToReportSuccessToast(reportId: string) {
+  showAddToReportSuccessToast(reportId: string): void {
     const toastMessageData = {
       message: 'Per diem expense added to report successfully',
       redirectionText: 'View Report',
     };
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      ...this.snackbarProperties.setSnackbarProperties(ToastType.SUCCESS, toastMessageData),
       panelClass: ['msb-success-with-camera-icon'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
@@ -1982,7 +2115,20 @@ export class AddEditPerDiemPage implements OnInit {
     });
   }
 
-  savePerDiem() {
+  showFormValidationErrors(): void {
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
+    }
+  }
+
+  savePerDiem(): void {
     const that = this;
 
     that
@@ -1991,21 +2137,12 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
+            that.addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe(() => this.goBack());
           } else {
-            that.editExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
+            that.editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe(() => this.goBack());
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
 
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
@@ -2017,12 +2154,12 @@ export class AddEditPerDiemPage implements OnInit {
       });
   }
 
-  async reloadCurrentRoute() {
+  async reloadCurrentRoute(): Promise<void> {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
     await this.router.navigate(['/', 'enterprise', 'add_edit_per_diem']);
   }
 
-  saveAndNewExpense() {
+  saveAndNewExpense(): void {
     const that = this;
 
     that
@@ -2031,26 +2168,17 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
+            that.addExpense(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM).subscribe(() => {
               this.reloadCurrentRoute();
             });
           } else {
             // to do edit
-            that.editExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
+            that.editExpense(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM).subscribe(() => {
               that.goBack();
             });
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -2061,11 +2189,11 @@ export class AddEditPerDiemPage implements OnInit {
       });
   }
 
-  saveExpenseAndGotoPrev() {
+  saveExpenseAndGotoPrev(): void {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+        that.addExpense(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === 0) {
             that.close();
           } else {
@@ -2074,7 +2202,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+        that.editExpense(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === 0) {
             that.close();
           } else {
@@ -2083,25 +2211,15 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
-  saveExpenseAndGotoNext() {
+  saveExpenseAndGotoNext(): void {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
+        that.addExpense(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -2110,7 +2228,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
+        that.editExpense(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -2119,26 +2237,16 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
-  close() {
+  close(): void {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  async deleteExpense(reportId?: string) {
-    const id = this.activatedRoute.snapshot.params.id;
+  async deleteExpense(reportId?: string): Promise<void> {
+    const id = this.activatedRoute.snapshot.params.id as string;
     const removePerDiemFromReport = reportId && this.isRedirectedFromReport;
 
     const header = removePerDiemFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
@@ -2167,7 +2275,7 @@ export class AddEditPerDiemPage implements OnInit {
     });
 
     await deletePopover.present();
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
@@ -2187,7 +2295,7 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  scrollCommentsIntoView() {
+  scrollCommentsIntoView(): void {
     if (this.commentsContainer) {
       const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
       if (commentsContainer) {
@@ -2200,7 +2308,7 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  async openCommentsModal() {
+  async openCommentsModal(): Promise<void> {
     const etxn = await this.etxn$.toPromise();
 
     const modal = await this.modalController.create({
@@ -2214,7 +2322,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     await modal.present();
 
-    const { data } = await modal.onDidDismiss();
+    const { data } = (await modal.onDidDismiss()) as { data: { updated: boolean } };
 
     if (data && data.updated) {
       this.trackingService.addComment();
@@ -2223,7 +2331,7 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  hideFields() {
+  hideFields(): void {
     this.trackingService.hideMoreClicked({
       source: 'Add Edit Per Diem page',
     });
@@ -2231,7 +2339,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.isExpandedView = false;
   }
 
-  showFields() {
+  showFields(): void {
     this.trackingService.showMoreClicked({
       source: 'Add Edit Per Diem page',
     });
@@ -2239,8 +2347,8 @@ export class AddEditPerDiemPage implements OnInit {
     this.isExpandedView = true;
   }
 
-  getPolicyDetails() {
-    const expenseId = this.activatedRoute.snapshot.params.id;
+  getPolicyDetails(): void {
+    const expenseId = this.activatedRoute.snapshot.params.id as string;
     if (expenseId) {
       from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
         .pipe()
@@ -2250,7 +2358,7 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.hardwareBackButtonAction.unsubscribe();
     this.projectDependentFieldsRef?.ngOnDestroy();
     this.costCenterDependentFieldsRef?.ngOnDestroy();

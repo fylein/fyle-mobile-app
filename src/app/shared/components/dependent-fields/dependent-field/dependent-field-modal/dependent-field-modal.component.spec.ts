@@ -19,8 +19,9 @@ import {
 import { FyZeroStateComponent } from '../../../fy-zero-state/fy-zero-state.component';
 import { FyHighlightTextComponent } from '../../../fy-highlight-text/fy-highlight-text.component';
 import { dependentFieldValues } from 'src/app/core/mock-data/dependent-field-value.data';
-import { DebugElement } from '@angular/core';
+import { ChangeDetectorRef, DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { HighlightPipe } from 'src/app/shared/pipes/highlight.pipe';
 
 describe('DependentFieldModalComponent', () => {
   let component: DependentFieldModalComponent;
@@ -34,7 +35,7 @@ describe('DependentFieldModalComponent', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
 
     TestBed.configureTestingModule({
-      declarations: [DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent],
+      declarations: [DependentFieldModalComponent, FyZeroStateComponent, FyHighlightTextComponent, HighlightPipe],
       imports: [
         IonicModule.forRoot(),
         MatIconModule,
@@ -46,6 +47,7 @@ describe('DependentFieldModalComponent', () => {
         BrowserAnimationsModule,
       ],
       providers: [
+        ChangeDetectorRef,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -78,6 +80,8 @@ describe('DependentFieldModalComponent', () => {
 
   it('ngAfterViewInit(): should set filteredOptions$', (done) => {
     const userEnteredValue = ['cost', 'cost code 3'];
+    const changeDetectorRef = fixture.debugElement.injector.get(ChangeDetectorRef);
+    const detectChangesSpy = spyOn(changeDetectorRef.constructor.prototype, 'detectChanges');
 
     spyOn(component, 'getDependentFieldOptions').and.returnValues(
       of(dependentFieldOptionsWithoutSelection),
@@ -97,13 +101,14 @@ describe('DependentFieldModalComponent', () => {
     //Compare result for the second value emitted by the observable
     component.filteredOptions$.pipe(skip(1), take(1)).subscribe((result) => {
       expect(result).toEqual(dependentFieldOptionsWithoutSelection.slice(0, 2));
-      done();
     });
 
     setTimeout(() => {
       component.searchBarRef.nativeElement.value = userEnteredValue[1];
       component.searchBarRef.nativeElement.dispatchEvent(new KeyboardEvent('keyup'));
     }, 500);
+    expect(detectChangesSpy).toHaveBeenCalledTimes(3);
+    done();
   });
 
   it('getDependentFieldOptions(): should return dependent field options based on search query', (done) => {

@@ -2386,7 +2386,7 @@ export const perDiemExpenseSingleNumDays: Expense = {
   tx_orig_amount: null,
   tx_orig_currency: null,
   tx_payment_id: null,
-  tx_per_diem_rate_id: 508,
+  tx_per_diem_rate_id: '508',
   tx_physical_bill: false,
   tx_physical_bill_at: null,
   tx_policy_amount: null,
@@ -2589,7 +2589,7 @@ export const perDiemExpenseMultipleNumDays: Expense = {
   tx_orig_amount: null,
   tx_orig_currency: null,
   tx_payment_id: null,
-  tx_per_diem_rate_id: 508,
+  tx_per_diem_rate_id: '508',
   tx_physical_bill: false,
   tx_physical_bill_at: null,
   tx_policy_amount: null,
@@ -3463,7 +3463,7 @@ export const expenseList4: Expense[] = [
     tx_orig_amount: 12,
     tx_orig_currency: 'CLF',
     tx_payment_id: 'payzvia2Qsz9f',
-    tx_per_diem_rate_id: 5777,
+    tx_per_diem_rate_id: '5777',
     tx_physical_bill: false,
     tx_physical_bill_at: null,
     tx_policy_amount: null,
@@ -3668,7 +3668,7 @@ export const expenseList4: Expense[] = [
     tx_orig_amount: 178,
     tx_orig_currency: 'EUR',
     tx_payment_id: 'paysEvW8VURGQ',
-    tx_per_diem_rate_id: 510,
+    tx_per_diem_rate_id: '510',
     tx_physical_bill: false,
     tx_physical_bill_at: null,
     tx_policy_amount: null,
@@ -5598,3 +5598,8 @@ export const expectedFormattedTransaction: Partial<Expense>[] = [
     tx_locations: [],
   },
 ];
+
+export const policyExpense2: Expense = {
+  ...apiExpenseRes[0],
+  tx_policy_amount: 0,
+};

@@ -1,4 +1,7 @@
+import { ExpenseSource } from '../models/expense-source.enum';
+import { ExpenseState } from '../models/expense-state.enum';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
+import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 
 export const unflattenExp1: { tx: PublicPolicyExpense } = {
   tx: {
@@ -224,7 +227,7 @@ export const unflattenExp2: { tx: PublicPolicyExpense } = {
   },
 };
 
-export const unflattenedTxn = {
+export const unflattenedTxn: UnflattenedTransaction = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -331,6 +334,23 @@ export const unflattenedTxn = {
     proposed_exchange_rate: 0,
     status_id: '',
     updated_at: undefined,
+  },
+  ou: undefined,
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
   },
 };
 
@@ -510,8 +530,55 @@ export const draftUnflattendedTxn = {
   tx: {
     ...unflattenedExpData.tx,
     id: null,
+    source: 'MOBILE',
     state: 'DRAFT',
     org_category_id: null,
-    fyle_category: 'unspecified',
+    fyle_category: 'UNSPECIFIED',
+  },
+};
+
+export const draftUnflattendedTxn2: UnflattenedTransaction = {
+  ...unflattenedExpData,
+  tx: {
+    ...unflattenedExpData.tx,
+    id: null,
+    source: 'MOBILE',
+    state: 'DRAFT',
+    org_category_id: null,
+    fyle_category: null,
+  },
+};
+
+export const draftUnflattendedTxn3 = {
+  ...unflattenedExpData,
+  tx: {
+    ...unflattenedExpData.tx,
+    id: 'txCYDX0peUw5',
+    source: 'MOBILE',
+    state: 'DRAFT',
+    org_category_id: null,
+    fyle_category: 'UNSPECIFIED',
+  },
+};
+
+export const unflattenedTxnDataPerDiem = {
+  tx: {
+    // TODO: Enum for state and source
+    skip_reimbursement: false,
+    source: ExpenseSource.MOBILE,
+    org_category_id: 38912,
+    org_category: 'Per Diem',
+    sub_category: 'Per Diem',
+    amount: 0,
+    currency: 'USD',
+    state: ExpenseState.COMPLETE,
+    txn_dt: new Date(),
+    from_dt: null,
+    to_dt: null,
+    per_diem_rate_id: null,
+    num_days: null,
+    policy_amount: null,
+    custom_properties: [],
+    org_user_id: 'ouX8dwsbLCLv',
   },
 };

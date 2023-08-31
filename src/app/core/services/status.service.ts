@@ -14,16 +14,22 @@ export class StatusService {
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
-      map((estatuses: ExtendedStatus[]) =>
-        estatuses?.map((estatus) => {
-          estatus.st_created_at = new Date(estatus.st_created_at);
-          return estatus as ExtendedStatus;
-        })
-      )
+      map(
+        (estatuses: ExtendedStatus[]) =>
+          estatuses?.map((estatus) => {
+            estatus.st_created_at = new Date(estatus.st_created_at);
+            return estatus;
+          }),
+      ),
     );
   }
 
-  post(objectType: string, objectId: string, status: { comment: string | ExtendedStatus }, notify: boolean = false) {
+  post(
+    objectType: string,
+    objectId: string,
+    status: { comment: string | ExtendedStatus },
+    notify: boolean = false,
+  ): Observable<TransactionStatus> {
     return this.apiService.post<TransactionStatus>('/' + objectType + '/' + objectId + '/statuses', {
       status,
       notify,
@@ -114,6 +120,12 @@ export class StatusService {
         statusCategory = {
           category: 'Expense removed',
           icon: 'fy-delete',
+        };
+        break;
+      case lowerCaseComment.indexOf('name was changed from') > -1:
+        statusCategory = {
+          category: 'Report Name Changed',
+          icon: 'edit',
         };
         break;
       case lowerCaseComment.indexOf('report') > -1:
@@ -248,7 +260,7 @@ export class StatusService {
         if (sortedStatus.length) {
           return sortedStatus[0].st_comment;
         }
-      })
+      }),
     );
   }
 

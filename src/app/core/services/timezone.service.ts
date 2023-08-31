@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
-import { CurrencyService } from './currency.service';
-import { UtilityService } from './utility.service';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { UtilityService } from './utility.service';
 
 @Injectable({
   providedIn: 'root',
@@ -2935,10 +2933,10 @@ export class TimezoneService {
   constructor(private utilityService: UtilityService) {}
 
   //TODO: Add proper types after utility service has been fixed
-  convertAllDatesToProperLocale(object: TxnCustomProperties[], offset: string): TxnCustomProperties[] {
+  convertAllDatesToProperLocale(object: TxnCustomProperties[], offset: string): TxnCustomProperties[] | Date {
     const that = this;
     const copiedObject: TxnCustomProperties[] = cloneDeep(object);
-    return that.utilityService.traverse(copiedObject, function (prop: Date) {
+    return <Date>that.utilityService.traverse(copiedObject, function (prop: Date) {
       if (prop instanceof Date) {
         prop.setHours(12);
         prop.setMinutes(0);

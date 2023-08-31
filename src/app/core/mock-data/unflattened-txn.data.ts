@@ -1,4 +1,6 @@
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
+import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
+import { personalCardTxn } from './transaction.data';
 
 export const unflattenedTxnData: UnflattenedTransaction = {
   tx: {
@@ -110,7 +112,7 @@ export const unflattenedTxnData: UnflattenedTransaction = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -260,7 +262,7 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -431,7 +433,7 @@ export const expectedUnflattendedTxnData1: UnflattenedTransaction = {
     id: 'ouX8dwsbLCLv',
     org_id: 'orNVthTo2Zyo',
     user_id: 'usvKA4X8Ugcr',
-    employee_id: '',
+    employee_id: 0,
     location: 'Mumbai',
     level: 123,
     band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
@@ -562,7 +564,7 @@ export const expectedUnflattendedTxnData2 = {
     per_diem_rate_id: null,
     activity_policy_pending: null,
     activity_details: null,
-    locations: ['loc1', 'loc2'],
+    locations: [optionsData15.options[0].value, optionsData33.options[0].value],
     custom_properties: [
       { id: 111, name: 'Test Number', value: 121, type: 'NUMBER' },
       { id: 150, name: 'checking', value: false, type: 'BOOLEAN' },
@@ -601,7 +603,7 @@ export const unflattenedTxnData2: UnflattenedTransaction = {
   },
 };
 
-export const expectedUnflattendedTxnData3 = {
+export const expectedUnflattendedTxnData3: UnflattenedTransaction = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -692,7 +694,7 @@ export const expectedUnflattendedTxnData3 = {
     org_category_id: undefined,
     activity_policy_pending: null,
     activity_details: null,
-    locations: ['loc1'],
+    locations: [optionsData15.options[0].value],
     custom_properties: [
       {
         id: 111,
@@ -742,9 +744,25 @@ export const expectedUnflattendedTxnData3 = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
 };
 
-export const expectedUnflattendedTxnData4 = {
+export const expectedUnflattendedTxnData4: UnflattenedTransaction = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -879,6 +897,22 @@ export const expectedUnflattendedTxnData4 = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
 };
 
 export const expectedUnflattendedTxnData5 = {
@@ -1028,7 +1062,7 @@ export const unflattenedTxnDataWithoutCategoryData: UnflattenedTransaction = {
   },
 };
 
-export const expWithCriticalViolation = {
+export const expWithCriticalViolation: { etxn: UnflattenedTransaction; comment: string } = {
   etxn: {
     tx: {
       risk_state: null,
@@ -1242,7 +1276,7 @@ export const unflattenedPaidExp2: UnflattenedTransaction = {
   },
 };
 
-export const expectedExpenseObservable = {
+export const expectedExpenseObservable: Partial<UnflattenedTransaction> = {
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1297,7 +1331,7 @@ export const expectedExpenseObservable2 = {
   dataUrls: [],
 };
 
-export const expectedExpenseObservable3 = {
+export const expectedExpenseObservable3: Partial<UnflattenedTransaction> = {
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1333,7 +1367,7 @@ export const expectedExpenseObservable3 = {
   ],
 };
 
-export const expectedExpenseObservable4 = {
+export const expectedExpenseObservable4: Partial<UnflattenedTransaction> = {
   tx: {
     source: 'MOBILE',
     currency: 'INR',
@@ -1367,7 +1401,7 @@ export const expectedExpenseObservable4 = {
   ],
 };
 
-export const expectedExpenseObservable5 = {
+export const expectedExpenseObservable5: Partial<UnflattenedTransaction> = {
   tx: {
     source: 'MOBILE',
     currency: 'USD',
@@ -1417,9 +1451,12 @@ export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
   },
 };
 
-export const unflattenedTransactionDataPersonalCard = {
-  ...expectedUnflattendedTxnData3.tx,
-  locations: null,
+export const unflattenedTransactionDataPersonalCard: UnflattenedTransaction = {
+  ...expectedUnflattendedTxnData3,
+  tx: {
+    ...personalCardTxn,
+    locations: null,
+  },
 };
 
 export const newUnflattenedTxn = {
@@ -1681,6 +1718,17 @@ export const unflattenedExpenseWithCCCGroupId = {
   },
 };
 
+export const unflattenedExpenseWithCCCGroupId2 = {
+  ...unflattenedTxnDataWithViolationUserReview,
+  tx: {
+    ...expectedUnflattendedTxnData2.tx,
+    corporate_credit_card_expense_group_id: 'ccceWauzF1A3oS',
+    split_group_id: 'tx3nHShG60zq',
+    report_id: null,
+    policy_amount: -100,
+  },
+};
+
 export const txnWithCCCGroupID = {
   ...unflattenedTxnData.tx,
   corporate_credit_card_expense_group_id: 'ccceWauzF1A3oS',
@@ -1692,5 +1740,1120 @@ export const unflattenedExpWoProject = {
   tx: {
     ...unflattenedTxnData.tx,
     project_id: null,
+  },
+};
+
+export const unflattenedExpWithReport = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    report_id: 'rprAfNrce73O',
+  },
+};
+
+export const unflattenedExpWithCostCenter = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    cost_center_id: 2411,
+  },
+};
+
+export const unflattenedExpWoCostCenter = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    cost_center_id: null,
+  },
+};
+
+export const unflattenedExp2 = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    user_amount: 100,
+    policy_amount: 0,
+    currency: 'USD',
+    state: 'DRAFT',
+    id: null,
+    project_id: null,
+    cost_center_id: null,
+  },
+  dataUrls: [
+    {
+      url: 'data-url',
+      type: 'image',
+      thumbnail: 'data-url',
+    },
+  ],
+};
+
+export const unflattenedExpWithCCCExpn: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    corporate_credit_card_expense_group_id: 'cccet1B17R8gWZ',
+    txn_dt: new Date('2021-07-29T06:30:00.000Z'),
+    user_amount: 100,
+    policy_amount: 0,
+    currency: 'USD',
+    state: 'DRAFT',
+    id: null,
+    project_id: null,
+    cost_center_id: null,
+  },
+  dataUrls: [
+    {
+      url: 'data-url',
+      type: 'image',
+      thumbnail: 'data-url',
+    },
+  ],
+};
+
+export const trackCreateExpData: UnflattenedTransaction = {
+  ...unflattenedExp2,
+  tx: {
+    ...unflattenedExp2.tx,
+    org_category_id: 1234,
+    project_id: 4567,
+    cost_center_id: 8901,
+    currency: 'USD',
+    orig_currency: 'USD',
+  },
+};
+
+export const trackCreateExpDataWoCurrency: UnflattenedTransaction = {
+  ...unflattenedExp2,
+  tx: {
+    ...unflattenedExp2.tx,
+    org_category_id: 1234,
+    project_id: 4567,
+    cost_center_id: 8901,
+    currency: null,
+    orig_currency: 'USD',
+  },
+};
+
+export const trackAddExpenseWoCurrency: Partial<UnflattenedTransaction> = {
+  ...expectedUnflattendedTxnData4,
+  tx: {
+    ...expectedUnflattendedTxnData4.tx,
+    currency: null,
+    org_category: 'TAXI',
+    amount: 120,
+    project_id: 1234,
+    org_category_id: 1234,
+    orig_currency: 'USD',
+    cost_center_id: 1234,
+  },
+  ou: {
+    ...expectedUnflattendedTxnData4.ou,
+    level: 0,
+  },
+  us: undefined,
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  rp: undefined,
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
+  dataUrls: null,
+};
+
+export const newExpFromFg = {
+  tx: {
+    risk_state: null,
+    is_duplicate_expense: null,
+    duplicates: null,
+    id: 'txbO4Xaj4N53',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-05-30T02:18:27.646Z'),
+    receipt_required: false,
+    user_can_delete: true,
+    txn_dt: new Date('2019-06-19T06:30:00.000Z'),
+    category: null,
+    amount: 500,
+    user_amount: 780,
+    policy_amount: null,
+    admin_amount: null,
+    tax: 64.4,
+    tax_amount: 120,
+    tax_group_id: 'tgXEJA6YUoZ1',
+    currency: 'USD',
+    report_id: null,
+    reported_at: null,
+    state: 'COMPLETE',
+    num_files: 0,
+    invoice_number: null,
+    purpose: 'purpose',
+    source: 'MOBILE',
+    billable: true,
+    orig_amount: 100,
+    orig_currency: 'USD',
+    project_id: 1234,
+    project_name: null,
+    project_code: null,
+    skip_reimbursement: false,
+    creator_id: 'ouX8dwsbLCLv',
+    user_reason_for_duplicate_expenses: 'reason',
+    external_id: null,
+    cost_center_name: 'SMS1',
+    cost_center_code: null,
+    cost_center_id: 2411,
+    source_account_id: 'id',
+    transcription_state: null,
+    verification_state: null,
+    physical_bill: null,
+    physical_bill_at: null,
+    policy_state: null,
+    manual_flag: null,
+    policy_flag: true,
+    vendor: 'asd',
+    vendor_id: 22658,
+    platform_vendor: null,
+    platform_vendor_id: null,
+    org_category: 'ani test',
+    sub_category: 'ani test',
+    fyle_category: 'Groceries',
+    org_category_code: null,
+    org_category_id: 215481,
+    expense_number: 'E/2023/05/T/326',
+    corporate_credit_card_expense_group_id: null,
+    split_group_id: 'txbO4Xaj4N53',
+    split_group_user_amount: 780,
+    extracted_data: {
+      category: 'SYSTEM',
+      currency: 'USD',
+      amount: 100,
+      date: new Date('2023-02-15T06:30:00.000Z'),
+      invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+      vendor_name: 'vendor',
+    },
+    transcribed_data: null,
+    user_review_needed: null,
+    mandatory_fields_present: true,
+    distance: 100,
+    distance_unit: 'KM',
+    from_dt: new Date('2023-03-13T05:31:00.000Z'),
+    to_dt: new Date('2023-01-26T17:00:00.000Z'),
+    num_days: null,
+    mileage_calculated_distance: null,
+    mileage_calculated_amount: null,
+    mileage_vehicle_type: null,
+    mileage_rate: null,
+    mileage_is_round_trip: null,
+    hotel_is_breakfast_provided: true,
+    flight_journey_travel_class: 'FIRST',
+    flight_return_travel_class: 'ECONOMY',
+    train_travel_class: null,
+    bus_travel_class: null,
+    taxi_travel_class: null,
+    per_diem_rate_id: null,
+    activity_policy_pending: null,
+    activity_details: null,
+    locations: [
+      {
+        actual: 'null',
+        city: 'Kalyan',
+        country: 'India',
+        display: 'Kalyan Station Road, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra, India',
+        formatted_address: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
+        latitude: 19.238037,
+        longitude: 73.1296469,
+        state: 'Maharashtra',
+      },
+      {
+        actual: 'null',
+        city: 'Bhiwandi',
+        country: 'India',
+        display: 'Bhiwandi Railway Station Road, Brahmanand Nagar, Kamatghar, Bhiwandi, Maharashtra, India',
+        formatted_address:
+          'Bhiwandi Railway Station Rd, Brahmanand Nagar, Kamatghar, Bhiwandi, Maharashtra 421302, India',
+        latitude: 19.2687341,
+        longitude: 73.0484305,
+        state: 'Maharashtra',
+      },
+    ],
+    custom_properties: [
+      {
+        id: 111,
+        name: 'Test Number',
+        value: 121,
+        type: 'NUMBER',
+      },
+      {
+        id: 150,
+        name: 'checking',
+        value: false,
+        type: 'BOOLEAN',
+      },
+    ],
+    is_implicit_merge_blocked: false,
+    categoryDisplayName: 'ani test',
+  },
+  ou: {
+    org_name: 'Staging Loaded',
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    employee_id: '',
+    location: 'Mumbai',
+    level: '123',
+    band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
+    rank: 1121212121,
+    business_unit:
+      'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+    department_id: 'dept7HJ9C4wvtX',
+    department: '0000000',
+    title: 'director',
+    mobile: '+919764989821',
+    sub_department: 'arun',
+    joining_dt: new Date('2017-07-25T00:00:00.000Z'),
+  },
+  dataUrls: [],
+};
+
+export const newExpFromFg2 = {
+  tx: {
+    risk_state: null,
+    is_duplicate_expense: null,
+    duplicates: null,
+    id: 'tx3qHxFNgRcZ',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-01-24T04:24:24.186Z'),
+    receipt_required: false,
+    user_can_delete: true,
+    txn_dt: new Date('2019-06-19T06:30:00.000Z'),
+    category: null,
+    amount: 100,
+    user_amount: 100,
+    policy_amount: null,
+    admin_amount: null,
+    tax: 52.47,
+    tax_amount: 120,
+    tax_group_id: 'tgXEJA6YUoZ1',
+    currency: 'USD',
+    report_id: null,
+    reported_at: null,
+    state: 'COMPLETE',
+    num_files: 1,
+    invoice_number: null,
+    purpose: 'purpose',
+    source: 'MOBILE',
+    billable: true,
+    orig_amount: 100,
+    orig_currency: 'USD',
+    project_id: 1234,
+    project_name: 'Project 1 / asdfg',
+    project_code: null,
+    skip_reimbursement: false,
+    creator_id: 'ouX8dwsbLCLv',
+    user_reason_for_duplicate_expenses: 'reason',
+    external_id: null,
+    cost_center_name: 'SMS1',
+    cost_center_code: null,
+    cost_center_id: 2411,
+    source_account_id: 'id',
+    transcription_state: null,
+    verification_state: null,
+    physical_bill: null,
+    physical_bill_at: null,
+    policy_state: null,
+    manual_flag: null,
+    policy_flag: null,
+    vendor: 'asd',
+    vendor_id: 28860,
+    platform_vendor: null,
+    platform_vendor_id: null,
+    org_category: 'TRAVEL',
+    sub_category: 'TAXI',
+    fyle_category: 'Groceries',
+    org_category_code: '117',
+    org_category_id: 215481,
+    expense_number: 'E/2023/01/T/99',
+    corporate_credit_card_expense_group_id: null,
+    split_group_id: 'tx3qHxFNgRcZ',
+    split_group_user_amount: 344,
+    extracted_data: {
+      amount: null,
+      currency: 'INR',
+      category: 'Software',
+      date: null,
+      vendor: null,
+      invoice_dt: null,
+    },
+    transcribed_data: null,
+    user_review_needed: true,
+    mandatory_fields_present: true,
+    distance: 100,
+    distance_unit: 'KM',
+    from_dt: new Date('2023-03-13T05:31:00.000Z'),
+    to_dt: new Date('2023-01-26T17:00:00.000Z'),
+    num_days: null,
+    mileage_calculated_distance: null,
+    mileage_calculated_amount: null,
+    mileage_vehicle_type: null,
+    mileage_rate: null,
+    mileage_is_round_trip: null,
+    hotel_is_breakfast_provided: true,
+    flight_journey_travel_class: 'FIRST',
+    flight_return_travel_class: 'ECONOMY',
+    train_travel_class: null,
+    bus_travel_class: null,
+    taxi_travel_class: null,
+    per_diem_rate_id: null,
+    activity_policy_pending: null,
+    activity_details: null,
+    locations: [
+      {
+        actual: 'null',
+        city: 'Kalyan',
+        country: 'India',
+        display: 'Kalyan Station Road, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra, India',
+        formatted_address: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
+        latitude: 19.238037,
+        longitude: 73.1296469,
+        state: 'Maharashtra',
+      },
+    ],
+    custom_properties: [
+      {
+        id: 111,
+        name: 'Test Number',
+        value: 121,
+        type: 'NUMBER',
+      },
+      {
+        id: 115,
+        name: 'test date',
+        value: new Date('2017-07-25T00:00:00.000Z'),
+        type: 'DATE',
+      },
+      {
+        id: 150,
+        name: 'checking',
+        value: false,
+        type: 'BOOLEAN',
+      },
+      {
+        id: 151,
+        name: 'Select field',
+        value: 'select-1',
+        type: 'SELECT',
+      },
+    ],
+    is_implicit_merge_blocked: false,
+    categoryDisplayName: 'Software',
+  },
+  ou: {
+    org_name: 'Staging Loaded',
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    employee_id: 0,
+    location: 'Mumbai',
+    level: 123,
+    band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
+    rank: 1121212121,
+    business_unit:
+      'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+    department_id: 'deptpmQ0SsMO0S',
+    department: '0000000',
+    title: 'director',
+    mobile: '123456',
+    sub_department: null,
+    joining_dt: new Date('2017-07-25T00:00:00.000Z'),
+  },
+  dataUrls: [],
+};
+
+export const newExpFromFg3 = {
+  tx: {
+    risk_state: null,
+    is_duplicate_expense: null,
+    duplicates: null,
+    id: null,
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-05-30T02:18:27.646Z'),
+    receipt_required: false,
+    user_can_delete: true,
+    txn_dt: new Date('2019-06-19T06:30:00.000Z'),
+    category: null,
+    amount: 100,
+    user_amount: 780,
+    policy_amount: null,
+    admin_amount: null,
+    tax: 64.4,
+    tax_amount: 120,
+    tax_group_id: 'tgXEJA6YUoZ1',
+    currency: 'USD',
+    report_id: null,
+    reported_at: null,
+    state: 'DRAFT',
+    num_files: 0,
+    invoice_number: null,
+    purpose: 'purpose',
+    source: 'MOBILE',
+    billable: true,
+    orig_amount: 100,
+    orig_currency: 'USD',
+    project_id: 1234,
+    project_name: null,
+    project_code: null,
+    skip_reimbursement: false,
+    creator_id: 'ouX8dwsbLCLv',
+    user_reason_for_duplicate_expenses: 'reason',
+    external_id: null,
+    cost_center_name: 'SMS1',
+    cost_center_code: null,
+    cost_center_id: 2411,
+    source_account_id: 'id',
+    transcription_state: null,
+    verification_state: null,
+    physical_bill: null,
+    physical_bill_at: null,
+    policy_state: null,
+    manual_flag: null,
+    policy_flag: true,
+    vendor: 'asd',
+    vendor_id: 22658,
+    platform_vendor: null,
+    platform_vendor_id: null,
+    org_category: 'ani test',
+    sub_category: 'ani test',
+    fyle_category: 'Groceries',
+    org_category_code: null,
+    org_category_id: 215481,
+    expense_number: 'E/2023/05/T/326',
+    corporate_credit_card_expense_group_id: null,
+    split_group_id: 'txbO4Xaj4N53',
+    split_group_user_amount: 780,
+    extracted_data: {
+      amount: null,
+      currency: 'INR',
+      category: 'Food',
+      date: null,
+      vendor: null,
+      invoice_dt: null,
+    },
+    transcribed_data: null,
+    user_review_needed: null,
+    mandatory_fields_present: true,
+    distance: 100,
+    distance_unit: 'KM',
+    from_dt: new Date('2023-03-13T05:31:00.000Z'),
+    to_dt: new Date('2023-01-26T17:00:00.000Z'),
+    num_days: null,
+    mileage_calculated_distance: null,
+    mileage_calculated_amount: null,
+    mileage_vehicle_type: null,
+    mileage_rate: null,
+    mileage_is_round_trip: null,
+    hotel_is_breakfast_provided: true,
+    flight_journey_travel_class: 'FIRST',
+    flight_return_travel_class: 'ECONOMY',
+    train_travel_class: null,
+    bus_travel_class: null,
+    taxi_travel_class: null,
+    per_diem_rate_id: null,
+    activity_policy_pending: null,
+    activity_details: null,
+    locations: [],
+    custom_properties: [
+      {
+        id: 111,
+        name: 'Test Number',
+        value: 121,
+        type: 'NUMBER',
+      },
+      {
+        id: 115,
+        name: 'test date',
+        type: 'DATE',
+        value: undefined,
+      },
+      {
+        id: 150,
+        name: 'checking',
+        value: false,
+        type: 'BOOLEAN',
+      },
+    ],
+    is_implicit_merge_blocked: false,
+    categoryDisplayName: 'ani test',
+  },
+  ou: {
+    org_name: 'Staging Loaded',
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    employee_id: '',
+    location: 'Mumbai',
+    level: '123',
+    band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
+    rank: 1121212121,
+    business_unit:
+      'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+    department_id: 'dept7HJ9C4wvtX',
+    department: '0000000',
+    title: 'director',
+    mobile: '+919764989821',
+    sub_department: 'arun',
+    joining_dt: new Date('2017-07-25T00:00:00.000Z'),
+  },
+  dataUrls: [],
+};
+
+export const newExpFromFg4 = {
+  tx: {
+    risk_state: null,
+    is_duplicate_expense: null,
+    duplicates: null,
+    id: null,
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-05-30T02:18:27.646Z'),
+    receipt_required: false,
+    user_can_delete: true,
+    txn_dt: new Date('2019-06-19T06:30:00.000Z'),
+    category: null,
+    amount: 100,
+    user_amount: 780,
+    policy_amount: null,
+    admin_amount: null,
+    tax: 64.4,
+    tax_amount: 120,
+    tax_group_id: 'tgXEJA6YUoZ1',
+    currency: 'USD',
+    report_id: null,
+    reported_at: null,
+    state: 'DRAFT',
+    num_files: 0,
+    invoice_number: null,
+    purpose: 'purpose',
+    source: 'MOBILE',
+    billable: true,
+    orig_amount: 100,
+    orig_currency: 'USD',
+    project_id: 1234,
+    project_name: null,
+    project_code: null,
+    skip_reimbursement: false,
+    creator_id: 'ouX8dwsbLCLv',
+    user_reason_for_duplicate_expenses: 'reason',
+    external_id: null,
+    cost_center_name: null,
+    cost_center_code: null,
+    cost_center_id: null,
+    source_account_id: 'id',
+    transcription_state: null,
+    verification_state: null,
+    physical_bill: null,
+    physical_bill_at: null,
+    policy_state: null,
+    manual_flag: null,
+    policy_flag: true,
+    vendor: 'asd',
+    vendor_id: 22658,
+    platform_vendor: null,
+    platform_vendor_id: null,
+    org_category: 'ani test',
+    sub_category: 'ani test',
+    fyle_category: 'Groceries',
+    org_category_code: null,
+    org_category_id: 215481,
+    expense_number: 'E/2023/05/T/326',
+    corporate_credit_card_expense_group_id: null,
+    split_group_id: 'txbO4Xaj4N53',
+    split_group_user_amount: 780,
+    extracted_data: {
+      amount: null,
+      currency: 'INR',
+      category: 'Food',
+      date: null,
+      vendor: null,
+      invoice_dt: null,
+    },
+    transcribed_data: null,
+    user_review_needed: null,
+    mandatory_fields_present: true,
+    distance: 100,
+    distance_unit: 'KM',
+    from_dt: new Date('2023-03-13T05:31:00.000Z'),
+    to_dt: new Date('2023-01-26T17:00:00.000Z'),
+    num_days: null,
+    mileage_calculated_distance: null,
+    mileage_calculated_amount: null,
+    mileage_vehicle_type: null,
+    mileage_rate: null,
+    mileage_is_round_trip: null,
+    hotel_is_breakfast_provided: true,
+    flight_journey_travel_class: 'FIRST',
+    flight_return_travel_class: 'ECONOMY',
+    train_travel_class: null,
+    bus_travel_class: null,
+    taxi_travel_class: null,
+    per_diem_rate_id: null,
+    activity_policy_pending: null,
+    activity_details: null,
+    locations: [],
+    custom_properties: [
+      {
+        id: 111,
+        name: 'Test Number',
+        value: 121,
+        type: 'NUMBER',
+      },
+      {
+        id: 115,
+        name: 'test date',
+        type: 'DATE',
+        value: undefined,
+      },
+      {
+        id: 150,
+        name: 'checking',
+        value: false,
+        type: 'BOOLEAN',
+      },
+    ],
+    is_implicit_merge_blocked: false,
+    categoryDisplayName: 'ani test',
+  },
+  ou: {
+    org_name: 'Staging Loaded',
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    employee_id: '',
+    location: 'Mumbai',
+    level: '123',
+    band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
+    rank: 1121212121,
+    business_unit:
+      'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+    department_id: 'dept7HJ9C4wvtX',
+    department: '0000000',
+    title: 'director',
+    mobile: '+919764989821',
+    sub_department: 'arun',
+    joining_dt: new Date('2017-07-25T00:00:00.000Z'),
+  },
+  dataUrls: [],
+};
+
+export const expWithSplitGroupID = {
+  ...unflattenedTxnData,
+  tx: null,
+};
+
+export const unflattenedTxnWithExtractedData2: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    source: null,
+    state: 'DRAFT',
+    amount: undefined,
+    currency: undefined,
+    vendor: undefined,
+    fyle_category: null,
+    extracted_data: {
+      amount: 100,
+      currency: 'USD',
+      date: new Date('2022-11-30T06:30:00.000Z'),
+      category: 'TRAVEL',
+      vendor: 'vendor',
+      invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
+    },
+  },
+};
+
+export const unflattenedDraftExp3: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    state: 'COMPLETE',
+    extracted_data: null,
+    fyle_category: null,
+    org_category_id: null,
+  },
+};
+
+export const checkSplitExpData1: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    id: 'tx3qHxFNgRcZ',
+    state: 'COMPLETE',
+    extracted_data: null,
+    fyle_category: null,
+    org_category_id: null,
+    split_group_id: 'tx3qHxFNgRcZ',
+  },
+};
+
+export const checkSplitExpData2: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    id: 'tx3qHxFNgRcZ',
+    state: 'COMPLETE',
+    split_group_id: null,
+  },
+};
+
+export const checkDebitCCCExpenseData1: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    id: 'tx3qHxFNgRcZ',
+    state: 'COMPLETE',
+    amount: 100,
+    corporate_credit_card_expense_group_id: 'tx3qHxFNgRcZ',
+  },
+};
+
+export const checkDebitCCCExpenseData2: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    id: 'tx3qHxFNgRcZ',
+    state: 'COMPLETE',
+    amount: -1,
+    corporate_credit_card_expense_group_id: 'tx3qHxFNgRcZ',
+  },
+};
+
+export const setupFormExpenseWoCurrency: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData,
+    amount: null,
+    currency: 'USD',
+    user_amount: 100,
+    source: null,
+    policy_amount: -10,
+    locations: [],
+    from_dt: new Date('2021-03-26T09:29:14.586Z'),
+    to_dt: new Date('2022-01-07T11:53:53.588Z'),
+    custom_properties: [
+      {
+        name: 'userlist',
+        value: null,
+      },
+      {
+        name: 'select all 2',
+        value: null,
+      },
+    ],
+  },
+};
+
+export const setupFormExpenseWoCurrency2: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    amount: null,
+    currency: 'USD',
+    user_amount: null,
+    policy_amount: -10,
+    locations: [],
+    from_dt: new Date('2021-03-26T09:29:14.586Z'),
+    to_dt: new Date('2022-01-07T11:53:53.588Z'),
+    custom_properties: [
+      {
+        name: 'userlist',
+        value: null,
+      },
+      {
+        name: 'select all 2',
+        value: null,
+      },
+    ],
+  },
+};
+
+export const setupFormExpenseWoCurrency3: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    id: 'id1',
+    amount: null,
+    state: 'DRAFT',
+    currency: 'INR',
+    user_amount: null,
+    policy_amount: -10,
+    locations: [],
+    project_id: null,
+  },
+};
+
+export const expectedPersonalTxn: UnflattenedTransaction = {
+  tx: {
+    risk_state: null,
+    is_duplicate_expense: null,
+    duplicates: null,
+    id: 'tx3qHxFNgRcZ',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-01-24T04:24:24.186Z'),
+    receipt_required: false,
+    user_can_delete: true,
+    txn_dt: null,
+    category: null,
+    amount: 100,
+    user_amount: 100,
+    policy_amount: null,
+    admin_amount: null,
+    tax: 52.47,
+    tax_amount: null,
+    currency: 'USD',
+    report_id: null,
+    reported_at: null,
+    state: 'COMPLETE',
+    num_files: 1,
+    invoice_number: null,
+    purpose: null,
+    source: 'MOBILE',
+    billable: null,
+    project_name: 'Project 1 / asdfg',
+    project_code: null,
+    skip_reimbursement: false,
+    creator_id: 'ouX8dwsbLCLv',
+    user_reason_for_duplicate_expenses: null,
+    external_id: null,
+    cost_center_name: 'SMS1',
+    cost_center_code: null,
+    cost_center_id: 2411,
+    transcription_state: null,
+    verification_state: null,
+    physical_bill: null,
+    physical_bill_at: null,
+    policy_state: null,
+    manual_flag: null,
+    policy_flag: null,
+    vendor_id: 28860,
+    platform_vendor: null,
+    platform_vendor_id: null,
+    org_category: 'TRAVEL',
+    sub_category: 'TAXI',
+    org_category_code: '117',
+    expense_number: 'E/2023/01/T/99',
+    corporate_credit_card_expense_group_id: null,
+    split_group_id: 'tx3qHxFNgRcZ',
+    split_group_user_amount: 344,
+    extracted_data: {
+      amount: null,
+      currency: 'INR',
+      category: 'Software',
+      date: null,
+      vendor: null,
+      invoice_dt: null,
+    },
+    transcribed_data: null,
+    user_review_needed: true,
+    mandatory_fields_present: true,
+    distance: null,
+    distance_unit: null,
+    from_dt: null,
+    to_dt: null,
+    num_days: null,
+    mileage_calculated_distance: null,
+    mileage_calculated_amount: null,
+    mileage_vehicle_type: null,
+    mileage_rate: null,
+    mileage_is_round_trip: null,
+    hotel_is_breakfast_provided: null,
+    flight_journey_travel_class: null,
+    flight_return_travel_class: null,
+    train_travel_class: null,
+    bus_travel_class: null,
+    taxi_travel_class: null,
+    per_diem_rate_id: null,
+    activity_policy_pending: null,
+    activity_details: null,
+    locations: null,
+    custom_properties: [
+      {
+        id: 111,
+        name: 'Test Number',
+        value: 121,
+        type: 'NUMBER',
+      },
+      {
+        id: 115,
+        name: 'test date',
+        value: '2017-07-25T00:00:00.000Z',
+        type: 'DATE',
+      },
+      {
+        id: 150,
+        name: 'checking',
+        value: false,
+        type: 'BOOLEAN',
+      },
+      {
+        id: 151,
+        name: 'Select field',
+        value: 'select-1',
+        type: 'SELECT',
+      },
+    ],
+    is_implicit_merge_blocked: false,
+    categoryDisplayName: 'Software',
+  },
+  ou: {
+    org_name: 'Staging Loaded',
+    id: 'ouX8dwsbLCLv',
+    org_id: 'orNVthTo2Zyo',
+    user_id: 'usvKA4X8Ugcr',
+    employee_id: '',
+    location: 'Mumbai',
+    level: 123,
+    band: 'Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name Very Long Level name',
+    rank: 1121212121,
+    business_unit:
+      'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+    department_id: 'deptpmQ0SsMO0S',
+    department: '0000000',
+    title: 'director',
+    mobile: '123456',
+    sub_department: null,
+    joining_dt: new Date('2017-07-25T00:00:00.000Z'),
+  },
+  dataUrls: [],
+  source: {
+    account_type: '',
+    account_id: '',
+  },
+  tg: {
+    name: '',
+    percentage: 0,
+  },
+  external: {
+    expense_id: '',
+  },
+  is: {
+    test_call: false,
+  },
+  us: undefined,
+  rp: undefined,
+};
+
+export const newExpenseMileageData1: Partial<UnflattenedTransaction> = {
+  tx: {
+    skip_reimbursement: false,
+    source: 'MOBILE',
+    state: 'COMPLETE',
+    txn_dt: new Date('2023-08-21T07:43:15.592Z'),
+    org_category_id: 141295,
+    org_category: 'mileage',
+    sub_category: 'Business',
+    currency: 'USD',
+    amount: 0,
+    distance: null,
+    mileage_calculated_amount: null,
+    mileage_calculated_distance: null,
+    policy_amount: null,
+    mileage_vehicle_type: 'bicycle',
+    mileage_rate: 10,
+    distance_unit: 'MILES',
+    mileage_is_round_trip: false,
+    fyle_category: 'Mileage',
+    org_user_id: 'ouX8dwsbLCLv',
+    locations: [],
+    custom_properties: [],
+  },
+};
+
+export const newExpenseMileageData2: Partial<UnflattenedTransaction> = {
+  tx: {
+    skip_reimbursement: false,
+    source: 'MOBILE',
+    state: 'COMPLETE',
+    txn_dt: new Date('2023-08-21T07:43:15.592Z'),
+    org_category_id: 141295,
+    org_category: 'mileage',
+    sub_category: 'Business',
+    currency: 'USD',
+    amount: 0,
+    distance: null,
+    mileage_calculated_amount: null,
+    mileage_calculated_distance: null,
+    policy_amount: null,
+    mileage_vehicle_type: 'bicycle',
+    mileage_rate: 10,
+    distance_unit: 'MILES',
+    mileage_is_round_trip: false,
+    fyle_category: 'Mileage',
+    org_user_id: 'ouX8dwsbLCLv',
+    locations: [
+      {
+        city: 'Kolkata',
+        state: 'West Bengal',
+        country: 'India',
+        formatted_address: 'Tollygunge, Kolkata, West Bengal, India',
+        latitude: 22.4986357,
+        longitude: 88.3453906,
+        display: 'Tollygunge, Kolkata, West Bengal, India',
+      },
+    ],
+    custom_properties: [],
+  },
+};
+export const mileageCategoryUnflattenedExpense: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' },
+};
+
+export const perDiemCategoryUnflattenedExpense: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' },
+};
+
+export const unflattenedTxnWithSourceID: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    source_account_id: 'acc6mK6CEesGL',
+  },
+};
+
+export const unflattenedTxnWithSourceID2: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    source_account_id: 'acc6mK6CEesXL',
+  },
+};
+
+export const unflattendedTxnWithPolicyAmount: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    policy_amount: 100,
+  },
+};
+
+export const unflattenedTxnWithTrackData: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    project_id: 257528,
+    cost_center_id: 2411,
+    mileage_vehicle_type: 'car',
+    locations: [
+      {
+        display: 'Kolkata',
+      },
+    ],
   },
 };

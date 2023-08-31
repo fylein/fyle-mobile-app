@@ -19,7 +19,6 @@ import { UndoMerge } from '../models/undo-merge.model';
 import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
@@ -37,7 +36,8 @@ import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
-import { StatsResponse } from '../models/v2/stats-response.model';
+import { Datum, StatsResponse } from '../models/v2/stats-response.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -90,7 +90,7 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$,
     isInstant: true,
   })
-  clearCache() {
+  clearCache(): Observable<null> {
     return of(null);
   }
 
@@ -208,7 +208,7 @@ export class TransactionService {
     cacheBusterObserver: transactionsCacheBuster$,
   })
   // TODO: Remove `any` type once the stats response implementation is fixed
-  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<any> {
+  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<Datum[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiV2Service.getStats<StatsResponse>('/expenses/stats', {
@@ -250,7 +250,7 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  upsert(transaction: Transaction): Observable<Transaction> {
+  upsert(transaction: Partial<Transaction>): Observable<Partial<Transaction>> {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
 
@@ -273,9 +273,8 @@ export class TransactionService {
       switchMap(({ orgUserSettings, txnAccount }) => {
         const offset = orgUserSettings.locale.offset;
 
-        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(
-          transaction.custom_properties,
-          offset
+        transaction.custom_properties = <TxnCustomProperties[]>(
+          this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset)
         );
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (transaction.txn_dt) {
@@ -317,7 +316,10 @@ export class TransactionService {
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
-  createTxnWithFiles(txn: Transaction, fileUploads$: Observable<FileObject[]>) {
+  createTxnWithFiles(
+    txn: Partial<Transaction>,
+    fileUploads$: Observable<FileObject[]>
+  ): Observable<Partial<Transaction>> {
     return fileUploads$.pipe(
       switchMap((fileObjs: FileObject[]) =>
         this.upsert(txn).pipe(
@@ -329,7 +331,7 @@ export class TransactionService {
               })
             ).pipe(
               concatMap((fileObj) => this.fileService.post(fileObj)),
-              reduce((acc, curr) => acc.concat([curr]), []),
+              reduce((acc: FileObject[], curr: FileObject) => acc.concat([curr]), []),
               map(() => transaction)
             )
           )
@@ -377,7 +379,7 @@ export class TransactionService {
           tx_id: `eq.${id}`,
         },
       })
-      .pipe(map((res) => this.fixDates(res.data[0]) as Expense));
+      .pipe(map((res) => this.fixDates(res.data[0])));
   }
 
   checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
@@ -496,10 +498,10 @@ export class TransactionService {
     let vendorDisplayName = expense.tx_vendor;
 
     if (fyleCategory === 'mileage') {
-      vendorDisplayName = expense.tx_distance || 0;
+      vendorDisplayName = (expense.tx_distance || 0).toString();
       vendorDisplayName += ' ' + expense.tx_distance_unit;
     } else if (fyleCategory === 'per diem') {
-      vendorDisplayName = expense.tx_num_days;
+      vendorDisplayName = expense.tx_num_days.toString();
       if (expense.tx_num_days > 1) {
         vendorDisplayName += ' Days';
       } else {
@@ -549,7 +551,7 @@ export class TransactionService {
         ...etxn,
         paymentMode: this.getPaymentModeForEtxn(etxn, paymentModes),
       }))
-      .reduce((paymentMap, etxnData) => {
+      .reduce((paymentMap: PaymentModeSummary, etxnData) => {
         if (paymentMap.hasOwnProperty(etxnData.paymentMode.key)) {
           paymentMap[etxnData.paymentMode.key].name = etxnData.paymentMode.name;
           paymentMap[etxnData.paymentMode.key].key = etxnData.paymentMode.key;
@@ -568,7 +570,7 @@ export class TransactionService {
   }
 
   getCurrenyWiseSummary(etxns: Expense[]): CurrencySummary[] {
-    const currencyMap = {};
+    const currencyMap: Record<string, CurrencySummary> = {};
     etxns.forEach((etxn) => {
       if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
         this.addEtxnToCurrencyMap(currencyMap, etxn.tx_currency, etxn.tx_amount);
@@ -853,7 +855,12 @@ export class TransactionService {
     );
   }
 
-  private addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {
+  private addEtxnToCurrencyMap(
+    currencyMap: Record<string, CurrencySummary>,
+    txCurrency: string,
+    txAmount: number,
+    txOrigAmount: number = null
+  ): void {
     if (currencyMap.hasOwnProperty(txCurrency)) {
       currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
       currencyMap[txCurrency].amount += txAmount;
