@@ -5,7 +5,7 @@ import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Position } from '@capacitor/geolocation';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import * as dayjs from 'dayjs';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import {
@@ -101,6 +101,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from '../../core/services/tracking.service';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 
 type FormValue = {
   route: {
@@ -131,11 +132,7 @@ type FormValue = {
   styleUrls: ['./add-edit-mileage.page.scss'],
 })
 export class AddEditMileagePage implements OnInit {
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
-
-  @ViewChild('formContainer') formContainer: ElementRef;
-
-  @ViewChild('comments') commentsContainer: ElementRef;
+  @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;
 
   @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
 
@@ -321,7 +318,7 @@ export class AddEditMileagePage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private categoriesService: CategoriesService,
     private orgSettingsService: OrgSettingsService,
-    private platform: Platform,
+    private platformHandlerService: PlatformHandlerService,
     private storageService: StorageService
   ) {}
 
@@ -945,13 +942,11 @@ export class AddEditMileagePage implements OnInit {
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
     this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
-
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-      BackButtonActionPriority.MEDIUM,
-      () => {
-        this.showClosePopup();
-      }
-    );
+    const fn = (): void => {
+      this.showClosePopup();
+    };
+    const priority = BackButtonActionPriority.MEDIUM;
+    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, fn);
   }
 
   setupTxnFields(): void {
@@ -1780,7 +1775,7 @@ export class AddEditMileagePage implements OnInit {
 
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
-    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    const formContainer = this.formContainer.nativeElement;
     if (formContainer) {
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {
@@ -2639,19 +2634,6 @@ export class AddEditMileagePage implements OnInit {
       }
     } else {
       this.trackingService.clickDeleteExpense({ Type: 'Mileage' });
-    }
-  }
-
-  scrollCommentsIntoView(): void {
-    if (this.commentsContainer) {
-      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
-      if (commentsContainer) {
-        commentsContainer.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'start',
-        });
-      }
     }
   }
 

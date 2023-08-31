@@ -2,7 +2,7 @@ import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormBuilder, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DomSanitizer } from '@angular/platform-browser';
+import { By, DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController, NavController, ActionSheetController, Platform } from '@ionic/angular';
 import { Subscription, Subject, BehaviorSubject, of, Observable } from 'rxjs';
@@ -43,8 +43,8 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditMileagePage } from './add-edit-mileage.page';
-import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { orgSettingsOrgAutofill, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgUserSettingsData, orgUserSettingsWoProjects } from 'src/app/core/mock-data/org-user-settings.data';
 import {
   recentlyUsedCostCentersRes,
   recentlyUsedMileages,
@@ -57,9 +57,15 @@ import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spe
 import {
   filterEnabledMileageRatesData,
   mileageRateApiRes2,
+  mileageRateOptions,
   unfilteredMileageRatesData,
 } from 'src/app/core/mock-data/mileage-rate.data';
-import { newExpenseMileageData1, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import {
+  expectedUnflattendedTxnData5,
+  newExpenseMileageData1,
+  newMileageExpFromForm3,
+  unflattenedTxnData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { costCenterOptions2, costCentersData } from 'src/app/core/mock-data/cost-centers.data';
 import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
@@ -68,9 +74,18 @@ import { multiplePaymentModesData } from 'src/app/core/test-data/accounts.servic
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expenseFieldResponse, transformedResponse } from 'src/app/core/mock-data/expense-field.data';
-import { txnCustomProperties4 } from 'src/app/core/mock-data/txn-custom-properties.data';
+import {
+  txnCustomProperties4,
+  txnCustomPropertiesData,
+  txnCustomPropertiesData6,
+} from 'src/app/core/mock-data/txn-custom-properties.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { reportOptionsData4 } from 'src/app/core/mock-data/report-options.data';
+import { A } from '@angular/cdk/keycodes';
+import { ElementRef } from '@angular/core';
+import { getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditMileage-5', () => {
@@ -123,6 +138,7 @@ export function TestCases5(getTestBed) {
     let mileageService: jasmine.SpyObj<MileageService>;
     let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
     let locationService: jasmine.SpyObj<LocationService>;
+    let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -182,6 +198,7 @@ export function TestCases5(getTestBed) {
       mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
       mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
       locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
+      platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
 
       component.fg = formBuilder.group({
         mileage_rate_name: [],
@@ -408,6 +425,258 @@ export function TestCases5(getTestBed) {
         expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, null);
         expect(mileageRatesService.getReadableRate).toHaveBeenCalledOnceWith(null, 'INR', null);
       }));
+
+      it('should setup class variables with autofill enabled and no recent values available', fakeAsync(() => {
+        activatedRoute.snapshot.params.navigate_back = true;
+        activatedRoute.snapshot.params.activeIndex = 3;
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh']);
+        component.mode = 'edit';
+        spyOn(component, 'initClassObservables');
+        component.filteredCategories$ = of(categorieListRes);
+        tokenService.getClusterDomain.and.resolveTo('domain');
+        reportService.getAutoSubmissionReportName.and.returnValue(of('Purpose'));
+        spyOn(component, 'setupSelectedCostCenters');
+        spyOn(component, 'setupSelectedProjects');
+        storageService.get.and.resolveTo(true);
+        orgSettingsService.get.and.returnValue(of(orgSettingsOrgAutofill));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsWoProjects));
+        spyOn(component, 'checkAdvanceEnabled').and.returnValue(of(true));
+        spyOn(component, 'checkNewReportsFlow');
+        spyOn(component, 'setupNetworkWatcher');
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(recentlyUsedRes));
+        spyOn(component, 'getTransactionFields').and.returnValue(of(expenseFieldObjData));
+        spyOn(component, 'setupFilteredCategories');
+        currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        spyOn(component, 'getSubCategories').and.returnValue(of(mileageCategories2));
+        spyOn(component, 'getProjectCategoryIds').and.returnValue(of(['141295', '141300']));
+        projectsService.getProjectCount.and.returnValue(of(2));
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        spyOn(component, 'checkIndividualMileageEnabled');
+        mileageRatesService.getAllMileageRates.and.returnValue(of(unfilteredMileageRatesData));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
+        mileageRatesService.filterEnabledMileageRates.and.returnValue(mileageRateApiRes2);
+        mileageRatesService.getReadableRate.and.returnValue('10');
+        mileageRatesService.formatMileageRateName.and.returnValue('Bicycle');
+        spyOn(component, 'getNewExpense').and.returnValue(of(newExpenseMileageData1));
+        spyOn(component, 'getEditExpense').and.returnValue(of(newMileageExpFromForm3));
+        spyOn(component, 'setupTfcDefaultValues');
+        spyOn(component, 'getCustomInputs').and.returnValue(of(null));
+        spyOn(component, 'getPaymentModes').and.returnValue(of(accountOptionData1));
+        spyOn(component, 'getCostCenters').and.returnValue(of(costCenterOptions2));
+        recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(recentlyUsedCostCentersRes));
+        reportService.getFilteredPendingReports.and.returnValue(of(expectedErpt));
+        spyOn(component, 'getMileageRatesOptions');
+        spyOn(component, 'setupTxnFields');
+        spyOn(component, 'getPolicyDetails');
+        spyOn(component, 'checkAvailableAdvance');
+        spyOn(component, 'getEditRates').and.returnValue(of(10));
+        spyOn(component, 'getAddRates').and.returnValue(of(10));
+        spyOn(component, 'getCategories').and.returnValue(of(unsortedCategories1[2]));
+        spyOn(component, 'getExpenseAmount').and.returnValue(of(100));
+        spyOn(component, 'getProjects').and.returnValue(of(expectedProjectsResponse[0]));
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(multiplePaymentModesData[0]);
+        accountsService.getAccountTypeFromPaymentMode.and.returnValue(AccountType.PERSONAL);
+        authService.getEou.and.resolveTo(apiEouRes);
+        recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
+        spyOn(component, 'getReports').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
+        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        customInputsService.filterByCategory.and.returnValue(transformedResponse);
+        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData6);
+        spyOn(component, 'getMileageByVehicleType').and.returnValue(unfilteredMileageRatesData[0]);
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(3000);
+
+        expect(component.initClassObservables).toHaveBeenCalledTimes(1);
+        expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+        expect(component.navigateBack).toBeTrue();
+        expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
+        expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
+        expect(component.setupSelectedCostCenters).toHaveBeenCalledTimes(1);
+        expect(component.setupSelectedProjects).toHaveBeenCalledTimes(1);
+        expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedViewMileage');
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+
+        component.mileageConfig$.subscribe((res) => {
+          expect(res).toEqual(orgSettingsRes.mileage);
+        });
+
+        component.isAdvancesEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+        expect(component.checkAdvanceEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.checkNewReportsFlow).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+
+        component.recentlyUsedValues$.subscribe((res) => {
+          expect(res).toEqual(recentlyUsedRes);
+        });
+
+        expect(component.getRecentlyUsedValues).toHaveBeenCalledTimes(1);
+
+        component.recentlyUsedMileageLocations$.subscribe((res) => {
+          expect(res).toEqual(recentlyUsedMileages);
+        });
+
+        expect(component.getTransactionFields).toHaveBeenCalledTimes(1);
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+        expect(component.getSubCategories).toHaveBeenCalledTimes(1);
+        expect(component.getProjectCategoryIds).toHaveBeenCalledTimes(1);
+
+        component.isProjectVisible$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+        expect(projectsService.getProjectCount).toHaveBeenCalledTimes(1);
+        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', activatedRoute.snapshot.params.id);
+        expect(component.checkIndividualMileageEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(2);
+        expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+
+        component.mileageRates$.subscribe((res) => {
+          expect(res).toEqual([]);
+        });
+
+        expect(component.getMileageRatesOptions).toHaveBeenCalledTimes(1);
+
+        component.etxn$.subscribe((res) => {
+          expect(res).toEqual(newMileageExpFromForm3);
+        });
+
+        expect(component.getNewExpense).toHaveBeenCalledTimes(1);
+        expect(component.getEditExpense).toHaveBeenCalledTimes(1);
+        expect(component.setupTfcDefaultValues).toHaveBeenCalledTimes(1);
+
+        component.isAmountDisabled$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isIndividualProjectsEnabled$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.individualProjectIds$.subscribe((res) => {
+          expect(res).toEqual([]);
+        });
+
+        component.isProjectsEnabled$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        expect(component.getCustomInputs).toHaveBeenCalledTimes(1);
+
+        component.isCostCentersEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        expect(component.getPaymentModes).toHaveBeenCalledTimes(1);
+        expect(component.getCostCenters).toHaveBeenCalledOnceWith(jasmine.any(Observable), jasmine.any(Observable));
+        expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledTimes(1);
+
+        component.reports$.subscribe((res) => {
+          expect(res).toEqual(reportOptionsData4);
+        });
+
+        expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+        expect(component.setupTxnFields).toHaveBeenCalledTimes(1);
+
+        component.isAmountCapped$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.isCriticalPolicyViolated$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
+        expect(component.checkAvailableAdvance).toHaveBeenCalledTimes(1);
+
+        component.rate$.subscribe((res) => {
+          expect(res).toEqual(10);
+        });
+
+        expect(component.getEditRates).toHaveBeenCalledTimes(1);
+        expect(component.getAddRates).toHaveBeenCalledTimes(1);
+        expect(component.getExpenseAmount).toHaveBeenCalledTimes(1);
+        expect(component.getProjects).toHaveBeenCalledTimes(1);
+        expect(accountsService.getEtxnSelectedPaymentMode).toHaveBeenCalledTimes(1);
+        expect(accountsService.getAccountTypeFromPaymentMode).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+
+        component.recentlyUsedProjects$.subscribe((res) => {
+          expect(res).toEqual(recentlyUsedProjectRes);
+        });
+
+        expect(component.getCategories).toHaveBeenCalledTimes(1);
+        expect(component.getReports).toHaveBeenCalledTimes(1);
+        expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
+        expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], transformedResponse);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, null);
+        expect(mileageRatesService.getReadableRate).toHaveBeenCalledOnceWith(null, 'INR', null);
+      }));
+    });
+
+    it('getMileageRatesOptions(): should get mileages rates options', (done) => {
+      component.mileageRates$ = of(mileageRateApiRes2);
+      component.homeCurrency$ = of('USD');
+      mileageRatesService.getReadableRate.withArgs(18, 'USD', 'MILES').and.returnValue('$10/mi');
+      mileageRatesService.getReadableRate.withArgs(122, 'USD', 'MILES').and.returnValue('$10/mi');
+
+      mileageRatesService.formatMileageRateName.withArgs('electric_car').and.returnValue('Electric Car');
+      mileageRatesService.formatMileageRateName.withArgs('Type 1').and.returnValue('Car');
+
+      component.getMileageRatesOptions();
+
+      component.mileageRatesOptions$.subscribe((res) => {
+        expect(res).toEqual(mileageRateOptions);
+        expect(mileageRatesService.getReadableRate).toHaveBeenCalledTimes(2);
+        expect(mileageRatesService.getReadableRate).toHaveBeenCalledWith(18, 'USD', 'MILES');
+        expect(mileageRatesService.getReadableRate).toHaveBeenCalledWith(122, 'USD', 'MILES');
+        expect(mileageRatesService.formatMileageRateName).toHaveBeenCalledTimes(2);
+        expect(mileageRatesService.formatMileageRateName).toHaveBeenCalledWith('electric_car');
+        expect(mileageRatesService.formatMileageRateName).toHaveBeenCalledWith('Type 1');
+        done();
+      });
+    });
+
+    describe('initSubjectObservables():', () => {
+      it('should setup subject obserbvables', () => {
+        platformHandlerService.registerBackButtonAction.and.stub();
+        const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnInit']);
+
+        component.projectDependentFieldsRef = dependentFieldSpy;
+        component.costCenterDependentFieldsRef = dependentFieldSpy;
+
+        component.initClassObservables();
+
+        expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
+          BackButtonActionPriority.MEDIUM,
+          jasmine.any(Function)
+        );
+        expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
+      });
+
+      it('should setup observables without dependent fields observables', () => {
+        platformHandlerService.registerBackButtonAction.and.stub();
+
+        component.projectDependentFieldsRef = null;
+        component.costCenterDependentFieldsRef = null;
+
+        component.initClassObservables();
+
+        expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
+          BackButtonActionPriority.MEDIUM,
+          jasmine.any(Function)
+        );
+      });
     });
   });
 }

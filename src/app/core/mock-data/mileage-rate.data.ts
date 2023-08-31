@@ -319,3 +319,48 @@ export const mileageRateApiRes2: PlatformMileageRates[] = [
     readableRate: '₹18.00/mile',
   },
 ];
+
+export const mileageRateOptions: { label: string; value: PlatformMileageRates }[] = [
+  {
+    label: 'Electric Car ($10/mi)',
+    value: {
+      code: null,
+      created_at: new Date('2017-04-06T04:52:07.825Z'),
+      id: 57037,
+      is_enabled: true,
+      org_id: 'orrjqbDbeP9p',
+      rate: 122,
+      slab_rates: [
+        {
+          limit: 6,
+          rate: 4,
+        },
+      ],
+      unit: 'MILES',
+      updated_at: new Date('2022-09-22T05:26:02.014Z'),
+      vehicle_type: 'electric_car',
+      readableRate: '$10/mi',
+    },
+  },
+  {
+    label: 'Car ($10/mi)',
+    value: {
+      code: null,
+      created_at: new Date('2017-04-06T04:52:07.825Z'),
+      id: 57038,
+      is_enabled: true,
+      org_id: 'orrjqbDbeP9p',
+      rate: 18,
+      slab_rates: [
+        {
+          limit: 4,
+          rate: 6,
+        },
+      ],
+      unit: 'MILES',
+      updated_at: new Date('2022-08-18T10:39:45.474Z'),
+      vehicle_type: 'Type 1',
+      readableRate: '$10/mi',
+    },
+  },
+];

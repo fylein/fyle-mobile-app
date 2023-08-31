@@ -3517,3 +3517,40 @@ export const unflattenedTxnWithCC: UnflattenedTransaction = {
     cost_center_id: 2411,
   },
 };
+
+export const newMileageExpFromForm3: UnflattenedTransaction = {
+  ...unflattenedTxnWithReportID3,
+  tx: {
+    ...unflattenedTxnWithReportID3.tx,
+    cost_center_id: null,
+    policy_amount: 0,
+    project_id: null,
+    state: 'DRAFT',
+    custom_properties: [
+      {
+        id: 111,
+        name: 'Test Number',
+        value: 121,
+        type: 'NUMBER',
+      },
+      {
+        id: 115,
+        name: 'select all 2',
+        value: new Date('2017-07-25T00:00:00.000Z'),
+        type: 'DATE',
+      },
+      {
+        id: 150,
+        name: 'checking',
+        value: false,
+        type: 'BOOLEAN',
+      },
+      {
+        id: 151,
+        name: 'Select field',
+        value: 'select-1',
+        type: 'SELECT',
+      },
+    ],
+  },
+};

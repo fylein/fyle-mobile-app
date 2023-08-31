@@ -670,3 +670,8 @@ export const orgUserSettingsWoDefaultProject: OrgUserSettings = {
     default_project_id: null,
   },
 };
+
+export const orgUserSettingsWoProjects: OrgUserSettings = {
+  ...orgUserSettingsData,
+  project_ids: null,
+};
