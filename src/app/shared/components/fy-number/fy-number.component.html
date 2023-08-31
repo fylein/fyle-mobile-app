@@ -22,8 +22,8 @@
       [placeholder]="placeholder || ''"
       (blur)="(onBlur)"
       type="text"
+      inputmode="numeric"
       [(ngModel)]="negativeExpense"
-      (keydown)="handleNegativeExpenseChange($event)"
     />
   </ng-container>
 </ng-template>
