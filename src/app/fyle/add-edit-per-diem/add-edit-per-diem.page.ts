@@ -592,7 +592,7 @@ export class AddEditPerDiemPage implements OnInit {
       map((categories) => {
         const perDiemCategories = categories
           .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
-          .map((category) => category.id?.toString());
+          .map((category) => category?.id?.toString());
 
         return perDiemCategories;
       }),
