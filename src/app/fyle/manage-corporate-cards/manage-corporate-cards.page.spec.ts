@@ -194,6 +194,7 @@ fdescribe('ManageCorporateCardsPage', () => {
     });
 
     it('should open up the add corporate card modal when clicked on add corporate card button', fakeAsync(() => {
+      // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
       addCardPopoverSpy.onDidDismiss.and.resolveTo({});
 
       const addButton = getElementBySelector(fixture, '[data-testid="add-button"]') as HTMLButtonElement;
