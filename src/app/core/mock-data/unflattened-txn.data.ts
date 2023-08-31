@@ -3397,7 +3397,7 @@ export const unflattenedTxnWithCategory: UnflattenedTransaction = {
     creator_id: 'ouX8dwsbLCLv',
     user_reason_for_duplicate_expenses: null,
     external_id: null,
-    org_category_id: 141295,
+    org_category_id: 141300,
     cost_center_name: '01test2',
     cost_center_code: null,
     cost_center_id: 13795,
