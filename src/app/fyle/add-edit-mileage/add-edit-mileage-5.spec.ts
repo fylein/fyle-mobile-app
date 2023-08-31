@@ -54,7 +54,11 @@ import {
 import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { mileageCategories2, unsortedCategories1 } from 'src/app/core/mock-data/org-category.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
-import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
+import {
+  filterEnabledMileageRatesData,
+  mileageRateApiRes2,
+  unfilteredMileageRatesData,
+} from 'src/app/core/mock-data/mileage-rate.data';
 import { newExpenseMileageData1, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { costCenterOptions2, costCentersData } from 'src/app/core/mock-data/cost-centers.data';
@@ -235,7 +239,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'checkIndividualMileageEnabled');
         mileageRatesService.getAllMileageRates.and.returnValue(of(unfilteredMileageRatesData));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
-        mileageRatesService.filterEnabledMileageRates.and.returnValue(filterEnabledMileageRatesData);
+        mileageRatesService.filterEnabledMileageRates.and.returnValue(mileageRateApiRes2);
         mileageRatesService.getReadableRate.and.returnValue('10');
         mileageRatesService.formatMileageRateName.and.returnValue('Bicycle');
         spyOn(component, 'getNewExpense').and.returnValue(of(newExpenseMileageData1));
