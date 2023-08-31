@@ -122,8 +122,10 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
       });
 
     if (!this.isDistance) {
+      // If the input is for amount, allow negative values
       this.fc = new FormControl(null, Validators.pattern(/^-?(?:\d*\.\d+|\d+\.?)$/));
     } else {
+      // If the input is for distance, do not allow negative values
       this.fc = new FormControl(null, Validators.pattern(/^\d*(\.\d+)?$/));
     }
 
@@ -134,12 +136,14 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
         this.value = value;
       } else {
         this.value = null;
+        // Errors are propagated to the parent component, where we can show the error message
         this.control?.setErrors({ invalid: true });
       }
     });
   }
 
   ngAfterViewInit(): void {
+    // This is a way to get reference of parent component's form control, we can propagate errors to the parent component
     const ngControl: NgControl = this.injector.get(NgControl, null);
 
     this.control = ngControl.control as FormControl;
