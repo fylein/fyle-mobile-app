@@ -120,6 +120,31 @@ describe('FyNumberComponent', () => {
       expect(component.handleChange).not.toHaveBeenCalled();
     });
 
+    it('should enable isAndroidNegativeExpensePluginEnabled plugin when checkIfAndroidNegativeExpensePluginIsEnabled returns true', () => {
+      spyOn(component, 'handleChange');
+
+      platform.is.withArgs('android').and.returnValue(true);
+      launchDarklyService.checkIfAndroidNegativeExpensePluginIsEnabled.and.returnValue(of(true));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+      const inputElement = getAllElementsBySelector(fixture, '.fy-number--input');
+      expect(component.isAndroid).toBeTrue();
+      expect(component.isAndroidNegativeExpensePluginEnabled).toBeTrue();
+      expect(inputElement.length).toBe(1);
+      expect(component.handleChange).not.toHaveBeenCalled();
+    });
+
+    it('should set this.value to null and give invalid error when given a negative number if input is distance', () => {
+      spyOn(component, 'handleChange');
+      component.isDistance = true;
+
+      component.ngOnInit();
+      fixture.detectChanges();
+      component.fc.setValue(-1);
+      expect(component.value).toBeNull();
+    });
+
     it('should set this.value to a parsed float when given a string', () => {
       spyOn(component, 'onChangeCallback').and.callThrough();
       const mockCallback = jasmine.createSpy('mockCallback');
