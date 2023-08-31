@@ -21,7 +21,7 @@ export class AccountsService {
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private fyCurrencyPipe: FyCurrencyPipe
+    private fyCurrencyPipe: FyCurrencyPipe,
   ) {}
 
   @Cacheable()
@@ -36,7 +36,7 @@ export class AccountsService {
         });
 
         return accounts;
-      })
+      }),
     );
   }
 
@@ -49,7 +49,7 @@ export class AccountsService {
       etxn: Partial<UnflattenedTransaction>;
       orgSettings: OrgSettings;
       expenseType: ExpenseType;
-    }
+    },
   ): AccountOption[] {
     const { etxn, orgSettings, expenseType } = config;
     const isAdvanceEnabled = orgSettings.advances.enabled || orgSettings.advance_requests.enabled;
@@ -63,7 +63,7 @@ export class AccountsService {
       allowedPaymentModes,
       isMultipleAdvanceEnabled,
       etxn,
-      isMileageOrPerDiemExpense
+      isMileageOrPerDiemExpense,
     );
 
     return allowedAccounts.map((account) => ({
@@ -92,7 +92,7 @@ export class AccountsService {
   setAccountProperties(
     account: ExtendedAccount,
     paymentMode: string,
-    isMultipleAdvanceEnabled: boolean
+    isMultipleAdvanceEnabled: boolean,
   ): ExtendedAccount {
     const accountDisplayNameMapping: Record<string, string> = {
       PERSONAL_ACCOUNT: 'Personal Card/Cash',
@@ -128,7 +128,7 @@ export class AccountsService {
       (account) =>
         // Personal Account and CCC account are considered to always have sufficient funds
         (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||
-        [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1
+        [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1,
     );
   }
 
@@ -138,7 +138,7 @@ export class AccountsService {
     allowedPaymentModes: string[],
     isMultipleAdvanceEnabled: boolean,
     etxn?: Partial<UnflattenedTransaction>,
-    isMileageOrPerDiemExpense = false
+    isMileageOrPerDiemExpense = false,
   ): ExtendedAccount[] {
     //Mileage and per diem expenses cannot have PCCC as a payment mode
     if (isMileageOrPerDiemExpense) {
@@ -175,7 +175,7 @@ export class AccountsService {
 
         //There can be multiple accounts of type PERSONAL_ADVANCE_ACCOUNT
         const accountsWithRenamedProperties = accountsForPaymentMode.map((accountForPaymentMode) =>
-          this.setAccountProperties(accountForPaymentMode, allowedPaymentMode, isMultipleAdvanceEnabled)
+          this.setAccountProperties(accountForPaymentMode, allowedPaymentMode, isMultipleAdvanceEnabled),
         );
         return accountsWithRenamedProperties;
       })

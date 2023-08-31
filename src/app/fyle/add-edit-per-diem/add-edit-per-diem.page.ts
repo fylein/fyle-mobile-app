@@ -281,7 +281,7 @@ export class AddEditPerDiemPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {}
 
   get minPerDiemDate(): string {
@@ -448,7 +448,7 @@ export class AddEditPerDiemPage implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -474,7 +474,7 @@ export class AddEditPerDiemPage implements OnInit {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
-      })
+      }),
     );
   }
 
@@ -491,10 +491,10 @@ export class AddEditPerDiemPage implements OnInit {
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
               fields,
-              formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
+              formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory,
             );
-          })
-        )
+          }),
+        ),
       ),
       map((expenseFieldsMap) => {
         if (expenseFieldsMap) {
@@ -509,7 +509,7 @@ export class AddEditPerDiemPage implements OnInit {
 
         return expenseFieldsMap;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -526,12 +526,12 @@ export class AddEditPerDiemPage implements OnInit {
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
               fields,
-              formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory
+              formValue.sub_category || perDiemCategoriesContainer.defaultPerDiemCategory,
             );
-          })
-        )
+          }),
+        ),
       ),
-      map((tfc) => this.expenseFieldsService.getDefaultTxnFieldValues(tfc))
+      map((tfc) => this.expenseFieldsService.getDefaultTxnFieldValues(tfc)),
     );
 
     tfcValues$.subscribe((defaultValues) => {
@@ -581,7 +581,7 @@ export class AddEditPerDiemPage implements OnInit {
         };
         return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -592,10 +592,10 @@ export class AddEditPerDiemPage implements OnInit {
         return categories.filter(
           (orgCategory) =>
             parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase(),
         );
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -607,7 +607,7 @@ export class AddEditPerDiemPage implements OnInit {
           .map((category) => category?.id?.toString());
 
         return perDiemCategories;
-      })
+      }),
     );
   }
 
@@ -619,7 +619,7 @@ export class AddEditPerDiemPage implements OnInit {
       map((categories) => {
         const orgCategoryName = 'per diem';
         const defaultPerDiemCategory = categories.find(
-          (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase()
+          (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase(),
         );
 
         const perDiemCategories = categories.filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1);
@@ -628,7 +628,7 @@ export class AddEditPerDiemPage implements OnInit {
           defaultPerDiemCategory,
           perDiemCategories,
         };
-      })
+      }),
     );
   }
 
@@ -658,7 +658,7 @@ export class AddEditPerDiemPage implements OnInit {
           custom_properties: [],
           org_user_id: currentEou.ou.id,
         },
-      }))
+      })),
     );
   }
 
@@ -680,10 +680,10 @@ export class AddEditPerDiemPage implements OnInit {
       startWith(this.fg.controls.project.value),
       concatMap((project: ExtendedProject) =>
         activeCategories$.pipe(
-          map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
-        )
+          map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)),
+        ),
       ),
-      map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
+      map((categories) => categories.map((category) => ({ label: category.sub_category, value: category }))),
     );
     const formValue = this.getFormValues();
     this.filteredCategories$.subscribe((categories) => {
@@ -709,7 +709,7 @@ export class AddEditPerDiemPage implements OnInit {
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
     this.dependentFields$ = customExpenseFields$.pipe(
-      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
     );
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
@@ -723,9 +723,9 @@ export class AddEditPerDiemPage implements OnInit {
                 this.categoriesService
                   .getAll()
                   .pipe(map((categories) => categories.find((category) => category.id === etxn.tx.org_category_id))),
-                this.getPerDiemCategories().pipe(map((perDiemContainer) => perDiemContainer.defaultPerDiemCategory))
-              )
-            )
+                this.getPerDiemCategories().pipe(map((perDiemContainer) => perDiemContainer.defaultPerDiemCategory)),
+              ),
+            ),
           );
         }
 
@@ -742,9 +742,9 @@ export class AddEditPerDiemPage implements OnInit {
           map((customFields) =>
             this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category && category.id)
-            )
-          )
+              this.customInputsService.filterByCategory(customFields, category && category.id),
+            ),
+          ),
         );
       }),
       map((customFields) =>
@@ -754,7 +754,7 @@ export class AddEditPerDiemPage implements OnInit {
             customField.options = customFieldsOptions.map((option) => ({ label: option, value: option }));
           }
           return customField;
-        })
+        }),
       ),
       switchMap((customFields) =>
         this.isConnected$.pipe(
@@ -776,14 +776,14 @@ export class AddEditPerDiemPage implements OnInit {
                       customField.mandatory &&
                       Validators.required,
                   ],
-                })
+                }),
               );
             }
             return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
-          })
-        )
+          }),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -820,7 +820,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return false;
         }
-      })
+      }),
     );
   }
 
@@ -836,7 +836,7 @@ export class AddEditPerDiemPage implements OnInit {
       BackButtonActionPriority.MEDIUM,
       () => {
         this.showClosePopup();
-      }
+      },
     );
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
@@ -906,12 +906,12 @@ export class AddEditPerDiemPage implements OnInit {
       map(
         (orgSettings) =>
           (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
-      )
+          (orgSettings.advance_requests && orgSettings.advance_requests.enabled),
+      ),
     );
 
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
+      map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates),
     );
 
     orgSettings$.subscribe((orgSettings) => {
@@ -928,7 +928,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     const allowedPerDiemRates$ = from(this.loaderService.showLoader())
@@ -937,27 +937,27 @@ export class AddEditPerDiemPage implements OnInit {
           forkJoin({
             orgSettings: orgSettings$,
             allowedPerDiemRates: perDiemRates$.pipe(
-              switchMap((perDiemRates) => this.perDiemService.getAllowedPerDiems(perDiemRates))
+              switchMap((perDiemRates) => this.perDiemService.getAllowedPerDiems(perDiemRates)),
             ),
-          })
+          }),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .pipe(
         switchMap(({ orgSettings, allowedPerDiemRates }) =>
           iif(
             () => allowedPerDiemRates.length > 0 || orgSettings.per_diem.enable_individual_per_diem_rates,
             of(allowedPerDiemRates),
-            perDiemRates$
-          )
+            perDiemRates$,
+          ),
         ),
         map((rates) => rates.filter((rate) => rate.active)),
         map((rates) =>
           rates.map((rate) => {
             rate.full_name = `${rate.name} (${rate.rate} ${rate.currency} per day)`;
             return rate;
-          })
-        )
+          }),
+        ),
       );
 
     this.canCreatePerDiem$ = from(this.loaderService.showLoader())
@@ -967,9 +967,9 @@ export class AddEditPerDiemPage implements OnInit {
             orgSettings: orgSettings$,
             perDiemRates: perDiemRates$,
             allowedPerDiemRates: allowedPerDiemRates$,
-          })
+          }),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .pipe(
         map(({ orgSettings, perDiemRates, allowedPerDiemRates }) => {
@@ -982,7 +982,7 @@ export class AddEditPerDiemPage implements OnInit {
           } else {
             return perDiemRates.length > 0;
           }
-        })
+        }),
       );
 
     this.txnFields$ = this.getTransactionFields();
@@ -993,7 +993,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
       switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
-      map((projectCount) => projectCount > 0)
+      map((projectCount) => projectCount > 0),
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
 
@@ -1012,12 +1012,12 @@ export class AddEditPerDiemPage implements OnInit {
         allowedPerDiemRates.map((rate) => {
           rate.readableRate = this.fyCurrencyPipe.transform(rate.rate, rate.currency) + ' per day';
           return { label: rate.name, value: rate };
-        })
-      )
+        }),
+      ),
     );
 
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
+      map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects),
     );
 
     this.individualProjectIds$ = orgUserSettings$.pipe(map((orgUserSettings) => orgUserSettings.project_ids || []));
@@ -1025,11 +1025,11 @@ export class AddEditPerDiemPage implements OnInit {
     this.etxn$ = iif(
       () => this.mode === 'add',
       this.getNewExpense(),
-      this.getEditExpense()
+      this.getEditExpense(),
     ) as Observable<UnflattenedTransaction>;
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
+      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled),
     );
 
     this.customInputs$ = this.getCustomInputs();
@@ -1053,9 +1053,9 @@ export class AddEditPerDiemPage implements OnInit {
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,
-        }))
+        })),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.recentlyUsedCostCenters$ = forkJoin({
@@ -1063,8 +1063,8 @@ export class AddEditPerDiemPage implements OnInit {
       recentValue: this.recentlyUsedValues$,
     }).pipe(
       concatMap(({ costCenters, recentValue }) =>
-        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
-      )
+        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue),
+      ),
     );
 
     this.reports$ = this.reportService
@@ -1089,9 +1089,9 @@ export class AddEditPerDiemPage implements OnInit {
               costCenters,
               isIndividualProjectsEnabled,
               individualProjectIds,
-            }))
-          )
-        )
+            })),
+          ),
+        ),
       )
       .subscribe(
         ({ isConnected, txnFields, costCenters, orgSettings, individualProjectIds, isIndividualProjectsEnabled }) => {
@@ -1121,17 +1121,17 @@ export class AddEditPerDiemPage implements OnInit {
                 control.setValidators(
                   isConnected
                     ? Validators.compose([this.customDateValidator.bind(this) as ValidatorFn, Validators.required])
-                    : null
+                    : null,
                 );
               } else if (txnFieldKey === 'cost_center_id') {
                 control.setValidators(
-                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null
+                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null,
                 );
               } else if (txnFieldKey === 'project_id') {
                 control.setValidators(
                   orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
                     ? null
-                    : Validators.required
+                    : Validators.required,
                 );
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
@@ -1148,19 +1148,19 @@ export class AddEditPerDiemPage implements OnInit {
           }
 
           this.fg.updateValueAndValidity();
-        }
+        },
       );
 
     this.setupTfcDefaultValues();
 
     this.isAmountCapped$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
+      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount)),
     );
 
     this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
 
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
+      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001),
     );
 
     this.getPolicyDetails();
@@ -1193,13 +1193,13 @@ export class AddEditPerDiemPage implements OnInit {
     combineLatest(
       this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
       this.fg.controls.num_days.valueChanges,
-      this.homeCurrency$
+      this.homeCurrency$,
     )
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         filter(([perDiemRate, numDays, homeCurrency]) => !!perDiemRate && !!numDays && !!homeCurrency),
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        filter(([perDiemRate, numDays, homeCurrency]) => perDiemRate.currency === homeCurrency)
+        filter(([perDiemRate, numDays, homeCurrency]) => perDiemRate.currency === homeCurrency),
       )
       .subscribe(([perDiemRate, numDays, homeCurrency]) => {
         if (perDiemRate && numDays && homeCurrency) {
@@ -1208,7 +1208,7 @@ export class AddEditPerDiemPage implements OnInit {
               currency: perDiemRate.currency,
               amount: this.currencyService.getAmountWithCurrencyFraction(
                 perDiemRate.rate * numDays,
-                perDiemRate.currency
+                perDiemRate.currency,
               ),
               orig_currency: null,
               orig_amount: null,
@@ -1220,7 +1220,7 @@ export class AddEditPerDiemPage implements OnInit {
     combineLatest(
       this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
       this.fg.controls.num_days.valueChanges as Observable<number>,
-      this.homeCurrency$
+      this.homeCurrency$,
     )
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
@@ -1230,20 +1230,20 @@ export class AddEditPerDiemPage implements OnInit {
         switchMap(([perDiemRate, numDays, homeCurrency]) =>
           this.currencyService
             .getExchangeRate(perDiemRate.currency, homeCurrency)
-            .pipe(map((res) => [perDiemRate, numDays, homeCurrency, res]))
-        )
+            .pipe(map((res) => [perDiemRate, numDays, homeCurrency, res])),
+        ),
       )
       .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]: [PerDiemRates, number, string, number]) => {
         this.fg.controls.currencyObj.setValue({
           currency: homeCurrency,
           amount: this.currencyService.getAmountWithCurrencyFraction(
             perDiemRate.rate * numDays * exchangeRate,
-            homeCurrency
+            homeCurrency,
           ),
           orig_currency: perDiemRate.currency,
           orig_amount: this.currencyService.getAmountWithCurrencyFraction(
             perDiemRate.rate * numDays,
-            perDiemRate.currency
+            perDiemRate.currency,
           ),
         });
       });
@@ -1258,13 +1258,13 @@ export class AddEditPerDiemPage implements OnInit {
                 (accounts) =>
                   accounts.filter(
                     (account) =>
-                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
-                  ).length > 0
-              )
+                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0,
+                  ).length > 0,
+              ),
             );
         }
         return of(false);
-      })
+      }),
     );
 
     const selectedProject$ = this.etxn$.pipe(
@@ -1280,7 +1280,7 @@ export class AddEditPerDiemPage implements OnInit {
               if (orgSettings.projects.enabled) {
                 return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
               }
-            })
+            }),
           );
         }
       }),
@@ -1290,7 +1290,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     const selectedPaymentMode$ = forkJoin({
@@ -1305,8 +1305,8 @@ export class AddEditPerDiemPage implements OnInit {
           .find((paymentMode) => {
             const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
             return accountType === AccountType.PERSONAL;
-          })
-      )
+          }),
+      ),
     );
 
     this.recentlyUsedProjects$ = forkJoin({
@@ -1319,8 +1319,8 @@ export class AddEditPerDiemPage implements OnInit {
           recentValues,
           eou,
           categoryIds: perDiemCategoryIds,
-        })
-      )
+        }),
+      ),
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
@@ -1328,11 +1328,11 @@ export class AddEditPerDiemPage implements OnInit {
         iif(
           () => !!etxn.tx.org_category_id,
           this.subCategories$.pipe(
-            map((subCategories) => subCategories.find((subCategory) => subCategory.id === etxn.tx.org_category_id))
+            map((subCategories) => subCategories.find((subCategory) => subCategory.id === etxn.tx.org_category_id)),
           ),
-          of(null)
-        )
-      )
+          of(null),
+        ),
+      ),
     );
 
     const selectedPerDiemOption$ = this.etxn$.pipe(
@@ -1343,12 +1343,12 @@ export class AddEditPerDiemPage implements OnInit {
             map((perDiemOptions) =>
               perDiemOptions
                 .map((res) => res.value)
-                .find((perDiemOption) => perDiemOption.id === etxn.tx.per_diem_rate_id)
-            )
+                .find((perDiemOption) => perDiemOption.id === etxn.tx.per_diem_rate_id),
+            ),
           ),
-          of(null)
-        )
-      )
+          of(null),
+        ),
+      ),
     );
 
     const selectedReport$ = forkJoin({
@@ -1368,7 +1368,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return null;
         }
-      })
+      }),
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
@@ -1386,7 +1386,7 @@ export class AddEditPerDiemPage implements OnInit {
                   return costCenters[0].value.id;
                 }
               }
-            })
+            }),
           );
         }
       }),
@@ -1394,13 +1394,13 @@ export class AddEditPerDiemPage implements OnInit {
         if (costCenterId) {
           return this.costCenters$.pipe(
             map((costCenters) =>
-              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId)
-            )
+              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId),
+            ),
           );
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
@@ -1423,10 +1423,10 @@ export class AddEditPerDiemPage implements OnInit {
             recentValue: this.recentlyUsedValues$,
             recentProjects: this.recentlyUsedProjects$,
             recentCostCenters: this.recentlyUsedCostCenters$,
-          })
+          }),
         ),
         take(1),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(
         ({
@@ -1455,7 +1455,7 @@ export class AddEditPerDiemPage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id),
           );
 
           const customInputValues = customInputs
@@ -1568,7 +1568,7 @@ export class AddEditPerDiemPage implements OnInit {
           setTimeout(() => {
             this.fg.controls.custom_inputs.patchValue(customInputValues);
           }, 1000);
-        }
+        },
       );
 
     this.paymentModeInvalid$ = this.isPaymentModeValid();
@@ -1576,7 +1576,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   generateEtxnFromFg(
     etxn$: Observable<UnflattenedTransaction>,
-    standardisedCustomProperties$: Observable<TxnCustomProperties[]>
+    standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
   ): Observable<{ tx: Partial<Transaction>; dataUrls: FileObject[]; ou: Partial<OrgUser> }> {
     return forkJoin({
       etxn: etxn$,
@@ -1633,7 +1633,7 @@ export class AddEditPerDiemPage implements OnInit {
           dataUrls: [],
           ou: etxn.ou,
         };
-      })
+      }),
     );
   }
 
@@ -1647,7 +1647,7 @@ export class AddEditPerDiemPage implements OnInit {
           value: dependentField.value,
         }));
         return this.customFieldsService.standardizeCustomFields(mappedDependentFields || [], customFields);
-      })
+      }),
     );
 
     return forkJoin({
@@ -1667,7 +1667,7 @@ export class AddEditPerDiemPage implements OnInit {
           value: formValue.custom_inputs[i].value,
         }));
         return customInputsWithValue.concat(dependentFieldsWithValue);
-      })
+      }),
     );
   }
 
@@ -1706,7 +1706,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   async continueWithPolicyViolations(
     policyViolations: string[],
-    policyAction: FinalExpensePolicyState
+    policyAction: FinalExpensePolicyState,
   ): Promise<{
     comment: string;
   }> {
@@ -1741,7 +1741,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return throwError('unhandledError');
         }
-      })
+      }),
     );
   }
 
@@ -1760,12 +1760,12 @@ export class AddEditPerDiemPage implements OnInit {
             continueWithTransaction.comment = 'No policy violation explaination provided';
           }
           return from(this.loaderService.showLoader()).pipe(
-            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
+            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment })),
           );
         } else {
           return throwError('unhandledError');
         }
-      })
+      }),
     );
   }
 
@@ -1811,13 +1811,13 @@ export class AddEditPerDiemPage implements OnInit {
                   } else {
                     return of({ etxn, comment: null });
                   }
-                })
+                }),
               );
             } else {
               return of({ etxn, comment: null });
             }
-          })
-        )
+          }),
+        ),
       ),
       catchError(
         (err: {
@@ -1837,7 +1837,7 @@ export class AddEditPerDiemPage implements OnInit {
           } else {
             return throwError(err);
           }
-        }
+        },
       ),
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         from(this.authService.getEou()).pipe(
@@ -1872,17 +1872,17 @@ export class AddEditPerDiemPage implements OnInit {
                 etxn.tx,
                 etxn.dataUrls as { url: string; type: string }[],
                 comments,
-                reportId
-              )
+                reportId,
+              ),
             ).pipe(switchMap((txnData) => from(txnData)));
-          })
-        )
+          }),
+        ),
       ),
       finalize(() => {
         this.savePerDiemLoader = false;
         this.saveAndNextPerDiemLoader = false;
         this.saveAndPrevPerDiemLoader = false;
-      })
+      }),
     );
   }
 
@@ -1896,7 +1896,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.comments$
       .pipe(
         map((estatuses) => estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY')),
-        map((policyViolationComments) => policyViolationComments.length > 0)
+        map((policyViolationComments) => policyViolationComments.length > 0),
       )
       .subscribe((policyViolated) => {
         if (policyViolated && this.fg.dirty) {
@@ -1919,7 +1919,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return throwError('unhandledError');
         }
-      })
+      }),
     );
   }
 
@@ -1937,12 +1937,12 @@ export class AddEditPerDiemPage implements OnInit {
             continueWithTransaction.comment = 'No policy violation explaination provided';
           }
           return from(this.loaderService.showLoader()).pipe(
-            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
+            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment })),
           );
         } else {
           return throwError('unhandledError');
         }
-      })
+      }),
     );
   }
 
@@ -1986,7 +1986,7 @@ export class AddEditPerDiemPage implements OnInit {
             } else {
               return of({ etxn });
             }
-          })
+          }),
         );
       }),
       catchError(
@@ -2007,7 +2007,7 @@ export class AddEditPerDiemPage implements OnInit {
           } else {
             return throwError(err);
           }
-        }
+        },
       ),
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         this.etxn$.pipe(
@@ -2043,7 +2043,7 @@ export class AddEditPerDiemPage implements OnInit {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
 
@@ -2051,14 +2051,14 @@ export class AddEditPerDiemPage implements OnInit {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
                 }
@@ -2072,7 +2072,7 @@ export class AddEditPerDiemPage implements OnInit {
                 }
 
                 return of(null).pipe(map(() => tx));
-              })
+              }),
             );
           }),
           switchMap((txn) => {
@@ -2084,19 +2084,19 @@ export class AddEditPerDiemPage implements OnInit {
                   } else {
                     return of(txn);
                   }
-                })
+                }),
               );
             } else {
               return of(txn);
             }
-          })
-        )
+          }),
+        ),
       ),
       finalize(() => {
         this.savePerDiemLoader = false;
         this.saveAndNextPerDiemLoader = false;
         this.saveAndPrevPerDiemLoader = false;
-      })
+      }),
     );
   }
 
@@ -2250,7 +2250,7 @@ export class AddEditPerDiemPage implements OnInit {
     config: { header: string; body: string; ctaText: string; ctaLoadingText: string },
     removePerDiemFromReport: boolean,
     id: string,
-    reportId?: string
+    reportId?: string,
   ): {
     component: typeof FyDeleteDialogComponent;
     cssClass: string;
@@ -2303,8 +2303,8 @@ export class AddEditPerDiemPage implements OnInit {
         },
         removePerDiemFromReport,
         id,
-        reportId
-      )
+        reportId,
+      ),
     );
 
     await deletePopover.present();

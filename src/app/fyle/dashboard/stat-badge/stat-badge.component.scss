@@ -45,6 +45,7 @@
     color: $pure-white;
     font-weight: 500;
     margin-top: 4px;
+    font-size: 14px;
     &__draft {
       background-color: $highlight-black;
     }
@@ -79,6 +80,7 @@
   }
 
   &--amount {
+    font-size: 14px;
     font-weight: 500;
   }
 
