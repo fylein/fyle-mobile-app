@@ -60,6 +60,7 @@ import { FyLocationComponent } from 'src/app/shared/components/fy-location/fy-lo
 import { TestCases2 } from '../add-edit-mileage/add-edit-mileage-2.spec';
 import { TestCases3 } from '../add-edit-mileage/add-edit-mileage-3.spec';
 import { TestCases4 } from './add-edit-mileage-4.spec';
+import { TestCases5 } from './add-edit-mileage-5.spec';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -73,6 +74,7 @@ describe('AddEditMileagePage', () => {
       'getEMyAccounts',
       'getPaymentModes',
       'getEtxnSelectedPaymentMode',
+      'getAccountTypeFromPaymentMode',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
@@ -215,6 +217,7 @@ describe('AddEditMileagePage', () => {
       'filterEnabledMileageRates',
       'getReadableRate',
       'formatMileageRateName',
+      'getAllMileageRates',
     ]);
     const locationServiceSpy = jasmine.createSpyObj('LocationService', [
       'getCurrentLocation',
@@ -441,4 +444,5 @@ describe('AddEditMileagePage', () => {
   TestCases2(getTestBed);
   TestCases3(getTestBed);
   TestCases4(getTestBed);
+  TestCases5(getTestBed);
 });

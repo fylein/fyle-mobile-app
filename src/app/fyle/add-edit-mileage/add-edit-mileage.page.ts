@@ -1258,6 +1258,23 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  getMileageRatesOptions(): void {
+    this.mileageRatesOptions$ = forkJoin({
+      mileageRates: this.mileageRates$,
+      homeCurrency: this.homeCurrency$,
+    }).pipe(
+      map(({ mileageRates, homeCurrency }) =>
+        mileageRates.map((rate) => {
+          rate.readableRate = this.mileageRatesService.getReadableRate(rate.rate, homeCurrency, rate.unit);
+          return {
+            label: this.mileageRatesService.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')',
+            value: rate,
+          };
+        })
+      )
+    );
+  }
+
   ionViewWillEnter(): void {
     this.initClassObservables();
 
@@ -1368,26 +1385,11 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
-    this.mileageRatesOptions$ = forkJoin({
-      mileageRates: this.mileageRates$,
-      homeCurrency: this.homeCurrency$,
-    }).pipe(
-      map(({ mileageRates, homeCurrency }) =>
-        mileageRates.map((rate) => {
-          rate.readableRate = this.mileageRatesService.getReadableRate(rate.rate, homeCurrency, rate.unit);
-          return {
-            label: this.mileageRatesService.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')',
-            value: rate,
-          };
-        })
-      )
-    );
+    this.getMileageRatesOptions();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
     this.setupTfcDefaultValues();
-
-    this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
 
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => !!orgSettings.advanced_projects?.enable_individual_projects)
