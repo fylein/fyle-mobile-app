@@ -325,7 +325,7 @@ export function TestCases4(getTestBed) {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       });
 
-      it('should set control validators to null', () => {
+      it('should set controllers to null where names match with keys in expense fields map', () => {
         component.txnFields$ = of(txnFieldData2);
         component.isConnected$ = of(false);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
