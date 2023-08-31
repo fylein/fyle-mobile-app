@@ -140,6 +140,12 @@ export function TestCases5(getTestBed) {
       });
     }));
 
+    function setMockFormValidity(isValid: boolean) {
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => isValid,
+      });
+    }
+
     it('reloadCurrentRoute(): should reload the current route', fakeAsync(() => {
       component.reloadCurrentRoute();
       tick(100);
@@ -180,9 +186,7 @@ export function TestCases5(getTestBed) {
 
       it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => false,
-        });
+
         spyOn(component, 'showFormValidationErrors');
         spyOn(component.fg, 'markAllAsTouched');
         component.saveAndNewExpense();
@@ -193,6 +197,139 @@ export function TestCases5(getTestBed) {
         tick(3000);
         expect(component.invalidPaymentMode).toBeFalse();
       }));
+    });
+
+    describe('saveExpenseAndGotoPrev():', () => {
+      beforeEach(() => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'editExpense').and.returnValue(of(unflattenedTxnData.tx));
+        spyOn(component, 'close');
+        spyOn(component, 'goToPrev');
+        spyOn(component, 'showFormValidationErrors');
+        component.activeIndex = 0;
+        component.mode = 'add';
+      });
+
+      it('should close the current page if form is valid, user is in add mode and expense is the first one in list', () => {
+        setMockFormValidity(true);
+        component.saveExpenseAndGotoPrev();
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.close).toHaveBeenCalledTimes(1);
+        expect(component.goToPrev).not.toHaveBeenCalled();
+        expect(component.showFormValidationErrors).not.toHaveBeenCalled();
+      });
+
+      it('should go to previous page if form is valid, user is in add mode and expense is not the first one in list', () => {
+        setMockFormValidity(true);
+        component.activeIndex = 1;
+        component.saveExpenseAndGotoPrev();
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.close).not.toHaveBeenCalled();
+        expect(component.goToPrev).toHaveBeenCalledTimes(1);
+        expect(component.showFormValidationErrors).not.toHaveBeenCalled();
+      });
+
+      it('should close the current page if form is valid, user is in edit mode and expense is the first one in list', () => {
+        setMockFormValidity(true);
+        component.mode = 'edit';
+        component.saveExpenseAndGotoPrev();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
+        expect(component.close).toHaveBeenCalledTimes(1);
+        expect(component.goToPrev).not.toHaveBeenCalled();
+        expect(component.showFormValidationErrors).not.toHaveBeenCalled();
+      });
+
+      it('should go to previous page if form is valid, user is in edit mode and expense is not the first one in list', () => {
+        setMockFormValidity(true);
+        component.activeIndex = 1;
+        component.mode = 'edit';
+        component.saveExpenseAndGotoPrev();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM);
+        expect(component.close).not.toHaveBeenCalled();
+        expect(component.goToPrev).toHaveBeenCalledTimes(1);
+        expect(component.showFormValidationErrors).not.toHaveBeenCalled();
+      });
+
+      it('should show validation errors if the form is not valid', () => {
+        setMockFormValidity(false);
+        component.saveExpenseAndGotoPrev();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.close).not.toHaveBeenCalled();
+        expect(component.goToPrev).not.toHaveBeenCalled();
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('saveExpenseAndGotoNext():', () => {
+      beforeEach(() => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'editExpense').and.returnValue(of(unflattenedTxnData.tx));
+        spyOn(component, 'close');
+        spyOn(component, 'goToNext');
+        spyOn(component, 'showFormValidationErrors');
+        component.activeIndex = 0;
+        component.mode = 'add';
+        component.reviewList = ['txSEM4DtjyKR'];
+      });
+
+      it('should close the current page if form is valid, user is in add mode and expense is the first one in list', () => {
+        setMockFormValidity(true);
+        component.saveExpenseAndGotoNext();
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.close).toHaveBeenCalledTimes(1);
+        expect(component.goToNext).not.toHaveBeenCalled();
+        expect(component.showFormValidationErrors).not.toHaveBeenCalled();
+      });
+
+      it('should go to next page if form is valid, user is in add mode and expense is not the first one in list', () => {
+        setMockFormValidity(true);
+        component.activeIndex = 1;
+        component.saveExpenseAndGotoNext();
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.close).not.toHaveBeenCalled();
+        expect(component.goToNext).toHaveBeenCalledTimes(1);
+        expect(component.showFormValidationErrors).not.toHaveBeenCalled();
+      });
+
+      it('should close the current page if form is valid, user is in edit mode and expense is the first one in list', () => {
+        setMockFormValidity(true);
+        component.mode = 'edit';
+        component.saveExpenseAndGotoNext();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
+        expect(component.close).toHaveBeenCalledTimes(1);
+        expect(component.goToNext).not.toHaveBeenCalled();
+        expect(component.showFormValidationErrors).not.toHaveBeenCalled();
+      });
+
+      it('should go to next page if form is valid, user is in edit mode and expense is not the first one in list', () => {
+        setMockFormValidity(true);
+        component.activeIndex = 1;
+        component.mode = 'edit';
+        component.saveExpenseAndGotoNext();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM);
+        expect(component.close).not.toHaveBeenCalled();
+        expect(component.goToNext).toHaveBeenCalledTimes(1);
+        expect(component.showFormValidationErrors).not.toHaveBeenCalled();
+      });
+
+      it('should show validation errors if the form is not valid', () => {
+        setMockFormValidity(false);
+        component.saveExpenseAndGotoNext();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.close).not.toHaveBeenCalled();
+        expect(component.goToNext).not.toHaveBeenCalled();
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      });
     });
   });
 }
