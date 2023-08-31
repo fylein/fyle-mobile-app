@@ -545,7 +545,7 @@ export function TestCases5(getTestBed) {
     });
 
     describe('openCommentsModal():', () => {
-      it('should add comment', fakeAsync(() => {
+      it('should add comment if data.updated is defined', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
         modalProperties.getModalDefaultProperties.and.returnValue(properties);
         const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
@@ -570,7 +570,7 @@ export function TestCases5(getTestBed) {
         expect(trackingService.viewComment).not.toHaveBeenCalled();
       }));
 
-      it('should view comment', fakeAsync(() => {
+      it('should view comment if data.updated is undefined', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
         modalProperties.getModalDefaultProperties.and.returnValue(properties);
         const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
