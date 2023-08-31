@@ -17,7 +17,13 @@ import {
 import { formValue1, formValue2 } from 'src/app/core/mock-data/form-value.data';
 import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
 import { filterEnabledMileageRatesData, unfilteredMileageRatesData } from 'src/app/core/mock-data/mileage-rate.data';
-import { mileageCategories2, orgCategoryData, unsortedCategories1 } from 'src/app/core/mock-data/org-category.data';
+import {
+  mileageCategories,
+  mileageCategories2,
+  mileageCategories3,
+  orgCategoryData,
+  unsortedCategories1,
+} from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsCCDisabled,
   orgSettingsParamsWithSimplifiedReport,
@@ -768,10 +774,10 @@ export function TestCases4(getTestBed) {
 
     describe('getCategories():', () => {
       it('should get categories according to category id in expense', (done) => {
-        categoriesService.getAll.and.returnValue(of(unsortedCategories1));
+        categoriesService.getAll.and.returnValue(of(mileageCategories3));
 
         component.getCategories(unflattenedTxnWithCategory).subscribe((res) => {
-          expect(res).toEqual(unsortedCategories1[2]);
+          expect(res).toEqual(mileageCategories3[0]);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });
