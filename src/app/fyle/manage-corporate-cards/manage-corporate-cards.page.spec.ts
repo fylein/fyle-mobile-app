@@ -43,7 +43,7 @@ class MockCorporateCardComponent {
   @Input() isMastercardRTFEnabled: boolean;
 }
 
-describe('ManageCorporateCardsPage', () => {
+fdescribe('ManageCorporateCardsPage', () => {
   let component: ManageCorporateCardsPage;
   let fixture: ComponentFixture<ManageCorporateCardsPage>;
 
@@ -159,9 +159,7 @@ describe('ManageCorporateCardsPage', () => {
     const backButton = getElementBySelector(fixture, '[data-testid="back-button"]') as HTMLButtonElement;
     backButton.click();
 
-    fixture.detectChanges();
-
-    expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_profile']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_profile']);
   });
 
   it('should show a shimmer when the corporate cards are being fetched', () => {
@@ -175,399 +173,341 @@ describe('ManageCorporateCardsPage', () => {
     expect(shimmer).toBeTruthy();
   });
 
-  it('should open up the add corporate card modal when clicked on add button', fakeAsync(() => {
-    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-      'present',
-      'onDidDismiss',
-    ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
+  describe('add card flow', () => {
+    let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+    let cardAddedPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
 
-    popoverSpy.onDidDismiss.and.resolveTo({});
-    popoverController.create.and.resolveTo(popoverSpy);
+    beforeEach(() => {
+      addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
+      cardAddedPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
+        'present',
+        'onDidDismiss',
+      ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
 
-    component.ionViewWillEnter();
-    fixture.detectChanges();
+      popoverController.create.and.returnValues(
+        Promise.resolve(addCardPopoverSpy),
+        Promise.resolve(cardAddedPopoverSpy),
+      );
 
-    const addButton = getElementBySelector(fixture, '[data-testid="add-button"]') as HTMLButtonElement;
-    addButton.click();
-
-    tick();
-
-    expect(popoverController.create).toHaveBeenCalledWith({
-      component: AddCorporateCardComponent,
-      cssClass: 'fy-dialog-popover',
-      componentProps: {
-        isVisaRTFEnabled: true,
-        isMastercardRTFEnabled: true,
-        isYodleeEnabled: true,
-        card: undefined,
-        cardType: undefined,
-      },
+      component.ionViewWillEnter();
+      fixture.detectChanges();
     });
 
-    expect(popoverSpy.present).toHaveBeenCalledTimes(1);
-  }));
+    it('should open up the add corporate card modal when clicked on add corporate card button', fakeAsync(() => {
+      addCardPopoverSpy.onDidDismiss.and.resolveTo({});
 
-  it('should reload the cards list if a card is successfully added from the add corporate card modal', fakeAsync(() => {
-    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-      'present',
-      'onDidDismiss',
-    ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
+      const addButton = getElementBySelector(fixture, '[data-testid="add-button"]') as HTMLButtonElement;
+      addButton.click();
 
-    popoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
+      tick();
 
-    const cardAddedPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-      'present',
-      'onDidDismiss',
-    ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
-
-    popoverController.create.and.returnValues(Promise.resolve(popoverSpy), Promise.resolve(cardAddedPopoverSpy));
-
-    component.ionViewWillEnter();
-    fixture.detectChanges();
-
-    const addButton = getElementBySelector(fixture, '[data-testid="add-button"]') as HTMLButtonElement;
-    addButton.click();
-
-    tick();
-
-    expect(popoverController.create).toHaveBeenCalledWith({
-      component: AddCorporateCardComponent,
-      cssClass: 'fy-dialog-popover',
-      componentProps: {
-        isVisaRTFEnabled: true,
-        isMastercardRTFEnabled: true,
-        isYodleeEnabled: true,
-        card: undefined,
-        cardType: undefined,
-      },
-    });
-
-    expect(popoverSpy.present).toHaveBeenCalledTimes(1);
-
-    expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
-    expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
-  }));
-
-  it('should show the card added modal when the card is successfully added from the add corporate card modal', fakeAsync(() => {
-    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-      'present',
-      'onDidDismiss',
-    ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
-    popoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
-
-    const cardAddedPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-      'present',
-      'onDidDismiss',
-    ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
-
-    popoverController.create.and.returnValues(Promise.resolve(popoverSpy), Promise.resolve(cardAddedPopoverSpy));
-
-    component.ionViewWillEnter();
-    fixture.detectChanges();
-
-    const addButton = getElementBySelector(fixture, '[data-testid="add-button"]') as HTMLButtonElement;
-    addButton.click();
-
-    tick();
-
-    expect(popoverController.create).toHaveBeenCalledWith({
-      component: AddCorporateCardComponent,
-      cssClass: 'fy-dialog-popover',
-      componentProps: {
-        isVisaRTFEnabled: true,
-        isMastercardRTFEnabled: true,
-        isYodleeEnabled: true,
-        card: undefined,
-        cardType: undefined,
-      },
-    });
-
-    expect(popoverSpy.present).toHaveBeenCalledTimes(1);
-
-    expect(popoverController.create).toHaveBeenCalledWith({
-      component: CardAddedComponent,
-      cssClass: 'pop-up-in-center',
-    });
-    expect(cardAddedPopoverSpy.present).toHaveBeenCalledTimes(1);
-  }));
-
-  it('should show proper card options menu for rtf-connected cards', fakeAsync(() => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([visaRTFCard]));
-
-    const actionSheetSpy = jasmine.createSpyObj('actionSheet', ['present']);
-    actionSheetController.create.and.resolveTo(actionSheetSpy);
-
-    component.ionViewWillEnter();
-    fixture.detectChanges();
-
-    const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
-    card.triggerEventHandler('cardOptionsClick', visaRTFCard);
-
-    tick();
-
-    expect(actionSheetController.create).toHaveBeenCalledWith({
-      buttons: [
-        {
-          text: 'Disconnect',
-          icon: 'assets/svg/fy-delete.svg',
-          cssClass: 'danger',
-          handler: jasmine.any(Function),
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: AddCorporateCardComponent,
+        cssClass: 'fy-dialog-popover',
+        componentProps: {
+          isVisaRTFEnabled: true,
+          isMastercardRTFEnabled: true,
+          isYodleeEnabled: true,
+          card: undefined,
+          cardType: undefined,
         },
-      ],
-      cssClass: 'fy-action-sheet',
-      mode: 'md',
+      });
+
+      expect(addCardPopoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show the card added modal and reload the cards list when the card is successfully added from the add corporate card modal', fakeAsync(() => {
+      addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
+
+      const addButton = getElementBySelector(fixture, '[data-testid="add-button"]') as HTMLButtonElement;
+      addButton.click();
+
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledTimes(2);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: AddCorporateCardComponent,
+        cssClass: 'fy-dialog-popover',
+        componentProps: {
+          isVisaRTFEnabled: true,
+          isMastercardRTFEnabled: true,
+          isYodleeEnabled: true,
+          card: undefined,
+          cardType: undefined,
+        },
+      });
+      expect(addCardPopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: CardAddedComponent,
+        cssClass: 'pop-up-in-center',
+      });
+      expect(cardAddedPopoverSpy.present).toHaveBeenCalledTimes(1);
+
+      expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
+      expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('card disconnection flow', () => {
+    let disconnectPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+
+    beforeEach(() => {
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([visaRTFCard]));
+      realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
+      disconnectPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
+      popoverController.create.and.resolveTo(disconnectPopoverSpy);
+
+      component.ionViewWillEnter();
+      fixture.detectChanges();
     });
 
-    expect(actionSheetSpy.present).toHaveBeenCalled();
-  }));
+    it('should open the disconnect card modal when clicked on disconnect button in the card options menu', (done) => {
+      component.setActionSheetButtons(visaRTFCard).subscribe(
+        fakeAsync((actionSheetButtons) => {
+          disconnectPopoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'test' } });
 
-  it('should show the disconnect card modal when clicked on disconnect button in the card options menu', (done) => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([visaRTFCard]));
-    realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
+          const disconnectHandler = actionSheetButtons[0].handler;
+          disconnectHandler();
 
-    component.ionViewWillEnter();
-    fixture.detectChanges();
+          tick();
 
-    component.setActionSheetButtons(visaRTFCard).subscribe(
-      fakeAsync((actionSheetButtons) => {
-        const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-          'present',
-          'onDidDismiss',
-        ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
-        popoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'test' } });
-        popoverController.create.and.resolveTo(popoverSpy);
-
-        const disconnectHandler = actionSheetButtons[0].handler;
-        disconnectHandler();
-
-        tick();
-
-        expect(popoverController.create).toHaveBeenCalledWith({
-          component: PopupAlertComponent,
-          cssClass: 'pop-up-in-center',
-          componentProps: {
-            title: 'Disconnect Card',
-            message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
-            primaryCta: {
-              text: 'Yes, Disconnect',
-              action: 'disconnect',
+          expect(popoverController.create).toHaveBeenCalledOnceWith({
+            component: PopupAlertComponent,
+            cssClass: 'pop-up-in-center',
+            componentProps: {
+              title: 'Disconnect Card',
+              message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
+              primaryCta: {
+                text: 'Yes, Disconnect',
+                action: 'disconnect',
+              },
+              secondaryCta: {
+                text: 'Cancel',
+                action: 'cancel',
+              },
             },
-            secondaryCta: {
-              text: 'Cancel',
-              action: 'cancel',
-            },
-          },
-        });
+          });
 
-        expect(popoverSpy.present).toHaveBeenCalled();
-        done();
-      }),
-    );
-  });
-
-  it('should not unenroll the card and reload the page if the user clicks cancel on the disconnect card modal', (done) => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([visaRTFCard]));
-    realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
-
-    component.ionViewWillEnter();
-    fixture.detectChanges();
-
-    component.setActionSheetButtons(visaRTFCard).subscribe(
-      fakeAsync((actionSheetButtons) => {
-        const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-          'present',
-          'onDidDismiss',
-        ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
-        popoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'cancel' } });
-        popoverController.create.and.resolveTo(popoverSpy);
-
-        const disconnectHandler = actionSheetButtons[0].handler;
-        disconnectHandler();
-
-        tick();
-
-        expect(popoverController.create).toHaveBeenCalledWith({
-          component: PopupAlertComponent,
-          cssClass: 'pop-up-in-center',
-          componentProps: {
-            title: 'Disconnect Card',
-            message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
-            primaryCta: {
-              text: 'Yes, Disconnect',
-              action: 'disconnect',
-            },
-            secondaryCta: {
-              text: 'Cancel',
-              action: 'cancel',
-            },
-          },
-        });
-
-        expect(popoverSpy.present).toHaveBeenCalled();
-        expect(realTimeFeedService.unenroll).not.toHaveBeenCalled();
-
-        done();
-      }),
-    );
-  });
-
-  it('should unenroll the card and reload the page if the user clicks disconnect on the disconnect card modal', (done) => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([visaRTFCard]));
-    realTimeFeedService.getCardType.and.returnValue(CardNetworkType.VISA);
-
-    component.ionViewWillEnter();
-    fixture.detectChanges();
-
-    component.setActionSheetButtons(visaRTFCard).subscribe(
-      fakeAsync((actionSheetButtons) => {
-        const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-          'present',
-          'onDidDismiss',
-        ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
-        popoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'disconnect' } });
-        popoverController.create.and.resolveTo(popoverSpy);
-
-        const disconnectHandler = actionSheetButtons[0].handler;
-        disconnectHandler();
-
-        tick();
-
-        expect(popoverController.create).toHaveBeenCalledWith({
-          component: PopupAlertComponent,
-          cssClass: 'pop-up-in-center',
-          componentProps: {
-            title: 'Disconnect Card',
-            message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
-            primaryCta: {
-              text: 'Yes, Disconnect',
-              action: 'disconnect',
-            },
-            secondaryCta: {
-              text: 'Cancel',
-              action: 'cancel',
-            },
-          },
-        });
-
-        expect(popoverSpy.present).toHaveBeenCalled();
-        expect(realTimeFeedService.unenroll).toHaveBeenCalledWith(CardNetworkType.VISA, visaRTFCard.id);
-        expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
-        expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
-
-        done();
-      }),
-    );
-  });
-
-  it('should show proper card options menu for statement uploaded cards', fakeAsync(() => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
-
-    const actionSheetSpy = jasmine.createSpyObj('actionSheet', ['present']);
-    actionSheetController.create.and.resolveTo(actionSheetSpy);
-
-    component.ionViewWillEnter();
-    fixture.detectChanges();
-
-    const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
-    card.triggerEventHandler('cardOptionsClick', statementUploadedCard);
-
-    tick();
-
-    expect(actionSheetController.create).toHaveBeenCalledWith({
-      buttons: [
-        {
-          text: 'Connect to Visa Real-time Feed',
-          handler: jasmine.any(Function),
-        },
-        {
-          text: 'Connect to Mastercard Real-time Feed',
-          handler: jasmine.any(Function),
-        },
-      ],
-      cssClass: 'fy-action-sheet',
-      mode: 'md',
+          expect(disconnectPopoverSpy.present).toHaveBeenCalledTimes(1);
+          done();
+        }),
+      );
     });
 
-    expect(actionSheetSpy.present).toHaveBeenCalledTimes(1);
-  }));
+    it('should not unenroll the card if the user clicks cancel on the disconnect card modal', (done) => {
+      component.setActionSheetButtons(visaRTFCard).subscribe(
+        fakeAsync((actionSheetButtons) => {
+          disconnectPopoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'cancel' } });
 
-  it('should handle enrollment of existing statement uploaded cards to visa rtf', (done) => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+          const disconnectHandler = actionSheetButtons[0].handler;
+          disconnectHandler();
 
-    component.ionViewWillEnter();
-    fixture.detectChanges();
+          tick();
 
-    component.setActionSheetButtons(statementUploadedCard).subscribe(
-      fakeAsync((actionSheetButtons) => {
-        const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-          'present',
-          'onDidDismiss',
-        ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
-        popoverSpy.onDidDismiss.and.resolveTo({});
-        popoverController.create.and.resolveTo(popoverSpy);
+          expect(popoverController.create).toHaveBeenCalledOnceWith({
+            component: PopupAlertComponent,
+            cssClass: 'pop-up-in-center',
+            componentProps: {
+              title: 'Disconnect Card',
+              message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
+              primaryCta: {
+                text: 'Yes, Disconnect',
+                action: 'disconnect',
+              },
+              secondaryCta: {
+                text: 'Cancel',
+                action: 'cancel',
+              },
+            },
+          });
 
-        const connectToVisaRTFHandler = actionSheetButtons[0].handler;
-        connectToVisaRTFHandler();
+          expect(disconnectPopoverSpy.present).toHaveBeenCalledTimes(1);
+          expect(realTimeFeedService.unenroll).not.toHaveBeenCalled();
 
-        tick();
+          done();
+        }),
+      );
+    });
 
-        expect(popoverController.create).toHaveBeenCalledWith({
-          component: AddCorporateCardComponent,
-          cssClass: 'fy-dialog-popover',
-          componentProps: {
-            isVisaRTFEnabled: true,
-            isMastercardRTFEnabled: true,
-            isYodleeEnabled: true,
-            card: statementUploadedCard,
-            cardType: CardNetworkType.VISA,
-          },
-        });
-        expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+    it('should unenroll the card if the user clicks disconnect on the disconnect card modal', (done) => {
+      component.setActionSheetButtons(visaRTFCard).subscribe(
+        fakeAsync((actionSheetButtons) => {
+          disconnectPopoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'disconnect' } });
 
-        done();
-      }),
-    );
+          const disconnectHandler = actionSheetButtons[0].handler;
+          disconnectHandler();
+
+          tick();
+
+          expect(popoverController.create).toHaveBeenCalledOnceWith({
+            component: PopupAlertComponent,
+            cssClass: 'pop-up-in-center',
+            componentProps: {
+              title: 'Disconnect Card',
+              message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
+              primaryCta: {
+                text: 'Yes, Disconnect',
+                action: 'disconnect',
+              },
+              secondaryCta: {
+                text: 'Cancel',
+                action: 'cancel',
+              },
+            },
+          });
+
+          expect(disconnectPopoverSpy.present).toHaveBeenCalledTimes(1);
+          expect(realTimeFeedService.unenroll).toHaveBeenCalledOnceWith(CardNetworkType.VISA, visaRTFCard.id);
+          expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
+          expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
+
+          done();
+        }),
+      );
+    });
   });
 
-  it('should handle enrollment of existing statement uploaded cards to mastercard rtf', (done) => {
-    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+  describe('card options action sheet menu', () => {
+    it('should show correct options for statement uploaded cards', fakeAsync(() => {
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+      const actionSheetSpy = jasmine.createSpyObj('HTMLIonActionSheetElement', [
+        'present',
+      ]) as jasmine.SpyObj<HTMLIonActionSheetElement>;
+      actionSheetController.create.and.resolveTo(actionSheetSpy);
 
-    component.ionViewWillEnter();
-    fixture.detectChanges();
+      component.ionViewWillEnter();
+      fixture.detectChanges();
 
-    component.setActionSheetButtons(statementUploadedCard).subscribe(
-      fakeAsync((actionSheetButtons) => {
-        const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
-          'present',
-          'onDidDismiss',
-        ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
-        popoverSpy.onDidDismiss.and.resolveTo({});
-        popoverController.create.and.resolveTo(popoverSpy);
+      const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
+      card.triggerEventHandler('cardOptionsClick', statementUploadedCard);
 
-        const connectToMastercardRTFHandler = actionSheetButtons[1].handler;
-        connectToMastercardRTFHandler();
+      tick();
 
-        tick();
-
-        expect(popoverController.create).toHaveBeenCalledWith({
-          component: AddCorporateCardComponent,
-          cssClass: 'fy-dialog-popover',
-          componentProps: {
-            isVisaRTFEnabled: true,
-            isMastercardRTFEnabled: true,
-            isYodleeEnabled: true,
-            card: statementUploadedCard,
-            cardType: CardNetworkType.MASTERCARD,
+      expect(actionSheetController.create).toHaveBeenCalledOnceWith({
+        buttons: [
+          {
+            text: 'Connect to Visa Real-time Feed',
+            handler: jasmine.any(Function),
           },
-        });
-        expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+          {
+            text: 'Connect to Mastercard Real-time Feed',
+            handler: jasmine.any(Function),
+          },
+        ],
+        cssClass: 'fy-action-sheet',
+        mode: 'md',
+      });
 
-        done();
-      }),
-    );
+      expect(actionSheetSpy.present).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show correct options for rtf-connected cards', fakeAsync(() => {
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([visaRTFCard]));
+      const actionSheetSpy = jasmine.createSpyObj('HTMLIonActionSheetElement', [
+        'present',
+      ]) as jasmine.SpyObj<HTMLIonActionSheetElement>;
+      actionSheetController.create.and.resolveTo(actionSheetSpy);
+
+      component.ionViewWillEnter();
+      fixture.detectChanges();
+
+      const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
+      card.triggerEventHandler('cardOptionsClick', visaRTFCard);
+
+      tick();
+
+      expect(actionSheetController.create).toHaveBeenCalledOnceWith({
+        buttons: [
+          {
+            text: 'Disconnect',
+            icon: 'assets/svg/fy-delete.svg',
+            cssClass: 'danger',
+            handler: jasmine.any(Function),
+          },
+        ],
+        cssClass: 'fy-action-sheet',
+        mode: 'md',
+      });
+
+      expect(actionSheetSpy.present).toHaveBeenCalledTimes(1);
+    }));
   });
 
-  it('should refresh the corporate cards when pull to refresh is triggered', () => {
+  describe('enrollment of statement uploaded cards to rtf', () => {
+    let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+    beforeEach(() => {
+      addCardPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', [
+        'present',
+        'onDidDismiss',
+      ]) as jasmine.SpyObj<HTMLIonPopoverElement>;
+      popoverController.create.and.resolveTo(addCardPopoverSpy);
+
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
+
+      component.ionViewWillEnter();
+      fixture.detectChanges();
+    });
+
+    it("should open the add corporate card popover with the card's details for connecting it to visa rtf", (done) => {
+      component.setActionSheetButtons(statementUploadedCard).subscribe(
+        fakeAsync((actionSheetButtons) => {
+          // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
+          addCardPopoverSpy.onDidDismiss.and.resolveTo({});
+
+          const connectToVisaRTFHandler = actionSheetButtons[0].handler;
+          connectToVisaRTFHandler();
+
+          tick();
+
+          expect(popoverController.create).toHaveBeenCalledOnceWith({
+            component: AddCorporateCardComponent,
+            cssClass: 'fy-dialog-popover',
+            componentProps: {
+              isVisaRTFEnabled: true,
+              isMastercardRTFEnabled: true,
+              isYodleeEnabled: true,
+              card: statementUploadedCard,
+              cardType: CardNetworkType.VISA,
+            },
+          });
+          expect(addCardPopoverSpy.present).toHaveBeenCalledTimes(1);
+
+          done();
+        }),
+      );
+    });
+
+    it("should open the add corporate card popover with the card's details for connecting it to mastercard rtf", (done) => {
+      component.setActionSheetButtons(statementUploadedCard).subscribe(
+        fakeAsync((actionSheetButtons) => {
+          // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
+          addCardPopoverSpy.onDidDismiss.and.resolveTo({});
+
+          const connectToMastercardRTFHandler = actionSheetButtons[1].handler;
+          connectToMastercardRTFHandler();
+
+          tick();
+
+          expect(popoverController.create).toHaveBeenCalledOnceWith({
+            component: AddCorporateCardComponent,
+            cssClass: 'fy-dialog-popover',
+            componentProps: {
+              isVisaRTFEnabled: true,
+              isMastercardRTFEnabled: true,
+              isYodleeEnabled: true,
+              card: statementUploadedCard,
+              cardType: CardNetworkType.MASTERCARD,
+            },
+          });
+          expect(addCardPopoverSpy.present).toHaveBeenCalledTimes(1);
+
+          done();
+        }),
+      );
+    });
+  });
+
+  it('should refresh the corporate cards list when pulled to refresh', () => {
     const refresher = fixture.debugElement.query(By.directive(IonRefresher));
     const refresherCustomEvent = {
       target: {
