@@ -17,7 +17,7 @@ import { Transaction } from '../models/v1/transaction.model';
 export class PolicyService {
   constructor(
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private approverPlatformApiService: ApproverPlatformApiService
+    private approverPlatformApiService: ApproverPlatformApiService,
   ) {}
 
   transformTo(transaction: PublicPolicyExpense | Partial<Transaction>): PlatformPolicyExpense {

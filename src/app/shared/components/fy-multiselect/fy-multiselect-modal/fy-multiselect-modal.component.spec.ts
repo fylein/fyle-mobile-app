@@ -29,8 +29,6 @@ describe('FyMultiselectModalComponent', () => {
         MatIconTestingModule,
         MatIconModule,
         MatCheckboxModule,
-        MatChipsModule,
-        MatFormFieldModule,
         FormsModule,
         BrowserAnimationsModule,
       ],

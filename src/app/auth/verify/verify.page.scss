@@ -46,7 +46,7 @@ $secondary-cta-border: #e0e0e0;
   }
 
   &--primary-cta {
-    .mat-button-base {
+    .mat-mdc-button-base {
       width: 100%;
       font-weight: 700;
       min-height: 47px;
@@ -58,7 +58,7 @@ $secondary-cta-border: #e0e0e0;
   }
 
   &--secondary-cta {
-    .mat-button-base {
+    .mat-mdc-button-base {
       width: 100%;
       font-weight: 700;
       min-height: 47px;
