@@ -339,7 +339,7 @@ export function TestCases5(getTestBed) {
     });
 
     describe('getDeleteReportParams():', () => {
-      it('should return modal params and method to remove expense from report', () => {
+      it('should return modal params and method to remove expense from report if removePerDiemFromReport is true', () => {
         reportService.removeTransaction.and.returnValue(of());
 
         component
@@ -350,10 +350,11 @@ export function TestCases5(getTestBed) {
             'rpFE5X1Pqi9P',
           )
           .componentProps.deleteMethod();
-        expect(reportService.removeTransaction).toHaveBeenCalledTimes(1);
+        expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
+        expect(transactionService.delete).not.toHaveBeenCalled();
       });
 
-      it('should  return modal params and method to delete expense', () => {
+      it('should return modal params and method to delete expense if removePerDiemFromReport is false', () => {
         transactionService.delete.and.returnValue(of(expenseData1));
         component
           .getDeleteReportParams(
@@ -362,7 +363,8 @@ export function TestCases5(getTestBed) {
             'tx5n59fvxk4z',
           )
           .componentProps.deleteMethod();
-        expect(transactionService.delete).toHaveBeenCalledTimes(1);
+        expect(transactionService.delete).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
+        expect(reportService.removeTransaction).not.toHaveBeenCalled();
       });
     });
 
@@ -373,7 +375,7 @@ export function TestCases5(getTestBed) {
         };
       });
 
-      it('should delete expense and navigate back to report if deleting directly from report', fakeAsync(() => {
+      it('should delete expense and navigate to my_view_report if deleting directly from report', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
         const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
 
@@ -411,7 +413,7 @@ export function TestCases5(getTestBed) {
         );
       }));
 
-      it('should delete expense and go back to my expenses page if not redirected from report', fakeAsync(() => {
+      it('should delete expense and navigate to my expenses page if not redirected from report', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
         const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
 
@@ -449,7 +451,7 @@ export function TestCases5(getTestBed) {
         );
       }));
 
-      it('should go to next expense if delete successful', fakeAsync(() => {
+      it('should go to next expense if delete is successful and expense is not the last one in list', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
         spyOn(component, 'goToTransaction');
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
