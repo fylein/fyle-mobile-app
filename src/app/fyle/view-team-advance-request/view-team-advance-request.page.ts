@@ -82,7 +82,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number,
   ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
@@ -99,16 +99,16 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.advanceRequestService.getAdvanceRequest(id)))
+        from(this.loaderService.showLoader()).pipe(switchMap(() => this.advanceRequestService.getAdvanceRequest(id))),
       ),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
 
     this.showAdvanceActions$ = this.actions$.pipe(
-      map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject)
+      map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject),
     );
 
     this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
@@ -116,7 +116,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     this.activeApprovals$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() => this.approvals$),
-      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED'))
+      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED')),
     );
 
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
@@ -129,10 +129,10 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
-          })
-        )
+          }),
+        ),
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as FileObject[])
+      reduce((acc, curr) => acc.concat(curr), [] as FileObject[]),
     );
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
@@ -150,7 +150,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             res.advanceRequest.areq_custom_field_values.length > 0
           ) {
             customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-              JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
+              JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[],
             );
           }
 
@@ -164,10 +164,10 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           return res.customFields;
         } else {
           return this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
+            JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[],
           );
         }
-      })
+      }),
     );
     this.advanceRequestCustomFields$ = customFields$;
 
@@ -331,7 +331,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           finalize(() => {
             this.sendBackLoading = false;
             this.trackingService.sendBackAdvance({ Asset: 'Mobile' });
-          })
+          }),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
@@ -373,7 +373,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           finalize(() => {
             this.rejectLoading = false;
             this.trackingService.rejectAdvance({ Asset: 'Mobile' });
-          })
+          }),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
