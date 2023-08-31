@@ -43,7 +43,7 @@ class MockCorporateCardComponent {
   @Input() isMastercardRTFEnabled: boolean;
 }
 
-fdescribe('ManageCorporateCardsPage', () => {
+describe('ManageCorporateCardsPage', () => {
   let component: ManageCorporateCardsPage;
   let fixture: ComponentFixture<ManageCorporateCardsPage>;
 
@@ -115,6 +115,7 @@ fdescribe('ManageCorporateCardsPage', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
 
+    // Default return values
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
