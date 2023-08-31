@@ -42,6 +42,7 @@ export const editExpenseProperties1 = {
   Used_Autofilled_VehicleType: true,
   Used_Autofilled_StartLocation: true,
 };
+
 export const createExpenseProperties3: ExpenseProperties = {
   Type: 'Receipt',
   Amount: 344,

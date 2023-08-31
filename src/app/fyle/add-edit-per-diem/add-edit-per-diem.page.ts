@@ -104,6 +104,8 @@ import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
 import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
 import { TransactionState } from 'src/app/core/models/transaction-state.enum';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -1766,10 +1768,10 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  addExpense(redirectedFrom: string): Observable<OutboxQueue> {
-    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
-    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
-    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
+  addExpense(redirectedFrom: PerDiemRedirectedFrom): Observable<OutboxQueue> {
+    this.savePerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_PER_DIEM;
+    this.saveAndNextPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM;
+    this.saveAndPrevPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM;
 
     const customFields$ = this.getCustomFields();
 
@@ -1943,10 +1945,10 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  editExpense(redirectedFrom: string): Observable<Partial<Transaction>> {
-    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
-    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
-    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
+  editExpense(redirectedFrom: PerDiemRedirectedFrom): Observable<Partial<Transaction>> {
+    this.savePerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_PER_DIEM;
+    this.saveAndNextPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM;
+    this.saveAndPrevPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM;
 
     this.trackPolicyCorrections();
 
@@ -2103,7 +2105,7 @@ export class AddEditPerDiemPage implements OnInit {
       redirectionText: 'View Report',
     };
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      ...this.snackbarProperties.setSnackbarProperties(ToastType.SUCCESS, toastMessageData),
       panelClass: ['msb-success-with-camera-icon'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
@@ -2111,6 +2113,19 @@ export class AddEditPerDiemPage implements OnInit {
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
     });
+  }
+
+  showFormValidationErrors(): void {
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
+    }
   }
 
   savePerDiem(): void {
@@ -2122,21 +2137,12 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
+            that.addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe(() => this.goBack());
           } else {
-            that.editExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
+            that.editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe(() => this.goBack());
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
 
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
@@ -2162,26 +2168,17 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
+            that.addExpense(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM).subscribe(() => {
               this.reloadCurrentRoute();
             });
           } else {
             // to do edit
-            that.editExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
+            that.editExpense(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM).subscribe(() => {
               that.goBack();
             });
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -2196,7 +2193,7 @@ export class AddEditPerDiemPage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+        that.addExpense(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === 0) {
             that.close();
           } else {
@@ -2205,7 +2202,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+        that.editExpense(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === 0) {
             that.close();
           } else {
@@ -2214,17 +2211,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -2232,7 +2219,7 @@ export class AddEditPerDiemPage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
+        that.addExpense(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -2241,7 +2228,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
+        that.editExpense(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -2250,17 +2237,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
