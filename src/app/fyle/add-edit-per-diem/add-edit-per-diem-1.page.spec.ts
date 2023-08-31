@@ -504,7 +504,7 @@ export function TestCases1(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       const mockTxnFieldData = cloneDeep(txnFieldsData2);
       expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
@@ -514,7 +514,7 @@ export function TestCases1(getTestBed) {
         expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
           expenseFieldsMapResponse,
           fields,
-          perDiemCategory
+          perDiemCategory,
         );
         expect(res).toEqual(mockTxnFieldData);
         done();
@@ -529,7 +529,7 @@ export function TestCases1(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
       expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData2);
@@ -547,7 +547,7 @@ export function TestCases1(getTestBed) {
       expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
         expenseFieldsMapResponse,
         fields,
-        perDiemCategory
+        perDiemCategory,
       );
       expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
       expect(component.fg.controls.costCenter.value).toEqual(15818);
@@ -559,7 +559,7 @@ export function TestCases1(getTestBed) {
       accountsService.getEMyAccounts.and.returnValue(of(accountsData));
       orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
       orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(paymentModesData);
@@ -575,7 +575,7 @@ export function TestCases1(getTestBed) {
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           accountsData,
           [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
-          paymentModesConfig
+          paymentModesConfig,
         );
         done();
       });

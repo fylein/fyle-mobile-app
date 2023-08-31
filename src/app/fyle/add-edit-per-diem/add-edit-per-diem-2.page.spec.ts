@@ -196,7 +196,7 @@ export function TestCases2(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       authService.getEou.and.resolveTo(apiEouRes);
@@ -256,7 +256,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         component.etxn$ = of(unflattenedTxnData);
         categoriesService.getAll.and.returnValue(of([mockCategoryData]));
@@ -279,7 +279,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
@@ -363,7 +363,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         spyOn(component, 'getNewExpense').and.returnValue(of(unflattenedTxnDataPerDiem));
@@ -393,7 +393,7 @@ export function TestCases2(getTestBed) {
         expect(dateService.addDaysToDate).toHaveBeenCalledOnceWith(today, 1);
         expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
         expect(component.clusterDomain).toEqual('https://staging.fyle.tech');

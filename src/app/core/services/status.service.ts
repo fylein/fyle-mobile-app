@@ -14,12 +14,13 @@ export class StatusService {
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
-      map((estatuses: ExtendedStatus[]) =>
-        estatuses?.map((estatus) => {
-          estatus.st_created_at = new Date(estatus.st_created_at);
-          return estatus;
-        })
-      )
+      map(
+        (estatuses: ExtendedStatus[]) =>
+          estatuses?.map((estatus) => {
+            estatus.st_created_at = new Date(estatus.st_created_at);
+            return estatus;
+          }),
+      ),
     );
   }
 
@@ -27,7 +28,7 @@ export class StatusService {
     objectType: string,
     objectId: string,
     status: { comment: string | ExtendedStatus },
-    notify: boolean = false
+    notify: boolean = false,
   ): Observable<TransactionStatus> {
     return this.apiService.post<TransactionStatus>('/' + objectType + '/' + objectId + '/statuses', {
       status,
@@ -259,7 +260,7 @@ export class StatusService {
         if (sortedStatus.length) {
           return sortedStatus[0].st_comment;
         }
-      })
+      }),
     );
   }
 
