@@ -64,6 +64,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { createExpenseProperties3 } from 'src/app/core/mock-data/track-expense-properties.data';
 import { extendedReportParam } from 'src/app/core/mock-data/report-unflattened.data';
+import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 export function TestCases3(getTestBed) {
   return describe('add-edit-per-diem test cases set 3', () => {
@@ -528,7 +529,7 @@ export function TestCases3(getTestBed) {
 
       it('should throw criticalPolicyViolations error and save the expense in transactionOutbox', (done) => {
         component
-          .addExpense('SAVE_PER_DIEM')
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -571,7 +572,7 @@ export function TestCases3(getTestBed) {
       it('should throw policyViolations error and save the expense in transactionOutbox', (done) => {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         component
-          .addExpense('SAVE_PER_DIEM')
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -615,7 +616,7 @@ export function TestCases3(getTestBed) {
         const error = new Error('unhandledError');
         policyService.getCriticalPolicyRules.and.throwError(error);
         component
-          .addExpense('SAVE_PER_DIEM')
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -660,7 +661,7 @@ export function TestCases3(getTestBed) {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
         component
-          .addExpense('SAVE_PER_DIEM')
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -699,7 +700,7 @@ export function TestCases3(getTestBed) {
       it('should return etxn object and comment and save the expense in transactionOutbox if device is offline', (done) => {
         component.isConnected$ = of(false);
         component
-          .addExpense('SAVE_PER_DIEM')
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -740,7 +741,7 @@ export function TestCases3(getTestBed) {
           .createSpy()
           .and.returnValue(of({ tx: mockTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] }));
         component
-          .addExpense('SAVE_PER_DIEM')
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
