@@ -331,7 +331,7 @@ describe('ManageCorporateCardsPage', () => {
       );
     });
 
-    it('should unenroll the card if the user clicks disconnect on the disconnect card modal', (done) => {
+    it('should unenroll the card and reload the cards list if the user clicks disconnect on the disconnect card modal', (done) => {
       component.setActionSheetButtons(visaRTFCard).subscribe(
         fakeAsync((actionSheetButtons) => {
           disconnectPopoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'disconnect' } });
