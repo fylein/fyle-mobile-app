@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { concat, Observable, of, Subject, Subscription } from 'rxjs';
 import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
-import { ActionSheetController, NavController, Platform } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
@@ -16,6 +16,8 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
+import { DocumentScanner, ResponseType } from 'capacitor-document-scanner';
+import { ReceiptPreviewComponent } from 'src/app/shared/components/capture-receipt/receipt-preview/receipt-preview.component';
 
 enum DashboardState {
   home,
@@ -63,7 +65,8 @@ export class DashboardPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
     private backButtonService: BackButtonService,
-    private navController: NavController
+    private navController: NavController,
+    private modalController: ModalController,
   ) {}
 
   get displayedTaskCount() {
@@ -92,7 +95,7 @@ export class DashboardPage implements OnInit {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit$),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -212,18 +215,33 @@ export class DashboardPage implements OnInit {
         text: 'Capture Receipt',
         icon: 'assets/svg/fy-camera.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
+        handler: async (): Promise<void> => {
           that.trackingService.dashboardActionSheetButtonClicked({
             Action: 'Capture Receipt',
           });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'camera_overlay',
-            {
-              navigate_back: true,
+          // that.router.navigate([
+          //   '/',
+          //   'enterprise',
+          //   'camera_overlay',
+          //   {
+          //     navigate_back: true,
+          //   },
+          // ]);
+          const { scannedImages } = await DocumentScanner.scanDocument({
+            responseType: ResponseType.Base64,
+          });
+          console.log(scannedImages);
+          const formattedScannedImages = scannedImages.map((encodedImage) => ({
+            source: 'DOCUMENT_SCANNER',
+            base64Image: encodedImage,
+          }));
+          await that.modalController.create({
+            component: ReceiptPreviewComponent,
+            componentProps: {
+              base64ImagesWithSource: formattedScannedImages,
+              mode: formattedScannedImages.length > 1 ? 'camera' : 'gallery',
             },
-          ]);
+          });
         },
       },
       {
