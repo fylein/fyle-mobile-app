@@ -265,7 +265,7 @@ fdescribe('ManageCorporateCardsPage', () => {
     it('should open the disconnect card modal when clicked on disconnect button in the card options menu', (done) => {
       component.setActionSheetButtons(visaRTFCard).subscribe(
         fakeAsync((actionSheetButtons) => {
-          disconnectPopoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'test' } });
+          disconnectPopoverSpy.onDidDismiss.and.resolveTo({});
 
           const disconnectHandler = actionSheetButtons[0].handler;
           disconnectHandler();
@@ -452,7 +452,6 @@ fdescribe('ManageCorporateCardsPage', () => {
     it("should open the add corporate card popover with the card's details for connecting it to visa rtf", (done) => {
       component.setActionSheetButtons(statementUploadedCard).subscribe(
         fakeAsync((actionSheetButtons) => {
-          // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
           addCardPopoverSpy.onDidDismiss.and.resolveTo({});
 
           const connectToVisaRTFHandler = actionSheetButtons[0].handler;
@@ -481,7 +480,6 @@ fdescribe('ManageCorporateCardsPage', () => {
     it("should open the add corporate card popover with the card's details for connecting it to mastercard rtf", (done) => {
       component.setActionSheetButtons(statementUploadedCard).subscribe(
         fakeAsync((actionSheetButtons) => {
-          // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
           addCardPopoverSpy.onDidDismiss.and.resolveTo({});
 
           const connectToMastercardRTFHandler = actionSheetButtons[1].handler;
