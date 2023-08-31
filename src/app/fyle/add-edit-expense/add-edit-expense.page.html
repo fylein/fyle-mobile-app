@@ -1,4 +1,4 @@
-<ion-header class="ion-no-border" [ngClass]="{'d-none': isCameraPreviewStarted}" mode="md">
+<ion-header [ngClass]="{'d-none': isCameraPreviewStarted}" mode="md">
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">

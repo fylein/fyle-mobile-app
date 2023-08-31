@@ -26,22 +26,6 @@
   &__form {
     padding: 24px;
 
-    form {
-      mat-form-field {
-        ::ng-deep .mdc-notched-outline > * {
-          border-color: $transparent-black !important;
-        }
-
-        ::ng-deep .mdc-text-field--focused .mdc-notched-outline > * {
-          border-color: $red !important;
-        }
-
-        ::ng-deep .mdc-text-field--invalid .mdc-notched-outline > * {
-          border-color: $red !important;
-        }
-      }
-    }
-
     &__title {
       font-size: 24px;
       margin: 16px 0 8px;
@@ -58,7 +42,7 @@
 
   &__btn {
     margin-top: 24px;
-    .mat-mdc-button-base {
+    .mat-button-base {
       width: 100%;
       font-weight: 700;
       min-height: 47px;

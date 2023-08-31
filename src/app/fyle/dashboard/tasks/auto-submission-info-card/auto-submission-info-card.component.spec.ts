@@ -11,9 +11,8 @@ describe('AutoSubmissionInfoCardComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [AutoSubmissionInfoCardComponent],
+      declarations: [AutoSubmissionInfoCardComponent, DatePipe],
       imports: [IonicModule.forRoot()],
-      providers: [DatePipe],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AutoSubmissionInfoCardComponent);

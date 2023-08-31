@@ -15,9 +15,8 @@ describe('ViewTeamReportEtxnCardComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportEtxnCardComponent, FyCategoryIconComponent, EllipsisPipe],
+      declarations: [ViewTeamReportEtxnCardComponent, FyCategoryIconComponent, EllipsisPipe, DatePipe, CurrencyPipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
-      providers: [DatePipe, CurrencyPipe],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ViewTeamReportEtxnCardComponent);

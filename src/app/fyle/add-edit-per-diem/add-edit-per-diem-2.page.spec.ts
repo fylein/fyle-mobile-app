@@ -467,7 +467,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
+            }),
           )
           .subscribe((res) => {
             // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
@@ -486,7 +486,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
+            }),
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -505,7 +505,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
+            }),
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -526,7 +526,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
+            }),
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -623,7 +623,7 @@ export function TestCases2(getTestBed) {
         component.recentlyUsedCostCenters$.subscribe((res) => {
           expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledOnceWith(
             expectedCCdata3,
-            recentlyUsedRes
+            recentlyUsedRes,
           );
           expect(res).toEqual(expectedCCdata2);
         });
