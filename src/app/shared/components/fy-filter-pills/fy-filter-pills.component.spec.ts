@@ -12,7 +12,7 @@ describe('FyFilterPillsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [FyFilterPillsComponent, SnakeCaseToSpaceCase, TitleCasePipe],
+      declarations: [FyFilterPillsComponent, SnakeCaseToSpaceCase],
       imports: [IonicModule.forRoot()],
     }).compileComponents();
 
