@@ -502,7 +502,7 @@ export function TestCases4(getTestBed) {
         mockExpensePolicyData.data = undefined;
         component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(mockExpensePolicyData));
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
@@ -559,7 +559,7 @@ export function TestCases4(getTestBed) {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(undefined));
         component
-          .editExpense('SAVE_PER_DIEM')
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
           .pipe(
             finalize(() => {
               expect(component.savePerDiemLoader).toBeFalse();
