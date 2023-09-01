@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 
 import { ViewPerDiemPage } from './view-per-diem.page';
@@ -16,6 +16,15 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { of } from 'rxjs';
+import {
+  ApproverExpensePolicyStatesData,
+  expensePolicyStatesData,
+} from 'src/app/core/mock-data/platform-policy-expense.data';
+import { individualExpPolicyStateData3 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
@@ -172,5 +181,80 @@ describe('ViewPerDiemPage', () => {
         { id: 'rpFE5X1Pqi9P', navigate_back: true },
       ]);
     });
+  });
+
+  describe('getPolicyDetails():', () => {
+    it('should get policy details for team expenses', () => {
+      component.view = ExpenseView.team;
+      policyService.getApproverExpensePolicyViolations.and.returnValue(
+        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states),
+      );
+      component.getPolicyDetails('txRNWeQRXhso');
+      expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith('txRNWeQRXhso');
+      expect(component.policyDetails).toEqual(ApproverExpensePolicyStatesData.data[0].individual_desired_states);
+    });
+
+    it('should get policy details for individual expenses', () => {
+      component.view = ExpenseView.individual;
+      policyService.getSpenderExpensePolicyViolations.and.returnValue(
+        of(expensePolicyStatesData.data[0].individual_desired_states),
+      );
+      component.getPolicyDetails('txVTmNOp5JEa');
+      expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('txVTmNOp5JEa');
+      expect(individualExpPolicyStateData3).toEqual(component.policyDetails);
+    });
+  });
+
+  describe('openCommentsModal', () => {
+    beforeEach(() => {
+      component.view = ExpenseView.individual;
+      transactionService.getEtxn.and.returnValue(of(expenseData1));
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    });
+
+    it('on opening the comments modal it should add a comment if the data is updated', fakeAsync(() => {
+      const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } });
+
+      component.openCommentsModal();
+      tick(500);
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: ViewCommentComponent,
+        componentProps: {
+          objectType: 'transactions',
+          objectId: expenseData1.tx_id,
+        },
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith('tx3qwe4ty');
+      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+      expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(trackingService.addComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
+    }));
+
+    it('on opening the comments modal it should show the comments if the data not updated', fakeAsync(() => {
+      const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+      modalController.create.and.resolveTo(modalSpy);
+      modalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } });
+      modalSpy.onDidDismiss.and.resolveTo({ data: { updated: false } });
+
+      component.openCommentsModal();
+      tick(500);
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: ViewCommentComponent,
+        componentProps: {
+          objectType: 'transactions',
+          objectId: expenseData1.tx_id,
+        },
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith('tx3qwe4ty');
+      expect(modalSpy.present).toHaveBeenCalledTimes(1);
+      expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(trackingService.viewComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
+    }));
   });
 });
