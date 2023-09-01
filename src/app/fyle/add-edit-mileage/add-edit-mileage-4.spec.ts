@@ -23,6 +23,7 @@ import {
   orgSettingsParamsWithSimplifiedReport,
   orgSettingsRes,
   orgSettingsWoAdvance,
+  orgSettingsWoMileage,
 } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
@@ -393,6 +394,15 @@ export function TestCases4(getTestBed) {
 
         component.individualMileageRatesEnabled$.subscribe((res) => {
           expect(res).toBeTrue();
+          done();
+        });
+      });
+
+      it('should set individual mileage to undefined if settings is not provided', (done) => {
+        component.checkIndividualMileageEnabled(of(orgSettingsWoMileage));
+
+        component.individualMileageRatesEnabled$.subscribe((res) => {
+          expect(res).toBeUndefined();
           done();
         });
       });

@@ -15,7 +15,11 @@ import {
   mileageRateApiRes1,
   unfilteredMileageRatesData,
 } from 'src/app/core/mock-data/mileage-rate.data';
-import { mileageCategories2 } from 'src/app/core/mock-data/org-category.data';
+import {
+  expectedMileageCategoriesData,
+  mileageCategories2,
+  mileageCategories3,
+} from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsParams2,
   orgSettingsRes,
@@ -79,6 +83,8 @@ import { dependentCustomFields2 } from 'src/app/core/mock-data/expense-field.dat
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { cloneDeep } from 'lodash';
+import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
 
 export function TestCases2(getTestBed) {
   return describe('AddEditMileage-2', () => {
@@ -248,13 +254,25 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('getSubCategories(): should get sub categories', (done) => {
-      categoriesService.getAll.and.returnValue(of(mileageCategories2));
+    describe('getSubCategories():', () => {
+      it('should get sub categories', (done) => {
+        categoriesService.getAll.and.returnValue(of(mileageCategories2));
 
-      component.getSubCategories().subscribe((res) => {
-        expect(res).toEqual([mileageCategories2[0]]);
-        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
-        done();
+        component.getSubCategories().subscribe((res) => {
+          expect(res).toEqual([mileageCategories2[0]]);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return empty arrays if category could not be found', (done) => {
+        categoriesService.getAll.and.returnValue(of(mileageCategories3));
+
+        component.getSubCategories().subscribe((res) => {
+          expect(res).toEqual(expectedMileageCategoriesData);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
     });
 
@@ -460,6 +478,7 @@ export function TestCases2(getTestBed) {
 
         component.checkIfInvalidPaymentMode().subscribe((res) => {
           expect(res).toBeFalse();
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -473,6 +492,20 @@ export function TestCases2(getTestBed) {
         component.checkIfInvalidPaymentMode().subscribe((res) => {
           expect(res).toBeTrue();
           expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return false if payment account is null', (done) => {
+        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: null });
+        component.etxn$ = of(unflattenedTxnWithSourceID2);
+        component.amount$ = of(600);
+        fixture.detectChanges();
+
+        component.checkIfInvalidPaymentMode().subscribe((res) => {
+          expect(res).toBeFalse();
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -717,26 +750,49 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('getCustomFields(): should get custom fields data', () => {
-      component.dependentFields$ = of(dependentCustomFields2);
-      customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties2);
-      spyOn(component, 'getProjectDependentFields').and.returnValue([]);
-      spyOn(component, 'getCostCenterDependentFields').and.returnValue([]);
-      spyOn(component, 'getFormValues').and.returnValue(null);
+    describe('getCustomFields():', () => {
+      it('should get custom fields data', (done) => {
+        component.dependentFields$ = of(dependentCustomFields2);
+        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties2);
+        spyOn(component, 'getProjectDependentFields').and.returnValue([]);
+        spyOn(component, 'getCostCenterDependentFields').and.returnValue([]);
+        spyOn(component, 'getFormValues').and.returnValue(null);
 
-      component.customInputs$ = of(txnCustomPropertiesData);
-      component.fg = formBuilder.group({
-        project_dependent_fields: [],
-        custom_inputs: [],
-        cost_center_dependent_fields: [],
+        component.customInputs$ = of(txnCustomPropertiesData);
+        component.fg = formBuilder.group({
+          project_dependent_fields: [],
+          custom_inputs: [],
+          cost_center_dependent_fields: [],
+        });
+        component.fg.controls.custom_inputs.setValue(projectDependentFields);
+        fixture.detectChanges();
+
+        component.getCustomFields().subscribe(() => {
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields2);
+          expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
+          expect(component.getCostCenterDependentFields).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
-      component.fg.controls.custom_inputs.setValue(projectDependentFields);
-      fixture.detectChanges();
 
-      component.getCustomFields().subscribe(() => {
-        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields2);
-        expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
-        expect(component.getCostCenterDependentFields).toHaveBeenCalledTimes(1);
+      it('should get custom inputs in case dependent fields are empty', (done) => {
+        component.dependentFields$ = of(dependentCustomFields2);
+        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties2);
+        spyOn(component, 'getProjectDependentFields').and.returnValue([]);
+        spyOn(component, 'getCostCenterDependentFields').and.returnValue([]);
+        spyOn(component, 'getFormValues').and.returnValue({
+          custom_inputs: customInputData1 as CustomInput[],
+        });
+        component.customInputs$ = of(txnCustomPropertiesData);
+
+        fixture.detectChanges();
+
+        component.getCustomFields().subscribe(() => {
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], dependentCustomFields2);
+          expect(component.getProjectDependentFields).toHaveBeenCalledTimes(1);
+          expect(component.getCostCenterDependentFields).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
     });
   });

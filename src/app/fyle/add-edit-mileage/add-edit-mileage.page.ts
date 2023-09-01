@@ -1099,8 +1099,7 @@ export class AddEditMileagePage implements OnInit {
               map(
                 (accounts) =>
                   accounts.filter(
-                    (account) =>
-                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
+                    (account) => account.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0
                   ).length > 0
               )
             );

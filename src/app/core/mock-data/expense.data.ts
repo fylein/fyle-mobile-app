@@ -5603,3 +5603,8 @@ export const policyExpense2: Expense = {
   ...apiExpenseRes[0],
   tx_policy_amount: 0,
 };
+
+export const policyExpense3: Expense = {
+  ...apiExpenseRes[0],
+  tx_policy_amount: 0.0000001,
+};

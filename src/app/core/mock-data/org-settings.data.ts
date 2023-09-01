@@ -1326,7 +1326,11 @@ export const orgSettingsOrgAutofill: OrgSettings = {
 
 export const orgSettingsWoProjects: OrgSettings = {
   ...orgSettingsRes,
-
   advanced_projects: null,
   projects: null,
+};
+
+export const orgSettingsWoMileage: OrgSettings = {
+  ...orgSettingsParams2,
+  mileage: null,
 };

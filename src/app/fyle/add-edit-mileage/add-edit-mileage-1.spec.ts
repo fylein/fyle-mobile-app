@@ -20,6 +20,7 @@ import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import {
   mileageCategoryUnflattenedExpense,
+  newExpenseMileageData2,
   perDiemCategoryUnflattenedExpense,
   unflattenedTxnData,
 } from 'src/app/core/mock-data/unflattened-txn.data';
@@ -69,6 +70,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
+import { extendedAccountData1 } from 'src/app/core/mock-data/extended-account.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -939,6 +941,21 @@ export function TestCases1(getTestBed) {
 
         tick(500);
       }));
+
+      it('should return false when account type changes to null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(extendedAccountData1));
+        component.checkAvailableAdvance();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+          // expect(accountsService.getEMyAccounts).not.toHaveBeenCalledOnceWith();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {
@@ -1015,8 +1032,8 @@ export function TestCases1(getTestBed) {
       });
 
       it('should get distance in edit mode for a round trip', (done) => {
-        mileageService.getDistance.and.returnValue(of(10));
-        component.etxn$ = of(unflattenedTxnData);
+        mileageService.getDistance.and.returnValue(of(10000));
+        component.etxn$ = of(newExpenseMileageData2);
         spyOn(component, 'getFormValues').and.returnValue({
           route: {
             roundTrip: true,
@@ -1031,8 +1048,26 @@ export function TestCases1(getTestBed) {
             value: { mileageLocations: [locationData1, locationData3] },
           })
           .subscribe((res) => {
-            expect(res).toEqual('0.02');
+            expect(res).toEqual('12.43');
             expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData3]);
+            done();
+          });
+      });
+
+      it('should get null if if location is not specified', (done) => {
+        mileageService.getDistance.and.returnValue(of(null));
+        spyOn(component, 'getFormValues').and.returnValue(null);
+        component.etxn$ = of(unflattenedTxnData);
+        fixture.detectChanges();
+
+        component
+          .getEditCalculatedDistance({
+            value: null,
+          })
+          .subscribe((res) => {
+            expect(res).toEqual('0.00');
+            expect(mileageService.getDistance).toHaveBeenCalledTimes(1);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             done();
           });
       });
