@@ -651,9 +651,9 @@ export function TestCases5(getTestBed) {
         projectsService.getProjectCount.and.returnValue(of(2));
         statusService.find.and.returnValue(of(getEstatusApiResponse));
         spyOn(component, 'checkIndividualMileageEnabled');
-        mileageRatesService.getAllMileageRates.and.returnValue(of(unfilteredMileageRatesData));
+        mileageRatesService.getAllMileageRates.and.returnValue(of([]));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
-        mileageRatesService.filterEnabledMileageRates.and.returnValue(mileageRateApiRes2);
+        mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         mileageRatesService.getReadableRate.and.returnValue('10');
         mileageRatesService.formatMileageRateName.and.returnValue('Bicycle');
         spyOn(component, 'getNewExpense').and.returnValue(of(newExpenseMileageData1));
@@ -738,7 +738,7 @@ export function TestCases5(getTestBed) {
         expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
 
         component.mileageRates$.subscribe((res) => {
-          expect(res).toEqual(platformMileageRates2);
+          expect(res).toEqual([]);
         });
 
         expect(component.getMileageRatesOptions).toHaveBeenCalledTimes(1);
@@ -819,7 +819,7 @@ export function TestCases5(getTestBed) {
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], transformedResponse);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
-        expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, null);
+        expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith([], null);
         expect(mileageRatesService.getReadableRate).toHaveBeenCalledOnceWith(null, 'INR', null);
       }));
     });
