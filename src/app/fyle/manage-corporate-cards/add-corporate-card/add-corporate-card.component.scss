@@ -102,6 +102,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    font-size: 14px;
   }
 
   &__view-tnc-btn-icon {
@@ -114,6 +115,7 @@
     flex-direction: column;
     gap: 24px;
     padding-top: 8px;
+    font-size: 14px;
   }
 
   &__tnc-heading {
@@ -140,7 +142,7 @@
     vertical-align: text-bottom;
   }
 
-  &__footer {
-    padding: 16px;
+  &__footer-toolbar {
+    box-shadow: none;
   }
 }
