@@ -1278,6 +1278,18 @@ export const orgSettingsCCCDisabled3: OrgSettings = {
   },
 };
 
+export const orgSettingsRTFDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  mastercard_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  visa_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
+};
+
 export const orgSettingsWithProjectAndAutofill: OrgSettings = {
   ...orgSettingsRes,
   org_expense_form_autofills: {

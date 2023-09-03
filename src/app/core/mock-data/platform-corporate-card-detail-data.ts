@@ -16,12 +16,12 @@ export const cardDetailsRes: PlatformCorporateCardDetail[] = [
   {
     card: mastercardRTFCard,
     stats: {
-      totalDraftTxns: 109,
-      totalDraftValue: 6598.172,
+      totalDraftTxns: 6,
+      totalDraftValue: 937.2,
       totalCompleteTxns: 0,
       totalCompleteExpensesValue: 0,
-      totalTxnsCount: 109,
-      totalAmountValue: 6598.172,
+      totalTxnsCount: 6,
+      totalAmountValue: 937.2,
     },
   },
   {
