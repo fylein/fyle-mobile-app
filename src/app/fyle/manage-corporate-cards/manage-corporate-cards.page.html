@@ -45,12 +45,14 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar class="fy-footer-cta-container" mode="md">
-    <ion-button
-      data-testid="add-button"
-      class="fy-footer-cta fy-footer-cta--primary"
-      (click)="openAddCorporateCardPopover()"
-      >Add Corporate Card</ion-button
-    >
+  <ion-toolbar mode="md">
+    <div class="manage-corporate-cards__footer-toolbar">
+      <ion-button
+        data-testid="add-button"
+        class="fy-footer-cta fy-footer-cta--primary"
+        (click)="openAddCorporateCardPopover()"
+        >Add Corporate Card</ion-button
+      >
+    </div>
   </ion-toolbar>
 </ion-footer>

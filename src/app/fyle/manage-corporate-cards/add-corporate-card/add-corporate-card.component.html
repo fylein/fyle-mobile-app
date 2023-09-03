@@ -164,17 +164,19 @@
   </div>
 
   <ion-footer>
-    <ion-toolbar class="fy-footer-cta-container add-corporate-card__footer-toolbar" mode="md">
-      <ion-button
-        appFormButtonValidation
-        [loading]="isEnrollingCard"
-        loadingText="Adding"
-        (click)="enrollCard()"
-        [disabled]="isAddingNonRTFCard && isYodleeEnabled"
-        class="fy-footer-cta fy-footer-cta--primary"
-        data-testid="add-btn"
-        >Add</ion-button
-      >
+    <ion-toolbar mode="md">
+      <div class="add-corporate-card__footer-toolbar">
+        <ion-button
+          appFormButtonValidation
+          [loading]="isEnrollingCard"
+          loadingText="Adding"
+          (click)="enrollCard()"
+          [disabled]="isAddingNonRTFCard && isYodleeEnabled"
+          class="fy-footer-cta fy-footer-cta--primary"
+          data-testid="add-btn"
+          >Add</ion-button
+        >
+      </div>
     </ion-toolbar>
   </ion-footer>
 </div>
