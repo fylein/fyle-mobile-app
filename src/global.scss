@@ -1368,3 +1368,7 @@ ion-toggle.toggle-checked::before {
     height: 74px !important;
   }
 }
+
+.ios .dashboard--background {
+  min-height: calc(360px + constant(safe-area-inset-top)) !important;
+}
