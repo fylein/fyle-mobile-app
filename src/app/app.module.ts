@@ -22,7 +22,6 @@ import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { Capacitor } from '@capacitor/core';
 import { NgxOpenCVModule, OpenCVConfig } from 'ngx-opencv';
-import { NgxDocumentScannerModule } from 'ngx-document-scanner';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
