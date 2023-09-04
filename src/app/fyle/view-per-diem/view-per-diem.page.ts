@@ -108,7 +108,7 @@ export class ViewPerDiemPage {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -171,10 +171,10 @@ export class ViewPerDiemPage {
 
     this.extendedPerDiem$ = this.updateFlag$.pipe(
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getExpenseV2(id)))
+        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getExpenseV2(id))),
       ),
       finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
@@ -184,14 +184,14 @@ export class ViewPerDiemPage {
       txnFields: this.txnFields$.pipe(take(1)),
     }).pipe(
       filter(
-        ({ extendedPerDiem, txnFields }) => extendedPerDiem.tx_custom_properties && txnFields.project_id?.length > 0
+        ({ extendedPerDiem, txnFields }) => extendedPerDiem.tx_custom_properties && txnFields.project_id?.length > 0,
       ),
       switchMap(({ extendedPerDiem, txnFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           extendedPerDiem.tx_custom_properties,
-          txnFields.project_id[0]?.id
-        )
-      )
+          txnFields.project_id[0]?.id,
+        ),
+      ),
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
@@ -199,15 +199,16 @@ export class ViewPerDiemPage {
       txnFields: this.txnFields$.pipe(take(1)),
     }).pipe(
       filter(
-        ({ extendedPerDiem, txnFields }) => extendedPerDiem.tx_custom_properties && txnFields.cost_center_id?.length > 0
+        ({ extendedPerDiem, txnFields }) =>
+          extendedPerDiem.tx_custom_properties && txnFields.cost_center_id?.length > 0,
       ),
       switchMap(({ extendedPerDiem, txnFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           extendedPerDiem.tx_custom_properties,
-          txnFields.cost_center_id[0]?.id
-        )
+          txnFields.cost_center_id[0]?.id,
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.extendedPerDiem$.subscribe((extendedPerDiem) => {
@@ -234,7 +235,7 @@ export class ViewPerDiemPage {
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
             this.orgSettings?.projects?.enabled && (!!extendedPerDiem.tx_project_name || isProjectMandatory);
-        })
+        }),
       )
       .subscribe(noop);
 
@@ -248,21 +249,21 @@ export class ViewPerDiemPage {
 
     this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(
       switchMap((res) =>
-        this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)
+        this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true),
       ),
       map((res) =>
         res.map((customProperties) => {
           customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
           return customProperties;
-        })
-      )
+        }),
+      ),
     );
 
     this.perDiemRate$ = this.extendedPerDiem$.pipe(
       switchMap((res) => {
         const perDiemRateId = parseInt(res.tx_per_diem_rate_id, 10);
         return this.perDiemService.getRate(perDiemRateId);
-      })
+      }),
     );
 
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
@@ -271,21 +272,22 @@ export class ViewPerDiemPage {
       filter(() => this.view === ExpenseView.team),
       map(
         (etxn) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
-      )
+          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) >
+          -1,
+      ),
     );
 
     this.canDelete$ = this.extendedPerDiem$.pipe(
       filter(() => this.view === ExpenseView.team),
       switchMap((etxn) =>
-        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
+        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn }))),
       ),
       map(({ report, etxn }) => {
         if (report.rp_num_transactions === 1) {
           return false;
         }
         return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
-      })
+      }),
     );
 
     if (id) {
@@ -300,13 +302,13 @@ export class ViewPerDiemPage {
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
-      map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+      map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001),
     );
 
     this.getPolicyDetails(id);
 
     this.isAmountCapped$ = this.extendedPerDiem$.pipe(
-      map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+      map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount)),
     );
 
     this.extendedPerDiem$.subscribe((etxn) => {
@@ -330,8 +332,8 @@ export class ViewPerDiemPage {
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
-        header: 'Remove Expense',
-        body: 'Are you sure you want to remove this expense from the report?',
+        header: 'Remove Per Diem',
+        body: 'Are you sure you want to remove this Per Diem expense from the report?',
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
@@ -377,12 +379,12 @@ export class ViewPerDiemPage {
           concatMap(() =>
             etxn.tx_manual_flag
               ? this.transactionService.manualUnflag(etxn.tx_id)
-              : this.transactionService.manualFlag(etxn.tx_id)
+              : this.transactionService.manualFlag(etxn.tx_id),
           ),
           finalize(() => {
             this.updateFlag$.next(null);
             this.loaderService.hideLoader();
-          })
+          }),
         )
         .subscribe(noop);
     }
