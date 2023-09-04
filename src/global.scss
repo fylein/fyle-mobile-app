@@ -1370,5 +1370,5 @@ ion-toggle.toggle-checked::before {
 }
 
 .ios .card-stats {
-  margin-bottom: calc(138px + constant(safe-area-inset-bottom));
+  margin-bottom: calc(138px + constant(safe-area-inset-bottom)) !important;
 }
