@@ -19,6 +19,7 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
+import { cloneDeep } from 'lodash';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -161,7 +162,7 @@ describe('MyCreateReportPage', () => {
   it('sendFirstReportCreated(): should set a new report if first report not created', fakeAsync(() => {
     storageService.get.and.resolveTo(false);
     reportService.getMyReportsCount.and.returnValue(of(0));
-    component.readyToReportEtxns = selectedExpenses;
+    component.readyToReportEtxns = cloneDeep(selectedExpenses);
     fixture.detectChanges();
 
     component.sendFirstReportCreated();
@@ -177,7 +178,7 @@ describe('MyCreateReportPage', () => {
       spyOn(component, 'sendFirstReportCreated');
       reportService.createDraft.and.returnValue(of(reportUnflattenedData));
       reportService.addTransactions.and.returnValue(of(null));
-      component.selectedElements = selectedExpenses;
+      component.selectedElements = cloneDeep(selectedExpenses);
       fixture.detectChanges();
 
       component.ctaClickedEvent('create_draft_report');
@@ -221,7 +222,7 @@ describe('MyCreateReportPage', () => {
     it('should create report', () => {
       spyOn(component, 'sendFirstReportCreated');
       reportService.create.and.returnValue(of(reportUnflattenedData));
-      component.selectedElements = selectedExpenses;
+      component.selectedElements = cloneDeep(selectedExpenses);
       fixture.detectChanges();
 
       component.ctaClickedEvent('create_report');
@@ -246,7 +247,7 @@ describe('MyCreateReportPage', () => {
   describe('selectExpense():', () => {
     it('should add the expense in selected list', () => {
       spyOn(component, 'getReportTitle');
-      component.selectedElements = selectedExpenses;
+      component.selectedElements = cloneDeep(selectedExpenses);
       component.readyToReportEtxns = [];
       fixture.detectChanges();
 
@@ -259,7 +260,7 @@ describe('MyCreateReportPage', () => {
 
     it('should remove an expense from the selected list', () => {
       spyOn(component, 'getReportTitle');
-      component.selectedElements = selectedExpenses;
+      component.selectedElements = cloneDeep(selectedExpenses);
       component.readyToReportEtxns = [];
       fixture.detectChanges();
 
