@@ -10,8 +10,7 @@ import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { NgxOpenCVService, OpenCVState } from 'ngx-opencv';
-import { C } from '@angular/cdk/keycodes';
+import { NgxOpenCVService } from 'src/app/core/services/ngx-open-cv.service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const cv: any;
@@ -224,7 +223,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   @ViewChild('imgElement') currentImage: ElementRef<HTMLImageElement>;
 
-  @Input() base64ImagesWithSource: Image[];
+  @Input() base64ImagesWithSource: (Image & { transformed: boolean })[];
 
   @Input() mode: string;
 
@@ -247,16 +246,16 @@ export class ReceiptPreviewComponent implements OnInit {
   ) {}
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  onImageLoad(event) {
-    console.log(event);
-    console.log();
-    this.ngxOpenCv.cvState.pipe(filter((state) => state.ready)).subscribe(() => {
-      const scan = new jscanify();
-      // const highlightedImage = scan.extractPaper(this.currentImage.nativeElement, this.currentImage.nativeElement.width, this.currentImage.nativeElement.height, undefined);
-      const highlightedImage = scan.highlightPaper(this.currentImage.nativeElement);
-      this.currentImage.nativeElement.style.display = 'none';
-      this.currentImage.nativeElement.parentElement.appendChild(highlightedImage);
-    });
+  onImageLoad() {
+    if (!this.base64ImagesWithSource[this.activeIndex].transformed) {
+      this.ngxOpenCv.cvState.pipe(filter((state) => state.ready)).subscribe(() => {
+        const scan = new jscanify();
+        // const highlightedImage = scan.extractPaper(this.currentImage.nativeElement, this.currentImage.nativeElement.width, this.currentImage.nativeElement.height, undefined);
+        const highlightedImage = scan.highlightPaper(this.currentImage.nativeElement);
+        this.currentImage.nativeElement.style.display = 'none';
+        this.currentImage.nativeElement.parentElement.appendChild(highlightedImage);
+      });
+    }
   }
 
   async openCropReceiptModal() {
@@ -279,7 +278,13 @@ export class ReceiptPreviewComponent implements OnInit {
     try {
       const scan = new jscanify();
       // const highlightedImage = scan.extractPaper(this.currentImage.nativeElement, this.currentImage.nativeElement.width, this.currentImage.nativeElement.height, undefined);
-      const extractedImage = scan.extractPaper(this.currentImage.nativeElement, 467, 622, undefined);
+      const highlightedImage = scan.highlightPaper(this.currentImage.nativeElement);
+      const extractedImage = scan.extractPaper(
+        this.currentImage.nativeElement,
+        highlightedImage.width,
+        highlightedImage.height,
+        undefined,
+      );
       // const childNodes = this.currentImage.nativeElement.parentElement.childNodes;
       for (let index = 0; index < this.currentImage.nativeElement.parentNode.childElementCount; index++) {
         const childNode = this.currentImage.nativeElement.parentNode.children.item(index) as HTMLElement;
@@ -287,9 +292,11 @@ export class ReceiptPreviewComponent implements OnInit {
         childNode.style.display = 'none';
       }
       this.currentImage.nativeElement.parentElement.appendChild(extractedImage);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       this.base64ImagesWithSource[this.activeIndex] = {
         ...this.base64ImagesWithSource[this.activeIndex],
-        base64Image: extractedImage.toDataURL('image/jpeg').split(';base64,')[1],
+        base64Image: extractedImage.toDataURL('image/jpeg'),
+        transformed: true,
       };
     } catch (error) {
       console.log(error);
@@ -388,11 +395,12 @@ export class ReceiptPreviewComponent implements OnInit {
         // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
         from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
           if (imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String, key) => {
+            imageBase64Strings.forEach((base64String) => {
               const base64PictureData = 'data:image/jpeg;base64,' + base64String;
               this.base64ImagesWithSource.push({
                 source: 'MOBILE_DASHCAM_GALLERY',
                 base64Image: base64PictureData,
+                transformed: false,
               });
             });
           }
